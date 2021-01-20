@@ -4,7 +4,7 @@ use geom::{Duration, Time};
 use sim::{OrigPersonID, PersonID, TripID};
 use widgetry::{
     Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, RewriteColor, State,
-    Text, TextExt, VerticalAlignment, Widget,
+    StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -250,7 +250,9 @@ fn make_meter(
     Panel::new(Widget::col(vec![
         Widget::horiz_separator(ctx, 0.2),
         Widget::row(vec![
-            Btn::svg_def("system/assets/tools/location.svg").build(ctx, "locate VIP", None),
+            app.cs
+                .btn_plain_light_icon("system/assets/tools/location.svg")
+                .build_widget(ctx, "locate VIP"),
             format!("{}/{} trips done", done, trips).draw_text(ctx),
             txt.draw(ctx),
         ]),

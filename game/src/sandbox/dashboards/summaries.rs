@@ -2,6 +2,8 @@ use std::collections::BTreeSet;
 use std::fs::File;
 use std::io::Write;
 
+use anyhow::Result;
+
 use abstutil::prettyprint_usize;
 use geom::{Distance, Duration, Polygon, Pt2D};
 use map_gui::tools::PopupMsg;
@@ -438,7 +440,7 @@ fn pct_diff(a: Duration, b: Duration) -> f64 {
     }
 }
 
-fn export_times(app: &App) -> Result<String, std::io::Error> {
+fn export_times(app: &App) -> Result<String> {
     let path = format!(
         "trip_times_{}_{}.csv",
         app.primary.map.get_name().as_filename(),

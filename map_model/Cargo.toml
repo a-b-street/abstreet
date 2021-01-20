@@ -5,16 +5,18 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
+anyhow = "1.0.37"
 enumset = { version = "1.0.1", features=["serde"] }
 fast_paths = { git = "https://github.com/easbar/fast_paths" }
 geom = { path = "../geom" }
 log = "0.4.11"
 nbez = "0.1.0"
 petgraph = "0.5.1"
-rand = "0.7.0"
-rand_xorshift = "0.2.0"
+rand = "0.8.1"
+rand_xorshift = "0.3.0"
 serde = "1.0.116"
-seattle_traffic_signals = { git = "https://github.com/dabreegster/seattle_traffic_signals" }
-serde_json = "1.0.40"
+serde_json = "1.0.61"
 thread_local = "1.0.1"
+traffic_signal_data = { path = "../traffic_signal_data" }

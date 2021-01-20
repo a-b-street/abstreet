@@ -5,6 +5,7 @@ use model::{Model, ID};
 
 use abstutil::{CmdArgs, Timer};
 use geom::{Distance, Line, Polygon};
+use map_gui::tools::CameraState;
 use map_model::osm;
 use map_model::raw::OriginalRoad;
 use widgetry::{
@@ -22,13 +23,13 @@ struct App {
 impl SharedAppState for App {
     fn dump_before_abort(&self, canvas: &Canvas) {
         if !self.model.map.name.map.is_empty() {
-            canvas.save_camera_state(&self.model.map.name);
+            CameraState::save(canvas, &self.model.map.name);
         }
     }
 
     fn before_quit(&self, canvas: &Canvas) {
         if !self.model.map.name.map.is_empty() {
-            canvas.save_camera_state(&self.model.map.name);
+            CameraState::save(canvas, &self.model.map.name);
         }
     }
 }
@@ -64,7 +65,7 @@ impl MainState {
             Model::blank()
         };
         if !model.map.name.map.is_empty() {
-            ctx.canvas.load_camera_state(&model.map.name);
+            CameraState::load(ctx, &model.map.name);
         }
         let bounds = model.map.gps_bounds.to_bounds();
         ctx.canvas.map_dims = (bounds.width(), bounds.height());
@@ -360,8 +361,11 @@ fn preview_all_intersections(model: &Model, ctx: &EventCtx) -> Drawable {
 }
 
 fn main() {
-    widgetry::run(widgetry::Settings::new("RawMap editor"), |ctx| {
-        let (app, state) = MainState::new(ctx);
-        (app, vec![Box::new(state)])
-    });
+    widgetry::run(
+        widgetry::Settings::new("RawMap editor").read_svg(Box::new(abstio::slurp_bytes)),
+        |ctx| {
+            let (app, state) = MainState::new(ctx);
+            (app, vec![Box::new(state)])
+        },
+    );
 }

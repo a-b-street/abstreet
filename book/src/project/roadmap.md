@@ -3,6 +3,10 @@
 A/B Street has been under active development since June 2018. That's a long time
 -- what work is happening now and how can you contribute?
 
+[See this doc](https://docs.google.com/document/d/1oV4mdtb0ve-wf0HqbEvR9IwXLIkTeDu8a3UnJxnr2F0/edit?usp=sharing)
+for the 2021 roadmap. The rest of this page was written in June 2020. After this
+year's plans firm up a bit, I'll update this page.
+
 ## Next steps, summer 2020
 
 Afer the alpha launch in June, I plan to focus on:

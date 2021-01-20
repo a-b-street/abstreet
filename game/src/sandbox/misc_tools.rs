@@ -6,7 +6,7 @@ use map_model::IntersectionID;
 use sim::AgentID;
 use widgetry::{
     Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, State, VerticalAlignment, Widget,
+    Panel, State, StyledButtons, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -85,7 +85,7 @@ impl TrafficRecorder {
                     Line("Select the bounding intersections for recording traffic")
                         .small_heading()
                         .draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 make_btn(ctx, members.len()),
             ]))

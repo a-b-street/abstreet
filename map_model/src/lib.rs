@@ -22,13 +22,16 @@
 //! - ts = traffic signal
 
 #[macro_use]
+extern crate anyhow;
+#[macro_use]
 extern crate log;
 
 use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
 
-use abstutil::{deserialize_btreemap, serialize_btreemap, MapName};
+use abstio::MapName;
+use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Bounds, Distance, GPSBounds, Polygon};
 
 pub use crate::city::City;
@@ -48,7 +51,7 @@ pub use crate::objects::lane::{
 pub use crate::objects::parking_lot::{ParkingLot, ParkingLotID};
 pub use crate::objects::road::{DirectedRoadID, Direction, Road, RoadID};
 pub use crate::objects::stop_signs::{ControlStopSign, RoadWithStopSign};
-pub use crate::objects::traffic_signals::{ControlTrafficSignal, PhaseType, Stage};
+pub use crate::objects::traffic_signals::{ControlTrafficSignal, Stage, StageType};
 pub use crate::objects::turn::{
     CompressedMovementID, Movement, MovementID, Turn, TurnID, TurnPriority, TurnType,
 };

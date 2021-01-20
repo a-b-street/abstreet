@@ -28,6 +28,7 @@ pub enum AreaType {
     Water,
     Island,
     MedianStrip,
+    PedestrianPlaza,
 }
 
 /// Areas are just used for drawing.

@@ -54,8 +54,8 @@ impl Session {
     pub fn load() -> Session {
         let levels = Level::all();
 
-        if let Ok(mut session) = abstutil::maybe_read_json::<Session>(
-            abstutil::path_player("santa.json"),
+        if let Ok(mut session) = abstio::maybe_read_json::<Session>(
+            abstio::path_player("santa.json"),
             &mut Timer::throwaway(),
         ) {
             if session.levels != levels {
@@ -163,6 +163,6 @@ impl Session {
     }
 
     pub fn save(&self) {
-        abstutil::write_json(abstutil::path_player("santa.json"), self);
+        abstio::write_json(abstio::path_player("santa.json"), self);
     }
 }

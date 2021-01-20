@@ -1,6 +1,6 @@
-use std::error::Error;
 use std::{cmp, ops};
 
+use anyhow::Result;
 use ordered_float::NotNan;
 use serde::{Deserialize, Serialize};
 
@@ -96,28 +96,19 @@ impl Time {
         )
     }
 
-    pub fn parse(string: &str) -> Result<Time, Box<dyn Error>> {
+    pub fn parse(string: &str) -> Result<Time> {
         let parts: Vec<&str> = string.split(':').collect();
         if parts.is_empty() {
-            return Err(format!("Time {}: no :'s", string).into());
+            bail!("Time {}: no :'s", string);
         }
 
-        let mut seconds: f64 = 0.0;
-        if parts.last().unwrap().contains('.') {
-            let last_parts: Vec<&str> = parts.last().unwrap().split('.').collect();
-            if last_parts.len() != 2 {
-                return Err(format!("Time {}: no . in last part", string).into());
-            }
-            seconds += last_parts[1].parse::<f64>()? / 10.0;
-            seconds += last_parts[0].parse::<f64>()?;
-        } else {
-            seconds += parts.last().unwrap().parse::<f64>()?;
-        }
-
+        let mut seconds = parts.last().unwrap().parse::<f64>()?;
         match parts.len() {
             1 => Ok(Time::seconds_since_midnight(seconds)),
             2 => {
-                seconds += 60.0 * parts[0].parse::<f64>()?;
+                // They're really minutes
+                seconds *= 60.0;
+                seconds += 3600.0 * parts[0].parse::<f64>()?;
                 Ok(Time::seconds_since_midnight(seconds))
             }
             3 => {
@@ -125,7 +116,7 @@ impl Time {
                 seconds += 3600.0 * parts[0].parse::<f64>()?;
                 Ok(Time::seconds_since_midnight(seconds))
             }
-            _ => Err(format!("Time {}: weird number of parts", string).into()),
+            _ => bail!("Time {}: weird number of parts", string),
         }
     }
 
@@ -211,5 +202,29 @@ impl ops::Sub for Time {
 
     fn sub(self, other: Time) -> Duration {
         Duration::seconds(self.0 - other.0)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse() {
+        assert_eq!(
+            Time::START_OF_DAY + Duration::seconds(42.3),
+            Time::parse("42.3").unwrap()
+        );
+        assert_eq!(
+            Time::START_OF_DAY + Duration::hours(7) + Duration::minutes(30),
+            Time::parse("07:30").unwrap()
+        );
+        assert_eq!(
+            Time::START_OF_DAY
+                + Duration::hours(7)
+                + Duration::minutes(30)
+                + Duration::seconds(5.0),
+            Time::parse("07:30:05").unwrap()
+        );
     }
 }

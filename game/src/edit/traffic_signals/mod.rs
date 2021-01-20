@@ -6,13 +6,13 @@ use map_gui::options::TrafficSignalStyle;
 use map_gui::render::{traffic_signal, DrawMovement, DrawOptions};
 use map_gui::tools::PopupMsg;
 use map_model::{
-    ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, MovementID, PhaseType, Stage,
+    ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, MovementID, Stage, StageType,
     TurnPriority,
 };
 use widgetry::{
-    lctrl, Btn, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, MultiButton, Outcome, Panel, RewriteColor, State, Text, TextExt, VerticalAlignment,
-    Widget,
+    lctrl, Btn, Color, ControlState, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, MultiButton, Outcome, Panel, RewriteColor, State,
+    StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, ShowEverything, Transition};
@@ -331,7 +331,7 @@ impl State<App> for TrafficSignalEditor {
                 "Export" => {
                     for signal in BundleEdits::get_current(app, &self.members).signals {
                         let ts = signal.export(&app.primary.map);
-                        abstutil::write_json(
+                        abstio::write_json(
                             format!("traffic_signal_data/{}.json", ts.intersection_osm_node_id),
                             &ts,
                         );
@@ -521,21 +521,20 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
             )
         })
         .centered_vert(),
-        Btn::plaintext_custom(
-            "Cancel",
-            Text::from(Line("Cancel").fg(Color::hex("#FF5E5E"))),
-        )
-        .build_def(ctx, Key::Escape)
-        .align_right(),
+        ctx.style()
+            .btn_plain_destructive_text("Cancel")
+            .hotkey(Key::Escape)
+            .build_def(ctx)
+            .align_right(),
     ];
     Panel::new(Widget::col(vec![
         Widget::row(vec![
             Line("Traffic signal editor").small_heading().draw(ctx),
-            Btn::plaintext_custom(
-                "Edit multiple signals",
-                Text::from(Line("+ Edit multiple").fg(Color::hex("#4CA7E9"))),
-            )
-            .build_def(ctx, Key::M),
+            ctx.style()
+                .btn_plain_light_text("+ Edit multiple")
+                .label_color(Color::hex("#4CA7E9"), ControlState::Default)
+                .hotkey(Key::M)
+                .build_widget(ctx, "Edit multiple signals"),
         ]),
         Widget::row(row),
         if app.opts.dev {
@@ -600,7 +599,7 @@ fn make_side_panel(
     let mut col = vec![txt.draw(ctx)];
     col.push(Widget::horiz_separator(ctx, 0.2));
 
-    // TODO Say "normally" to account for adaptive stages?
+    // TODO Say "normally" to account for variable stages?
     col.push(
         format!(
             "One full cycle lasts {}",
@@ -641,10 +640,9 @@ fn make_side_panel(
             .centered_vert(),
             Widget::col(vec![
                 Widget::row(vec![
-                    match canonical_stage.phase_type {
-                        PhaseType::Fixed(d) => format!("Stage {}: {}", idx + 1, d),
-                        PhaseType::Adaptive(d) => format!("Stage {}: {} (adaptive)", idx + 1, d),
-                        PhaseType::Variable(min, delay, additional) => format!(
+                    match canonical_stage.stage_type {
+                        StageType::Fixed(d) => format!("Stage {}: {}", idx + 1, d),
+                        StageType::Variable(min, delay, additional) => format!(
                             "Stage {}: {}, {}, {} (variable)",
                             idx + 1,
                             min,
@@ -742,7 +740,7 @@ impl BundleEdits {
                 if signal.stages.len() == idx {
                     signal.stages.push(Stage::new());
                 }
-                signal.stages[idx].phase_type = canonical_stage.phase_type.clone();
+                signal.stages[idx].stage_type = canonical_stage.stage_type.clone();
             }
             signals.push(signal);
         }

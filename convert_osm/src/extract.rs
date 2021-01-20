@@ -2,11 +2,12 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use osm::{NodeID, OsmID, RelationID, WayID};
 
+use abstio::MapName;
 use abstutil::{retain_btreemap, Tags, Timer};
 use geom::{HashablePt2D, Polygon, Pt2D, Ring};
 use kml::{ExtraShape, ExtraShapes};
 use map_model::raw::{RawArea, RawBuilding, RawMap, RawParkingLot, RawRoad, RestrictionType};
-use map_model::{osm, Amenity, AreaType, NamePerLanguage};
+use map_model::{osm, Amenity, AreaType, DrivingSide, NamePerLanguage};
 
 use crate::osm_geom::{get_multipolygon_members, glue_multipolygon, multipoly_geometry};
 use crate::{transit, Options};
@@ -30,7 +31,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
 
     // Use this to quickly test overrides to some ways before upstreaming in OSM.
     if false {
-        let ways: BTreeSet<WayID> = abstutil::read_json("osm_ways.json".to_string(), timer);
+        let ways: BTreeSet<WayID> = abstio::read_json("osm_ways.json".to_string(), timer);
         for id in ways {
             doc.ways
                 .get_mut(&id)
@@ -38,6 +39,13 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                 .tags
                 .insert("junction", "intersection");
         }
+    }
+
+    // TODO Hacks to override OSM data. There's no problem upstream, but we want to accomplish
+    // various things for A/B Street.
+    if let Some(way) = doc.ways.get_mut(&WayID(881403608)) {
+        // https://www.openstreetmap.org/way/881403608 is a roundabout that keeps causing gridlock
+        way.tags.insert("highway", "construction");
     }
 
     if opts.clip.is_none() {
@@ -160,16 +168,16 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
         }
     }
 
-    if map.name.city != "oneshot"
-        && ((map.name.city == "seattle" && map.name.map == "huge_seattle")
-            || map.name.city != "seattle")
-    {
-        abstutil::write_binary(
-            abstutil::path(format!("input/{}/footways.bin", map.name.city)),
+    // Since we're not actively working on using footways and service roads, stop generating except
+    // in Seattle. In the future, this should only happen for the largest or canonical map per
+    // city, but there's no way to express that right now.
+    if map.name == MapName::seattle("huge_seattle") {
+        abstio::write_binary(
+            abstio::path(format!("input/{}/footways.bin", map.name.city)),
             &extra_footways,
         );
-        abstutil::write_binary(
-            abstutil::path(format!("input/{}/service_roads.bin", map.name.city)),
+        abstio::write_binary(
+            abstio::path(format!("input/{}/service_roads.bin", map.name.city)),
             &extra_service_roads,
         );
     }
@@ -429,6 +437,7 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
         "motorway",
         "motorway_link",
         "path",
+        "pedestrian",
         "primary",
         "primary_link",
         "residential",
@@ -447,12 +456,19 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
         return false;
     }
 
-    if (highway == "cycleway" || highway == "footway" || highway == "path" || highway == "steps")
+    if highway == "cycleway" {
+        if !opts.map_config.separate_cycleways && opts.map_config.inferred_sidewalks {
+            return false;
+        }
+    }
+
+    if (highway == "footway" || highway == "path" || highway == "steps")
         && opts.map_config.inferred_sidewalks
     {
         return false;
     }
-    if (highway == "cycleway" || highway == "path")
+    if !opts.map_config.separate_cycleways
+        && (highway == "cycleway" || highway == "path")
         && !tags.is_any("foot", vec!["yes", "designated"])
     {
         return false;
@@ -494,10 +510,16 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
             || tags.is_any("junction", vec!["intersection", "roundabout"])
             || tags.is("foot", "no")
             || tags.is(osm::HIGHWAY, "service")
+            // TODO For now, not attempting shared walking/biking paths.
+            || tags.is_any(osm::HIGHWAY, vec!["cycleway", "pedestrian"])
         {
             tags.insert(osm::SIDEWALK, "none");
         } else if tags.is("oneway", "yes") {
-            tags.insert(osm::SIDEWALK, "right");
+            if opts.map_config.driving_side == DrivingSide::Right {
+                tags.insert(osm::SIDEWALK, "right");
+            } else {
+                tags.insert(osm::SIDEWALK, "left");
+            }
             if tags.is_any(osm::HIGHWAY, vec!["residential", "living_street"])
                 && !tags.is("dual_carriageway", "yes")
             {
@@ -531,14 +553,16 @@ fn get_bldg_amenities(tags: &Tags) -> Vec<Amenity> {
 }
 
 fn get_area_type(tags: &Tags) -> Option<AreaType> {
-    if tags.is_any("leisure", vec!["park", "golf_course"]) {
+    if tags.is_any("leisure", vec!["garden", "park", "golf_course"]) {
         return Some(AreaType::Park);
     }
     if tags.is_any("natural", vec!["wood", "scrub"]) {
         return Some(AreaType::Park);
     }
-    if tags.is_any("landuse", vec!["cemetery", "forest", "grass"])
-        || tags.is("amenity", "graveyard")
+    if tags.is_any(
+        "landuse",
+        vec!["cemetery", "forest", "grass", "meadow", "recreation_ground"],
+    ) || tags.is("amenity", "graveyard")
     {
         return Some(AreaType::Park);
     }
@@ -549,6 +573,10 @@ fn get_area_type(tags: &Tags) -> Option<AreaType> {
 
     if tags.is("place", "island") {
         return Some(AreaType::Island);
+    }
+
+    if tags.is(osm::HIGHWAY, "pedestrian") {
+        return Some(AreaType::PedestrianPlaza);
     }
 
     None

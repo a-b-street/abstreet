@@ -48,7 +48,7 @@ impl Viewer {
         let top_panel = Panel::new(Widget::col(vec![
             Widget::row(vec![
                 Line("OpenStreetMap viewer").small_heading().draw(ctx),
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
             Widget::row(vec![
                 "Change map:".draw_text(ctx),
@@ -320,7 +320,7 @@ impl State<App> for Viewer {
                 }
                 x => {
                     if let Some(url) = x.strip_prefix("open ") {
-                        open_browser(url.to_string());
+                        open_browser(url);
                     } else {
                         unreachable!()
                     }

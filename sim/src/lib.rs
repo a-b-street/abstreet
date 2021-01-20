@@ -10,6 +10,8 @@
 //!   are not currently modelled)
 
 #[macro_use]
+extern crate anyhow;
+#[macro_use]
 extern crate log;
 
 use std::fmt;
@@ -32,12 +34,12 @@ pub use self::analytics::{Analytics, TripPhase};
 pub(crate) use self::cap::CapSimState;
 pub(crate) use self::events::Event;
 pub use self::events::{AlertLocation, TripPhaseType};
-pub(crate) use self::make::TripSpec;
 pub use self::make::{
     fork_rng, BorderSpawnOverTime, ExternalPerson, ExternalTrip, ExternalTripEndpoint, IndividTrip,
-    PersonSpec, Scenario, ScenarioGenerator, ScenarioModifier, SimFlags, SpawnOverTime,
+    MapBorders, PersonSpec, Scenario, ScenarioGenerator, ScenarioModifier, SimFlags, SpawnOverTime,
     TripEndpoint, TripPurpose,
 };
+pub(crate) use self::make::{StartTripArgs, TripSpec};
 pub(crate) use self::mechanics::{
     DrivingSimState, IntersectionSimState, ParkingSim, ParkingSimState, WalkingSimState,
 };

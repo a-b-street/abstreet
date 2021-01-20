@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate anyhow;
+
 pub use crate::angle::Angle;
 pub use crate::bounds::{Bounds, GPSBounds};
 pub use crate::circle::Circle;

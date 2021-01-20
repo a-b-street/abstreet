@@ -124,7 +124,7 @@ impl<A: SharedAppState> State<A> {
         }
     }
 
-    // Returns naming hint. Logically consumes the number of uploads.
+    /// Returns naming hint. Logically consumes the number of uploads.
     pub(crate) fn draw(&mut self, prerender: &Prerender, screenshot: bool) -> Option<String> {
         let mut g = GfxCtx::new(prerender, &self.canvas, &self.style, screenshot);
 
@@ -154,15 +154,18 @@ impl<A: SharedAppState> State<A> {
     }
 }
 
+/// Customize how widgetry works. These settings can't be changed after starting.
 pub struct Settings {
     window_title: String,
     dump_raw_events: bool,
     scale_factor: Option<f64>,
     window_icon: Option<String>,
     loading_tips: Option<Text>,
+    read_svg: Box<dyn Fn(&str) -> Vec<u8>>,
 }
 
 impl Settings {
+    /// Specify the title of the window to open.
     pub fn new(window_title: &str) -> Settings {
         Settings {
             window_title: window_title.to_string(),
@@ -170,24 +173,52 @@ impl Settings {
             scale_factor: None,
             window_icon: None,
             loading_tips: None,
+            read_svg: Box::new(|path| {
+                use std::io::Read;
+
+                let mut file = std::fs::File::open(path).expect(&format!("Couldn't read {}", path));
+                let mut buffer = Vec::new();
+                file.read_to_end(&mut buffer)
+                    .expect(&format!("Couldn't read all of {}", path));
+                buffer
+            }),
         }
     }
 
-    pub fn dump_raw_events(&mut self) {
+    /// Log every raw winit event to the DEBUG level.
+    pub fn dump_raw_events(mut self) -> Self {
         assert!(!self.dump_raw_events);
         self.dump_raw_events = true;
+        self
     }
 
-    pub fn scale_factor(&mut self, scale_factor: f64) {
+    /// Override the initial HiDPI scale factor from whatever winit initially detects.
+    pub fn scale_factor(mut self, scale_factor: f64) -> Self {
         self.scale_factor = Some(scale_factor);
+        self
     }
 
-    pub fn window_icon(&mut self, path: String) {
+    /// Sets the window icon. This should be a 32x32 image.
+    pub fn window_icon(mut self, path: String) -> Self {
         self.window_icon = Some(path);
+        self
     }
 
-    pub fn loading_tips(&mut self, txt: Text) {
+    /// Sets the text that'll appear during long `ctx.loading_screen` calls. You can use this as a
+    /// way to entertain your users while they're waiting.
+    pub fn loading_tips(mut self, txt: Text) -> Self {
         self.loading_tips = Some(txt);
+        self
+    }
+
+    /// When calling `Widget::draw_svg`, `Btn::svg`, and similar, use this function to transform
+    /// the filename given to the raw bytes of that SVG file. By default, this just reads the
+    /// file normally. You may want to override this to more conveniently locate the file
+    /// (transforming a short filename to a full path) or to handle reading files in WASM (where
+    /// regular filesystem IO doesn't work).
+    pub fn read_svg(mut self, function: Box<dyn Fn(&str) -> Vec<u8>>) -> Self {
+        self.read_svg = function;
+        self
     }
 }
 
@@ -216,7 +247,7 @@ pub fn run<
 
     let monitor_scale_factor = prerender_innards.monitor_scale_factor();
     let prerender = Prerender {
-        assets: Assets::new(),
+        assets: Assets::new(settings.read_svg),
         num_uploads: Cell::new(0),
         inner: prerender_innards,
         scale_factor: RefCell::new(settings.scale_factor.unwrap_or(monitor_scale_factor)),
@@ -330,10 +361,19 @@ pub fn run<
                 UpdateType::ScreenCaptureEverything {
                     dir,
                     zoom,
-                    max_x,
-                    max_y,
+                    dims,
+                    leaflet_naming,
                 } => {
-                    screenshot_everything(&mut state, &dir, &prerender, zoom, max_x, max_y);
+                    if let Err(err) = screenshot_everything(
+                        &mut state,
+                        &dir,
+                        &prerender,
+                        zoom,
+                        dims,
+                        leaflet_naming,
+                    ) {
+                        error!("Couldn't screenshot everything: {}", err);
+                    }
                 }
             }
         }

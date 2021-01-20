@@ -53,19 +53,28 @@ impl<A: SharedAppState> App<A> {
             }
             DrawBaselayer::Custom => {}
             DrawBaselayer::PreviousState => {
-                match self.states[self.states.len() - 2].draw_baselayer() {
-                    DrawBaselayer::DefaultDraw => {
-                        self.shared_app_state.draw_default(g);
+                if self.states.len() >= 2 {
+                    match self.states[self.states.len() - 2].draw_baselayer() {
+                        DrawBaselayer::DefaultDraw => {
+                            self.shared_app_state.draw_default(g);
+                        }
+                        DrawBaselayer::Custom => {}
+                        // Don't recurse, but at least clear the screen, because the state is
+                        // usually expecting the previous thing to happen.
+                        DrawBaselayer::PreviousState => {
+                            g.clear(Color::BLACK);
+                        }
                     }
-                    DrawBaselayer::Custom => {}
-                    // Don't recurse, but at least clear the screen, because the state is usually
-                    // expecting the previous thing to happen.
-                    DrawBaselayer::PreviousState => {
-                        g.clear(Color::BLACK);
-                    }
-                }
 
-                self.states[self.states.len() - 2].draw(g, &self.shared_app_state);
+                    self.states[self.states.len() - 2].draw(g, &self.shared_app_state);
+                } else {
+                    // I'm not entirely sure why this happens, but crashing isn't ideal.
+                    warn!(
+                        "A state requested DrawBaselayer::PreviousState, but it's the only state \
+                         on the stack!"
+                    );
+                    g.clear(Color::BLACK);
+                }
             }
         }
         state.draw(g, &self.shared_app_state);

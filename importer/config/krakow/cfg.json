@@ -3,7 +3,8 @@
   "map_config": {
     "driving_side": "Right",
     "bikes_can_use_bus_lanes": false,
-    "inferred_sidewalks": false
+    "inferred_sidewalks": false,
+    "separate_cycleways": false
   },
   "onstreet_parking": {
     "SomeAdditionalWhereNoData": {

@@ -2,7 +2,7 @@ use geom::{ArrowCap, Distance};
 use map_model::{LaneID, TurnType};
 use widgetry::{
     Btn, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, State, Text, TextExt, Transition, VerticalAlignment, Widget,
+    Outcome, Panel, State, StyledButtons, Text, TextExt, Transition, VerticalAlignment, Widget,
 };
 
 use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
@@ -132,7 +132,7 @@ impl TurnExplorer {
             } else {
                 Btn::text_fg(">").build(ctx, "next turn", Key::RightArrow)
             },
-            Btn::close(ctx),
+            ctx.style().btn_close_widget(ctx),
         ])];
         if idx == 0 {
             if app.map().get_l(l).is_walkable() {

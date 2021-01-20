@@ -291,14 +291,24 @@ pub fn finished(
     {
         let col_width = Percent::int(15);
 
-        let total_trip_time =
-            phases.last().as_ref().and_then(|p| p.end_time).unwrap() - trip.departure;
-        col.push(Widget::custom_row(vec![
-            Widget::custom_row(vec![Line("Trip time").secondary().draw(ctx)])
-                .force_width_pct(ctx, col_width),
-            total_trip_time.to_string(&app.opts.units).draw_text(ctx),
-        ]));
+        if let Some(end_time) = phases.last().as_ref().and_then(|p| p.end_time) {
+            col.push(Widget::custom_row(vec![
+                Widget::custom_row(vec![Line("Trip time").secondary().draw(ctx)])
+                    .force_width_pct(ctx, col_width),
+                (end_time - trip.departure)
+                    .to_string(&app.opts.units)
+                    .draw_text(ctx),
+            ]));
+        } else {
+            col.push(Widget::custom_row(vec![
+                Widget::custom_row(vec![Line("Trip time").secondary().draw(ctx)])
+                    .force_width_pct(ctx, col_width),
+                "Trip didn't complete before map changes".draw_text(ctx),
+            ]));
+        }
 
+        // TODO This is always the waiting time in the current simulation, even if we've chosen to
+        // look at the prebaked results! Misleading -- change the text.
         let (_, waiting, _) = app.primary.sim.finished_trip_details(id).unwrap();
         col.push(Widget::custom_row(vec![
             Widget::custom_row(vec![Line("Total waiting time").secondary().draw(ctx)])

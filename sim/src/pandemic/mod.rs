@@ -4,6 +4,8 @@
 
 use std::ops;
 
+use anyhow::Result;
+
 pub use pandemic::{Cmd, PandemicModel};
 use rand::Rng;
 use rand_distr::{Distribution, Exp, Normal};
@@ -324,12 +326,7 @@ impl State {
     }
 
     // TODO: not sure if we want an option here... I guess here we want because we could have
-    pub fn start(
-        self,
-        now: AnyTime,
-        overlap: Duration,
-        rng: &mut XorShiftRng,
-    ) -> Result<Self, String> {
+    pub fn start(self, now: AnyTime, overlap: Duration, rng: &mut XorShiftRng) -> Result<Self> {
         // rewrite this part with it
         match self {
             Self::Sane((ev, t)) => {
@@ -339,9 +336,7 @@ impl State {
                     Ok(Self::Sane((ev, t)))
                 }
             }
-            _ => Err(String::from(
-                "Error: impossible to start from a non-sane situation.",
-            )),
+            _ => bail!("impossible to start from a non-sane situation.",),
         }
     }
 }

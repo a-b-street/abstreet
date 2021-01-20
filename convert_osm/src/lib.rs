@@ -1,7 +1,10 @@
 #[macro_use]
+extern crate anyhow;
+#[macro_use]
 extern crate log;
 
-use abstutil::{MapName, Timer};
+use abstio::MapName;
+use abstutil::Timer;
 use geom::{Distance, FindClosest, GPSBounds, LonLat, Pt2D, Ring};
 use map_model::raw::RawMap;
 use map_model::{osm, Amenity, MapConfig};

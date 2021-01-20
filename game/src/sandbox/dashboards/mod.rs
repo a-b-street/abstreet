@@ -2,7 +2,7 @@ pub use commuter::CommuterPatterns;
 pub use traffic_signals::TrafficSignalDemand;
 pub use trip_table::FinishedTripTable;
 
-use widgetry::{Btn, Choice, EventCtx, Line, Panel, TextExt, Widget};
+use widgetry::{Choice, EventCtx, Line, Panel, StyledButtons, TextExt, Widget};
 
 use crate::app::App;
 use crate::app::Transition;
@@ -50,7 +50,7 @@ impl DashTab {
             format!("By {}", app.primary.sim.time().ampm_tostring())
                 .draw_text(ctx)
                 .centered_vert(),
-            Btn::close(ctx),
+            ctx.style().btn_close_widget(ctx),
         ])
     }
 

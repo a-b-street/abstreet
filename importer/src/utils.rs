@@ -1,14 +1,15 @@
 use std::path::Path;
 use std::process::Command;
 
-use abstutil::{must_run_cmd, MapName, Timer};
+use abstio::MapName;
+use abstutil::{must_run_cmd, Timer};
 
 use crate::configuration::ImporterConfiguration;
 
 // If the output file doesn't already exist, downloads the URL into that location. Automatically
 // uncompresses .zip and .gz files.
 pub fn download(config: &ImporterConfiguration, output: &str, url: &str) {
-    let output = abstutil::path(output);
+    let output = abstio::path(output);
     if Path::new(&output).exists() {
         println!("- {} already exists", output);
         return;
@@ -62,7 +63,7 @@ pub fn download_kml(
     timer: &mut Timer,
 ) {
     assert!(url.ends_with(".kml"));
-    let output = abstutil::path(output);
+    let output = abstio::path(output);
     if Path::new(&output).exists() {
         println!("- {} already exists", output);
         return;
@@ -89,7 +90,7 @@ pub fn download_kml(
     println!("- Extracting KML data");
 
     let shapes = kml::load(tmp, bounds, require_all_pts_in_bounds, timer).unwrap();
-    abstutil::write_binary(output.clone(), &shapes);
+    abstio::write_binary(output.clone(), &shapes);
     // Keep the intermediate file; otherwise we inadvertently grab new upstream data when
     // changing some binary formats
     std::fs::rename(tmp, output.replace(".bin", ".kml")).unwrap();
@@ -103,9 +104,9 @@ pub fn osmconvert(
     output: String,
     config: &ImporterConfiguration,
 ) {
-    let input = abstutil::path(input);
+    let input = abstio::path(input);
     let clipping_polygon = clipping_polygon;
-    let output = abstutil::path(output);
+    let output = abstio::path(output);
 
     if Path::new(&output).exists() {
         println!("- {} already exists", output);
@@ -130,7 +131,7 @@ pub fn raw_to_map(
     timer: &mut Timer,
 ) -> map_model::Map {
     timer.start(format!("Raw->Map for {}", name.describe()));
-    let raw: map_model::raw::RawMap = abstutil::read_binary(abstutil::path_raw_map(name), timer);
+    let raw: map_model::raw::RawMap = abstio::read_binary(abstio::path_raw_map(name), timer);
     let map = map_model::Map::create_from_raw(raw, build_ch, keep_bldg_tags, timer);
     timer.start("save map");
     map.save();
@@ -138,10 +139,10 @@ pub fn raw_to_map(
     timer.stop(format!("Raw->Map for {}", name.describe()));
 
     // TODO Just sticking this here for now
-    if name.map == "huge_seattle" {
+    if name.map == "huge_seattle" || name == &MapName::new("leeds", "huge") {
         timer.start("generating city manifest");
-        abstutil::write_binary(
-            abstutil::path(format!("system/{}/city.bin", map.get_city_name())),
+        abstio::write_binary(
+            abstio::path(format!("system/{}/city.bin", map.get_city_name())),
             &map_model::City::from_huge_map(&map),
         );
         timer.stop("generating city manifest");

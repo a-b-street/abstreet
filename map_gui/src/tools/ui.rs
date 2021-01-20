@@ -2,8 +2,8 @@
 
 use widgetry::{
     hotkeys, Btn, Choice, DrawBaselayer, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key,
-    Line, Menu, Outcome, Panel, ScreenRectangle, State, Text, Transition, VerticalAlignment,
-    Widget,
+    Line, Menu, Outcome, Panel, ScreenRectangle, State, StyledButtons, Text, Transition,
+    VerticalAlignment, Widget,
 };
 
 use crate::tools::grey_out_map;
@@ -24,7 +24,10 @@ impl<A: AppLike + 'static, T: 'static> ChooseSomething<A, T> {
     ) -> Box<dyn State<A>> {
         Box::new(ChooseSomething {
             panel: Panel::new(Widget::col(vec![
-                Widget::row(vec![Line(query).small_heading().draw(ctx), Btn::close(ctx)]),
+                Widget::row(vec![
+                    Line(query).small_heading().draw(ctx),
+                    ctx.style().btn_close_widget(ctx),
+                ]),
                 Menu::new(ctx, choices).named("menu"),
             ]))
             .build(ctx),
@@ -97,7 +100,10 @@ impl<A: AppLike + 'static> PromptInput<A> {
     ) -> Box<dyn State<A>> {
         Box::new(PromptInput {
             panel: Panel::new(Widget::col(vec![
-                Widget::row(vec![Line(query).small_heading().draw(ctx), Btn::close(ctx)]),
+                Widget::row(vec![
+                    Line(query).small_heading().draw(ctx),
+                    ctx.style().btn_close_widget(ctx),
+                ]),
                 Widget::text_entry(ctx, String::new(), true).named("input"),
                 Btn::text_fg("confirm").build_def(ctx, Key::Enter),
             ]))

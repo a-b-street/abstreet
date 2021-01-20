@@ -18,7 +18,14 @@ impl CmdArgs {
         crate::logger::setup();
 
         if cfg!(target_arch = "wasm32") {
-            CmdArgs::from_args(Vec::new())
+            let raw = match parse_args() {
+                Ok(raw) => raw,
+                Err(err) => {
+                    log::warn!("Didn't parse arguments from URL query params: {}", err);
+                    Vec::new()
+                }
+            };
+            CmdArgs::from_args(raw)
         } else {
             CmdArgs::from_args(std::env::args().skip(1).collect())
         }
@@ -127,4 +134,34 @@ impl CmdArgs {
             panic!("Unused free arguments: {:?}", self.free);
         }
     }
+}
+
+#[cfg(target_arch = "wasm32")]
+/// Transform the URL query parameters into command-line arguments, by treating & as the separator
+/// between arguments. So for instance "?--dev&--color_scheme=night%20mode" becomes vec!["--dev",
+/// "--color_scheme=night mode"].
+fn parse_args() -> anyhow::Result<Vec<String>> {
+    use anyhow::{anyhow, bail};
+
+    let window = web_sys::window().ok_or(anyhow!("no window?"))?;
+    let url = window.location().href().map_err(|err| {
+        anyhow!(err
+            .as_string()
+            .unwrap_or("window.location.href failed".to_string()))
+    })?;
+    // Consider using a proper url parsing crate. This works fine for now, though.
+    let url_parts = url.split("?").collect::<Vec<_>>();
+    if url_parts.len() != 2 {
+        bail!("URL {} doesn't seem to have query params");
+    }
+    let parts = url_parts[1]
+        .split("&")
+        .map(|x| x.replace("%20", " ").to_string())
+        .collect::<Vec<_>>();
+    Ok(parts)
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn parse_args() -> anyhow::Result<Vec<String>> {
+    unreachable!()
 }

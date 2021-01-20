@@ -1,9 +1,12 @@
-use crate::MultiMap;
-use serde::de::DeserializeOwned;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::cmp::Ord;
 use std::collections::{BTreeMap, HashMap};
 use std::convert::TryFrom;
+
+use anyhow::Result;
+use serde::de::DeserializeOwned;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+use crate::MultiMap;
 
 /// Stringifies an object to nicely formatted JSON.
 pub fn to_json<T: Serialize>(obj: &T) -> String {
@@ -16,23 +19,23 @@ pub fn to_json_terse<T: Serialize>(obj: &T) -> String {
 }
 
 /// Deserializes an object from a JSON string.
-pub fn from_json<T: DeserializeOwned>(raw: &Vec<u8>) -> Result<T, String> {
-    serde_json::from_slice(raw).map_err(|x| x.to_string())
+pub fn from_json<T: DeserializeOwned>(raw: &Vec<u8>) -> Result<T> {
+    serde_json::from_slice(raw).map_err(|err| err.into())
 }
 
 /// Deserializes an object from JSON, from a reader.
-pub fn from_json_reader<R: std::io::Read, T: DeserializeOwned>(reader: R) -> Result<T, String> {
-    serde_json::from_reader(reader).map_err(|x| x.to_string())
+pub fn from_json_reader<R: std::io::Read, T: DeserializeOwned>(reader: R) -> Result<T> {
+    serde_json::from_reader(reader).map_err(|err| err.into())
 }
 
 /// Deserializes an object from the bincode format.
-pub fn from_binary<T: DeserializeOwned>(raw: &Vec<u8>) -> Result<T, String> {
-    bincode::deserialize(raw).map_err(|x| x.to_string())
+pub fn from_binary<T: DeserializeOwned>(raw: &Vec<u8>) -> Result<T> {
+    bincode::deserialize(raw).map_err(|err| err.into())
 }
 
 /// Deserializes an object from the bincode format, from a reader.
-pub fn from_binary_reader<R: std::io::Read, T: DeserializeOwned>(reader: R) -> Result<T, String> {
-    bincode::deserialize_from(reader).map_err(|x| x.to_string())
+pub fn from_binary_reader<R: std::io::Read, T: DeserializeOwned>(reader: R) -> Result<T> {
+    bincode::deserialize_from(reader).map_err(|err| err.into())
 }
 
 /// The number of bytes for an object serialized to bincode.

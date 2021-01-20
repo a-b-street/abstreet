@@ -118,7 +118,7 @@ impl DrawBuilding {
                 // Things closer to the isometric axis should appear in front of things farther
                 // away, so we give them a higher z-index.
                 //
-                // Naively, we compute the entire building's distance as the distance from it's
+                // Naively, we compute the entire building's distance as the distance from its
                 // closest point. This is simple and usually works, but will likely fail on more
                 // complex building arrangements, e.g. if a building were tightly encircled by a
                 // large building.

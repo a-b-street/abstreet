@@ -5,8 +5,10 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
+anyhow = "1.0.37"
 csv = "1.1.4"
 geom = { path = "../geom" }
-roxmltree = "0.13.0"
+roxmltree = { version = "0.14.0", features=["std"] }
 serde = "1.0.116"

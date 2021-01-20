@@ -1,5 +1,6 @@
 use std::io::{self, Read};
 
+use anyhow::Result;
 use geojson::{GeoJson, Value};
 
 use geom::LonLat;
@@ -7,7 +8,7 @@ use geom::LonLat;
 /// Reads GeoJSON input from STDIN, extracts a polygon from every feature, and writes numbered
 /// files in the https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format format as
 /// output.
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<()> {
     let mut buffer = String::new();
     io::stdin().read_to_string(&mut buffer)?;
     let geojson = buffer.parse::<GeoJson>()?;
@@ -20,11 +21,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn extract_boundaries(geojson: GeoJson) -> Result<Vec<Vec<LonLat>>, Box<dyn std::error::Error>> {
+fn extract_boundaries(geojson: GeoJson) -> Result<Vec<Vec<LonLat>>> {
     let features = match geojson {
         GeoJson::Feature(feature) => vec![feature],
         GeoJson::FeatureCollection(feature_collection) => feature_collection.features,
-        _ => return Err(format!("Unexpected geojson: {:?}", geojson).into()),
+        _ => anyhow::bail!("Unexpected geojson: {:?}", geojson),
     };
     let mut polygons = Vec::new();
     for mut feature in features {
@@ -32,7 +33,7 @@ fn extract_boundaries(geojson: GeoJson) -> Result<Vec<Vec<LonLat>>, Box<dyn std:
             Some(Value::MultiPolygon(multi_polygon)) => multi_polygon[0][0].clone(),
             Some(Value::Polygon(polygon)) => polygon[0].clone(),
             _ => {
-                return Err(format!("Unexpected feature: {:?}", feature).into());
+                anyhow::bail!("Unexpected feature: {:?}", feature);
             }
         };
         polygons.push(

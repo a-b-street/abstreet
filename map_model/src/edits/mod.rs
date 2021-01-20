@@ -4,12 +4,13 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
-pub use perma::PermanentMapEdits;
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 use abstutil::{retain_btreemap, retain_btreeset, Timer};
 use geom::{Speed, Time};
 
+pub use self::perma::PermanentMapEdits;
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
 use crate::{
     connectivity, AccessRestrictions, BusRouteID, ControlStopSign, ControlTrafficSignal, Direction,
@@ -49,7 +50,7 @@ pub enum EditIntersection {
     StopSign(ControlStopSign),
     // Don't keep ControlTrafficSignal here, because it contains movements that should be
     // generated after all lane edits are applied.
-    TrafficSignal(seattle_traffic_signals::TrafficSignal),
+    TrafficSignal(traffic_signal_data::TrafficSignal),
     Closed,
 }
 
@@ -146,14 +147,14 @@ impl MapEdits {
         }
     }
 
-    pub fn load(map: &Map, path: String, timer: &mut Timer) -> Result<MapEdits, String> {
-        match abstutil::maybe_read_json::<PermanentMapEdits>(path.clone(), timer) {
+    pub fn load(map: &Map, path: String, timer: &mut Timer) -> Result<MapEdits> {
+        match abstio::maybe_read_json::<PermanentMapEdits>(path.clone(), timer) {
             Ok(perma) => perma.to_edits(map),
             Err(_) => {
                 // The JSON format may have changed, so attempt backwards compatibility.
-                let bytes = abstutil::slurp_file(&path)?;
-                let contents = std::str::from_utf8(&bytes).map_err(|err| err.to_string())?;
-                let value = serde_json::from_str(contents).map_err(|err| err.to_string())?;
+                let bytes = abstio::slurp_file(path)?;
+                let contents = std::str::from_utf8(&bytes)?;
+                let value = serde_json::from_str(contents)?;
                 let perma = compat::upgrade(value, map)?;
                 perma.to_edits(map)
             }
@@ -166,8 +167,8 @@ impl MapEdits {
             return;
         }
 
-        abstutil::write_json(
-            abstutil::path_edits(map.get_name(), &self.edits_name),
+        abstio::write_json(
+            abstio::path_edits(map.get_name(), &self.edits_name),
             &self.to_permanent(map),
         );
     }
@@ -465,7 +466,7 @@ impl Map {
         let mut i = 1;
         loop {
             let name = format!("Untitled Proposal {}", i);
-            if !abstutil::file_exists(abstutil::path_edits(&self.name, &name)) {
+            if !abstio::file_exists(abstio::path_edits(&self.name, &name)) {
                 edits.edits_name = name;
                 return edits;
             }

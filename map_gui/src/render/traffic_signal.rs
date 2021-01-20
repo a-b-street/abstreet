@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 
 use geom::{Angle, ArrowCap, Circle, Distance, Duration, Line, PolyLine, Pt2D};
-use map_model::{IntersectionID, Movement, PhaseType, Stage, TurnPriority, SIDEWALK_THICKNESS};
+use map_model::{IntersectionID, Movement, Stage, StageType, TurnPriority, SIDEWALK_THICKNESS};
 use widgetry::{Color, GeomBatch, Line, Prerender, RewriteColor, Text};
 
 use crate::options::TrafficSignalStyle;
@@ -36,10 +36,10 @@ pub fn draw_signal_stage(
             }
 
             let (yellow_light, percent) = if let Some(t) = time_left {
-                if stage.phase_type.simple_duration() > Duration::ZERO {
+                if stage.stage_type.simple_duration() > Duration::ZERO {
                     (
                         t <= Duration::seconds(5.0),
-                        (t / stage.phase_type.simple_duration()) as f32,
+                        (t / stage.stage_type.simple_duration()) as f32,
                     )
                 } else {
                     (true, 1.0)
@@ -49,7 +49,7 @@ pub fn draw_signal_stage(
             };
             // The warning color for fixed is yellow, for anything else its orange to clue the
             // user into it possibly extending.
-            let indicator_color = if let PhaseType::Fixed(_) = stage.phase_type {
+            let indicator_color = if let StageType::Fixed(_) = stage.stage_type {
                 Color::YELLOW
             } else {
                 Color::ORANGE
@@ -226,7 +226,7 @@ fn draw_time_left(
 ) {
     let radius = Distance::meters(2.0);
     let center = app.map().get_i(i).polygon.center();
-    let duration = stage.phase_type.simple_duration();
+    let duration = stage.stage_type.simple_duration();
     let percent = if duration > Duration::ZERO {
         time_left / duration
     } else {

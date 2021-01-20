@@ -7,6 +7,8 @@
 
 use std::collections::BTreeMap;
 
+use anyhow::Result;
+
 use abstutil::{wraparound_get, Timer};
 use geom::{Circle, Distance, Line, PolyLine, Polygon, Pt2D, Ring, EPSILON_DIST};
 
@@ -25,7 +27,7 @@ pub fn intersection_polygon(
     i: &Intersection,
     roads: &mut BTreeMap<OriginalRoad, Road>,
     timer: &mut Timer,
-) -> Result<(Polygon, Vec<(String, Polygon)>), String> {
+) -> Result<(Polygon, Vec<(String, Polygon)>)> {
     if i.roads.is_empty() {
         panic!("{} has no roads", i.id);
     }
@@ -81,7 +83,7 @@ fn generalized_trim_back(
     i: osm::NodeID,
     lines: &Vec<(OriginalRoad, Pt2D, PolyLine, PolyLine)>,
     timer: &mut Timer,
-) -> Result<(Polygon, Vec<(String, Polygon)>), String> {
+) -> Result<(Polygon, Vec<(String, Polygon)>)> {
     let mut debug = Vec::new();
 
     let mut road_lines: Vec<(OriginalRoad, PolyLine)> = Vec::new();
@@ -146,11 +148,12 @@ fn generalized_trim_back(
             };
 
             if use_pl1 == use_pl2 {
-                return Err(format!(
+                bail!(
                     "{} and {} have overlapping segments. You likely need to fix OSM and make the \
                      two ways meet at exactly one node.",
-                    r1, r2
-                ));
+                    r1,
+                    r2
+                );
             }
 
             // Sometimes two road PLs may hit at multiple points because they're thick and close
@@ -290,7 +293,7 @@ fn deadend(
     roads: &mut BTreeMap<OriginalRoad, Road>,
     i: osm::NodeID,
     lines: &Vec<(OriginalRoad, Pt2D, PolyLine, PolyLine)>,
-) -> Result<(Polygon, Vec<(String, Polygon)>), String> {
+) -> Result<(Polygon, Vec<(String, Polygon)>)> {
     let len = DEGENERATE_INTERSECTION_HALF_LENGTH * 4.0;
 
     let (id, _, mut pl_a, mut pl_b) = lines[0].clone();

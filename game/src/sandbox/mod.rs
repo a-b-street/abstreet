@@ -1,21 +1,25 @@
-pub use gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};
+use anyhow::Result;
 use maplit::btreeset;
-pub use speed::{SpeedControls, TimePanel};
-pub use time_warp::TimeWarpScreen;
 
 use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Pt2D, Time};
+use map_gui::colors::ColorSchemeChoice;
 use map_gui::load::{FileLoader, MapLoader};
+use map_gui::options::OptionsPanel;
+use map_gui::render::{unzoomed_agent_radius, UnzoomedAgents};
+use map_gui::theme::StyledButtons;
 use map_gui::tools::{ChooseSomething, Minimap, PopupMsg, TurnExplorer};
-use map_gui::AppLike;
-use map_gui::ID;
+use map_gui::{AppLike, ID};
 use sim::{Analytics, Scenario};
 use widgetry::{
     lctrl, Btn, Choice, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
     Outcome, Panel, State, Text, TextExt, UpdateType, VerticalAlignment, Widget,
 };
 
+pub use self::gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};
 use self::misc_tools::{RoutePreview, TrafficRecorder};
+pub use self::speed::{SpeedControls, TimePanel};
+pub use self::time_warp::TimeWarpScreen;
 use crate::app::{App, Transition};
 use crate::common::{tool_panel, CommonState, MinimapController};
 use crate::debug::DebugMode;
@@ -23,11 +27,9 @@ use crate::edit::{
     can_edit_lane, EditMode, LaneEditor, SaveEdits, StopSignEditor, TrafficSignalEditor,
 };
 use crate::info::ContextualActions;
+use crate::layer::favorites::{Favorites, ShowFavorites};
 use crate::layer::PickLayer;
 use crate::pregame::MainMenu;
-use map_gui::colors::ColorSchemeChoice;
-use map_gui::options::OptionsPanel;
-use map_gui::render::{unzoomed_agent_radius, UnzoomedAgents};
 
 pub mod dashboards;
 pub mod gameplay;
@@ -133,7 +135,7 @@ impl State<App> for SandboxMode {
 
         // Order here is pretty arbitrary
         if app.opts.dev && ctx.input.pressed(lctrl(Key::D)) {
-            return Transition::Push(DebugMode::new(ctx));
+            return Transition::Push(DebugMode::new(ctx, app));
         }
 
         if let Some(ref mut m) = self.controls.minimap {
@@ -429,8 +431,10 @@ impl AgentMeter {
                 } else {
                     Widget::nothing()
                 },
-                Btn::svg_def("system/assets/meters/trip_histogram.svg")
-                    .build(ctx, "more data", Key::Q)
+                app.cs
+                    .btn_primary_light_icon("system/assets/meters/trip_histogram.svg")
+                    .hotkey(Key::Q)
+                    .build_widget(ctx, "more data")
                     .align_right(),
             ]),
         ];
@@ -537,6 +541,13 @@ impl ContextualActions for Actions {
                         actions.push((Key::E, "edit lane".to_string()));
                     }
                 }
+                ID::Building(b) => {
+                    if Favorites::contains(app, b) {
+                        actions.push((Key::F, "remove this building from favorites".to_string()));
+                    } else {
+                        actions.push((Key::F, "add this building to favorites".to_string()));
+                    }
+                }
                 _ => {}
             }
         }
@@ -582,6 +593,16 @@ impl ContextualActions for Actions {
                 Transition::Push(EditMode::new(ctx, app, self.gameplay.clone())),
                 Transition::Push(LaneEditor::new(ctx, app, l, self.gameplay.clone())),
             ]),
+            (ID::Building(b), "add this building to favorites") => {
+                Favorites::add(app, b);
+                app.primary.layer = Some(Box::new(ShowFavorites::new(ctx, app)));
+                Transition::Keep
+            }
+            (ID::Building(b), "remove this building from favorites") => {
+                Favorites::remove(app, b);
+                app.primary.layer = Some(Box::new(ShowFavorites::new(ctx, app)));
+                Transition::Keep
+            }
             (_, "follow (run the simulation)") => {
                 *close_panel = false;
                 Transition::ModifyState(Box::new(|state, ctx, app| {
@@ -628,7 +649,7 @@ enum LoadStage {
     // Scenario name
     LoadingPrebaked(String),
     // Scenario name, maybe prebaked data
-    GotPrebaked(String, Result<Analytics, String>),
+    GotPrebaked(String, Result<Analytics>),
     Finalizing,
 }
 
@@ -677,6 +698,28 @@ impl State<App> for SandboxLoader {
                         gameplay::LoadScenario::Scenario(scenario) => {
                             self.stage = Some(LoadStage::GotScenario(scenario));
                             continue;
+                        }
+                        gameplay::LoadScenario::Future(future) => {
+                            use map_gui::load::FutureLoader;
+                            return Transition::Push(FutureLoader::<App, Scenario>::new(
+                                ctx,
+                                Box::pin(future),
+                                "Loading Scenario",
+                                Box::new(|_, _, scenario| {
+                                    // TODO show error/retry alert?
+                                    let scenario =
+                                        scenario.expect("failed to load scenario from future");
+                                    Transition::Multi(vec![
+                                        Transition::Pop,
+                                        Transition::ModifyState(Box::new(|state, _, app| {
+                                            let loader =
+                                                state.downcast_mut::<SandboxLoader>().unwrap();
+                                            app.primary.scenario = Some(scenario.clone());
+                                            loader.stage = Some(LoadStage::GotScenario(scenario));
+                                        })),
+                                    ])
+                                }),
+                            ));
                         }
                         gameplay::LoadScenario::Path(path) => {
                             // Reuse the cached scenario, if possible.
@@ -743,7 +786,7 @@ impl State<App> for SandboxLoader {
 
                     return Transition::Push(FileLoader::<App, Analytics>::new(
                         ctx,
-                        abstutil::path_prebaked_results(app.primary.map.get_name(), &scenario_name),
+                        abstio::path_prebaked_results(app.primary.map.get_name(), &scenario_name),
                         Box::new(move |_, _, _, prebaked| {
                             Transition::Multi(vec![
                                 Transition::Pop,
@@ -854,7 +897,7 @@ impl SandboxControls {
                 None
             },
             tool_panel: if gameplay.has_tool_panel() {
-                Some(tool_panel(ctx))
+                Some(tool_panel(ctx, app))
             } else {
                 None
             },
@@ -883,7 +926,7 @@ impl SandboxControls {
 
     fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
         if self.tool_panel.is_some() {
-            self.tool_panel = Some(tool_panel(ctx));
+            self.tool_panel = Some(tool_panel(ctx, app));
         }
         if let Some(ref mut speed) = self.speed {
             speed.recreate_panel(ctx, app);

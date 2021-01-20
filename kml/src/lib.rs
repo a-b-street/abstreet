@@ -1,8 +1,11 @@
 // TODO Time to rename this crate
 
-use std::collections::BTreeMap;
-use std::error::Error;
+#[macro_use]
+extern crate anyhow;
 
+use std::collections::BTreeMap;
+
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 use abstutil::{prettyprint_usize, Timer};
@@ -34,9 +37,9 @@ pub fn load(
     gps_bounds: &GPSBounds,
     require_all_pts_in_bounds: bool,
     timer: &mut Timer,
-) -> Result<ExtraShapes, Box<dyn Error>> {
+) -> Result<ExtraShapes> {
     timer.start(format!("read {}", path));
-    let bytes = abstutil::slurp_file(path)?;
+    let bytes = abstio::slurp_file(path)?;
     let raw_string = std::str::from_utf8(&bytes)?;
     let tree = roxmltree::Document::parse(raw_string)?;
     timer.stop(format!("read {}", path));
@@ -73,7 +76,7 @@ fn recurse(
     kv: &mut BTreeMap<String, String>,
     gps_bounds: &GPSBounds,
     require_all_pts_in_bounds: bool,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<()> {
     for child in node.children() {
         recurse(
             child,
@@ -105,7 +108,7 @@ fn recurse(
                         any_oob = true;
                     }
                 } else {
-                    return Err(format!("Malformed coordinates: {}", pair).into());
+                    bail!("Malformed coordinates: {}", pair);
                 }
             }
         }
@@ -139,11 +142,7 @@ impl ExtraShapes {
     /// Parses a .csv file and returns ExtraShapes. Each record must have a column called
     /// 'Longitude' and 'Latitude', representing a single point; all other columns will just be
     /// attributes. Objects will be clipped to the given gps_bounds.
-    pub fn load_csv(
-        path: &str,
-        gps_bounds: &GPSBounds,
-        timer: &mut Timer,
-    ) -> Result<ExtraShapes, Box<dyn Error>> {
+    pub fn load_csv(path: &str, gps_bounds: &GPSBounds, timer: &mut Timer) -> Result<ExtraShapes> {
         timer.start(format!("read {}", path));
         let mut shapes = Vec::new();
         for rec in csv::Reader::from_path(path)?.deserialize() {
@@ -162,11 +161,10 @@ impl ExtraShapes {
                 }
                 _ => {
                     timer.stop(format!("read {}", path));
-                    return Err(format!(
+                    bail!(
                         "{} doesn't have a column called Longitude and Latitude",
                         path
                     )
-                    .into());
                 }
             }
         }

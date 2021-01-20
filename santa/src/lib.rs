@@ -1,4 +1,6 @@
 #[macro_use]
+extern crate anyhow;
+#[macro_use]
 extern crate log;
 
 mod after_level;
@@ -19,22 +21,26 @@ type App = map_gui::SimpleApp<session::Session>;
 type Transition = widgetry::Transition<App>;
 
 pub fn main() {
-    widgetry::run(widgetry::Settings::new("15-minute Santa"), |ctx| {
-        let mut opts = map_gui::options::Options::default();
-        opts.color_scheme = map_gui::colors::ColorSchemeChoice::NightMode;
-        let session = session::Session::load();
-        session.save();
-        let mut app =
-            map_gui::SimpleApp::new_with_opts(ctx, abstutil::CmdArgs::new(), opts, session);
-        if app.opts.dev {
-            app.session.unlock_all();
-        }
-        app.session.music = music::Music::start(ctx, app.session.play_music, "jingle_bells");
-        app.session.music.specify_volume(music::OUT_OF_GAME);
+    widgetry::run(
+        widgetry::Settings::new("15-minute Santa").read_svg(Box::new(abstio::slurp_bytes)),
+        |ctx| {
+            let mut opts = map_gui::options::Options::default();
+            opts.color_scheme = map_gui::colors::ColorSchemeChoice::NightMode;
+            let session = session::Session::load();
+            session.save();
 
-        let states = vec![title::TitleScreen::new(ctx, &app)];
-        (app, states)
-    });
+            map_gui::SimpleApp::new(ctx, opts, session, |ctx, app| {
+                if app.opts.dev {
+                    app.session.unlock_all();
+                }
+                app.session.music =
+                    music::Music::start(ctx, app.session.play_music, "jingle_bells");
+                app.session.music.specify_volume(music::OUT_OF_GAME);
+
+                vec![title::TitleScreen::new(ctx, app)]
+            })
+        },
+    );
 }
 
 #[cfg(target_arch = "wasm32")]

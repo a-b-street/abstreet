@@ -1,18 +1,20 @@
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 use std::fmt;
 
+use anyhow::Result;
 use rand::seq::SliceRandom;
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 
-use abstutil::{prettyprint_usize, Counter, MapName, Parallelism, Timer};
+use abstio::MapName;
+use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::{Distance, Speed, Time};
 use map_model::{BuildingID, Map, OffstreetParking, RoadID};
 
 use crate::make::fork_rng;
 use crate::{
-    OrigPersonID, ParkingSpot, Sim, TripEndpoint, TripInfo, TripMode, TripSpec, Vehicle,
+    OrigPersonID, ParkingSpot, Sim, StartTripArgs, TripEndpoint, TripInfo, TripMode, Vehicle,
     VehicleSpec, VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
 };
 
@@ -155,65 +157,43 @@ impl Scenario {
                 parked_cars.push((person.vehicles[idx].clone(), b));
             }
             let mut from = p.origin.clone();
-            for (t, maybe_idx) in p.trips.iter().zip(vehicle_foreach_trip) {
-                // The RNG call might change over edits for picking the spawning lane from a border
-                // with multiple choices for a vehicle type.
-                let mut tmp_rng = fork_rng(rng);
-                let spec = match TripSpec::maybe_new(
-                    from.clone(),
-                    t.destination.clone(),
-                    t.mode,
-                    maybe_idx.map(|idx| person.vehicles[idx].id),
-                    retry_if_no_room,
-                    &mut tmp_rng,
-                    map,
-                ) {
-                    Ok(spec) => spec,
-                    Err(error) => TripSpec::SpawningFailure {
-                        use_vehicle: maybe_idx.map(|idx| person.vehicles[idx].id),
-                        error,
-                    },
-                };
+            for (trip, maybe_idx) in p.trips.iter().zip(vehicle_foreach_trip) {
                 schedule_trips.push((
                     person.id,
-                    spec,
                     TripInfo {
-                        departure: t.depart,
-                        mode: t.mode,
+                        departure: trip.depart,
+                        mode: trip.mode,
                         start: from,
-                        end: t.destination.clone(),
-                        purpose: t.purpose,
-                        modified: t.modified,
+                        end: trip.destination.clone(),
+                        purpose: trip.purpose,
+                        modified: trip.modified,
                         capped: false,
-                        cancellation_reason: if t.cancelled {
+                        cancellation_reason: if trip.cancelled {
                             Some(format!("cancelled by ScenarioModifier"))
                         } else {
                             None
                         },
                     },
+                    StartTripArgs {
+                        retry_if_no_room,
+                        use_vehicle: maybe_idx.map(|idx| person.vehicles[idx].id),
+                    },
                 ));
-                from = t.destination.clone();
+                from = trip.destination.clone();
             }
         }
-
-        let results = timer.parallelize(
-            "schedule trips",
-            Parallelism::Fastest,
-            schedule_trips,
-            |(p, spec, info)| spec.to_plan(p, info, map),
-        );
 
         // parked_cars is stable over map edits, so don't fork.
         parked_cars.shuffle(rng);
         seed_parked_cars(parked_cars, sim, map, rng, timer);
 
-        sim.spawn_trips(results, map, timer);
+        sim.spawn_trips(schedule_trips, map, timer);
         timer.stop(format!("Instantiating {}", self.scenario_name));
     }
 
     pub fn save(&self) {
-        abstutil::write_binary(
-            abstutil::path_scenario(&self.map_name, &self.scenario_name),
+        abstio::write_binary(
+            abstio::path_scenario(&self.map_name, &self.scenario_name),
             self,
         );
     }
@@ -254,15 +234,14 @@ impl Scenario {
 
     pub fn rand_dist(rng: &mut XorShiftRng, low: Distance, high: Distance) -> Distance {
         assert!(high > low);
-        Distance::meters(rng.gen_range(low.inner_meters(), high.inner_meters()))
+        Distance::meters(rng.gen_range(low.inner_meters()..high.inner_meters()))
     }
 
     fn rand_speed(rng: &mut XorShiftRng, low: Speed, high: Speed) -> Speed {
         assert!(high > low);
-        Speed::meters_per_second(rng.gen_range(
-            low.inner_meters_per_second(),
-            high.inner_meters_per_second(),
-        ))
+        Speed::meters_per_second(
+            rng.gen_range(low.inner_meters_per_second()..high.inner_meters_per_second()),
+        )
     }
 
     pub fn rand_ped_speed(rng: &mut XorShiftRng) -> Speed {
@@ -424,13 +403,15 @@ fn find_spot_near_building(
 
 impl PersonSpec {
     /// Verify that a person's trips make sense
-    fn check_schedule(&self) -> Result<(), String> {
+    fn check_schedule(&self) -> Result<()> {
         for pair in self.trips.windows(2) {
             if pair[0].depart >= pair[1].depart {
-                return Err(format!(
+                bail!(
                     "Person ({:?}) starts two trips in the wrong order: {} then {}",
-                    self.orig_id, pair[0].depart, pair[1].depart
-                ));
+                    self.orig_id,
+                    pair[0].depart,
+                    pair[1].depart
+                );
             }
         }
 
@@ -440,10 +421,11 @@ impl PersonSpec {
         }
         for pair in endpts.windows(2) {
             if pair[0] == pair[1] {
-                return Err(format!(
+                bail!(
                     "Person ({:?}) has two adjacent trips between the same place: {:?}",
-                    self.orig_id, pair[0]
-                ));
+                    self.orig_id,
+                    pair[0]
+                );
             }
         }
 

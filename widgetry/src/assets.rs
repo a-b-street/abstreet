@@ -20,10 +20,11 @@ pub struct Assets {
     svg_cache: RefCell<HashMap<String, (GeomBatch, Bounds)>>,
     font_to_id: HashMap<Font, fontdb::ID>,
     pub text_opts: Options,
+    pub read_svg: Box<dyn Fn(&str) -> Vec<u8>>,
 }
 
 impl Assets {
-    pub fn new() -> Assets {
+    pub fn new(read_svg: Box<dyn Fn(&str) -> Vec<u8>>) -> Assets {
         let mut a = Assets {
             default_line_height: RefCell::new(0.0),
             text_cache: RefCell::new(LruCache::new(500)),
@@ -31,6 +32,7 @@ impl Assets {
             svg_cache: RefCell::new(HashMap::new()),
             font_to_id: HashMap::new(),
             text_opts: Options::default(),
+            read_svg,
         };
         // All fonts are statically bundled with the library right now, on both native and web.
         // Eventually need to let people specify their own fonts dynamically at runtime.

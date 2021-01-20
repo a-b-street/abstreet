@@ -3,6 +3,9 @@
 //
 // TODO Eventually rewrite this to go through the public API. Faster to iterate in Rust for now.
 
+#[macro_use]
+extern crate log;
+
 use rand::seq::SliceRandom;
 use rand_xorshift::XorShiftRng;
 
@@ -94,6 +97,7 @@ fn alter_turn_destinations(sim: &Sim, map: &Map, rng: &mut XorShiftRng, edits: &
     active_destinations.shuffle(rng);
 
     for l in active_destinations.into_iter().take(num_edits) {
+        info!("Closing someone's target {}", l);
         let r = map.get_parent(l);
         edits.commands.push(map.edit_road_cmd(r.id, |new| {
             new.lanes_ltr[r.offset(l)].0 = LaneType::Construction;
@@ -122,6 +126,7 @@ fn nuke_random_parking(map: &Map, rng: &mut XorShiftRng, edits: &mut MapEdits) {
         .collect();
     parking_lanes.shuffle(rng);
     for l in parking_lanes.into_iter().take(num_edits) {
+        info!("Closing parking {}", l);
         let r = map.get_parent(l);
         edits.commands.push(map.edit_road_cmd(r.id, |new| {
             new.lanes_ltr[r.offset(l)].0 = LaneType::Construction;

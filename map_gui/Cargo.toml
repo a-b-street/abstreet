@@ -5,8 +5,8 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2018"
 
 [features]
-native = ["reqwest"]
-wasm = ["futures", "futures-channel", "js-sys", "wasm-bindgen", "wasm-bindgen-futures", "web-sys"]
+native = ["reqwest", "tokio"]
+wasm = ["js-sys", "wasm-bindgen", "wasm-bindgen-futures", "web-sys"]
 # Just a marker to not use localhost URLs
 wasm_s3 = []
 # A marker to use a named release from S3 instead of dev for updating files
@@ -14,21 +14,24 @@ release_s3 = []
 
 [dependencies]
 aabb-quadtree = "0.1.0"
+abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
+anyhow = "1.0.37"
 colorous = "1.0.3"
 contour = "0.3.0"
 flate2 = "1.0.19"
-futures = { version = "0.3.8", optional = true }
-futures-channel = { version = "0.3.8", optional = true }
+futures = { version = "0.3.8" }
+futures-channel = { version = "0.3.8"}
 geojson = "0.21.0"
 geom = { path = "../geom" }
 instant = "0.1.7"
 js-sys = { version = "0.3.45", optional = true }
 log = "0.4.11"
 map_model = { path = "../map_model" }
-reqwest = { version = "0.10.8", optional = true, default-features=false, features=["blocking", "rustls-tls"] }
+reqwest = { version = "0.10.10", optional = true, default-features=false, features=["blocking", "rustls-tls"] }
 serde = "1.0.116"
 sim = { path = "../sim" }
+tokio = { version ="0.2", features=["rt-core"], optional = true }
 wasm-bindgen = { version = "0.2.68", optional = true }
 wasm-bindgen-futures = { version = "0.4.18", optional = true }
 webbrowser = "0.5.5"

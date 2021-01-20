@@ -90,6 +90,7 @@ pub struct ColorScheme {
     unzoomed_highway: Color,
     unzoomed_arterial: Color,
     unzoomed_residential: Color,
+    pub unzoomed_trail: Color,
 
     // Intersections
     pub normal_intersection: Color,
@@ -118,6 +119,7 @@ pub struct ColorScheme {
     pub grass: Fill,
     pub water: Fill,
     pub median_strip: Fill,
+    pub pedestrian_plaza: Fill,
 
     // Unzoomed dynamic elements
     pub unzoomed_car: Color,
@@ -215,6 +217,7 @@ impl ColorScheme {
             unzoomed_highway: Color::rgb(232, 146, 162),
             unzoomed_arterial: Color::rgb(255, 199, 62),
             unzoomed_residential: Color::WHITE,
+            unzoomed_trail: Color::rgb(15, 125, 75),
 
             // Intersections
             normal_intersection: Color::grey(0.2),
@@ -243,6 +246,7 @@ impl ColorScheme {
             grass: hex("#94C84A").into(),
             water: Color::rgb(164, 200, 234).into(),
             median_strip: Color::CYAN.into(),
+            pedestrian_plaza: Color::hex("#DDDDE8").into(),
 
             // Unzoomed dynamic elements
             unzoomed_car: hex("#A32015"),
@@ -575,7 +579,7 @@ impl ColorScheme {
         cs.grass = nonempty_space.into();
         cs.water = nonempty_space.into();
         // TODO Why is this showing up?!
-        cs.light_rail_track = Color::INVISIBLE;
+        cs.light_rail_track = Color::CLEAR;
         cs
     }
 }

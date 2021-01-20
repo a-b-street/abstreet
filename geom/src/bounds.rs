@@ -5,7 +5,7 @@ use aabb_quadtree::geom::{Point, Rect};
 use crate::{LonLat, Polygon, Pt2D, Ring};
 
 /// Represents a rectangular boundary of `Pt2D` points.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Bounds {
     pub min_x: f64,
     pub min_y: f64,
@@ -21,6 +21,15 @@ impl Bounds {
             min_y: f64::MAX,
             max_x: f64::MIN,
             max_y: f64::MIN,
+        }
+    }
+
+    pub fn zero() -> Self {
+        Bounds {
+            min_x: 0.0,
+            min_y: 0.0,
+            max_x: 0.0,
+            max_y: 0.0,
         }
     }
 

@@ -3,12 +3,14 @@
 use std::collections::{BTreeSet, HashSet};
 use std::panic;
 
+use anyhow::Result;
 use instant::Instant;
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 
-use abstutil::{prettyprint_usize, serialized_size_bytes, CmdArgs, MapName, Timer};
+use abstio::MapName;
+use abstutil::{prettyprint_usize, serialized_size_bytes, CmdArgs, Timer};
 use geom::{Distance, Duration, Speed, Time};
 use map_model::{
     BuildingID, BusRoute, IntersectionID, LaneID, Map, ParkingLotID, Path, PathConstraints,
@@ -20,8 +22,8 @@ use crate::{
     AgentID, AlertLocation, Analytics, CapSimState, CarID, Command, CreateCar, DrivingSimState,
     Event, IntersectionSimState, OrigPersonID, PandemicModel, ParkedCar, ParkingSim,
     ParkingSimState, ParkingSpot, Person, PersonID, Router, Scheduler, SidewalkPOI, SidewalkSpot,
-    TrafficRecorder, TransitSimState, TripID, TripInfo, TripLeg, TripManager, TripPhaseType,
-    TripSpec, Vehicle, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH, LIGHT_RAIL_LENGTH,
+    StartTripArgs, TrafficRecorder, TransitSimState, TripID, TripInfo, TripManager, TripPhaseType,
+    Vehicle, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH, LIGHT_RAIL_LENGTH,
     MIN_CAR_LENGTH,
 };
 
@@ -68,8 +70,9 @@ pub(crate) struct Ctx<'a> {
     pub cap: &'a mut CapSimState,
     pub scheduler: &'a mut Scheduler,
     pub map: &'a Map,
-    /// If true, live map edits are being processed. Some regular work should maybe be skipped.
-    pub handling_live_edits: bool,
+    /// If present, live map edits are being processed, and the agents specified are in the process
+    /// of being deleted. Some regular work should maybe be skipped.
+    pub handling_live_edits: Option<BTreeSet<AgentID>>,
 }
 
 /// Options controlling the traffic simulation.
@@ -228,20 +231,21 @@ impl Sim {
 
     pub(crate) fn spawn_trips(
         &mut self,
-        input: Vec<(PersonID, TripInfo, TripSpec, Vec<TripLeg>)>,
+        input: Vec<(PersonID, TripInfo, StartTripArgs)>,
         map: &Map,
         timer: &mut Timer,
     ) {
         timer.start_iter("spawn trips", input.len());
-        for (p, info, spec, legs) in input {
+        for (p, info, args) in input {
             timer.next();
 
-            let trip = self.trips.new_trip(p, info.clone(), legs);
+            let trip = self.trips.new_trip(p, info.clone());
+            // This might be immediately true due to ScenarioModifiers
             if let Some(msg) = info.cancellation_reason {
                 self.trips.cancel_unstarted_trip(trip, msg);
             } else {
                 self.scheduler
-                    .push(info.departure, Command::StartTrip(trip, spec));
+                    .push(info.departure, Command::StartTrip(trip, args));
             }
         }
 
@@ -429,12 +433,12 @@ impl Sim {
             cap: &mut self.cap,
             scheduler: &mut self.scheduler,
             map,
-            handling_live_edits: false,
+            handling_live_edits: None,
         };
 
         match cmd {
-            Command::StartTrip(id, trip_spec) => {
-                self.trips.start_trip(self.time, id, trip_spec, &mut ctx);
+            Command::StartTrip(id, args) => {
+                self.trips.start_trip(self.time, id, args, &mut ctx);
             }
             Command::SpawnCar(create_car, retry_if_no_room) => {
                 // If this SpawnCar is being retried and the map was live-edited since the first
@@ -750,13 +754,13 @@ impl Sim {
 // Savestating
 impl Sim {
     pub fn save_dir(&self) -> String {
-        abstutil::path_all_saves(&self.map_name, &self.edits_name, &self.run_name)
+        abstio::path_all_saves(&self.map_name, &self.edits_name, &self.run_name)
     }
 
     fn save_path(&self, base_time: Time) -> String {
         // If we wanted to be even more reproducible, we'd encode RNG seed, version of code, etc,
         // but that's overkill right now.
-        abstutil::path_save(
+        abstio::path_save(
             &self.map_name,
             &self.edits_name,
             &self.run_name,
@@ -802,21 +806,21 @@ impl Sim {
         }
 
         let path = self.save_path(self.time);
-        abstutil::write_binary(path.clone(), self);
+        abstio::write_binary(path.clone(), self);
 
         path
     }
 
     pub fn find_previous_savestate(&self, base_time: Time) -> Option<String> {
-        abstutil::find_prev_file(self.save_path(base_time))
+        abstio::find_prev_file(self.save_path(base_time))
     }
 
     pub fn find_next_savestate(&self, base_time: Time) -> Option<String> {
-        abstutil::find_next_file(self.save_path(base_time))
+        abstio::find_next_file(self.save_path(base_time))
     }
 
-    pub fn load_savestate(path: String, timer: &mut Timer) -> Result<Sim, String> {
-        abstutil::maybe_read_binary(path, timer)
+    pub fn load_savestate(path: String, timer: &mut Timer) -> Result<Sim> {
+        abstio::maybe_read_binary(path, timer)
     }
 }
 
@@ -834,6 +838,7 @@ impl Sim {
 
         let (affected, num_parked_cars) = self.find_trips_affected_by_live_edits(map);
         let num_trips_cancelled = affected.len();
+        let affected_agents: BTreeSet<AgentID> = affected.iter().map(|(a, _)| *a).collect();
 
         // V1: Just cancel every trip crossing an affected area.
         // (V2 is probably rerouting everyone, only cancelling when that fails)
@@ -844,7 +849,7 @@ impl Sim {
             cap: &mut self.cap,
             scheduler: &mut self.scheduler,
             map,
-            handling_live_edits: true,
+            handling_live_edits: Some(affected_agents),
         };
         for (agent, trip) in affected {
             match agent {
@@ -959,7 +964,7 @@ impl Sim {
                 cap: &mut self.cap,
                 scheduler: &mut self.scheduler,
                 map,
-                handling_live_edits: false,
+                handling_live_edits: None,
             };
             let vehicle = self.driving.delete_car(id, self.time, &mut ctx);
             self.trips.cancel_trip(

@@ -5,8 +5,8 @@ use map_gui::render::DrawOptions;
 use map_gui::tools::{ChooseSomething, PromptInput};
 use widgetry::{
     lctrl, Btn, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, Text, VerticalAlignment,
-    Widget,
+    HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, StyledButtons, Text,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::{App, ShowEverything, Transition};
@@ -208,9 +208,9 @@ impl State<App> for StoryMapEditor {
                 "load" => {
                     // TODO autosave
                     let mut choices = Vec::new();
-                    for (name, story) in abstutil::load_all_objects::<RecordedStoryMap>(
-                        abstutil::path("player/stories"),
-                    ) {
+                    for (name, story) in
+                        abstio::load_all_objects::<RecordedStoryMap>(abstio::path_player("stories"))
+                    {
                         if story.name == self.story.name {
                             continue;
                         }
@@ -322,7 +322,7 @@ fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) ->
                     RewriteColor::ChangeAlpha(0.5),
                 )
             },
-            Btn::close(ctx),
+            ctx.style().btn_close_widget(ctx),
         ]),
         Widget::row(vec![
             if let Mode::PlacingMarker = mode {
@@ -414,8 +414,8 @@ impl StoryMap {
                 })
                 .collect(),
         };
-        abstutil::write_json(
-            abstutil::path(format!("player/stories/{}.json", story.name)),
+        abstio::write_json(
+            abstio::path_player(format!("stories/{}.json", story.name)),
             &story,
         );
     }
@@ -504,7 +504,7 @@ impl Marker {
         Panel::new(Widget::col(vec![
             Widget::row(vec![
                 Line("Editing marker").small_heading().draw(ctx),
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
             Btn::text_fg("delete").build_def(ctx, None),
             Widget::text_entry(ctx, self.event.clone(), true).named("event"),

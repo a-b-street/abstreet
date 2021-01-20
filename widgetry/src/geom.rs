@@ -1,4 +1,4 @@
-use geom::{Angle, Bounds, Polygon, Pt2D};
+use geom::{Angle, Bounds, GPSBounds, Polygon, Pt2D};
 
 use crate::widgets::button::BtnBuilder;
 use crate::{
@@ -12,6 +12,16 @@ pub struct GeomBatch {
     // rendering above values closer to 0.0.
     pub(crate) list: Vec<(Fill, Polygon, f64)>,
     pub autocrop_dims: bool,
+}
+
+impl std::fmt::Debug for GeomBatch {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("GeomBatch")
+            .field("bounds", &self.get_bounds())
+            .field("items", &self.list.len())
+            .field("autocrop_dims", &self.autocrop_dims)
+            .finish()
+    }
 }
 
 impl GeomBatch {
@@ -195,14 +205,19 @@ impl GeomBatch {
     }
 
     /// Scales the batch by some factor.
-    pub fn scale(mut self, factor: f64) -> GeomBatch {
-        if factor == 1.0 {
+    pub fn scale(self, factor: f64) -> GeomBatch {
+        self.scale_xy(factor, factor)
+    }
+
+    pub fn scale_xy(mut self, x_factor: f64, y_factor: f64) -> GeomBatch {
+        if x_factor == 1.0 && y_factor == 1.0 {
             return self;
         }
+
         for (_, poly, _) in &mut self.list {
             // strip_rings first -- sometimes when scaling down, the original rings collapse. Since
             // this polygon is part of a GeomBatch anyway, not calling to_outline on it.
-            *poly = poly.strip_rings().scale(factor);
+            *poly = poly.strip_rings().scale_xy(x_factor, y_factor);
         }
         self
     }
@@ -217,6 +232,27 @@ impl GeomBatch {
             *z = offset;
         }
         self
+    }
+
+    /// Exports the batch to a list of GeoJSON features, labeling each colored polygon. Z-values,
+    /// alpha values from the color, and non-RGB fill patterns are lost. If the polygon isn't a
+    /// ring, it's skipped. The world-space coordinates are optionally translated back to GPS.
+    pub fn to_geojson(self, gps_bounds: Option<&GPSBounds>) -> Vec<geojson::Feature> {
+        let mut features = Vec::new();
+        for (fill, polygon, _) in self.list {
+            if let Fill::Color(color) = fill {
+                let mut properties = serde_json::Map::new();
+                properties.insert("color".to_string(), color.to_hex().into());
+                features.push(geojson::Feature {
+                    bbox: None,
+                    geometry: Some(polygon.to_geojson(gps_bounds)),
+                    id: None,
+                    properties: Some(properties),
+                    foreign_members: None,
+                });
+            }
+        }
+        features
     }
 }
 

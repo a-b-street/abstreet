@@ -196,5 +196,5 @@ impl BorderSpawnOverTime {
 
 fn rand_time(rng: &mut XorShiftRng, low: Time, high: Time) -> Time {
     assert!(high > low);
-    Time::START_OF_DAY + Duration::seconds(rng.gen_range(low.inner_seconds(), high.inner_seconds()))
+    Time::START_OF_DAY + Duration::seconds(rng.gen_range(low.inner_seconds()..high.inner_seconds()))
 }

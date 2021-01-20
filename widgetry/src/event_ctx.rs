@@ -18,8 +18,10 @@ pub enum UpdateType {
     ScreenCaptureEverything {
         dir: String,
         zoom: f64,
-        max_x: f64,
-        max_y: f64,
+        dims: ScreenDims,
+        /// If true, name files in a simple scheme intended for Leaflet. If false, include the
+        /// optional drawing suffix returned by the app.
+        leaflet_naming: bool,
     },
 }
 

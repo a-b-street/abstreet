@@ -1,5 +1,7 @@
 use std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
 
+use anyhow::Result;
+
 use abstutil::Timer;
 use geom::{Distance, Duration, FindClosest, HashablePt2D, Time};
 
@@ -46,7 +48,7 @@ fn make_route(
     r: &RawBusRoute,
     pt_to_stop: &mut BTreeMap<(Position, Position), BusStopID>,
     matcher: &Matcher,
-) -> Result<(), String> {
+) -> Result<()> {
     let route_type = if r.is_bus {
         PathConstraints::Bus
     } else {
@@ -82,7 +84,7 @@ fn make_route(
                 stops.push(stop_id);
             }
             Err(err) => {
-                return Err(format!("couldn't match stop {}: {}", stop.name, err));
+                bail!("couldn't match stop {}: {}", stop.name, err);
             }
         }
     }
@@ -97,10 +99,13 @@ fn make_route(
         if let Some(l) = i.get_outgoing_lanes(map, route_type).get(0) {
             *l
         } else {
-            return Err(format!(
+            bail!(
                 "Route {} starts at {} ({}), but no starting lane for a {:?}?",
-                r.osm_rel_id, i.id, i.orig_id, route_type
-            ));
+                r.osm_rel_id,
+                i.id,
+                i.orig_id,
+                route_type
+            );
         }
     } else {
         // Not starting at a border. Find a lane at or before the first stop that's at least 13m.
@@ -160,20 +165,20 @@ fn make_route(
     // Make sure the route is connected
     for req in route.all_steps(map) {
         if req.start.lane() == req.end.lane() && req.start.dist_along() > req.end.dist_along() {
-            return Err(format!(
+            bail!(
                 "Two stops seemingly out of order somewhere on {}",
                 map.get_parent(req.start.lane()).orig_id
-            ));
+            );
         }
 
         if let Err(err) = map.pathfind(req.clone()) {
-            return Err(format!(
+            bail!(
                 "No path between stop on {} and {}: {}. {}",
                 map.get_parent(req.start.lane()).orig_id,
                 map.get_parent(req.end.lane()).orig_id,
                 err,
                 debug_route
-            ));
+            );
         }
     }
 
@@ -234,19 +239,19 @@ impl Matcher {
         route_type: PathConstraints,
         stop: &RawBusStop,
         map: &Map,
-    ) -> Result<(Position, Position), String> {
+    ) -> Result<(Position, Position)> {
         if route_type == PathConstraints::Train {
             // Light rail needs explicit platforms.
-            let sidewalk_pt = stop.ped_pos.ok_or("light rail missing platform")?;
+            let sidewalk_pt = stop.ped_pos.ok_or(anyhow!("light rail missing platform"))?;
             let sidewalk_pos = *self
                 .sidewalk_pts
                 .get(&sidewalk_pt.to_hashable())
-                .ok_or_else(|| format!("sidewalk for light rail didnt match: {}", sidewalk_pt))?;
+                .ok_or_else(|| anyhow!("sidewalk for light rail didnt match: {}", sidewalk_pt))?;
             let driving_pos = *self
                 .light_rail_pts
                 .get(&stop.vehicle_pos.1.to_hashable())
                 .ok_or_else(|| {
-                    format!("vehicle for light rail didnt match: {}", stop.vehicle_pos.0)
+                    anyhow!("vehicle for light rail didnt match: {}", stop.vehicle_pos.0)
                 })?;
             return Ok((sidewalk_pos, driving_pos));
         }
@@ -261,7 +266,7 @@ impl Matcher {
                 .iter()
                 .rev()
                 .find(|(l, _)| route_type.can_use(map.get_l(*l), map))
-                .ok_or_else(|| format!("{} {}, doesn't have a bus or driving lane", r.id, dir))?
+                .ok_or_else(|| anyhow!("{} {}, doesn't have a bus or driving lane", r.id, dir))?
                 .0,
         );
 
@@ -271,14 +276,14 @@ impl Matcher {
         closest.add((), l.lane_center_pts.points());
         let (_, pt) = closest
             .closest_pt(stop.vehicle_pos.1, Distance::meters(10.0))
-            .ok_or_else(|| format!("{} isn't near {}", stop.vehicle_pos.0, l.id))?;
+            .ok_or_else(|| anyhow!("{} isn't near {}", stop.vehicle_pos.0, l.id))?;
         let mut driving_pos = Position::new(l.id, l.dist_along_of_point(pt).unwrap());
 
         let sidewalk_pos = if let Some(pt) = stop.ped_pos {
             *self
                 .sidewalk_pts
                 .get(&pt.to_hashable())
-                .ok_or("sidewalk didnt match")?
+                .ok_or(anyhow!("sidewalk didnt match"))?
         } else {
             let sidewalk = map
                 .get_parent(driving_pos.lane())
@@ -287,7 +292,7 @@ impl Matcher {
                     |l| PathConstraints::Pedestrian.can_use(l, map),
                     map,
                 )
-                .ok_or_else(|| format!("driving {} to sidewalk failed", driving_pos.lane()))?;
+                .ok_or_else(|| anyhow!("driving {} to sidewalk failed", driving_pos.lane()))?;
             driving_pos.equiv_pos(sidewalk, map)
         };
 
@@ -300,10 +305,7 @@ impl Matcher {
             if let Some(pos) = driving_pos.min_dist(Distance::meters(1.0), map) {
                 driving_pos = pos;
             } else {
-                return Err(format!(
-                    "too close to start of a border {}",
-                    driving_pos.lane()
-                ));
+                bail!("too close to start of a border {}", driving_pos.lane());
             }
         }
         Ok((sidewalk_pos, driving_pos))
@@ -314,7 +316,7 @@ fn pick_start_lane(
     first_stop: Position,
     constraints: PathConstraints,
     map: &Map,
-) -> Result<LaneID, String> {
+) -> Result<LaneID> {
     let min_len = Distance::meters(13.0);
     if first_stop.dist_along() >= min_len {
         return Ok(first_stop.lane());
@@ -334,10 +336,10 @@ fn pick_start_lane(
             }
         }
     }
-    Err(format!(
+    bail!(
         "couldn't find any lanes leading to {} that're long enough for a bus to spawn",
         first_stop.lane()
-    ))
+    )
 }
 
 fn default_spawn_times() -> Vec<Time> {

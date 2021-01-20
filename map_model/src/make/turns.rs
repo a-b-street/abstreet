@@ -1,5 +1,6 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
+use anyhow::Result;
 use nbez::{Bez3o, BezCurve, Point2d};
 
 use abstutil::Timer;
@@ -12,8 +13,10 @@ use crate::{Intersection, Lane, LaneID, Map, RoadID, Turn, TurnID, TurnType};
 pub fn make_all_turns(map: &Map, i: &Intersection, timer: &mut Timer) -> Vec<Turn> {
     let mut raw_turns: Vec<Turn> = Vec::new();
     raw_turns.extend(make_vehicle_turns(i, map, timer));
-    raw_turns.extend(crate::make::walking_turns::make_walking_turns(
-        map, i, timer,
+    raw_turns.extend(crate::make::walking_turns::filter_turns(
+        crate::make::walking_turns::make_walking_turns(map, i, timer),
+        map,
+        i,
     ));
     let unique_turns = ensure_unique(raw_turns);
 
@@ -241,7 +244,7 @@ fn make_vehicle_turns(i: &Intersection, map: &Map, timer: &mut Timer) -> Vec<Tur
     turns
 }
 
-fn curvey_turn(src: &Lane, dst: &Lane) -> Result<PolyLine, String> {
+fn curvey_turn(src: &Lane, dst: &Lane) -> Result<PolyLine> {
     // The control points are straight out/in from the source/destination lanes, so
     // that the car exits and enters at the same angle as the road.
     let src_line = src.last_line();

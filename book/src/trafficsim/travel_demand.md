@@ -60,6 +60,20 @@ different types of people (students, workers), give them a set of activities
 with durations (go to school for 7 hours, 1 hour lunch break), and then further
 pick specfic buildings to travel to using more OSM tags.
 
+### Census Based
+
+Trips are distributed based on where we believe people live. For the US, this
+information comes from the US Census. To take advantage of this model for areas
+outside the US, you'll need to add your data to the global `population_areas`
+file. This is one huge file that is shared across regions. This is more work up
+front, but makes adding individual cities relatively straight forward.
+
+#### Preparing the `population_areas` file
+
+See `popdat/scripts/build_population_areas.sh` for updating or adding to the
+existing population areas. Once rebuilt, you'll need to upload the file so that
+popdat can find it.
+
 ### Custom import
 
 If you have your own data, you can import it. The input format is JSON -- an
@@ -99,12 +113,13 @@ Run the tool:
 cargo run --bin import_traffic -- --map=data/system/seattle/maps/montlake.bin --input=/path/to/input.json
 ```
 
-The tool matches input positions to the nearest building or border intersection,
-within 100 meters. The `departure` time is seconds since midnight. The tool will
-fail if any point doesn't match to a building, or if any of the specified trips
-can't be created (due to graph connectivity problems, for example). If your
-requirements are different or you have any trouble using this format/tool,
-please file a Github issue -- just consider this tool and format a prototype.
+The tool matches input positions to the nearest building, within 100 meters. If
+the point lies outside the map boundary, it's snapped to the nearest map border.
+The `departure` time is seconds since midnight. The tool will fail if any point
+doesn't match to a building, or if any of the specified trips can't be created
+(due to graph connectivity problems, for example). If your requirements are
+different or you have any trouble using this format/tool, please file a Github
+issue -- just consider this tool and format a prototype.
 
 ## Modifying demand
 

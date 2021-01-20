@@ -10,15 +10,6 @@ use map_model::{osm, Direction};
 
 /// Attempt to snap separately mapped cycleways to main roads. Emit extra KML files to debug later.
 pub fn snap_cycleways(map: &RawMap, timer: &mut Timer) {
-    if map.name.city == "oneshot" {
-        return;
-    }
-
-    // TODO Hack! Fix upstream problems.
-    if map.name.city == "xian" {
-        return;
-    }
-
     // TODO The output here is nondeterministic and I haven't figured out why. Instead of spurious
     // data diffs, just totally disable this experiment for now. Will fix when this becomes active
     // work again.
@@ -27,8 +18,8 @@ pub fn snap_cycleways(map: &RawMap, timer: &mut Timer) {
     }
 
     let mut cycleways = BTreeMap::new();
-    for shape in abstutil::read_binary::<ExtraShapes>(
-        abstutil::path(format!("input/{}/footways.bin", map.name.city)),
+    for shape in abstio::read_binary::<ExtraShapes>(
+        abstio::path(format!("input/{}/footways.bin", map.name.city)),
         timer,
     )
     .shapes
@@ -48,7 +39,7 @@ pub fn snap_cycleways(map: &RawMap, timer: &mut Timer) {
         if r.is_light_rail() || r.is_footway() || r.is_service() {
             continue;
         }
-        let (pl, total_width) = r.get_geometry(*id, &map.config);
+        let (pl, total_width) = r.get_geometry(*id, &map.config).unwrap();
         road_edges.insert(
             (*id, Direction::Fwd),
             pl.must_shift_right(total_width / 2.0),
@@ -96,15 +87,15 @@ fn dump_output(
         }
     }
 
-    abstutil::write_binary(
-        abstutil::path(format!(
+    abstio::write_binary(
+        abstio::path(format!(
             "input/{}/{}_separate_cycleways.bin",
             map.name.city, map.name.map
         )),
         &separate_cycleways,
     );
-    abstutil::write_binary(
-        abstutil::path(format!(
+    abstio::write_binary(
+        abstio::path(format!(
             "input/{}/{}_snapped_cycleways.bin",
             map.name.city, map.name.map
         )),

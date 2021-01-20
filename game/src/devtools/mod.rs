@@ -6,7 +6,7 @@ use geom::{LonLat, Percent};
 use map_gui::tools::{nice_map_name, ChooseSomething, CityPicker};
 use widgetry::{
     lctrl, Btn, Choice, DrawBaselayer, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, State, TextExt, VerticalAlignment, Widget,
+    Panel, State, StyledButtons, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -28,7 +28,7 @@ impl DevToolsMode {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Internal dev tools").small_heading().draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 Widget::row(vec![
                     "Change map:".draw_text(ctx),
@@ -44,7 +44,7 @@ impl DevToolsMode {
                     Btn::text_fg("load scenario").build_def(ctx, Key::W),
                     Btn::text_fg("view KML").build_def(ctx, Key::K),
                     Btn::text_fg("story maps").build_def(ctx, Key::S),
-                    if abstutil::file_exists(abstutil::path(format!(
+                    if abstio::file_exists(abstio::path(format!(
                         "input/{}/collisions.bin",
                         app.primary.map.get_city_name()
                     ))) {
@@ -73,9 +73,9 @@ impl State<App> for DevToolsMode {
                         ctx,
                         "Choose a polygon",
                         // This directory won't exist on the web or for binary releases, only for
-                        // people building from source. Also, abstutil::path is abused to find the
+                        // people building from source. Also, abstio::path is abused to find the
                         // importer/ directory.
-                        abstutil::list_dir(abstutil::path(format!(
+                        abstio::list_dir(abstio::path(format!(
                             "../importer/config/{}",
                             app.primary.map.get_city_name()
                         )))
@@ -107,12 +107,12 @@ impl State<App> for DevToolsMode {
                     return Transition::Push(ChooseSomething::new(
                         ctx,
                         "Choose a scenario",
-                        Choice::strings(abstutil::list_all_objects(abstutil::path_all_scenarios(
+                        Choice::strings(abstio::list_all_objects(abstio::path_all_scenarios(
                             app.primary.map.get_name(),
                         ))),
                         Box::new(|s, ctx, app| {
-                            let scenario = abstutil::read_binary(
-                                abstutil::path_scenario(app.primary.map.get_name(), &s),
+                            let scenario = abstio::read_binary(
+                                abstio::path_scenario(app.primary.map.get_name(), &s),
                                 &mut Timer::throwaway(),
                             );
                             Transition::Replace(scenario::ScenarioManager::new(scenario, ctx, app))

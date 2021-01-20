@@ -1,6 +1,6 @@
 use std::fs::File;
-use std::io;
 
+use anyhow::Result;
 use byteorder::{BigEndian, ReadBytesExt};
 
 use geom::{Distance, LonLat};
@@ -20,9 +20,9 @@ pub struct Elevation {
 }
 
 impl Elevation {
-    pub fn load(path: &str) -> Result<Elevation, io::Error> {
+    pub fn load(path: &str) -> Result<Elevation> {
         println!("Reading elevation data from {}", path);
-        let mut f = File::open(path).unwrap();
+        let mut f = File::open(path)?;
 
         let mut e = Elevation {
             // TODO dont hardcode
@@ -32,7 +32,7 @@ impl Elevation {
         };
         // TODO off by one?
         for _ in 0..GRID_DIM.pow(2) {
-            e.data.push(f.read_i16::<BigEndian>().unwrap());
+            e.data.push(f.read_i16::<BigEndian>()?);
         }
         Ok(e)
     }

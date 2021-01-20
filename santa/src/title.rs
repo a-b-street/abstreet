@@ -147,7 +147,7 @@ impl Credits {
             Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("15-minute Santa").big_heading_plain().draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 link(
                     ctx,
@@ -188,7 +188,7 @@ impl SimpleState<App> for Credits {
             "close" | "Back" => Transition::Pop,
             x => {
                 if let Some(url) = x.strip_prefix("open ") {
-                    open_browser(url.to_string());
+                    open_browser(url);
                     return Transition::Keep;
                 }
 

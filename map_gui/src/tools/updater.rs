@@ -1,17 +1,20 @@
 use std::collections::BTreeMap;
-use std::error::Error;
 use std::fs::File;
 
-use abstutil::{DataPacks, Manifest, Timer};
+use anyhow::Result;
+
+use abstio::{DataPacks, Manifest};
+use abstutil::Timer;
 use widgetry::{
-    Btn, Checkbox, EventCtx, GfxCtx, Line, Outcome, Panel, State, TextExt, Transition, Widget,
+    Btn, Checkbox, EventCtx, GfxCtx, Line, Outcome, Panel, State, StyledButtons, TextExt,
+    Transition, Widget,
 };
 
 use crate::tools::PopupMsg;
 use crate::AppLike;
 
 // Update this ___before___ pushing the commit with "[rebuild] [release]".
-const NEXT_RELEASE: &str = "0.2.25";
+const NEXT_RELEASE: &str = "0.2.28";
 
 pub struct Picker<A: AppLike> {
     panel: Panel,
@@ -29,7 +32,7 @@ impl<A: AppLike + 'static> Picker<A> {
         let mut col = vec![
             Widget::row(vec![
                 Line("Download more cities").small_heading().draw(ctx),
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
             "Select the cities you want to include".draw_text(ctx),
             Line(
@@ -71,7 +74,7 @@ impl<A: AppLike + 'static> State<A> for Picker<A> {
                             data_packs.runtime.insert(city);
                         }
                     }
-                    abstutil::write_json(abstutil::path("player/data.json"), &data_packs);
+                    abstio::write_json(abstio::path_player("data.json"), &data_packs);
 
                     let messages = ctx.loading_screen("sync files", |_, timer| sync(timer));
                     return Transition::Multi(vec![
@@ -143,8 +146,8 @@ fn sync(timer: &mut Timer) -> Vec<String> {
     timer.start_iter("sync files", truth.entries.len());
     for (path, entry) in truth.entries {
         timer.next();
-        let local_path = abstutil::path(path.strip_prefix("data/").unwrap());
-        if abstutil::file_exists(&local_path) {
+        let local_path = abstio::path(path.strip_prefix("data/").unwrap());
+        if abstio::file_exists(&local_path) {
             continue;
         }
         let url = format!(
@@ -182,10 +185,10 @@ fn sync(timer: &mut Timer) -> Vec<String> {
 }
 
 // Bytes downloaded if succesful
-fn download(url: &str, local_path: String, timer: &mut Timer) -> Result<usize, Box<dyn Error>> {
+fn download(url: &str, local_path: String, timer: &mut Timer) -> Result<usize> {
     let mut resp = reqwest::blocking::get(url)?;
     if !resp.status().is_success() {
-        return Err(format!("bad status: {:?}", resp.status()).into());
+        bail!("bad status: {:?}", resp.status());
     }
     let mut buffer: Vec<u8> = Vec::new();
     let bytes = resp.copy_to(&mut buffer)? as usize;

@@ -1,6 +1,8 @@
 //! This crate contains common code for applications that draw and interact with a `Map`.
 
 #[macro_use]
+extern crate anyhow;
+#[macro_use]
 extern crate log;
 
 use abstutil::Timer;
@@ -20,6 +22,7 @@ pub mod load;
 pub mod options;
 pub mod render;
 mod simple_app;
+pub mod theme;
 pub mod tools;
 
 /// An application wishing to use the tools in this crate has to implement this on the struct that

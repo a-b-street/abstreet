@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use abstutil::{prettyprint_usize, MultiMap, Parallelism, Timer};
 use geom::LonLat;
 use map_model::{osm, BuildingID, IntersectionID, Map, PathConstraints, PathRequest, PathStep};
-use sim::{IndividTrip, OrigPersonID, PersonSpec, Scenario, TripEndpoint, TripMode};
+use sim::{IndividTrip, MapBorders, OrigPersonID, PersonSpec, Scenario, TripEndpoint, TripMode};
 
 use crate::soundcast::popdat::{Endpoint, OrigTrip, PopDat};
 
@@ -134,49 +134,7 @@ fn clip_trips(map: &Map, popdat: &PopDat, huge_map: &Map, timer: &mut Timer) -> 
     for b in map.all_buildings() {
         osm_id_to_bldg.insert(b.orig_id, b.id);
     }
-    let bounds = map.get_gps_bounds();
-    let incoming_borders_walking: Vec<(IntersectionID, LonLat)> = map
-        .all_incoming_borders()
-        .into_iter()
-        .filter(|i| {
-            !i.get_outgoing_lanes(map, PathConstraints::Pedestrian)
-                .is_empty()
-        })
-        .map(|i| (i.id, i.polygon.center().to_gps(bounds)))
-        .collect();
-    let incoming_borders_driving: Vec<(IntersectionID, LonLat)> = map
-        .all_incoming_borders()
-        .into_iter()
-        .filter(|i| !i.get_outgoing_lanes(map, PathConstraints::Car).is_empty())
-        .map(|i| (i.id, i.polygon.center().to_gps(bounds)))
-        .collect();
-    let incoming_borders_biking: Vec<(IntersectionID, LonLat)> = map
-        .all_incoming_borders()
-        .into_iter()
-        .filter(|i| !i.get_outgoing_lanes(map, PathConstraints::Bike).is_empty())
-        .map(|i| (i.id, i.polygon.center().to_gps(bounds)))
-        .collect();
-    let outgoing_borders_walking: Vec<(IntersectionID, LonLat)> = map
-        .all_outgoing_borders()
-        .into_iter()
-        .filter(|i| {
-            !i.get_incoming_lanes(map, PathConstraints::Pedestrian)
-                .is_empty()
-        })
-        .map(|i| (i.id, i.polygon.center().to_gps(bounds)))
-        .collect();
-    let outgoing_borders_driving: Vec<(IntersectionID, LonLat)> = map
-        .all_outgoing_borders()
-        .into_iter()
-        .filter(|i| !i.get_incoming_lanes(map, PathConstraints::Car).is_empty())
-        .map(|i| (i.id, i.polygon.center().to_gps(bounds)))
-        .collect();
-    let outgoing_borders_biking: Vec<(IntersectionID, LonLat)> = map
-        .all_outgoing_borders()
-        .into_iter()
-        .filter(|i| !i.get_incoming_lanes(map, PathConstraints::Bike).is_empty())
-        .map(|i| (i.id, i.polygon.center().to_gps(bounds)))
-        .collect();
+    let borders = MapBorders::new(map);
 
     let total_trips = popdat.trips.len();
     let maybe_results: Vec<Option<Trip>> = timer.parallelize(
@@ -189,13 +147,7 @@ fn clip_trips(map: &Map, popdat: &PopDat, huge_map: &Map, timer: &mut Timer) -> 
                 &orig.to,
                 map,
                 &osm_id_to_bldg,
-                match orig.mode {
-                    TripMode::Walk | TripMode::Transit => {
-                        (&incoming_borders_walking, &outgoing_borders_walking)
-                    }
-                    TripMode::Drive => (&incoming_borders_driving, &outgoing_borders_driving),
-                    TripMode::Bike => (&incoming_borders_biking, &outgoing_borders_biking),
-                },
+                borders.for_mode(orig.mode),
                 match orig.mode {
                     TripMode::Walk | TripMode::Transit => PathConstraints::Pedestrian,
                     TripMode::Drive => PathConstraints::Car,

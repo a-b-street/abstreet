@@ -895,7 +895,7 @@ impl TutorialState {
             fire_station: app.primary.map.find_b_by_osm_id(bldg(731238736)).unwrap(),
         };
 
-        let tool_panel = tool_panel(ctx);
+        let tool_panel = tool_panel(ctx, app);
         let time = TimePanel::new(ctx, app);
         let speed = SpeedControls::new(ctx, app);
         let agent_meter = AgentMeter::new(ctx, app);
@@ -1412,7 +1412,7 @@ fn intro_story(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
              buses! Cheaper housing! Less rain! Free this, subsidized that!",
         )
         .boss("Light rail and robot cars aren't here to save the day! Know what you'll be using?")
-        .extra("drone", 1.0, "The traffic drone")
+        .extra("drone.svg", 1.0, "The traffic drone")
         .player("Is that... duct tape?")
         .boss(
             "Can't spit anymore cause of COVID and don't get me started on prayers. Well, off to \

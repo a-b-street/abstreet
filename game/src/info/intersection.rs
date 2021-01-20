@@ -4,11 +4,11 @@ use abstutil::prettyprint_usize;
 use geom::{ArrowCap, Distance, Duration, PolyLine, Polygon, Time};
 use map_gui::options::TrafficSignalStyle;
 use map_gui::render::traffic_signal::draw_signal_stage;
-use map_model::{IntersectionID, IntersectionType, PhaseType};
+use map_model::{IntersectionID, IntersectionType, StageType};
 use sim::AgentType;
 use widgetry::{
     Btn, Checkbox, Color, DrawWithTooltips, EventCtx, FanChart, GeomBatch, Line, PlotOptions,
-    ScatterPlot, Series, Text, Widget,
+    ScatterPlot, Series, StyledButtons, Text, Widget,
 };
 
 use crate::app::App;
@@ -35,7 +35,11 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID
     rows.push(txt.draw(ctx));
 
     if app.opts.dev {
-        rows.push(Btn::text_bg1("Open OSM node").build(ctx, format!("open {}", i.orig_id), None));
+        rows.push(
+            ctx.style()
+                .btn_primary_light_text("Open OSM node")
+                .build_widget(ctx, &format!("open {}", i.orig_id)),
+        );
     }
 
     rows
@@ -271,7 +275,7 @@ pub fn traffic_signal(
         {
             let mut total = Duration::ZERO;
             for s in &signal.stages {
-                total += s.phase_type.simple_duration();
+                total += s.stage_type.simple_duration();
             }
             // TODO Say "normally" or something?
             txt.add(Line(format!("One cycle lasts {}", total)));
@@ -281,10 +285,9 @@ pub fn traffic_signal(
 
     for (idx, stage) in signal.stages.iter().enumerate() {
         rows.push(
-            match stage.phase_type {
-                PhaseType::Fixed(d) => Line(format!("Stage {}: {}", idx + 1, d)),
-                PhaseType::Adaptive(d) => Line(format!("Stage {}: {} (adaptive)", idx + 1, d)),
-                PhaseType::Variable(min, delay, additional) => Line(format!(
+            match stage.stage_type {
+                StageType::Fixed(d) => Line(format!("Stage {}: {}", idx + 1, d)),
+                StageType::Variable(min, delay, additional) => Line(format!(
                     "Stage {}: {}, {}, {} (variable)",
                     idx + 1,
                     min,
@@ -398,7 +401,7 @@ fn header(
     };
     rows.push(Widget::row(vec![
         Line(label).small_heading().draw(ctx),
-        header_btns(ctx),
+        header_btns(ctx, app),
     ]));
 
     rows.push(make_tabs(ctx, &mut details.hyperlinks, tab, {

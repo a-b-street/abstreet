@@ -149,6 +149,22 @@ pub fn make_walking_turns(map: &Map, i: &Intersection, timer: &mut Timer) -> Vec
     result
 }
 
+/// Filter out crosswalks on really short roads. In reality, these roads are usually located within
+/// an intersection, which isn't a valid place for a pedestrian crossing.
+pub fn filter_turns(mut input: Vec<Turn>, map: &Map, i: &Intersection) -> Vec<Turn> {
+    for r in &i.roads {
+        if map.get_r(*r).is_extremely_short() {
+            input.retain(|t| {
+                !(map.get_l(t.id.src).parent == *r
+                    && map.get_l(t.id.dst).parent == *r
+                    && t.turn_type == TurnType::Crosswalk)
+            });
+        }
+    }
+
+    input
+}
+
 // TODO Need to filter out extraneous crosswalks. Why weren't they being created before?
 pub fn _make_walking_turns_v2(map: &Map, i: &Intersection, timer: &mut Timer) -> Vec<Turn> {
     let driving_side = map.config.driving_side;

@@ -5,9 +5,7 @@ use std::hash::Hasher;
 use geom::{PolyLine, Polygon};
 
 use crate::assets::Assets;
-use crate::{
-    svg, Color, DeferDraw, EventCtx, GeomBatch, JustDraw, MultiKey, Prerender, ScreenDims, Widget,
-};
+use crate::{svg, Color, DeferDraw, EventCtx, GeomBatch, JustDraw, MultiKey, ScreenDims, Widget};
 
 // Same as body()
 pub const DEFAULT_FONT: Font = Font::OverpassRegular;
@@ -129,6 +127,16 @@ impl TextSpan {
 
     pub fn underlined(mut self) -> TextSpan {
         self.underlined = true;
+        self
+    }
+
+    pub fn size(mut self, size: usize) -> TextSpan {
+        self.size = size;
+        self
+    }
+
+    pub fn font(mut self, font: Font) -> TextSpan {
+        self.font = font;
         self
     }
 }
@@ -442,9 +450,9 @@ fn render_line(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
     for span in spans {
         write!(
             &mut contents,
-            r##"<tspan fill="{}" {}>{}</tspan>"##,
-            // TODO Doesn't support alpha
+            r##"<tspan fill="{}" fill-opacity="{}" {}>{}</tspan>"##,
             span.fg_color.to_hex(),
+            span.fg_color.a,
             if span.underlined {
                 "text-decoration=\"underline\""
             } else {
@@ -492,8 +500,13 @@ impl TextExt for String {
 
 impl TextSpan {
     // TODO Copies from render_line a fair amount
-    pub fn render_curvey(self, prerender: &Prerender, path: &PolyLine, scale: f64) -> GeomBatch {
-        let assets = &prerender.assets;
+    pub fn render_curvey<A: AsRef<Assets>>(
+        self,
+        assets: &A,
+        path: &PolyLine,
+        scale: f64,
+    ) -> GeomBatch {
+        let assets = assets.as_ref();
         let tolerance = svg::HIGH_QUALITY;
 
         // Just set a sufficiently large view box
@@ -520,7 +533,7 @@ impl TextSpan {
             - (Text::from(Line(&self.text)).dims(assets).width * scale) / 2.0;
         write!(
             &mut svg,
-            r##"<text xml:space="preserve" font-size="{}" font-family="{}" {} fill="{}" startOffset="{}">"##,
+            r##"<text xml:space="preserve" font-size="{}" font-family="{}" {} fill="{}" fill-opacity="{}" startOffset="{}">"##,
             // This is seemingly the easiest way to do this. We could .scale() the whole batch
             // after, but then we have to re-translate it to the proper spot
             (self.size as f64) * scale,
@@ -531,6 +544,7 @@ impl TextSpan {
                 _ => "",
             },
             self.fg_color.to_hex(),
+            self.fg_color.a,
             start_offset,
         )
             .unwrap();

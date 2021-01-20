@@ -1,13 +1,14 @@
 use map_gui::tools::{grey_out_map, HeatmapOptions};
 use widgetry::{
-    Btn, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, TextExt, Widget,
+    DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, StyledButtons, TextExt,
+    Widget,
 };
 
 use crate::app::{App, Transition};
-use crate::common::hotkey_btn;
 use crate::sandbox::dashboards;
 
 mod elevation;
+pub mod favorites;
 pub mod map;
 mod pandemic;
 mod parking;
@@ -83,7 +84,7 @@ impl PickLayer {
     pub fn pick(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let mut col = vec![Widget::custom_row(vec![
             Line("Layers").small_heading().draw(ctx),
-            Btn::close(ctx),
+            ctx.style().btn_close_widget(ctx),
         ])];
 
         let current = match app.primary.layer {
@@ -91,11 +92,11 @@ impl PickLayer {
             Some(ref l) => l.name().unwrap_or(""),
         };
         let btn = |name: &str, key| {
+            let mut button = app.cs.btn_hotkey_light(name, key);
             if name == current {
-                Btn::text_bg2(name).inactive(ctx)
-            } else {
-                hotkey_btn(ctx, app, name, key)
+                button = button.disabled();
             }
+            button.build_widget(ctx, name)
         };
 
         col.push(btn("None", Key::N));
@@ -116,6 +117,7 @@ impl PickLayer {
                     btn("transit network", Key::U),
                     btn("population map", Key::X),
                     btn("no sidewalks", Key::S),
+                    btn("favorite buildings", Key::F),
                 ]),
             ])
             .evenly_spaced(),
@@ -182,6 +184,9 @@ impl State<App> for PickLayer {
                 }
                 "no sidewalks" => {
                     app.primary.layer = Some(Box::new(map::Static::no_sidewalks(ctx, app)));
+                }
+                "favorite buildings" => {
+                    app.primary.layer = Some(Box::new(favorites::ShowFavorites::new(ctx, app)));
                 }
                 "pandemic model" => {
                     app.primary.layer = Some(Box::new(pandemic::Pandemic::new(

@@ -1,18 +1,19 @@
 use std::collections::HashSet;
 
-use abstutil::{MapName, Parallelism, Tags, Timer};
+use abstio::MapName;
+use abstutil::{Parallelism, Tags, Timer};
 use geom::{Distance, Pt2D};
 use map_gui::load::MapLoader;
 use map_gui::options::OptionsPanel;
-use map_gui::render::{calculate_corners, DrawOptions};
+use map_gui::render::{calculate_corners, DrawMap, DrawOptions};
 use map_gui::tools::{ChooseSomething, PopupMsg, PromptInput};
 use map_gui::ID;
 use map_model::{osm, ControlTrafficSignal, IntersectionID, NORMAL_LANE_THICKNESS};
 use sim::Sim;
 use widgetry::{
     lctrl, Btn, Cached, Checkbox, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch,
-    GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text, UpdateType,
-    VerticalAlignment, Widget,
+    GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, ScreenDims, State, StyledButtons, Text,
+    UpdateType, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, ShowLayers, ShowObject, Transition};
@@ -42,12 +43,12 @@ pub struct DebugMode {
 }
 
 impl DebugMode {
-    pub fn new(ctx: &mut EventCtx) -> Box<dyn State<App>> {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         Box::new(DebugMode {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Debug Mode").small_heading().draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 Text::new().draw(ctx).named("current info"),
                 Checkbox::switch(ctx, "show buildings", Key::Num1, true),
@@ -58,7 +59,7 @@ impl DebugMode {
                 Checkbox::switch(ctx, "show route for all agents", Key::R, false),
                 Widget::col(vec![
                     Btn::text_fg("unhide everything").build_def(ctx, lctrl(Key::H)),
-                    Btn::text_fg("screenshot everything").build_def(ctx, None),
+                    Btn::text_fg("screenshot everything (for leaflet)").build_def(ctx, None),
                     Btn::text_fg("screenshot all of the everything").build_def(ctx, None),
                     Btn::text_fg("search OSM metadata").build_def(ctx, Key::Slash),
                     Btn::text_fg("clear OSM search results").build_def(ctx, lctrl(Key::Slash)),
@@ -71,6 +72,7 @@ impl DebugMode {
                     Btn::text_fg("find large intersections").build_def(ctx, None),
                     Btn::text_fg("sim internal stats").build_def(ctx, None),
                     Btn::text_fg("blocked-by graph").build_def(ctx, Key::B),
+                    Btn::text_fg("render to GeoJSON").build_def(ctx, Key::G),
                 ]),
                 Text::from_all(vec![
                     Line("Hold "),
@@ -82,7 +84,7 @@ impl DebugMode {
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
             common: CommonState::new(),
-            tool_panel: tool_panel(ctx),
+            tool_panel: tool_panel(ctx, app),
             objects: objects::ObjectDebugger,
             hidden: HashSet::new(),
             layers: ShowLayers::new(),
@@ -190,7 +192,7 @@ impl State<App> for DebugMode {
                     return Transition::Push(ChooseSomething::new(
                         ctx,
                         "Load which savestate?",
-                        Choice::strings(abstutil::list_all_objects(app.primary.sim.save_dir())),
+                        Choice::strings(abstio::list_all_objects(app.primary.sim.save_dir())),
                         Box::new(|ss, ctx, app| {
                             // TODO Oh no, we have to do path construction here :(
                             let ss_path = format!("{}/{}.bin", app.primary.sim.save_dir(), ss);
@@ -220,8 +222,8 @@ impl State<App> for DebugMode {
                     self.search_results = None;
                     self.reset_info(ctx);
                 }
-                "screenshot everything" => {
-                    screenshot_everything(ctx, app);
+                "screenshot everything (for leaflet)" => {
+                    export_for_leaflet(ctx, app);
                     return Transition::Keep;
                 }
                 "screenshot all of the everything" => {
@@ -233,7 +235,7 @@ impl State<App> for DebugMode {
                             MapName::new("krakow", "center"),
                             MapName::seattle("lakeslice"),
                             MapName::seattle("montlake"),
-                            MapName::new("london", "southbank"),
+                            MapName::new("cambridge", "great_kneighton"),
                             MapName::seattle("udistrict"),
                         ],
                     ));
@@ -256,6 +258,22 @@ impl State<App> for DebugMode {
                 }
                 "blocked-by graph" => {
                     return Transition::Push(blocked_by::Viewer::new(ctx, app));
+                }
+                "render to GeoJSON" => {
+                    // TODO Loading screen doesn't actually display anything because of the rules
+                    // around hiding the first few draws
+                    ctx.loading_screen("render to GeoJSON", |ctx, timer| {
+                        timer.start("render");
+                        let batch = DrawMap::zoomed_batch(ctx, app);
+                        let features = batch.to_geojson(Some(app.primary.map.get_gps_bounds()));
+                        let geojson = geojson::GeoJson::from(geojson::FeatureCollection {
+                            bbox: None,
+                            features,
+                            foreign_members: None,
+                        });
+                        abstio::write_json("rendered_map.json".to_string(), &geojson);
+                        timer.stop("render");
+                    });
                 }
                 _ => unreachable!(),
             },
@@ -651,13 +669,8 @@ fn find_bad_signals(app: &App) {
     println!("Bad traffic signals:");
     for i in app.primary.map.all_intersections() {
         if i.is_traffic_signal() {
-            let first = &ControlTrafficSignal::get_possible_policies(
-                &app.primary.map,
-                i.id,
-                &mut Timer::throwaway(),
-            )[0]
-            .0;
-            if first == "phase per road" || first == "arbitrary assignment" {
+            let first = &ControlTrafficSignal::get_possible_policies(&app.primary.map, i.id)[0].0;
+            if first == "stage per road" || first == "arbitrary assignment" {
                 println!("- {}", i.id);
                 ControlTrafficSignal::brute_force(&app.primary.map, i.id);
             }
@@ -734,10 +747,13 @@ fn find_large_intersections(app: &App) {
 struct ScreenshotTest {
     todo_maps: Vec<MapName>,
     screenshot_done: bool,
+    orig_min_zoom: f64,
 }
 
 impl ScreenshotTest {
-    fn new(ctx: &mut EventCtx, app: &App, mut todo_maps: Vec<MapName>) -> Box<dyn State<App>> {
+    fn new(ctx: &mut EventCtx, app: &mut App, mut todo_maps: Vec<MapName>) -> Box<dyn State<App>> {
+        let orig_min_zoom = app.opts.min_zoom_for_detail;
+        app.opts.min_zoom_for_detail = 0.0;
         MapLoader::new(
             ctx,
             app,
@@ -746,6 +762,7 @@ impl ScreenshotTest {
                 Transition::Replace(Box::new(ScreenshotTest {
                     todo_maps,
                     screenshot_done: false,
+                    orig_min_zoom,
                 }))
             }),
         )
@@ -756,6 +773,7 @@ impl State<App> for ScreenshotTest {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if self.screenshot_done {
             if self.todo_maps.is_empty() {
+                app.opts.min_zoom_for_detail = self.orig_min_zoom;
                 Transition::Pop
             } else {
                 Transition::Replace(ScreenshotTest::new(
@@ -766,7 +784,13 @@ impl State<App> for ScreenshotTest {
             }
         } else {
             self.screenshot_done = true;
-            screenshot_everything(ctx, app);
+            let name = app.primary.map.get_name();
+            ctx.request_update(UpdateType::ScreenCaptureEverything {
+                dir: format!("screenshots/{}/{}", name.city, name.map),
+                zoom: 3.0,
+                dims: ctx.canvas.get_window_dims(),
+                leaflet_naming: false,
+            });
             // TODO Sometimes this still gets stuck and needs a mouse wiggle for input event?
             Transition::Keep
         }
@@ -774,14 +798,21 @@ impl State<App> for ScreenshotTest {
     fn draw(&self, _: &mut GfxCtx, _: &App) {}
 }
 
-fn screenshot_everything(ctx: &mut EventCtx, app: &App) {
-    let bounds = app.primary.map.get_bounds();
-    assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
+fn export_for_leaflet(ctx: &mut EventCtx, app: &App) {
     let name = app.primary.map.get_name();
-    ctx.request_update(UpdateType::ScreenCaptureEverything {
-        dir: format!("screenshots/{}/{}", name.city, name.map),
-        zoom: 3.0,
-        max_x: bounds.max_x,
-        max_y: bounds.max_y,
-    });
+    let bounds = app.primary.map.get_bounds();
+    let map_length = bounds.width().max(bounds.height());
+
+    // At zoom level N, the entire map fits into (N + 1) * (N + 1) tiles
+    for zoom_level in 0..=25 {
+        let num_tiles = zoom_level + 1;
+        // How do we fit the entire map_length into this many tiles?
+        let zoom = 256.0 * (num_tiles as f64) / map_length;
+        ctx.request_update(UpdateType::ScreenCaptureEverything {
+            dir: format!("screenshots/{}/{}/{}", name.city, name.map, zoom_level),
+            zoom,
+            dims: ScreenDims::new(256.0, 256.0),
+            leaflet_naming: true,
+        });
+    }
 }

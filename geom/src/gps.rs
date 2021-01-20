@@ -1,8 +1,8 @@
-use std::error::Error;
 use std::fmt;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Write};
 
+use anyhow::Result;
 use ordered_float::NotNan;
 use serde::{Deserialize, Serialize};
 
@@ -72,7 +72,7 @@ impl LonLat {
 
     /// Parses a file in the https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format
     /// and returns all points.
-    pub fn read_osmosis_polygon(path: &str) -> Result<Vec<LonLat>, Box<dyn Error>> {
+    pub fn read_osmosis_polygon(path: &str) -> Result<Vec<LonLat>> {
         let f = File::open(path)?;
         let mut pts = Vec::new();
         for (idx, line) in BufReader::new(f).lines().enumerate() {
@@ -95,7 +95,7 @@ impl LonLat {
     /// Writes a set of points to a file in the
     /// https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format. The input should
     /// be a closed ring, with the first and last point matching.
-    pub fn write_osmosis_polygon(path: &str, pts: &Vec<LonLat>) -> Result<(), Box<dyn Error>> {
+    pub fn write_osmosis_polygon(path: &str, pts: &Vec<LonLat>) -> Result<()> {
         let mut f = File::create(path)?;
         writeln!(f, "boundary")?;
         writeln!(f, "1")?;

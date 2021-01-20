@@ -80,8 +80,8 @@ could fill out `data/config` and use the `updater` described above to grab the
 latest input.
 
 Building contraction hierarchies for pathfinding occurs in the --map stage. It
-can take a few minutes for larger maps. To view occasional progress updates,
-you can run the importer with
+can take a few minutes for larger maps. To view occasional progress updates, you
+can run the importer with
 
     RUST_LOG="fast_paths=debug/contracted node [0-9]+0000 "
 
@@ -136,7 +136,8 @@ Graphics:
 
 Common utilities:
 
-- `abstutil`: a grab-bag of IO helpers, timing and logging utilities, etc
+- `abstutil`: a grab-bag timing and logging utilities
+- `abstio`: Reading/writing files on native/web
 - `geom`: types for GPS and map-space points, lines, angles, polylines,
   polygons, circles, durations, speeds
 
@@ -150,6 +151,8 @@ Other:
 - `osm_viewer`: a standalone tool to render OSM in detail
 - `fifteen_min`: a standalone tool to explore 15-minute neighborhoods
 - `popdat`: use census data to produce traffic simulation input
+- `traffic_signal_data`: manual timing overrides for some traffic signals
+- `sumo`: interoperability with [SUMO](https://www.eclipse.org/sumo)
 
 ## Code conventions
 
@@ -162,6 +165,10 @@ conflict with what some IDEs do. Follow existing code to group imports: std,
 external crates, other crates in the project, the current crate, then finally
 any module declarations.
 
+See the [testing strategy](testing.md) page.
+
+## Error handling
+
 The error handling is unfortunately inconsistent. The goal is to gracefully
 degrade instead of crashing the game. If a crash does happen, make sure the logs
 will have enough context to reproduce and debug. For example, giving up when
@@ -172,7 +179,10 @@ problems is useful. It's also fine to crash when initially constructing all of
 the renderable map objects, because this crash will consistently happen at
 startup-time and be noticed by somebody developing before a player gets to it.
 
-See the [testing strategy](testing.md) page.
+Since almost none of the code ever needs to distinguish error cases, use
+[anyhow](https://crates.io/crates/anyhow). Most of the errors generated within
+A/B Street are just strings anyway; the `bail!` macro is a convenient way to
+return them.
 
 ## Logging
 
@@ -205,9 +215,8 @@ pattern with the "/":
     # only log once every 10k
     RUST_LOG="fast_paths=debug/contracted node [0-9]+0000 " mike import_la
 
-See the [env_logger
-documentation](https://docs.rs/env_logger/0.8.2/env_logger/) for more usage
-examples.
+See the [env_logger documentation](https://docs.rs/env_logger/0.8.2/env_logger/)
+for more usage examples.
 
 ## Profiling
 
