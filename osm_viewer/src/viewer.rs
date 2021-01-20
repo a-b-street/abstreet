@@ -52,11 +52,9 @@ impl Viewer {
             ]),
             Widget::row(vec![
                 "Change map:".draw_text(ctx),
-                Btn::pop_up(ctx, Some(nice_map_name(app.map.get_name()))).build(
-                    ctx,
-                    "change map",
-                    lctrl(Key::L),
-                ),
+                ctx.style()
+                    .btn_light_popup(ctx, Some(nice_map_name(app.map.get_name())))
+                    .build(ctx, "change map", lctrl(Key::L)),
             ]),
             Widget::row(vec![
                 Btn::svg_def("system/assets/tools/settings.svg").build(ctx, "settings", None),

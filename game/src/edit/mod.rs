@@ -750,7 +750,10 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Panel {
     let edits = app.primary.map.get_edits();
     let mut col = vec![
         Widget::row(vec![
-            Btn::pop_up(ctx, Some(&edits.edits_name)).build(ctx, "manage proposals", lctrl(Key::P)),
+            ctx.style()
+                .btn_popup_light(&edits.edits_name)
+                .hotkey(lctrl(Key::P))
+                .build_widget(ctx, "manage proposals"),
             "autosaved"
                 .draw_text(ctx)
                 .container()
