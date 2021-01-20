@@ -32,11 +32,10 @@ impl DevToolsMode {
                 ]),
                 Widget::row(vec![
                     "Change map:".draw_text(ctx),
-                    Btn::pop_up(ctx, Some(nice_map_name(app.primary.map.get_name()))).build(
-                        ctx,
-                        "change map",
-                        lctrl(Key::L),
-                    ),
+                    ctx.style()
+                        .btn_popup_light(nice_map_name(app.primary.map.get_name()))
+                        .hotkey(lctrl(Key::L))
+                        .build_widget(ctx, "change map"),
                 ]),
                 Widget::custom_row(vec![
                     Btn::text_fg("edit a polygon").build_def(ctx, Key::E),

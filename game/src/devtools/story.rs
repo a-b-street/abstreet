@@ -312,15 +312,20 @@ fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) ->
         Widget::row(vec![
             Line("Story map editor").small_heading().draw(ctx),
             Widget::vert_separator(ctx, 30.0),
-            Btn::pop_up(ctx, Some(&story.name)).build(ctx, "load", lctrl(Key::L)),
-            if dirty {
-                Btn::svg_def("system/assets/tools/save.svg").build(ctx, "save", lctrl(Key::S))
-            } else {
-                Widget::draw_svg_transform(
-                    ctx,
-                    "system/assets/tools/save.svg",
-                    RewriteColor::ChangeAlpha(0.5),
-                )
+            ctx.style()
+                .btn_popup_light(&story.name)
+                .hotkey(lctrl(Key::L))
+                .build_widget(ctx, "load"),
+            {
+                let mut save_button = ctx
+                    .style()
+                    .btn_primary_light_icon("system/assets/tools/save.svg")
+                    .hotkey(lctrl(Key::S));
+                if !dirty {
+                    save_button = save_button.disabled();
+                }
+
+                save_button.build_widget(ctx, "save")
             },
             ctx.style().btn_close_widget(ctx),
         ]),

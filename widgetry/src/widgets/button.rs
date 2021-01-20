@@ -210,55 +210,6 @@ impl Btn {
             selected_bg_color: Color::grey(0.8),
         }
     }
-
-    pub fn pop_up<I: Into<String>>(ctx: &EventCtx, label: Option<I>) -> BtnBuilder {
-        let mut icon_batch = GeomBatch::new();
-        let icon_container = Polygon::rectangle(20.0, 30.0);
-        icon_batch.push(Color::CLEAR, icon_container);
-
-        let icon = GeomBatch::from_svg_contents(
-            include_bytes!("../../icons/arrow_drop_down.svg").to_vec(),
-        )
-        .color(RewriteColor::ChangeAll(ctx.style().outline_color))
-        .autocrop()
-        .centered_on(icon_batch.get_bounds().center());
-
-        icon_batch.append(icon);
-
-        let button_geom = if let Some(label) = label {
-            let text = Text::from(Line(label));
-            let mut text_geom: GeomBatch = text.render(ctx);
-            text_geom.append(icon_batch.translate(text_geom.get_bounds().width() + 8.0, 0.0));
-            text_geom
-        } else {
-            icon_batch
-        };
-
-        let (button_geom, hitbox) = button_geom
-            .batch()
-            .container()
-            .padding(EdgeInsets {
-                top: 4.0,
-                bottom: 4.0,
-                left: 8.0,
-                right: 8.0,
-            })
-            .to_geom(ctx, None);
-
-        let hovered = button_geom.clone().color(RewriteColor::Change(
-            ctx.style().outline_color,
-            ctx.style().hovering_color,
-        ));
-
-        let outline = (ctx.style().outline_thickness, ctx.style().outline_color);
-        BtnBuilder::Custom {
-            normal: button_geom,
-            hovered,
-            hitbox,
-            maybe_tooltip: None,
-            maybe_outline: Some(outline),
-        }
-    }
 }
 
 #[derive(Clone, Debug, Default)]
@@ -799,14 +750,6 @@ pub enum BtnBuilder {
         unselected_bg_color: Color,
         selected_bg_color: Color,
     },
-    Custom {
-        normal: GeomBatch,
-        hovered: GeomBatch,
-        hitbox: Polygon,
-        maybe_tooltip: Option<Text>,
-        // thickness, color
-        maybe_outline: Option<(f64, Color)>,
-    },
 }
 
 impl BtnBuilder {
@@ -814,10 +757,6 @@ impl BtnBuilder {
         match self {
             BtnBuilder::TextFG(_, _, ref mut maybe_tooltip)
             | BtnBuilder::PlainText {
-                ref mut maybe_tooltip,
-                ..
-            }
-            | BtnBuilder::Custom {
                 ref mut maybe_tooltip,
                 ..
             } => {
@@ -961,31 +900,6 @@ impl BtnBuilder {
                     false,
                 )
             }
-            BtnBuilder::Custom {
-                normal,
-                hovered,
-                hitbox,
-                maybe_tooltip,
-                maybe_outline,
-            } => {
-                let button = Button::widget(
-                    ctx,
-                    normal.clone(),
-                    hovered,
-                    normal,
-                    key.into(),
-                    &action.into(),
-                    maybe_tooltip,
-                    hitbox,
-                    false,
-                );
-
-                if let Some(outline) = maybe_outline {
-                    button.outline(outline.0, outline.1)
-                } else {
-                    button
-                }
-            }
         }
     }
 
@@ -993,7 +907,6 @@ impl BtnBuilder {
     pub fn build_def<MK: Into<Option<MultiKey>>>(self, ctx: &EventCtx, key: MK) -> Widget {
         match self {
             BtnBuilder::SVG { .. } => panic!("Can't use build_def on an SVG button"),
-            BtnBuilder::Custom { .. } => panic!("Can't use build_def on a custom button"),
             BtnBuilder::TextFG(ref action, _, _)
             | BtnBuilder::PlainText { ref action, .. }
             | BtnBuilder::TextBG { ref action, .. } => {

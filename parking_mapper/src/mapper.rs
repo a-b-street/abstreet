@@ -134,11 +134,9 @@ impl ParkingMapper {
                 ]),
                 Widget::row(vec![
                     "Change map:".draw_text(ctx),
-                    Btn::pop_up(ctx, Some(nice_map_name(map.get_name()))).build(
-                        ctx,
-                        "change map",
-                        None,
-                    ),
+                    ctx.style()
+                        .btn_popup_light(nice_map_name(map.get_name()))
+                        .build_widget(ctx, "change map"),
                 ]),
                 format!(
                     "{} / {} ways done (you've mapped {})",

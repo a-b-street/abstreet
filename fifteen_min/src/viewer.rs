@@ -273,11 +273,10 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
 
     rows.push(Widget::row(vec![
         "Map:".draw_text(ctx),
-        Btn::pop_up(ctx, Some(nice_map_name(app.map.get_name()))).build(
-            ctx,
-            "change map",
-            lctrl(Key::L),
-        ),
+        ctx.style()
+            .btn_popup_light(nice_map_name(app.map.get_name()))
+            .hotkey(lctrl(Key::L))
+            .build_widget(ctx, "change map"),
     ]));
 
     rows.push(
