@@ -361,6 +361,22 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                     .build_widget(ctx, "btn_secondary_light_icon_text"),
             ]),
         ]),
+        Text::from(
+            Line("Controls should be same height")
+                .big_heading_styled()
+                .size(18),
+        )
+        .draw(ctx),
+        Widget::row(vec![
+            btn.btn_primary_light_icon("system/assets/tools/layers.svg")
+                .build_widget(ctx, "btn_height_icon"),
+            btn.btn_primary_light_text("text")
+                .build_widget(ctx, "btn_height_text"),
+            btn.btn_secondary_light_icon_text("system/assets/tools/layers.svg", "icon+text")
+                .build_widget(ctx, "btn_height_icon_text"),
+            btn.btn_popup_light("popup")
+                .build_widget(ctx, "btn_height_popup"),
+        ]),
         Text::from(Line("Spinner").big_heading_styled().size(18)).draw(ctx),
         widgetry::Spinner::new(ctx, (0, 11), 1),
         Widget::row(vec![
