@@ -200,19 +200,6 @@ impl Btn {
         }
     }
 
-    // The info panel style with the lighter background color
-    pub fn text_bg1<I: Into<String>>(action: I) -> BtnBuilder {
-        let action = action.into();
-        BtnBuilder::TextBG {
-            action: action.clone(),
-            maybe_tooltip: None,
-
-            text: Text::from(Line(action)),
-            unselected_bg_color: Color::grey(0.5),
-            selected_bg_color: Color::ORANGE,
-        }
-    }
-
     // The white background.
     pub fn text_bg2<I: Into<String>>(action: I) -> BtnBuilder {
         let action = action.into();

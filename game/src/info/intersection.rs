@@ -8,7 +8,7 @@ use map_model::{IntersectionID, IntersectionType, StageType};
 use sim::AgentType;
 use widgetry::{
     Btn, Checkbox, Color, DrawWithTooltips, EventCtx, FanChart, GeomBatch, Line, PlotOptions,
-    ScatterPlot, Series, Text, Widget,
+    ScatterPlot, Series, StyledButtons, Text, Widget,
 };
 
 use crate::app::App;
@@ -35,7 +35,11 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID
     rows.push(txt.draw(ctx));
 
     if app.opts.dev {
-        rows.push(Btn::text_bg1("Open OSM node").build(ctx, format!("open {}", i.orig_id), None));
+        rows.push(
+            ctx.style()
+                .btn_primary_light_text("Open OSM node")
+                .build_widget(ctx, &format!("open {}", i.orig_id)),
+        );
     }
 
     rows
