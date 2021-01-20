@@ -3,8 +3,8 @@ use std::marker::PhantomData;
 use abstutil::clamp;
 use geom::{Distance, Polygon, Pt2D, Ring};
 use widgetry::{
-    Btn, Drawable, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel,
-    ScreenPt, Spinner, Transition, VerticalAlignment, Widget,
+    Btn, ControlState, Drawable, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Line,
+    Outcome, Panel, ScreenPt, Spinner, StyledButtons, Transition, VerticalAlignment, Widget,
 };
 
 use crate::AppLike;
@@ -100,8 +100,11 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
         }
 
         let zoom_col = {
-            let mut col = vec![Btn::svg_def("system/assets/speed/speed_up.svg")
-                .build(ctx, "zoom in", None)
+            let mut col = vec![ctx
+                .style()
+                .btn_plain_light_icon("system/assets/speed/speed_up.svg")
+                .build_widget(ctx, "zoom in")
+                .centered_horiz()
                 .margin_below(20)];
             for i in (0..=3).rev() {
                 let color = if self.zoom_lvl < i {
@@ -110,19 +113,29 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
                     app.cs().minimap_selected_zoom
                 };
                 let rect = Polygon::rectangle(20.0, 8.0);
+
+                let default_batch = GeomBatch::from(vec![(color, rect.clone())]);
+                let hover_batch = GeomBatch::from(vec![(app.cs().hovering, rect)]);
+
+                let level_btn = ctx
+                    .style()
+                    .btn_plain_light()
+                    .custom_batch(default_batch, ControlState::Default)
+                    .custom_batch(hover_batch, ControlState::Hovered)
+                    .padding(10);
+
                 col.push(
-                    Btn::custom(
-                        GeomBatch::from(vec![(color, rect.clone())]),
-                        GeomBatch::from(vec![(app.cs().hovering, rect.clone())]),
-                        rect,
-                        None,
-                    )
-                    .build(ctx, format!("zoom to level {}", i + 1), None)
-                    .margin_below(20),
+                    level_btn
+                        .build_widget(ctx, &format!("zoom to level {}", i + 1))
+                        .centered_horiz()
+                        .margin_below(20),
                 );
             }
             col.push(
-                Btn::svg_def("system/assets/speed/slow_down.svg").build(ctx, "zoom out", None),
+                ctx.style()
+                    .btn_plain_light_icon("system/assets/speed/slow_down.svg")
+                    .build_widget(ctx, "zoom out")
+                    .centered_horiz(),
             );
             // The zoom column should start below the "pan up" arrow. But if we put it on the row
             // with <, minimap, and > then it messes up the horizontal alignment of the

@@ -1,7 +1,10 @@
 use abstutil::prettyprint_usize;
 use geom::Polygon;
 
-use crate::{Btn, Color, EventCtx, GeomBatch, Key, Line, Panel, Text, TextExt, Widget};
+use crate::{
+    Btn, Color, ControlState, EventCtx, GeomBatch, Key, Line, Panel, StyledButtons, Text, TextExt,
+    Widget,
+};
 
 const ROWS: usize = 8;
 
@@ -260,9 +263,12 @@ fn make_table(
         hovered.append(batch.clone());
 
         col.push(
-            Btn::custom(batch, hovered, rect, None)
+            ctx.style()
+                .btn_plain_light()
+                .custom_batch(batch, ControlState::Default)
+                .custom_batch(hovered, ControlState::Hovered)
                 .no_tooltip()
-                .build(ctx, label, None),
+                .build_widget(ctx, &label),
         );
     }
 
