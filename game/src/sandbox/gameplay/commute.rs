@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use geom::{Duration, Time};
 use sim::{OrigPersonID, PersonID, TripID};
 use widgetry::{
-    Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, RewriteColor, State,
+    Color, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, RewriteColor, State,
     StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
@@ -197,19 +197,17 @@ impl GameplayState for OptimizeCommute {
         self.meter.draw(g);
     }
 
-    fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
+    fn recreate_panels(&mut self, ctx: &mut EventCtx, _app: &App) {
         self.top_center = Panel::new(Widget::col(vec![
             challenge_header(ctx, "Optimize the VIP's commute"),
             Widget::row(vec![
                 format!("Speed up the VIP's trips by {}", self.goal)
                     .draw_text(ctx)
                     .centered_vert(),
-                Btn::svg(
-                    "system/assets/tools/hint.svg",
-                    RewriteColor::Change(Color::WHITE, app.cs.hovering),
-                )
-                .build(ctx, "hint", None)
-                .align_right(),
+                ctx.style()
+                    .btn_plain_light_icon("system/assets/tools/hint.svg")
+                    .build_widget(ctx, "hint")
+                    .align_right(),
             ]),
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)

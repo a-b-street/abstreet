@@ -245,7 +245,7 @@ impl GameplayState for FixTrafficSignals {
         self.meter.draw(g);
     }
 
-    fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
+    fn recreate_panels(&mut self, ctx: &mut EventCtx, _app: &App) {
         if let Some(time) = self.done_at {
             self.top_center = Panel::new(Widget::col(vec![
                 challenge_header(ctx, "Traffic signal survivor"),
@@ -268,12 +268,10 @@ impl GameplayState for FixTrafficSignals {
                         THRESHOLD
                     ))
                     .draw(ctx),
-                    Btn::svg(
-                        "system/assets/tools/hint.svg",
-                        RewriteColor::Change(Color::WHITE, app.cs.hovering),
-                    )
-                    .build(ctx, "hint", None)
-                    .align_right(),
+                    ctx.style()
+                        .btn_plain_light_icon("system/assets/tools/hint.svg")
+                        .build_widget(ctx, "hint")
+                        .align_right(),
                 ]),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
