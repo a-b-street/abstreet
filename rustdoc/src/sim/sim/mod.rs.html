@@ -1021,6 +1021,8 @@
 <span id="1018">1018</span>
 <span id="1019">1019</span>
 <span id="1020">1020</span>
+<span id="1021">1021</span>
+<span id="1022">1022</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This file has a jumbled mess of queries, setup, and mutating methods.</span>
 
@@ -1094,8 +1096,9 @@
     <span class="kw">pub</span> <span class="ident">cap</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">CapSimState</span>,
     <span class="kw">pub</span> <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">Scheduler</span>,
     <span class="kw">pub</span> <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Map</span>,
-    <span class="doccomment">/// If true, live map edits are being processed. Some regular work should maybe be skipped.</span>
-    <span class="kw">pub</span> <span class="ident">handling_live_edits</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// If present, live map edits are being processed, and the agents specified are in the process</span>
+    <span class="doccomment">/// of being deleted. Some regular work should maybe be skipped.</span>
+    <span class="kw">pub</span> <span class="ident">handling_live_edits</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">AgentID</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// Options controlling the traffic simulation.</span>
@@ -1456,7 +1459,7 @@
             <span class="ident">cap</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">cap</span>,
             <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
             <span class="ident">map</span>,
-            <span class="ident">handling_live_edits</span>: <span class="bool-val">false</span>,
+            <span class="ident">handling_live_edits</span>: <span class="prelude-val">None</span>,
         };
 
         <span class="kw">match</span> <span class="ident">cmd</span> {
@@ -1861,6 +1864,7 @@
 
         <span class="kw">let</span> (<span class="ident">affected</span>, <span class="ident">num_parked_cars</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">find_trips_affected_by_live_edits</span>(<span class="ident">map</span>);
         <span class="kw">let</span> <span class="ident">num_trips_cancelled</span> <span class="op">=</span> <span class="ident">affected</span>.<span class="ident">len</span>();
+        <span class="kw">let</span> <span class="ident">affected_agents</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">AgentID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">affected</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">a</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">a</span>).<span class="ident">collect</span>();
 
         <span class="comment">// V1: Just cancel every trip crossing an affected area.</span>
         <span class="comment">// (V2 is probably rerouting everyone, only cancelling when that fails)</span>
@@ -1871,7 +1875,7 @@
             <span class="ident">cap</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">cap</span>,
             <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
             <span class="ident">map</span>,
-            <span class="ident">handling_live_edits</span>: <span class="bool-val">true</span>,
+            <span class="ident">handling_live_edits</span>: <span class="prelude-val">Some</span>(<span class="ident">affected_agents</span>),
         };
         <span class="kw">for</span> (<span class="ident">agent</span>, <span class="ident">trip</span>) <span class="kw">in</span> <span class="ident">affected</span> {
             <span class="kw">match</span> <span class="ident">agent</span> {
@@ -1986,7 +1990,7 @@
                 <span class="ident">cap</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">cap</span>,
                 <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
                 <span class="ident">map</span>,
-                <span class="ident">handling_live_edits</span>: <span class="bool-val">false</span>,
+                <span class="ident">handling_live_edits</span>: <span class="prelude-val">None</span>,
             };
             <span class="kw">let</span> <span class="ident">vehicle</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">driving</span>.<span class="ident">delete_car</span>(<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">time</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>);
             <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">cancel_trip</span>(

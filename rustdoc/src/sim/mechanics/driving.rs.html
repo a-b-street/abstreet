@@ -1199,6 +1199,14 @@
 <span id="1196">1196</span>
 <span id="1197">1197</span>
 <span id="1198">1198</span>
+<span id="1199">1199</span>
+<span id="1200">1200</span>
+<span id="1201">1201</span>
+<span id="1202">1202</span>
+<span id="1203">1203</span>
+<span id="1204">1204</span>
+<span id="1205">1205</span>
+<span id="1206">1206</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
@@ -1873,7 +1881,7 @@
                 <span class="ident">Traversable</span>::<span class="ident">Lane</span>(<span class="ident">l</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ctx</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">src_i</span>,
                 <span class="ident">Traversable</span>::<span class="ident">Turn</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">t</span>.<span class="ident">parent</span>,
             };
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">handling_live_edits</span> {
+            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">handling_live_edits</span>.<span class="ident">is_none</span>() {
                 <span class="ident">ctx</span>.<span class="ident">intersections</span>
                     .<span class="ident">space_freed</span>(<span class="ident">now</span>, <span class="ident">i</span>, <span class="ident">ctx</span>.<span class="ident">scheduler</span>, <span class="ident">ctx</span>.<span class="ident">map</span>);
             }
@@ -1891,6 +1899,14 @@
         <span class="comment">// Update the follower so that they don&#39;t suddenly jump forwards.</span>
         <span class="kw">if</span> <span class="ident">idx</span> <span class="op">!</span><span class="op">=</span> <span class="ident">dists</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
             <span class="kw">let</span> (<span class="ident">follower_id</span>, <span class="ident">follower_dist</span>) <span class="op">=</span> <span class="ident">dists</span>[<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>];
+
+            <span class="comment">// If we&#39;re going to delete the follower soon, don&#39;t bother waking them up.</span>
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">deleting_agents</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">handling_live_edits</span> {
+                <span class="kw">if</span> <span class="ident">deleting_agents</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">follower_id</span>)) {
+                    <span class="kw">return</span>;
+                }
+            }
+
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">follower</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cars</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">follower_id</span>).<span class="ident">unwrap</span>();
             <span class="comment">// TODO If the leader vanished at a border node, this still jumps a bit -- the lead</span>
             <span class="comment">// car&#39;s back is still sticking out. Need to still be bound by them, even though they</span>
@@ -2005,12 +2021,12 @@
                         <span class="ident">t</span>,
                         <span class="ident">ctx</span>.<span class="ident">scheduler</span>,
                         <span class="ident">ctx</span>.<span class="ident">map</span>,
-                        <span class="ident">ctx</span>.<span class="ident">handling_live_edits</span>,
+                        <span class="ident">ctx</span>.<span class="ident">handling_live_edits</span>.<span class="ident">is_some</span>(),
                     );
                 }
                 <span class="ident">Traversable</span>::<span class="ident">Lane</span>(<span class="ident">l</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">old_queue</span>.<span class="ident">free_reserved_space</span>(<span class="ident">car</span>);
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">handling_live_edits</span> {
+                    <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">handling_live_edits</span>.<span class="ident">is_none</span>() {
                         <span class="ident">ctx</span>.<span class="ident">intersections</span>.<span class="ident">space_freed</span>(
                             <span class="ident">now</span>,
                             <span class="ident">ctx</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">src_i</span>,
@@ -2035,7 +2051,7 @@
                                 <span class="comment">// gets out of the way. So immediately promote them to</span>
                                 <span class="comment">// WaitingToAdvance.</span>
                                 <span class="ident">follower</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">CarState</span>::<span class="ident">WaitingToAdvance</span> { <span class="ident">blocked_since</span> };
-                                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">recalc_lanechanging</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">handling_live_edits</span> {
+                                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">recalc_lanechanging</span> <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">handling_live_edits</span>.<span class="ident">is_none</span>() {
                                     <span class="ident">follower</span>.<span class="ident">router</span>.<span class="ident">opportunistically_lanechange</span>(
                                         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">queues</span>,
                                         <span class="ident">ctx</span>.<span class="ident">map</span>,
