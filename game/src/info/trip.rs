@@ -7,8 +7,8 @@ use map_gui::ID;
 use map_model::{Map, Path, PathStep};
 use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhase, TripPhaseType};
 use widgetry::{
-    Btn, Color, DrawWithTooltips, EventCtx, GeomBatch, Line, LinePlot, PlotOptions, RewriteColor,
-    Series, StyledButtons, Text, TextExt, Widget,
+    Color, ControlState, DrawWithTooltips, EventCtx, GeomBatch, Line, LinePlot, PlotOptions,
+    RewriteColor, Series, StyledButtons, Text, TextExt, Widget,
 };
 
 use crate::app::App;
@@ -252,18 +252,18 @@ pub fn finished(
             Tab::PersonTrips(person, open),
         );
         col.push(
-            Btn::text_bg(
-                format!("show before changes for {}", id),
-                Text::from_all(vec![
-                    Line("After / "),
-                    Line("Before").secondary(),
-                    Line(" "),
-                    Line(&app.primary.map.get_edits().edits_name).underlined(),
-                ]),
-                app.cs.section_bg,
-                app.cs.hovering,
-            )
-            .build_def(ctx, None),
+            ctx.style()
+                .btn_primary_light()
+                .label_styled_text(
+                    Text::from_all(vec![
+                        Line("After / "),
+                        Line("Before").secondary(),
+                        Line(" "),
+                        Line(&app.primary.map.get_edits().edits_name).underlined(),
+                    ]),
+                    ControlState::Default,
+                )
+                .build_widget(ctx, &format!("show before changes for {}", id)),
         );
     } else if app.has_prebaked().is_some() {
         let mut open = open_trips.clone();
@@ -273,18 +273,18 @@ pub fn finished(
             Tab::PersonTrips(person, open),
         );
         col.push(
-            Btn::text_bg(
-                format!("show after changes for {}", id),
-                Text::from_all(vec![
-                    Line("After / ").secondary(),
-                    Line("Before"),
-                    Line(" "),
-                    Line(&app.primary.map.get_edits().edits_name).underlined(),
-                ]),
-                app.cs.section_bg,
-                app.cs.hovering,
-            )
-            .build_def(ctx, None),
+            ctx.style()
+                .btn_primary_light()
+                .label_styled_text(
+                    Text::from_all(vec![
+                        Line("After / ").secondary(),
+                        Line("Before"),
+                        Line(" "),
+                        Line(&app.primary.map.get_edits().edits_name).underlined(),
+                    ]),
+                    ControlState::Default,
+                )
+                .build_widget(ctx, &format!("show after changes for {}", id)),
         );
     }
 
