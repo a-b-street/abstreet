@@ -10,9 +10,9 @@ use map_model::{
     TurnPriority,
 };
 use widgetry::{
-    lctrl, Btn, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, MultiButton, Outcome, Panel, RewriteColor, State, Text, TextExt, VerticalAlignment,
-    Widget,
+    lctrl, Btn, Color, ControlState, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, MultiButton, Outcome, Panel, RewriteColor, State,
+    StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, ShowEverything, Transition};
@@ -521,21 +521,20 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
             )
         })
         .centered_vert(),
-        Btn::plaintext_custom(
-            "Cancel",
-            Text::from(Line("Cancel").fg(Color::hex("#FF5E5E"))),
-        )
-        .build_def(ctx, Key::Escape)
-        .align_right(),
+        ctx.style()
+            .btn_plain_destructive_text("Cancel")
+            .hotkey(Key::Escape)
+            .build_def(ctx)
+            .align_right(),
     ];
     Panel::new(Widget::col(vec![
         Widget::row(vec![
             Line("Traffic signal editor").small_heading().draw(ctx),
-            Btn::plaintext_custom(
-                "Edit multiple signals",
-                Text::from(Line("+ Edit multiple").fg(Color::hex("#4CA7E9"))),
-            )
-            .build_def(ctx, Key::M),
+            ctx.style()
+                .btn_plain_light_text("+ Edit multiple")
+                .label_color(Color::hex("#4CA7E9"), ControlState::Default)
+                .hotkey(Key::M)
+                .build_widget(ctx, "Edit multiple signals"),
         ]),
         Widget::row(row),
         if app.opts.dev {

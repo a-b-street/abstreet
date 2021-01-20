@@ -6,8 +6,8 @@ use geom::Speed;
 use map_gui::tools::PopupMsg;
 use map_model::{LaneType, RoadID};
 use widgetry::{
-    hotkeys, Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, State, Text, TextExt, VerticalAlignment, Widget,
+    hotkeys, Btn, Choice, Color, ControlState, Drawable, EventCtx, GfxCtx, HorizontalAlignment,
+    Key, Line, Outcome, Panel, State, StyledButtons, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -164,12 +164,11 @@ impl BulkEdit {
                 },
                 Widget::row(vec![
                     Btn::text_bg2("Finish").build_def(ctx, Key::Enter),
-                    Btn::plaintext_custom(
-                        "Cancel",
-                        Text::from(Line("Cancel").fg(Color::hex("#FF5E5E"))),
-                    )
-                    .build_def(ctx, Key::Escape)
-                    .align_right(),
+                    ctx.style()
+                        .btn_plain_destructive_text("Cancel")
+                        .hotkey(Key::Escape)
+                        .build_def(ctx)
+                        .align_right(),
                 ]),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
@@ -278,11 +277,10 @@ fn make_lt_switcher(
                     Choice::new("construction", Some(LaneType::Construction)),
                 ],
             ),
-            Btn::plaintext_custom(
-                "add another lane type transformation",
-                Text::from(Line("+ Add").fg(Color::hex("#4CA7E9"))),
-            )
-            .build_def(ctx, None),
+            ctx.style()
+                .btn_plain_light_text("+ Add")
+                .label_color(Color::hex("#4CA7E9"), ControlState::Default)
+                .build_widget(ctx, "add another lane type transformation"),
         ]));
     }
     Widget::col(col)

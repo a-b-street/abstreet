@@ -10,8 +10,8 @@ use map_gui::tools::{grey_out_map, ChooseSomething, ColorLegend, PopupMsg};
 use map_gui::ID;
 use map_model::{EditCmd, IntersectionID, LaneID, LaneType, MapEdits};
 use widgetry::{
-    lctrl, Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Menu,
-    Outcome, Panel, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, Btn, Choice, Color, ControlState, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key,
+    Line, Menu, Outcome, Panel, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub use self::cluster_traffic_signals::ClusterTrafficSignalEditor;
@@ -777,7 +777,11 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Panel {
         for line in details {
             txt.add(Line(line).secondary());
         }
-        let btn = Btn::plaintext_custom(format!("change #{}", idx + 1), txt).build_def(ctx, None);
+        let btn = ctx
+            .style()
+            .btn_plain_light()
+            .label_styled_text(txt, ControlState::Default)
+            .build_widget(ctx, &format!("change #{}", idx + 1));
         if idx == edits.commands.len() - 1 {
             col.push(
                 Widget::row(vec![
