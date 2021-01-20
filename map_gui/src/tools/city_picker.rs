@@ -60,17 +60,18 @@ impl<A: AppLike + 'static> CityPicker<A> {
                     for (name, polygon) in city.regions {
                         let color = app.cs().rotating_color_agents(regions.len());
 
-                        let btn = Btn::txt(
-                            name.path(),
-                            Text::from(Line(nice_map_name(&name)).fg(color)),
-                        )
-                        .no_tooltip();
+                        let btn = ctx
+                            .style()
+                            .btn_secondary_light_text(nice_map_name(&name))
+                            .label_color(color, ControlState::Default)
+                            .no_tooltip();
 
+                        let action = name.path();
                         if &name == app.map().get_name() {
-                            this_city.push(btn.inactive(ctx));
-                            batch.push(color.alpha(0.5), polygon.clone());
+                            let btn = btn.disabled();
+                            this_city.push(btn.build_widget(ctx, &action));
                         } else {
-                            this_city.push(btn.build_def(ctx, None));
+                            this_city.push(btn.build_widget(ctx, &action));
                             batch.push(color, polygon.to_outline(Distance::meters(200.0)).unwrap());
                             regions.push((name, color, polygon.scale(zoom)));
                         }

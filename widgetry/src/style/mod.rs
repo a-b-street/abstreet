@@ -68,7 +68,7 @@ impl Style {
                 fg_disabled: hex("#F2F2F2").alpha(0.3),
                 bg: Color::CLEAR,
                 bg_hover: hex("#F2F2F2").alpha(0.1),
-                bg_disabled: Color::grey(0.9),
+                bg_disabled: Color::grey(0.5),
                 outline: hex("#F2F2F2"),
             },
             btn_primary_destructive: ButtonStyle {
