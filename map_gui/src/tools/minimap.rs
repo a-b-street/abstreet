@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use abstutil::clamp;
 use geom::{Distance, Polygon, Pt2D, Ring};
 use widgetry::{
-    Btn, ControlState, Drawable, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Line,
+    ControlState, Drawable, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Line,
     Outcome, Panel, ScreenPt, Spinner, StyledButtons, Transition, VerticalAlignment, Widget,
 };
 
@@ -157,23 +157,34 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
             .margin_above(26)
         };
 
-        let minimap_controls = Widget::col(vec![
-            Btn::svg_def("system/assets/minimap/up.svg")
-                .build(ctx, "pan up", None)
-                .centered_horiz(),
-            Widget::row(vec![
-                Btn::svg_def("system/assets/minimap/left.svg")
-                    .build(ctx, "pan left", None)
-                    .centered_vert(),
-                Filler::square_width(ctx, 0.15).named("minimap"),
-                Btn::svg_def("system/assets/minimap/right.svg")
-                    .build(ctx, "pan right", None)
-                    .centered_vert(),
-            ]),
-            Btn::svg_def("system/assets/minimap/down.svg")
-                .build(ctx, "pan down", None)
-                .centered_horiz(),
-        ]);
+        let minimap_controls = {
+            let buttons = ctx.style().btn_plain_light().padding(4);
+            Widget::col(vec![
+                buttons
+                    .clone()
+                    .image_path("system/assets/minimap/up.svg")
+                    .build_widget(ctx, "pan up")
+                    .centered_horiz(),
+                Widget::row(vec![
+                    buttons
+                        .clone()
+                        .image_path("system/assets/minimap/left.svg")
+                        .build_widget(ctx, "pan left")
+                        .centered_vert(),
+                    Filler::square_width(ctx, 0.15).named("minimap"),
+                    buttons
+                        .clone()
+                        .image_path("system/assets/minimap/right.svg")
+                        .build_widget(ctx, "pan right")
+                        .centered_vert(),
+                ]),
+                buttons
+                    .clone()
+                    .image_path("system/assets/minimap/down.svg")
+                    .build_widget(ctx, "pan down")
+                    .centered_horiz(),
+            ])
+        };
 
         self.panel = Panel::new(Widget::row(vec![
             self.controls.make_zoomed_side_panel(ctx, app),

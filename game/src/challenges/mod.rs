@@ -3,8 +3,8 @@ use std::collections::BTreeMap;
 use geom::{Duration, Percent};
 use sim::OrigPersonID;
 use widgetry::{
-    Btn, Color, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt,
-    Widget,
+    Btn, Color, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, StyledButtons,
+    Text, TextExt, Widget,
 };
 
 use crate::app::App;
@@ -132,8 +132,10 @@ impl ChallengesPicker {
     ) -> Box<dyn State<App>> {
         let mut links = BTreeMap::new();
         let mut master_col = vec![
-            Btn::svg_def("system/assets/pregame/back.svg")
-                .build(ctx, "back", Key::Escape)
+            ctx.style()
+                .btn_back_light("Home")
+                .hotkey(Key::Escape)
+                .build_widget(ctx, "back")
                 .align_left(),
             Text::from_multiline(vec![
                 Line("A/B STREET").display_title(),

@@ -183,8 +183,9 @@ impl EditScenarioModifiers {
             rows.push(
                 Widget::row(vec![
                     m.describe().draw_text(ctx),
-                    Btn::svg_def("system/assets/tools/delete.svg")
-                        .build(ctx, format!("delete modifier {}", idx + 1), None)
+                    ctx.style()
+                        .btn_plain_light_icon("system/assets/tools/delete.svg")
+                        .build_widget(ctx, &format!("delete modifier {}", idx + 1))
                         .align_right(),
                 ])
                 .padding(10)

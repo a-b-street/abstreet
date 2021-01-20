@@ -10,8 +10,8 @@ use geom::Duration;
 use map_model::{EditCmd, EditIntersection, MapEdits};
 use sim::{OrigPersonID, Scenario, ScenarioGenerator, ScenarioModifier};
 use widgetry::{
-    lctrl, Btn, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, TextExt,
-    Widget,
+    lctrl, Btn, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State,
+    StyledButtons, TextExt, Widget,
 };
 
 pub use self::freeform::spawn_agents_around;
@@ -221,12 +221,15 @@ impl GameplayMode {
 fn challenge_header(ctx: &mut EventCtx, title: &str) -> Widget {
     Widget::row(vec![
         Line(title).small_heading().draw(ctx).centered_vert(),
-        Btn::svg_def("system/assets/tools/info.svg")
-            .build(ctx, "instructions", None)
+        ctx.style()
+            .btn_plain_light_icon("system/assets/tools/info.svg")
+            .build_widget(ctx, "instructions")
             .centered_vert(),
         Widget::vert_separator(ctx, 50.0),
-        Btn::svg_def("system/assets/tools/edit_map.svg")
-            .build(ctx, "edit map", lctrl(Key::E))
+        ctx.style()
+            .btn_plain_light_icon("system/assets/tools/edit_map.svg")
+            .hotkey(lctrl(Key::E))
+            .build_widget(ctx, "edit map")
             .centered_vert(),
     ])
     .padding(5)

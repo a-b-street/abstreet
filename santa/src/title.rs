@@ -23,8 +23,10 @@ impl TitleScreen {
 
         SimpleState::new(
             Panel::new(Widget::col(vec![
-                Btn::svg_def("system/assets/tools/quit.svg")
-                    .build(ctx, "quit", Key::Escape)
+                ctx.style()
+                    .btn_secondary_light_icon("system/assets/tools/quit.svg")
+                    .hotkey(Key::Escape)
+                    .build_widget(ctx, "quit")
                     .align_right(),
                 Line("15-minute Santa")
                     .display_title()

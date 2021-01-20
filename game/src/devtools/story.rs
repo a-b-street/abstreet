@@ -337,7 +337,10 @@ fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) ->
                     RewriteColor::Change(Color::hex("#5B5B5B"), Color::hex("#4CA7E9")),
                 )
             } else {
-                Btn::svg_def("system/assets/timeline/goal_pos.svg").build(ctx, "new marker", Key::M)
+                ctx.style()
+                    .btn_plain_light_icon("system/assets/timeline/goal_pos.svg")
+                    .hotkey(Key::M)
+                    .build_widget(ctx, "new marker")
             },
             if let Mode::View = mode {
                 Widget::draw_svg_transform(
@@ -346,7 +349,10 @@ fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) ->
                     RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
                 )
             } else {
-                Btn::svg_def("system/assets/tools/pan.svg").build(ctx, "pan", Key::Escape)
+                ctx.style()
+                    .btn_plain_light_icon("system/assets/tools/pan.svg")
+                    .hotkey(Key::Escape)
+                    .build_widget(ctx, "pan")
             },
             match mode {
                 Mode::Freehand(_) => Widget::draw_svg_transform(
@@ -354,11 +360,11 @@ fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) ->
                     "system/assets/tools/select.svg",
                     RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
                 ),
-                _ => Btn::svg_def("system/assets/tools/select.svg").build(
-                    ctx,
-                    "draw freehand",
-                    Key::P,
-                ),
+                _ => ctx
+                    .style()
+                    .btn_plain_light_icon("system/assets/tools/select.svg")
+                    .hotkey(Key::P)
+                    .build_widget(ctx, "draw freehand"),
             },
         ])
         .evenly_spaced(),

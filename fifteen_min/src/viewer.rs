@@ -333,7 +333,10 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
     );
     rows.push(Widget::row(vec![
         Btn::plaintext("About").build_def(ctx, None),
-        Btn::svg_def("system/assets/tools/search.svg").build(ctx, "search", lctrl(Key::F)),
+        ctx.style()
+            .btn_plain_light_icon("system/assets/tools/search.svg")
+            .hotkey(lctrl(Key::F))
+            .build_widget(ctx, "search"),
     ]));
 
     Panel::new(Widget::col(rows))

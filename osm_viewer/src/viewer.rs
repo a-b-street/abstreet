@@ -53,12 +53,18 @@ impl Viewer {
             Widget::row(vec![
                 "Change map:".draw_text(ctx),
                 ctx.style()
-                    .btn_light_popup(ctx, Some(nice_map_name(app.map.get_name())))
-                    .build(ctx, "change map", lctrl(Key::L)),
+                    .btn_popup_light(nice_map_name(app.map.get_name()))
+                    .hotkey(lctrl(Key::L))
+                    .build_widget(ctx, "change map"),
             ]),
             Widget::row(vec![
-                Btn::svg_def("system/assets/tools/settings.svg").build(ctx, "settings", None),
-                Btn::svg_def("system/assets/tools/search.svg").build(ctx, "search", lctrl(Key::F)),
+                ctx.style()
+                    .btn_plain_light_icon("system/assets/tools/settings.svg")
+                    .build_widget(ctx, "settings"),
+                ctx.style()
+                    .btn_plain_light_icon("system/assets/tools/search.svg")
+                    .hotkey(lctrl(Key::F))
+                    .build_widget(ctx, "search"),
                 Btn::plaintext("About").build_def(ctx, None),
             ]),
             Widget::horiz_separator(ctx, 0.3),
