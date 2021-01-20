@@ -28,6 +28,18 @@ impl<'a> StyledButtons<'a> for crate::ColorScheme {
         self.gui_style.btn_plain_light()
     }
 
+    fn btn_plain_destructive(&self) -> ButtonBuilder<'a> {
+        self.gui_style.btn_plain_destructive()
+    }
+
+    fn btn_primary_destructive(&self) -> ButtonBuilder<'a> {
+        self.gui_style.btn_primary_destructive()
+    }
+
+    fn btn_secondary_destructive(&self) -> ButtonBuilder<'a> {
+        self.gui_style.btn_secondary_destructive()
+    }
+
     fn btn_hotkey_light(&self, label: &str, key: Key) -> ButtonBuilder<'a> {
         self.gui_style.btn_hotkey_light(label, key)
     }
