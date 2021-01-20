@@ -132,7 +132,9 @@ impl<A: AppLike + 'static> CityPicker<A> {
                                 .build_widget(ctx, "import new city"),
                         ]),
                         if cfg!(not(target_arch = "wasm32")) {
-                            Btn::text_fg("Download more cities").build_def(ctx, None)
+                            ctx.style()
+                                .btn_secondary_light_text("Download more cities")
+                                .build_def(ctx)
                         } else {
                             Widget::nothing()
                         },

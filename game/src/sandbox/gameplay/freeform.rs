@@ -220,7 +220,11 @@ impl ChangeScenario {
                 .margin_above(30),
             );
         }
-        col.push(Btn::text_fg("Import your own data").build_def(ctx, None));
+        col.push(
+            ctx.style()
+                .btn_secondary_light_text("Import your own data")
+                .build_def(ctx),
+        );
 
         SimpleState::new(
             Panel::new(Widget::col(col)).build(ctx),

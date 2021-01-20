@@ -214,7 +214,11 @@ pub fn current_demand(
         .bg(app.cs.inner_panel)
         .outline(2.0, Color::WHITE),
     );
-    rows.push(Btn::text_fg("Explore demand across all traffic signals").build_def(ctx, None));
+    rows.push(
+        ctx.style()
+            .btn_secondary_light_text("Explore demand across all traffic signals")
+            .build_def(ctx),
+    );
     if app.opts.dev {
         rows.push(Btn::text_fg("Where are these agents headed?").build(
             ctx,

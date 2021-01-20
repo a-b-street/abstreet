@@ -59,18 +59,32 @@ impl DebugMode {
                 Checkbox::switch(ctx, "show route for all agents", Key::R, false),
                 Widget::col(vec![
                     Btn::text_fg("unhide everything").build_def(ctx, lctrl(Key::H)),
-                    Btn::text_fg("screenshot everything (for leaflet)").build_def(ctx, None),
-                    Btn::text_fg("screenshot all of the everything").build_def(ctx, None),
+                    ctx.style()
+                        .btn_secondary_light_text("screenshot everything (for leaflet)")
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_secondary_light_text("screenshot all of the everything")
+                        .build_def(ctx),
                     Btn::text_fg("search OSM metadata").build_def(ctx, Key::Slash),
                     Btn::text_fg("clear OSM search results").build_def(ctx, lctrl(Key::Slash)),
                     Btn::text_fg("save sim state").build_def(ctx, Key::O),
                     Btn::text_fg("load previous sim state").build_def(ctx, Key::Y),
                     Btn::text_fg("load next sim state").build_def(ctx, Key::U),
-                    Btn::text_fg("pick a savestate to load").build_def(ctx, None),
-                    Btn::text_fg("find bad traffic signals").build_def(ctx, None),
-                    Btn::text_fg("find degenerate roads").build_def(ctx, None),
-                    Btn::text_fg("find large intersections").build_def(ctx, None),
-                    Btn::text_fg("sim internal stats").build_def(ctx, None),
+                    ctx.style()
+                        .btn_secondary_light_text("pick a savestate to load")
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_secondary_light_text("find bad traffic signals")
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_secondary_light_text("find degenerate roads")
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_secondary_light_text("find large intersections")
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_secondary_light_text("sim internal stats")
+                        .build_def(ctx),
                     Btn::text_fg("blocked-by graph").build_def(ctx, Key::B),
                     Btn::text_fg("render to GeoJSON").build_def(ctx, Key::G),
                 ]),

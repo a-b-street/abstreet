@@ -46,8 +46,12 @@ fn make_select_panel(ctx: &mut EventCtx, selector: &RoadSelector) -> Panel {
                 selector.roads.len()
             ))
             .build(ctx, "export roads to shared-row", None),
-            Btn::text_fg("export one road to Streetmix").build_def(ctx, None),
-            Btn::text_fg("export list of roads").build_def(ctx, None),
+            ctx.style()
+                .btn_secondary_light_text("export one road to Streetmix")
+                .build_def(ctx),
+            ctx.style()
+                .btn_secondary_light_text("export list of roads")
+                .build_def(ctx),
             Btn::text_fg("Cancel").build_def(ctx, Key::Escape),
         ])
         .evenly_spaced(),

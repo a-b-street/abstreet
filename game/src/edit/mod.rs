@@ -558,7 +558,9 @@ impl LoadEdits {
                     Line("Load proposal").small_heading().draw(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                Btn::text_fg("Start over with blank proposal").build_def(ctx, None),
+                ctx.style()
+                    .btn_secondary_light_text("Start over with blank proposal")
+                    .build_def(ctx),
                 Widget::row(vec![Widget::col(your_edits), Widget::col(proposals)]).evenly_spaced(),
             ]))
             .exact_size_percent(50, 50)

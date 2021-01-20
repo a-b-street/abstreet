@@ -9,8 +9,8 @@ use map_gui::{SimpleApp, ID};
 use map_model::{osm, RoadID};
 use osm::WayID;
 use widgetry::{
-    Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Menu, Outcome, Panel, State, StyledButtons, Text, TextExt, Transition, VerticalAlignment,
+    Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Menu, Outcome, Panel, State, StyledButtons, Text, TextExt, Transition, VerticalAlignment,
     Widget,
 };
 

@@ -103,13 +103,15 @@ impl Viewer {
                                 r.orig_id.osm_way_id.0
                             ))
                             .build_widget(ctx, &format!("open {}", r.orig_id.osm_way_id)),
-                        ctx.style().btn_primary_dark_text("Edit OSM way").build_widget(
-                            ctx,
-                            &format!(
-                                "open https://www.openstreetmap.org/edit?way={}",
-                                r.orig_id.osm_way_id.0
+                        ctx.style()
+                            .btn_primary_dark_text("Edit OSM way")
+                            .build_widget(
+                                ctx,
+                                &format!(
+                                    "open https://www.openstreetmap.org/edit?way={}",
+                                    r.orig_id.osm_way_id.0
+                                ),
                             ),
-                        ),
                     ])
                     .evenly_spaced(),
                 );
@@ -151,7 +153,7 @@ impl Viewer {
                 col.push(
                     ctx.style()
                         .btn_primary_dark_text(&format!("Open OSM ID {}", b.orig_id.inner()))
-                        .build_widget(ctx, &format!("open {}", b.orig_id))
+                        .build_widget(ctx, &format!("open {}", b.orig_id)),
                 );
 
                 let mut txt = Text::new();

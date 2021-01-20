@@ -517,7 +517,9 @@ impl Marker {
                 Line("Editing marker").small_heading().draw(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
-            Btn::text_fg("delete").build_def(ctx, None),
+            ctx.style()
+                .btn_secondary_light_text("delete")
+                .build_def(ctx),
             Widget::text_entry(ctx, self.event.clone(), true).named("event"),
             Btn::text_fg("confirm").build_def(ctx, Key::Enter),
         ]))
