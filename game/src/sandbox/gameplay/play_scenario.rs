@@ -6,8 +6,8 @@ use map_gui::theme::StyledButtons;
 use map_gui::tools::{grey_out_map, nice_map_name, ChooseSomething, CityPicker, PopupMsg};
 use sim::{ScenarioModifier, TripMode};
 use widgetry::{
-    lctrl, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    Slider, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Slider,
+    Spinner, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -192,17 +192,33 @@ impl EditScenarioModifiers {
                 .outline(2.0, Color::WHITE),
             );
         }
-        rows.push(Btn::text_bg2("Change trip mode").build_def(ctx, None));
-        rows.push(Btn::text_bg2("Add extra new trips").build_def(ctx, None));
+        rows.push(
+            ctx.style()
+                .btn_primary_dark_text("Change trip mode")
+                .build_def(ctx),
+        );
+        rows.push(
+            ctx.style()
+                .btn_primary_dark_text("Add extra new trips")
+                .build_def(ctx),
+        );
         rows.push(Widget::row(vec![
             Spinner::new(ctx, (2, 14), 2).named("repeat_days"),
-            Btn::text_bg2("Repeat schedule multiple days").build_def(ctx, None),
+            ctx.style()
+                .btn_primary_dark_text("Repeat schedule multiple days")
+                .build_def(ctx),
         ]));
         rows.push(Widget::horiz_separator(ctx, 0.5));
         rows.push(
             Widget::row(vec![
-                Btn::text_bg2("Apply").build_def(ctx, Key::Enter),
-                Btn::text_bg2("Discard changes").build_def(ctx, Key::Escape),
+                ctx.style()
+                    .btn_primary_dark_text("Apply")
+                    .hotkey(Key::Enter)
+                    .build_def(ctx),
+                ctx.style()
+                    .btn_primary_dark_text("Discard changes")
+                    .hotkey(Key::Escape)
+                    .build_def(ctx),
             ])
             .centered(),
         );
@@ -358,8 +374,14 @@ impl ChangeMode {
                     }),
                 ]),
                 Widget::row(vec![
-                    Btn::text_bg2("Apply").build_def(ctx, Key::Enter),
-                    Btn::text_bg2("Discard changes").build_def(ctx, Key::Escape),
+                    ctx.style()
+                        .btn_primary_dark_text("Apply")
+                        .hotkey(Key::Enter)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_primary_dark_text("Discard changes")
+                        .hotkey(Key::Escape)
+                        .build_def(ctx),
                 ])
                 .centered(),
             ]))

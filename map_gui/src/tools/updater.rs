@@ -6,8 +6,8 @@ use anyhow::Result;
 use abstio::{DataPacks, Manifest};
 use abstutil::Timer;
 use widgetry::{
-    Btn, Checkbox, EventCtx, GfxCtx, Line, Outcome, Panel, State, StyledButtons, TextExt,
-    Transition, Widget,
+    Checkbox, EventCtx, GfxCtx, Line, Outcome, Panel, State, StyledButtons, TextExt, Transition,
+    Widget,
 };
 
 use crate::tools::PopupMsg;
@@ -48,7 +48,11 @@ impl<A: AppLike + 'static> Picker<A> {
                 prettyprint_bytes(bytes).draw_text(ctx).centered_vert(),
             ]));
         }
-        col.push(Btn::text_bg2("Sync files").build_def(ctx, None));
+        col.push(
+            ctx.style()
+                .btn_primary_dark_text("Sync files")
+                .build_def(ctx),
+        );
 
         Box::new(Picker {
             panel: Panel::new(Widget::col(col)).build(ctx),

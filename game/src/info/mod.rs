@@ -698,7 +698,12 @@ fn make_tabs(
             row.push(Btn::text_bg2(name).inactive(ctx).centered_vert());
         } else {
             hyperlinks.insert(name.to_string(), link);
-            row.push(Btn::text_bg2(name).build_def(ctx, None).centered_vert());
+            row.push(
+                ctx.style()
+                    .btn_primary_dark_text(name)
+                    .build_def(ctx)
+                    .centered_vert(),
+            );
         }
     }
     // TODO Centered, but actually, we need to set the padding of each button to divide the

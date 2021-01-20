@@ -163,7 +163,10 @@ impl BulkEdit {
                     ])
                 },
                 Widget::row(vec![
-                    Btn::text_bg2("Finish").build_def(ctx, Key::Enter),
+                    ctx.style()
+                        .btn_primary_dark_text("Finish")
+                        .hotkey(Key::Enter)
+                        .build_def(ctx),
                     ctx.style()
                         .btn_plain_destructive_text("Cancel")
                         .hotkey(Key::Escape)

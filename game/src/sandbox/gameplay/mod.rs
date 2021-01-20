@@ -10,8 +10,8 @@ use geom::Duration;
 use map_model::{EditCmd, EditIntersection, MapEdits};
 use sim::{OrigPersonID, Scenario, ScenarioGenerator, ScenarioModifier};
 use widgetry::{
-    lctrl, Btn, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State,
-    StyledButtons, TextExt, Widget,
+    lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, StyledButtons,
+    TextExt, Widget,
 };
 
 pub use self::freeform::spawn_agents_around;
@@ -267,14 +267,22 @@ impl FinalScore {
                     Widget::col(vec![
                         msg.draw_text(ctx),
                         // TODO Adjust wording
-                        Btn::text_bg2("Keep simulating").build_def(ctx, None),
-                        Btn::text_bg2("Try again").build_def(ctx, None),
+                        ctx.style()
+                            .btn_primary_dark_text("Keep simulating")
+                            .build_def(ctx),
+                        ctx.style()
+                            .btn_primary_dark_text("Try again")
+                            .build_def(ctx),
                         if next_mode.is_some() {
-                            Btn::text_bg2("Next challenge").build_def(ctx, None)
+                            ctx.style()
+                                .btn_primary_dark_text("Next challenge")
+                                .build_def(ctx)
                         } else {
                             Widget::nothing()
                         },
-                        Btn::text_bg2("Back to challenges").build_def(ctx, None),
+                        ctx.style()
+                            .btn_primary_dark_text("Back to challenges")
+                            .build_def(ctx),
                     ])
                     .outline(10.0, Color::BLACK)
                     .padding(10),

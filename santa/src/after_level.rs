@@ -2,8 +2,8 @@ use abstutil::prettyprint_usize;
 use geom::{Distance, PolyLine, Polygon, Pt2D};
 use map_gui::tools::{ColorLegend, PopupMsg};
 use widgetry::{
-    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel,
-    SimpleState, State, Text, VerticalAlignment, Widget,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel,
+    SimpleState, State, StyledButtons, Text, VerticalAlignment, Widget,
 };
 
 use crate::buildings::{BldgState, Buildings};
@@ -95,7 +95,10 @@ impl Strategize {
 
         let panel = Panel::new(Widget::col(vec![
             txt.draw(ctx),
-            Btn::text_bg2("Back to title screen").build_def(ctx, Key::Enter),
+            ctx.style()
+                .btn_primary_dark_text("Back to title screen")
+                .hotkey(Key::Enter)
+                .build_def(ctx),
             Widget::row(vec![
                 ColorLegend::row(ctx, app.session.colors.house, "house"),
                 ColorLegend::row(ctx, app.session.colors.apartment, "apartment"),
@@ -193,7 +196,10 @@ impl Results {
         SimpleState::new(
             Panel::new(Widget::col(vec![
                 txt.draw(ctx),
-                Btn::text_bg2("OK").build_def(ctx, Key::Enter),
+                ctx.style()
+                    .btn_primary_dark_text("OK")
+                    .hotkey(Key::Enter)
+                    .build_def(ctx),
             ]))
             .build(ctx),
             Box::new(Results),

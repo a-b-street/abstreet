@@ -6,7 +6,7 @@ use geom::{Distance, Duration};
 use map_model::IntersectionID;
 use sim::Scenario;
 use widgetry::{
-    Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, RewriteColor,
+    Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, RewriteColor,
     SimpleState, Spinner, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
@@ -252,7 +252,10 @@ impl TuneRelative {
                 Spinner::new(ctx, (0, 90), (offset2 - offset1).inner_seconds() as isize)
                     .named("offset"),
             ]),
-            Btn::text_bg2("Update offset").build_def(ctx, Key::Enter),
+            ctx.style()
+                .btn_primary_dark_text("Update offset")
+                .hotkey(Key::Enter)
+                .build_def(ctx),
         ]))
         .build(ctx);
         SimpleState::new(

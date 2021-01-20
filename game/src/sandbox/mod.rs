@@ -12,8 +12,8 @@ use map_gui::tools::{ChooseSomething, Minimap, PopupMsg, TurnExplorer};
 use map_gui::{AppLike, ID};
 use sim::{Analytics, Scenario};
 use widgetry::{
-    lctrl, Btn, Choice, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, State, Text, TextExt, UpdateType, VerticalAlignment, Widget,
+    lctrl, Choice, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, State, Text, TextExt, UpdateType, VerticalAlignment, Widget,
 };
 
 pub use self::gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};
@@ -452,7 +452,10 @@ impl AgentMeter {
                 )
                 .centered_vert(),
                 format!("{} trips captured", prettyprint_usize(n)).draw_text(ctx),
-                Btn::text_bg2("Stop").build_def(ctx, None).align_right(),
+                ctx.style()
+                    .btn_primary_dark_text("Stop")
+                    .build_def(ctx)
+                    .align_right(),
             ]));
         }
 

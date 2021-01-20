@@ -107,7 +107,7 @@ impl<A, T, F> Table<A, T, F> {
                     ))
                     .build(ctx, &col.name, None)
                 } else if let Col::Sortable(_) = col.col {
-                    Btn::text_bg2(&col.name).build_def(ctx, None)
+                    ctx.style().btn_primary_dark_text(&col.name).build_def(ctx)
                 } else {
                     Line(&col.name).draw(ctx).centered_vert()
                 }

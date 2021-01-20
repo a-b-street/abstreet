@@ -94,7 +94,12 @@ impl<A: AppLike + 'static> CityPicker<A> {
                         other_cities.push(Btn::text_fg(city).no_tooltip().build_def(ctx, None));
                     }
                 }
-                other_cities.push(Btn::text_bg2("Search all maps").build_def(ctx, Key::Tab));
+                other_cities.push(
+                    ctx.style()
+                        .btn_primary_dark_text("Search all maps")
+                        .hotkey(Key::Tab)
+                        .build_def(ctx),
+                );
 
                 Transition::Replace(Box::new(CityPicker {
                     regions,

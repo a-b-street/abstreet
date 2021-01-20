@@ -1,8 +1,8 @@
 use geom::Percent;
 use map_gui::tools::open_browser;
 use widgetry::{
-    Btn, ButtonBuilder, Color, ControlState, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Key, Line,
-    Panel, RewriteColor, SimpleState, State, StyledButtons, Text, TextExt, Widget,
+    ButtonBuilder, Color, ControlState, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Key, Line, Panel,
+    RewriteColor, SimpleState, State, StyledButtons, Text, TextExt, Widget,
 };
 
 use crate::levels::Level;
@@ -180,7 +180,7 @@ impl Credits {
                 link(ctx, "Music from various sources", "https://github.com/dabreegster/abstreet/tree/master/data/system/assets/music/sources.md"),
                 link(ctx, "Fonts and icons by various sources", "https://dabreegster.github.io/abstreet/howto/#data-source-licensing"),
                 "Playtesting by Fridgehaus".draw_text(ctx),
-                Btn::text_bg2("Back").build_def(ctx, Key::Enter).centered_horiz(),
+                ctx.style().btn_primary_dark_text("Back").hotkey(Key::Enter).build_def(ctx).centered_horiz(),
             ]))
             .build(ctx), Box::new(Credits))
     }
