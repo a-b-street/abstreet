@@ -249,7 +249,7 @@ impl<'a> StyledButtons<'a> for Style {
     }
 
     fn btn_primary_destructive(&self) -> ButtonBuilder<'a> {
-        let colors = &self.btn_secondary_destructive;
+        let colors = &self.btn_primary_destructive;
         plain_builder(colors).outline(2.0, colors.outline, ControlState::Default)
     }
 

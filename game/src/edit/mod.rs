@@ -832,8 +832,13 @@ impl ConfirmDiscard {
                 ]),
                 "Are you sure you want to discard changes you made?".draw_text(ctx),
                 Widget::row(vec![
-                    Btn::plaintext("Cancel").build_def(ctx, Key::Escape),
-                    Btn::text_bg2("Yes, discard").build_def(ctx, None),
+                    ctx.style()
+                        .btn_primary_dark_text("Cancel")
+                        .hotkey(Key::Escape)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_primary_destructive_text("Yes, discard")
+                        .build_def(ctx),
                 ])
                 .align_right(),
             ]))
