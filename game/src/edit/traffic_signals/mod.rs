@@ -497,7 +497,10 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
         Btn::text_bg2("Finish").build_def(ctx, Key::Enter),
         Btn::text_bg2("Preview").build_def(ctx, lctrl(Key::P)),
         (if can_undo {
-            Btn::svg_def("system/assets/tools/undo.svg").build(ctx, "undo", lctrl(Key::Z))
+            ctx.style()
+                .btn_plain_light_icon("system/assets/tools/undo.svg")
+                .hotkey(lctrl(Key::Z))
+                .build_widget(ctx, "undo")
         } else {
             Widget::draw_svg_transform(
                 ctx,
@@ -507,12 +510,11 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
         })
         .centered_vert(),
         (if can_redo {
-            Btn::svg_def("system/assets/tools/redo.svg").build(
-                ctx,
-                "redo",
+            ctx.style()
+                .btn_plain_light_icon("system/assets/tools/redo.svg")
                 // TODO ctrl+shift+Z!
-                lctrl(Key::Y),
-            )
+                .hotkey(lctrl(Key::Y))
+                .build_widget(ctx, "redo")
         } else {
             Widget::draw_svg_transform(
                 ctx,
@@ -651,14 +653,19 @@ fn make_side_panel(
                         ),
                     }
                     .draw_text(ctx),
-                    Btn::svg_def("system/assets/tools/edit.svg").build(
-                        ctx,
-                        format!("change duration of stage {}", idx + 1),
-                        if selected == idx { Key::X.into() } else { None },
-                    ),
+                    {
+                        let mut button = ctx
+                            .style()
+                            .btn_plain_light_icon("system/assets/tools/edit.svg");
+                        if selected == idx {
+                            button = button.hotkey(Key::X);
+                        }
+                        button.build_widget(ctx, &format!("change duration of stage {}", idx + 1))
+                    },
                     if canonical_signal.stages.len() > 1 {
-                        Btn::svg_def("system/assets/tools/delete.svg")
-                            .build(ctx, format!("delete stage {}", idx + 1), None)
+                        ctx.style()
+                            .btn_plain_light_icon("system/assets/tools/delete.svg")
+                            .build_widget(ctx, &format!("delete stage {}", idx + 1))
                             .align_right()
                     } else {
                         Widget::nothing()

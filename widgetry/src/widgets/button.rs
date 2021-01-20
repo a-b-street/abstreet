@@ -158,13 +158,6 @@ impl Btn {
             maybe_tooltip: None,
         }
     }
-    pub fn svg_def<I: Into<String>>(path: I) -> BtnBuilder {
-        BtnBuilder::SVG {
-            path: path.into(),
-            rewrite_hover: RewriteColor::ChangeAll(Color::ORANGE),
-            maybe_tooltip: None,
-        }
-    }
 
     pub fn plaintext<I: Into<String>>(action: I) -> BtnBuilder {
         let action = action.into();

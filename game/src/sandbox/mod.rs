@@ -424,8 +424,9 @@ impl AgentMeter {
                     txt.draw(ctx).centered_vert()
                 },
                 if app.primary.dirty_from_edits {
-                    Btn::svg_def("system/assets/tools/warning.svg")
-                        .build(ctx, "see why results are tentative", None)
+                    ctx.style()
+                        .btn_plain_light_icon("system/assets/tools/warning.svg")
+                        .build_widget(ctx, "see why results are tentative")
                         .centered_vert()
                         .align_right()
                 } else {

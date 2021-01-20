@@ -12,8 +12,8 @@ use map_gui::ID;
 use map_model::BuildingID;
 use widgetry::{
     Btn, ButtonBuilder, Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, Text, TextExt,
-    VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, StyledButtons, Text,
+    TextExt, VerticalAlignment, Widget,
 };
 
 use crate::buildings::{BldgState, Buildings};
@@ -313,8 +313,9 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
     Panel::new(Widget::col(vec![
         Widget::row(vec![
             Line("Upzoning").small_heading().draw(ctx),
-            Btn::svg_def("system/assets/tools/info.svg")
-                .build(ctx, "help", None)
+            ctx.style()
+                .btn_plain_light_icon("system/assets/tools/info.svg")
+                .build_widget(ctx, "help")
                 .align_right(),
         ]),
         Widget::row(vec![

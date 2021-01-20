@@ -62,7 +62,10 @@ impl LaneEditor {
             ),
         ] {
             row.push(if active {
-                Btn::svg_def(format!("system/assets/edit/{}.svg", icon)).build(ctx, label, key)
+                ctx.style()
+                    .btn_plain_light_icon(&format!("system/assets/edit/{}.svg", icon))
+                    .hotkey(key)
+                    .build_widget(ctx, label)
             } else {
                 Widget::draw_svg(ctx, &format!("system/assets/edit/{}.svg", icon))
                     .container()

@@ -2,7 +2,9 @@ use std::collections::BTreeSet;
 
 use map_gui::ID;
 use map_model::{IntersectionID, RoadID};
-use widgetry::{Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, RewriteColor, Widget};
+use widgetry::{
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, RewriteColor, StyledButtons, Widget,
+};
 
 use crate::app::App;
 use crate::common::{intersections_from_roads, CommonState};
@@ -55,7 +57,10 @@ impl RoadSelector {
                     RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
                 )
             } else {
-                Btn::svg_def("system/assets/tools/pencil.svg").build(ctx, "paint", Key::P)
+                ctx.style()
+                    .btn_plain_light_icon("system/assets/tools/pencil.svg")
+                    .hotkey(Key::P)
+                    .build_widget(ctx, "paint")
             },
             if let Mode::Erase = self.mode {
                 Widget::draw_svg_transform(
@@ -64,7 +69,10 @@ impl RoadSelector {
                     RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
                 )
             } else {
-                Btn::svg_def("system/assets/tools/eraser.svg").build(ctx, "erase", Key::Backspace)
+                ctx.style()
+                    .btn_plain_light_icon("system/assets/tools/eraser.svg")
+                    .hotkey(Key::Backspace)
+                    .build_widget(ctx, "erase")
             },
             if let Mode::Route { .. } = self.mode {
                 Widget::draw_svg_transform(
@@ -73,11 +81,10 @@ impl RoadSelector {
                     RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
                 )
             } else {
-                Btn::svg_def("system/assets/timeline/start_pos.svg").build(
-                    ctx,
-                    "select along route",
-                    Key::R,
-                )
+                ctx.style()
+                    .btn_plain_light_icon("system/assets/timeline/start_pos.svg")
+                    .hotkey(Key::R)
+                    .build_widget(ctx, "select along route")
             },
             if let Mode::Pan = self.mode {
                 Widget::draw_svg_transform(
@@ -86,7 +93,10 @@ impl RoadSelector {
                     RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
                 )
             } else {
-                Btn::svg_def("system/assets/tools/pan.svg").build(ctx, "pan", Key::Escape)
+                ctx.style()
+                    .btn_plain_light_icon("system/assets/tools/pan.svg")
+                    .hotkey(Key::Escape)
+                    .build_widget(ctx, "pan")
             },
         ])
         .evenly_spaced()
