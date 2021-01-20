@@ -10,7 +10,8 @@ use map_model::{osm, RoadID};
 use osm::WayID;
 use widgetry::{
     Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Menu, Outcome, Panel, State, Text, TextExt, Transition, VerticalAlignment, Widget,
+    Line, Menu, Outcome, Panel, State, StyledButtons, Text, TextExt, Transition, VerticalAlignment,
+    Widget,
 };
 
 type App = SimpleApp<()>;

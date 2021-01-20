@@ -378,11 +378,11 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 ctx.style()
                     .btn_primary_light_text("Pause")
                     .hotkey(Key::Space)
-                    .build_widget(ctx, "pause the stopwatch"),
+                    .build(ctx, "pause the stopwatch"),
                 ctx.style()
                     .btn_primary_light_text("Resume")
                     .hotkey(Key::Space)
-                    .build_widget(ctx, "resume the stopwatch"),
+                    .build(ctx, "resume the stopwatch"),
             )
             .named("paused"),
             PersistentSplit::widget(

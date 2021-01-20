@@ -73,6 +73,12 @@ pub trait StyledButtons<'a> {
     fn btn_plain_dark_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
         icon_button(self.btn_plain_dark().image_path(image_path))
     }
+    fn btn_plain_dark_icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
+        self.btn_plain_dark()
+            .label_text(text)
+            .image_path(image_path)
+            .image_dims(ScreenDims::square(18.0))
+    }
 
     fn btn_plain_light(&self) -> ButtonBuilder<'a>;
     fn btn_plain_light_text(&self, text: &'a str) -> ButtonBuilder<'a> {
@@ -80,6 +86,12 @@ pub trait StyledButtons<'a> {
     }
     fn btn_plain_light_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
         icon_button(self.btn_plain_light().image_path(image_path))
+    }
+    fn btn_plain_light_icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
+        self.btn_plain_light()
+            .label_text(text)
+            .image_path(image_path)
+            .image_dims(ScreenDims::square(18.0))
     }
 
     fn btn_plain_destructive(&self) -> ButtonBuilder<'a>;
