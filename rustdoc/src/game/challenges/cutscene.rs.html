@@ -323,12 +323,12 @@
 <span id="320">320</span>
 <span id="321">321</span>
 <span id="322">322</span>
+<span id="323">323</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">theme</span>::<span class="ident">StyledButtons</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">grey_out_map</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkeys</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
-    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
+    <span class="ident">hotkeys</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
+    <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
@@ -616,8 +616,10 @@
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(
                 <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">contents</span>,
-                    <span class="ident">Btn</span>::<span class="ident">txt</span>(<span class="string">&quot;Okay&quot;</span>, <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Okay&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)))
-                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkeys</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Key</span>::<span class="ident">Escape</span>, <span class="ident">Key</span>::<span class="ident">Space</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>]))
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_primary_dark_text</span>(<span class="string">&quot;Okay&quot;</span>)
+                        .<span class="ident">hotkey</span>(<span class="ident">hotkeys</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Key</span>::<span class="ident">Escape</span>, <span class="ident">Key</span>::<span class="ident">Space</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>]))
+                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                         .<span class="ident">centered_horiz</span>()
                         .<span class="ident">align_bottom</span>(),
                 ])
