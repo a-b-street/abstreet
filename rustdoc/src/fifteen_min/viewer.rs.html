@@ -836,7 +836,7 @@
         <span class="ident">Line</span>(<span class="string">&quot;15-minute neighborhood explorer&quot;</span>)
             .<span class="ident">small_heading</span>()
             .<span class="ident">draw</span>(<span class="ident">ctx</span>),
-        <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>),
+        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
     ]));
 
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -1033,7 +1033,7 @@
                 <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} within 15 minutes&quot;</span>, <span class="ident">category</span>))
                     .<span class="ident">small_heading</span>()
                     .<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>),
+                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
             ]),
             <span class="ident">table</span>.<span class="ident">render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
         ]))
@@ -1054,7 +1054,7 @@
                 <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} within 15 minutes&quot;</span>, <span class="self">self</span>.<span class="ident">category</span>))
                     .<span class="ident">small_heading</span>()
                     .<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>),
+                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
             ]),
             <span class="self">self</span>.<span class="ident">table</span>.<span class="ident">render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
         ]))
