@@ -170,7 +170,7 @@ fn make_panel(
 ) -> Panel {
     let mut prev = app
         .cs
-        .btn_plain_dark_icon("system/assets/tools/prev.svg")
+        .btn_plain_dark_icon("system/assets/tools/circled_prev.svg")
         .image_dims(45.0)
         .hotkey(Key::LeftArrow)
         .bg_color(Color::CLEAR, ControlState::Disabled);
@@ -181,7 +181,7 @@ fn make_panel(
 
     let next = app
         .cs
-        .btn_plain_dark_icon("system/assets/tools/next.svg")
+        .btn_plain_dark_icon("system/assets/tools/circled_next.svg")
         .image_dims(45.0)
         .hotkey(hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]))
         .build_widget(ctx, "next");
