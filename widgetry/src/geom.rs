@@ -1,8 +1,8 @@
 use geom::{Angle, Bounds, GPSBounds, Polygon, Pt2D};
 
-use crate::widgets::button::BtnBuilder;
 use crate::{
-    svg, Btn, Color, DeferDraw, Drawable, EventCtx, Fill, GfxCtx, Prerender, ScreenDims, Widget,
+    svg, ButtonBuilder, Color, ControlState, DeferDraw, Drawable, EventCtx, Fill, GfxCtx,
+    Prerender, ScreenDims, Widget,
 };
 
 /// A mutable builder for a group of colored polygons.
@@ -87,16 +87,13 @@ impl GeomBatch {
         DeferDraw::new(self)
     }
 
-    /// Turn this batch into a button, with the hovered version rewriting all colors.
-    pub fn to_btn(self, ctx: &EventCtx) -> BtnBuilder {
-        self.to_btn_custom(RewriteColor::ChangeAll(ctx.style().hovering_color))
-    }
-
     /// Turn this batch into a button.
-    pub fn to_btn_custom(self, rewrite: RewriteColor) -> BtnBuilder {
+    #[deprecated]
+    pub fn to_btn_custom(self, rewrite: RewriteColor) -> ButtonBuilder<'static> {
         let hovered = self.clone().color(rewrite);
-        let hitbox = self.get_bounds().get_rectangle();
-        Btn::custom(self, hovered, hitbox, None)
+        ButtonBuilder::new()
+            .custom_batch(self, ControlState::Default)
+            .custom_batch(hovered, ControlState::Hovered)
     }
 
     /// Compute the bounds of all polygons in this batch.
@@ -267,6 +264,7 @@ impl<F: Into<Fill>> From<Vec<(F, Polygon)>> for GeomBatch {
 }
 
 /// A way to transform all colors in a GeomBatch.
+#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum RewriteColor {
     /// Don't do anything
     NoOp,
@@ -279,6 +277,12 @@ pub enum RewriteColor {
     ChangeAlpha(f32),
     /// Convert all colors to greyscale.
     MakeGrayscale,
+}
+
+impl std::convert::From<Color> for RewriteColor {
+    fn from(color: Color) -> RewriteColor {
+        RewriteColor::ChangeAll(color)
+    }
 }
 
 impl RewriteColor {

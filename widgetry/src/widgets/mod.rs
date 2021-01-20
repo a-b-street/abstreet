@@ -724,9 +724,6 @@ impl Widget {
         }
     }
 
-    pub(crate) fn take_btn(self) -> Button {
-        *self.widget.downcast::<Button>().ok().unwrap()
-    }
     pub(crate) fn take_menu<T: 'static + Clone>(self) -> Menu<T> {
         *self.widget.downcast::<Menu<T>>().ok().unwrap()
     }

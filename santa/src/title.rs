@@ -138,7 +138,7 @@ fn unlocked_level(ctx: &mut EventCtx, app: &App, level: &Level, idx: usize) -> W
             Color::WHITE,
             ctx.style().hovering_color,
         ))
-        .build(ctx, &level.title, None)
+        .build_widget(ctx, &level.title)
 }
 
 struct Credits;

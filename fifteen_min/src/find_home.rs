@@ -30,7 +30,7 @@ impl FindHome {
             Widget::custom_row(
                 AmenityType::all()
                     .into_iter()
-                    .map(|at| Checkbox::switch(ctx, at.to_string(), None, false))
+                    .map(|at| Checkbox::switch(ctx, &at.to_string(), None, false))
                     .collect(),
             )
             .flex_wrap(ctx, Percent::int(50)),

@@ -260,6 +260,7 @@ impl Btn {
         }
     }
 
+    #[deprecated]
     pub fn custom(
         normal: GeomBatch,
         hovered: GeomBatch,
@@ -296,6 +297,7 @@ struct ButtonStyle<'a> {
     label: Option<Label<'a>>,
     outline: Option<(f64, Color)>,
     bg_color: Option<Color>,
+    custom_batch: Option<GeomBatch>,
 }
 
 impl<'b, 'a: 'b> ButtonBuilder<'a> {
@@ -422,10 +424,10 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     ///
     /// If the style hasn't been set for the current ControlState, the style for
     /// `ControlState::Default` will be used.
-    pub fn image_color(mut self, color: Color, for_state: ControlState) -> Self {
+    pub fn image_color<C: Into<RewriteColor>>(mut self, color: C, for_state: ControlState) -> Self {
         let state_style = self.style_mut(for_state);
         let mut image = state_style.image.take().unwrap_or_default();
-        image.color = Some(color);
+        image.color = Some(color.into());
         state_style.image = Some(image);
         self
     }
@@ -471,6 +473,15 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     /// `ControlState::Default` will be used.
     pub fn outline(mut self, thickness: f64, color: Color, for_state: ControlState) -> Self {
         self.style_mut(for_state).outline = Some((thickness, color));
+        self
+    }
+
+    /// Set a pre-rendered [GeomBatch] to use for the button instead of individual fields.
+    ///
+    /// This is useful for applying one-off button designs that can't be accommodated by the
+    /// the existing ButtonBuilder methods.
+    pub fn custom_batch(mut self, batch: GeomBatch, for_state: ControlState) -> Self {
+        self.style_mut(for_state).custom_batch = Some(batch);
         self
     }
 
@@ -625,7 +636,14 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
 
     fn batch(&self, ctx: &EventCtx, for_state: ControlState) -> GeomBatch {
         let state_style = self.style(for_state);
+        if let Some(custom_batch) = state_style.custom_batch.as_ref() {
+            return custom_batch.clone();
+        }
+
         let default_style = &self.default_style;
+        if let Some(custom_batch) = default_style.custom_batch.as_ref() {
+            return custom_batch.clone();
+        }
 
         let image_batch = state_style
             .image
@@ -640,7 +658,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
                 let image_path = image_path.unwrap();
                 let (mut svg_batch, svg_bounds) = svg::load_svg(ctx.prerender, image_path);
                 if let Some(color) = image.color.or(default.and_then(|d| d.color)) {
-                    svg_batch = svg_batch.color(RewriteColor::ChangeAll(color));
+                    svg_batch = svg_batch.color(color);
                 }
 
                 if let Some(image_dims) = image.dims.or(default.and_then(|d| d.dims)) {
@@ -763,7 +781,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
 #[derive(Clone, Debug, Default)]
 pub struct Image<'a> {
     path: Option<&'a str>,
-    color: Option<Color>,
+    color: Option<RewriteColor>,
     dims: Option<ScreenDims>,
     content_mode: ContentMode,
 }
