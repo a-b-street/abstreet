@@ -65,7 +65,7 @@ impl Viewer {
                     .btn_plain_light_icon("system/assets/tools/search.svg")
                     .hotkey(lctrl(Key::F))
                     .build_widget(ctx, "search"),
-                Btn::plaintext("About").build_def(ctx, None),
+                ctx.style().btn_plain_light_text("About").build_def(ctx),
             ]),
             Widget::horiz_separator(ctx, 0.3),
             self.calculate_tags(ctx, app),
@@ -127,10 +127,9 @@ impl Viewer {
                         continue;
                     }
                     col.push(Widget::row(vec![
-                        Btn::plaintext(k).build(
+                        ctx.style().btn_plain_light_text(k).build_widget(
                             ctx,
-                            format!("open https://wiki.openstreetmap.org/wiki/Key:{}", k),
-                            None,
+                            &format!("open https://wiki.openstreetmap.org/wiki/Key:{}", k),
                         ),
                         Line(v).draw(ctx).align_right(),
                     ]));
@@ -187,10 +186,9 @@ impl Viewer {
                             continue;
                         }
                         col.push(Widget::row(vec![
-                            Btn::plaintext(k).build(
+                            ctx.style().btn_plain_light_text(k).build_widget(
                                 ctx,
-                                format!("open https://wiki.openstreetmap.org/wiki/Key:{}", k),
-                                None,
+                                &format!("open https://wiki.openstreetmap.org/wiki/Key:{}", k),
                             ),
                             Line(v).draw(ctx).align_right(),
                         ]));

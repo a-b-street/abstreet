@@ -332,7 +332,7 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
             .build_def(ctx),
     );
     rows.push(Widget::row(vec![
-        Btn::plaintext("About").build_def(ctx, None),
+        ctx.style().btn_plain_light_text("About").build_def(ctx),
         ctx.style()
             .btn_plain_light_icon("system/assets/tools/search.svg")
             .hotkey(lctrl(Key::F))

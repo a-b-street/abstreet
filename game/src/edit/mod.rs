@@ -405,16 +405,24 @@ impl SaveEdits {
                 Text::new().draw(ctx).named("warning"),
                 Widget::row(vec![
                     if discard {
-                        Btn::text_bg2("Discard proposal").build_def(ctx, None)
+                        ctx.style()
+                            .btn_primary_destructive_text("Discard proposal")
+                            .build_def(ctx)
                     } else {
                         Widget::nothing()
                     },
                     if cancel.is_some() {
-                        Btn::plaintext("Cancel").build_def(ctx, Key::Escape)
+                        ctx.style()
+                            .btn_primary_dark_text("Cancel")
+                            .hotkey(Key::Escape)
+                            .build_def(ctx)
                     } else {
                         Widget::nothing()
                     },
-                    Btn::text_bg2("Save").inactive(ctx),
+                    ctx.style()
+                        .btn_primary_dark_text("Save")
+                        .disabled()
+                        .build_def(ctx),
                 ])
                 .align_right(),
             ]))
@@ -789,9 +797,10 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Panel {
             col.push(
                 Widget::row(vec![
                     btn,
-                    Btn::plaintext("X")
-                        .build(ctx, "undo", lctrl(Key::Z))
-                        .align_right(),
+                    ctx.style()
+                        .btn_close()
+                        .hotkey(lctrl(Key::Z))
+                        .build_widget(ctx, "undo"),
                 ])
                 .padding(16)
                 .outline(2.0, Color::WHITE),

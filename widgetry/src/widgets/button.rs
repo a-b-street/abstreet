@@ -151,15 +151,6 @@ impl WidgetImpl for Button {
 pub struct Btn {}
 
 impl Btn {
-    pub fn plaintext<I: Into<String>>(action: I) -> BtnBuilder {
-        let action = action.into();
-        BtnBuilder::PlainText {
-            action: action.clone(),
-            txt: Text::from(Line(action)),
-            maybe_tooltip: None,
-        }
-    }
-
     pub fn text_fg<I: Into<String>>(action: I) -> BtnBuilder {
         let action = action.into();
         BtnBuilder::TextFG(action.clone(), Text::from(Line(action)), None)
@@ -717,11 +708,6 @@ struct Label<'a> {
 
 pub enum BtnBuilder {
     TextFG(String, Text, Option<Text>),
-    PlainText {
-        action: String,
-        txt: Text,
-        maybe_tooltip: Option<Text>,
-    },
     TextBG {
         action: String,
         maybe_tooltip: Option<Text>,
@@ -735,11 +721,7 @@ pub enum BtnBuilder {
 impl BtnBuilder {
     pub fn tooltip(mut self, tooltip: Text) -> BtnBuilder {
         match self {
-            BtnBuilder::TextFG(_, _, ref mut maybe_tooltip)
-            | BtnBuilder::PlainText {
-                ref mut maybe_tooltip,
-                ..
-            } => {
+            BtnBuilder::TextFG(_, _, ref mut maybe_tooltip) => {
                 assert!(maybe_tooltip.is_none());
                 *maybe_tooltip = Some(tooltip);
             }
@@ -792,35 +774,6 @@ impl BtnBuilder {
                 )
                 .outline(2.0, Color::WHITE)
             }
-            // Same as TextFG without the outline
-            BtnBuilder::PlainText {
-                txt, maybe_tooltip, ..
-            } => {
-                let (normal, hitbox) = txt
-                    .clone()
-                    .batch(ctx)
-                    .container()
-                    .padding(8)
-                    .to_geom(ctx, None);
-                let (hovered, _) = txt
-                    .change_fg(Color::ORANGE)
-                    .batch(ctx)
-                    .container()
-                    .padding(8)
-                    .to_geom(ctx, None);
-
-                Button::widget(
-                    ctx,
-                    normal.clone(),
-                    hovered,
-                    normal,
-                    key.into(),
-                    &action.into(),
-                    maybe_tooltip,
-                    hitbox,
-                    false,
-                )
-            }
             BtnBuilder::TextBG {
                 text,
                 maybe_tooltip,
@@ -860,9 +813,7 @@ impl BtnBuilder {
     // Use the text as the action
     pub fn build_def<MK: Into<Option<MultiKey>>>(self, ctx: &EventCtx, key: MK) -> Widget {
         match self {
-            BtnBuilder::TextFG(ref action, _, _)
-            | BtnBuilder::PlainText { ref action, .. }
-            | BtnBuilder::TextBG { ref action, .. } => {
+            BtnBuilder::TextFG(ref action, _, _) | BtnBuilder::TextBG { ref action, .. } => {
                 assert!(!action.is_empty());
                 let copy = action.clone();
                 self.build(ctx, copy, key)
@@ -904,17 +855,6 @@ impl BtnBuilder {
                 )
                 .named(action)
             }
-            BtnBuilder::PlainText { txt, action, .. } => Widget::draw_batch(
-                ctx,
-                txt.change_fg(Color::grey(0.5))
-                    .render(ctx)
-                    .batch()
-                    .container()
-                    .padding(8)
-                    .to_geom(ctx, None)
-                    .0,
-            )
-            .named(action),
         }
     }
 }

@@ -9,8 +9,8 @@ use geom::{Distance, Duration, Polygon, Pt2D};
 use map_gui::tools::PopupMsg;
 use sim::TripMode;
 use widgetry::{
-    Btn, Checkbox, Choice, Color, CompareTimes, DrawBaselayer, DrawWithTooltips, EventCtx,
-    GeomBatch, GfxCtx, Line, Outcome, Panel, State, Text, TextExt, Widget,
+    Checkbox, Choice, Color, CompareTimes, DrawBaselayer, DrawWithTooltips, EventCtx, GeomBatch,
+    GfxCtx, Line, Outcome, Panel, State, StyledButtons, Text, TextExt, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -44,8 +44,9 @@ impl TripSummaries {
             ],
         ));
         filters.push(
-            Btn::plaintext("Export to CSV")
-                .build_def(ctx, None)
+            ctx.style()
+                .btn_plain_light_text("Export to CSV")
+                .build_def(ctx)
                 .align_bottom(),
         );
 
