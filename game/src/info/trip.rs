@@ -799,7 +799,7 @@ fn make_trip_details(
                     (trip_id, trip.departure),
                 );
                 ctx.style()
-                    .btn_plain_light_icon("system/assets/speed/info_jump_to_time.svg")
+                    .btn_plain_light_icon("system/assets/speed/jump_to_time.svg")
                     .tooltip({
                         let mut txt = Text::from(Line("This will jump to "));
                         txt.append(Line(trip.departure.ampm_tostring()).fg(Color::hex("#F9EC51")));
@@ -817,7 +817,7 @@ fn make_trip_details(
                         .time_warpers
                         .insert(format!("jump to {}", t), (trip_id, t));
                     ctx.style()
-                        .btn_plain_light_icon("system/assets/speed/info_jump_to_time.svg")
+                        .btn_plain_light_icon("system/assets/speed/jump_to_time.svg")
                         .tooltip({
                             let mut txt = Text::from(Line("This will jump to "));
                             txt.append(Line(t.ampm_tostring()).fg(Color::hex("#F9EC51")));
