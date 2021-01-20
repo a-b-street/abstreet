@@ -151,14 +151,6 @@ impl WidgetImpl for Button {
 pub struct Btn {}
 
 impl Btn {
-    pub fn svg<I: Into<String>>(path: I, rewrite_hover: RewriteColor) -> BtnBuilder {
-        BtnBuilder::SVG {
-            path: path.into(),
-            rewrite_hover,
-            maybe_tooltip: None,
-        }
-    }
-
     pub fn plaintext<I: Into<String>>(action: I) -> BtnBuilder {
         let action = action.into();
         BtnBuilder::PlainText {
@@ -724,11 +716,6 @@ struct Label<'a> {
 }
 
 pub enum BtnBuilder {
-    SVG {
-        path: String,
-        rewrite_hover: RewriteColor,
-        maybe_tooltip: Option<Text>,
-    },
     TextFG(String, Text, Option<Text>),
     PlainText {
         action: String,
@@ -756,11 +743,7 @@ impl BtnBuilder {
                 assert!(maybe_tooltip.is_none());
                 *maybe_tooltip = Some(tooltip);
             }
-            BtnBuilder::SVG {
-                ref mut maybe_tooltip,
-                ..
-            }
-            | BtnBuilder::TextBG {
+            BtnBuilder::TextBG {
                 ref mut maybe_tooltip,
                 ..
             } => {
@@ -782,28 +765,6 @@ impl BtnBuilder {
         key: MK,
     ) -> Widget {
         match self {
-            BtnBuilder::SVG {
-                path,
-                rewrite_hover,
-                maybe_tooltip,
-            } => {
-                let (normal, bounds) = svg::load_svg(ctx.prerender, &path);
-                let geom = Polygon::rectangle(bounds.width(), bounds.height());
-
-                let hovered = normal.clone().color(rewrite_hover);
-
-                Button::widget(
-                    ctx,
-                    normal.clone(),
-                    hovered,
-                    normal, // TODO: remove this method. copying disabled from normal for now
-                    key.into(),
-                    &action.into(),
-                    maybe_tooltip,
-                    geom,
-                    false,
-                )
-            }
             BtnBuilder::TextFG(_, normal_txt, maybe_t) => {
                 let (normal, hitbox) = normal_txt
                     .clone()
@@ -899,7 +860,6 @@ impl BtnBuilder {
     // Use the text as the action
     pub fn build_def<MK: Into<Option<MultiKey>>>(self, ctx: &EventCtx, key: MK) -> Widget {
         match self {
-            BtnBuilder::SVG { .. } => panic!("Can't use build_def on an SVG button"),
             BtnBuilder::TextFG(ref action, _, _)
             | BtnBuilder::PlainText { ref action, .. }
             | BtnBuilder::TextBG { ref action, .. } => {
@@ -955,7 +915,6 @@ impl BtnBuilder {
                     .0,
             )
             .named(action),
-            _ => panic!("Can't use inactive on this kind of button"),
         }
     }
 }

@@ -4,9 +4,7 @@ use map_gui::tools::ColorNetwork;
 use map_gui::ID;
 use map_model::{BusRoute, BusRouteID, BusStopID, PathStep};
 use sim::{AgentID, CarID};
-use widgetry::{
-    Btn, Color, EventCtx, Key, Line, RewriteColor, StyledButtons, Text, TextExt, Widget,
-};
+use widgetry::{Btn, Color, EventCtx, Key, Line, StyledButtons, Text, TextExt, Widget};
 
 use crate::app::App;
 use crate::info::{header_btns, make_tabs, Details, Tab};
@@ -242,11 +240,9 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
         let i = map.get_i(map.get_l(route.start).src_i);
         let name = format!("Starts at {}", i.name(app.opts.language.as_ref(), map));
         rows.push(Widget::row(vec![
-            Btn::svg(
-                "system/assets/timeline/goal_pos.svg",
-                RewriteColor::Change(Color::WHITE, app.cs.hovering),
-            )
-            .build(ctx, &name, None),
+            ctx.style()
+                .btn_plain_light_icon("system/assets/timeline/goal_pos.svg")
+                .build_widget(ctx, &name),
             name.clone().draw_text(ctx),
         ]));
         details.warpers.insert(name, ID::Intersection(i.id));
@@ -255,11 +251,9 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
         let bs = map.get_bs(*bs);
         let name = format!("Stop {}: {}", idx + 1, bs.name);
         rows.push(Widget::row(vec![
-            Btn::svg(
-                "system/assets/tools/pin.svg",
-                RewriteColor::Change(Color::hex("#CC4121"), app.cs.hovering),
-            )
-            .build(ctx, &name, None),
+            ctx.style()
+                .btn_plain_light_icon("system/assets/tools/pin.svg")
+                .build_widget(ctx, &name),
             Text::from_all(vec![
                 Line(&bs.name),
                 Line(format!(
@@ -278,11 +272,9 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
         let i = map.get_i(map.get_l(l).dst_i);
         let name = format!("Ends at {}", i.name(app.opts.language.as_ref(), map));
         rows.push(Widget::row(vec![
-            Btn::svg(
-                "system/assets/timeline/goal_pos.svg",
-                RewriteColor::Change(Color::WHITE, app.cs.hovering),
-            )
-            .build(ctx, &name, None),
+            ctx.style()
+                .btn_plain_light_icon("system/assets/timeline/goal_pos.svg")
+                .build_widget(ctx, &name),
             name.clone().draw_text(ctx),
         ]));
         details.warpers.insert(name, ID::Intersection(i.id));

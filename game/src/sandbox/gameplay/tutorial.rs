@@ -821,11 +821,10 @@ impl TutorialState {
                 }];
                 let mut controls = vec![Widget::row(vec![
                     if self.current.part > 0 {
-                        Btn::svg(
-                            "system/assets/tools/prev.svg",
-                            RewriteColor::Change(Color::WHITE, app.cs.hovering),
-                        )
-                        .build(ctx, "previous message", Key::LeftArrow)
+                        ctx.style()
+                            .btn_plain_light_icon("system/assets/tools/prev.svg")
+                            .hotkey(Key::LeftArrow)
+                            .build_widget(ctx, "previous message")
                     } else {
                         Widget::draw_svg_transform(
                             ctx,
@@ -844,15 +843,10 @@ impl TutorialState {
                         )
                         .named("next message")
                     } else {
-                        Btn::svg(
-                            "system/assets/tools/next.svg",
-                            RewriteColor::Change(Color::WHITE, app.cs.hovering),
-                        )
-                        .build(
-                            ctx,
-                            "next message",
-                            hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]),
-                        )
+                        ctx.style()
+                            .btn_plain_light_icon("system/assets/tools/next.svg")
+                            .hotkey(hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]))
+                            .build_widget(ctx, "next message")
                     },
                 ])];
                 if self.current.part == self.stage().messages.len() - 1 {
