@@ -355,7 +355,8 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
         } else {
             ctx.style()
                 .btn_primary_dark_text("Finish upzoning before playing")
-                .disabled().build_def(ctx)
+                .disabled()
+                .build_def(ctx)
         },
     ]))
     .aligned(

@@ -2,8 +2,8 @@ use geom::{Duration, Time};
 use map_gui::ID;
 use map_model::IntersectionID;
 use widgetry::{
-    Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor,
-    State, StyledButtons, Text, VerticalAlignment, Widget,
+    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State,
+    StyledButtons, Text, VerticalAlignment, Widget,
 };
 
 use crate::app::Transition;
@@ -254,7 +254,9 @@ impl GameplayState for FixTrafficSignals {
                         .fg(Color::RED)
                         .draw(ctx)
                         .centered_vert(),
-                    Btn::text_fg("try again").build_def(ctx, None),
+                    ctx.style()
+                        .btn_secondary_light_text("try again")
+                        .build_def(ctx),
                 ]),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)

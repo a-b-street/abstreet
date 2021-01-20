@@ -10,7 +10,7 @@ use map_model::{
 };
 use widgetry::{
     Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel, SimpleState, State,
-    Text, VerticalAlignment, Widget,
+    StyledButtons, Text, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -60,7 +60,9 @@ impl StopSignEditor {
                 Btn::text_fg("reset to default").inactive(ctx)
             },
             Btn::text_fg("close intersection for construction").build_def(ctx, Key::C),
-            Btn::text_fg("convert to traffic signal").build_def(ctx, None),
+            ctx.style()
+                .btn_secondary_light_text("convert to traffic signal")
+                .build_def(ctx),
             Btn::text_fg("Finish").build_def(ctx, Key::Escape),
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)

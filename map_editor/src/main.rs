@@ -10,7 +10,8 @@ use map_model::osm;
 use map_model::raw::OriginalRoad;
 use widgetry::{
     Btn, Canvas, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, ScreenPt, SharedAppState, Text, Transition, VerticalAlignment, Widget, StyledButtons
+    Outcome, Panel, ScreenPt, SharedAppState, StyledButtons, Text, Transition, VerticalAlignment,
+    Widget,
 };
 
 mod model;

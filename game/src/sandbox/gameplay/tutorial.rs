@@ -744,7 +744,7 @@ impl TutorialState {
             } else {
                 Btn::text_fg(">").build(ctx, "next tutorial", None)
             },
-            Btn::text_fg("Quit").build_def(ctx, None),
+            ctx.style().btn_secondary_light_text("Quit").build_def(ctx),
         ])
         .centered()];
         {
