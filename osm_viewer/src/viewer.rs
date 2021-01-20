@@ -73,7 +73,10 @@ impl Viewer {
             if let Some(ref b) = self.businesses {
                 biz_search_panel.unwrap_or_else(|| b.render(ctx).named("Search for businesses"))
             } else {
-                Btn::text_bg2("Search for businesses").build_def(ctx, Key::Tab)
+                ctx.style()
+                    .btn_primary_dark_text("Search for businesses")
+                    .hotkey(Key::Tab)
+                    .build_def(ctx)
             },
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
@@ -446,7 +449,12 @@ impl BusinessSearch {
 
     fn render(&self, ctx: &mut EventCtx) -> Widget {
         let mut col = Vec::new();
-        col.push(Btn::text_bg2("Hide business search").build_def(ctx, Key::Tab));
+        col.push(
+            ctx.style()
+                .btn_primary_dark_text("Hide business search")
+                .hotkey(Key::Tab)
+                .build_def(ctx),
+        );
         col.push(
             format!("{} businesses total", prettyprint_usize(self.counts.sum())).draw_text(ctx),
         );

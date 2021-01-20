@@ -161,7 +161,12 @@ impl ChallengesPicker {
             {
                 flex_row.push(Btn::text_bg2(&name).inactive(ctx));
             } else {
-                flex_row.push(Btn::text_bg2(&name).build_def(ctx, Key::NUM_KEYS[idx]));
+                flex_row.push(
+                    ctx.style()
+                        .btn_primary_dark_text(&name)
+                        .hotkey(Key::NUM_KEYS[idx])
+                        .build_def(ctx),
+                );
                 links.insert(name.clone(), (name, 0));
             }
         }

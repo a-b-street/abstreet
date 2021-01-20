@@ -36,7 +36,10 @@ impl JumpToTime {
                 ctx.style().btn_close_widget(ctx),
                 Widget::custom_row(vec![
                     Btn::text_bg2("Jump to time").inactive(ctx),
-                    Btn::text_bg2("Jump to delay").build_def(ctx, Key::D),
+                    ctx.style()
+                        .btn_primary_dark_text("Jump to delay")
+                        .hotkey(Key::D)
+                        .build_def(ctx),
                 ])
                 .bg(Color::WHITE),
                 Line("Jump to what time?").small_heading().draw(ctx),
@@ -164,7 +167,10 @@ impl JumpToDelay {
             panel: Panel::new(Widget::col(vec![
                 ctx.style().btn_close_widget(ctx),
                 Widget::custom_row(vec![
-                    Btn::text_bg2("Jump to time").build_def(ctx, Key::T),
+                    ctx.style()
+                        .btn_primary_dark_text("Jump to time")
+                        .hotkey(Key::T)
+                        .build_def(ctx),
                     Btn::text_bg2("Jump to delay").inactive(ctx),
                 ])
                 .bg(Color::WHITE),

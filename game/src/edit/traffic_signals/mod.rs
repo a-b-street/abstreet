@@ -494,7 +494,10 @@ impl State<App> for TrafficSignalEditor {
 
 fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool) -> Panel {
     let row = vec![
-        Btn::text_bg2("Finish").build_def(ctx, Key::Enter),
+        ctx.style()
+            .btn_primary_dark_text("Finish")
+            .hotkey(Key::Enter)
+            .build_def(ctx),
         Btn::text_bg2("Preview").build_def(ctx, lctrl(Key::P)),
         (if can_undo {
             ctx.style()
@@ -611,9 +614,19 @@ fn make_side_panel(
     );
 
     if members.len() == 1 {
-        col.push(Btn::text_bg2("Edit entire signal").build_def(ctx, Key::E));
+        col.push(
+            ctx.style()
+                .btn_primary_dark_text("Edit entire signal")
+                .hotkey(Key::E)
+                .build_def(ctx),
+        );
     } else {
-        col.push(Btn::text_bg2("Tune offsets between signals").build_def(ctx, Key::O));
+        col.push(
+            ctx.style()
+                .btn_primary_dark_text("Tune offsets between signals")
+                .hotkey(Key::O)
+                .build_def(ctx),
+        );
     }
 
     let translations = squish_polygons_together(

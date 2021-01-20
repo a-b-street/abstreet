@@ -457,7 +457,10 @@ impl SaveEdits {
             self.panel.replace(
                 ctx,
                 "Save",
-                Btn::text_bg2("Save").build_def(ctx, Key::Enter),
+                ctx.style()
+                    .btn_primary_dark_text("Save")
+                    .hotkey(Key::Enter)
+                    .build_def(ctx),
             );
             self.panel.replace(ctx, "warning", Text::new().draw(ctx));
         }

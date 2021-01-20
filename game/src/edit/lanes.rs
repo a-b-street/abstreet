@@ -101,7 +101,10 @@ impl LaneEditor {
                 ])
             },
             Btn::text_fg("Change access restrictions").build_def(ctx, Key::A),
-            Btn::text_bg2("Finish").build_def(ctx, Key::Escape),
+            ctx.style()
+                .btn_primary_dark_text("Finish")
+                .hotkey(Key::Escape)
+                .build_def(ctx),
         ];
         let panel = Panel::new(Widget::col(col))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)

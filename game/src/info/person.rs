@@ -503,7 +503,11 @@ pub fn parked_car(
     // TODO prev trips, next trips, etc
 
     let p = app.primary.sim.get_owner_of_car(id).unwrap();
-    rows.push(Btn::text_bg2(format!("Owned by {}", p)).build_def(ctx, None));
+    rows.push(
+        ctx.style()
+            .btn_primary_dark_text(&format!("Owned by {}", p))
+            .build_def(ctx),
+    );
     details.hyperlinks.insert(
         format!("Owned by {}", p),
         Tab::PersonTrips(p, BTreeMap::new()),
