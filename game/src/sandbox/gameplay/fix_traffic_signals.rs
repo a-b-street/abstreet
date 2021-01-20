@@ -312,7 +312,9 @@ fn make_meter(ctx: &mut EventCtx, app: &App, worst: Option<(IntersectionID, Dura
         } else {
             Widget::row(vec![
                 if app.primary.dirty_from_edits {
-                    Btn::plaintext("(!)").build(ctx, "explain score", None)
+                    ctx.style()
+                        .btn_plain_light_icon("system/assets/tools/info.svg")
+                        .build_widget(ctx, "explain score")
                 } else {
                     Widget::nothing()
                 },

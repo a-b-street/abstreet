@@ -187,7 +187,9 @@ impl Credits {
 }
 
 fn link(ctx: &mut EventCtx, label: &str, url: &str) -> Widget {
-    Btn::plaintext(label).build(ctx, format!("open {}", url), None)
+    ctx.style()
+        .btn_plain_light_text(label)
+        .build_widget(ctx, &format!("open {}", url))
 }
 
 impl SimpleState<App> for Credits {
