@@ -335,12 +335,21 @@
 <span id="332">332</span>
 <span id="333">333</span>
 <span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">MapName</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Percent</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">City</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Autocomplete</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
+    <span class="ident">Autocomplete</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
     <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenPt</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Transition</span>, <span class="ident">Widget</span>,
 };
 
@@ -406,7 +415,7 @@
 
                         <span class="kw">let</span> <span class="ident">action</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">path</span>();
                         <span class="kw">if</span> <span class="kw-2">&amp;</span><span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_name</span>() {
-                            <span class="kw">let</span> <span class="ident">btn</span> <span class="op">=</span> <span class="ident">btn</span>.<span class="ident">disabled</span>();
+                            <span class="kw">let</span> <span class="ident">btn</span> <span class="op">=</span> <span class="ident">btn</span>.<span class="ident">disabled</span>(<span class="bool-val">true</span>);
                             <span class="ident">this_city</span>.<span class="ident">push</span>(<span class="ident">btn</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">action</span>));
                         } <span class="kw">else</span> {
                             <span class="ident">this_city</span>.<span class="ident">push</span>(<span class="ident">btn</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">action</span>));
@@ -425,14 +434,20 @@
                         <span class="kw">continue</span>;
                     }
                     <span class="comment">// If there&#39;s only one map in the city, make the button directly load it.</span>
+                    <span class="kw">let</span> <span class="ident">button</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_secondary_light_text</span>(<span class="kw-2">&amp;</span><span class="ident">city</span>);
                     <span class="kw">let</span> <span class="ident">maps</span> <span class="op">=</span> <span class="ident">MapName</span>::<span class="ident">list_all_maps_in_city</span>(<span class="kw-2">&amp;</span><span class="ident">city</span>);
                     <span class="kw">if</span> <span class="ident">maps</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
-                        <span class="ident">other_cities</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="ident">city</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">maps</span>[<span class="number">0</span>].<span class="ident">path</span>(), <span class="prelude-val">None</span>));
+                        <span class="ident">other_cities</span>.<span class="ident">push</span>(<span class="ident">button</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">maps</span>[<span class="number">0</span>].<span class="ident">path</span>()));
                     } <span class="kw">else</span> {
-                        <span class="ident">other_cities</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="ident">city</span>).<span class="ident">no_tooltip</span>().<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>));
+                        <span class="ident">other_cities</span>.<span class="ident">push</span>(<span class="ident">button</span>.<span class="ident">no_tooltip</span>().<span class="ident">build_def</span>(<span class="ident">ctx</span>));
                     }
                 }
-                <span class="ident">other_cities</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Search all maps&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Tab</span>));
+                <span class="ident">other_cities</span>.<span class="ident">push</span>(
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_primary_dark_text</span>(<span class="string">&quot;Search all maps&quot;</span>)
+                        .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Tab</span>)
+                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                );
 
                 <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">CityPicker</span> {
                     <span class="ident">regions</span>,
@@ -465,7 +480,9 @@
                                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;import new city&quot;</span>),
                         ]),
                         <span class="kw">if</span> <span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)) {
-                            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Download more cities&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>)
+                            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                                .<span class="ident">btn_secondary_light_text</span>(<span class="string">&quot;Download more cities&quot;</span>)
+                                .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                         } <span class="kw">else</span> {
                             <span class="ident">Widget</span>::<span class="ident">nothing</span>()
                         },
@@ -601,8 +618,9 @@
 
         <span class="kw">for</span> <span class="ident">name</span> <span class="kw">in</span> <span class="ident">MapName</span>::<span class="ident">list_all_maps</span>() {
             <span class="ident">buttons</span>.<span class="ident">push</span>(
-                <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="ident">name</span>.<span class="ident">describe</span>())
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">name</span>.<span class="ident">path</span>(), <span class="prelude-val">None</span>)
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_secondary_light_text</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">describe</span>())
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">path</span>())
                     .<span class="ident">margin_right</span>(<span class="number">10</span>)
                     .<span class="ident">margin_below</span>(<span class="number">10</span>),
             );

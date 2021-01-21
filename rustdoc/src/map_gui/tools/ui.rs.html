@@ -222,12 +222,18 @@
 <span id="219">219</span>
 <span id="220">220</span>
 <span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Generic UI tools. Some of this should perhaps be lifted to widgetry.</span>
 
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkeys</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>,
-    <span class="ident">Line</span>, <span class="ident">Menu</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">Transition</span>,
+    <span class="ident">hotkeys</span>, <span class="ident">Choice</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
+    <span class="ident">Menu</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">Transition</span>,
     <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
@@ -330,7 +336,10 @@
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">text_entry</span>(<span class="ident">ctx</span>, <span class="ident">String</span>::<span class="ident">new</span>(), <span class="bool-val">true</span>).<span class="ident">named</span>(<span class="string">&quot;input&quot;</span>),
-                <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;confirm&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>),
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_secondary_light_text</span>(<span class="string">&quot;confirm&quot;</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             ]))
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
             <span class="ident">cb</span>,
@@ -405,7 +414,10 @@
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">PopupMsg</span> {
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;OK&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">hotkeys</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Key</span>::<span class="ident">Enter</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>])),
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_primary_dark_text</span>(<span class="string">&quot;OK&quot;</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">hotkeys</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Key</span>::<span class="ident">Enter</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>]))
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             ]))
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
             <span class="ident">unzoomed</span>,

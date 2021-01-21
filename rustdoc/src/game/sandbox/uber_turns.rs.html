@@ -337,6 +337,15 @@
 <span id="334">334</span>
 <span id="335">335</span>
 <span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -346,9 +355,8 @@
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionCluster</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
-    <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">SimpleState</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>,
-    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>,
+    <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">SimpleState</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">ShowEverything</span>, <span class="ident">Transition</span>};
@@ -375,10 +383,22 @@
                     .<span class="ident">draw</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
             ]),
-            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;View uber-turns&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>),
-            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Edit&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">E</span>),
-            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Detect all clusters&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">D</span>),
-            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Preview merged intersection&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">P</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_secondary_light_text</span>(<span class="string">&quot;View uber-turns&quot;</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_secondary_light_text</span>(<span class="string">&quot;Edit&quot;</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">E</span>)
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_secondary_light_text</span>(<span class="string">&quot;Detect all clusters&quot;</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">D</span>)
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_secondary_light_text</span>(<span class="string">&quot;Preview merged intersection&quot;</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">P</span>)
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
@@ -512,19 +532,17 @@
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;Uber-turn viewer&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">vert_separator</span>(<span class="ident">ctx</span>, <span class="number">50.0</span>),
-                <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;&lt;&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>)
-                } <span class="kw">else</span> {
-                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;&lt;&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;previous uber-turn&quot;</span>, <span class="ident">Key</span>::<span class="ident">LeftArrow</span>)
-                },
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_prev</span>()
+                    .<span class="ident">disabled</span>(<span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;previous uber-turn&quot;</span>),
                 <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/{}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">ic</span>.<span class="ident">uber_turns</span>.<span class="ident">len</span>())).<span class="ident">secondary</span>())
                     .<span class="ident">draw</span>(<span class="ident">ctx</span>)
                     .<span class="ident">centered_vert</span>(),
-                <span class="kw">if</span> <span class="ident">ic</span>.<span class="ident">uber_turns</span>.<span class="ident">is_empty</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ic</span>.<span class="ident">uber_turns</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
-                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;&gt;&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>)
-                } <span class="kw">else</span> {
-                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;&gt;&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;next uber-turn&quot;</span>, <span class="ident">Key</span>::<span class="ident">RightArrow</span>)
-                },
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_next</span>()
+                    .<span class="ident">disabled</span>(<span class="ident">ic</span>.<span class="ident">uber_turns</span>.<span class="ident">is_empty</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ic</span>.<span class="ident">uber_turns</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;next uber-turn&quot;</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
             ]),
             <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;driving_cost for a Car: {}&quot;</span>, <span class="ident">sum_cost</span>).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),

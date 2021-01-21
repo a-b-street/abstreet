@@ -685,6 +685,9 @@
 <span id="682">682</span>
 <span id="683">683</span>
 <span id="684">684</span>
+<span id="685">685</span>
+<span id="686">686</span>
+<span id="687">687</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>};
 
@@ -692,7 +695,9 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripID</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::<span class="ident">table</span>::{<span class="ident">Col</span>, <span class="ident">Filter</span>, <span class="ident">Table</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">EventCtx</span>, <span class="ident">Filler</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{
+    <span class="ident">Checkbox</span>, <span class="ident">ControlState</span>, <span class="ident">EventCtx</span>, <span class="ident">Filler</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
+};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">checkbox_per_mode</span>, <span class="ident">cmp_duration_shorter</span>, <span class="ident">color_for_mode</span>};
@@ -1273,20 +1278,21 @@
     <span class="kw">let</span> <span class="ident">total</span> <span class="op">=</span> <span class="ident">finished</span> <span class="op">+</span> <span class="ident">cancelled</span> <span class="op">+</span> <span class="ident">unfinished</span>;
 
     <span class="kw">let</span> <span class="ident">btn</span> <span class="op">=</span> <span class="op">|</span><span class="ident">dash</span>, <span class="ident">action</span>, <span class="ident">label</span><span class="op">|</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">button</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_primary_light_text</span>(<span class="ident">label</span>);
         <span class="kw">if</span> <span class="ident">dash</span> <span class="op">=</span><span class="op">=</span> <span class="ident">tab</span> {
-            <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">label</span>).<span class="ident">underlined</span>())
-                .<span class="ident">draw</span>(<span class="ident">ctx</span>)
-                .<span class="ident">centered_vert</span>()
-        } <span class="kw">else</span> {
-            <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="ident">label</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">action</span>, <span class="prelude-val">None</span>)
+            <span class="ident">button</span> <span class="op">=</span> <span class="ident">button</span>
+                .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
+                .<span class="ident">bg_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_primary_light</span>.<span class="ident">bg</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
+                .<span class="ident">label_styled_text</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">label</span>).<span class="ident">underlined</span>()), <span class="ident">ControlState</span>::<span class="ident">Default</span>)
         }
+        <span class="ident">button</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="ident">action</span>)
     };
 
     <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">btn</span>(
             <span class="ident">DashTab</span>::<span class="ident">FinishedTripTable</span>,
             <span class="string">&quot;finished trips&quot;</span>,
-            <span class="macro">format</span><span class="macro">!</span>(
+            <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;{} ({:.1}%) Finished Trips&quot;</span>,
                 <span class="ident">prettyprint_usize</span>(<span class="ident">finished</span>),
                 <span class="kw">if</span> <span class="ident">total</span> <span class="op">&gt;</span> <span class="number">0</span> {
@@ -1300,13 +1306,13 @@
         <span class="ident">btn</span>(
             <span class="ident">DashTab</span>::<span class="ident">CancelledTripTable</span>,
             <span class="string">&quot;cancelled trips&quot;</span>,
-            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} Cancelled Trips&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">cancelled</span>)),
+            <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} Cancelled Trips&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">cancelled</span>)),
         )
         .<span class="ident">margin_right</span>(<span class="number">28</span>),
         <span class="ident">btn</span>(
             <span class="ident">DashTab</span>::<span class="ident">UnfinishedTripTable</span>,
             <span class="string">&quot;unfinished trips&quot;</span>,
-            <span class="macro">format</span><span class="macro">!</span>(
+            <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;{} ({:.1}%) Unfinished Trips&quot;</span>,
                 <span class="ident">prettyprint_usize</span>(<span class="ident">unfinished</span>),
                 <span class="kw">if</span> <span class="ident">total</span> <span class="op">&gt;</span> <span class="number">0</span> {

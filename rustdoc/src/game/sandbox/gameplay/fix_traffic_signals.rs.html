@@ -414,13 +414,15 @@
 <span id="411">411</span>
 <span id="412">412</span>
 <span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">IntersectionID</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>,
-    <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">State</span>,
+    <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">Transition</span>;
@@ -662,7 +664,7 @@
         <span class="self">self</span>.<span class="ident">meter</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">recreate_panels</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
+    <span class="kw">fn</span> <span class="ident">recreate_panels</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">_app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">time</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">done_at</span> {
             <span class="self">self</span>.<span class="ident">top_center</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">challenge_header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Traffic signal survivor&quot;</span>),
@@ -671,7 +673,9 @@
                         .<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">RED</span>)
                         .<span class="ident">draw</span>(<span class="ident">ctx</span>)
                         .<span class="ident">centered_vert</span>(),
-                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;try again&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_secondary_light_text</span>(<span class="string">&quot;try again&quot;</span>)
+                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 ]),
             ]))
             .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
@@ -685,12 +689,10 @@
                         <span class="ident">THRESHOLD</span>
                     ))
                     .<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Btn</span>::<span class="ident">svg</span>(
-                        <span class="string">&quot;system/assets/tools/hint.svg&quot;</span>,
-                        <span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">hovering</span>),
-                    )
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;hint&quot;</span>, <span class="prelude-val">None</span>)
-                    .<span class="ident">align_right</span>(),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_plain_light_icon_text</span>(<span class="string">&quot;system/assets/tools/lightbulb.svg&quot;</span>, <span class="string">&quot;Hint&quot;</span>)
+                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;hint&quot;</span>)
+                        .<span class="ident">align_right</span>(),
                 ]),
             ]))
             .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
@@ -731,7 +733,9 @@
         } <span class="kw">else</span> {
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">dirty_from_edits</span> {
-                    <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;(!)&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;explain score&quot;</span>, <span class="prelude-val">None</span>)
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/info.svg&quot;</span>)
+                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;explain score&quot;</span>)
                 } <span class="kw">else</span> {
                     <span class="ident">Widget</span>::<span class="ident">nothing</span>()
                 },

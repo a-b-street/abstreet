@@ -584,7 +584,7 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">AmenityType</span>, <span class="ident">Building</span>, <span class="ident">BuildingID</span>, <span class="ident">LaneType</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::<span class="ident">table</span>::{<span class="ident">Col</span>, <span class="ident">Filter</span>, <span class="ident">Table</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Cached</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
+    <span class="ident">lctrl</span>, <span class="ident">Cached</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
     <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>,
     <span class="ident">TextExt</span>, <span class="ident">Transition</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
@@ -845,11 +845,10 @@
 
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="string">&quot;Map:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-        <span class="ident">Btn</span>::<span class="ident">pop_up</span>(<span class="ident">ctx</span>, <span class="prelude-val">Some</span>(<span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()))).<span class="ident">build</span>(
-            <span class="ident">ctx</span>,
-            <span class="string">&quot;change map&quot;</span>,
-            <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">L</span>),
-        ),
+        <span class="ident">ctx</span>.<span class="ident">style</span>()
+            .<span class="ident">btn_popup_light</span>(<span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()))
+            .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">L</span>))
+            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change map&quot;</span>),
     ]));
 
     <span class="ident">rows</span>.<span class="ident">push</span>(
@@ -887,11 +886,9 @@
 
     <span class="kw">for</span> (<span class="ident">amenity</span>, <span class="ident">buildings</span>) <span class="kw">in</span> <span class="ident">isochrone</span>.<span class="ident">amenities_reachable</span>.<span class="ident">borrow</span>() {
         <span class="ident">rows</span>.<span class="ident">push</span>(
-            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}: {}&quot;</span>, <span class="ident">amenity</span>, <span class="ident">buildings</span>.<span class="ident">len</span>())).<span class="ident">build</span>(
-                <span class="ident">ctx</span>,
-                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;businesses: {}&quot;</span>, <span class="ident">amenity</span>),
-                <span class="prelude-val">None</span>,
-            ),
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_secondary_light_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}: {}&quot;</span>, <span class="ident">amenity</span>, <span class="ident">buildings</span>.<span class="ident">len</span>()))
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;businesses: {}&quot;</span>, <span class="ident">amenity</span>)),
         );
     }
 
@@ -905,8 +902,11 @@
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
     );
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;About&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
-        <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/search.svg&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;search&quot;</span>, <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">F</span>)),
+        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain_light_text</span>(<span class="string">&quot;About&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+        <span class="ident">ctx</span>.<span class="ident">style</span>()
+            .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/search.svg&quot;</span>)
+            .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">F</span>))
+            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;search&quot;</span>),
     ]));
 
     <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">rows</span>))

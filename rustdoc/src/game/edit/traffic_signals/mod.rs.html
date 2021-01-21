@@ -903,6 +903,36 @@
 <span id="900">900</span>
 <span id="901">901</span>
 <span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 
@@ -916,7 +946,7 @@
     <span class="ident">TurnPriority</span>,
 };
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
+    <span class="ident">lctrl</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
     <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">MultiButton</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">State</span>,
     <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
@@ -1400,10 +1430,19 @@
 
 <span class="kw">fn</span> <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">can_undo</span>: <span class="ident">bool</span>, <span class="ident">can_redo</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
     <span class="kw">let</span> <span class="ident">row</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Finish&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>),
-        <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Preview&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">P</span>)),
+        <span class="ident">ctx</span>.<span class="ident">style</span>()
+            .<span class="ident">btn_primary_dark_text</span>(<span class="string">&quot;Finish&quot;</span>)
+            .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)
+            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+        <span class="ident">ctx</span>.<span class="ident">style</span>()
+            .<span class="ident">btn_primary_dark_text</span>(<span class="string">&quot;Preview&quot;</span>)
+            .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">P</span>))
+            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         (<span class="kw">if</span> <span class="ident">can_undo</span> {
-            <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/undo.svg&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;undo&quot;</span>, <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">Z</span>))
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/undo.svg&quot;</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">Z</span>))
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;undo&quot;</span>)
         } <span class="kw">else</span> {
             <span class="ident">Widget</span>::<span class="ident">draw_svg_transform</span>(
                 <span class="ident">ctx</span>,
@@ -1413,12 +1452,11 @@
         })
         .<span class="ident">centered_vert</span>(),
         (<span class="kw">if</span> <span class="ident">can_redo</span> {
-            <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/redo.svg&quot;</span>).<span class="ident">build</span>(
-                <span class="ident">ctx</span>,
-                <span class="string">&quot;redo&quot;</span>,
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/redo.svg&quot;</span>)
                 <span class="comment">// TODO ctrl+shift+Z!</span>
-                <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">Y</span>),
-            )
+                .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">Y</span>))
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;redo&quot;</span>)
         } <span class="kw">else</span> {
             <span class="ident">Widget</span>::<span class="ident">draw_svg_transform</span>(
                 <span class="ident">ctx</span>,
@@ -1444,7 +1482,8 @@
         ]),
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="ident">row</span>),
         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
-            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Export&quot;</span>)
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_secondary_light_text</span>(<span class="string">&quot;Export&quot;</span>)
                 .<span class="ident">tooltip</span>(<span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;This will create a JSON file in traffic_signal_data/.&quot;</span>).<span class="ident">small</span>(),
                     <span class="ident">Line</span>(
@@ -1453,7 +1492,7 @@
                     )
                     .<span class="ident">small</span>(),
                 ]))
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>)
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
         } <span class="kw">else</span> {
             <span class="ident">Widget</span>::<span class="ident">nothing</span>()
         },
@@ -1515,9 +1554,19 @@
     );
 
     <span class="kw">if</span> <span class="ident">members</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
-        <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Edit entire signal&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">E</span>));
+        <span class="ident">col</span>.<span class="ident">push</span>(
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_primary_dark_text</span>(<span class="string">&quot;Edit entire signal&quot;</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">E</span>)
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+        );
     } <span class="kw">else</span> {
-        <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Tune offsets between signals&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">O</span>));
+        <span class="ident">col</span>.<span class="ident">push</span>(
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_primary_dark_text</span>(<span class="string">&quot;Tune offsets between signals&quot;</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">O</span>)
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+        );
     }
 
     <span class="kw">let</span> <span class="ident">translations</span> <span class="op">=</span> <span class="ident">squish_polygons_together</span>(
@@ -1530,18 +1579,20 @@
     <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">canonical_stage</span>) <span class="kw">in</span> <span class="ident">canonical_signal</span>.<span class="ident">stages</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
         <span class="kw">let</span> <span class="ident">stage_btn</span> <span class="op">=</span> <span class="ident">draw_multiple_signals</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">members</span>, <span class="ident">idx</span>, <span class="kw-2">&amp;</span><span class="ident">translations</span>);
 
+        <span class="kw">let</span> <span class="ident">up_button</span> <span class="op">=</span> <span class="ident">ctx</span>
+            .<span class="ident">style</span>()
+            .<span class="ident">btn_primary_light_icon</span>(<span class="string">&quot;system/assets/tools/arrow_up.svg&quot;</span>)
+            .<span class="ident">disabled</span>(<span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>);
+
+        <span class="kw">let</span> <span class="ident">down_button</span> <span class="op">=</span> <span class="ident">ctx</span>
+            .<span class="ident">style</span>()
+            .<span class="ident">btn_primary_light_icon</span>(<span class="string">&quot;system/assets/tools/arrow_down.svg&quot;</span>)
+            .<span class="ident">disabled</span>(<span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">canonical_signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>);
+
         <span class="kw">let</span> <span class="ident">stage_controls</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-                    <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;↑&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>)
-                } <span class="kw">else</span> {
-                    <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;↑&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;move up stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>), <span class="prelude-val">None</span>)
-                },
-                <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">canonical_signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
-                    <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;↓&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>)
-                } <span class="kw">else</span> {
-                    <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;↓&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;move down stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>), <span class="prelude-val">None</span>)
-                },
+                <span class="ident">up_button</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;move up stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>)),
+                <span class="ident">down_button</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;move down stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>)),
             ])
             .<span class="ident">centered_vert</span>(),
             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -1556,15 +1607,23 @@
                             <span class="ident">additional</span>
                         ),
                     }
-                    .<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/edit.svg&quot;</span>).<span class="ident">build</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;change duration of stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>),
-                        <span class="kw">if</span> <span class="ident">selected</span> <span class="op">=</span><span class="op">=</span> <span class="ident">idx</span> { <span class="ident">Key</span>::<span class="ident">X</span>.<span class="ident">into</span>() } <span class="kw">else</span> { <span class="prelude-val">None</span> },
-                    ),
+                    .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">centered_vert</span>(),
+                    {
+                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">button</span> <span class="op">=</span> <span class="ident">ctx</span>
+                            .<span class="ident">style</span>()
+                            .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>);
+                        <span class="kw">if</span> <span class="ident">selected</span> <span class="op">=</span><span class="op">=</span> <span class="ident">idx</span> {
+                            <span class="ident">button</span> <span class="op">=</span> <span class="ident">button</span>.<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">X</span>);
+                        }
+                        <span class="ident">button</span>
+                            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;change duration of stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>))
+                            .<span class="ident">align_right</span>()
+                    },
                     <span class="kw">if</span> <span class="ident">canonical_signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
-                        <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/delete.svg&quot;</span>)
-                            .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;delete stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>), <span class="prelude-val">None</span>)
+                        <span class="ident">ctx</span>.<span class="ident">style</span>()
+                            .<span class="ident">btn_primary_destructive_icon</span>(<span class="string">&quot;system/assets/tools/trash.svg&quot;</span>)
+                            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;delete stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>))
                             .<span class="ident">align_right</span>()
                     } <span class="kw">else</span> {
                         <span class="ident">Widget</span>::<span class="ident">nothing</span>()
@@ -1583,8 +1642,9 @@
     }
 
     <span class="ident">col</span>.<span class="ident">push</span>(
-        <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Add a new stage&quot;</span>)
-            .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>)
+        <span class="ident">ctx</span>.<span class="ident">style</span>()
+            .<span class="ident">btn_primary_dark_text</span>(<span class="string">&quot;Add a new stage&quot;</span>)
+            .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
             .<span class="ident">centered_horiz</span>(),
     );
 

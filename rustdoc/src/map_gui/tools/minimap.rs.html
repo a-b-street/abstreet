@@ -446,13 +446,24 @@
 <span id="443">443</span>
 <span id="444">444</span>
 <span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">clamp</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Btn</span>, <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Filler</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>,
+    <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Filler</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>,
     <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenPt</span>, <span class="ident">Spinner</span>, <span class="ident">StyledButtons</span>, <span class="ident">Transition</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
@@ -606,23 +617,34 @@
             .<span class="ident">margin_above</span>(<span class="number">26</span>)
         };
 
-        <span class="kw">let</span> <span class="ident">minimap_controls</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/minimap/up.svg&quot;</span>)
-                .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;pan up&quot;</span>, <span class="prelude-val">None</span>)
-                .<span class="ident">centered_horiz</span>(),
-            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/minimap/left.svg&quot;</span>)
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;pan left&quot;</span>, <span class="prelude-val">None</span>)
-                    .<span class="ident">centered_vert</span>(),
-                <span class="ident">Filler</span>::<span class="ident">square_width</span>(<span class="ident">ctx</span>, <span class="number">0.15</span>).<span class="ident">named</span>(<span class="string">&quot;minimap&quot;</span>),
-                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/minimap/right.svg&quot;</span>)
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;pan right&quot;</span>, <span class="prelude-val">None</span>)
-                    .<span class="ident">centered_vert</span>(),
-            ]),
-            <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/minimap/down.svg&quot;</span>)
-                .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;pan down&quot;</span>, <span class="prelude-val">None</span>)
-                .<span class="ident">centered_horiz</span>(),
-        ]);
+        <span class="kw">let</span> <span class="ident">minimap_controls</span> <span class="op">=</span> {
+            <span class="kw">let</span> <span class="ident">buttons</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain_light</span>().<span class="ident">padding</span>(<span class="number">4</span>);
+            <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">buttons</span>
+                    .<span class="ident">clone</span>()
+                    .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/minimap/up.svg&quot;</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;pan up&quot;</span>)
+                    .<span class="ident">centered_horiz</span>(),
+                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">buttons</span>
+                        .<span class="ident">clone</span>()
+                        .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/minimap/left.svg&quot;</span>)
+                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;pan left&quot;</span>)
+                        .<span class="ident">centered_vert</span>(),
+                    <span class="ident">Filler</span>::<span class="ident">square_width</span>(<span class="ident">ctx</span>, <span class="number">0.15</span>).<span class="ident">named</span>(<span class="string">&quot;minimap&quot;</span>),
+                    <span class="ident">buttons</span>
+                        .<span class="ident">clone</span>()
+                        .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/minimap/right.svg&quot;</span>)
+                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;pan right&quot;</span>)
+                        .<span class="ident">centered_vert</span>(),
+                ]),
+                <span class="ident">buttons</span>
+                    .<span class="ident">clone</span>()
+                    .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/minimap/down.svg&quot;</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;pan down&quot;</span>)
+                    .<span class="ident">centered_horiz</span>(),
+            ])
+        };
 
         <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">make_zoomed_side_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),

@@ -229,6 +229,18 @@
 <span id="226">226</span>
 <span id="227">227</span>
 <span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">Button</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">MultiKey</span>, <span class="ident">Outcome</span>, <span class="ident">RewriteColor</span>,
@@ -335,7 +347,18 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buttons</span> <span class="op">=</span> <span class="ident">ctx</span>
             .<span class="ident">style</span>()
             .<span class="ident">btn_plain_light</span>()
-            .<span class="ident">image_color</span>(<span class="ident">RewriteColor</span>::<span class="ident">NoOp</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
+            .<span class="ident">image_color</span>(
+                <span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_primary_light</span>.<span class="ident">bg</span>),
+                <span class="ident">ControlState</span>::<span class="ident">Default</span>,
+            )
+            .<span class="ident">image_color</span>(
+                <span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_primary_light</span>.<span class="ident">bg_hover</span>),
+                <span class="ident">ControlState</span>::<span class="ident">Hovered</span>,
+            )
+            .<span class="ident">image_color</span>(
+                <span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_primary_light</span>.<span class="ident">bg_disabled</span>),
+                <span class="ident">ControlState</span>::<span class="ident">Disabled</span>,
+            )
             .<span class="ident">label_styled_text</span>(<span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="ident">spans</span>), <span class="ident">ControlState</span>::<span class="ident">Default</span>)
             .<span class="ident">padding</span>(<span class="number">4.0</span>);
 
@@ -417,8 +440,9 @@
                 <span class="ident">bottom</span>: <span class="number">14.0</span>,
             })
             <span class="comment">// TODO: make these clickable. Currently they would explode due to re-use of an action</span>
-            .<span class="ident">disabled</span>()
-            .<span class="ident">label_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_secondary_light</span>.<span class="ident">fg</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>);
+            .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
+            .<span class="ident">label_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_secondary_light</span>.<span class="ident">fg</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
+            .<span class="ident">bg_color</span>(<span class="ident">Color</span>::<span class="ident">CLEAR</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>);
         <span class="kw">let</span> <span class="ident">right_text_button</span> <span class="op">=</span> <span class="ident">left_text_button</span>.<span class="ident">clone</span>().<span class="ident">label_text</span>(<span class="ident">right_label</span>);
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">left_text_button</span>.<span class="ident">build_def</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),

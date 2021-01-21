@@ -305,30 +305,14 @@
 <span id="302">302</span>
 <span id="303">303</span>
 <span id="304">304</span>
-<span id="305">305</span>
-<span id="306">306</span>
-<span id="307">307</span>
-<span id="308">308</span>
-<span id="309">309</span>
-<span id="310">310</span>
-<span id="311">311</span>
-<span id="312">312</span>
-<span id="313">313</span>
-<span id="314">314</span>
-<span id="315">315</span>
-<span id="316">316</span>
-<span id="317">317</span>
-<span id="318">318</span>
-<span id="319">319</span>
-<span id="320">320</span>
-<span id="321">321</span>
-<span id="322">322</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">RoadID</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">RewriteColor</span>, <span class="ident">Widget</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{
+    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">RewriteColor</span>, <span class="ident">StyledButtons</span>, <span class="ident">Widget</span>,
+};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">intersections_from_roads</span>, <span class="ident">CommonState</span>};
@@ -374,46 +358,26 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_controls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Mode</span>::<span class="ident">Paint</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">mode</span> {
-                <span class="ident">Widget</span>::<span class="ident">draw_svg_transform</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>,
-                    <span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#4CA7E9&quot;</span>)),
-                )
-            } <span class="kw">else</span> {
-                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;paint&quot;</span>, <span class="ident">Key</span>::<span class="ident">P</span>)
-            },
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Mode</span>::<span class="ident">Erase</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">mode</span> {
-                <span class="ident">Widget</span>::<span class="ident">draw_svg_transform</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;system/assets/tools/eraser.svg&quot;</span>,
-                    <span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#4CA7E9&quot;</span>)),
-                )
-            } <span class="kw">else</span> {
-                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/eraser.svg&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;erase&quot;</span>, <span class="ident">Key</span>::<span class="ident">Backspace</span>)
-            },
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Mode</span>::<span class="ident">Route</span> { .. } <span class="op">=</span> <span class="self">self</span>.<span class="ident">mode</span> {
-                <span class="ident">Widget</span>::<span class="ident">draw_svg_transform</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;system/assets/timeline/start_pos.svg&quot;</span>,
-                    <span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#4CA7E9&quot;</span>)),
-                )
-            } <span class="kw">else</span> {
-                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/timeline/start_pos.svg&quot;</span>).<span class="ident">build</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;select along route&quot;</span>,
-                    <span class="ident">Key</span>::<span class="ident">R</span>,
-                )
-            },
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Mode</span>::<span class="ident">Pan</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">mode</span> {
-                <span class="ident">Widget</span>::<span class="ident">draw_svg_transform</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;system/assets/tools/pan.svg&quot;</span>,
-                    <span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#4CA7E9&quot;</span>)),
-                )
-            } <span class="kw">else</span> {
-                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/pan.svg&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;pan&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
-            },
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>)
+                .<span class="ident">disabled</span>(<span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">mode</span>, <span class="ident">Mode</span>::<span class="ident">Paint</span>))
+                .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">P</span>)
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;paint&quot;</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/eraser.svg&quot;</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Backspace</span>)
+                .<span class="ident">disabled</span>(<span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">mode</span>, <span class="ident">Mode</span>::<span class="ident">Erase</span>))
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;erase&quot;</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/timeline/start_pos.svg&quot;</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">R</span>)
+                .<span class="ident">disabled</span>(<span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">mode</span>, <span class="ident">Mode</span>::<span class="ident">Route</span> { .. }))
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;select along route&quot;</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/pan.svg&quot;</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
+                .<span class="ident">disabled</span>(<span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">mode</span>, <span class="ident">Mode</span>::<span class="ident">Pan</span>))
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;pan&quot;</span>),
         ])
         .<span class="ident">evenly_spaced</span>()
     }

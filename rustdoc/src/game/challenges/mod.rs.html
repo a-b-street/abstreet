@@ -296,14 +296,23 @@
 <span id="293">293</span>
 <span id="294">294</span>
 <span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Percent</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">OrigPersonID</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>,
-    <span class="ident">Widget</span>,
+    <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>,
+    <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
@@ -431,8 +440,10 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">links</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">master_col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/pregame/back.svg&quot;</span>)
-                .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;back&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_back_light</span>(<span class="string">&quot;Home&quot;</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;back&quot;</span>)
                 .<span class="ident">align_left</span>(),
             <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;A/B STREET&quot;</span>).<span class="ident">display_title</span>(),
@@ -440,8 +451,9 @@
             ])
             .<span class="ident">draw</span>(<span class="ident">ctx</span>)
             .<span class="ident">centered_horiz</span>(),
-            <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Introduction and tutorial&quot;</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>)
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_primary_dark_text</span>(<span class="string">&quot;Introduction and tutorial&quot;</span>)
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                 .<span class="ident">centered_horiz</span>()
                 .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>)
                 .<span class="ident">padding</span>(<span class="number">16</span>)
@@ -451,16 +463,18 @@
         <span class="comment">// First list challenges</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">flex_row</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> (<span class="ident">idx</span>, (<span class="ident">name</span>, <span class="kw">_</span>)) <span class="kw">in</span> <span class="ident">Challenge</span>::<span class="ident">all</span>().<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">if</span> <span class="ident">challenge_and_stage</span>
+            <span class="kw">let</span> <span class="ident">is_current_stage</span> <span class="op">=</span> <span class="ident">challenge_and_stage</span>
                 .<span class="ident">as_ref</span>()
                 .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">n</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">n</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">name</span>)
-                .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
-            {
-                <span class="ident">flex_row</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>));
-            } <span class="kw">else</span> {
-                <span class="ident">flex_row</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">NUM_KEYS</span>[<span class="ident">idx</span>]));
-                <span class="ident">links</span>.<span class="ident">insert</span>(<span class="ident">name</span>.<span class="ident">clone</span>(), (<span class="ident">name</span>, <span class="number">0</span>));
-            }
+                .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>);
+            <span class="ident">flex_row</span>.<span class="ident">push</span>(
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_primary_dark_text</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>)
+                    .<span class="ident">disabled</span>(<span class="ident">is_current_stage</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">NUM_KEYS</span>[<span class="ident">idx</span>])
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            );
+            <span class="ident">links</span>.<span class="ident">insert</span>(<span class="ident">name</span>.<span class="ident">clone</span>(), (<span class="ident">name</span>, <span class="number">0</span>));
         }
         <span class="ident">master_col</span>.<span class="ident">push</span>(
             <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">flex_row</span>)
@@ -481,12 +495,13 @@
                 .<span class="ident">into_iter</span>()
                 .<span class="ident">enumerate</span>()
             {
-                <span class="kw">if</span> <span class="ident">current</span> <span class="op">=</span><span class="op">=</span> <span class="ident">idx</span> {
-                    <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="kw-2">&amp;</span><span class="ident">stage</span>.<span class="ident">title</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>));
-                } <span class="kw">else</span> {
-                    <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="kw-2">&amp;</span><span class="ident">stage</span>.<span class="ident">title</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>));
-                    <span class="ident">links</span>.<span class="ident">insert</span>(<span class="ident">stage</span>.<span class="ident">title</span>, (<span class="ident">name</span>.<span class="ident">to_string</span>(), <span class="ident">idx</span>));
-                }
+                <span class="ident">col</span>.<span class="ident">push</span>(
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_secondary_light_text</span>(<span class="kw-2">&amp;</span><span class="ident">stage</span>.<span class="ident">title</span>)
+                        .<span class="ident">disabled</span>(<span class="ident">current</span> <span class="op">=</span><span class="op">=</span> <span class="ident">idx</span>)
+                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                );
+                <span class="ident">links</span>.<span class="ident">insert</span>(<span class="ident">stage</span>.<span class="ident">title</span>, (<span class="ident">name</span>.<span class="ident">to_string</span>(), <span class="ident">idx</span>));
             }
             <span class="ident">main_row</span>.<span class="ident">push</span>(
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>)
@@ -507,7 +522,10 @@
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">inner_col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Start!&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>),
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_secondary_light_text</span>(<span class="string">&quot;Start!&quot;</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             ];
 
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">scores</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">high_scores</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">challenge</span>.<span class="ident">gameplay</span>) {

@@ -431,6 +431,10 @@
 <span id="428">428</span>
 <span id="429">429</span>
 <span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
@@ -441,7 +445,7 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">StageType</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">AgentType</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">EventCtx</span>, <span class="ident">FanChart</span>, <span class="ident">GeomBatch</span>, <span class="ident">Line</span>, <span class="ident">PlotOptions</span>,
+    <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">EventCtx</span>, <span class="ident">FanChart</span>, <span class="ident">GeomBatch</span>, <span class="ident">Line</span>, <span class="ident">PlotOptions</span>,
     <span class="ident">ScatterPlot</span>, <span class="ident">Series</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
 };
 
@@ -648,13 +652,17 @@
         .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel</span>)
         .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>),
     );
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Explore demand across all traffic signals&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>));
+    <span class="ident">rows</span>.<span class="ident">push</span>(
+        <span class="ident">ctx</span>.<span class="ident">style</span>()
+            .<span class="ident">btn_secondary_light_text</span>(<span class="string">&quot;Explore demand across all traffic signals&quot;</span>)
+            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+    );
     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
-        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Where are these agents headed?&quot;</span>).<span class="ident">build</span>(
-            <span class="ident">ctx</span>,
-            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;routes across {}&quot;</span>, <span class="ident">id</span>),
-            <span class="prelude-val">None</span>,
-        ));
+        <span class="ident">rows</span>.<span class="ident">push</span>(
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_secondary_light_text</span>(<span class="string">&quot;Where are these agents headed?&quot;</span>)
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;routes across {}&quot;</span>, <span class="ident">id</span>)),
+        );
     }
 
     <span class="ident">rows</span>

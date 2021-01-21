@@ -696,8 +696,8 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">osm</span>::<span class="ident">WayID</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>,
-    <span class="ident">Line</span>, <span class="ident">Menu</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Transition</span>, <span class="ident">VerticalAlignment</span>,
+    <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
+    <span class="ident">Menu</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Transition</span>, <span class="ident">VerticalAlignment</span>,
     <span class="ident">Widget</span>,
 };
 
@@ -821,11 +821,9 @@
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="string">&quot;Change map:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Btn</span>::<span class="ident">pop_up</span>(<span class="ident">ctx</span>, <span class="prelude-val">Some</span>(<span class="ident">nice_map_name</span>(<span class="ident">map</span>.<span class="ident">get_name</span>()))).<span class="ident">build</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="string">&quot;change map&quot;</span>,
-                        <span class="prelude-val">None</span>,
-                    ),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_popup_light</span>(<span class="ident">nice_map_name</span>(<span class="ident">map</span>.<span class="ident">get_name</span>()))
+                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change map&quot;</span>),
                 ]),
                 <span class="macro">format</span><span class="macro">!</span>(
                     <span class="string">&quot;{} / {} ways done (you&#39;ve mapped {})&quot;</span>,
@@ -868,7 +866,9 @@
                     ),
                 ]),
                 <span class="ident">Checkbox</span>::<span class="ident">checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;max 3 days parking (default in Seattle)&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">false</span>),
-                <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Generate OsmChange file&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_secondary_light_text</span>(<span class="string">&quot;Generate OsmChange file&quot;</span>)
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 <span class="string">&quot;Select a road&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;info&quot;</span>),
             ]))
             .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
