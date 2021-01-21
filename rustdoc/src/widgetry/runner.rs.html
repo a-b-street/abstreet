@@ -596,11 +596,11 @@
         <span class="self">self</span>
     }
 
-    <span class="doccomment">/// When calling `Widget::draw_svg`, `Btn::svg`, and similar, use this function to transform</span>
-    <span class="doccomment">/// the filename given to the raw bytes of that SVG file. By default, this just reads the</span>
-    <span class="doccomment">/// file normally. You may want to override this to more conveniently locate the file</span>
-    <span class="doccomment">/// (transforming a short filename to a full path) or to handle reading files in WASM (where</span>
-    <span class="doccomment">/// regular filesystem IO doesn&#39;t work).</span>
+    <span class="doccomment">/// When calling `Widget::draw_svg`, `ButtonBuilder::image_path`, and similar, use this function</span>
+    <span class="doccomment">/// to transform the filename given to the raw bytes of that SVG file. By default, this just</span>
+    <span class="doccomment">/// reads the file normally. You may want to override this to more conveniently locate the</span>
+    <span class="doccomment">/// file (transforming a short filename to a full path) or to handle reading files in WASM</span>
+    <span class="doccomment">/// (where regular filesystem IO doesn&#39;t work).</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_svg</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">function</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">read_svg</span> <span class="op">=</span> <span class="ident">function</span>;
         <span class="self">self</span>

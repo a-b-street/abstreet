@@ -821,9 +821,9 @@
                         },
                     ));
 
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ChooseSomething</span>::<span class="ident">new_below</span>(
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ChooseSomething</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,
-                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">rect_of</span>(<span class="string">&quot;load&quot;</span>),
+                        <span class="string">&quot;Load story&quot;</span>,
                         <span class="ident">choices</span>,
                         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">story</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {
                             <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[

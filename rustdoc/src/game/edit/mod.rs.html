@@ -1093,9 +1093,9 @@
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;manage proposals&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>();
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ChooseSomething</span>::<span class="ident">new_below</span>(
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ChooseSomething</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,
-                        <span class="self">self</span>.<span class="ident">changelist</span>.<span class="ident">rect_of</span>(<span class="string">&quot;manage proposals&quot;</span>),
+                        <span class="string">&quot;Manage proposals&quot;</span>,
                         <span class="macro">vec</span><span class="macro">!</span>[
                             <span class="ident">Choice</span>::<span class="ident">string</span>(<span class="string">&quot;rename current proposal&quot;</span>),
                             <span class="ident">Choice</span>::<span class="ident">string</span>(<span class="string">&quot;open a saved proposal&quot;</span>).<span class="ident">multikey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">L</span>)),
