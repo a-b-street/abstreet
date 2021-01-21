@@ -50,54 +50,26 @@ impl RoadSelector {
 
     pub fn make_controls(&self, ctx: &mut EventCtx) -> Widget {
         Widget::custom_row(vec![
-            if let Mode::Paint = self.mode {
-                Widget::draw_svg_transform(
-                    ctx,
-                    "system/assets/tools/pencil.svg",
-                    RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
-                )
-            } else {
-                ctx.style()
-                    .btn_plain_light_icon("system/assets/tools/pencil.svg")
-                    .hotkey(Key::P)
-                    .build_widget(ctx, "paint")
-            },
-            if let Mode::Erase = self.mode {
-                Widget::draw_svg_transform(
-                    ctx,
-                    "system/assets/tools/eraser.svg",
-                    RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
-                )
-            } else {
-                ctx.style()
-                    .btn_plain_light_icon("system/assets/tools/eraser.svg")
-                    .hotkey(Key::Backspace)
-                    .build_widget(ctx, "erase")
-            },
-            if let Mode::Route { .. } = self.mode {
-                Widget::draw_svg_transform(
-                    ctx,
-                    "system/assets/timeline/start_pos.svg",
-                    RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
-                )
-            } else {
-                ctx.style()
-                    .btn_plain_light_icon("system/assets/timeline/start_pos.svg")
-                    .hotkey(Key::R)
-                    .build_widget(ctx, "select along route")
-            },
-            if let Mode::Pan = self.mode {
-                Widget::draw_svg_transform(
-                    ctx,
-                    "system/assets/tools/pan.svg",
-                    RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
-                )
-            } else {
-                ctx.style()
-                    .btn_plain_light_icon("system/assets/tools/pan.svg")
-                    .hotkey(Key::Escape)
-                    .build_widget(ctx, "pan")
-            },
+            ctx.style()
+                .btn_plain_light_icon("system/assets/tools/pencil.svg")
+                .disabled(matches!(self.mode, Mode::Paint))
+                .hotkey(Key::P)
+                .build_widget(ctx, "paint"),
+            ctx.style()
+                .btn_plain_light_icon("system/assets/tools/eraser.svg")
+                .hotkey(Key::Backspace)
+                .disabled(matches!(self.mode, Mode::Erase))
+                .build_widget(ctx, "erase"),
+            ctx.style()
+                .btn_plain_light_icon("system/assets/timeline/start_pos.svg")
+                .hotkey(Key::R)
+                .disabled(matches!(self.mode, Mode::Route { .. }))
+                .build_widget(ctx, "select along route"),
+            ctx.style()
+                .btn_plain_light_icon("system/assets/tools/pan.svg")
+                .hotkey(Key::Escape)
+                .disabled(matches!(self.mode, Mode::Pan))
+                .build_widget(ctx, "pan"),
         ])
         .evenly_spaced()
     }
