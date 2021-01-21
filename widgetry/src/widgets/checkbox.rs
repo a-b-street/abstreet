@@ -103,7 +103,18 @@ impl Checkbox {
         let mut buttons = ctx
             .style()
             .btn_plain_light()
-            .image_color(RewriteColor::NoOp, ControlState::Default)
+            .image_color(
+                RewriteColor::Change(Color::BLACK, ctx.style().btn_primary_light.bg),
+                ControlState::Default,
+            )
+            .image_color(
+                RewriteColor::Change(Color::BLACK, ctx.style().btn_primary_light.bg_hover),
+                ControlState::Hovered,
+            )
+            .image_color(
+                RewriteColor::Change(Color::BLACK, ctx.style().btn_primary_light.bg_disabled),
+                ControlState::Disabled,
+            )
             .label_styled_text(Text::from_all(spans), ControlState::Default)
             .padding(4.0);
 
