@@ -6,8 +6,8 @@ use map_gui::theme::StyledButtons;
 use map_gui::tools::{grey_out_map, nice_map_name, ChooseSomething, CityPicker, PopupMsg};
 use sim::{ScenarioModifier, TripMode};
 use widgetry::{
-    lctrl, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Slider,
-    Spinner, State, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, Choice, Color, ControlState, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, RewriteColor, Slider, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -185,6 +185,7 @@ impl EditScenarioModifiers {
                     m.describe().draw_text(ctx),
                     ctx.style()
                         .btn_plain_light_icon("system/assets/tools/delete.svg")
+                        .image_color(RewriteColor::NoOp, ControlState::Default)
                         .build_widget(ctx, &format!("delete modifier {}", idx + 1))
                         .align_right(),
                 ])
