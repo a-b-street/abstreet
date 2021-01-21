@@ -11,7 +11,7 @@ use map_gui::ID;
 use map_model::{BuildingID, IntersectionID, Position, NORMAL_LANE_THICKNESS};
 use sim::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 use widgetry::{
-    lctrl, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    lctrl, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
     SimpleState, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
@@ -302,7 +302,10 @@ impl AgentSpawner {
                     "Number of trips:".draw_text(ctx),
                     Spinner::new(ctx, (1, 1000), 1).named("number"),
                 ]),
-                Btn::text_fg("Confirm").inactive(ctx),
+                ctx.style()
+                    .btn_secondary_light_text("Confirm")
+                    .disabled(true)
+                    .build_def(ctx),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
@@ -382,8 +385,14 @@ impl State<App> for AgentSpawner {
                             "instructions",
                             "Click a building or border to specify end".draw_text(ctx),
                         );
-                        self.panel
-                            .replace(ctx, "Confirm", Btn::text_fg("Confirm").inactive(ctx));
+                        self.panel.replace(
+                            ctx,
+                            "Confirm",
+                            ctx.style()
+                                .btn_secondary_light_text("Confirm")
+                                .disabled(true)
+                                .build_def(ctx),
+                        );
                     }
                 }
             }

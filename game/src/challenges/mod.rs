@@ -3,8 +3,8 @@ use std::collections::BTreeMap;
 use geom::{Duration, Percent};
 use sim::OrigPersonID;
 use widgetry::{
-    Btn, Color, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, StyledButtons,
-    Text, TextExt, Widget,
+    Color, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, StyledButtons, Text,
+    TextExt, Widget,
 };
 
 use crate::app::App;
@@ -195,16 +195,13 @@ impl ChallengesPicker {
                 .into_iter()
                 .enumerate()
             {
-                if current == idx {
-                    col.push(Btn::text_fg(&stage.title).inactive(ctx));
-                } else {
-                    col.push(
-                        ctx.style()
-                            .btn_secondary_light_text(&stage.title)
-                            .build_def(ctx),
-                    );
-                    links.insert(stage.title, (name.to_string(), idx));
-                }
+                col.push(
+                    ctx.style()
+                        .btn_secondary_light_text(&stage.title)
+                        .disabled(current == idx)
+                        .build_def(ctx),
+                );
+                links.insert(stage.title, (name.to_string(), idx));
             }
             main_row.push(
                 Widget::col(col)
