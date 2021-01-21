@@ -155,26 +155,18 @@ impl ChallengesPicker {
         // First list challenges
         let mut flex_row = Vec::new();
         for (idx, (name, _)) in Challenge::all().into_iter().enumerate() {
-            if challenge_and_stage
+            let is_current_stage = challenge_and_stage
                 .as_ref()
                 .map(|(n, _)| n == &name)
-                .unwrap_or(false)
-            {
-                flex_row.push(
-                    ctx.style()
-                        .btn_primary_dark_text(&name)
-                        .disabled(true)
-                        .build_def(ctx),
-                );
-            } else {
-                flex_row.push(
-                    ctx.style()
-                        .btn_primary_dark_text(&name)
-                        .hotkey(Key::NUM_KEYS[idx])
-                        .build_def(ctx),
-                );
-                links.insert(name.clone(), (name, 0));
-            }
+                .unwrap_or(false);
+            flex_row.push(
+                ctx.style()
+                    .btn_primary_dark_text(&name)
+                    .disabled(is_current_stage)
+                    .hotkey(Key::NUM_KEYS[idx])
+                    .build_def(ctx),
+            );
+            links.insert(name.clone(), (name, 0));
         }
         master_col.push(
             Widget::custom_row(flex_row)
