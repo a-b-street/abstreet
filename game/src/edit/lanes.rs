@@ -2,7 +2,7 @@ use map_gui::render::Renderable;
 use map_gui::ID;
 use map_model::{EditCmd, LaneID, LaneType, Map};
 use widgetry::{
-    Btn, Choice, Color, ControlState, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel,
+    Choice, Color, ControlState, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel,
     SimpleState, State, StyledButtons, TextExt, VerticalAlignment, Widget,
 };
 
@@ -86,7 +86,10 @@ impl LaneEditor {
             ]),
             "Type of lane".draw_text(ctx),
             Widget::custom_row(row).centered(),
-            Btn::text_fg("reverse direction").build_def(ctx, Key::F),
+            ctx.style()
+                .btn_secondary_light_text("reverse direction")
+                .hotkey(Key::F)
+                .build_def(ctx),
             {
                 let mut choices = speed_limit_choices(app);
                 if !choices.iter().any(|c| c.data == parent.speed_limit) {
@@ -100,7 +103,10 @@ impl LaneEditor {
                     Widget::dropdown(ctx, "speed limit", parent.speed_limit, choices),
                 ])
             },
-            Btn::text_fg("Change access restrictions").build_def(ctx, Key::A),
+            ctx.style()
+                .btn_secondary_light_text("Change access restrictions")
+                .hotkey(Key::A)
+                .build_def(ctx),
             ctx.style()
                 .btn_primary_dark_text("Finish")
                 .hotkey(Key::Escape)

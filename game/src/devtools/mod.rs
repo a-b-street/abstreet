@@ -5,8 +5,8 @@ use abstutil::Timer;
 use geom::{LonLat, Percent};
 use map_gui::tools::{nice_map_name, ChooseSomething, CityPicker};
 use widgetry::{
-    lctrl, Btn, Choice, DrawBaselayer, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, State, StyledButtons, TextExt, VerticalAlignment, Widget,
+    lctrl, Choice, DrawBaselayer, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    State, StyledButtons, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -38,16 +38,34 @@ impl DevToolsMode {
                         .build_widget(ctx, "change map"),
                 ]),
                 Widget::custom_row(vec![
-                    Btn::text_fg("edit a polygon").build_def(ctx, Key::E),
-                    Btn::text_fg("draw a polygon").build_def(ctx, Key::P),
-                    Btn::text_fg("load scenario").build_def(ctx, Key::W),
-                    Btn::text_fg("view KML").build_def(ctx, Key::K),
-                    Btn::text_fg("story maps").build_def(ctx, Key::S),
+                    ctx.style()
+                        .btn_secondary_light_text("edit a polygon")
+                        .hotkey(Key::E)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_secondary_light_text("draw a polygon")
+                        .hotkey(Key::P)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_secondary_light_text("load scenario")
+                        .hotkey(Key::W)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_secondary_light_text("view KML")
+                        .hotkey(Key::K)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_secondary_light_text("story maps")
+                        .hotkey(Key::S)
+                        .build_def(ctx),
                     if abstio::file_exists(abstio::path(format!(
                         "input/{}/collisions.bin",
                         app.primary.map.get_city_name()
                     ))) {
-                        Btn::text_fg("collisions").build_def(ctx, Key::C)
+                        ctx.style()
+                            .btn_secondary_light_text("collisions")
+                            .hotkey(Key::C)
+                            .build_def(ctx)
                     } else {
                         Widget::nothing()
                     },

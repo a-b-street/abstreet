@@ -35,10 +35,22 @@ impl UberTurnPicker {
                     .draw(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
-            Btn::text_fg("View uber-turns").build_def(ctx, Key::Enter),
-            Btn::text_fg("Edit").build_def(ctx, Key::E),
-            Btn::text_fg("Detect all clusters").build_def(ctx, Key::D),
-            Btn::text_fg("Preview merged intersection").build_def(ctx, Key::P),
+            ctx.style()
+                .btn_secondary_light_text("View uber-turns")
+                .hotkey(Key::Enter)
+                .build_def(ctx),
+            ctx.style()
+                .btn_secondary_light_text("Edit")
+                .hotkey(Key::E)
+                .build_def(ctx),
+            ctx.style()
+                .btn_secondary_light_text("Detect all clusters")
+                .hotkey(Key::D)
+                .build_def(ctx),
+            ctx.style()
+                .btn_secondary_light_text("Preview merged intersection")
+                .hotkey(Key::P)
+                .build_def(ctx),
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);

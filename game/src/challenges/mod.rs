@@ -221,7 +221,10 @@ impl ChallengesPicker {
 
             let mut inner_col = vec![
                 txt.draw(ctx),
-                Btn::text_fg("Start!").build_def(ctx, Key::Enter),
+                ctx.style()
+                    .btn_secondary_light_text("Start!")
+                    .hotkey(Key::Enter)
+                    .build_def(ctx),
             ];
 
             if let Some(scores) = app.session.high_scores.get(&challenge.gameplay) {

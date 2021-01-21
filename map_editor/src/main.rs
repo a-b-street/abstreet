@@ -9,9 +9,8 @@ use map_gui::tools::CameraState;
 use map_model::osm;
 use map_model::raw::OriginalRoad;
 use widgetry::{
-    Btn, Canvas, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, ScreenPt, SharedAppState, StyledButtons, Text, Transition, VerticalAlignment,
-    Widget,
+    Canvas, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, ScreenPt, SharedAppState, StyledButtons, Text, Transition, VerticalAlignment, Widget,
 };
 
 mod model;
@@ -78,11 +77,17 @@ impl MainState {
                     Line("Map Editor").small_heading().draw(ctx),
                     Text::new().draw(ctx).named("current info"),
                     Widget::col(vec![
-                        Btn::text_fg("quit").build_def(ctx, Key::Escape),
+                        ctx.style()
+                            .btn_secondary_light_text("quit")
+                            .hotkey(Key::Escape)
+                            .build_def(ctx),
                         ctx.style()
                             .btn_secondary_light_text("export to OSM")
                             .build_def(ctx),
-                        Btn::text_fg("preview all intersections").build_def(ctx, Key::G),
+                        ctx.style()
+                            .btn_secondary_light_text("preview all intersections")
+                            .hotkey(Key::G)
+                            .build_def(ctx),
                     ]),
                 ]))
                 .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)

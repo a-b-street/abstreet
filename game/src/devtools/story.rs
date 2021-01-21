@@ -4,7 +4,7 @@ use geom::{Distance, LonLat, PolyLine, Polygon, Pt2D, Ring};
 use map_gui::render::DrawOptions;
 use map_gui::tools::{ChooseSomething, PromptInput};
 use widgetry::{
-    lctrl, Btn, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
+    lctrl, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, StyledButtons, Text,
     VerticalAlignment, Widget,
 };
@@ -521,7 +521,10 @@ impl Marker {
                 .btn_secondary_light_text("delete")
                 .build_def(ctx),
             Widget::text_entry(ctx, self.event.clone(), true).named("event"),
-            Btn::text_fg("confirm").build_def(ctx, Key::Enter),
+            ctx.style()
+                .btn_secondary_light_text("confirm")
+                .hotkey(Key::Enter)
+                .build_def(ctx),
         ]))
         .build(ctx)
     }

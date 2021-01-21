@@ -7,8 +7,8 @@ use map_gui::tools::ColorDiscrete;
 use map_model::{AccessRestrictions, PathConstraints, RoadID};
 use sim::TripMode;
 use widgetry::{
-    Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    Spinner, State, Text, TextExt, VerticalAlignment, Widget,
+    Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Spinner,
+    State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -63,8 +63,14 @@ impl ZoneEditor {
                         .named("cap_vehicles"),
                 ]),
                 Widget::custom_row(vec![
-                    Btn::text_fg("Apply").build_def(ctx, Key::Enter),
-                    Btn::text_fg("Cancel").build_def(ctx, Key::Escape),
+                    ctx.style()
+                        .btn_secondary_light_text("Apply")
+                        .hotkey(Key::Enter)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_secondary_light_text("Cancel")
+                        .hotkey(Key::Escape)
+                        .build_def(ctx),
                 ])
                 .evenly_spaced(),
             ]))
