@@ -1207,6 +1207,12 @@
 <span id="1204">1204</span>
 <span id="1205">1205</span>
 <span id="1206">1206</span>
+<span id="1207">1207</span>
+<span id="1208">1208</span>
+<span id="1209">1209</span>
+<span id="1210">1210</span>
+<span id="1211">1211</span>
+<span id="1212">1212</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
@@ -1851,8 +1857,14 @@
         <span class="comment">// Hacks to delete cars that&#39;re mid-turn</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Traversable</span>::<span class="ident">Turn</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">car</span>.<span class="ident">router</span>.<span class="ident">head</span>() {
             <span class="kw">let</span> <span class="ident">queue</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">queues</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">car</span>.<span class="ident">router</span>.<span class="ident">head</span>()).<span class="ident">unwrap</span>();
+            <span class="comment">// delete_car_internal will call free_reserved_space, so this is necessary to balance</span>
+            <span class="comment">// that.</span>
             <span class="ident">queue</span>.<span class="ident">reserved_length</span> <span class="op">+</span><span class="op">=</span> <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">length</span> <span class="op">+</span> <span class="ident">FOLLOWING_DISTANCE</span>;
             <span class="ident">ctx</span>.<span class="ident">intersections</span>.<span class="ident">agent_deleted_mid_turn</span>(<span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">c</span>), <span class="ident">t</span>);
+
+            <span class="comment">// Free any reserved space on the next step.</span>
+            <span class="kw">let</span> <span class="ident">queue</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">queues</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">car</span>.<span class="ident">router</span>.<span class="ident">next</span>()).<span class="ident">unwrap</span>();
+            <span class="ident">queue</span>.<span class="ident">free_reserved_space</span>(<span class="kw-2">&amp;</span><span class="ident">car</span>);
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">Traversable</span>::<span class="ident">Turn</span>(<span class="ident">t</span>)) <span class="op">=</span> <span class="ident">car</span>.<span class="ident">router</span>.<span class="ident">maybe_next</span>() {
             <span class="ident">ctx</span>.<span class="ident">intersections</span>.<span class="ident">cancel_request</span>(<span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">c</span>), <span class="ident">t</span>);
