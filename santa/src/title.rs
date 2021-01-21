@@ -24,10 +24,11 @@ impl TitleScreen {
         SimpleState::new(
             Panel::new(Widget::col(vec![
                 ctx.style()
-                    .btn_secondary_light_icon("system/assets/tools/quit.svg")
+                    .btn_secondary_light_icon_text("system/assets/tools/quit.svg", "Quit")
                     .hotkey(Key::Escape)
                     .build_widget(ctx, "quit")
-                    .align_right(),
+                    .align_right()
+                    .margin_above(4), // not sure why, but top border is partially cropped w/o this
                 Line("15-minute Santa")
                     .display_title()
                     .draw(ctx)

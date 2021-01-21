@@ -227,7 +227,7 @@ fn challenge_header(ctx: &mut EventCtx, title: &str) -> Widget {
             .centered_vert(),
         Widget::vert_separator(ctx, 50.0),
         ctx.style()
-            .btn_plain_light_icon("system/assets/tools/edit_map.svg")
+            .btn_secondary_light_icon_text("system/assets/tools/pencil.svg", "Edit map")
             .hotkey(lctrl(Key::E))
             .build_widget(ctx, "edit map")
             .centered_vert(),

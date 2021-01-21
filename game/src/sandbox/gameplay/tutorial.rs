@@ -772,7 +772,7 @@ impl TutorialState {
         if edit_map {
             col.push(
                 ctx.style()
-                    .btn_plain_light_icon("system/assets/tools/edit_map.svg")
+                    .btn_secondary_light_icon_text("system/assets/tools/pencil.svg", "Edit map")
                     .hotkey(lctrl(Key::E))
                     .build_widget(ctx, "edit map"),
             );
