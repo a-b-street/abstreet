@@ -455,7 +455,10 @@ impl State<App> for AgentSpawner {
                     self.panel.replace(
                         ctx,
                         "Confirm",
-                        Btn::text_fg("Confirm").build_def(ctx, Key::Enter),
+                        ctx.style()
+                            .btn_secondary_light_text("Confirm")
+                            .hotkey(Key::Enter)
+                            .build_def(ctx),
                     );
                 }
             }

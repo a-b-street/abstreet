@@ -65,11 +65,23 @@ impl DebugMode {
                     ctx.style()
                         .btn_secondary_light_text("screenshot all of the everything")
                         .build_def(ctx),
-                    Btn::text_fg("search OSM metadata").build_def(ctx, Key::Slash),
+                    ctx.style()
+                        .btn_secondary_light_text("search OSM metadata")
+                        .hotkey(Key::Slash)
+                        .build_def(ctx),
                     Btn::text_fg("clear OSM search results").build_def(ctx, lctrl(Key::Slash)),
-                    Btn::text_fg("save sim state").build_def(ctx, Key::O),
-                    Btn::text_fg("load previous sim state").build_def(ctx, Key::Y),
-                    Btn::text_fg("load next sim state").build_def(ctx, Key::U),
+                    ctx.style()
+                        .btn_secondary_light_text("save sim state")
+                        .hotkey(Key::O)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_secondary_light_text("load previous sim state")
+                        .hotkey(Key::Y)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_secondary_light_text("load next sim state")
+                        .hotkey(Key::U)
+                        .build_def(ctx),
                     ctx.style()
                         .btn_secondary_light_text("pick a savestate to load")
                         .build_def(ctx),
@@ -85,8 +97,14 @@ impl DebugMode {
                     ctx.style()
                         .btn_secondary_light_text("sim internal stats")
                         .build_def(ctx),
-                    Btn::text_fg("blocked-by graph").build_def(ctx, Key::B),
-                    Btn::text_fg("render to GeoJSON").build_def(ctx, Key::G),
+                    ctx.style()
+                        .btn_secondary_light_text("blocked-by graph")
+                        .hotkey(Key::B)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_secondary_light_text("render to GeoJSON")
+                        .hotkey(Key::G)
+                        .build_def(ctx),
                 ]),
                 Text::from_all(vec![
                     Line("Hold "),

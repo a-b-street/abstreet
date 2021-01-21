@@ -1,8 +1,8 @@
 //! Generic UI tools. Some of this should perhaps be lifted to widgetry.
 
 use widgetry::{
-    hotkeys, Btn, Choice, DrawBaselayer, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key,
-    Line, Menu, Outcome, Panel, ScreenRectangle, State, StyledButtons, Text, Transition,
+    hotkeys, Choice, DrawBaselayer, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
+    Menu, Outcome, Panel, ScreenRectangle, State, StyledButtons, Text, Transition,
     VerticalAlignment, Widget,
 };
 
@@ -105,7 +105,10 @@ impl<A: AppLike + 'static> PromptInput<A> {
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 Widget::text_entry(ctx, String::new(), true).named("input"),
-                Btn::text_fg("confirm").build_def(ctx, Key::Enter),
+                ctx.style()
+                    .btn_secondary_light_text("confirm")
+                    .hotkey(Key::Enter)
+                    .build_def(ctx),
             ]))
             .build(ctx),
             cb,

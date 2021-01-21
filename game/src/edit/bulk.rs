@@ -52,7 +52,10 @@ fn make_select_panel(ctx: &mut EventCtx, selector: &RoadSelector) -> Panel {
             ctx.style()
                 .btn_secondary_light_text("export list of roads")
                 .build_def(ctx),
-            Btn::text_fg("Cancel").build_def(ctx, Key::Escape),
+            ctx.style()
+                .btn_secondary_light_text("Cancel")
+                .hotkey(Key::Escape)
+                .build_def(ctx),
         ])
         .evenly_spaced(),
     ]))

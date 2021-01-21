@@ -55,15 +55,24 @@ impl StopSignEditor {
             if ControlStopSign::new(&app.primary.map, id)
                 != app.primary.map.get_stop_sign(id).clone()
             {
-                Btn::text_fg("reset to default").build_def(ctx, Key::R)
+                ctx.style()
+                    .btn_secondary_light_text("reset to default")
+                    .hotkey(Key::R)
+                    .build_def(ctx)
             } else {
                 Btn::text_fg("reset to default").inactive(ctx)
             },
-            Btn::text_fg("close intersection for construction").build_def(ctx, Key::C),
+            ctx.style()
+                .btn_secondary_light_text("close intersection for construction")
+                .hotkey(Key::C)
+                .build_def(ctx),
             ctx.style()
                 .btn_secondary_light_text("convert to traffic signal")
                 .build_def(ctx),
-            Btn::text_fg("Finish").build_def(ctx, Key::Escape),
+            ctx.style()
+                .btn_secondary_light_text("Finish")
+                .hotkey(Key::Escape)
+                .build_def(ctx),
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);

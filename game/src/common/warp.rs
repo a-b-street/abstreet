@@ -6,7 +6,7 @@ use map_gui::ID;
 use map_model::{AreaID, BuildingID, BusRouteID, IntersectionID, LaneID, ParkingLotID, RoadID};
 use sim::{PedestrianID, PersonID, TripID};
 use widgetry::{
-    Btn, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, StyledButtons, Text, TextExt, Warper,
+    EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, StyledButtons, Text, TextExt, Warper,
     Widget,
 };
 
@@ -119,7 +119,10 @@ impl DebugWarp {
                 ])
                 .draw(ctx),
                 Widget::text_entry(ctx, String::new(), true).named("input"),
-                Btn::text_fg("Go!").build_def(ctx, Key::Enter),
+                ctx.style()
+                    .btn_secondary_light_text("Go!")
+                    .hotkey(Key::Enter)
+                    .build_def(ctx),
             ]))
             .build(ctx),
         })

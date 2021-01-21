@@ -4,8 +4,8 @@ use geom::ArrowCap;
 use map_gui::render::{DrawOptions, DrawUberTurnGroup, BIG_ARROW_THICKNESS};
 use map_model::{IntersectionCluster, IntersectionID};
 use widgetry::{
-    Btn, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Outcome, Panel,
-    State, VerticalAlignment, Widget,
+    DrawBaselayer, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State,
+    StyledButtons, VerticalAlignment, Widget,
 };
 
 use crate::app::Transition;
@@ -23,9 +23,11 @@ impl ClusterTrafficSignalEditor {
     pub fn new(ctx: &mut EventCtx, app: &mut App, ic: &IntersectionCluster) -> Box<dyn State<App>> {
         app.primary.current_selection = None;
         Box::new(ClusterTrafficSignalEditor {
-            panel: Panel::new(Widget::row(vec![
-                Btn::text_fg("Finish").build_def(ctx, Key::Escape)
-            ]))
+            panel: Panel::new(Widget::row(vec![ctx
+                .style()
+                .btn_secondary_light_text("Finish")
+                .hotkey(Key::Escape)
+                .build_def(ctx)]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
             groups: DrawUberTurnGroup::new(ic, &app.primary.map),
