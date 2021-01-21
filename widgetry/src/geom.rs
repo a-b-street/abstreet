@@ -136,9 +136,9 @@ impl GeomBatch {
     }
 
     /// Returns a batch containing a parsed SVG string.
-    pub fn from_svg_contents(raw: Vec<u8>) -> GeomBatch {
+    pub fn from_svg_contents(raw: &[u8]) -> GeomBatch {
         let mut batch = GeomBatch::new();
-        let svg_tree = usvg::Tree::from_data(&raw, &usvg::Options::default()).unwrap();
+        let svg_tree = usvg::Tree::from_data(raw, &usvg::Options::default()).unwrap();
         svg::add_svg_inner(&mut batch, svg_tree, svg::HIGH_QUALITY).unwrap();
         batch
     }
