@@ -331,21 +331,15 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
             make_bar(ctx, Color::PINK, num_picked, app.session.upzones_unlocked),
         ]),
         Widget::row(vec![
-            if num_picked == app.session.upzones_unlocked {
-                Btn::text_fg("Randomly choose upzones").inactive(ctx)
-            } else {
-                ctx.style()
-                    .btn_secondary_light_text("Randomly choose upzones")
-                    .build_def(ctx)
-            },
-            if num_picked == 0 {
-                Btn::text_fg("Clear upzones").inactive(ctx)
-            } else {
-                ctx.style()
-                    .btn_secondary_light_text("Clear upzones")
-                    .build_def(ctx)
-            }
-            .align_right(),
+            ctx.style()
+                .btn_secondary_light_text("Randomly choose upzones")
+                .disabled(num_picked == app.session.upzones_unlocked)
+                .build_def(ctx),
+            ctx.style()
+                .btn_secondary_light_text("Clear upzones")
+                .disabled(num_picked == 0)
+                .build_def(ctx)
+                .align_right(),
         ]),
         if num_picked == app.session.upzones_unlocked {
             ctx.style()

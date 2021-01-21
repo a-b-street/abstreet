@@ -9,7 +9,7 @@ use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, RoadID,
 };
 use widgetry::{
-    Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel, SimpleState, State,
+    EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel, SimpleState, State,
     StyledButtons, Text, VerticalAlignment, Widget,
 };
 
@@ -52,16 +52,14 @@ impl StopSignEditor {
 
         let panel = Panel::new(Widget::col(vec![
             Line("Stop sign editor").small_heading().draw(ctx),
-            if ControlStopSign::new(&app.primary.map, id)
-                != app.primary.map.get_stop_sign(id).clone()
-            {
-                ctx.style()
-                    .btn_secondary_light_text("reset to default")
-                    .hotkey(Key::R)
-                    .build_def(ctx)
-            } else {
-                Btn::text_fg("reset to default").inactive(ctx)
-            },
+            ctx.style()
+                .btn_secondary_light_text("reset to default")
+                .hotkey(Key::R)
+                .disabled(
+                    &ControlStopSign::new(&app.primary.map, id)
+                        == app.primary.map.get_stop_sign(id),
+                )
+                .build_def(ctx),
             ctx.style()
                 .btn_secondary_light_text("close intersection for construction")
                 .hotkey(Key::C)
