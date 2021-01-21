@@ -205,7 +205,7 @@ impl GameplayState for OptimizeCommute {
                     .draw_text(ctx)
                     .centered_vert(),
                 ctx.style()
-                    .btn_plain_light_icon("system/assets/tools/hint.svg")
+                    .btn_plain_light_icon_text("system/assets/tools/lightbulb.svg", "Hint")
                     .build_widget(ctx, "hint")
                     .align_right(),
             ]),
