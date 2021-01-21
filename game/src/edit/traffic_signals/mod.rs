@@ -675,7 +675,7 @@ fn make_side_panel(
                     {
                         let mut button = ctx
                             .style()
-                            .btn_plain_light_icon("system/assets/tools/edit.svg");
+                            .btn_plain_light_icon("system/assets/tools/pencil.svg");
                         if selected == idx {
                             button = button.hotkey(Key::X);
                         }
