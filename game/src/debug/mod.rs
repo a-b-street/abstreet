@@ -11,8 +11,8 @@ use map_gui::ID;
 use map_model::{osm, ControlTrafficSignal, IntersectionID, NORMAL_LANE_THICKNESS};
 use sim::Sim;
 use widgetry::{
-    lctrl, Btn, Cached, Checkbox, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch,
-    GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, ScreenDims, State, StyledButtons, Text,
+    lctrl, Cached, Checkbox, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Panel, ScreenDims, State, StyledButtons, Text,
     UpdateType, VerticalAlignment, Widget,
 };
 
@@ -58,7 +58,10 @@ impl DebugMode {
                 Checkbox::switch(ctx, "show labels", Key::Num5, false),
                 Checkbox::switch(ctx, "show route for all agents", Key::R, false),
                 Widget::col(vec![
-                    Btn::text_fg("unhide everything").build_def(ctx, lctrl(Key::H)),
+                    ctx.style()
+                        .btn_secondary_light_text("unhide everything")
+                        .hotkey(lctrl(Key::H))
+                        .build_def(ctx),
                     ctx.style()
                         .btn_secondary_light_text("screenshot everything (for leaflet)")
                         .build_def(ctx),
@@ -69,7 +72,10 @@ impl DebugMode {
                         .btn_secondary_light_text("search OSM metadata")
                         .hotkey(Key::Slash)
                         .build_def(ctx),
-                    Btn::text_fg("clear OSM search results").build_def(ctx, lctrl(Key::Slash)),
+                    ctx.style()
+                        .btn_secondary_light_text("clear OSM search results")
+                        .hotkey(Key::Slash)
+                        .build_def(ctx),
                     ctx.style()
                         .btn_secondary_light_text("save sim state")
                         .hotkey(Key::O)

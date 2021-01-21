@@ -11,8 +11,8 @@ use sim::{
     TripMode, TripResult, VehicleType,
 };
 use widgetry::{
-    Btn, Color, ControlState, EdgeInsets, EventCtx, GeomBatch, Key, Line, RewriteColor,
-    StyledButtons, Text, TextExt, TextSpan, Widget,
+    Color, ControlState, EdgeInsets, EventCtx, GeomBatch, Key, Line, RewriteColor, StyledButtons,
+    Text, TextExt, TextSpan, Widget,
 };
 
 use crate::app::App;
@@ -449,7 +449,9 @@ pub fn crowd(
         // TODO What other info is useful to summarize?
         rows.push(Widget::row(vec![
             format!("{})", idx + 1).draw_text(ctx).centered_vert(),
-            Btn::text_fg(person.to_string()).build_def(ctx, None),
+            ctx.style()
+                .btn_secondary_light_text(&person.to_string())
+                .build_def(ctx),
         ]));
         details.hyperlinks.insert(
             person.to_string(),

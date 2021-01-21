@@ -198,7 +198,11 @@ impl ChallengesPicker {
                 if current == idx {
                     col.push(Btn::text_fg(&stage.title).inactive(ctx));
                 } else {
-                    col.push(Btn::text_fg(&stage.title).build_def(ctx, None));
+                    col.push(
+                        ctx.style()
+                            .btn_secondary_light_text(&stage.title)
+                            .build_def(ctx),
+                    );
                     links.insert(stage.title, (name.to_string(), idx));
                 }
             }
