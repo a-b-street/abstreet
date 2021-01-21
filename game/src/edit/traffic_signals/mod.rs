@@ -683,6 +683,7 @@ fn make_side_panel(
                     if canonical_signal.stages.len() > 1 {
                         ctx.style()
                             .btn_plain_light_icon("system/assets/tools/delete.svg")
+                            .image_color(RewriteColor::NoOp, ControlState::Default)
                             .build_widget(ctx, &format!("delete stage {}", idx + 1))
                             .align_right()
                     } else {
