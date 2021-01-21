@@ -254,11 +254,27 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     }
 
     /// Set the image for the button. If not set, the button will have no image.
+    ///
+    /// This will replace any image previously set by [`image_bytes`]
     pub fn image_path(mut self, path: &'a str) -> Self {
         // Currently we don't support setting image for other states like "hover", we easily
         // could, but the API gets more verbose for a thing we don't currently need.
         let mut image = self.default_style.image.take().unwrap_or_default();
-        image.path = Some(path);
+        image.source = Some(ImageSource::Path(path));
+        self.default_style.image = Some(image);
+        self
+    }
+
+    /// Set the image for the button. If not set, the button will have no image.
+    ///
+    /// This will replace any image previously set by [`image_path`].
+    /// `bytes`: utf-8 encoded bytes of the svg
+    /// `name`: a label to describe the bytes for debugging purposes
+    pub fn image_bytes(mut self, bytes: &'a [u8], cache_key: &'a str) -> Self {
+        // Currently we don't support setting image for other states like "hover", we easily
+        // could, but the API gets more verbose for a thing we don't currently need.
+        let mut image = self.default_style.image.take().unwrap_or_default();
+        image.source = Some(ImageSource::Bytes { bytes, cache_key });
         self.default_style.image = Some(image);
         self
     }
@@ -496,12 +512,16 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
             .or(default_style.image.as_ref())
             .and_then(|image| {
                 let default = default_style.image.as_ref();
-                let image_path = image.path.or(default.and_then(|d| d.path));
-                if image_path.is_none() {
+                let image_source = image
+                    .source
+                    .as_ref()
+                    .or(default.and_then(|d| d.source.as_ref()));
+                if image_source.is_none() {
                     return None;
                 }
-                let image_path = image_path.unwrap();
-                let (mut svg_batch, svg_bounds) = svg::load_svg(ctx.prerender, image_path);
+                let image_source = image_source.unwrap();
+
+                let (mut svg_batch, svg_bounds) = image_source.load(ctx.prerender);
                 if let Some(color) = image.color.or(default.and_then(|d| d.color)) {
                     svg_batch = svg_batch.color(color);
                 }
@@ -623,9 +643,29 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     }
 }
 
+#[derive(Clone, Debug)]
+enum ImageSource<'a> {
+    Path(&'a str),
+    Bytes { bytes: &'a [u8], cache_key: &'a str },
+}
+
+impl ImageSource<'_> {
+    fn load(&self, prerender: &crate::Prerender) -> (GeomBatch, geom::Bounds) {
+        match self {
+            ImageSource::Path(image_path) => svg::load_svg(prerender, image_path),
+            ImageSource::Bytes { bytes, cache_key } => {
+                svg::load_svg_bytes(prerender, bytes, cache_key).expect(&format!(
+                    "Failed to load svg from bytes. cache_key: {}",
+                    cache_key
+                ))
+            }
+        }
+    }
+}
+
 #[derive(Clone, Debug, Default)]
 pub struct Image<'a> {
-    path: Option<&'a str>,
+    source: Option<ImageSource<'a>>,
     color: Option<RewriteColor>,
     dims: Option<ScreenDims>,
     content_mode: ContentMode,
