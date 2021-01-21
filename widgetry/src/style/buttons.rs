@@ -174,11 +174,13 @@ pub trait StyledButtons<'a> {
         self.btn_secondary_dark_dropdown().label_text(text)
     }
 
+    /// A right facing caret, like ">", suitable for paging to the "next" set of results
     fn btn_next(&self) -> ButtonBuilder<'a> {
         self.btn_plain_light_icon("system/assets/tools/next.svg")
             .hotkey(Key::RightArrow)
     }
 
+    /// A left facing caret, like "<", suitable for paging to the "next" set of results
     fn btn_prev(&self) -> ButtonBuilder<'a> {
         self.btn_plain_light_icon("system/assets/tools/prev.svg")
             .hotkey(Key::LeftArrow)
@@ -196,6 +198,7 @@ pub trait StyledButtons<'a> {
         self.btn_close().build_widget(ctx, "close").align_right()
     }
 
+    /// A button which renders it's hotkey for discoverability along with it's label.
     fn btn_hotkey_light(&self, label: &str, key: Key) -> ButtonBuilder<'a>;
 }
 
