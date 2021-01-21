@@ -205,10 +205,10 @@ impl ChangeScenario {
             Line("Each scenario determines what people live and travel around this map").draw(ctx),
         ];
         for (name, label, description) in choices {
-            let mut btn = ctx.style().btn_primary_dark_text(&label);
-            if name == current_scenario {
-                btn = btn.disabled();
-            }
+            let btn = ctx
+                .style()
+                .btn_primary_dark_text(&label)
+                .disabled(name == current_scenario);
             col.push(
                 Widget::row(vec![
                     btn.build_widget(ctx, &name),

@@ -150,22 +150,14 @@ impl State<App> for TrafficRecorder {
 }
 
 fn make_btn(ctx: &mut EventCtx, num: usize) -> Widget {
-    if num == 0 {
-        return ctx
-            .style()
-            .btn_primary_dark_text("Record 0 intersections")
-            .disabled()
-            .build_def(ctx)
-            .named("record");
-    }
-
-    let title = if num == 1 {
-        "Record 1 intersection".to_string()
-    } else {
-        format!("Record {} intersections", num)
+    let title = match num {
+        0 => "Record 0 intersections".to_string(),
+        1 => "Record 1 intersection".to_string(),
+        _ => format!("Record {} intersections", num),
     };
     ctx.style()
         .btn_primary_dark_text(&title)
+        .disabled(num == 0)
         .hotkey(Key::Enter)
         .build_widget(ctx, "record")
 }

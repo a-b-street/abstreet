@@ -1,8 +1,8 @@
 use geom::{Polygon, Pt2D, Triangle};
 use map_gui::tools::PopupMsg;
 use widgetry::{
-    Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
-    StyledButtons, Text, TextExt, VerticalAlignment, Widget,
+    EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, State, StyledButtons,
+    Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -40,9 +40,9 @@ impl PolygonDebugger {
                 ]),
                 Widget::row(vec![
                     // TODO inactive
-                    Btn::text_fg("<").build(ctx, "previous", Key::LeftArrow),
+                    ctx.style().btn_prev().build_widget(ctx, "previous"),
                     "noun X/Y".draw_text(ctx).named("pointer"),
-                    Btn::text_fg(">").build(ctx, "next", Key::RightArrow),
+                    ctx.style().btn_next().build_widget(ctx, "next"),
                 ])
                 .evenly_spaced(),
             ]))

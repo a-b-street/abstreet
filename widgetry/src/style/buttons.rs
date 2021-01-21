@@ -174,6 +174,16 @@ pub trait StyledButtons<'a> {
         self.btn_secondary_dark_dropdown().label_text(text)
     }
 
+    fn btn_next(&self) -> ButtonBuilder<'a> {
+        self.btn_plain_light_icon("system/assets/tools/next.svg")
+            .hotkey(Key::RightArrow)
+    }
+
+    fn btn_prev(&self) -> ButtonBuilder<'a> {
+        self.btn_plain_light_icon("system/assets/tools/prev.svg")
+            .hotkey(Key::LeftArrow)
+    }
+
     /// An "X" button to close the current state. Bound to the escape key.
     fn btn_close(&self) -> ButtonBuilder<'a> {
         self.btn_plain_light_icon("system/assets/tools/close.svg")

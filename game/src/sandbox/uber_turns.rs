@@ -6,9 +6,8 @@ use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use map_model::{IntersectionCluster, IntersectionID, Map, PathConstraints, RoadID};
 use widgetry::{
-    Btn, Checkbox, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Panel, SimpleState, State, StyledButtons, Text, TextExt,
-    VerticalAlignment, Widget,
+    Checkbox, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
+    Key, Line, Panel, SimpleState, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, ShowEverything, Transition};
@@ -184,19 +183,17 @@ impl UberTurnViewer {
             Widget::row(vec![
                 Line("Uber-turn viewer").small_heading().draw(ctx),
                 Widget::vert_separator(ctx, 50.0),
-                if idx == 0 {
-                    Btn::text_fg("<").inactive(ctx)
-                } else {
-                    Btn::text_fg("<").build(ctx, "previous uber-turn", Key::LeftArrow)
-                },
+                ctx.style()
+                    .btn_prev()
+                    .disabled(idx == 0)
+                    .build_widget(ctx, "previous uber-turn"),
                 Text::from(Line(format!("{}/{}", idx + 1, ic.uber_turns.len())).secondary())
                     .draw(ctx)
                     .centered_vert(),
-                if ic.uber_turns.is_empty() || idx == ic.uber_turns.len() - 1 {
-                    Btn::text_fg(">").inactive(ctx)
-                } else {
-                    Btn::text_fg(">").build(ctx, "next uber-turn", Key::RightArrow)
-                },
+                ctx.style()
+                    .btn_next()
+                    .disabled(ic.uber_turns.is_empty() || idx == ic.uber_turns.len() - 1)
+                    .build_widget(ctx, "next uber-turn"),
                 ctx.style().btn_close_widget(ctx),
             ]),
             format!("driving_cost for a Car: {}", sum_cost).draw_text(ctx),

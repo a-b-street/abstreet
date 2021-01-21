@@ -694,23 +694,14 @@ fn make_tabs(
 ) -> Widget {
     let mut row = Vec::new();
     for (name, link) in tabs {
-        if current_tab.variant() == link.variant() {
-            row.push(
-                ctx.style()
-                    .btn_primary_dark_text(name)
-                    .disabled()
-                    .build_def(ctx)
-                    .centered_vert(),
-            );
-        } else {
-            hyperlinks.insert(name.to_string(), link);
-            row.push(
-                ctx.style()
-                    .btn_primary_dark_text(name)
-                    .build_def(ctx)
-                    .centered_vert(),
-            );
-        }
+        row.push(
+            ctx.style()
+                .btn_primary_dark_text(name)
+                .disabled(current_tab.variant() == link.variant())
+                .build_def(ctx)
+                .centered_vert(),
+        );
+        hyperlinks.insert(name.to_string(), link);
     }
     // TODO Centered, but actually, we need to set the padding of each button to divide the
     // available space evenly. Fancy fill rules... hmmm.

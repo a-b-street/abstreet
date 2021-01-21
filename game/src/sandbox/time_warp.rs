@@ -37,7 +37,7 @@ impl JumpToTime {
                 Widget::custom_row(vec![
                     ctx.style()
                         .btn_primary_dark_text("Jump to time")
-                        .disabled()
+                        .disabled(true)
                         .build_def(ctx),
                     ctx.style()
                         .btn_primary_dark_text("Jump to delay")
@@ -176,7 +176,7 @@ impl JumpToDelay {
                         .build_def(ctx),
                     ctx.style()
                         .btn_primary_dark_text("Jump to delay")
-                        .disabled()
+                        .disabled(true)
                         .build_def(ctx),
                 ])
                 .bg(Color::WHITE),

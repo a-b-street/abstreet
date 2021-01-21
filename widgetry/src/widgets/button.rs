@@ -404,8 +404,8 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     }
 
     /// The button cannot be clicked and will be styled as [`ControlState::Disabled`]
-    pub fn disabled(mut self) -> Self {
-        self.is_disabled = true;
+    pub fn disabled(mut self, is_disabled: bool) -> Self {
+        self.is_disabled = is_disabled;
         self
     }
 

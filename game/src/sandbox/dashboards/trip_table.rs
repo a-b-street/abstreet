@@ -590,7 +590,7 @@ fn trip_category_selector(ctx: &mut EventCtx, app: &App, tab: DashTab) -> Widget
         let mut button = ctx.style().btn_primary_light_text(label);
         if dash == tab {
             button = button
-                .disabled()
+                .disabled(true)
                 .bg_color(ctx.style().btn_primary_light.bg, ControlState::Disabled)
                 .label_styled_text(Text::from(Line(label).underlined()), ControlState::Default)
         }

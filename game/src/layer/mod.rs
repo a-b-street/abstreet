@@ -92,11 +92,10 @@ impl PickLayer {
             Some(ref l) => l.name().unwrap_or(""),
         };
         let btn = |name: &str, key| {
-            let mut button = app.cs.btn_hotkey_light(name, key);
-            if name == current {
-                button = button.disabled();
-            }
-            button.build_widget(ctx, name)
+            app.cs
+                .btn_hotkey_light(name, key)
+                .disabled(name == current)
+                .build_widget(ctx, name)
         };
 
         col.push(btn("None", Key::N));

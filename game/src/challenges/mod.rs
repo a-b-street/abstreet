@@ -163,7 +163,7 @@ impl ChallengesPicker {
                 flex_row.push(
                     ctx.style()
                         .btn_primary_dark_text(&name)
-                        .disabled()
+                        .disabled(true)
                         .build_def(ctx),
                 );
             } else {

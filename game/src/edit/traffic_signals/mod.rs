@@ -642,19 +642,15 @@ fn make_side_panel(
     for (idx, canonical_stage) in canonical_signal.stages.iter().enumerate() {
         let stage_btn = draw_multiple_signals(ctx, app, members, idx, &translations);
 
-        let mut up_button = ctx
+        let up_button = ctx
             .style()
-            .btn_primary_light_icon("system/assets/tools/arrow_up.svg");
-        if idx == 0 {
-            up_button = up_button.disabled();
-        }
+            .btn_primary_light_icon("system/assets/tools/arrow_up.svg")
+            .disabled(idx == 0);
 
-        let mut down_button = ctx
+        let down_button = ctx
             .style()
-            .btn_primary_light_icon("system/assets/tools/arrow_down.svg");
-        if idx == canonical_signal.stages.len() - 1 {
-            down_button = down_button.disabled();
-        }
+            .btn_primary_light_icon("system/assets/tools/arrow_down.svg")
+            .disabled(idx == canonical_signal.stages.len() - 1);
 
         let stage_controls = Widget::row(vec![
             Widget::col(vec![
