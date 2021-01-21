@@ -186,7 +186,8 @@ impl Checkbox {
             })
             // TODO: make these clickable. Currently they would explode due to re-use of an action
             .disabled(true)
-            .label_color(ctx.style().btn_secondary_light.fg, ControlState::Disabled);
+            .label_color(ctx.style().btn_secondary_light.fg, ControlState::Disabled)
+            .bg_color(Color::CLEAR, ControlState::Disabled);
         let right_text_button = left_text_button.clone().label_text(right_label);
         Widget::row(vec![
             left_text_button.build_def(ctx).centered_vert(),
