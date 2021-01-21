@@ -456,23 +456,16 @@ impl IntersectionSimState {
                     } else if let Some(c) = queue.cars.get(0) {
                         self.blocked_by.insert((car.vehicle.id, *c));
                     } else {
-                        if let Some(blocking_req) = self.state[&turn.parent]
+                        // try_to_reserve_entry must have failed because somebody has filled up
+                        // reserved_length. That only happens while a turn is in progress, so this
+                        // unwrap() must work.
+                        let blocking_req = self.state[&turn.parent]
                             .accepted
                             .iter()
                             .find(|r| r.turn.dst == turn.dst)
-                        {
-                            // Nobody's in the target lane, but there's somebody already in the
-                            // intersection headed there, taking up all of the space.
-                            self.blocked_by
-                                .insert((car.vehicle.id, blocking_req.agent.as_car()));
-                        } else {
-                            // I guess we shouldn't count reservations for uber-turns here, because
-                            // we're not going to do block-the-box resolution in the interior at
-                            // all?
-                            //
-                            // TODO Possibly there's a "leak" of queue.reserved_length here, not
-                            // certain.
-                        }
+                            .unwrap();
+                        self.blocked_by
+                            .insert((car.vehicle.id, blocking_req.agent.as_car()));
                     }
                 }
 

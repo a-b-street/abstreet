@@ -641,8 +641,14 @@ impl DrivingSimState {
         // Hacks to delete cars that're mid-turn
         if let Traversable::Turn(t) = car.router.head() {
             let queue = self.queues.get_mut(&car.router.head()).unwrap();
+            // delete_car_internal will call free_reserved_space, so this is necessary to balance
+            // that.
             queue.reserved_length += car.vehicle.length + FOLLOWING_DISTANCE;
             ctx.intersections.agent_deleted_mid_turn(AgentID::Car(c), t);
+
+            // Free any reserved space on the next step.
+            let queue = self.queues.get_mut(&car.router.next()).unwrap();
+            queue.free_reserved_space(&car);
         }
         if let Some(Traversable::Turn(t)) = car.router.maybe_next() {
             ctx.intersections.cancel_request(AgentID::Car(c), t);
