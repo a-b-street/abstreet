@@ -1056,6 +1056,12 @@ impl TripManager {
         // Don't forget the car!
         if let Some(vehicle) = abandoned_vehicle {
             if vehicle.vehicle_type == VehicleType::Car {
+                // First remove the parked car, if needed. Maybe the trip was cancelled while the
+                // car was parked in the starting building.
+                if let Some(parked_car) = ctx.parking.lookup_parked_car(vehicle.id).cloned() {
+                    ctx.parking.remove_parked_car(parked_car);
+                }
+
                 if let TripEndpoint::Bldg(b) = trip.info.end {
                     let driving_lane = ctx.map.find_driving_lane_near_building(b);
                     if let Some(spot) = ctx
@@ -1093,17 +1099,6 @@ impl TripManager {
                             ),
                         ));
                     }
-                } else if let Some(parked_car) = ctx.parking.lookup_parked_car(vehicle.id).cloned()
-                {
-                    self.events.push(Event::Alert(
-                        AlertLocation::Person(person),
-                        format!(
-                            "{} had a trip from on-map to off-map cancelled, so warping their car \
-                             off-map",
-                            person
-                        ),
-                    ));
-                    ctx.parking.remove_parked_car(parked_car);
                 }
             }
         } else {
