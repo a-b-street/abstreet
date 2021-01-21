@@ -1,8 +1,7 @@
 use geom::{Angle, Bounds, GPSBounds, Polygon, Pt2D};
 
 use crate::{
-    svg, ButtonBuilder, Color, ControlState, DeferDraw, Drawable, EventCtx, Fill, GfxCtx,
-    Prerender, ScreenDims, Widget,
+    svg, Color, DeferDraw, Drawable, EventCtx, Fill, GfxCtx, Prerender, ScreenDims, Widget,
 };
 
 /// A mutable builder for a group of colored polygons.
