@@ -12,7 +12,7 @@ use map_model::connectivity::WalkingOptions;
 use map_model::{AmenityType, Building, BuildingID, LaneType};
 use widgetry::table::{Col, Filter, Table};
 use widgetry::{
-    lctrl, Btn, Cached, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
+    lctrl, Cached, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, StyledButtons, Text,
     TextExt, Transition, VerticalAlignment, Widget,
 };
@@ -314,11 +314,9 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
 
     for (amenity, buildings) in isochrone.amenities_reachable.borrow() {
         rows.push(
-            Btn::text_fg(format!("{}: {}", amenity, buildings.len())).build(
-                ctx,
-                format!("businesses: {}", amenity),
-                None,
-            ),
+            ctx.style()
+                .btn_secondary_light_text(&format!("{}: {}", amenity, buildings.len()))
+                .build_widget(ctx, &format!("businesses: {}", amenity)),
         );
     }
 

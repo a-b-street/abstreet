@@ -2,7 +2,7 @@ use abstio::MapName;
 use geom::{Distance, Percent, Polygon, Pt2D};
 use map_model::City;
 use widgetry::{
-    Autocomplete, Btn, Color, ControlState, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line,
+    Autocomplete, Color, ControlState, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line,
     Outcome, Panel, ScreenPt, State, StyledButtons, Text, TextExt, Transition, Widget,
 };
 
@@ -271,8 +271,9 @@ impl<A: AppLike + 'static> AllCityPicker<A> {
 
         for name in MapName::list_all_maps() {
             buttons.push(
-                Btn::text_fg(name.describe())
-                    .build(ctx, name.path(), None)
+                ctx.style()
+                    .btn_secondary_light_text(&name.describe())
+                    .build_widget(ctx, &name.path())
                     .margin_right(10)
                     .margin_below(10),
             );

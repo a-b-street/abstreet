@@ -7,7 +7,7 @@ use map_gui::render::traffic_signal::draw_signal_stage;
 use map_model::{IntersectionID, IntersectionType, StageType};
 use sim::AgentType;
 use widgetry::{
-    Btn, Checkbox, Color, DrawWithTooltips, EventCtx, FanChart, GeomBatch, Line, PlotOptions,
+    Checkbox, Color, DrawWithTooltips, EventCtx, FanChart, GeomBatch, Line, PlotOptions,
     ScatterPlot, Series, StyledButtons, Text, Widget,
 };
 
@@ -220,11 +220,11 @@ pub fn current_demand(
             .build_def(ctx),
     );
     if app.opts.dev {
-        rows.push(Btn::text_fg("Where are these agents headed?").build(
-            ctx,
-            format!("routes across {}", id),
-            None,
-        ));
+        rows.push(
+            ctx.style()
+                .btn_secondary_light_text("Where are these agents headed?")
+                .build_widget(ctx, &format!("routes across {}", id)),
+        );
     }
 
     rows

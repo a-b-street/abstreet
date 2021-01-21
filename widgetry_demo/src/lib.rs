@@ -5,7 +5,7 @@ use rand_xorshift::XorShiftRng;
 
 use geom::{Angle, Duration, Percent, Polygon, Pt2D, Time};
 use widgetry::{
-    lctrl, Btn, Checkbox, Choice, Color, Drawable, EventCtx, Fill, GeomBatch, GfxCtx,
+    lctrl, Checkbox, Choice, Color, Drawable, EventCtx, Fill, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, LinePlot, Outcome, Panel, PersistentSplit, PlotOptions, Series,
     SharedAppState, State, StyledButtons, Text, TextExt, Texture, Transition, UpdateType,
     VerticalAlignment, Widget,
@@ -380,7 +380,10 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
         Text::from(Line("Spinner").big_heading_styled().size(18)).draw(ctx),
         widgetry::Spinner::new(ctx, (0, 11), 1),
         Widget::row(vec![
-            Btn::text_fg("New faces").build(ctx, "generate new faces", Key::F),
+            ctx.style()
+                .btn_secondary_light_text("New faces")
+                .hotkey(Key::F)
+                .build_widget(ctx, "generate new faces"),
             Checkbox::switch(ctx, "Draw scrollable canvas", None, true),
             Checkbox::switch(ctx, "Show timeseries", lctrl(Key::T), false),
         ]),
@@ -411,7 +414,9 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                     Choice::new("-10s", Duration::seconds(-10.0)),
                 ],
             ),
-            Btn::text_fg("Reset Timer").build(ctx, "reset the stopwatch", None),
+            ctx.style()
+                .btn_secondary_light_text("Reset Timer")
+                .build_widget(ctx, "reset the stopwatch"),
         ])
         .evenly_spaced(),
         Widget::row(vec![
@@ -448,7 +453,9 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                     Choice::new("Hot", (Texture::SAND, Texture::CACTUS)),
                 ],
             ),
-            Btn::text_fg("Apply").build(ctx, "apply", None),
+            ctx.style()
+                .btn_secondary_light_text("Apply")
+                .build_widget(ctx, "apply"),
         ])
         .margin_above(30),
     ]))

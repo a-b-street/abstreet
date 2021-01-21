@@ -2,8 +2,8 @@ use abstutil::{prettyprint_usize, Counter};
 use geom::Time;
 use map_model::BusRouteID;
 use widgetry::{
-    Autocomplete, Btn, DrawBaselayer, EventCtx, GfxCtx, Line, LinePlot, Outcome, Panel,
-    PlotOptions, Series, State, TextExt, Widget,
+    Autocomplete, DrawBaselayer, EventCtx, GfxCtx, Line, LinePlot, Outcome, Panel, PlotOptions,
+    Series, State, StyledButtons, TextExt, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -172,7 +172,9 @@ impl TransitRoutes {
                     .into_iter()
                     .map(|(boardings, alightings, waiting, name, id)| {
                         Widget::row(vec![
-                            Btn::text_fg(name).build(ctx, id.to_string(), None),
+                            ctx.style()
+                                .btn_secondary_light_text(&name)
+                                .build_widget(ctx, &id.to_string()),
                             format!(
                                 "{} boardings, {} alightings, {} currently waiting",
                                 prettyprint_usize(-boardings as usize),
