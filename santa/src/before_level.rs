@@ -11,9 +11,9 @@ use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use map_model::BuildingID;
 use widgetry::{
-    Btn, ButtonBuilder, Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, StyledButtons, Text,
-    TextExt, VerticalAlignment, Widget,
+    ButtonBuilder, Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
+    Key, Line, Outcome, Panel, RewriteColor, State, StyledButtons, Text, TextExt,
+    VerticalAlignment, Widget,
 };
 
 use crate::buildings::{BldgState, Buildings};

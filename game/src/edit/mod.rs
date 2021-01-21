@@ -10,8 +10,8 @@ use map_gui::tools::{grey_out_map, ChooseSomething, ColorLegend, PopupMsg};
 use map_gui::ID;
 use map_model::{EditCmd, IntersectionID, LaneID, LaneType, MapEdits};
 use widgetry::{
-    lctrl, Btn, Choice, Color, ControlState, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key,
-    Line, Menu, Outcome, Panel, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, Choice, Color, ControlState, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
+    Menu, Outcome, Panel, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub use self::cluster_traffic_signals::ClusterTrafficSignalEditor;
@@ -547,7 +547,11 @@ impl LoadEdits {
         for name in abstio::list_all_objects(abstio::path("system/proposals")) {
             let path = abstio::path(format!("system/proposals/{}.json", name));
             if MapEdits::load(&app.primary.map, path.clone(), &mut Timer::throwaway()).is_ok() {
-                proposals.push(Btn::text_fg(&name).build(ctx, path, None));
+                proposals.push(
+                    ctx.style()
+                        .btn_secondary_light_text(&name)
+                        .build_widget(ctx, &path),
+                );
             }
         }
 

@@ -10,7 +10,7 @@ use map_model::{
     TurnPriority,
 };
 use widgetry::{
-    lctrl, Btn, Color, ControlState, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
+    lctrl, Color, ControlState, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, MultiButton, Outcome, Panel, RewriteColor, State,
     StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
@@ -546,7 +546,8 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
         ]),
         Widget::row(row),
         if app.opts.dev {
-            Btn::text_fg("Export")
+            ctx.style()
+                .btn_secondary_light_text("Export")
                 .tooltip(Text::from_multiline(vec![
                     Line("This will create a JSON file in traffic_signal_data/.").small(),
                     Line(
@@ -555,7 +556,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
                     )
                     .small(),
                 ]))
-                .build_def(ctx, None)
+                .build_def(ctx)
         } else {
             Widget::nothing()
         },

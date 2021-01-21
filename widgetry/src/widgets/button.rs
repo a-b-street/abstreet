@@ -29,31 +29,6 @@ pub struct Button {
 }
 
 impl Button {
-    fn widget(
-        ctx: &EventCtx,
-        normal: GeomBatch,
-        hovered: GeomBatch,
-        disabled: GeomBatch,
-        hotkey: Option<MultiKey>,
-        action: &str,
-        maybe_tooltip: Option<Text>,
-        hitbox: Polygon,
-        is_disabled: bool,
-    ) -> Widget {
-        Widget::new(Box::new(Self::new(
-            ctx,
-            normal,
-            hovered,
-            disabled,
-            hotkey,
-            action,
-            maybe_tooltip,
-            hitbox,
-            is_disabled,
-        )))
-        .named(action)
-    }
-
     fn new(
         ctx: &EventCtx,
         normal: GeomBatch,
@@ -144,16 +119,6 @@ impl WidgetImpl for Button {
         } else {
             g.redraw_at(self.top_left, &self.draw_normal);
         }
-    }
-}
-
-/// A questionably named place to start creating buttons.
-pub struct Btn {}
-
-impl Btn {
-    pub fn text_fg<I: Into<String>>(action: I) -> BtnBuilder {
-        let action = action.into();
-        BtnBuilder::TextFG(action.clone(), Text::from(Line(action)), None)
     }
 }
 
@@ -673,91 +638,6 @@ struct Label<'a> {
     styled_text: Option<Text>,
     font_size: Option<usize>,
     font: Option<Font>,
-}
-
-pub enum BtnBuilder {
-    TextFG(String, Text, Option<Text>),
-}
-
-impl BtnBuilder {
-    pub fn tooltip(mut self, tooltip: Text) -> BtnBuilder {
-        match self {
-            BtnBuilder::TextFG(_, _, ref mut maybe_tooltip) => {
-                assert!(maybe_tooltip.is_none());
-                *maybe_tooltip = Some(tooltip);
-            }
-        }
-        self
-    }
-
-    pub fn no_tooltip(self) -> BtnBuilder {
-        self.tooltip(Text::new())
-    }
-
-    pub fn build<I: Into<String>, MK: Into<Option<MultiKey>>>(
-        self,
-        ctx: &EventCtx,
-        action: I,
-        key: MK,
-    ) -> Widget {
-        match self {
-            BtnBuilder::TextFG(_, normal_txt, maybe_t) => {
-                let (normal, hitbox) = normal_txt
-                    .clone()
-                    .batch(ctx)
-                    .container()
-                    .padding(8)
-                    .to_geom(ctx, None);
-                let (hovered, _) = normal_txt
-                    .change_fg(Color::ORANGE)
-                    .batch(ctx)
-                    .container()
-                    .padding(8)
-                    .to_geom(ctx, None);
-
-                Button::widget(
-                    ctx,
-                    normal.clone(),
-                    hovered,
-                    normal,
-                    key.into(),
-                    &action.into(),
-                    maybe_t,
-                    hitbox,
-                    false,
-                )
-                .outline(2.0, Color::WHITE)
-            }
-        }
-    }
-
-    // Use the text as the action
-    pub fn build_def<MK: Into<Option<MultiKey>>>(self, ctx: &EventCtx, key: MK) -> Widget {
-        match self {
-            BtnBuilder::TextFG(ref action, _, _) => {
-                assert!(!action.is_empty());
-                let copy = action.clone();
-                self.build(ctx, copy, key)
-            }
-        }
-    }
-
-    pub fn inactive(self, ctx: &EventCtx) -> Widget {
-        match self {
-            BtnBuilder::TextFG(action, txt, _) => Widget::draw_batch(
-                ctx,
-                txt.change_fg(Color::grey(0.5))
-                    .render(ctx)
-                    .batch()
-                    .container()
-                    .padding(8)
-                    .outline(2.0, Color::WHITE)
-                    .to_geom(ctx, None)
-                    .0,
-            )
-            .named(action),
-        }
-    }
 }
 
 // Like an image map from the old HTML days

@@ -4,7 +4,7 @@ use map_gui::tools::ColorNetwork;
 use map_gui::ID;
 use map_model::{BusRoute, BusRouteID, BusStopID, PathStep};
 use sim::{AgentID, CarID};
-use widgetry::{Btn, Color, EventCtx, Key, Line, StyledButtons, Text, TextExt, Widget};
+use widgetry::{Color, EventCtx, Key, Line, StyledButtons, Text, TextExt, Widget};
 
 use crate::app::App;
 use crate::info::{header_btns, make_tabs, Details, Tab};
@@ -25,7 +25,11 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
     for r in app.primary.map.get_routes_serving_stop(id) {
         // Full names can overlap, so include the ID
         let label = format!("{} ({})", r.full_name, r.id);
-        rows.push(Btn::text_fg(format!("Route {}", r.short_name)).build(ctx, &label, None));
+        rows.push(
+            ctx.style()
+                .btn_secondary_light_text(&format!("Route {}", r.short_name))
+                .build_widget(ctx, &label),
+        );
         details.hyperlinks.insert(label, Tab::BusRoute(r.id));
 
         let arrivals: Vec<(Time, CarID)> = all_arrivals
@@ -290,7 +294,12 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
 
     // TODO Soon it'll be time to split into tabs
     {
-        rows.push(Btn::text_fg("Edit schedule").build(ctx, format!("edit {}", route.id), Key::E));
+        rows.push(
+            ctx.style()
+                .btn_secondary_light_text("Edit schedule")
+                .hotkey(Key::E)
+                .build_widget(ctx, &format!("edit {}", route.id)),
+        );
         rows.push(describe_schedule(route).draw(ctx));
     }
 
