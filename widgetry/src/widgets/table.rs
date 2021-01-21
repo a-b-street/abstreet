@@ -100,11 +100,13 @@ impl<A, T, F> Table<A, T, F> {
             .map(|col| {
                 if self.sort_by == col.name {
                     ctx.style()
-                        .btn_primary_dark_text(&format!(
-                            "{} {}",
-                            col.name,
-                            if self.descending { "↓" } else { "↑" }
-                        ))
+                        .btn_primary_dark_icon_text("tmp", &col.name)
+                        .image_path(if self.descending {
+                            "system/assets/tools/arrow_down.svg"
+                        } else {
+                            "system/assets/tools/arrow_up.svg"
+                        })
+                        .label_first()
                         .build_widget(ctx, &col.name)
                 } else if let Col::Sortable(_) = col.col {
                     ctx.style().btn_primary_dark_text(&col.name).build_def(ctx)
