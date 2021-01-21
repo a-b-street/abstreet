@@ -433,14 +433,27 @@
 <span id="430">430</span>
 <span id="431">431</span>
 <span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">clamp</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Btn</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Filler</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
-    <span class="ident">ScreenPt</span>, <span class="ident">Spinner</span>, <span class="ident">Transition</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Btn</span>, <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Filler</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>,
+    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenPt</span>, <span class="ident">Spinner</span>, <span class="ident">StyledButtons</span>, <span class="ident">Transition</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">AppLike</span>;
@@ -536,8 +549,11 @@
         }
 
         <span class="kw">let</span> <span class="ident">zoom_col</span> <span class="op">=</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/speed/speed_up.svg&quot;</span>)
-                .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;zoom in&quot;</span>, <span class="prelude-val">None</span>)
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">ctx</span>
+                .<span class="ident">style</span>()
+                .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/speed/speed_up.svg&quot;</span>)
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;zoom in&quot;</span>)
+                .<span class="ident">centered_horiz</span>()
                 .<span class="ident">margin_below</span>(<span class="number">20</span>)];
             <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> (<span class="number">0</span>..<span class="op">=</span><span class="number">3</span>).<span class="ident">rev</span>() {
                 <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">zoom_lvl</span> <span class="op">&lt;</span> <span class="ident">i</span> {
@@ -546,19 +562,29 @@
                     <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">minimap_selected_zoom</span>
                 };
                 <span class="kw">let</span> <span class="ident">rect</span> <span class="op">=</span> <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="number">20.0</span>, <span class="number">8.0</span>);
+
+                <span class="kw">let</span> <span class="ident">default_batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">color</span>, <span class="ident">rect</span>.<span class="ident">clone</span>())]);
+                <span class="kw">let</span> <span class="ident">hover_batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">hovering</span>, <span class="ident">rect</span>)]);
+
+                <span class="kw">let</span> <span class="ident">level_btn</span> <span class="op">=</span> <span class="ident">ctx</span>
+                    .<span class="ident">style</span>()
+                    .<span class="ident">btn_plain_light</span>()
+                    .<span class="ident">custom_batch</span>(<span class="ident">default_batch</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
+                    .<span class="ident">custom_batch</span>(<span class="ident">hover_batch</span>, <span class="ident">ControlState</span>::<span class="ident">Hovered</span>)
+                    .<span class="ident">padding</span>(<span class="number">10</span>);
+
                 <span class="ident">col</span>.<span class="ident">push</span>(
-                    <span class="ident">Btn</span>::<span class="ident">custom</span>(
-                        <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">color</span>, <span class="ident">rect</span>.<span class="ident">clone</span>())]),
-                        <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">hovering</span>, <span class="ident">rect</span>.<span class="ident">clone</span>())]),
-                        <span class="ident">rect</span>,
-                        <span class="prelude-val">None</span>,
-                    )
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;zoom to level {}&quot;</span>, <span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>), <span class="prelude-val">None</span>)
-                    .<span class="ident">margin_below</span>(<span class="number">20</span>),
+                    <span class="ident">level_btn</span>
+                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;zoom to level {}&quot;</span>, <span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>))
+                        .<span class="ident">centered_horiz</span>()
+                        .<span class="ident">margin_below</span>(<span class="number">20</span>),
                 );
             }
             <span class="ident">col</span>.<span class="ident">push</span>(
-                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/speed/slow_down.svg&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;zoom out&quot;</span>, <span class="prelude-val">None</span>),
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/speed/slow_down.svg&quot;</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;zoom out&quot;</span>)
+                    .<span class="ident">centered_horiz</span>(),
             );
             <span class="comment">// The zoom column should start below the &quot;pan up&quot; arrow. But if we put it on the row</span>
             <span class="comment">// with &lt;, minimap, and &gt; then it messes up the horizontal alignment of the</span>

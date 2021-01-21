@@ -453,7 +453,6 @@
 <span id="450">450</span>
 <span id="451">451</span>
 <span id="452">452</span>
-<span id="453">453</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">theme</span>::<span class="ident">StyledButtons</span>;
@@ -536,7 +535,7 @@
                         .<span class="ident">cs</span>
                         .<span class="ident">btn_plain_light</span>()
                         .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/speed/triangle.svg&quot;</span>)
-                        .<span class="ident">image_dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="number">16.0</span>, <span class="number">22.0</span>))
+                        .<span class="ident">image_dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="number">16.0</span>, <span class="number">26.0</span>))
                         .<span class="ident">bg_color</span>(
                             <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">btn_primary_light</span>.<span class="ident">bg_hover</span>,
                             <span class="ident">ControlState</span>::<span class="ident">Hovered</span>,
@@ -598,7 +597,6 @@
                         <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">btn_primary_light</span>.<span class="ident">bg_hover</span>,
                         <span class="ident">ControlState</span>::<span class="ident">Hovered</span>,
                     )
-                    .<span class="ident">font_size</span>(<span class="number">18</span>)
                     .<span class="ident">image_dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">square</span>(<span class="number">20.0</span>));
                 <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">buttons</span>

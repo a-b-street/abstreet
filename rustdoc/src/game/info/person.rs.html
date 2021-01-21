@@ -794,7 +794,7 @@
         };
         <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">trip_info</span>(<span class="kw-2">*</span><span class="ident">t</span>);
 
-        <span class="kw">let</span> (<span class="ident">row_btn</span>, <span class="ident">hitbox</span>) <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> (<span class="ident">row_btn</span>, <span class="ident">_hitbox</span>) <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Trip {} &quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>)
                 .<span class="ident">batch_text</span>(<span class="ident">ctx</span>)
                 .<span class="ident">centered_vert</span>()
@@ -880,26 +880,26 @@
         .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel</span>)
         .<span class="ident">to_geom</span>(<span class="ident">ctx</span>, <span class="prelude-val">Some</span>(<span class="number">0.3</span>));
         <span class="ident">rows</span>.<span class="ident">push</span>(
-            <span class="ident">Btn</span>::<span class="ident">custom</span>(
-                <span class="ident">row_btn</span>.<span class="ident">clone</span>(),
-                <span class="ident">row_btn</span>.<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">hovering</span>)),
-                <span class="ident">hitbox</span>,
-                <span class="prelude-val">None</span>,
-            )
-            .<span class="ident">build</span>(
-                <span class="ident">ctx</span>,
-                <span class="macro">format</span><span class="macro">!</span>(
-                    <span class="string">&quot;{} {}&quot;</span>,
-                    <span class="kw">if</span> <span class="ident">open_trips</span>.<span class="ident">contains_key</span>(<span class="ident">t</span>) {
-                        <span class="string">&quot;hide&quot;</span>
-                    } <span class="kw">else</span> {
-                        <span class="string">&quot;show&quot;</span>
-                    },
-                    <span class="ident">t</span>
-                ),
-                <span class="prelude-val">None</span>,
-            )
-            .<span class="ident">margin_above</span>(<span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> { <span class="number">0</span> } <span class="kw">else</span> { <span class="number">16</span> }),
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_primary_light</span>()
+                .<span class="ident">custom_batch</span>(<span class="ident">row_btn</span>.<span class="ident">clone</span>(), <span class="ident">ControlState</span>::<span class="ident">Default</span>)
+                .<span class="ident">custom_batch</span>(
+                    <span class="ident">row_btn</span>.<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">hovering</span>)),
+                    <span class="ident">ControlState</span>::<span class="ident">Hovered</span>,
+                )
+                .<span class="ident">build_widget</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(
+                        <span class="string">&quot;{} {}&quot;</span>,
+                        <span class="kw">if</span> <span class="ident">open_trips</span>.<span class="ident">contains_key</span>(<span class="ident">t</span>) {
+                            <span class="string">&quot;hide&quot;</span>
+                        } <span class="kw">else</span> {
+                            <span class="string">&quot;show&quot;</span>
+                        },
+                        <span class="ident">t</span>
+                    ),
+                )
+                .<span class="ident">margin_above</span>(<span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> { <span class="number">0</span> } <span class="kw">else</span> { <span class="number">16</span> }),
         );
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">info</span>) <span class="op">=</span> <span class="ident">maybe_info</span> {

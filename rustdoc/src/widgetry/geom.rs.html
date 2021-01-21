@@ -299,17 +299,12 @@
 <span id="296">296</span>
 <span id="297">297</span>
 <span id="298">298</span>
-<span id="299">299</span>
-<span id="300">300</span>
-<span id="301">301</span>
-<span id="302">302</span>
-<span id="303">303</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">button</span>::<span class="ident">BtnBuilder</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">svg</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">DeferDraw</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Fill</span>, <span class="ident">GfxCtx</span>, <span class="ident">Prerender</span>, <span class="ident">ScreenDims</span>, <span class="ident">Widget</span>,
+    <span class="ident">svg</span>, <span class="ident">ButtonBuilder</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DeferDraw</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Fill</span>, <span class="ident">GfxCtx</span>,
+    <span class="ident">Prerender</span>, <span class="ident">ScreenDims</span>, <span class="ident">Widget</span>,
 };
 
 <span class="doccomment">/// A mutable builder for a group of colored polygons.</span>
@@ -392,18 +387,6 @@
     <span class="doccomment">/// Wrap in a Widget for layouting, so this batch can become part of a larger one.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">batch</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">DeferDraw</span>::<span class="ident">new</span>(<span class="self">self</span>)
-    }
-
-    <span class="doccomment">/// Turn this batch into a button, with the hovered version rewriting all colors.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_btn</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BtnBuilder</span> {
-        <span class="self">self</span>.<span class="ident">to_btn_custom</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">hovering_color</span>))
-    }
-
-    <span class="doccomment">/// Turn this batch into a button.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_btn_custom</span>(<span class="self">self</span>, <span class="ident">rewrite</span>: <span class="ident">RewriteColor</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BtnBuilder</span> {
-        <span class="kw">let</span> <span class="ident">hovered</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clone</span>().<span class="ident">color</span>(<span class="ident">rewrite</span>);
-        <span class="kw">let</span> <span class="ident">hitbox</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_bounds</span>().<span class="ident">get_rectangle</span>();
-        <span class="ident">Btn</span>::<span class="ident">custom</span>(<span class="self">self</span>, <span class="ident">hovered</span>, <span class="ident">hitbox</span>, <span class="prelude-val">None</span>)
     }
 
     <span class="doccomment">/// Compute the bounds of all polygons in this batch.</span>
@@ -574,6 +557,7 @@
 }
 
 <span class="doccomment">/// A way to transform all colors in a GeomBatch.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">RewriteColor</span> {
     <span class="doccomment">/// Don&#39;t do anything</span>
     <span class="ident">NoOp</span>,
@@ -586,6 +570,12 @@
     <span class="ident">ChangeAlpha</span>(<span class="ident">f32</span>),
     <span class="doccomment">/// Convert all colors to greyscale.</span>
     <span class="ident">MakeGrayscale</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">From</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RewriteColor</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">color</span>: <span class="ident">Color</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RewriteColor</span> {
+        <span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">color</span>)
+    }
 }
 
 <span class="kw">impl</span> <span class="ident">RewriteColor</span> {
