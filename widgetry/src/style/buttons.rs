@@ -198,7 +198,7 @@ pub trait StyledButtons<'a> {
         self.btn_close().build_widget(ctx, "close").align_right()
     }
 
-    /// A button which renders it's hotkey for discoverability along with it's label.
+    /// A button which renders its hotkey for discoverability along with its label.
     fn btn_hotkey_light(&self, label: &str, key: Key) -> ButtonBuilder<'a>;
 }
 
