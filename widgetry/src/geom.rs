@@ -87,15 +87,6 @@ impl GeomBatch {
         DeferDraw::new(self)
     }
 
-    /// Turn this batch into a button.
-    #[deprecated]
-    pub fn to_btn_custom(self, rewrite: RewriteColor) -> ButtonBuilder<'static> {
-        let hovered = self.clone().color(rewrite);
-        ButtonBuilder::new()
-            .custom_batch(self, ControlState::Default)
-            .custom_batch(hovered, ControlState::Hovered)
-    }
-
     /// Compute the bounds of all polygons in this batch.
     pub fn get_bounds(&self) -> Bounds {
         let mut bounds = Bounds::new();
