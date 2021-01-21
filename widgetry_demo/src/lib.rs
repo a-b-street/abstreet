@@ -376,6 +376,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 .build_widget(ctx, "btn_height_icon_text"),
             btn.btn_popup_light("popup")
                 .build_widget(ctx, "btn_height_popup"),
+            widgetry::Spinner::new(ctx, (0, 11), 1),
         ]),
         Text::from(Line("Spinner").big_heading_styled().size(18)).draw(ctx),
         widgetry::Spinner::new(ctx, (0, 11), 1),

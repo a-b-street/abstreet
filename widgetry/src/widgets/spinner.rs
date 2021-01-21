@@ -1,8 +1,8 @@
 use geom::{Polygon, Pt2D};
 
 use crate::{
-    text, Button, ButtonBuilder, EventCtx, GeomBatch, GfxCtx, Line, Outcome, ScreenDims, ScreenPt,
-    ScreenRectangle, Text, Widget, WidgetImpl, WidgetOutput,
+    text, Button, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Line, Outcome, ScreenDims, ScreenPt,
+    ScreenRectangle, StyledButtons, Text, Widget, WidgetImpl, WidgetOutput,
 };
 
 // TODO MAX_CHAR_WIDTH is a hardcoded nonsense value
@@ -25,27 +25,24 @@ pub struct Spinner {
 
 impl Spinner {
     pub fn new(ctx: &EventCtx, (low, high): (isize, isize), mut current: isize) -> Widget {
-        let button_builder = ButtonBuilder::new();
+        let button_builder = ctx
+            .style()
+            .btn_plain_light()
+            .padding(EdgeInsets {
+                top: 2.0,
+                bottom: 2.0,
+                left: 4.0,
+                right: 4.0,
+            })
+            .image_dims(17.0);
 
-        let button_builder = button_builder
-            // CLEANUP: For things to look balanced, left/right padding are unequal.
-            // I'm not sure why this is - maybe an issue with text layout?
-            .padding_left(7.0)
-            .padding_right(4.0)
-            .bg_color(Color::WHITE.alpha(0.1), ControlState::Hovered);
-
-        use crate::{Color, ControlState};
         let up = button_builder
             .clone()
-            .label_text("↑")
-            .padding_top(2.0)
-            .padding_bottom(0.0)
+            .image_path("system/assets/tools/arrow_up.svg")
             .build(ctx, "increase value");
 
         let down = button_builder
-            .label_text("↓")
-            .padding_top(0.0)
-            .padding_bottom(2.0)
+            .image_path("system/assets/tools/arrow_down.svg")
             .build(ctx, "decrease value");
 
         let dims = ScreenDims::new(
