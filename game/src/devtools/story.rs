@@ -226,9 +226,9 @@ impl State<App> for StoryMapEditor {
                         },
                     ));
 
-                    return Transition::Push(ChooseSomething::new_below(
+                    return Transition::Push(ChooseSomething::new(
                         ctx,
-                        self.panel.rect_of("load"),
+                        "Load story",
                         choices,
                         Box::new(|story, _, _| {
                             Transition::Multi(vec![

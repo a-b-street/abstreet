@@ -1,9 +1,8 @@
 //! Generic UI tools. Some of this should perhaps be lifted to widgetry.
 
 use widgetry::{
-    hotkeys, Choice, DrawBaselayer, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Menu, Outcome, Panel, ScreenRectangle, State, StyledButtons, Text, Transition,
-    VerticalAlignment, Widget,
+    hotkeys, Choice, DrawBaselayer, Drawable, EventCtx, GfxCtx, Key, Line, Menu, Outcome, Panel,
+    State, StyledButtons, Text, Transition, Widget,
 };
 
 use crate::tools::grey_out_map;
@@ -34,23 +33,6 @@ impl<A: AppLike + 'static, T: 'static> ChooseSomething<A, T> {
             cb,
         })
     }
-
-    pub fn new_below(
-        ctx: &mut EventCtx,
-        rect: &ScreenRectangle,
-        choices: Vec<Choice<T>>,
-        cb: Box<dyn Fn(T, &mut EventCtx, &mut A) -> Transition<A>>,
-    ) -> Box<dyn State<A>> {
-        Box::new(ChooseSomething {
-            panel: Panel::new(Menu::new(ctx, choices).named("menu").container())
-                .aligned(
-                    HorizontalAlignment::Centered(rect.center().x),
-                    VerticalAlignment::Below(rect.y2 + 15.0),
-                )
-                .build(ctx),
-            cb,
-        })
-    }
 }
 
 impl<A: AppLike + 'static, T: 'static> State<A> for ChooseSomething<A, T> {
@@ -65,10 +47,6 @@ impl<A: AppLike + 'static, T: 'static> State<A> for ChooseSomething<A, T> {
             },
             _ => {
                 if ctx.normal_left_click() && ctx.canvas.get_cursor_in_screen_space().is_none() {
-                    return Transition::Pop;
-                }
-                // new_below doesn't make an X button
-                if ctx.input.pressed(Key::Escape) {
                     return Transition::Pop;
                 }
                 Transition::Keep

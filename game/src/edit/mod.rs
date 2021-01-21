@@ -187,9 +187,9 @@ impl State<App> for EditMode {
             Outcome::Clicked(x) => match x.as_ref() {
                 "manage proposals" => {
                     let mode = self.mode.clone();
-                    return Transition::Push(ChooseSomething::new_below(
+                    return Transition::Push(ChooseSomething::new(
                         ctx,
-                        self.changelist.rect_of("manage proposals"),
+                        "Manage proposals",
                         vec![
                             Choice::string("rename current proposal"),
                             Choice::string("open a saved proposal").multikey(lctrl(Key::L)),

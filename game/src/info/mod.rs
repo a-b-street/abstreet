@@ -12,8 +12,8 @@ use sim::{
     VehicleType,
 };
 use widgetry::{
-    Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    LinePlot, Outcome, Panel, PlotOptions, Series, TextExt, VerticalAlignment, Widget, ControlState
+    Checkbox, Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, LinePlot, Outcome, Panel, PlotOptions, Series, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -697,16 +697,25 @@ fn make_tabs(
         row.push(
             ctx.style()
                 .btn_primary_dark_text(name)
-                // We use "disabled" to denote "currently selected", but we want to style it like normal
+                // We use "disabled" to denote "currently selected", but we want to style it like
+                // normal
                 .disabled(current_tab.variant() == link.variant())
                 .bg_color(ctx.style().btn_primary_dark.bg, ControlState::Disabled)
                 .label_color(ctx.style().btn_primary_dark.fg, ControlState::Disabled)
-                .outline(2.0, ctx.style().btn_primary_dark.bg_hover, ControlState::Disabled)
+                .outline(
+                    2.0,
+                    ctx.style().btn_primary_dark.bg_hover,
+                    ControlState::Disabled,
+                )
                 // Hide the hit area for selectable tabs unless hovered
                 .bg_color(Color::CLEAR, ControlState::Default)
                 .outline(0.0, Color::CLEAR, ControlState::Default)
-                .outline(2.0, ctx.style().btn_primary_dark.bg_hover.alpha(0.4), ControlState::Hovered)
-                .build_def(ctx)
+                .outline(
+                    2.0,
+                    ctx.style().btn_primary_dark.bg_hover.alpha(0.4),
+                    ControlState::Hovered,
+                )
+                .build_def(ctx),
         );
         hyperlinks.insert(name.to_string(), link);
     }
