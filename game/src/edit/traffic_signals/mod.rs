@@ -671,7 +671,8 @@ fn make_side_panel(
                             additional
                         ),
                     }
-                    .draw_text(ctx),
+                    .draw_text(ctx)
+                    .centered_vert(),
                     {
                         let mut button = ctx
                             .style()
@@ -679,12 +680,13 @@ fn make_side_panel(
                         if selected == idx {
                             button = button.hotkey(Key::X);
                         }
-                        button.build_widget(ctx, &format!("change duration of stage {}", idx + 1))
+                        button
+                            .build_widget(ctx, &format!("change duration of stage {}", idx + 1))
+                            .align_right()
                     },
                     if canonical_signal.stages.len() > 1 {
                         ctx.style()
-                            .btn_plain_light_icon("system/assets/tools/delete.svg")
-                            .image_color(RewriteColor::NoOp, ControlState::Default)
+                            .btn_primary_destructive_icon("system/assets/tools/trash.svg")
                             .build_widget(ctx, &format!("delete stage {}", idx + 1))
                             .align_right()
                     } else {
