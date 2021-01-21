@@ -11,8 +11,8 @@ use map_gui::colors::ColorScheme;
 use map_gui::tools::{ChooseSomething, PopupMsg};
 use map_model::BuildingID;
 use widgetry::{
-    lctrl, Btn, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Panel, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Panel, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -78,7 +78,10 @@ impl ViewKML {
                         prettyprint_usize(objects.len())
                     )
                     .draw_text(ctx),
-                    Btn::text_fg("load KML file").build_def(ctx, lctrl(Key::L)),
+                    ctx.style()
+                        .btn_secondary_light_text("load KML file")
+                        .hotkey(lctrl(Key::L))
+                        .build_def(ctx),
                     Widget::row(vec![
                         "Query:".draw_text(ctx),
                         Widget::dropdown(ctx, "query", "None".to_string(), choices),

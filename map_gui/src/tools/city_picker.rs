@@ -87,11 +87,12 @@ impl<A: AppLike + 'static> CityPicker<A> {
                         continue;
                     }
                     // If there's only one map in the city, make the button directly load it.
+                    let button = ctx.style().btn_secondary_light_text(&city);
                     let maps = MapName::list_all_maps_in_city(&city);
                     if maps.len() == 1 {
-                        other_cities.push(Btn::text_fg(city).build(ctx, maps[0].path(), None));
+                        other_cities.push(button.build_widget(ctx, &maps[0].path()));
                     } else {
-                        other_cities.push(Btn::text_fg(city).no_tooltip().build_def(ctx, None));
+                        other_cities.push(button.no_tooltip().build_def(ctx));
                     }
                 }
                 other_cities.push(

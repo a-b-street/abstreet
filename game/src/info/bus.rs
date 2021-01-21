@@ -101,7 +101,11 @@ pub fn bus_status(ctx: &mut EventCtx, app: &App, details: &mut Details, id: CarI
         .map
         .get_br(app.primary.sim.bus_route_id(id).unwrap());
 
-    rows.push(Btn::text_fg(format!("Serves route {}", route.short_name)).build_def(ctx, None));
+    rows.push(
+        ctx.style()
+            .btn_secondary_light_text(&format!("Serves route {}", route.short_name))
+            .build_def(ctx),
+    );
     details.hyperlinks.insert(
         format!("Serves route {}", route.short_name),
         Tab::BusRoute(route.id),
@@ -187,7 +191,11 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
         rows.push(format!("No {} running", route.plural_noun()).draw_text(ctx));
     } else {
         for (bus, _, _, pt) in buses {
-            rows.push(Btn::text_fg(bus.to_string()).build_def(ctx, None));
+            rows.push(
+                ctx.style()
+                    .btn_secondary_light_text(&bus.to_string())
+                    .build_def(ctx),
+            );
             details
                 .hyperlinks
                 .insert(bus.to_string(), Tab::BusStatus(bus));
