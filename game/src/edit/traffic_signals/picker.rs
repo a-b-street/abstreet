@@ -107,22 +107,14 @@ impl State<App> for SignalPicker {
 }
 
 fn make_btn(ctx: &mut EventCtx, num: usize) -> Widget {
-    if num == 0 {
-        return ctx
-            .style()
-            .btn_primary_dark_text("Edit 0 signals")
-            .disabled()
-            .build_def(ctx)
-            .named("edit");
-    }
-
-    let title = if num == 1 {
-        "Edit 1 signal".to_string()
-    } else {
-        format!("Edit {} signals", num)
+    let title = match num {
+        0 => "Edit 0 signals".to_string(),
+        1 => "Edit 1 signal".to_string(),
+        _ => format!("Edit {} signals", num),
     };
     ctx.style()
         .btn_primary_dark_text(&title)
+        .disabled(num == 0)
         .hotkey(hotkeys(vec![Key::Enter, Key::E]))
         .build_widget(ctx, "edit")
 }

@@ -421,7 +421,7 @@ impl SaveEdits {
                     },
                     ctx.style()
                         .btn_primary_dark_text("Save")
-                        .disabled()
+                        .disabled(true)
                         .build_def(ctx),
                 ])
                 .align_right(),
@@ -442,7 +442,7 @@ impl SaveEdits {
                 "Save",
                 ctx.style()
                     .btn_primary_dark_text("Save")
-                    .disabled()
+                    .disabled(true)
                     .build_def(ctx),
             );
             self.panel.replace(ctx, "warning", Text::new().draw(ctx));
@@ -455,7 +455,7 @@ impl SaveEdits {
                 "Save",
                 ctx.style()
                     .btn_primary_dark_text("Save")
-                    .disabled()
+                    .disabled(true)
                     .build_def(ctx),
             );
             self.panel.replace(

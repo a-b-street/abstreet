@@ -168,16 +168,14 @@ fn make_panel(
     make_task: &Box<dyn Fn(&mut EventCtx) -> Widget>,
     idx: usize,
 ) -> Panel {
-    let mut prev = app
+    let prev = app
         .cs
         .btn_plain_dark_icon("system/assets/tools/circled_prev.svg")
         .image_dims(45.0)
         .hotkey(Key::LeftArrow)
-        .bg_color(Color::CLEAR, ControlState::Disabled);
-    if idx == 0 {
-        prev = prev.disabled();
-    }
-    let prev = prev.build_widget(ctx, "back");
+        .bg_color(Color::CLEAR, ControlState::Disabled)
+        .disabled(idx == 0)
+        .build_widget(ctx, "back");
 
     let next = app
         .cs

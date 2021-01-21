@@ -316,17 +316,11 @@ fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) ->
                 .btn_popup_light(&story.name)
                 .hotkey(lctrl(Key::L))
                 .build_widget(ctx, "load"),
-            {
-                let mut save_button = ctx
-                    .style()
-                    .btn_primary_light_icon("system/assets/tools/save.svg")
-                    .hotkey(lctrl(Key::S));
-                if !dirty {
-                    save_button = save_button.disabled();
-                }
-
-                save_button.build_widget(ctx, "save")
-            },
+            ctx.style()
+                .btn_primary_light_icon("system/assets/tools/save.svg")
+                .hotkey(lctrl(Key::S))
+                .disabled(!dirty)
+                .build_widget(ctx, "save"),
             ctx.style().btn_close_widget(ctx),
         ]),
         Widget::row(vec![

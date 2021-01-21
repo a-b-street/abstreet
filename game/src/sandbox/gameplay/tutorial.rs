@@ -11,8 +11,8 @@ use sim::{
     SpawnOverTime, TripEndpoint, TripMode, TripPurpose, VehicleType,
 };
 use widgetry::{
-    hotkeys, lctrl, Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    RewriteColor, ScreenPt, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
+    hotkeys, lctrl, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    ScreenPt, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -728,22 +728,20 @@ impl TutorialState {
         let mut col = vec![Widget::row(vec![
             Line("Tutorial").small_heading().draw(ctx),
             Widget::vert_separator(ctx, 50.0),
-            if self.current.stage == 0 {
-                Btn::text_fg("<").inactive(ctx)
-            } else {
-                Btn::text_fg("<").build(ctx, "previous tutorial", None)
-            },
+            ctx.style()
+                .btn_prev()
+                .disabled(self.current.stage == 0)
+                .build_widget(ctx, "previous tutorial"),
             {
                 let mut txt = Text::from(Line(format!("Task {}", self.current.stage + 1)));
                 // TODO Smaller font and use alpha for the "/9" part
                 txt.append(Line(format!("/{}", self.stages.len())).fg(Color::grey(0.7)));
                 txt.draw(ctx)
             },
-            if self.current.stage == self.stages.len() - 1 {
-                Btn::text_fg(">").inactive(ctx)
-            } else {
-                Btn::text_fg(">").build(ctx, "next tutorial", None)
-            },
+            ctx.style()
+                .btn_prev()
+                .disabled(self.current.stage == self.stages.len() - 1)
+                .build_widget(ctx, "next tutorial"),
             ctx.style().btn_secondary_light_text("Quit").build_def(ctx),
         ])
         .centered()];
@@ -820,34 +818,17 @@ impl TutorialState {
                     txt.wrap_to_pct(ctx, 30).draw(ctx)
                 }];
                 let mut controls = vec![Widget::row(vec![
-                    if self.current.part > 0 {
-                        ctx.style()
-                            .btn_plain_light_icon("system/assets/tools/prev.svg")
-                            .hotkey(Key::LeftArrow)
-                            .build_widget(ctx, "previous message")
-                    } else {
-                        Widget::draw_svg_transform(
-                            ctx,
-                            "system/assets/tools/prev.svg",
-                            RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
-                        )
-                    },
+                    ctx.style()
+                        .btn_prev()
+                        .disabled(self.current.part == 0)
+                        .build_widget(ctx, "previous message"),
                     format!("{}/{}", self.current.part + 1, self.stage().messages.len())
                         .draw_text(ctx)
                         .centered_vert(),
-                    if self.current.part == self.stage().messages.len() - 1 {
-                        Widget::draw_svg_transform(
-                            ctx,
-                            "system/assets/tools/next.svg",
-                            RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
-                        )
-                        .named("next message")
-                    } else {
-                        ctx.style()
-                            .btn_plain_light_icon("system/assets/tools/next.svg")
-                            .hotkey(hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]))
-                            .build_widget(ctx, "next message")
-                    },
+                    ctx.style()
+                        .btn_next()
+                        .disabled(self.current.part == self.stage().messages.len() - 1)
+                        .build_widget(ctx, "next message"),
                 ])];
                 if self.current.part == self.stage().messages.len() - 1 {
                     controls.push(

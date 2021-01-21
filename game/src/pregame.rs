@@ -376,7 +376,7 @@ impl Proposals {
                 buttons.push(
                     app.cs
                         .btn_primary_dark_text(&edits.proposal_description[0])
-                        .disabled()
+                        .disabled(true)
                         .build_def(ctx)
                         .margin_below(10),
                 );

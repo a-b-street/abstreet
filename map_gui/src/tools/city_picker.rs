@@ -68,7 +68,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
 
                         let action = name.path();
                         if &name == app.map().get_name() {
-                            let btn = btn.disabled();
+                            let btn = btn.disabled(true);
                             this_city.push(btn.build_widget(ctx, &action));
                         } else {
                             this_city.push(btn.build_widget(ctx, &action));
