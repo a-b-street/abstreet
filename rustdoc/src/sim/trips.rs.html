@@ -1548,11 +1548,6 @@
 <span id="1545">1545</span>
 <span id="1546">1546</span>
 <span id="1547">1547</span>
-<span id="1548">1548</span>
-<span id="1549">1549</span>
-<span id="1550">1550</span>
-<span id="1551">1551</span>
-<span id="1552">1552</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 
@@ -2612,6 +2607,12 @@
         <span class="comment">// Don&#39;t forget the car!</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">vehicle</span>) <span class="op">=</span> <span class="ident">abandoned_vehicle</span> {
             <span class="kw">if</span> <span class="ident">vehicle</span>.<span class="ident">vehicle_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Car</span> {
+                <span class="comment">// First remove the parked car, if needed. Maybe the trip was cancelled while the</span>
+                <span class="comment">// car was parked in the starting building.</span>
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parked_car</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">parking</span>.<span class="ident">lookup_parked_car</span>(<span class="ident">vehicle</span>.<span class="ident">id</span>).<span class="ident">cloned</span>() {
+                    <span class="ident">ctx</span>.<span class="ident">parking</span>.<span class="ident">remove_parked_car</span>(<span class="ident">parked_car</span>);
+                }
+
                 <span class="kw">if</span> <span class="kw">let</span> <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">info</span>.<span class="ident">end</span> {
                     <span class="kw">let</span> <span class="ident">driving_lane</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">map</span>.<span class="ident">find_driving_lane_near_building</span>(<span class="ident">b</span>);
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">spot</span>) <span class="op">=</span> <span class="ident">ctx</span>
@@ -2649,17 +2650,6 @@
                             ),
                         ));
                     }
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parked_car</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">parking</span>.<span class="ident">lookup_parked_car</span>(<span class="ident">vehicle</span>.<span class="ident">id</span>).<span class="ident">cloned</span>()
-                {
-                    <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">Alert</span>(
-                        <span class="ident">AlertLocation</span>::<span class="ident">Person</span>(<span class="ident">person</span>),
-                        <span class="macro">format</span><span class="macro">!</span>(
-                            <span class="string">&quot;{} had a trip from on-map to off-map cancelled, so warping their car \
-                             off-map&quot;</span>,
-                            <span class="ident">person</span>
-                        ),
-                    ));
-                    <span class="ident">ctx</span>.<span class="ident">parking</span>.<span class="ident">remove_parked_car</span>(<span class="ident">parked_car</span>);
                 }
             }
         } <span class="kw">else</span> {
