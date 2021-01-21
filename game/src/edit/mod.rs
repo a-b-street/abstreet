@@ -858,7 +858,9 @@ impl ConfirmDiscard {
             discard,
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
-                    Widget::draw_svg(ctx, "system/assets/tools/alert.svg"),
+                    Widget::draw_svg(ctx, "system/assets/tools/alert.svg")
+                        .container()
+                        .padding_top(6),
                     Line("Alert").small_heading().draw(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
