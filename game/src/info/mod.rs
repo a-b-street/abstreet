@@ -710,9 +710,8 @@ fn make_tabs(
                 // Hide the hit area for selectable tabs unless hovered
                 .bg_color(Color::CLEAR, ControlState::Default)
                 .outline(0.0, Color::CLEAR, ControlState::Default)
-                .outline(
-                    2.0,
-                    ctx.style().btn_primary_dark.bg_hover.alpha(0.4),
+                .bg_color(
+                    ctx.style().btn_primary_dark.bg.alpha(0.6),
                     ControlState::Hovered,
                 )
                 .build_def(ctx),
