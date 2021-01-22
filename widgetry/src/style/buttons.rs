@@ -1,5 +1,7 @@
 use super::ButtonStyle;
-use crate::{ButtonBuilder, ControlState, EventCtx, ScreenDims, Style, Widget};
+use crate::{
+    include_labeled_bytes, ButtonBuilder, ControlState, EventCtx, ScreenDims, Style, Widget,
+};
 
 pub trait StyledButtons<'a> {
     fn btn_primary_dark(&self) -> ButtonBuilder<'a>;
@@ -87,8 +89,8 @@ pub trait StyledButtons<'a> {
     fn btn_plain_light_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
         icon_button(self.btn_plain_light().image_path(image_path))
     }
-    fn btn_plain_light_icon_bytes(&self, image_bytes: (&'a [u8], &'a str)) -> ButtonBuilder<'a> {
-        icon_button(self.btn_plain_light().image_bytes(image_bytes))
+    fn btn_plain_light_icon_bytes(&self, labeled_bytes: (&'a str, &'a [u8])) -> ButtonBuilder<'a> {
+        icon_button(self.btn_plain_light().image_bytes(labeled_bytes))
     }
     fn btn_plain_light_icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
         self.btn_plain_light()
@@ -297,7 +299,7 @@ fn icon_button<'a>(builder: ButtonBuilder<'a>) -> ButtonBuilder<'a> {
 fn back_button<'a>(builder: ButtonBuilder<'a>, title: &'a str) -> ButtonBuilder<'a> {
     // DESIGN REVIEW: this button seems absurdly large
     builder
-        .image_path("system/assets/pregame/back.svg")
+        .image_bytes(include_labeled_bytes!("../../icons/nav_back.svg"))
         .label_text(title)
         .padding_left(8.0)
         .font_size(30)
@@ -305,10 +307,7 @@ fn back_button<'a>(builder: ButtonBuilder<'a>, title: &'a str) -> ButtonBuilder<
 
 fn dropdown_button<'a>(builder: ButtonBuilder<'a>) -> ButtonBuilder<'a> {
     builder
-        .image_bytes((
-            include_bytes!("../../icons/arrow_drop_down.svg"),
-            "../../icons/arrow_drop_down.svg",
-        ))
+        .image_bytes(include_labeled_bytes!("../../icons/arrow_drop_down.svg"))
         .image_dims(12.0)
         .stack_spacing(12.0)
         .label_first()
