@@ -47,7 +47,7 @@ impl Spinner {
 
         let dims = ScreenDims::new(
             TEXT_WIDTH + up.get_dims().width,
-            up.get_dims().height + down.get_dims().height,
+            up.get_dims().height + down.get_dims().height + 1.0,
         );
         if current < low {
             current = low;

@@ -305,7 +305,7 @@ impl<'a> Style {
 
 // Captures some constants for uniform styling of icon-only buttons
 fn icon_button<'a>(builder: ButtonBuilder<'a>) -> ButtonBuilder<'a> {
-    builder.padding(8.0).image_dims(24.0)
+    builder.padding(8.0).image_dims(25.0)
 }
 
 fn back_button<'a>(builder: ButtonBuilder<'a>, title: &'a str) -> ButtonBuilder<'a> {

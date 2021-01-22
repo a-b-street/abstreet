@@ -134,8 +134,7 @@ impl SpeedControls {
                 let buttons = ctx
                     .style()
                     .btn_plain_light()
-                    .bg_color(ctx.style().btn_solid_light.bg_hover, ControlState::Hovered)
-                    .image_dims(ScreenDims::square(20.0));
+                    .bg_color(ctx.style().btn_solid_light.bg_hover, ControlState::Hovered);
                 Widget::custom_row(vec![
                     buttons
                         .clone()
