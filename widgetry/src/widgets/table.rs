@@ -2,7 +2,8 @@ use abstutil::prettyprint_usize;
 use geom::Polygon;
 
 use crate::{
-    Color, ControlState, EventCtx, GeomBatch, Line, Panel, StyledButtons, Text, TextExt, Widget,
+    include_labeled_bytes, Color, ControlState, EventCtx, GeomBatch, Line, Panel, StyledButtons,
+    Text, TextExt, Widget,
 };
 
 const ROWS: usize = 8;
@@ -102,12 +103,9 @@ impl<A, T, F> Table<A, T, F> {
                     ctx.style()
                         .btn_primary_dark_icon_text("tmp", &col.name)
                         .image_bytes(if self.descending {
-                            (
-                                include_bytes!("../../icons/arrow_down.svg"),
-                                "arrow_down.svg",
-                            )
+                            include_labeled_bytes!("../../icons/arrow_down.svg")
                         } else {
-                            (include_bytes!("../../icons/arrow_up.svg"), "arrow_up.svg")
+                            include_labeled_bytes!("../../icons/arrow_up.svg")
                         })
                         .label_first()
                         .build_widget(ctx, &col.name)

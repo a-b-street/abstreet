@@ -1,8 +1,8 @@
 use geom::{Polygon, Pt2D};
 
 use crate::{
-    text, Button, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Line, Outcome, ScreenDims, ScreenPt,
-    ScreenRectangle, StyledButtons, Text, Widget, WidgetImpl, WidgetOutput,
+    include_labeled_bytes, text, Button, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Line, Outcome,
+    ScreenDims, ScreenPt, ScreenRectangle, StyledButtons, Text, Widget, WidgetImpl, WidgetOutput,
 };
 
 // TODO MAX_CHAR_WIDTH is a hardcoded nonsense value
@@ -38,17 +38,11 @@ impl Spinner {
 
         let up = button_builder
             .clone()
-            .image_bytes((
-                include_bytes!("../../icons/arrow_up.svg"),
-                "../../icons/arrow_up.svg",
-            ))
+            .image_bytes(include_labeled_bytes!("../../icons/arrow_up.svg"))
             .build(ctx, "increase value");
 
         let down = button_builder
-            .image_bytes((
-                include_bytes!("../../icons/arrow_down.svg"),
-                "../../icons/arrow_down.svg",
-            ))
+            .image_bytes(include_labeled_bytes!("../../icons/arrow_down.svg"))
             .build(ctx, "decrease value");
 
         let dims = ScreenDims::new(

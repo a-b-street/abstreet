@@ -93,6 +93,14 @@ mod backend {
     pub use crate::backend_glow::*;
 }
 
+/// return the name of the included file, along with its bytes.
+#[macro_export]
+macro_rules! include_labeled_bytes {
+    ($file:expr) => {
+        ($file, include_bytes!($file))
+    };
+}
+
 #[derive(Clone, Copy, Debug)]
 pub enum ControlState {
     Default,
