@@ -255,7 +255,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
 
     /// Set the image for the button. If not set, the button will have no image.
     ///
-    /// This will replace any image previously set by [`image_bytes`]
+    /// This will replace any image previously set by [`Self::image_bytes`]
     pub fn image_path(mut self, path: &'a str) -> Self {
         // Currently we don't support setting image for other states like "hover", we easily
         // could, but the API gets more verbose for a thing we don't currently need.
@@ -267,10 +267,11 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
 
     /// Set the image for the button. If not set, the button will have no image.
     ///
-    /// This will replace any image previously set by [`image_path`].
-    ///
-    /// `bytes`: utf-8 encoded bytes of the svg
-    /// `label`: a label to describe the bytes for debugging purposes
+    /// This will replace any image previously set by [`Self::image_path`].
+    /// * `labeled_bytes`: is a (`label`, `bytes`) tuple you can generate with
+    ///   [`include_labeled_bytes!`]
+    /// * `label`: a label to describe the bytes for debugging purposes
+    /// * `bytes`: utf-8 encoded bytes of the svg
     pub fn image_bytes(mut self, labeled_bytes: (&'a str, &'a [u8])) -> Self {
         let (label, bytes) = labeled_bytes;
         // Currently we don't support setting image for other states like "hover", we easily
