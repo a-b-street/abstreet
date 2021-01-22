@@ -38,11 +38,17 @@ impl Spinner {
 
         let up = button_builder
             .clone()
-            .image_path("system/assets/tools/arrow_up.svg")
+            .image_bytes((
+                include_bytes!("../../icons/arrow_up.svg"),
+                "../../icons/arrow_up.svg",
+            ))
             .build(ctx, "increase value");
 
         let down = button_builder
-            .image_path("system/assets/tools/arrow_down.svg")
+            .image_bytes((
+                include_bytes!("../../icons/arrow_down.svg"),
+                "../../icons/arrow_down.svg",
+            ))
             .build(ctx, "decrease value");
 
         let dims = ScreenDims::new(

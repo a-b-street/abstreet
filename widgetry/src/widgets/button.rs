@@ -268,9 +268,11 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     /// Set the image for the button. If not set, the button will have no image.
     ///
     /// This will replace any image previously set by [`image_path`].
+    ///
     /// `bytes`: utf-8 encoded bytes of the svg
     /// `name`: a label to describe the bytes for debugging purposes
-    pub fn image_bytes(mut self, bytes: &'a [u8], cache_key: &'a str) -> Self {
+    pub fn image_bytes(mut self, bytes_and_cache_key: (&'a [u8], &'a str)) -> Self {
+        let (bytes, cache_key) = bytes_and_cache_key;
         // Currently we don't support setting image for other states like "hover", we easily
         // could, but the API gets more verbose for a thing we don't currently need.
         let mut image = self.default_style.image.take().unwrap_or_default();

@@ -43,10 +43,16 @@ impl Checkbox {
 
         let off_button = buttons
             .clone()
-            .image_path("../widgetry/icons/toggle_off.svg")
+            .image_bytes((
+                include_bytes!("../../icons/toggle_off.svg"),
+                "../../icons/toggle_off.svg",
+            ))
             .build(ctx, label);
         let on_button = buttons
-            .image_path("../widgetry/icons/toggle_on.svg")
+            .image_bytes((
+                include_bytes!("../../icons/toggle_on.svg"),
+                "../../icons/toggle_on.svg",
+            ))
             .build(ctx, label);
 
         Checkbox::new(enabled, off_button, on_button).named(label)
@@ -80,10 +86,14 @@ impl Checkbox {
             buttons = buttons.hotkey(hotkey);
         }
 
-        let false_btn = buttons
-            .clone()
-            .image_path("../widgetry/icons/checkbox_unchecked.svg");
-        let true_btn = buttons.image_path("../widgetry/icons/checkbox_checked.svg");
+        let false_btn = buttons.clone().image_bytes((
+            include_bytes!("../../icons/checkbox_unchecked.svg"),
+            "../../icons/checkbox_unchecked.svg",
+        ));
+        let true_btn = buttons.image_bytes((
+            include_bytes!("../../icons/checkbox_checked.svg"),
+            "../../icons/checkbox_checked.svg",
+        ));
 
         Checkbox::new(
             enabled,
@@ -122,10 +132,14 @@ impl Checkbox {
             buttons = buttons.hotkey(hotkey);
         }
 
-        let false_btn = buttons
-            .clone()
-            .image_path("../widgetry/icons/checkbox_unchecked.svg");
-        let true_btn = buttons.image_path("../widgetry/icons/checkbox_checked.svg");
+        let false_btn = buttons.clone().image_bytes((
+            include_bytes!("../../icons/checkbox_unchecked.svg"),
+            "../../icons/checkbox_unchecked.svg",
+        ));
+        let true_btn = buttons.image_bytes((
+            include_bytes!("../../icons/checkbox_checked.svg"),
+            "../../icons/checkbox_checked.svg",
+        ));
 
         Checkbox::new(
             enabled,
@@ -140,14 +154,20 @@ impl Checkbox {
 
         let false_btn = buttons
             .clone()
-            .image_path("../widgetry/icons/checkbox_unchecked.svg")
+            .image_bytes((
+                include_bytes!("../../icons/checkbox_unchecked.svg"),
+                "../../icons/checkbox_unchecked.svg",
+            ))
             .image_color(
                 RewriteColor::Change(Color::BLACK, color.alpha(0.3)),
                 ControlState::Default,
             );
 
         let true_btn = buttons
-            .image_path("../widgetry/icons/checkbox_checked.svg")
+            .image_bytes((
+                include_bytes!("../../icons/checkbox_checked.svg"),
+                "../../icons/checkbox_checked.svg",
+            ))
             .image_color(
                 RewriteColor::Change(Color::BLACK, color),
                 ControlState::Default,
@@ -172,7 +192,10 @@ impl Checkbox {
     ) -> Widget {
         let mut toggle_left_button = ctx
             .style()
-            .btn_plain_light_icon("../widgetry/icons/toggle_left.svg")
+            .btn_plain_light_icon_bytes((
+                include_bytes!("../../icons/toggle_left.svg"),
+                "../../icons/toggle_left.svg",
+            ))
             .image_dims(ScreenDims::new(40.0, 40.0))
             .padding(4)
             .image_color(RewriteColor::NoOp, ControlState::Default);
@@ -181,9 +204,10 @@ impl Checkbox {
             toggle_left_button = toggle_left_button.hotkey(hotkey);
         }
 
-        let toggle_right_button = toggle_left_button
-            .clone()
-            .image_path("../widgetry/icons/toggle_right.svg");
+        let toggle_right_button = toggle_left_button.clone().image_bytes((
+            include_bytes!("../../icons/toggle_right.svg"),
+            "../../icons/toggle_right.svg",
+        ));
 
         let left_text_button = ctx
             .style()
