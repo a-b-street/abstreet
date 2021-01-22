@@ -21,7 +21,7 @@
 //! * [`Slider`] - horizontal and vertical sliders
 //! * [`Spinner`] - numeric input with up/down buttons
 //! * [`table::Table`] - rows and columns, supporting filtering and pagination
-//! * [`TexBox`] - single line text entry
+//! * [`TextBox`] - single line text entry
 
 //#![warn(missing_docs)]
 
@@ -93,7 +93,9 @@ mod backend {
     pub use crate::backend_glow::*;
 }
 
-/// return the name of the included file, along with its bytes.
+/// Like [`std::include_bytes!`], but also returns its argument, the relative path to the bytes
+///
+/// returns a `(path, bytes): (&str, &[u8])` tuple
 #[macro_export]
 macro_rules! include_labeled_bytes {
     ($file:expr) => {
