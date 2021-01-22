@@ -197,16 +197,92 @@ pub trait StyledButtons<'a> {
 
     /// A button which renders its hotkey for discoverability along with its label.
     fn btn_solid_light_hotkey(&self, label: &str, key: Key) -> ButtonBuilder<'a>;
+
+    /// A button which renders its hotkey for discoverability along with its label.
+    fn btn_solid_dark_hotkey(&self, label: &str, key: Key) -> ButtonBuilder<'a>;
 }
 
 use crate::{Key, Line, Text};
 impl<'a> StyledButtons<'a> for Style {
+    fn btn_solid_dark(&self) -> ButtonBuilder<'a> {
+        self.btn_solid(&self.btn_solid_dark)
+    }
+
+    fn btn_outline_dark(&self) -> ButtonBuilder<'a> {
+        self.btn_outline(&self.btn_outline_dark)
+    }
+
+    fn btn_plain_dark(&self) -> ButtonBuilder<'a> {
+        self.btn_plain(&self.btn_outline_dark)
+    }
+
+    fn btn_solid_light(&self) -> ButtonBuilder<'a> {
+        self.btn_solid(&self.btn_solid_light)
+    }
+
+    fn btn_outline_light(&self) -> ButtonBuilder<'a> {
+        self.btn_outline(&self.btn_outline_light)
+    }
+
+    fn btn_plain_light(&self) -> ButtonBuilder<'a> {
+        self.btn_plain(&self.btn_outline_light)
+    }
+
+    fn btn_plain_destructive(&self) -> ButtonBuilder<'a> {
+        self.btn_plain(&self.btn_outline_destructive)
+    }
+
+    fn btn_solid_destructive(&self) -> ButtonBuilder<'a> {
+        self.btn_solid(&self.btn_solid_destructive)
+    }
+
+    fn btn_outline_destructive(&self) -> ButtonBuilder<'a> {
+        self.btn_outline(&self.btn_solid_destructive)
+    }
+
     fn btn_solid_light_hotkey(&self, label: &str, key: Key) -> ButtonBuilder<'a> {
+        self.btn_hotkey(&self.btn_solid_light, label, key)
+    }
+
+    fn btn_solid_dark_hotkey(&self, label: &str, key: Key) -> ButtonBuilder<'a> {
+        self.btn_hotkey(&self.btn_solid_dark, label, key)
+    }
+}
+
+impl<'a> Style {
+    fn btn_plain(&self, button_style: &ButtonStyle) -> ButtonBuilder<'a> {
+        ButtonBuilder::new()
+            .label_color(button_style.fg, ControlState::Default)
+            .label_color(button_style.fg_disabled, ControlState::Disabled)
+            .image_color(button_style.fg, ControlState::Default)
+            .image_color(button_style.fg_disabled, ControlState::Disabled)
+            .bg_color(button_style.bg, ControlState::Default)
+            .bg_color(button_style.bg_hover, ControlState::Hovered)
+            .bg_color(button_style.bg_disabled, ControlState::Disabled)
+    }
+
+    fn btn_solid(&self, button_style: &ButtonStyle) -> ButtonBuilder<'a> {
+        self.btn_plain(button_style).outline(
+            self.outline_thickness,
+            button_style.outline,
+            ControlState::Default,
+        )
+    }
+
+    fn btn_outline(&self, button_style: &ButtonStyle) -> ButtonBuilder<'a> {
+        self.btn_plain(button_style).outline(
+            self.outline_thickness,
+            button_style.outline,
+            ControlState::Default,
+        )
+    }
+
+    fn btn_hotkey(&self, button_style: &ButtonStyle, label: &str, key: Key) -> ButtonBuilder<'a> {
         let default = {
             let mut txt = Text::new();
             let key_txt = Line(key.describe()).fg(self.hotkey_color);
             txt.append(key_txt);
-            let label_text = Line(format!(" - {}", label)).fg(self.btn_solid_light.fg);
+            let label_text = Line(format!(" - {}", label)).fg(button_style.fg);
             txt.append(label_text);
             txt
         };
@@ -215,72 +291,16 @@ impl<'a> StyledButtons<'a> for Style {
             let mut txt = Text::new();
             let key_txt = Line(key.describe()).fg(self.hotkey_color.alpha(0.3));
             txt.append(key_txt);
-            let label_text = Line(format!(" - {}", label)).fg(self.btn_solid_light.fg_disabled);
+            let label_text = Line(format!(" - {}", label)).fg(button_style.fg_disabled);
             txt.append(label_text);
             txt
         };
 
-        self.btn_solid_light()
+        self.btn_solid(button_style)
             .label_styled_text(default, ControlState::Default)
             .label_styled_text(disabled, ControlState::Disabled)
             .hotkey(key)
     }
-
-    fn btn_solid_dark(&self) -> ButtonBuilder<'a> {
-        let colors = &self.btn_solid_dark;
-        plain_builder(colors).outline(2.0, colors.outline, ControlState::Default)
-    }
-
-    fn btn_outline_dark(&self) -> ButtonBuilder<'a> {
-        let colors = &self.btn_outline_dark;
-        plain_builder(colors).outline(2.0, colors.outline, ControlState::Default)
-    }
-
-    fn btn_plain_dark(&self) -> ButtonBuilder<'a> {
-        let colors = &self.btn_outline_dark;
-        plain_builder(colors)
-    }
-
-    fn btn_solid_light(&self) -> ButtonBuilder<'a> {
-        let colors = &self.btn_solid_light;
-        plain_builder(colors).outline(2.0, colors.outline, ControlState::Default)
-    }
-
-    fn btn_outline_light(&self) -> ButtonBuilder<'a> {
-        let colors = &self.btn_outline_light;
-        plain_builder(colors).outline(2.0, colors.outline, ControlState::Default)
-    }
-
-    fn btn_plain_light(&self) -> ButtonBuilder<'a> {
-        let colors = &self.btn_outline_light;
-        plain_builder(colors)
-    }
-
-    fn btn_plain_destructive(&self) -> ButtonBuilder<'a> {
-        let colors = &self.btn_outline_destructive;
-        plain_builder(colors)
-    }
-
-    fn btn_solid_destructive(&self) -> ButtonBuilder<'a> {
-        let colors = &self.btn_solid_destructive;
-        plain_builder(colors).outline(2.0, colors.outline, ControlState::Default)
-    }
-
-    fn btn_outline_destructive(&self) -> ButtonBuilder<'a> {
-        let colors = &self.btn_outline_destructive;
-        plain_builder(colors).outline(2.0, colors.outline, ControlState::Default)
-    }
-}
-
-fn plain_builder<'a>(color_scheme: &ButtonStyle) -> ButtonBuilder<'a> {
-    ButtonBuilder::new()
-        .label_color(color_scheme.fg, ControlState::Default)
-        .label_color(color_scheme.fg_disabled, ControlState::Disabled)
-        .image_color(color_scheme.fg, ControlState::Default)
-        .image_color(color_scheme.fg_disabled, ControlState::Disabled)
-        .bg_color(color_scheme.bg, ControlState::Default)
-        .bg_color(color_scheme.bg_hover, ControlState::Hovered)
-        .bg_color(color_scheme.bg_disabled, ControlState::Disabled)
 }
 
 // Captures some constants for uniform styling of icon-only buttons
