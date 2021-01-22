@@ -140,11 +140,13 @@ impl<'a> EventCtx<'a> {
         let border = Color::hex("#F4DA22");
         Panel::new(Widget::row(vec![
             Widget::custom_col(vec![
-                Widget::draw_batch(
-                    self,
-                    GeomBatch::from_svg_contents(&include_bytes!("../icons/loading.svg").to_vec())
-                        .scale(5.0),
-                )
+                Widget::draw_batch(self, {
+                    let (label, bytes) = crate::include_labeled_bytes!("../icons/loading.svg");
+                    svg::load_svg_bytes(self.prerender, label, bytes)
+                        .unwrap()
+                        .0
+                        .scale(5.0)
+                })
                 .container()
                 .bg(Color::BLACK)
                 .padding(15)
