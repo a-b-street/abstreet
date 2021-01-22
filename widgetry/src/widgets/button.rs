@@ -659,7 +659,7 @@ impl ImageSource<'_> {
         match self {
             ImageSource::Path(image_path) => svg::load_svg(prerender, image_path),
             ImageSource::Bytes { bytes, cache_key } => {
-                svg::load_svg_bytes(prerender, bytes, cache_key).expect(&format!(
+                svg::load_svg_bytes(prerender, cache_key, bytes).expect(&format!(
                     "Failed to load svg from bytes. cache_key: {}",
                     cache_key
                 ))

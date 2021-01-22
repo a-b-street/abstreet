@@ -21,7 +21,7 @@ pub fn load_svg(prerender: &Prerender, filename: &str) -> (GeomBatch, Bounds) {
     }
 
     let bytes = (prerender.assets.read_svg)(filename);
-    load_svg_from_bytes(&bytes)
+    load_svg_from_bytes_uncached(&bytes)
         .map(|(batch, bounds)| {
             prerender
                 .assets
@@ -33,15 +33,15 @@ pub fn load_svg(prerender: &Prerender, filename: &str) -> (GeomBatch, Bounds) {
 
 pub fn load_svg_bytes(
     prerender: &Prerender,
-    bytes: &[u8],
     cache_key: &str,
+    bytes: &[u8],
 ) -> anyhow::Result<(GeomBatch, Bounds)> {
     let cache_key = format!("bytes://{}", cache_key);
     if let Some(pair) = prerender.assets.get_cached_svg(&cache_key) {
         return Ok(pair);
     }
 
-    load_svg_from_bytes(&bytes).map(|(batch, bounds)| {
+    load_svg_from_bytes_uncached(&bytes).map(|(batch, bounds)| {
         prerender
             .assets
             .cache_svg(cache_key, batch.clone(), bounds.clone());
@@ -49,8 +49,8 @@ pub fn load_svg_bytes(
     })
 }
 
-fn load_svg_from_bytes(bytes: &[u8]) -> anyhow::Result<(GeomBatch, Bounds)> {
-    let svg_tree = usvg::Tree::from_data(&bytes, &usvg::Options::default()).unwrap();
+pub fn load_svg_from_bytes_uncached(bytes: &[u8]) -> anyhow::Result<(GeomBatch, Bounds)> {
+    let svg_tree = usvg::Tree::from_data(&bytes, &usvg::Options::default())?;
     let mut batch = GeomBatch::new();
     match add_svg_inner(&mut batch, svg_tree, HIGH_QUALITY) {
         Ok(bounds) => Ok((batch, bounds)),
@@ -61,7 +61,7 @@ fn load_svg_from_bytes(bytes: &[u8]) -> anyhow::Result<(GeomBatch, Bounds)> {
 // No offset. I'm not exactly sure how the simplification in usvg works, but this doesn't support
 // transforms or strokes or text, just fills. Luckily, all of the files exported from Figma so far
 // work just fine.
-pub fn add_svg_inner(
+pub(crate) fn add_svg_inner(
     batch: &mut GeomBatch,
     svg_tree: usvg::Tree,
     tolerance: f32,
