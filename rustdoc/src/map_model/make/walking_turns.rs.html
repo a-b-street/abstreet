@@ -516,11 +516,10 @@
 <span id="513">513</span>
 <span id="514">514</span>
 <span id="515">515</span>
-<span id="516">516</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">wraparound_get</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">wraparound_get</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -529,7 +528,7 @@
 };
 
 <span class="doccomment">/// Generate Crosswalk and SharedSidewalkCorner (places where two sidewalks directly meet) turns</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_walking_turns</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_walking_turns</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_footway</span>(<span class="ident">map</span>) {
         <span class="kw">return</span> <span class="ident">make_footway_turns</span>(<span class="ident">map</span>, <span class="ident">i</span>);
     }
@@ -565,7 +564,7 @@
                     <span class="ident">wraparound_get</span>(<span class="kw-2">&amp;</span><span class="ident">roads</span>, (<span class="ident">idx1</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">+</span> <span class="ident">idx_offset</span>).<span class="ident">outgoing_lanes</span>(<span class="ident">i</span>.<span class="ident">id</span>),
                 ) {
                     <span class="kw">if</span> <span class="ident">l1</span>.<span class="ident">last_pt</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">l2</span>.<span class="ident">first_pt</span>() {
-                        <span class="kw">let</span> <span class="ident">geom</span> <span class="op">=</span> <span class="ident">make_shared_sidewalk_corner</span>(<span class="ident">driving_side</span>, <span class="ident">i</span>, <span class="ident">l1</span>, <span class="ident">l2</span>, <span class="ident">timer</span>);
+                        <span class="kw">let</span> <span class="ident">geom</span> <span class="op">=</span> <span class="ident">make_shared_sidewalk_corner</span>(<span class="ident">driving_side</span>, <span class="ident">i</span>, <span class="ident">l1</span>, <span class="ident">l2</span>);
                         <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">Turn</span> {
                             <span class="ident">id</span>: <span class="ident">turn_id</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">l1</span>.<span class="ident">id</span>, <span class="ident">l2</span>.<span class="ident">id</span>),
                             <span class="ident">turn_type</span>: <span class="ident">TurnType</span>::<span class="ident">SharedSidewalkCorner</span>,
@@ -587,7 +586,7 @@
     <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l1</span>) <span class="op">=</span> <span class="ident">get_sidewalk</span>(<span class="ident">lanes</span>, <span class="ident">roads</span>[<span class="number">0</span>].<span class="ident">incoming_lanes</span>(<span class="ident">i</span>.<span class="ident">id</span>)) {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l2</span>) <span class="op">=</span> <span class="ident">get_sidewalk</span>(<span class="ident">lanes</span>, <span class="ident">roads</span>[<span class="number">0</span>].<span class="ident">outgoing_lanes</span>(<span class="ident">i</span>.<span class="ident">id</span>)) {
-                <span class="kw">let</span> <span class="ident">geom</span> <span class="op">=</span> <span class="ident">make_shared_sidewalk_corner</span>(<span class="ident">driving_side</span>, <span class="ident">i</span>, <span class="ident">l1</span>, <span class="ident">l2</span>, <span class="ident">timer</span>);
+                <span class="kw">let</span> <span class="ident">geom</span> <span class="op">=</span> <span class="ident">make_shared_sidewalk_corner</span>(<span class="ident">driving_side</span>, <span class="ident">i</span>, <span class="ident">l1</span>, <span class="ident">l2</span>);
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">Turn</span> {
                     <span class="ident">id</span>: <span class="ident">turn_id</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">l1</span>.<span class="ident">id</span>, <span class="ident">l2</span>.<span class="ident">id</span>),
                     <span class="ident">turn_type</span>: <span class="ident">TurnType</span>::<span class="ident">SharedSidewalkCorner</span>,
@@ -618,7 +617,7 @@
                 <span class="ident">wraparound_get</span>(<span class="kw-2">&amp;</span><span class="ident">roads</span>, (<span class="ident">idx1</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">+</span> <span class="ident">idx_offset</span>).<span class="ident">outgoing_lanes</span>(<span class="ident">i</span>.<span class="ident">id</span>),
             ) {
                 <span class="kw">if</span> <span class="ident">l1</span>.<span class="ident">last_pt</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">l2</span>.<span class="ident">first_pt</span>() {
-                    <span class="kw">let</span> <span class="ident">geom</span> <span class="op">=</span> <span class="ident">make_shared_sidewalk_corner</span>(<span class="ident">driving_side</span>, <span class="ident">i</span>, <span class="ident">l1</span>, <span class="ident">l2</span>, <span class="ident">timer</span>);
+                    <span class="kw">let</span> <span class="ident">geom</span> <span class="op">=</span> <span class="ident">make_shared_sidewalk_corner</span>(<span class="ident">driving_side</span>, <span class="ident">i</span>, <span class="ident">l1</span>, <span class="ident">l2</span>);
                     <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">Turn</span> {
                         <span class="ident">id</span>: <span class="ident">turn_id</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">l1</span>.<span class="ident">id</span>, <span class="ident">l2</span>.<span class="ident">id</span>),
                         <span class="ident">turn_type</span>: <span class="ident">TurnType</span>::<span class="ident">SharedSidewalkCorner</span>,
@@ -686,7 +685,7 @@
 }
 
 <span class="comment">// TODO Need to filter out extraneous crosswalks. Why weren&#39;t they being created before?</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_make_walking_turns_v2</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_make_walking_turns_v2</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">driving_side</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">config</span>.<span class="ident">driving_side</span>;
     <span class="kw">let</span> <span class="ident">all_roads</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">all_roads</span>();
     <span class="kw">let</span> <span class="ident">all_lanes</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>();
@@ -761,7 +760,7 @@
         <span class="kw">if</span> <span class="ident">adj</span> <span class="op">&amp;&amp;</span> <span class="ident">l1</span>.<span class="ident">parent</span> <span class="op">!</span><span class="op">=</span> <span class="ident">l2</span>.<span class="ident">parent</span> {
             <span class="comment">// Because of the order we go, have to swap l1 and l2 here. l1 is the outgoing, l2 the</span>
             <span class="comment">// incoming.</span>
-            <span class="kw">let</span> <span class="ident">geom</span> <span class="op">=</span> <span class="ident">make_shared_sidewalk_corner</span>(<span class="ident">driving_side</span>, <span class="ident">i</span>, <span class="ident">l2</span>, <span class="ident">l1</span>, <span class="ident">timer</span>);
+            <span class="kw">let</span> <span class="ident">geom</span> <span class="op">=</span> <span class="ident">make_shared_sidewalk_corner</span>(<span class="ident">driving_side</span>, <span class="ident">i</span>, <span class="ident">l2</span>, <span class="ident">l1</span>);
             <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">Turn</span> {
                 <span class="ident">id</span>: <span class="ident">turn_id</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">l1</span>.<span class="ident">id</span>, <span class="ident">l2</span>.<span class="ident">id</span>),
                 <span class="ident">turn_type</span>: <span class="ident">TurnType</span>::<span class="ident">SharedSidewalkCorner</span>,
@@ -933,7 +932,6 @@
     <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>,
     <span class="ident">l1</span>: <span class="kw-2">&amp;</span><span class="ident">Lane</span>,
     <span class="ident">l2</span>: <span class="kw-2">&amp;</span><span class="ident">Lane</span>,
-    <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PolyLine</span> {
     <span class="kw">let</span> <span class="ident">baseline</span> <span class="op">=</span> <span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">l1</span>.<span class="ident">last_pt</span>(), <span class="ident">l2</span>.<span class="ident">first_pt</span>()]);
 
@@ -962,22 +960,22 @@
         <span class="ident">deduped</span>.<span class="ident">dedup</span>();
         <span class="kw">if</span> <span class="ident">deduped</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">2</span> {
             <span class="kw">if</span> <span class="ident">abstutil</span>::<span class="ident">contains_duplicates</span>(<span class="kw-2">&amp;</span><span class="ident">deduped</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">pt</span>.<span class="ident">to_hashable</span>()).<span class="ident">collect</span>()) {
-                <span class="ident">timer</span>.<span class="ident">warn</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="macro">warn</span><span class="macro">!</span>(
                     <span class="string">&quot;SharedSidewalkCorner between {} and {} has weird duplicate geometry, so just \
                      doing straight line&quot;</span>,
                     <span class="ident">l1</span>.<span class="ident">id</span>, <span class="ident">l2</span>.<span class="ident">id</span>
-                ));
+                );
                 <span class="kw">return</span> <span class="ident">baseline</span>;
             }
 
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="ident">deduped</span>).<span class="ident">shift_right</span>(<span class="ident">l1</span>.<span class="ident">width</span>.<span class="ident">min</span>(<span class="ident">l2</span>.<span class="ident">width</span>) <span class="op">/</span> <span class="number">2.0</span>) {
                 <span class="ident">pts_between</span>.<span class="ident">extend</span>(<span class="ident">pl</span>.<span class="ident">points</span>());
             } <span class="kw">else</span> {
-                <span class="ident">timer</span>.<span class="ident">warn</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="macro">warn</span><span class="macro">!</span>(
                     <span class="string">&quot;SharedSidewalkCorner between {} and {} has weird collapsing geometry, so \
                      just doing straight line&quot;</span>,
                     <span class="ident">l1</span>.<span class="ident">id</span>, <span class="ident">l2</span>.<span class="ident">id</span>
-                ));
+                );
                 <span class="kw">return</span> <span class="ident">baseline</span>;
             }
         }
@@ -987,10 +985,10 @@
     <span class="comment">// Pretty big smoothing; I&#39;m observing funky backtracking about 0.5m long.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">final_pts</span> <span class="op">=</span> <span class="ident">Pt2D</span>::<span class="ident">approx_dedupe</span>(<span class="ident">pts_between</span>.<span class="ident">clone</span>(), <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.0</span>));
     <span class="kw">if</span> <span class="ident">final_pts</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">2</span> {
-        <span class="ident">timer</span>.<span class="ident">warn</span>(<span class="macro">format</span><span class="macro">!</span>(
+        <span class="macro">warn</span><span class="macro">!</span>(
             <span class="string">&quot;SharedSidewalkCorner between {} and {} couldn&#39;t do final smoothing&quot;</span>,
             <span class="ident">l1</span>.<span class="ident">id</span>, <span class="ident">l2</span>.<span class="ident">id</span>
-        ));
+        );
         <span class="ident">final_pts</span> <span class="op">=</span> <span class="ident">pts_between</span>;
         <span class="ident">final_pts</span>.<span class="ident">dedup</span>()
     }
@@ -1001,22 +999,22 @@
         <span class="ident">final_pts</span>.<span class="ident">push</span>(<span class="ident">l2</span>.<span class="ident">first_pt</span>());
     }
     <span class="kw">if</span> <span class="ident">abstutil</span>::<span class="ident">contains_duplicates</span>(<span class="kw-2">&amp;</span><span class="ident">final_pts</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">pt</span>.<span class="ident">to_hashable</span>()).<span class="ident">collect</span>()) {
-        <span class="ident">timer</span>.<span class="ident">warn</span>(<span class="macro">format</span><span class="macro">!</span>(
+        <span class="macro">warn</span><span class="macro">!</span>(
             <span class="string">&quot;SharedSidewalkCorner between {} and {} has weird duplicate geometry, so just doing \
              straight line&quot;</span>,
             <span class="ident">l1</span>.<span class="ident">id</span>, <span class="ident">l2</span>.<span class="ident">id</span>
-        ));
+        );
         <span class="kw">return</span> <span class="ident">baseline</span>;
     }
     <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="ident">final_pts</span>);
     <span class="kw">if</span> <span class="ident">result</span>.<span class="ident">length</span>() <span class="op">&gt;</span> <span class="number">10.0</span> <span class="op">*</span> <span class="ident">baseline</span>.<span class="ident">length</span>() {
-        <span class="ident">timer</span>.<span class="ident">warn</span>(<span class="macro">format</span><span class="macro">!</span>(
+        <span class="macro">warn</span><span class="macro">!</span>(
             <span class="string">&quot;SharedSidewalkCorner between {} and {} explodes to {} long, so just doing straight \
              line&quot;</span>,
             <span class="ident">l1</span>.<span class="ident">id</span>,
             <span class="ident">l2</span>.<span class="ident">id</span>,
             <span class="ident">result</span>.<span class="ident">length</span>()
-        ));
+        );
         <span class="kw">return</span> <span class="ident">baseline</span>;
     }
     <span class="ident">result</span>

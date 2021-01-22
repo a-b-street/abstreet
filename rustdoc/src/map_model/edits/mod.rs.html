@@ -673,13 +673,6 @@
 <span id="670">670</span>
 <span id="671">671</span>
 <span id="672">672</span>
-<span id="673">673</span>
-<span id="674">674</span>
-<span id="675">675</span>
-<span id="676">676</span>
-<span id="677">677</span>
-<span id="678">678</span>
-<span id="679">679</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Once a Map exists, the player can edit it in the UI (producing `MapEdits` in-memory), then save</span>
 <span class="doccomment">//! the changes to a file (as `PermanentMapEdits`). See</span>
@@ -980,7 +973,7 @@
     }
 
     <span class="comment">// Must be idempotent</span>
-    <span class="kw">fn</span> <span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">effects</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EditEffects</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) {
+    <span class="kw">fn</span> <span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">effects</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EditEffects</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Map</span>) {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">EditCmd</span>::<span class="ident">ChangeRoad</span> { <span class="ident">r</span>, <span class="kw-2">ref</span> <span class="ident">new</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="kw-2">*</span><span class="ident">r</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">new</span>.<span class="ident">clone</span>() {
@@ -1021,7 +1014,7 @@
                         }
                     }
 
-                    <span class="ident">recalculate_turns</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">map</span>, <span class="ident">effects</span>, <span class="ident">timer</span>);
+                    <span class="ident">recalculate_turns</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">map</span>, <span class="ident">effects</span>);
                 }
             }
             <span class="ident">EditCmd</span>::<span class="ident">ChangeIntersection</span> {
@@ -1044,7 +1037,7 @@
                     <span class="ident">EditIntersection</span>::<span class="ident">TrafficSignal</span>(<span class="kw-2">ref</span> <span class="ident">raw_ts</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="ident">map</span>.<span class="ident">intersections</span>[<span class="ident">i</span>.<span class="number">0</span>].<span class="ident">intersection_type</span> <span class="op">=</span> <span class="ident">IntersectionType</span>::<span class="ident">TrafficSignal</span>;
                         <span class="kw">if</span> <span class="ident">old</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">EditIntersection</span>::<span class="ident">Closed</span> {
-                            <span class="ident">recalculate_turns</span>(<span class="kw-2">*</span><span class="ident">i</span>, <span class="ident">map</span>, <span class="ident">effects</span>, <span class="ident">timer</span>);
+                            <span class="ident">recalculate_turns</span>(<span class="kw-2">*</span><span class="ident">i</span>, <span class="ident">map</span>, <span class="ident">effects</span>);
                         }
                         <span class="ident">map</span>.<span class="ident">traffic_signals</span>.<span class="ident">insert</span>(
                             <span class="kw-2">*</span><span class="ident">i</span>,
@@ -1057,7 +1050,7 @@
                 }
 
                 <span class="kw">if</span> <span class="ident">old</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">EditIntersection</span>::<span class="ident">Closed</span> <span class="op">|</span><span class="op">|</span> <span class="ident">new</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">EditIntersection</span>::<span class="ident">Closed</span> {
-                    <span class="ident">recalculate_turns</span>(<span class="kw-2">*</span><span class="ident">i</span>, <span class="ident">map</span>, <span class="ident">effects</span>, <span class="ident">timer</span>);
+                    <span class="ident">recalculate_turns</span>(<span class="kw-2">*</span><span class="ident">i</span>, <span class="ident">map</span>, <span class="ident">effects</span>);
                 }
             }
             <span class="ident">EditCmd</span>::<span class="ident">ChangeRouteSchedule</span> { <span class="ident">id</span>, <span class="ident">new</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
@@ -1090,12 +1083,7 @@
 <span class="comment">// This clobbers previously set traffic signal overrides.</span>
 <span class="comment">// TODO Step 1: Detect and warn about that</span>
 <span class="comment">// TODO Step 2: Avoid when possible</span>
-<span class="kw">fn</span> <span class="ident">recalculate_turns</span>(
-    <span class="ident">id</span>: <span class="ident">IntersectionID</span>,
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Map</span>,
-    <span class="ident">effects</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EditEffects</span>,
-    <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
-) {
+<span class="kw">fn</span> <span class="ident">recalculate_turns</span>(<span class="ident">id</span>: <span class="ident">IntersectionID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Map</span>, <span class="ident">effects</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EditEffects</span>) {
     <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>.<span class="ident">intersections</span>[<span class="ident">id</span>.<span class="number">0</span>];
 
     <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_border</span>() {
@@ -1113,7 +1101,7 @@
         <span class="kw">return</span>;
     }
 
-    <span class="kw">let</span> <span class="ident">turns</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">turns</span>::<span class="ident">make_all_turns</span>(<span class="ident">map</span>, <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>), <span class="ident">timer</span>);
+    <span class="kw">let</span> <span class="ident">turns</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">turns</span>::<span class="ident">make_all_turns</span>(<span class="ident">map</span>, <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>));
     <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>.<span class="ident">intersections</span>[<span class="ident">id</span>.<span class="number">0</span>];
     <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">turns</span> {
         <span class="ident">effects</span>.<span class="ident">added_turns</span>.<span class="ident">insert</span>(<span class="ident">t</span>.<span class="ident">id</span>);
@@ -1135,7 +1123,7 @@
         }
         <span class="ident">IntersectionType</span>::<span class="ident">TrafficSignal</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="ident">map</span>.<span class="ident">traffic_signals</span>
-                .<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">ControlTrafficSignal</span>::<span class="ident">new</span>(<span class="ident">map</span>, <span class="ident">id</span>, <span class="ident">timer</span>));
+                .<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">ControlTrafficSignal</span>::<span class="ident">new</span>(<span class="ident">map</span>, <span class="ident">id</span>));
         }
         <span class="ident">IntersectionType</span>::<span class="ident">Border</span> <span class="op">|</span> <span class="ident">IntersectionType</span>::<span class="ident">Construction</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
     }
@@ -1209,18 +1197,17 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">must_apply_edits</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">new_edits</span>: <span class="ident">MapEdits</span>,
-        <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> (
         <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
         <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TurnID</span><span class="op">&gt;</span>,
         <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TurnID</span><span class="op">&gt;</span>,
         <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
     ) {
-        <span class="self">self</span>.<span class="ident">apply_edits</span>(<span class="ident">new_edits</span>, <span class="bool-val">true</span>, <span class="ident">timer</span>)
+        <span class="self">self</span>.<span class="ident">apply_edits</span>(<span class="ident">new_edits</span>, <span class="bool-val">true</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_apply_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_edits</span>: <span class="ident">MapEdits</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) {
-        <span class="self">self</span>.<span class="ident">apply_edits</span>(<span class="ident">new_edits</span>, <span class="bool-val">false</span>, <span class="ident">timer</span>);
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_apply_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_edits</span>: <span class="ident">MapEdits</span>) {
+        <span class="self">self</span>.<span class="ident">apply_edits</span>(<span class="ident">new_edits</span>, <span class="bool-val">false</span>);
     }
 
     <span class="comment">// new_edits don&#39;t necessarily have to be valid; this could be used for speculatively testing</span>
@@ -1230,7 +1217,6 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="kw-2">mut</span> <span class="ident">new_edits</span>: <span class="ident">MapEdits</span>,
         <span class="ident">enforce_valid</span>: <span class="ident">bool</span>,
-        <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> (
         <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
         <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TurnID</span><span class="op">&gt;</span>,
@@ -1269,12 +1255,12 @@
                 .<span class="ident">pop</span>()
                 .<span class="ident">unwrap</span>()
                 .<span class="ident">undo</span>()
-                .<span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">effects</span>, <span class="self">self</span>, <span class="ident">timer</span>);
+                .<span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">effects</span>, <span class="self">self</span>);
         }
 
         <span class="comment">// Apply new edits.</span>
         <span class="kw">for</span> <span class="ident">cmd</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">new_edits</span>.<span class="ident">commands</span>[<span class="ident">start_at_idx</span>..] {
-            <span class="ident">cmd</span>.<span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">effects</span>, <span class="self">self</span>, <span class="ident">timer</span>);
+            <span class="ident">cmd</span>.<span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">effects</span>, <span class="self">self</span>);
         }
 
         <span class="comment">// Might need to update bus stops.</span>

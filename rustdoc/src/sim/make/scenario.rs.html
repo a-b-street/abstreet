@@ -824,10 +824,10 @@
             }
         }
         <span class="kw">if</span> <span class="ident">blackholed</span> <span class="op">&gt;</span> <span class="number">0</span> {
-            <span class="ident">timer</span>.<span class="ident">warn</span>(<span class="macro">format</span><span class="macro">!</span>(
+            <span class="macro">warn</span><span class="macro">!</span>(
                 <span class="string">&quot;{} parked cars weren&#39;t seeded, due to blackholed buildings&quot;</span>,
                 <span class="ident">prettyprint_usize</span>(<span class="ident">blackholed</span>)
-            ));
+            );
         }
         <span class="kw">return</span>;
     }
@@ -872,11 +872,11 @@
             <span class="ident">seeded</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             <span class="ident">sim</span>.<span class="ident">seed_parked_car</span>(<span class="ident">vehicle</span>, <span class="ident">spot</span>);
         } <span class="kw">else</span> {
-            <span class="ident">timer</span>.<span class="ident">warn</span>(<span class="macro">format</span><span class="macro">!</span>(
+            <span class="macro">warn</span><span class="macro">!</span>(
                 <span class="string">&quot;Not enough room to seed parked cars. Only found spots for {} of {}&quot;</span>,
                 <span class="ident">prettyprint_usize</span>(<span class="ident">seeded</span>),
                 <span class="ident">prettyprint_usize</span>(<span class="ident">total_cars</span>)
-            ));
+            );
             <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">false</span>;
         }
     }

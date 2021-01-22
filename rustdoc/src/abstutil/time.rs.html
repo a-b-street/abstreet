@@ -555,61 +555,6 @@
 <span id="552">552</span>
 <span id="553">553</span>
 <span id="554">554</span>
-<span id="555">555</span>
-<span id="556">556</span>
-<span id="557">557</span>
-<span id="558">558</span>
-<span id="559">559</span>
-<span id="560">560</span>
-<span id="561">561</span>
-<span id="562">562</span>
-<span id="563">563</span>
-<span id="564">564</span>
-<span id="565">565</span>
-<span id="566">566</span>
-<span id="567">567</span>
-<span id="568">568</span>
-<span id="569">569</span>
-<span id="570">570</span>
-<span id="571">571</span>
-<span id="572">572</span>
-<span id="573">573</span>
-<span id="574">574</span>
-<span id="575">575</span>
-<span id="576">576</span>
-<span id="577">577</span>
-<span id="578">578</span>
-<span id="579">579</span>
-<span id="580">580</span>
-<span id="581">581</span>
-<span id="582">582</span>
-<span id="583">583</span>
-<span id="584">584</span>
-<span id="585">585</span>
-<span id="586">586</span>
-<span id="587">587</span>
-<span id="588">588</span>
-<span id="589">589</span>
-<span id="590">590</span>
-<span id="591">591</span>
-<span id="592">592</span>
-<span id="593">593</span>
-<span id="594">594</span>
-<span id="595">595</span>
-<span id="596">596</span>
-<span id="597">597</span>
-<span id="598">598</span>
-<span id="599">599</span>
-<span id="600">600</span>
-<span id="601">601</span>
-<span id="602">602</span>
-<span id="603">603</span>
-<span id="604">604</span>
-<span id="605">605</span>
-<span id="606">606</span>
-<span id="607">607</span>
-<span id="608">608</span>
-<span id="609">609</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::{<span class="ident">stdout</span>, <span class="ident">BufReader</span>, <span class="ident">ErrorKind</span>, <span class="ident">Read</span>, <span class="ident">Write</span>};
@@ -726,10 +671,6 @@
 
     <span class="ident">outermost_name</span>: <span class="ident">String</span>,
 
-    <span class="ident">notes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">warnings</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">errors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-
     <span class="ident">sink</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">TimerSink</span> <span class="op">+</span> <span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
@@ -754,9 +695,6 @@
             <span class="ident">results</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
             <span class="ident">stack</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
             <span class="ident">outermost_name</span>: <span class="ident">name</span>.<span class="ident">clone</span>(),
-            <span class="ident">notes</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
-            <span class="ident">warnings</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
-            <span class="ident">errors</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
             <span class="ident">sink</span>: <span class="prelude-val">None</span>,
         };
         <span class="ident">t</span>.<span class="ident">start</span>(<span class="ident">name</span>);
@@ -791,26 +729,6 @@
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">sink</span>) <span class="op">=</span> <span class="ident">maybe_sink</span> {
             <span class="ident">sink</span>.<span class="ident">println</span>(<span class="ident">line</span>);
         }
-    }
-
-    <span class="doccomment">/// Log immediately, but also repeat at the end, to avoid having to scroll up and find</span>
-    <span class="doccomment">/// interesting debug stuff.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">note</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">line</span>: <span class="ident">String</span>) {
-        <span class="comment">// Interrupt the start_iter with a newline.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">StackEntry</span>::<span class="ident">Progress</span>(<span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">stack</span>.<span class="ident">last</span>() {
-            <span class="self">self</span>.<span class="ident">println</span>(<span class="ident">String</span>::<span class="ident">new</span>());
-        }
-
-        <span class="self">self</span>.<span class="ident">println</span>(<span class="ident">line</span>.<span class="ident">clone</span>());
-        <span class="self">self</span>.<span class="ident">notes</span>.<span class="ident">push</span>(<span class="ident">line</span>);
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">warn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">line</span>: <span class="ident">String</span>) {
-        <span class="self">self</span>.<span class="ident">warnings</span>.<span class="ident">push</span>(<span class="ident">line</span>);
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">error</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">line</span>: <span class="ident">String</span>) {
-        <span class="self">self</span>.<span class="ident">errors</span>.<span class="ident">push</span>(<span class="ident">line</span>);
     }
 
     <span class="doccomment">/// Used to end the scope of a timer early.</span>
@@ -1057,34 +975,6 @@
         <span class="kw">for</span> <span class="ident">line</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">results</span> {
             <span class="ident">Timer</span>::<span class="ident">selfless_println</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">sink</span>, <span class="ident">line</span>.<span class="ident">to_string</span>());
         }
-        <span class="self">self</span>.<span class="ident">println</span>(<span class="ident">String</span>::<span class="ident">new</span>());
-
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">notes</span>.<span class="ident">is_empty</span>() {
-            <span class="self">self</span>.<span class="ident">println</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} notes:&quot;</span>, <span class="self">self</span>.<span class="ident">notes</span>.<span class="ident">len</span>()));
-            <span class="kw">for</span> <span class="ident">line</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">notes</span> {
-                <span class="ident">Timer</span>::<span class="ident">selfless_println</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">sink</span>, <span class="ident">line</span>.<span class="ident">to_string</span>());
-            }
-            <span class="self">self</span>.<span class="ident">println</span>(<span class="ident">String</span>::<span class="ident">new</span>());
-        }
-
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">warnings</span>.<span class="ident">is_empty</span>() {
-            <span class="self">self</span>.<span class="ident">println</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} warnings:&quot;</span>, <span class="self">self</span>.<span class="ident">warnings</span>.<span class="ident">len</span>()));
-            <span class="kw">for</span> <span class="ident">line</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">warnings</span> {
-                <span class="ident">Timer</span>::<span class="ident">selfless_println</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">sink</span>, <span class="ident">line</span>.<span class="ident">to_string</span>());
-            }
-            <span class="self">self</span>.<span class="ident">println</span>(<span class="ident">String</span>::<span class="ident">new</span>());
-        }
-
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">errors</span>.<span class="ident">is_empty</span>() {
-            <span class="self">self</span>.<span class="ident">println</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;***** {} errors: *****&quot;</span>, <span class="self">self</span>.<span class="ident">errors</span>.<span class="ident">len</span>()));
-            <span class="kw">for</span> <span class="ident">line</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">errors</span> {
-                <span class="ident">Timer</span>::<span class="ident">selfless_println</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">sink</span>, <span class="ident">line</span>.<span class="ident">to_string</span>());
-            }
-            <span class="self">self</span>.<span class="ident">println</span>(<span class="ident">String</span>::<span class="ident">new</span>());
-        }
-
-        <span class="comment">// In case of lots of notes and warnings, repeat the overall timing.</span>
-        <span class="ident">Timer</span>::<span class="ident">selfless_println</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">sink</span>, <span class="self">self</span>.<span class="ident">results</span>[<span class="number">0</span>].<span class="ident">clone</span>());
 
         <span class="kw">if</span> <span class="ident">std</span>::<span class="ident">thread</span>::<span class="ident">panicking</span>() {
             <span class="self">self</span>.<span class="ident">println</span>(<span class="ident">String</span>::<span class="ident">new</span>());

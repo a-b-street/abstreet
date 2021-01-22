@@ -907,9 +907,7 @@ A/B Street are just strings anyway; the <code>bail!</code> macro is a convenient
 return them.</p>
 <h2><a class="header" href="#logging" id="logging">Logging</a></h2>
 <p>Prefer using <code>info!</code>, <code>warn!</code>, <code>error!</code>, etc from the <code>log</code> crate rather than
-<code>println</code>. Or if a <code>Timer</code> is available and you want to collect all notes
-together, <code>timer.note</code>. There are still many places calling <code>println!</code>, but
-we're trying to clean these up.</p>
+<code>println</code>.</p>
 <p>Adjust the log level without recompiling via the <code>RUST_LOG</code> env variable.</p>
 <pre><code>RUST_LOG=debug cargo run --bin game
 </code></pre>

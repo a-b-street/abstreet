@@ -1204,7 +1204,7 @@
         }
 
         <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;https://api.openstreetmap.org/api/0.6/way/{}&quot;</span>, <span class="ident">way</span>.<span class="number">0</span>);
-        <span class="ident">timer</span>.<span class="ident">note</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Fetching {}&quot;</span>, <span class="ident">url</span>));
+        <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;Fetching {}&quot;</span>, <span class="ident">url</span>);
         <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">reqwest</span>::<span class="ident">blocking</span>::<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)<span class="question-mark">?</span>.<span class="ident">text</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tree</span> <span class="op">=</span> <span class="ident">xmltree</span>::<span class="ident">Element</span>::<span class="ident">parse</span>(<span class="ident">resp</span>.<span class="ident">as_bytes</span>())<span class="question-mark">?</span>
             .<span class="ident">take_child</span>(<span class="string">&quot;way&quot;</span>)
@@ -1279,7 +1279,7 @@
         <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;  {}&quot;</span>, <span class="ident">w</span>)<span class="question-mark">?</span>;
     }
     <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;/modify&gt;&lt;/osmChange&gt;&quot;</span>)<span class="question-mark">?</span>;
-    <span class="ident">timer</span>.<span class="ident">note</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Wrote diff.osc&quot;</span>));
+    <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;Wrote diff.osc&quot;</span>);
     <span class="prelude-val">Ok</span>(())
 }
 

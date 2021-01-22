@@ -129,7 +129,7 @@
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">SimOptions</span>::<span class="ident">new</span>(<span class="string">&quot;prebaked&quot;</span>);
     <span class="ident">opts</span>.<span class="ident">alerts</span> <span class="op">=</span> <span class="ident">AlertHandler</span>::<span class="ident">Silence</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">Sim</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">opts</span>, <span class="ident">timer</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">Sim</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">opts</span>);
     <span class="comment">// Bit of an abuse of this, but just need to fix the rng seed.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">SimFlags</span>::<span class="ident">for_test</span>(<span class="string">&quot;prebaked&quot;</span>).<span class="ident">make_rng</span>();
     <span class="ident">scenario</span>.<span class="ident">instantiate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">sim</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>, <span class="ident">timer</span>);
@@ -149,7 +149,7 @@
         <span class="ident">sim</span>.<span class="ident">get_analytics</span>(),
     );
     <span class="kw">let</span> <span class="ident">agents_left</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">num_agents</span>().<span class="ident">sum</span>();
-    <span class="ident">timer</span>.<span class="ident">note</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} agents left by end of day&quot;</span>, <span class="ident">agents_left</span>));
+    <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;{} agents left by end of day&quot;</span>, <span class="ident">agents_left</span>);
     <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format</span><span class="macro">!</span>(
         <span class="string">&quot;prebake for {} / {}&quot;</span>,
         <span class="ident">scenario</span>.<span class="ident">map_name</span>.<span class="ident">describe</span>(),

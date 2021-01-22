@@ -70,9 +70,6 @@
 <span id="67">67</span>
 <span id="68">68</span>
 <span id="69">69</span>
-<span id="70">70</span>
-<span id="71">71</span>
-<span id="72">72</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -126,10 +123,7 @@
     <span class="ident">partitions</span>.<span class="ident">reverse</span>();
     <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">partitions</span>.<span class="ident">iter</span>().<span class="ident">skip</span>(<span class="number">1</span>) {
         <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">p</span> {
-            <span class="ident">timer</span>.<span class="ident">note</span>(<span class="macro">format</span><span class="macro">!</span>(
-                <span class="string">&quot;Removing {} because it&#39;s disconnected from most roads&quot;</span>,
-                <span class="ident">id</span>
-            ));
+            <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;Removing {} because it&#39;s disconnected from most roads&quot;</span>, <span class="ident">id</span>);
             <span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">remove</span>(<span class="ident">id</span>).<span class="ident">unwrap</span>();
             <span class="ident">next_roads</span>.<span class="ident">remove</span>(<span class="ident">id</span>.<span class="ident">i1</span>, <span class="kw-2">*</span><span class="ident">id</span>);
             <span class="ident">next_roads</span>.<span class="ident">remove</span>(<span class="ident">id</span>.<span class="ident">i2</span>, <span class="kw-2">*</span><span class="ident">id</span>);

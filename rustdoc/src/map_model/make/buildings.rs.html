@@ -312,10 +312,10 @@
             <span class="kw">let</span> <span class="ident">sidewalk_line</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">Line</span>::<span class="ident">new</span>(<span class="ident">bldg_center</span>.<span class="ident">to_pt2d</span>(), <span class="ident">sidewalk_pos</span>.<span class="ident">pt</span>(<span class="ident">map</span>)) {
                 <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">trim_path</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">polygon</span>, <span class="ident">l</span>),
                 <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">timer</span>.<span class="ident">warn</span>(<span class="macro">format</span><span class="macro">!</span>(
+                    <span class="macro">warn</span><span class="macro">!</span>(
                         <span class="string">&quot;Skipping building {} because front path has 0 length&quot;</span>,
                         <span class="ident">orig_id</span>
-                    ));
+                    );
                     <span class="kw">continue</span>;
                 }
             };
@@ -377,10 +377,10 @@
         }
     }
 
-    <span class="ident">timer</span>.<span class="ident">note</span>(<span class="macro">format</span><span class="macro">!</span>(
+    <span class="macro">info</span><span class="macro">!</span>(
         <span class="string">&quot;Discarded {} buildings that weren&#39;t close enough to a sidewalk&quot;</span>,
         <span class="ident">input</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">results</span>.<span class="ident">len</span>()
-    ));
+    );
     <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;convert buildings&quot;</span>);
 
     <span class="ident">results</span>

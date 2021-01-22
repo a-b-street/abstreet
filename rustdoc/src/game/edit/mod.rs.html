@@ -901,8 +901,6 @@
 <span id="898">898</span>
 <span id="899">899</span>
 <span id="900">900</span>
-<span id="901">901</span>
-<span id="902">902</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -1392,9 +1390,7 @@
                 <span class="string">&quot;Save&quot;</span> <span class="op">|</span> <span class="string">&quot;Overwrite existing proposal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
                     <span class="ident">edits</span>.<span class="ident">edits_name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">current_name</span>.<span class="ident">clone</span>();
-                    <span class="ident">app</span>.<span class="ident">primary</span>
-                        .<span class="ident">map</span>
-                        .<span class="ident">must_apply_edits</span>(<span class="ident">edits</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;name map edits&quot;</span>));
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">must_apply_edits</span>(<span class="ident">edits</span>);
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">save_edits</span>();
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">reset</span> {
                         <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">new_edits</span>());
@@ -1578,7 +1574,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;apply map edits&quot;</span>);
 
     <span class="kw">let</span> (<span class="ident">roads_changed</span>, <span class="ident">turns_deleted</span>, <span class="ident">turns_added</span>, <span class="kw-2">mut</span> <span class="ident">modified_intersections</span>) <span class="op">=</span>
-        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">must_apply_edits</span>(<span class="ident">edits</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
+        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">must_apply_edits</span>(<span class="ident">edits</span>);
 
     <span class="kw">if</span> <span class="op">!</span><span class="ident">roads_changed</span>.<span class="ident">is_empty</span>() <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">modified_intersections</span>.<span class="ident">is_empty</span>() {
         <span class="ident">app</span>.<span class="ident">primary</span>

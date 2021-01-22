@@ -347,11 +347,11 @@
             .<span class="ident">cloned</span>()
             .<span class="ident">collect</span>();
         <span class="kw">if</span> <span class="ident">via_candidates</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">1</span> {
-            <span class="ident">timer</span>.<span class="ident">warn</span>(<span class="macro">format</span><span class="macro">!</span>(
+            <span class="macro">warn</span><span class="macro">!</span>(
                 <span class="string">&quot;Couldn&#39;t resolve turn restriction from way {} to way {} via way {}. Candidate \
                  roads for via: {:?}. See {}&quot;</span>,
                 <span class="ident">from_osm</span>, <span class="ident">to_osm</span>, <span class="ident">via_osm</span>, <span class="ident">via_candidates</span>, <span class="ident">rel_osm</span>
-            ));
+            );
             <span class="kw">continue</span>;
         }
         <span class="kw">let</span> <span class="ident">via</span> <span class="op">=</span> <span class="ident">via_candidates</span>[<span class="number">0</span>];
@@ -371,10 +371,10 @@
                 <span class="ident">complicated_restrictions</span>.<span class="ident">push</span>((<span class="ident">from</span>, <span class="ident">via</span>, <span class="ident">to</span>));
             }
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">timer</span>.<span class="ident">warn</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="macro">warn</span><span class="macro">!</span>(
                     <span class="string">&quot;Couldn&#39;t resolve turn restriction from {} to {} via {:?}&quot;</span>,
                     <span class="ident">from_osm</span>, <span class="ident">to_osm</span>, <span class="ident">via</span>
-                ));
+                );
             }
         }
     }

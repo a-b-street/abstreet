@@ -573,17 +573,6 @@
 <span id="570">570</span>
 <span id="571">571</span>
 <span id="572">572</span>
-<span id="573">573</span>
-<span id="574">574</span>
-<span id="575">575</span>
-<span id="576">576</span>
-<span id="577">577</span>
-<span id="578">578</span>
-<span id="579">579</span>
-<span id="580">580</span>
-<span id="581">581</span>
-<span id="582">582</span>
-<span id="583">583</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>};
 
@@ -788,12 +777,9 @@
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">area_type</span>) <span class="op">=</span> <span class="ident">get_area_type</span>(<span class="kw-2">&amp;</span><span class="ident">rel</span>.<span class="ident">tags</span>) {
             <span class="kw">if</span> <span class="ident">rel</span>.<span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;type&quot;</span>, <span class="string">&quot;multipolygon&quot;</span>) {
-                <span class="kw">for</span> <span class="ident">polygon</span> <span class="kw">in</span> <span class="ident">glue_multipolygon</span>(
-                    <span class="ident">id</span>,
-                    <span class="ident">get_multipolygon_members</span>(<span class="ident">id</span>, <span class="ident">rel</span>, <span class="kw-2">&amp;</span><span class="ident">doc</span>),
-                    <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">boundary</span>),
-                    <span class="ident">timer</span>,
-                ) {
+                <span class="kw">for</span> <span class="ident">polygon</span> <span class="kw">in</span>
+                    <span class="ident">glue_multipolygon</span>(<span class="ident">id</span>, <span class="ident">get_multipolygon_members</span>(<span class="ident">id</span>, <span class="ident">rel</span>, <span class="kw-2">&amp;</span><span class="ident">doc</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">boundary</span>))
+                {
                     <span class="ident">map</span>.<span class="ident">areas</span>.<span class="ident">push</span>(<span class="ident">RawArea</span> {
                         <span class="ident">area_type</span>,
                         <span class="ident">osm_id</span>: <span class="ident">OsmID</span>::<span class="ident">Relation</span>(<span class="ident">id</span>),
@@ -839,11 +825,11 @@
                         <span class="kw">if</span> <span class="ident">rt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">RestrictionType</span>::<span class="ident">BanTurns</span> {
                             <span class="ident">out</span>.<span class="ident">complicated_turn_restrictions</span>.<span class="ident">push</span>((<span class="ident">id</span>, <span class="ident">from</span>, <span class="ident">via</span>, <span class="ident">to</span>));
                         } <span class="kw">else</span> {
-                            <span class="ident">timer</span>.<span class="ident">warn</span>(<span class="macro">format</span><span class="macro">!</span>(
+                            <span class="macro">warn</span><span class="macro">!</span>(
                                 <span class="string">&quot;Weird complicated turn restriction \&quot;{}\&quot; from {} to {} via {}: \
                                  {}&quot;</span>,
                                 <span class="ident">restriction</span>, <span class="ident">from</span>, <span class="ident">to</span>, <span class="ident">via</span>, <span class="ident">id</span>
-                            ));
+                            );
                         }
                     }
                 }
@@ -865,12 +851,9 @@
                 <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Skipping building {}: {}&quot;</span>, <span class="ident">id</span>, <span class="ident">err</span>),
             }
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">rel</span>.<span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;amenity&quot;</span>, <span class="string">&quot;parking&quot;</span>) {
-            <span class="kw">for</span> <span class="ident">polygon</span> <span class="kw">in</span> <span class="ident">glue_multipolygon</span>(
-                <span class="ident">id</span>,
-                <span class="ident">get_multipolygon_members</span>(<span class="ident">id</span>, <span class="ident">rel</span>, <span class="kw-2">&amp;</span><span class="ident">doc</span>),
-                <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">boundary</span>),
-                <span class="ident">timer</span>,
-            ) {
+            <span class="kw">for</span> <span class="ident">polygon</span> <span class="kw">in</span>
+                <span class="ident">glue_multipolygon</span>(<span class="ident">id</span>, <span class="ident">get_multipolygon_members</span>(<span class="ident">id</span>, <span class="ident">rel</span>, <span class="kw-2">&amp;</span><span class="ident">doc</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">boundary</span>))
+            {
                 <span class="ident">map</span>.<span class="ident">parking_lots</span>.<span class="ident">push</span>(<span class="ident">RawParkingLot</span> {
                     <span class="ident">osm_id</span>: <span class="ident">OsmID</span>::<span class="ident">Relation</span>(<span class="ident">id</span>),
                     <span class="ident">polygon</span>,
@@ -878,13 +861,8 @@
                 });
             }
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">rel</span>.<span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;type&quot;</span>, <span class="string">&quot;route&quot;</span>) {
-            <span class="ident">map</span>.<span class="ident">bus_routes</span>.<span class="ident">extend</span>(<span class="ident">transit</span>::<span class="ident">extract_route</span>(
-                <span class="ident">id</span>,
-                <span class="ident">rel</span>,
-                <span class="kw-2">&amp;</span><span class="ident">doc</span>,
-                <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">boundary_polygon</span>,
-                <span class="ident">timer</span>,
-            ));
+            <span class="ident">map</span>.<span class="ident">bus_routes</span>
+                .<span class="ident">extend</span>(<span class="ident">transit</span>::<span class="ident">extract_route</span>(<span class="ident">id</span>, <span class="ident">rel</span>, <span class="kw-2">&amp;</span><span class="ident">doc</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">boundary_polygon</span>));
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">rel</span>.<span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;type&quot;</span>, <span class="string">&quot;multipolygon&quot;</span>) <span class="op">&amp;&amp;</span> <span class="ident">rel</span>.<span class="ident">tags</span>.<span class="ident">contains_key</span>(<span class="string">&quot;amenity&quot;</span>) {
             <span class="kw">let</span> <span class="ident">amenity</span> <span class="op">=</span> <span class="ident">Amenity</span> {
                 <span class="ident">names</span>: <span class="ident">NamePerLanguage</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">rel</span>.<span class="ident">tags</span>).<span class="ident">unwrap_or_else</span>(<span class="ident">NamePerLanguage</span>::<span class="ident">unnamed</span>),
@@ -928,7 +906,7 @@
 
     <span class="comment">// Special case the coastline.</span>
     <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{} ways of coastline&quot;</span>, <span class="ident">coastline_groups</span>.<span class="ident">len</span>());
-    <span class="kw">for</span> <span class="ident">polygon</span> <span class="kw">in</span> <span class="ident">glue_multipolygon</span>(<span class="ident">RelationID</span>(<span class="op">-</span><span class="number">1</span>), <span class="ident">coastline_groups</span>, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">boundary</span>), <span class="ident">timer</span>) {
+    <span class="kw">for</span> <span class="ident">polygon</span> <span class="kw">in</span> <span class="ident">glue_multipolygon</span>(<span class="ident">RelationID</span>(<span class="op">-</span><span class="number">1</span>), <span class="ident">coastline_groups</span>, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">boundary</span>)) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">osm_tags</span> <span class="op">=</span> <span class="ident">Tags</span>::<span class="ident">new</span>(<span class="ident">BTreeMap</span>::<span class="ident">new</span>());
         <span class="ident">osm_tags</span>.<span class="ident">insert</span>(<span class="string">&quot;water&quot;</span>, <span class="string">&quot;ocean&quot;</span>);
         <span class="comment">// Put it at the beginning, so that it&#39;s naturally beneath island areas</span>
