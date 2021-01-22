@@ -63,11 +63,10 @@ impl CutsceneBuilder {
     pub fn build(
         self,
         ctx: &mut EventCtx,
-        app: &App,
         make_task: Box<dyn Fn(&mut EventCtx) -> Widget>,
     ) -> Box<dyn State<App>> {
         Box::new(CutscenePlayer {
-            panel: make_panel(ctx, app, &self.name, &self.scenes, &make_task, 0),
+            panel: make_panel(ctx, &self.name, &self.scenes, &make_task, 0),
             name: self.name,
             scenes: self.scenes,
             idx: 0,
@@ -96,36 +95,18 @@ impl State<App> for CutscenePlayer {
                 }
                 "back" => {
                     self.idx -= 1;
-                    self.panel = make_panel(
-                        ctx,
-                        app,
-                        &self.name,
-                        &self.scenes,
-                        &self.make_task,
-                        self.idx,
-                    );
+                    self.panel =
+                        make_panel(ctx, &self.name, &self.scenes, &self.make_task, self.idx);
                 }
                 "next" => {
                     self.idx += 1;
-                    self.panel = make_panel(
-                        ctx,
-                        app,
-                        &self.name,
-                        &self.scenes,
-                        &self.make_task,
-                        self.idx,
-                    );
+                    self.panel =
+                        make_panel(ctx, &self.name, &self.scenes, &self.make_task, self.idx);
                 }
                 "Skip cutscene" => {
                     self.idx = self.scenes.len();
-                    self.panel = make_panel(
-                        ctx,
-                        app,
-                        &self.name,
-                        &self.scenes,
-                        &self.make_task,
-                        self.idx,
-                    );
+                    self.panel =
+                        make_panel(ctx, &self.name, &self.scenes, &self.make_task, self.idx);
                 }
                 "Start" => {
                     return Transition::Pop;
@@ -136,14 +117,7 @@ impl State<App> for CutscenePlayer {
         }
         // TODO Should the Panel for text widgets with wrapping do this instead?
         if ctx.input.is_window_resized() {
-            self.panel = make_panel(
-                ctx,
-                app,
-                &self.name,
-                &self.scenes,
-                &self.make_task,
-                self.idx,
-            );
+            self.panel = make_panel(ctx, &self.name, &self.scenes, &self.make_task, self.idx);
         }
 
         Transition::Keep
@@ -162,14 +136,13 @@ impl State<App> for CutscenePlayer {
 
 fn make_panel(
     ctx: &mut EventCtx,
-    app: &App,
     name: &str,
     scenes: &Vec<Scene>,
     make_task: &Box<dyn Fn(&mut EventCtx) -> Widget>,
     idx: usize,
 ) -> Panel {
-    let prev = app
-        .cs
+    let prev = ctx
+        .style()
         .btn_plain_dark_icon("system/assets/tools/circled_prev.svg")
         .image_dims(45.0)
         .hotkey(Key::LeftArrow)
@@ -177,8 +150,8 @@ fn make_panel(
         .disabled(idx == 0)
         .build_widget(ctx, "back");
 
-    let next = app
-        .cs
+    let next = ctx
+        .style()
         .btn_plain_dark_icon("system/assets/tools/circled_next.svg")
         .image_dims(45.0)
         .hotkey(hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]))
@@ -187,7 +160,7 @@ fn make_panel(
     let inner = if idx == scenes.len() {
         Widget::custom_col(vec![
             (make_task)(ctx),
-            app.cs
+            ctx.style()
                 .btn_primary_light_text("Start")
                 .hotkey(Key::Enter)
                 .build_def(ctx)
@@ -246,7 +219,7 @@ fn make_panel(
             .margin_above(100),
             Widget::col(vec![
                 Widget::row(vec![prev.margin_right(40), next]).centered_horiz(),
-                app.cs
+                ctx.style()
                     .btn_secondary_dark_text("Skip cutscene")
                     .build_def(ctx)
                     .centered_horiz(),
@@ -258,7 +231,7 @@ fn make_panel(
     let col = vec![
         // TODO Can't get this to alignment to work
         Widget::custom_row(vec![
-            app.cs
+            ctx.style()
                 .btn_back_light("Home")
                 .build_widget(ctx, "quit")
                 .margin_right(100),

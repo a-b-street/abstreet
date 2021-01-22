@@ -1,8 +1,7 @@
-use map_gui::theme::StyledButtons;
 use map_gui::tools::{MinimapControls, Navigator};
 use widgetry::{
-    ControlState, EventCtx, GfxCtx, HorizontalAlignment, Key, Panel, ScreenDims, VerticalAlignment,
-    Widget,
+    ControlState, EventCtx, GfxCtx, HorizontalAlignment, Key, Panel, ScreenDims, StyledButtons,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -98,8 +97,8 @@ impl MinimapControls<App> for MinimapController {
 }
 
 fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {
-    let buttons = app
-        .cs
+    let buttons = ctx
+        .style()
         .btn_primary_light()
         .image_dims(ScreenDims::square(20.0))
         // the default transparent button background is jarring for these buttons which are floating

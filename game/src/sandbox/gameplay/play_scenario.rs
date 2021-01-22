@@ -2,12 +2,11 @@ use std::collections::BTreeSet;
 
 use maplit::btreeset;
 
-use map_gui::theme::StyledButtons;
 use map_gui::tools::{grey_out_map, nice_map_name, ChooseSomething, CityPicker, PopupMsg};
 use sim::{ScenarioModifier, TripMode};
 use widgetry::{
     lctrl, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Slider,
-    Spinner, State, Text, TextExt, VerticalAlignment, Widget,
+    Spinner, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -116,16 +115,16 @@ impl GameplayState for PlayScenario {
                 Line("Sandbox").small_heading().draw(ctx),
                 Widget::vert_separator(ctx, 50.0),
                 "Map:".draw_text(ctx),
-                app.cs
+                ctx.style()
                     .btn_popup_light(nice_map_name(app.primary.map.get_name()))
                     .hotkey(lctrl(Key::L))
                     .build_widget(ctx, "change map"),
                 "Scenario:".draw_text(ctx),
-                app.cs
+                ctx.style()
                     .btn_popup_light(&self.scenario_name)
                     .hotkey(Key::S)
                     .build_widget(ctx, "change scenario"),
-                app.cs
+                ctx.style()
                     .btn_secondary_light_icon_text("system/assets/tools/pencil.svg", "Edit map")
                     .hotkey(lctrl(Key::E))
                     .build_widget(ctx, "edit map"),
@@ -133,7 +132,7 @@ impl GameplayState for PlayScenario {
             .centered(),
             if self.scenario_name != "empty" {
                 Widget::row(vec![
-                    app.cs
+                    ctx.style()
                         .btn_primary_light_icon("system/assets/tools/pencil.svg")
                         .build_widget(ctx, "edit traffic patterns")
                         .centered_vert(),

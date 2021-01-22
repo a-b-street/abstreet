@@ -6,7 +6,8 @@ use map_model::{IntersectionID, Map, RoadID};
 use sim::{AgentType, TripMode, TripPhaseType};
 use widgetry::{
     lctrl, Checkbox, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel,
-    ScreenDims, ScreenPt, ScreenRectangle, Text, TextSpan, VerticalAlignment, Widget,
+    ScreenDims, ScreenPt, ScreenRectangle, StyledButtons, Text, TextSpan, VerticalAlignment,
+    Widget,
 };
 
 pub use self::minimap::MinimapController;
@@ -14,7 +15,6 @@ pub use self::warp::Warping;
 use crate::app::App;
 use crate::app::Transition;
 use crate::info::{ContextualActions, InfoPanel, Tab};
-use map_gui::theme::StyledButtons;
 
 mod minimap;
 mod warp;
@@ -289,13 +289,13 @@ impl CommonState {
 }
 
 // TODO Kinda misnomer
-pub fn tool_panel(ctx: &mut EventCtx, app: &App) -> Panel {
+pub fn tool_panel(ctx: &mut EventCtx) -> Panel {
     Panel::new(Widget::row(vec![
-        app.cs
+        ctx.style()
             .btn_plain_light_icon("system/assets/tools/home.svg")
             .hotkey(Key::Escape)
             .build_widget(ctx, "back"),
-        app.cs
+        ctx.style()
             .btn_plain_light_icon("system/assets/tools/settings.svg")
             .build_widget(ctx, "settings"),
     ]))

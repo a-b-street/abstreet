@@ -1,11 +1,11 @@
 use geom::{Duration, Polygon, Time};
-use map_gui::theme::StyledButtons;
 use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use sim::AlertLocation;
 use widgetry::{
     Choice, Color, ControlState, EdgeInsets, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Panel, PersistentSplit, ScreenDims, Text, VerticalAlignment, Widget,
+    Line, Outcome, Panel, PersistentSplit, ScreenDims, StyledButtons, Text, VerticalAlignment,
+    Widget,
 };
 
 use crate::app::{App, Transition};
@@ -46,8 +46,8 @@ impl SpeedControls {
     pub fn recreate_panel(&mut self, ctx: &mut EventCtx, app: &App) {
         let mut row = Vec::new();
         row.push({
-            let button = app
-                .cs
+            let button = ctx
+                .style()
                 .btn_primary_light_icon("system/assets/speed/triangle.svg")
                 .hotkey(Key::Space);
 
@@ -75,13 +75,13 @@ impl SpeedControls {
                     txt.extend(Text::tooltip(ctx, Key::LeftArrow, "slow down"));
                     txt.extend(Text::tooltip(ctx, Key::RightArrow, "speed up"));
 
-                    let mut triangle_btn = app
-                        .cs
+                    let mut triangle_btn = ctx
+                        .style()
                         .btn_plain_light()
                         .image_path("system/assets/speed/triangle.svg")
                         .image_dims(ScreenDims::new(16.0, 26.0))
                         .bg_color(
-                            app.cs.gui_style.btn_primary_light.bg_hover,
+                            ctx.style().btn_primary_light.bg_hover,
                             ControlState::Hovered,
                         )
                         .tooltip(txt)
@@ -101,7 +101,7 @@ impl SpeedControls {
 
                     if self.setting < s {
                         triangle_btn = triangle_btn.image_color(
-                            app.cs.gui_style.btn_secondary_light.fg_disabled,
+                            ctx.style().btn_secondary_light.fg_disabled,
                             ControlState::Default,
                         )
                     }
@@ -111,8 +111,8 @@ impl SpeedControls {
                 .collect(),
             )
             // Inner buttons, styled as one composite button w/ background/border
-            .bg(app.cs.gui_style.btn_primary_light.bg)
-            .outline(2.0, app.cs.gui_style.btn_primary_light.outline)
+            .bg(ctx.style().btn_primary_light.bg)
+            .outline(2.0, ctx.style().btn_primary_light.outline)
             .margin_right(16),
         );
 
@@ -134,11 +134,11 @@ impl SpeedControls {
 
         row.push(
             {
-                let buttons = app
-                    .cs
+                let buttons = ctx
+                    .style()
                     .btn_plain_light()
                     .bg_color(
-                        app.cs.gui_style.btn_primary_light.bg_hover,
+                        ctx.style().btn_primary_light.bg_hover,
                         ControlState::Hovered,
                     )
                     .image_dims(ScreenDims::square(20.0));
@@ -157,8 +157,8 @@ impl SpeedControls {
                 ])
             }
             // Inner buttons, styled as one composite button w/ background/border
-            .bg(app.cs.gui_style.btn_primary_light.bg)
-            .outline(2.0, app.cs.gui_style.btn_primary_light.outline),
+            .bg(ctx.style().btn_primary_light.bg)
+            .outline(2.0, ctx.style().btn_primary_light.outline),
         );
 
         self.panel = Panel::new(Widget::custom_row(row))

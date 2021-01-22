@@ -7,13 +7,12 @@ use rand_xorshift::XorShiftRng;
 use abstutil::Timer;
 use geom::{Duration, Line, Percent, Pt2D, Speed};
 use map_gui::load::MapLoader;
-use map_gui::theme::StyledButtons;
 use map_gui::tools::{open_browser, PopupMsg};
 use map_model::PermanentMapEdits;
 use sim::{AlertHandler, ScenarioGenerator, Sim, SimOptions};
 use widgetry::{
     hotkeys, Color, ContentMode, DrawBaselayer, EdgeInsets, EventCtx, Font, GfxCtx, Key, Line,
-    Outcome, Panel, ScreenDims, State, Text, UpdateType, Widget,
+    Outcome, Panel, ScreenDims, State, StyledButtons, Text, UpdateType, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -46,7 +45,7 @@ impl TitleScreen {
                     Widget::draw_svg(ctx, "system/assets/pregame/logo.svg"),
                     // TODO that nicer font
                     // TODO Any key
-                    app.cs
+                    ctx.style()
                         .btn_primary_dark_text("Play")
                         .hotkey(hotkeys(vec![Key::Space, Key::Enter]))
                         .build_widget(ctx, "start game"),
@@ -69,7 +68,7 @@ impl State<App> for TitleScreen {
             Outcome::Clicked(x) => match x.as_ref() {
                 "start game" => {
                     app.primary.clear_sim();
-                    return Transition::Replace(MainMenu::new(ctx, app));
+                    return Transition::Replace(MainMenu::new(ctx));
                 }
                 _ => unreachable!(),
             },
@@ -91,7 +90,7 @@ pub struct MainMenu {
 }
 
 impl MainMenu {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    pub fn new(ctx: &mut EventCtx) -> Box<dyn State<App>> {
         let col = vec![
             {
                 let mut txt = Text::from(Line("A/B STREET").display_title());
@@ -99,8 +98,8 @@ impl MainMenu {
                 txt.draw(ctx).centered_horiz()
             },
             Widget::row({
-                let btn_builder = app
-                    .cs
+                let btn_builder = ctx
+                    .style()
                     .btn_primary_dark()
                     .image_dims(ScreenDims::new(200.0, 100.0))
                     .font_size(40)
@@ -154,7 +153,7 @@ impl MainMenu {
             })
             .centered(),
             Widget::row(vec![
-                app.cs
+                ctx.style()
                     .btn_secondary_light_text("Community Proposals")
                     .tooltip({
                         let mut txt = Text::tooltip(ctx, Key::P, "Community Proposals");
@@ -163,7 +162,7 @@ impl MainMenu {
                     })
                     .hotkey(Key::P)
                     .build_widget(ctx, "Community Proposals"),
-                app.cs
+                ctx.style()
                     .btn_secondary_light_text("Internal Dev Tools")
                     .hotkey(Key::D)
                     .build_widget(ctx, "Internal Dev Tools"),
@@ -171,8 +170,10 @@ impl MainMenu {
             .centered(),
             Widget::col(vec![
                 Widget::row(vec![
-                    app.cs.btn_secondary_light_text("About").build_def(ctx),
-                    app.cs.btn_secondary_light_text("Feedback").build_def(ctx),
+                    ctx.style().btn_secondary_light_text("About").build_def(ctx),
+                    ctx.style()
+                        .btn_secondary_light_text("Feedback")
+                        .build_def(ctx),
                 ]),
                 built_info::time().draw(ctx),
             ])
@@ -253,7 +254,7 @@ struct About {
 impl About {
     fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let col = vec![
-            app.cs
+            ctx.style()
                 .btn_back_light("Home")
                 .hotkey(Key::Escape)
                 .build_widget(ctx, "back")
@@ -287,7 +288,7 @@ impl About {
                 .bg(app.cs.panel_bg)
                 .padding(16)
             },
-            app.cs
+            ctx.style()
                 .btn_primary_dark_text("See full credits")
                 .build_def(ctx)
                 .centered_horiz(),
@@ -361,20 +362,20 @@ impl Proposals {
 
                 if edits.proposal_link.is_some() {
                     current_tab.push(
-                        app.cs
+                        ctx.style()
                             .btn_primary_dark_text("Read detailed write-up")
                             .build_def(ctx)
                             .margin_below(10),
                     );
                 }
                 current_tab.push(
-                    app.cs
+                    ctx.style()
                         .btn_primary_dark_text("Try out this proposal")
                         .build_def(ctx),
                 );
 
                 buttons.push(
-                    app.cs
+                    ctx.style()
                         .btn_primary_dark_text(&edits.proposal_description[0])
                         .disabled(true)
                         .build_def(ctx)
@@ -382,7 +383,7 @@ impl Proposals {
                 );
             } else {
                 buttons.push(
-                    app.cs
+                    ctx.style()
                         .btn_primary_dark_text(&edits.proposal_description[0])
                         .no_tooltip()
                         .build_widget(ctx, &name)
@@ -411,7 +412,7 @@ impl Proposals {
         Box::new(Proposals {
             proposals,
             panel: Panel::new(Widget::custom_col(vec![
-                app.cs
+                ctx.style()
                     .btn_back_light("Home")
                     .hotkey(Key::Escape)
                     .build_widget(ctx, "back")

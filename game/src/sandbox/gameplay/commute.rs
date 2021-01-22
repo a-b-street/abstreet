@@ -59,7 +59,7 @@ impl OptimizeCommute {
         })
     }
 
-    pub fn cutscene_pt1(ctx: &mut EventCtx, app: &App, mode: &GameplayMode) -> Box<dyn State<App>> {
+    pub fn cutscene_pt1(ctx: &mut EventCtx, _: &App, mode: &GameplayMode) -> Box<dyn State<App>> {
         CutsceneBuilder::new("Optimize one commute: part 1")
             .boss("Listen up, I've got a special job for you today.")
             .player("What is it? The scooter coalition back with demands for more valet parking?")
@@ -78,10 +78,10 @@ impl OptimizeCommute {
                 "(Somebody's blackmailing the boss. Guess it's time to help this Very Impatient \
                  Person.)",
             )
-            .build(ctx, app, cutscene_task(mode))
+            .build(ctx, cutscene_task(mode))
     }
 
-    pub fn cutscene_pt2(ctx: &mut EventCtx, app: &App, mode: &GameplayMode) -> Box<dyn State<App>> {
+    pub fn cutscene_pt2(ctx: &mut EventCtx, _: &App, mode: &GameplayMode) -> Box<dyn State<App>> {
         // TODO The person chosen for this currently has more of an issue needing PBLs, actually.
         CutsceneBuilder::new("Optimize one commute: part 2")
             .boss("I've got another, er, friend who's sick of this parking situation.")
@@ -99,7 +99,7 @@ impl OptimizeCommute {
             )
             .boss("Everyone's calling in favors these days. Just make it happen!")
             .player("(Too many people have dirt on the boss. Guess we have another VIP to help.)")
-            .build(ctx, app, cutscene_task(mode))
+            .build(ctx, cutscene_task(mode))
     }
 }
 
@@ -248,7 +248,7 @@ fn make_meter(
     Panel::new(Widget::col(vec![
         Widget::horiz_separator(ctx, 0.2),
         Widget::row(vec![
-            app.cs
+            ctx.style()
                 .btn_plain_light_icon("system/assets/tools/location.svg")
                 .build_widget(ctx, "locate VIP"),
             format!("{}/{} trips done", done, trips).draw_text(ctx),

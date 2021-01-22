@@ -92,7 +92,7 @@ impl PickLayer {
             Some(ref l) => l.name().unwrap_or(""),
         };
         let btn = |name: &str, key| {
-            app.cs
+            ctx.style()
                 .btn_hotkey_light(name, key)
                 .disabled(name == current)
                 .build_widget(ctx, name)
