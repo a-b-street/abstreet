@@ -373,9 +373,6 @@
 <span id="370">370</span>
 <span id="371">371</span>
 <span id="372">372</span>
-<span id="373">373</span>
-<span id="374">374</span>
-<span id="375">375</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">future</span>::<span class="ident">Future</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">pin</span>::<span class="ident">Pin</span>;
@@ -727,7 +724,7 @@
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">chose_next</span> {
             <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Clear</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">MainMenu</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+                <span class="ident">MainMenu</span>::<span class="ident">new</span>(<span class="ident">ctx</span>),
                 <span class="comment">// Constructing the cutscene doesn&#39;t require the map/scenario to be loaded.</span>
                 <span class="ident">SandboxMode</span>::<span class="ident">simple_new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">next_mode</span>.<span class="ident">clone</span>().<span class="ident">unwrap</span>()),
                 (<span class="ident">Challenge</span>::<span class="ident">find</span>(<span class="self">self</span>.<span class="ident">next_mode</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>())
@@ -737,10 +734,7 @@
             ]);
         }
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">chose_back_to_challenges</span> {
-            <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Clear</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">MainMenu</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-                <span class="ident">ChallengesPicker</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            ]);
+            <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Clear</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">MainMenu</span>::<span class="ident">new</span>(<span class="ident">ctx</span>), <span class="ident">ChallengesPicker</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)]);
         }
 
         <span class="ident">Transition</span>::<span class="ident">Keep</span>

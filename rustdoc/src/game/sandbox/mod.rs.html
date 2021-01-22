@@ -942,7 +942,6 @@
 <span id="939">939</span>
 <span id="940">940</span>
 <span id="941">941</span>
-<span id="942">942</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
@@ -953,13 +952,12 @@
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">load</span>::{<span class="ident">FileLoader</span>, <span class="ident">MapLoader</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">options</span>::<span class="ident">OptionsPanel</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">render</span>::{<span class="ident">unzoomed_agent_radius</span>, <span class="ident">UnzoomedAgents</span>};
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">theme</span>::<span class="ident">StyledButtons</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">Minimap</span>, <span class="ident">PopupMsg</span>, <span class="ident">TurnExplorer</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::{<span class="ident">AppLike</span>, <span class="ident">ID</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">Analytics</span>, <span class="ident">Scenario</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
-    <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">gameplay</span>::{<span class="ident">spawn_agents_around</span>, <span class="ident">GameplayMode</span>, <span class="ident">TutorialPointer</span>, <span class="ident">TutorialState</span>};
@@ -1081,7 +1079,7 @@
 
         <span class="comment">// Order here is pretty arbitrary</span>
         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">D</span>)) {
-            <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">DebugMode</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+            <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">DebugMode</span>::<span class="ident">new</span>(<span class="ident">ctx</span>));
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">m</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">minimap</span> {
@@ -1241,7 +1239,7 @@
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BackToMainMenu</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="ident">app</span>.<span class="ident">clear_everything</span>(<span class="ident">ctx</span>);
-        <span class="ident">Transition</span>::<span class="ident">Clear</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">MainMenu</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)])
+        <span class="ident">Transition</span>::<span class="ident">Clear</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">MainMenu</span>::<span class="ident">new</span>(<span class="ident">ctx</span>)])
     }
 
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {}
@@ -1378,7 +1376,7 @@
                 } <span class="kw">else</span> {
                     <span class="ident">Widget</span>::<span class="ident">nothing</span>()
                 },
-                <span class="ident">app</span>.<span class="ident">cs</span>
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_primary_light_icon</span>(<span class="string">&quot;system/assets/meters/trip_histogram.svg&quot;</span>)
                     .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Q</span>)
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;more data&quot;</span>)
@@ -1847,7 +1845,7 @@
                 <span class="prelude-val">None</span>
             },
             <span class="ident">tool_panel</span>: <span class="kw">if</span> <span class="ident">gameplay</span>.<span class="ident">has_tool_panel</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">tool_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
+                <span class="prelude-val">Some</span>(<span class="ident">tool_panel</span>(<span class="ident">ctx</span>))
             } <span class="kw">else</span> {
                 <span class="prelude-val">None</span>
             },
@@ -1876,7 +1874,7 @@
 
     <span class="kw">fn</span> <span class="ident">recreate_panels</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">tool_panel</span>.<span class="ident">is_some</span>() {
-            <span class="self">self</span>.<span class="ident">tool_panel</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">tool_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+            <span class="self">self</span>.<span class="ident">tool_panel</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">tool_panel</span>(<span class="ident">ctx</span>));
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">speed</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">speed</span> {
             <span class="ident">speed</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);

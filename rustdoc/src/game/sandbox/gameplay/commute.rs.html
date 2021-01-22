@@ -436,7 +436,7 @@
         })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cutscene_pt1</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">mode</span>: <span class="kw-2">&amp;</span><span class="ident">GameplayMode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cutscene_pt1</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">mode</span>: <span class="kw-2">&amp;</span><span class="ident">GameplayMode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">CutsceneBuilder</span>::<span class="ident">new</span>(<span class="string">&quot;Optimize one commute: part 1&quot;</span>)
             .<span class="ident">boss</span>(<span class="string">&quot;Listen up, I&#39;ve got a special job for you today.&quot;</span>)
             .<span class="ident">player</span>(<span class="string">&quot;What is it? The scooter coalition back with demands for more valet parking?&quot;</span>)
@@ -455,10 +455,10 @@
                 <span class="string">&quot;(Somebody&#39;s blackmailing the boss. Guess it&#39;s time to help this Very Impatient \
                  Person.)&quot;</span>,
             )
-            .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">cutscene_task</span>(<span class="ident">mode</span>))
+            .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">cutscene_task</span>(<span class="ident">mode</span>))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cutscene_pt2</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">mode</span>: <span class="kw-2">&amp;</span><span class="ident">GameplayMode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cutscene_pt2</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">mode</span>: <span class="kw-2">&amp;</span><span class="ident">GameplayMode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="comment">// TODO The person chosen for this currently has more of an issue needing PBLs, actually.</span>
         <span class="ident">CutsceneBuilder</span>::<span class="ident">new</span>(<span class="string">&quot;Optimize one commute: part 2&quot;</span>)
             .<span class="ident">boss</span>(<span class="string">&quot;I&#39;ve got another, er, friend who&#39;s sick of this parking situation.&quot;</span>)
@@ -476,7 +476,7 @@
             )
             .<span class="ident">boss</span>(<span class="string">&quot;Everyone&#39;s calling in favors these days. Just make it happen!&quot;</span>)
             .<span class="ident">player</span>(<span class="string">&quot;(Too many people have dirt on the boss. Guess we have another VIP to help.)&quot;</span>)
-            .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">cutscene_task</span>(<span class="ident">mode</span>))
+            .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">cutscene_task</span>(<span class="ident">mode</span>))
     }
 }
 
@@ -625,7 +625,7 @@
     <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.2</span>),
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">app</span>.<span class="ident">cs</span>
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;locate VIP&quot;</span>),
             <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/{} trips done&quot;</span>, <span class="ident">done</span>, <span class="ident">trips</span>).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),

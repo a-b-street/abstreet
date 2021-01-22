@@ -455,13 +455,13 @@
 <span id="452">452</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">theme</span>::<span class="ident">StyledButtons</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">PopupMsg</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">AlertLocation</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>,
-    <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PersistentSplit</span>, <span class="ident">ScreenDims</span>, <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PersistentSplit</span>, <span class="ident">ScreenDims</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>,
+    <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
@@ -502,8 +502,8 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">recreate_panel</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="ident">row</span>.<span class="ident">push</span>({
-            <span class="kw">let</span> <span class="ident">button</span> <span class="op">=</span> <span class="ident">app</span>
-                .<span class="ident">cs</span>
+            <span class="kw">let</span> <span class="ident">button</span> <span class="op">=</span> <span class="ident">ctx</span>
+                .<span class="ident">style</span>()
                 .<span class="ident">btn_primary_light_icon</span>(<span class="string">&quot;system/assets/speed/triangle.svg&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Space</span>);
 
@@ -531,13 +531,13 @@
                     <span class="ident">txt</span>.<span class="ident">extend</span>(<span class="ident">Text</span>::<span class="ident">tooltip</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">LeftArrow</span>, <span class="string">&quot;slow down&quot;</span>));
                     <span class="ident">txt</span>.<span class="ident">extend</span>(<span class="ident">Text</span>::<span class="ident">tooltip</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">RightArrow</span>, <span class="string">&quot;speed up&quot;</span>));
 
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">triangle_btn</span> <span class="op">=</span> <span class="ident">app</span>
-                        .<span class="ident">cs</span>
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">triangle_btn</span> <span class="op">=</span> <span class="ident">ctx</span>
+                        .<span class="ident">style</span>()
                         .<span class="ident">btn_plain_light</span>()
                         .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/speed/triangle.svg&quot;</span>)
                         .<span class="ident">image_dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="number">16.0</span>, <span class="number">26.0</span>))
                         .<span class="ident">bg_color</span>(
-                            <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">btn_primary_light</span>.<span class="ident">bg_hover</span>,
+                            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_primary_light</span>.<span class="ident">bg_hover</span>,
                             <span class="ident">ControlState</span>::<span class="ident">Hovered</span>,
                         )
                         .<span class="ident">tooltip</span>(<span class="ident">txt</span>)
@@ -557,7 +557,7 @@
 
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">setting</span> <span class="op">&lt;</span> <span class="ident">s</span> {
                         <span class="ident">triangle_btn</span> <span class="op">=</span> <span class="ident">triangle_btn</span>.<span class="ident">image_color</span>(
-                            <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">btn_secondary_light</span>.<span class="ident">fg_disabled</span>,
+                            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_secondary_light</span>.<span class="ident">fg_disabled</span>,
                             <span class="ident">ControlState</span>::<span class="ident">Default</span>,
                         )
                     }
@@ -567,8 +567,8 @@
                 .<span class="ident">collect</span>(),
             )
             <span class="comment">// Inner buttons, styled as one composite button w/ background/border</span>
-            .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">btn_primary_light</span>.<span class="ident">bg</span>)
-            .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">btn_primary_light</span>.<span class="ident">outline</span>)
+            .<span class="ident">bg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_primary_light</span>.<span class="ident">bg</span>)
+            .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_primary_light</span>.<span class="ident">outline</span>)
             .<span class="ident">margin_right</span>(<span class="number">16</span>),
         );
 
@@ -590,11 +590,11 @@
 
         <span class="ident">row</span>.<span class="ident">push</span>(
             {
-                <span class="kw">let</span> <span class="ident">buttons</span> <span class="op">=</span> <span class="ident">app</span>
-                    .<span class="ident">cs</span>
+                <span class="kw">let</span> <span class="ident">buttons</span> <span class="op">=</span> <span class="ident">ctx</span>
+                    .<span class="ident">style</span>()
                     .<span class="ident">btn_plain_light</span>()
                     .<span class="ident">bg_color</span>(
-                        <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">btn_primary_light</span>.<span class="ident">bg_hover</span>,
+                        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_primary_light</span>.<span class="ident">bg_hover</span>,
                         <span class="ident">ControlState</span>::<span class="ident">Hovered</span>,
                     )
                     .<span class="ident">image_dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">square</span>(<span class="number">20.0</span>));
@@ -613,8 +613,8 @@
                 ])
             }
             <span class="comment">// Inner buttons, styled as one composite button w/ background/border</span>
-            .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">btn_primary_light</span>.<span class="ident">bg</span>)
-            .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">btn_primary_light</span>.<span class="ident">outline</span>),
+            .<span class="ident">bg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_primary_light</span>.<span class="ident">bg</span>)
+            .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_primary_light</span>.<span class="ident">outline</span>),
         );
 
         <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">row</span>))

@@ -903,7 +903,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">DebugMode</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">DebugMode</span> {
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -982,7 +982,7 @@
             .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
             <span class="ident">common</span>: <span class="ident">CommonState</span>::<span class="ident">new</span>(),
-            <span class="ident">tool_panel</span>: <span class="ident">tool_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">tool_panel</span>: <span class="ident">tool_panel</span>(<span class="ident">ctx</span>),
             <span class="ident">objects</span>: <span class="ident">objects</span>::<span class="ident">ObjectDebugger</span>,
             <span class="ident">hidden</span>: <span class="ident">HashSet</span>::<span class="ident">new</span>(),
             <span class="ident">layers</span>: <span class="ident">ShowLayers</span>::<span class="ident">new</span>(),

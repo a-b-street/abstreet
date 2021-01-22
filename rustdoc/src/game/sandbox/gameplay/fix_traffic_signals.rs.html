@@ -457,7 +457,7 @@
         })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cutscene_pt1</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">GameplayMode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cutscene_pt1</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">GameplayMode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">CutsceneBuilder</span>::<span class="ident">new</span>(<span class="string">&quot;Traffic signal survivor&quot;</span>)
             .<span class="ident">boss</span>(<span class="string">&quot;I hope you&#39;ve had your coffee. There&#39;s a huge mess downtown.&quot;</span>)
             .<span class="ident">player</span>(<span class="string">&quot;Did two buses get tangled together again?&quot;</span>)
@@ -498,7 +498,7 @@
                  the worst problems first.&quot;</span>,
             )
             .<span class="ident">player</span>(<span class="string">&quot;Sigh... it&#39;s going to be a long day.&quot;</span>)
-            .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">cutscene_pt1_task</span>))
+            .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">cutscene_pt1_task</span>))
     }
 }
 
@@ -725,7 +725,7 @@
                     }),
                 ])
                 .<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                <span class="ident">app</span>.<span class="ident">cs</span>
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;go to slowest intersection&quot;</span>)
                     .<span class="ident">align_right</span>(),

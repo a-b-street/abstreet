@@ -1413,7 +1413,6 @@
 <span id="1410">1410</span>
 <span id="1411">1411</span>
 <span id="1412">1412</span>
-<span id="1413">1413</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -1484,7 +1483,7 @@
                         .<span class="ident">unwrap_or</span>(<span class="ident">TutorialPointer</span>::<span class="ident">new</span>(<span class="number">0</span>, <span class="number">0</span>)),
                 ),
             )),
-            <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">intro_story</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
+            <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">intro_story</span>(<span class="ident">ctx</span>)),
         ])
     }
 
@@ -2291,7 +2290,7 @@
             <span class="ident">fire_station</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">find_b_by_osm_id</span>(<span class="ident">bldg</span>(<span class="number">731238736</span>)).<span class="ident">unwrap</span>(),
         };
 
-        <span class="kw">let</span> <span class="ident">tool_panel</span> <span class="op">=</span> <span class="ident">tool_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="kw">let</span> <span class="ident">tool_panel</span> <span class="op">=</span> <span class="ident">tool_panel</span>(<span class="ident">ctx</span>);
         <span class="kw">let</span> <span class="ident">time</span> <span class="op">=</span> <span class="ident">TimePanel</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         <span class="kw">let</span> <span class="ident">speed</span> <span class="op">=</span> <span class="ident">SpeedControls</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         <span class="kw">let</span> <span class="ident">agent_meter</span> <span class="op">=</span> <span class="ident">AgentMeter</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
@@ -2783,7 +2782,7 @@
     <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">response</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">intro_story</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">intro_story</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="ident">CutsceneBuilder</span>::<span class="ident">new</span>(<span class="string">&quot;Introduction&quot;</span>)
         .<span class="ident">boss</span>(
             <span class="string">&quot;Argh, the mayor&#39;s on my case again about the West Seattle bridge. This day couldn&#39;t \
@@ -2816,7 +2815,6 @@
         )
         .<span class="ident">build</span>(
             <span class="ident">ctx</span>,
-            <span class="ident">app</span>,
             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
                 <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Use the tutorial to learn the basic controls.&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>))
                     .<span class="ident">draw</span>(<span class="ident">ctx</span>)
