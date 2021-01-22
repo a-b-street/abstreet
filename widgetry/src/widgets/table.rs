@@ -101,7 +101,7 @@ impl<A, T, F> Table<A, T, F> {
             .map(|col| {
                 if self.sort_by == col.name {
                     ctx.style()
-                        .btn_primary_dark_icon_text("tmp", &col.name)
+                        .btn_solid_dark_icon_text("tmp", &col.name)
                         .image_bytes(if self.descending {
                             include_labeled_bytes!("../../icons/arrow_down.svg")
                         } else {
@@ -110,7 +110,7 @@ impl<A, T, F> Table<A, T, F> {
                         .label_first()
                         .build_widget(ctx, &col.name)
                 } else if let Col::Sortable(_) = col.col {
-                    ctx.style().btn_primary_dark_text(&col.name).build_def(ctx)
+                    ctx.style().btn_solid_dark_text(&col.name).build_def(ctx)
                 } else {
                     Line(&col.name).draw(ctx).centered_vert()
                 }

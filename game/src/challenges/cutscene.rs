@@ -161,7 +161,7 @@ fn make_panel(
         Widget::custom_col(vec![
             (make_task)(ctx),
             ctx.style()
-                .btn_primary_light_text("Start")
+                .btn_solid_light_text("Start")
                 .hotkey(Key::Enter)
                 .build_def(ctx)
                 .centered_horiz()
@@ -220,7 +220,7 @@ fn make_panel(
             Widget::col(vec![
                 Widget::row(vec![prev.margin_right(40), next]).centered_horiz(),
                 ctx.style()
-                    .btn_secondary_dark_text("Skip cutscene")
+                    .btn_outline_dark_text("Skip cutscene")
                     .build_def(ctx)
                     .centered_horiz(),
             ])
@@ -232,7 +232,7 @@ fn make_panel(
         // TODO Can't get this to alignment to work
         Widget::custom_row(vec![
             ctx.style()
-                .btn_back_light("Home")
+                .btn_light_back("Home")
                 .build_widget(ctx, "quit")
                 .margin_right(100),
             Line(name).big_heading_styled().draw(ctx),
@@ -261,7 +261,7 @@ impl FYI {
                 Widget::custom_col(vec![
                     contents,
                     ctx.style()
-                        .btn_primary_dark_text("Okay")
+                        .btn_solid_dark_text("Okay")
                         .hotkey(hotkeys(vec![Key::Escape, Key::Space, Key::Enter]))
                         .build_def(ctx)
                         .centered_horiz()

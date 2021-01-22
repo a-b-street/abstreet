@@ -35,7 +35,7 @@ impl FindHome {
             )
             .flex_wrap(ctx, Percent::int(50)),
             ctx.style()
-                .btn_primary_dark_text("Search")
+                .btn_solid_dark_text("Search")
                 .hotkey(Key::Enter)
                 .build_def(ctx),
         ]))
@@ -153,7 +153,7 @@ impl Results {
             )
             .draw_text(ctx),
             ctx.style()
-                .btn_primary_dark_text("Back")
+                .btn_solid_dark_text("Back")
                 .hotkey(Key::Escape)
                 .build_def(ctx),
         ]))

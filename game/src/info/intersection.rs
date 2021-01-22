@@ -37,7 +37,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID
     if app.opts.dev {
         rows.push(
             ctx.style()
-                .btn_primary_light_text("Open OSM node")
+                .btn_solid_light_text("Open OSM node")
                 .build_widget(ctx, &format!("open {}", i.orig_id)),
         );
     }
@@ -216,13 +216,13 @@ pub fn current_demand(
     );
     rows.push(
         ctx.style()
-            .btn_secondary_light_text("Explore demand across all traffic signals")
+            .btn_outline_light_text("Explore demand across all traffic signals")
             .build_def(ctx),
     );
     if app.opts.dev {
         rows.push(
             ctx.style()
-                .btn_secondary_light_text("Where are these agents headed?")
+                .btn_outline_light_text("Where are these agents headed?")
                 .build_widget(ctx, &format!("routes across {}", id)),
         );
     }

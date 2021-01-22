@@ -4,65 +4,57 @@ use crate::{
 };
 
 pub trait StyledButtons<'a> {
-    fn btn_primary_dark(&self) -> ButtonBuilder<'a>;
-    fn btn_primary_dark_text(&self, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_primary_dark().label_text(text)
+    fn btn_solid_dark(&self) -> ButtonBuilder<'a>;
+    fn btn_solid_dark_text(&self, text: &'a str) -> ButtonBuilder<'a> {
+        self.btn_solid_dark().label_text(text)
     }
-    fn btn_primary_dark_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
-        icon_button(self.btn_primary_dark().image_path(image_path))
+    fn btn_solid_dark_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
+        icon_button(self.btn_solid_dark().image_path(image_path))
     }
-    fn btn_primary_dark_icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_primary_dark()
+    fn btn_solid_dark_icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
+        self.btn_solid_dark()
             .label_text(text)
             .image_path(image_path)
             .image_dims(ScreenDims::square(18.0))
     }
 
-    fn btn_secondary_dark(&self) -> ButtonBuilder<'a>;
-    fn btn_secondary_dark_text(&self, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_secondary_dark().label_text(text)
+    fn btn_outline_dark(&self) -> ButtonBuilder<'a>;
+    fn btn_outline_dark_text(&self, text: &'a str) -> ButtonBuilder<'a> {
+        self.btn_outline_dark().label_text(text)
     }
-    fn btn_secondary_dark_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
-        icon_button(self.btn_secondary_dark().image_path(image_path))
+    fn btn_outline_dark_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
+        icon_button(self.btn_outline_dark().image_path(image_path))
     }
-    fn btn_secondary_dark_icon_text(
-        &self,
-        image_path: &'a str,
-        text: &'a str,
-    ) -> ButtonBuilder<'a> {
-        self.btn_secondary_dark()
+    fn btn_outline_dark_icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
+        self.btn_outline_dark()
             .label_text(text)
             .image_path(image_path)
             .image_dims(ScreenDims::square(18.0))
     }
 
-    fn btn_primary_light(&self) -> ButtonBuilder<'a>;
-    fn btn_primary_light_text(&self, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_primary_light().label_text(text)
+    fn btn_solid_light(&self) -> ButtonBuilder<'a>;
+    fn btn_solid_light_text(&self, text: &'a str) -> ButtonBuilder<'a> {
+        self.btn_solid_light().label_text(text)
     }
-    fn btn_primary_light_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
-        icon_button(self.btn_primary_light().image_path(image_path))
+    fn btn_solid_light_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
+        icon_button(self.btn_solid_light().image_path(image_path))
     }
-    fn btn_primary_light_icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_primary_light()
+    fn btn_solid_light_icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
+        self.btn_solid_light()
             .label_text(text)
             .image_path(image_path)
             .image_dims(ScreenDims::square(18.0))
     }
 
-    fn btn_secondary_light(&self) -> ButtonBuilder<'a>;
-    fn btn_secondary_light_text(&self, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_secondary_light().label_text(text)
+    fn btn_outline_light(&self) -> ButtonBuilder<'a>;
+    fn btn_outline_light_text(&self, text: &'a str) -> ButtonBuilder<'a> {
+        self.btn_outline_light().label_text(text)
     }
-    fn btn_secondary_light_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
-        icon_button(self.btn_secondary_light().image_path(image_path))
+    fn btn_outline_light_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
+        icon_button(self.btn_outline_light().image_path(image_path))
     }
-    fn btn_secondary_light_icon_text(
-        &self,
-        image_path: &'a str,
-        text: &'a str,
-    ) -> ButtonBuilder<'a> {
-        self.btn_secondary_light()
+    fn btn_outline_light_icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
+        self.btn_outline_light()
             .label_text(text)
             .image_path(image_path)
             .image_dims(ScreenDims::square(18.0))
@@ -107,37 +99,37 @@ pub trait StyledButtons<'a> {
         icon_button(self.btn_plain_destructive().image_path(image_path))
     }
 
-    fn btn_primary_destructive(&self) -> ButtonBuilder<'a>;
-    fn btn_primary_destructive_text(&self, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_primary_destructive().label_text(text)
+    fn btn_solid_destructive(&self) -> ButtonBuilder<'a>;
+    fn btn_solid_destructive_text(&self, text: &'a str) -> ButtonBuilder<'a> {
+        self.btn_solid_destructive().label_text(text)
     }
-    fn btn_primary_destructive_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
-        icon_button(self.btn_primary_destructive().image_path(image_path))
+    fn btn_solid_destructive_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
+        icon_button(self.btn_solid_destructive().image_path(image_path))
     }
-    fn btn_primary_destructive_icon_text(
+    fn btn_solid_destructive_icon_text(
         &self,
         image_path: &'a str,
         text: &'a str,
     ) -> ButtonBuilder<'a> {
-        self.btn_primary_destructive()
+        self.btn_solid_destructive()
             .label_text(text)
             .image_path(image_path)
             .image_dims(ScreenDims::square(18.0))
     }
 
-    fn btn_secondary_destructive(&self) -> ButtonBuilder<'a>;
-    fn btn_secondary_destructive_text(&self, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_secondary_destructive().label_text(text)
+    fn btn_outline_destructive(&self) -> ButtonBuilder<'a>;
+    fn btn_outline_destructive_text(&self, text: &'a str) -> ButtonBuilder<'a> {
+        self.btn_outline_destructive().label_text(text)
     }
-    fn btn_secondary_destructive_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
-        icon_button(self.btn_secondary_destructive().image_path(image_path))
+    fn btn_outline_destructive_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
+        icon_button(self.btn_outline_destructive().image_path(image_path))
     }
-    fn btn_secondary_destructive_icon_text(
+    fn btn_outline_destructive_icon_text(
         &self,
         image_path: &'a str,
         text: &'a str,
     ) -> ButtonBuilder<'a> {
-        self.btn_secondary_destructive()
+        self.btn_outline_destructive()
             .label_text(text)
             .image_path(image_path)
             .image_dims(ScreenDims::square(18.0))
@@ -146,37 +138,37 @@ pub trait StyledButtons<'a> {
     // Specific UI Elements
 
     /// title: name of previous screen, which you'll return to
-    fn btn_back_light(&self, title: &'a str) -> ButtonBuilder<'a> {
+    fn btn_light_back(&self, title: &'a str) -> ButtonBuilder<'a> {
         back_button(self.btn_plain_light(), title)
     }
 
     /// title: name of previous screen, which you'll return to
-    fn btn_back_dark(&self, title: &'a str) -> ButtonBuilder<'a> {
+    fn btn_dark_back(&self, title: &'a str) -> ButtonBuilder<'a> {
         back_button(self.btn_plain_dark(), title)
     }
 
-    fn btn_primary_light_dropdown(&self) -> ButtonBuilder<'a> {
-        dropdown_button(self.btn_primary_light())
+    fn btn_solid_light_dropdown(&self) -> ButtonBuilder<'a> {
+        dropdown_button(self.btn_solid_light())
     }
 
-    fn btn_secondary_light_dropdown(&self) -> ButtonBuilder<'a> {
-        dropdown_button(self.btn_secondary_light())
+    fn btn_outline_light_dropdown(&self) -> ButtonBuilder<'a> {
+        dropdown_button(self.btn_outline_light())
     }
 
-    fn btn_primary_dark_dropdown(&self) -> ButtonBuilder<'a> {
-        dropdown_button(self.btn_primary_dark())
+    fn btn_solid_dark_dropdown(&self) -> ButtonBuilder<'a> {
+        dropdown_button(self.btn_solid_dark())
     }
 
-    fn btn_secondary_dark_dropdown(&self) -> ButtonBuilder<'a> {
-        dropdown_button(self.btn_secondary_dark())
+    fn btn_outline_dark_dropdown(&self) -> ButtonBuilder<'a> {
+        dropdown_button(self.btn_outline_dark())
     }
 
-    fn btn_popup_light(&self, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_secondary_light_dropdown().label_text(text)
+    fn btn_outline_light_popup(&self, text: &'a str) -> ButtonBuilder<'a> {
+        self.btn_outline_light_dropdown().label_text(text)
     }
 
-    fn btn_popup_dark(&self, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_secondary_dark_dropdown().label_text(text)
+    fn btn_outline_dark_popup(&self, text: &'a str) -> ButtonBuilder<'a> {
+        self.btn_outline_dark_dropdown().label_text(text)
     }
 
     /// A right facing caret, like ">", suitable for paging to the "next" set of results
@@ -204,17 +196,17 @@ pub trait StyledButtons<'a> {
     }
 
     /// A button which renders its hotkey for discoverability along with its label.
-    fn btn_hotkey_light(&self, label: &str, key: Key) -> ButtonBuilder<'a>;
+    fn btn_solid_light_hotkey(&self, label: &str, key: Key) -> ButtonBuilder<'a>;
 }
 
 use crate::{Key, Line, Text};
 impl<'a> StyledButtons<'a> for Style {
-    fn btn_hotkey_light(&self, label: &str, key: Key) -> ButtonBuilder<'a> {
+    fn btn_solid_light_hotkey(&self, label: &str, key: Key) -> ButtonBuilder<'a> {
         let default = {
             let mut txt = Text::new();
             let key_txt = Line(key.describe()).fg(self.hotkey_color);
             txt.append(key_txt);
-            let label_text = Line(format!(" - {}", label)).fg(self.btn_primary_light.fg);
+            let label_text = Line(format!(" - {}", label)).fg(self.btn_solid_light.fg);
             txt.append(label_text);
             txt
         };
@@ -223,59 +215,59 @@ impl<'a> StyledButtons<'a> for Style {
             let mut txt = Text::new();
             let key_txt = Line(key.describe()).fg(self.hotkey_color.alpha(0.3));
             txt.append(key_txt);
-            let label_text = Line(format!(" - {}", label)).fg(self.btn_primary_light.fg_disabled);
+            let label_text = Line(format!(" - {}", label)).fg(self.btn_solid_light.fg_disabled);
             txt.append(label_text);
             txt
         };
 
-        self.btn_primary_light()
+        self.btn_solid_light()
             .label_styled_text(default, ControlState::Default)
             .label_styled_text(disabled, ControlState::Disabled)
             .hotkey(key)
     }
 
-    fn btn_primary_dark(&self) -> ButtonBuilder<'a> {
-        let colors = &self.btn_primary_dark;
+    fn btn_solid_dark(&self) -> ButtonBuilder<'a> {
+        let colors = &self.btn_solid_dark;
         plain_builder(colors).outline(2.0, colors.outline, ControlState::Default)
     }
 
-    fn btn_secondary_dark(&self) -> ButtonBuilder<'a> {
-        let colors = &self.btn_secondary_dark;
+    fn btn_outline_dark(&self) -> ButtonBuilder<'a> {
+        let colors = &self.btn_outline_dark;
         plain_builder(colors).outline(2.0, colors.outline, ControlState::Default)
     }
 
     fn btn_plain_dark(&self) -> ButtonBuilder<'a> {
-        let colors = &self.btn_secondary_dark;
+        let colors = &self.btn_outline_dark;
         plain_builder(colors)
     }
 
-    fn btn_primary_light(&self) -> ButtonBuilder<'a> {
-        let colors = &self.btn_primary_light;
+    fn btn_solid_light(&self) -> ButtonBuilder<'a> {
+        let colors = &self.btn_solid_light;
         plain_builder(colors).outline(2.0, colors.outline, ControlState::Default)
     }
 
-    fn btn_secondary_light(&self) -> ButtonBuilder<'a> {
-        let colors = &self.btn_secondary_light;
+    fn btn_outline_light(&self) -> ButtonBuilder<'a> {
+        let colors = &self.btn_outline_light;
         plain_builder(colors).outline(2.0, colors.outline, ControlState::Default)
     }
 
     fn btn_plain_light(&self) -> ButtonBuilder<'a> {
-        let colors = &self.btn_secondary_light;
+        let colors = &self.btn_outline_light;
         plain_builder(colors)
     }
 
     fn btn_plain_destructive(&self) -> ButtonBuilder<'a> {
-        let colors = &self.btn_secondary_destructive;
+        let colors = &self.btn_outline_destructive;
         plain_builder(colors)
     }
 
-    fn btn_primary_destructive(&self) -> ButtonBuilder<'a> {
-        let colors = &self.btn_primary_destructive;
+    fn btn_solid_destructive(&self) -> ButtonBuilder<'a> {
+        let colors = &self.btn_solid_destructive;
         plain_builder(colors).outline(2.0, colors.outline, ControlState::Default)
     }
 
-    fn btn_secondary_destructive(&self) -> ButtonBuilder<'a> {
-        let colors = &self.btn_secondary_destructive;
+    fn btn_outline_destructive(&self) -> ButtonBuilder<'a> {
+        let colors = &self.btn_outline_destructive;
         plain_builder(colors).outline(2.0, colors.outline, ControlState::Default)
     }
 }

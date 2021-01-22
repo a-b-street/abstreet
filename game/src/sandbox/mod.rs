@@ -432,7 +432,7 @@ impl AgentMeter {
                     Widget::nothing()
                 },
                 ctx.style()
-                    .btn_primary_light_icon("system/assets/meters/trip_histogram.svg")
+                    .btn_solid_light_icon("system/assets/meters/trip_histogram.svg")
                     .hotkey(Key::Q)
                     .build_widget(ctx, "more data")
                     .align_right(),
@@ -452,7 +452,7 @@ impl AgentMeter {
                 .centered_vert(),
                 format!("{} trips captured", prettyprint_usize(n)).draw_text(ctx),
                 ctx.style()
-                    .btn_primary_dark_text("Stop")
+                    .btn_solid_dark_text("Stop")
                     .build_def(ctx)
                     .align_right(),
             ]));

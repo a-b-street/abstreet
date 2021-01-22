@@ -48,7 +48,7 @@ impl SpeedControls {
         row.push({
             let button = ctx
                 .style()
-                .btn_primary_light_icon("system/assets/speed/triangle.svg")
+                .btn_solid_light_icon("system/assets/speed/triangle.svg")
                 .hotkey(Key::Space);
 
             Widget::custom_row(vec![if self.paused {
@@ -80,10 +80,7 @@ impl SpeedControls {
                         .btn_plain_light()
                         .image_path("system/assets/speed/triangle.svg")
                         .image_dims(ScreenDims::new(16.0, 26.0))
-                        .bg_color(
-                            ctx.style().btn_primary_light.bg_hover,
-                            ControlState::Hovered,
-                        )
+                        .bg_color(ctx.style().btn_solid_light.bg_hover, ControlState::Hovered)
                         .tooltip(txt)
                         .padding(EdgeInsets {
                             top: 8.0,
@@ -101,7 +98,7 @@ impl SpeedControls {
 
                     if self.setting < s {
                         triangle_btn = triangle_btn.image_color(
-                            ctx.style().btn_secondary_light.fg_disabled,
+                            ctx.style().btn_outline_light.fg_disabled,
                             ControlState::Default,
                         )
                     }
@@ -111,8 +108,8 @@ impl SpeedControls {
                 .collect(),
             )
             // Inner buttons, styled as one composite button w/ background/border
-            .bg(ctx.style().btn_primary_light.bg)
-            .outline(2.0, ctx.style().btn_primary_light.outline)
+            .bg(ctx.style().btn_solid_light.bg)
+            .outline(2.0, ctx.style().btn_solid_light.outline)
             .margin_right(16),
         );
 
@@ -137,10 +134,7 @@ impl SpeedControls {
                 let buttons = ctx
                     .style()
                     .btn_plain_light()
-                    .bg_color(
-                        ctx.style().btn_primary_light.bg_hover,
-                        ControlState::Hovered,
-                    )
+                    .bg_color(ctx.style().btn_solid_light.bg_hover, ControlState::Hovered)
                     .image_dims(ScreenDims::square(20.0));
                 Widget::custom_row(vec![
                     buttons
@@ -157,8 +151,8 @@ impl SpeedControls {
                 ])
             }
             // Inner buttons, styled as one composite button w/ background/border
-            .bg(ctx.style().btn_primary_light.bg)
-            .outline(2.0, ctx.style().btn_primary_light.outline),
+            .bg(ctx.style().btn_solid_light.bg)
+            .outline(2.0, ctx.style().btn_solid_light.outline),
         );
 
         self.panel = Panel::new(Widget::custom_row(row))

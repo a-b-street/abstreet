@@ -375,7 +375,7 @@ impl InfoPanel {
                     cached_actions.push(key);
                     let button = ctx
                         .style()
-                        .btn_hotkey_light(&label, key)
+                        .btn_solid_light_hotkey(&label, key)
                         .build_widget(ctx, &label);
                     col.push(button);
                 }
@@ -696,22 +696,22 @@ fn make_tabs(
     for (name, link) in tabs {
         row.push(
             ctx.style()
-                .btn_primary_dark_text(name)
+                .btn_solid_dark_text(name)
                 // We use "disabled" to denote "currently selected", but we want to style it like
                 // normal
                 .disabled(current_tab.variant() == link.variant())
-                .bg_color(ctx.style().btn_primary_dark.bg, ControlState::Disabled)
-                .label_color(ctx.style().btn_primary_dark.fg, ControlState::Disabled)
+                .bg_color(ctx.style().btn_solid_dark.bg, ControlState::Disabled)
+                .label_color(ctx.style().btn_solid_dark.fg, ControlState::Disabled)
                 .outline(
                     2.0,
-                    ctx.style().btn_primary_dark.bg_hover,
+                    ctx.style().btn_solid_dark.bg_hover,
                     ControlState::Disabled,
                 )
                 // Hide the hit area for selectable tabs unless hovered
                 .bg_color(Color::CLEAR, ControlState::Default)
                 .outline(0.0, Color::CLEAR, ControlState::Default)
                 .bg_color(
-                    ctx.style().btn_primary_dark.bg.alpha(0.6),
+                    ctx.style().btn_solid_dark.bg.alpha(0.6),
                     ControlState::Hovered,
                 )
                 .build_def(ctx),

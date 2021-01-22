@@ -32,7 +32,7 @@ impl Navigator {
                 )
                 .named("street"),
                 ctx.style()
-                    .btn_secondary_light_text("Search by business name or address")
+                    .btn_outline_light_text("Search by business name or address")
                     .hotkey(Key::Tab)
                     .build_def(ctx),
             ]))
@@ -239,7 +239,7 @@ impl SearchBuildings {
                 )
                 .named("bldg"),
                 ctx.style()
-                    .btn_secondary_light_text("Search for streets")
+                    .btn_outline_light_text("Search for streets")
                     .hotkey(Key::Tab)
                     .build_def(ctx),
             ]))
