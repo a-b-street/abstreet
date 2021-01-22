@@ -2,7 +2,7 @@ use abstutil::prettyprint_usize;
 use geom::Polygon;
 
 use crate::{
-    Color, ControlState, EventCtx, GeomBatch, Line, Panel, StyledButtons, Text, TextExt, Widget,
+    Color, ControlState, EventCtx, GeomBatch, Key, Line, Panel, StyledButtons, Text, TextExt, Widget,
 };
 
 const ROWS: usize = 8;
@@ -191,8 +191,16 @@ impl<A, T: 'static, F> Table<A, T, F> {
 }
 
 fn make_pagination(ctx: &mut EventCtx, total: usize, skip: usize) -> Widget {
-    let next = ctx.style().btn_next().disabled(skip + 1 + ROWS >= total);
-    let prev = ctx.style().btn_prev().disabled(skip == 0);
+    let next = ctx
+        .style()
+        .btn_next()
+        .disabled(skip + 1 + ROWS >= total)
+        .hotkey(Key::LeftArrow);
+    let prev = ctx
+        .style()
+        .btn_prev()
+        .disabled(skip == 0)
+        .hotkey(Key::RightArrow);
 
     Widget::row(vec![
         prev.build_widget(ctx, "previous"),

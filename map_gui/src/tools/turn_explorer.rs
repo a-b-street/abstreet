@@ -1,8 +1,8 @@
 use geom::{ArrowCap, Distance};
 use map_model::{LaneID, TurnType};
 use widgetry::{
-    Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel,
-    State, StyledButtons, Text, TextExt, Transition, VerticalAlignment, Widget,
+    Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, State, StyledButtons, Text, TextExt, Transition, VerticalAlignment, Widget,
 };
 
 use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
@@ -122,6 +122,7 @@ impl TurnExplorer {
             ctx.style()
                 .btn_prev()
                 .disabled(idx == 0)
+                .hotkey(Key::LeftArrow)
                 .build_widget(ctx, "previous turn"),
             Text::from(Line(format!("{}/{}", idx, turns.len())).secondary())
                 .draw(ctx)
@@ -129,6 +130,7 @@ impl TurnExplorer {
             ctx.style()
                 .btn_next()
                 .disabled(idx == turns.len())
+                .hotkey(Key::RightArrow)
                 .build_widget(ctx, "next turn"),
             ctx.style().btn_close_widget(ctx),
         ])];

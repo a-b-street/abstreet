@@ -186,6 +186,7 @@ impl UberTurnViewer {
                 ctx.style()
                     .btn_prev()
                     .disabled(idx == 0)
+                    .hotkey(Key::LeftArrow)
                     .build_widget(ctx, "previous uber-turn"),
                 Text::from(Line(format!("{}/{}", idx + 1, ic.uber_turns.len())).secondary())
                     .draw(ctx)
@@ -193,6 +194,7 @@ impl UberTurnViewer {
                 ctx.style()
                     .btn_next()
                     .disabled(ic.uber_turns.is_empty() || idx == ic.uber_turns.len() - 1)
+                    .hotkey(Key::RightArrow)
                     .build_widget(ctx, "next uber-turn"),
                 ctx.style().btn_close_widget(ctx),
             ]),
