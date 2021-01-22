@@ -199,7 +199,7 @@ fn header(
 
     rows.push(Widget::row(vec![
         Line(id.to_string()).small_heading().draw(ctx),
-        header_btns(ctx, app),
+        header_btns(ctx),
     ]));
 
     rows.push(make_tabs(

@@ -67,7 +67,7 @@ impl Tutorial {
                         .unwrap_or(TutorialPointer::new(0, 0)),
                 ),
             )),
-            Transition::Push(intro_story(ctx, app)),
+            Transition::Push(intro_story(ctx)),
         ])
     }
 
@@ -874,7 +874,7 @@ impl TutorialState {
             fire_station: app.primary.map.find_b_by_osm_id(bldg(731238736)).unwrap(),
         };
 
-        let tool_panel = tool_panel(ctx, app);
+        let tool_panel = tool_panel(ctx);
         let time = TimePanel::new(ctx, app);
         let speed = SpeedControls::new(ctx, app);
         let agent_meter = AgentMeter::new(ctx, app);
@@ -1366,7 +1366,7 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: &str) -> Trans
     Transition::Push(response)
 }
 
-fn intro_story(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+fn intro_story(ctx: &mut EventCtx) -> Box<dyn State<App>> {
     CutsceneBuilder::new("Introduction")
         .boss(
             "Argh, the mayor's on my case again about the West Seattle bridge. This day couldn't \
@@ -1399,7 +1399,6 @@ fn intro_story(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         )
         .build(
             ctx,
-            app,
             Box::new(|ctx| {
                 Text::from(Line("Use the tutorial to learn the basic controls.").fg(Color::BLACK))
                     .draw(ctx)

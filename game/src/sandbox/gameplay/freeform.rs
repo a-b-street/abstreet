@@ -3,7 +3,6 @@ use rand::Rng;
 
 use abstutil::Timer;
 use geom::{Distance, Polygon};
-use map_gui::theme::StyledButtons;
 use map_gui::tools::{
     grey_out_map, nice_map_name, open_browser, CityPicker, PopupMsg, PromptInput,
 };
@@ -12,7 +11,7 @@ use map_model::{BuildingID, IntersectionID, Position, NORMAL_LANE_THICKNESS};
 use sim::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 use widgetry::{
     lctrl, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    SimpleState, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
+    SimpleState, Spinner, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -107,26 +106,26 @@ impl GameplayState for Freeform {
                 Line("Sandbox").small_heading().draw(ctx),
                 Widget::vert_separator(ctx, 50.0),
                 "Map:".draw_text(ctx),
-                app.cs
+                ctx.style()
                     .btn_popup_light(nice_map_name(app.primary.map.get_name()))
                     .hotkey(lctrl(Key::L))
                     .build_widget(ctx, "change map"),
                 "Scenario:".draw_text(ctx),
-                app.cs
+                ctx.style()
                     .btn_popup_light("none")
                     .hotkey(Key::S)
                     .build_widget(ctx, "change scenario"),
-                app.cs
+                ctx.style()
                     .btn_secondary_light_icon_text("system/assets/tools/pencil.svg", "Edit map")
                     .hotkey(lctrl(Key::E))
                     .build_widget(ctx, "edit map"),
             ])
             .centered(),
             Widget::row(vec![
-                app.cs
+                ctx.style()
                     .btn_secondary_light_text("Start a new trip")
                     .build_def(ctx),
-                app.cs
+                ctx.style()
                     .btn_secondary_light_text("Record trips as a scenario")
                     .build_def(ctx),
             ])

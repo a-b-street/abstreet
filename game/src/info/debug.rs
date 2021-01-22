@@ -9,7 +9,7 @@ pub fn area(ctx: &EventCtx, app: &App, _: &mut Details, id: AreaID) -> Vec<Widge
 
     rows.push(Widget::row(vec![
         Line(id.to_string()).small_heading().draw(ctx),
-        header_btns(ctx, app),
+        header_btns(ctx),
     ]));
 
     let area = app.primary.map.get_a(id);

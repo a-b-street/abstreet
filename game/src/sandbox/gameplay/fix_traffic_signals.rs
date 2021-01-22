@@ -38,7 +38,7 @@ impl FixTrafficSignals {
         })
     }
 
-    pub fn cutscene_pt1(ctx: &mut EventCtx, app: &App, _: &GameplayMode) -> Box<dyn State<App>> {
+    pub fn cutscene_pt1(ctx: &mut EventCtx, _: &App, _: &GameplayMode) -> Box<dyn State<App>> {
         CutsceneBuilder::new("Traffic signal survivor")
             .boss("I hope you've had your coffee. There's a huge mess downtown.")
             .player("Did two buses get tangled together again?")
@@ -79,7 +79,7 @@ impl FixTrafficSignals {
                  the worst problems first.",
             )
             .player("Sigh... it's going to be a long day.")
-            .build(ctx, app, Box::new(cutscene_pt1_task))
+            .build(ctx, Box::new(cutscene_pt1_task))
     }
 }
 
@@ -306,7 +306,7 @@ fn make_meter(ctx: &mut EventCtx, app: &App, worst: Option<(IntersectionID, Dura
                     }),
                 ])
                 .draw(ctx),
-                app.cs
+                ctx.style()
                     .btn_plain_light_icon("system/assets/tools/location.svg")
                     .build_widget(ctx, "go to slowest intersection")
                     .align_right(),

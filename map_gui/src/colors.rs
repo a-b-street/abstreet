@@ -69,7 +69,7 @@ pub struct ColorScheme {
     pub bottom_bar_id: Color,
     pub bottom_bar_name: Color,
     pub fade_map_dark: Color,
-    pub gui_style: Style,
+    gui_style: Style,
     pub dialog_bg: Color,
     pub minimap_cursor_border: Color,
     pub minimap_cursor_bg: Option<Color>,

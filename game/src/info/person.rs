@@ -437,7 +437,7 @@ pub fn crowd(
 
     rows.push(Widget::row(vec![
         Line("Pedestrian crowd").small_heading().draw(ctx),
-        header_btns(ctx, app),
+        header_btns(ctx),
     ]));
 
     for (idx, id) in members.into_iter().enumerate() {
@@ -487,13 +487,13 @@ pub fn parked_car(
             // Little indirect, but the handler of this action is actually the ContextualActions
             // for SandboxMode.
             if is_paused {
-                app.cs
+                ctx.style()
                     .btn_plain_light_icon("system/assets/tools/location.svg")
                     .hotkey(Key::F)
                     .build_widget(ctx, "follow (run the simulation)")
             } else {
                 // TODO Blink
-                app.cs
+                ctx.style()
                     .btn_plain_light_icon("system/assets/tools/location.svg")
                     .image_color(Color::hex("#7FFA4D"), ControlState::Default)
                     .hotkey(Key::F)
@@ -611,13 +611,13 @@ fn header(
             // Little indirect, but the handler of this action is actually the ContextualActions
             // for SandboxMode.
             if is_paused {
-                app.cs
+                ctx.style()
                     .btn_plain_light_icon("system/assets/tools/location.svg")
                     .hotkey(Key::F)
                     .build_widget(ctx, "follow (run the simulation)")
             } else {
                 // TODO Blink
-                app.cs
+                ctx.style()
                     .btn_plain_light_icon("system/assets/tools/location.svg")
                     .image_color(Color::hex("#7FFA4D"), ControlState::Default)
                     .hotkey(Key::F)

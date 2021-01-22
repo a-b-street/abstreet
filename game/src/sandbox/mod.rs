@@ -7,13 +7,12 @@ use map_gui::colors::ColorSchemeChoice;
 use map_gui::load::{FileLoader, MapLoader};
 use map_gui::options::OptionsPanel;
 use map_gui::render::{unzoomed_agent_radius, UnzoomedAgents};
-use map_gui::theme::StyledButtons;
 use map_gui::tools::{ChooseSomething, Minimap, PopupMsg, TurnExplorer};
 use map_gui::{AppLike, ID};
 use sim::{Analytics, Scenario};
 use widgetry::{
     lctrl, Choice, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, State, Text, TextExt, UpdateType, VerticalAlignment, Widget,
+    Panel, State, StyledButtons, Text, TextExt, UpdateType, VerticalAlignment, Widget,
 };
 
 pub use self::gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};
@@ -135,7 +134,7 @@ impl State<App> for SandboxMode {
 
         // Order here is pretty arbitrary
         if app.opts.dev && ctx.input.pressed(lctrl(Key::D)) {
-            return Transition::Push(DebugMode::new(ctx, app));
+            return Transition::Push(DebugMode::new(ctx));
         }
 
         if let Some(ref mut m) = self.controls.minimap {
@@ -295,7 +294,7 @@ struct BackToMainMenu;
 impl State<App> for BackToMainMenu {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         app.clear_everything(ctx);
-        Transition::Clear(vec![MainMenu::new(ctx, app)])
+        Transition::Clear(vec![MainMenu::new(ctx)])
     }
 
     fn draw(&self, _: &mut GfxCtx, _: &App) {}
@@ -432,7 +431,7 @@ impl AgentMeter {
                 } else {
                     Widget::nothing()
                 },
-                app.cs
+                ctx.style()
                     .btn_primary_light_icon("system/assets/meters/trip_histogram.svg")
                     .hotkey(Key::Q)
                     .build_widget(ctx, "more data")
@@ -901,7 +900,7 @@ impl SandboxControls {
                 None
             },
             tool_panel: if gameplay.has_tool_panel() {
-                Some(tool_panel(ctx, app))
+                Some(tool_panel(ctx))
             } else {
                 None
             },
@@ -930,7 +929,7 @@ impl SandboxControls {
 
     fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
         if self.tool_panel.is_some() {
-            self.tool_panel = Some(tool_panel(ctx, app));
+            self.tool_panel = Some(tool_panel(ctx));
         }
         if let Some(ref mut speed) = self.speed {
             speed.recreate_panel(ctx, app);

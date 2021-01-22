@@ -3,7 +3,6 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 pub use trip::OpenTrip;
 
 use geom::{Circle, Distance, Time};
-use map_gui::theme::StyledButtons;
 use map_gui::tools::open_browser;
 use map_gui::ID;
 use map_model::{AreaID, BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, ParkingLotID};
@@ -13,7 +12,8 @@ use sim::{
 };
 use widgetry::{
     Checkbox, Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, LinePlot, Outcome, Panel, PlotOptions, Series, TextExt, VerticalAlignment, Widget,
+    Line, LinePlot, Outcome, Panel, PlotOptions, Series, StyledButtons, TextExt, VerticalAlignment,
+    Widget,
 };
 
 use crate::app::{App, Transition};
@@ -373,8 +373,8 @@ impl InfoPanel {
             if let Some(id) = maybe_id.clone() {
                 for (key, label) in ctx_actions.actions(app, id) {
                     cached_actions.push(key);
-                    let button = app
-                        .cs
+                    let button = ctx
+                        .style()
                         .btn_hotkey_light(&label, key)
                         .build_widget(ctx, &label);
                     col.push(button);
@@ -723,13 +723,13 @@ fn make_tabs(
     Widget::custom_row(row).bg(Color::grey(0.8)).margin_vert(16)
 }
 
-fn header_btns(ctx: &EventCtx, app: &App) -> Widget {
+fn header_btns(ctx: &EventCtx) -> Widget {
     Widget::row(vec![
-        app.cs
+        ctx.style()
             .btn_plain_light_icon("system/assets/tools/location.svg")
             .hotkey(Key::J)
             .build_widget(ctx, "jump to object"),
-        app.cs.btn_close_widget(ctx),
+        ctx.style().btn_close_widget(ctx),
     ])
     .align_right()
 }

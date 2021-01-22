@@ -348,7 +348,7 @@ impl State<App> for FinalScore {
 
         if self.chose_next {
             return Transition::Clear(vec![
-                MainMenu::new(ctx, app),
+                MainMenu::new(ctx),
                 // Constructing the cutscene doesn't require the map/scenario to be loaded.
                 SandboxMode::simple_new(ctx, app, self.next_mode.clone().unwrap()),
                 (Challenge::find(self.next_mode.as_ref().unwrap())
@@ -358,10 +358,7 @@ impl State<App> for FinalScore {
             ]);
         }
         if self.chose_back_to_challenges {
-            return Transition::Clear(vec![
-                MainMenu::new(ctx, app),
-                ChallengesPicker::new(ctx, app),
-            ]);
+            return Transition::Clear(vec![MainMenu::new(ctx), ChallengesPicker::new(ctx, app)]);
         }
 
         Transition::Keep

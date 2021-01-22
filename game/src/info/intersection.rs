@@ -405,7 +405,7 @@ fn header(
     };
     rows.push(Widget::row(vec![
         Line(label).small_heading().draw(ctx),
-        header_btns(ctx, app),
+        header_btns(ctx),
     ]));
 
     rows.push(make_tabs(ctx, &mut details.hyperlinks, tab, {
