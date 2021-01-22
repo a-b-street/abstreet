@@ -11,7 +11,7 @@ use petgraph::graphmap::DiGraphMap;
 use serde::{Deserialize, Serialize};
 
 use abstio::MapName;
-use abstutil::{deserialize_btreemap, serialize_btreemap, Tags, Timer};
+use abstutil::{deserialize_btreemap, serialize_btreemap, Tags};
 use geom::{Circle, Distance, GPSBounds, PolyLine, Polygon, Pt2D};
 
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
@@ -161,7 +161,6 @@ impl RawMap {
     pub fn preview_intersection(
         &self,
         id: osm::NodeID,
-        timer: &mut Timer,
     ) -> (Polygon, Vec<Polygon>, Vec<(String, Polygon)>) {
         use crate::make::initial;
 
@@ -180,7 +179,7 @@ impl RawMap {
             );
         }
 
-        let (poly, debug) = initial::intersection_polygon(&i, &mut roads, timer).unwrap();
+        let (poly, debug) = initial::intersection_polygon(&i, &mut roads).unwrap();
         (
             poly,
             roads
@@ -212,7 +211,7 @@ impl RawMap {
                 intersection_type: self.intersections[&id].intersection_type,
                 elevation: self.intersections[&id].elevation,
             };
-            initial::intersection_polygon(&i, &mut roads, &mut Timer::throwaway()).unwrap();
+            initial::intersection_polygon(&i, &mut roads).unwrap();
         }
 
         Some(roads.remove(&road).unwrap().trimmed_center_pts)

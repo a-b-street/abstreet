@@ -201,12 +201,9 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
 
         if let Some(area_type) = get_area_type(&rel.tags) {
             if rel.tags.is("type", "multipolygon") {
-                for polygon in glue_multipolygon(
-                    id,
-                    get_multipolygon_members(id, rel, &doc),
-                    Some(&boundary),
-                    timer,
-                ) {
+                for polygon in
+                    glue_multipolygon(id, get_multipolygon_members(id, rel, &doc), Some(&boundary))
+                {
                     map.areas.push(RawArea {
                         area_type,
                         osm_id: OsmID::Relation(id),
@@ -252,11 +249,11 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                         if rt == RestrictionType::BanTurns {
                             out.complicated_turn_restrictions.push((id, from, via, to));
                         } else {
-                            timer.warn(format!(
+                            warn!(
                                 "Weird complicated turn restriction \"{}\" from {} to {} via {}: \
                                  {}",
                                 restriction, from, to, via, id
-                            ));
+                            );
                         }
                     }
                 }
@@ -278,12 +275,9 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                 Err(err) => println!("Skipping building {}: {}", id, err),
             }
         } else if rel.tags.is("amenity", "parking") {
-            for polygon in glue_multipolygon(
-                id,
-                get_multipolygon_members(id, rel, &doc),
-                Some(&boundary),
-                timer,
-            ) {
+            for polygon in
+                glue_multipolygon(id, get_multipolygon_members(id, rel, &doc), Some(&boundary))
+            {
                 map.parking_lots.push(RawParkingLot {
                     osm_id: OsmID::Relation(id),
                     polygon,
@@ -291,13 +285,8 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                 });
             }
         } else if rel.tags.is("type", "route") {
-            map.bus_routes.extend(transit::extract_route(
-                id,
-                rel,
-                &doc,
-                &map.boundary_polygon,
-                timer,
-            ));
+            map.bus_routes
+                .extend(transit::extract_route(id, rel, &doc, &map.boundary_polygon));
         } else if rel.tags.is("type", "multipolygon") && rel.tags.contains_key("amenity") {
             let amenity = Amenity {
                 names: NamePerLanguage::new(&rel.tags).unwrap_or_else(NamePerLanguage::unnamed),
@@ -341,7 +330,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
 
     // Special case the coastline.
     println!("{} ways of coastline", coastline_groups.len());
-    for polygon in glue_multipolygon(RelationID(-1), coastline_groups, Some(&boundary), timer) {
+    for polygon in glue_multipolygon(RelationID(-1), coastline_groups, Some(&boundary)) {
         let mut osm_tags = Tags::new(BTreeMap::new());
         osm_tags.insert("water", "ocean");
         // Put it at the beginning, so that it's naturally beneath island areas

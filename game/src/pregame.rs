@@ -35,7 +35,7 @@ impl TitleScreen {
         let mut timer = Timer::new("screensaver traffic");
         let mut opts = SimOptions::new("screensaver");
         opts.alerts = AlertHandler::Silence;
-        app.primary.sim = Sim::new(&app.primary.map, opts, &mut timer);
+        app.primary.sim = Sim::new(&app.primary.map, opts);
         ScenarioGenerator::small_run(&app.primary.map)
             .generate(&app.primary.map, &mut rng, &mut timer)
             .instantiate(&mut app.primary.sim, &app.primary.map, &mut rng, &mut timer);

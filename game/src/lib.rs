@@ -124,7 +124,7 @@ fn setup_app(
     if flags.sim_flags.load.contains("/maps/") {
         // Get App created with a dummy blank map
         let map = Map::blank();
-        let sim = Sim::new(&map, flags.sim_flags.opts.clone(), &mut Timer::throwaway());
+        let sim = Sim::new(&map, flags.sim_flags.opts.clone());
         let primary = crate::app::PerMap::map_loaded(
             map,
             sim,

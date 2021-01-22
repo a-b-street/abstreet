@@ -46,10 +46,10 @@ fn import_trips(huge_map: &Map, timer: &mut Timer) -> Vec<OrigTrip> {
         // If both are the same building, also skip -- that's a redundant trip.
         if from.osm_building == to.osm_building {
             if from.osm_building.is_some() {
-                /*timer.warn(format!(
+                /*warn!(
                     "Skipping trip from parcel {} to {}; both match OSM building {:?}",
                     rec.opcl, rec.dpcl, from.osm_building
-                ));*/
+                );*/
             }
             continue;
         }
@@ -80,12 +80,12 @@ fn import_trips(huge_map: &Map, timer: &mut Timer) -> Vec<OrigTrip> {
     }
     done(timer);
 
-    timer.note(format!(
+    info!(
         "{} trips total, over {} people. {} records filtered out",
         prettyprint_usize(trips.len()),
         prettyprint_usize(people.len()),
         prettyprint_usize(total_records - trips.len())
-    ));
+    );
 
     trips.sort_by_key(|t| t.depart_at);
 
@@ -215,7 +215,7 @@ fn import_parcels(
             );
         }
     }
-    timer.note(format!("{} parcels", prettyprint_usize(result.len())));
+    info!("{} parcels", prettyprint_usize(result.len()));
 
     (result, shapes)
 }

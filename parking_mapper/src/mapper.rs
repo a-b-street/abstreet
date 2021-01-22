@@ -517,7 +517,7 @@ fn generate_osmc(data: &BTreeMap<WayID, Value>, in_seattle: bool, timer: &mut Ti
         }
 
         let url = format!("https://api.openstreetmap.org/api/0.6/way/{}", way.0);
-        timer.note(format!("Fetching {}", url));
+        info!("Fetching {}", url);
         let resp = reqwest::blocking::get(&url)?.text()?;
         let mut tree = xmltree::Element::parse(resp.as_bytes())?
             .take_child("way")
@@ -592,7 +592,7 @@ fn generate_osmc(data: &BTreeMap<WayID, Value>, in_seattle: bool, timer: &mut Ti
         writeln!(f, "  {}", w)?;
     }
     writeln!(f, "</modify></osmChange>")?;
-    timer.note(format!("Wrote diff.osc"));
+    info!("Wrote diff.osc");
     Ok(())
 }
 

@@ -158,21 +158,21 @@ fn sync(timer: &mut Timer) -> Vec<String> {
             "http://abstreet.s3-website.us-east-2.amazonaws.com/{}/{}.gz",
             version, path
         );
-        timer.note(format!(
+        info!(
             "Downloading {} ({})",
             url,
             prettyprint_bytes(entry.compressed_size_bytes)
-        ));
+        );
         files_downloaded += 1;
 
         std::fs::create_dir_all(std::path::Path::new(&local_path).parent().unwrap()).unwrap();
-        match download(&url, local_path, timer) {
+        match download(&url, local_path) {
             Ok(bytes) => {
                 bytes_downloaded += bytes;
             }
             Err(err) => {
                 let msg = format!("Problem with {}: {}", url, err);
-                timer.error(msg.clone());
+                error!("{}", msg);
                 messages.push(msg);
             }
         }
@@ -189,7 +189,7 @@ fn sync(timer: &mut Timer) -> Vec<String> {
 }
 
 // Bytes downloaded if succesful
-fn download(url: &str, local_path: String, timer: &mut Timer) -> Result<usize> {
+fn download(url: &str, local_path: String) -> Result<usize> {
     let mut resp = reqwest::blocking::get(url)?;
     if !resp.status().is_success() {
         bail!("bad status: {:?}", resp.status());
@@ -197,11 +197,7 @@ fn download(url: &str, local_path: String, timer: &mut Timer) -> Result<usize> {
     let mut buffer: Vec<u8> = Vec::new();
     let bytes = resp.copy_to(&mut buffer)? as usize;
 
-    timer.note(format!(
-        "Decompressing {} ({})",
-        url,
-        prettyprint_bytes(bytes)
-    ));
+    info!("Decompressing {} ({})", url, prettyprint_bytes(bytes));
     let mut decoder = flate2::read::GzDecoder::new(&buffer[..]);
     let mut out = File::create(&local_path).unwrap();
     std::io::copy(&mut decoder, &mut out)?;

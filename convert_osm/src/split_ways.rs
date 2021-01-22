@@ -128,11 +128,11 @@ pub fn split_up_roads(
             .cloned()
             .collect();
         if via_candidates.len() != 1 {
-            timer.warn(format!(
+            warn!(
                 "Couldn't resolve turn restriction from way {} to way {} via way {}. Candidate \
                  roads for via: {:?}. See {}",
                 from_osm, to_osm, via_osm, via_candidates, rel_osm
-            ));
+            );
             continue;
         }
         let via = via_candidates[0];
@@ -152,10 +152,10 @@ pub fn split_up_roads(
                 complicated_restrictions.push((from, via, to));
             }
             _ => {
-                timer.warn(format!(
+                warn!(
                     "Couldn't resolve turn restriction from {} to {} via {:?}",
                     from_osm, to_osm, via
-                ));
+                );
             }
         }
     }

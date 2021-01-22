@@ -162,10 +162,10 @@ impl DrawMap {
         }
         timer.stop("create quadtree");
 
-        timer.note(format!(
+        info!(
             "static DrawMap consumes {} MB on the GPU",
             abstutil::prettyprint_usize(ctx.prerender.get_total_bytes_uploaded() / 1024 / 1024)
-        ));
+        );
 
         let bounds = map.get_bounds();
         ctx.canvas.map_dims = (bounds.width(), bounds.height());

@@ -2,6 +2,8 @@
 
 #[macro_use]
 extern crate anyhow;
+#[macro_use]
+extern crate log;
 
 use std::collections::BTreeMap;
 
@@ -59,12 +61,12 @@ pub fn load(
     )?;
     timer.stop("scrape objects");
 
-    timer.note(format!(
+    info!(
         "Got {} shapes from {} and skipped {} shapes",
         prettyprint_usize(shapes.len()),
         path,
         prettyprint_usize(skipped_count)
-    ));
+    );
 
     Ok(ExtraShapes { shapes })
 }

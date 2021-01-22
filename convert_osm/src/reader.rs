@@ -77,10 +77,9 @@ pub fn read(path: &str, input_gps_bounds: &GPSBounds, timer: &mut Timer) -> Resu
             }
             "node" => {
                 if doc.gps_bounds == GPSBounds::new() {
-                    timer.warn(
+                    warn!(
                         "No clipping polygon provided and the .osm is missing a <bounds> element, \
                          so figuring out the bounds manually."
-                            .to_string(),
                     );
                     doc.gps_bounds = scrape_bounds(&tree);
                 }
@@ -166,12 +165,12 @@ pub fn read(path: &str, input_gps_bounds: &GPSBounds, timer: &mut Timer) -> Resu
         }
     }
     timer.stop("scrape objects");
-    timer.note(format!(
+    info!(
         "Found {} nodes, {} ways, {} relations",
         prettyprint_usize(doc.nodes.len()),
         prettyprint_usize(doc.ways.len()),
         prettyprint_usize(doc.relations.len())
-    ));
+    );
 
     Ok(doc)
 }

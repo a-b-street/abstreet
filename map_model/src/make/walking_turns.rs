@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
 
-use abstutil::{wraparound_get, Timer};
+use abstutil::wraparound_get;
 use geom::{Distance, Line, PolyLine, Pt2D, Ring};
 
 use crate::{
@@ -9,7 +9,7 @@ use crate::{
 };
 
 /// Generate Crosswalk and SharedSidewalkCorner (places where two sidewalks directly meet) turns
-pub fn make_walking_turns(map: &Map, i: &Intersection, timer: &mut Timer) -> Vec<Turn> {
+pub fn make_walking_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
     if i.is_footway(map) {
         return make_footway_turns(map, i);
     }
@@ -45,7 +45,7 @@ pub fn make_walking_turns(map: &Map, i: &Intersection, timer: &mut Timer) -> Vec
                     wraparound_get(&roads, (idx1 as isize) + idx_offset).outgoing_lanes(i.id),
                 ) {
                     if l1.last_pt() != l2.first_pt() {
-                        let geom = make_shared_sidewalk_corner(driving_side, i, l1, l2, timer);
+                        let geom = make_shared_sidewalk_corner(driving_side, i, l1, l2);
                         result.push(Turn {
                             id: turn_id(i.id, l1.id, l2.id),
                             turn_type: TurnType::SharedSidewalkCorner,
@@ -67,7 +67,7 @@ pub fn make_walking_turns(map: &Map, i: &Intersection, timer: &mut Timer) -> Vec
     if roads.len() == 1 {
         if let Some(l1) = get_sidewalk(lanes, roads[0].incoming_lanes(i.id)) {
             if let Some(l2) = get_sidewalk(lanes, roads[0].outgoing_lanes(i.id)) {
-                let geom = make_shared_sidewalk_corner(driving_side, i, l1, l2, timer);
+                let geom = make_shared_sidewalk_corner(driving_side, i, l1, l2);
                 result.push(Turn {
                     id: turn_id(i.id, l1.id, l2.id),
                     turn_type: TurnType::SharedSidewalkCorner,
@@ -98,7 +98,7 @@ pub fn make_walking_turns(map: &Map, i: &Intersection, timer: &mut Timer) -> Vec
                 wraparound_get(&roads, (idx1 as isize) + idx_offset).outgoing_lanes(i.id),
             ) {
                 if l1.last_pt() != l2.first_pt() {
-                    let geom = make_shared_sidewalk_corner(driving_side, i, l1, l2, timer);
+                    let geom = make_shared_sidewalk_corner(driving_side, i, l1, l2);
                     result.push(Turn {
                         id: turn_id(i.id, l1.id, l2.id),
                         turn_type: TurnType::SharedSidewalkCorner,
@@ -166,7 +166,7 @@ pub fn filter_turns(mut input: Vec<Turn>, map: &Map, i: &Intersection) -> Vec<Tu
 }
 
 // TODO Need to filter out extraneous crosswalks. Why weren't they being created before?
-pub fn _make_walking_turns_v2(map: &Map, i: &Intersection, timer: &mut Timer) -> Vec<Turn> {
+pub fn _make_walking_turns_v2(map: &Map, i: &Intersection) -> Vec<Turn> {
     let driving_side = map.config.driving_side;
     let all_roads = map.all_roads();
     let all_lanes = map.all_lanes();
@@ -241,7 +241,7 @@ pub fn _make_walking_turns_v2(map: &Map, i: &Intersection, timer: &mut Timer) ->
         if adj && l1.parent != l2.parent {
             // Because of the order we go, have to swap l1 and l2 here. l1 is the outgoing, l2 the
             // incoming.
-            let geom = make_shared_sidewalk_corner(driving_side, i, l2, l1, timer);
+            let geom = make_shared_sidewalk_corner(driving_side, i, l2, l1);
             result.push(Turn {
                 id: turn_id(i.id, l1.id, l2.id),
                 turn_type: TurnType::SharedSidewalkCorner,
@@ -413,7 +413,6 @@ fn make_shared_sidewalk_corner(
     i: &Intersection,
     l1: &Lane,
     l2: &Lane,
-    timer: &mut Timer,
 ) -> PolyLine {
     let baseline = PolyLine::must_new(vec![l1.last_pt(), l2.first_pt()]);
 
@@ -442,22 +441,22 @@ fn make_shared_sidewalk_corner(
         deduped.dedup();
         if deduped.len() >= 2 {
             if abstutil::contains_duplicates(&deduped.iter().map(|pt| pt.to_hashable()).collect()) {
-                timer.warn(format!(
+                warn!(
                     "SharedSidewalkCorner between {} and {} has weird duplicate geometry, so just \
                      doing straight line",
                     l1.id, l2.id
-                ));
+                );
                 return baseline;
             }
 
             if let Ok(pl) = PolyLine::must_new(deduped).shift_right(l1.width.min(l2.width) / 2.0) {
                 pts_between.extend(pl.points());
             } else {
-                timer.warn(format!(
+                warn!(
                     "SharedSidewalkCorner between {} and {} has weird collapsing geometry, so \
                      just doing straight line",
                     l1.id, l2.id
-                ));
+                );
                 return baseline;
             }
         }
@@ -467,10 +466,10 @@ fn make_shared_sidewalk_corner(
     // Pretty big smoothing; I'm observing funky backtracking about 0.5m long.
     let mut final_pts = Pt2D::approx_dedupe(pts_between.clone(), Distance::meters(1.0));
     if final_pts.len() < 2 {
-        timer.warn(format!(
+        warn!(
             "SharedSidewalkCorner between {} and {} couldn't do final smoothing",
             l1.id, l2.id
-        ));
+        );
         final_pts = pts_between;
         final_pts.dedup()
     }
@@ -481,22 +480,22 @@ fn make_shared_sidewalk_corner(
         final_pts.push(l2.first_pt());
     }
     if abstutil::contains_duplicates(&final_pts.iter().map(|pt| pt.to_hashable()).collect()) {
-        timer.warn(format!(
+        warn!(
             "SharedSidewalkCorner between {} and {} has weird duplicate geometry, so just doing \
              straight line",
             l1.id, l2.id
-        ));
+        );
         return baseline;
     }
     let result = PolyLine::must_new(final_pts);
     if result.length() > 10.0 * baseline.length() {
-        timer.warn(format!(
+        warn!(
             "SharedSidewalkCorner between {} and {} explodes to {} long, so just doing straight \
              line",
             l1.id,
             l2.id,
             result.length()
-        ));
+        );
         return baseline;
     }
     result

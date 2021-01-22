@@ -2,7 +2,6 @@ use std::collections::HashMap;
 
 use maplit::btreeset;
 
-use abstutil::Timer;
 use geom::Polygon;
 use map_gui::render::DrawIntersection;
 use map_model::{
@@ -126,12 +125,8 @@ impl SimpleState<App> for StopSignEditor {
                     i: self.id,
                     old: app.primary.map.get_i_edit(self.id),
                     new: EditIntersection::TrafficSignal(
-                        ControlTrafficSignal::new(
-                            &app.primary.map,
-                            self.id,
-                            &mut Timer::throwaway(),
-                        )
-                        .export(&app.primary.map),
+                        ControlTrafficSignal::new(&app.primary.map, self.id)
+                            .export(&app.primary.map),
                     ),
                 });
                 apply_map_edits(ctx, app, edits);

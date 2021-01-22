@@ -9,7 +9,7 @@ use std::collections::BTreeMap;
 
 use anyhow::Result;
 
-use abstutil::{wraparound_get, Timer};
+use abstutil::wraparound_get;
 use geom::{Circle, Distance, Line, PolyLine, Polygon, Pt2D, Ring, EPSILON_DIST};
 
 use crate::make::initial::{Intersection, Road};
@@ -26,7 +26,6 @@ const DEGENERATE_INTERSECTION_HALF_LENGTH: Distance = Distance::const_meters(2.5
 pub fn intersection_polygon(
     i: &Intersection,
     roads: &mut BTreeMap<OriginalRoad, Road>,
-    timer: &mut Timer,
 ) -> Result<(Polygon, Vec<(String, Polygon)>)> {
     if i.roads.is_empty() {
         panic!("{} has no roads", i.id);
@@ -74,7 +73,7 @@ pub fn intersection_polygon(
         for (r, trimmed_center_pts) in rollback {
             roads.get_mut(&r).unwrap().trimmed_center_pts = trimmed_center_pts;
         }
-        generalized_trim_back(roads, i.id, &lines, timer)
+        generalized_trim_back(roads, i.id, &lines)
     }
 }
 
@@ -82,7 +81,6 @@ fn generalized_trim_back(
     roads: &mut BTreeMap<OriginalRoad, Road>,
     i: osm::NodeID,
     lines: &Vec<(OriginalRoad, Pt2D, PolyLine, PolyLine)>,
-    timer: &mut Timer,
 ) -> Result<(Polygon, Vec<(String, Polygon)>)> {
     let mut debug = Vec::new();
 
@@ -180,11 +178,11 @@ fn generalized_trim_back(
                         shortest_center = trimmed;
                     }
                 } else {
-                    timer.warn(format!(
+                    warn!(
                         "{} and {} hit, but the perpendicular never hit the original center line, \
                          or the trimmed thing is empty",
                         r1, r2
-                    ));
+                    );
                 }
 
                 // We could also do the update for r2, but we'll just get to it later.
@@ -227,11 +225,11 @@ fn generalized_trim_back(
                 endpoints.push(hit);
             }
         } else {
-            timer.warn(format!(
+            warn!(
                 "Excluding collision between original polylines of {} and something, because \
                  stuff's too short",
                 id
-            ));
+            );
         }
 
         // Shift those final centers out again to find the main endpoints for the polygon.
@@ -251,11 +249,11 @@ fn generalized_trim_back(
                 endpoints.push(hit);
             }
         } else {
-            timer.warn(format!(
+            warn!(
                 "Excluding collision between original polylines of {} and something, because \
                  stuff's too short",
                 id
-            ));
+            );
         }
     }
 
@@ -274,10 +272,10 @@ fn generalized_trim_back(
     if main_result.len() == deduped.len() {
         Ok((Ring::must_new(main_result).to_polygon(), debug))
     } else {
-        timer.warn(format!(
+        warn!(
             "{}'s polygon has weird repeats, forcibly removing points",
             i
-        ));
+        );
         Ok((Ring::must_new(deduped).to_polygon(), debug))
     }
 

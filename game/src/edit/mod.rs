@@ -486,9 +486,7 @@ impl State<App> for SaveEdits {
                 "Save" | "Overwrite existing proposal" => {
                     let mut edits = app.primary.map.get_edits().clone();
                     edits.edits_name = self.current_name.clone();
-                    app.primary
-                        .map
-                        .must_apply_edits(edits, &mut Timer::new("name map edits"));
+                    app.primary.map.must_apply_edits(edits);
                     app.primary.map.save_edits();
                     if self.reset {
                         apply_map_edits(ctx, app, app.primary.map.new_edits());
@@ -672,7 +670,7 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
     let mut timer = Timer::new("apply map edits");
 
     let (roads_changed, turns_deleted, turns_added, mut modified_intersections) =
-        app.primary.map.must_apply_edits(edits, &mut timer);
+        app.primary.map.must_apply_edits(edits);
 
     if !roads_changed.is_empty() || !modified_intersections.is_empty() {
         app.primary

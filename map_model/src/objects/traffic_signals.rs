@@ -4,7 +4,7 @@ use std::convert::TryFrom;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
-use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap, Timer};
+use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap};
 use geom::{Distance, Duration, Speed};
 
 use crate::make::traffic_signals::{brute_force, get_possible_policies};
@@ -69,24 +69,20 @@ impl StageType {
 }
 
 impl ControlTrafficSignal {
-    pub fn new(map: &Map, id: IntersectionID, timer: &mut Timer) -> ControlTrafficSignal {
+    pub fn new(map: &Map, id: IntersectionID) -> ControlTrafficSignal {
         let mut policies = ControlTrafficSignal::get_possible_policies(map, id);
         if policies.len() == 1 {
-            timer.warn(format!("Falling back to greedy_assignment for {}", id));
+            warn!("Falling back to greedy_assignment for {}", id);
         }
         policies.remove(0).1
     }
 
     /// Only call this variant while importing the map, to enforce that baked-in signal config is
     /// valid.
-    pub(crate) fn validating_new(
-        map: &Map,
-        id: IntersectionID,
-        timer: &mut Timer,
-    ) -> ControlTrafficSignal {
+    pub(crate) fn validating_new(map: &Map, id: IntersectionID) -> ControlTrafficSignal {
         let mut policies = get_possible_policies(map, id, true);
         if policies.len() == 1 {
-            timer.warn(format!("Falling back to greedy_assignment for {}", id));
+            warn!("Falling back to greedy_assignment for {}", id);
         }
         policies.remove(0).1
     }

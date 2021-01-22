@@ -85,11 +85,11 @@ impl InitialMap {
 
         for (id, r) in &raw.roads {
             if id.i1 == id.i2 {
-                timer.warn(format!("Skipping loop {}", id));
+                warn!("Skipping loop {}", id);
                 continue;
             }
             if PolyLine::new(r.center_points.clone()).is_err() {
-                timer.warn(format!("Skipping broken geom {}", id));
+                warn!("Skipping broken geom {}", id);
                 continue;
             }
 
@@ -102,15 +102,12 @@ impl InitialMap {
         timer.start_iter("find each intersection polygon", m.intersections.len());
         for i in m.intersections.values_mut() {
             timer.next();
-            match intersection_polygon(i, &mut m.roads, timer) {
+            match intersection_polygon(i, &mut m.roads) {
                 Ok((poly, _)) => {
                     i.polygon = poly;
                 }
                 Err(err) => {
-                    timer.error(format!(
-                        "Can't make intersection geometry for {}: {}",
-                        i.id, err
-                    ));
+                    error!("Can't make intersection geometry for {}: {}", i.id, err);
 
                     // Don't trim lines back at all
                     let r = &m.roads[i.roads.iter().next().unwrap()];
@@ -148,11 +145,11 @@ impl InitialMap {
                     .extend_to_length(min_len)
                     .reversed();
             }
-            i.polygon = intersection_polygon(i, &mut m.roads, timer).unwrap().0;
-            timer.note(format!(
+            i.polygon = intersection_polygon(i, &mut m.roads).unwrap().0;
+            info!(
                 "Shifted border {} out a bit to make the road a reasonable length",
                 i.id
-            ));
+            );
         }
 
         m

@@ -1,6 +1,5 @@
 use std::collections::BTreeSet;
 
-use abstutil::Timer;
 use map_gui::tools::{ColorDiscrete, PopupMsg};
 use map_model::{connectivity, EditCmd, LaneID, LaneType, Map, PathConstraints};
 use widgetry::{Color, EventCtx, State};
@@ -22,15 +21,11 @@ pub fn check_sidewalk_connectivity(
 
     let mut edits = orig_edits.clone();
     edits.commands.push(cmd);
-    app.primary
-        .map
-        .try_apply_edits(edits, &mut Timer::throwaway());
+    app.primary.map.try_apply_edits(edits);
 
     let (_, disconnected_after) =
         connectivity::find_scc(&app.primary.map, PathConstraints::Pedestrian);
-    app.primary
-        .map
-        .must_apply_edits(orig_edits, &mut Timer::throwaway());
+    app.primary.map.must_apply_edits(orig_edits);
 
     let newly_disconnected = disconnected_after
         .difference(&disconnected_before)
@@ -79,9 +74,7 @@ pub fn check_blackholes(
 
     let mut edits = orig_edits.clone();
     edits.commands.push(cmd);
-    app.primary
-        .map
-        .try_apply_edits(edits, &mut Timer::throwaway());
+    app.primary.map.try_apply_edits(edits);
 
     let mut newly_disconnected = BTreeSet::new();
     for l in connectivity::find_scc(&app.primary.map, PathConstraints::Car).1 {
@@ -94,9 +87,7 @@ pub fn check_blackholes(
             newly_disconnected.insert(l);
         }
     }
-    app.primary
-        .map
-        .must_apply_edits(orig_edits, &mut Timer::throwaway());
+    app.primary.map.must_apply_edits(orig_edits);
 
     if newly_disconnected.is_empty() {
         return None;
@@ -134,7 +125,7 @@ pub fn try_change_lt(
         })
     };
     edits.commands.push(cmd.clone());
-    map.try_apply_edits(edits, &mut Timer::throwaway());
+    map.try_apply_edits(edits);
 
     let mut errors = Vec::new();
     let r = map.get_parent(l);
@@ -161,7 +152,7 @@ pub fn try_change_lt(
         errors.push(format!("You need a driving or bus lane for the bus stop!"));
     }
 
-    map.must_apply_edits(orig_edits, &mut Timer::throwaway());
+    map.must_apply_edits(orig_edits);
     if errors.is_empty() {
         Ok(cmd)
     } else {

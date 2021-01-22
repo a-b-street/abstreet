@@ -113,10 +113,6 @@ pub struct Timer<'a> {
 
     outermost_name: String,
 
-    notes: Vec<String>,
-    pub(crate) warnings: Vec<String>,
-    pub(crate) errors: Vec<String>,
-
     sink: Option<Box<dyn TimerSink + 'a>>,
 }
 
@@ -141,9 +137,6 @@ impl<'a> Timer<'a> {
             results: Vec::new(),
             stack: Vec::new(),
             outermost_name: name.clone(),
-            notes: Vec::new(),
-            warnings: Vec::new(),
-            errors: Vec::new(),
             sink: None,
         };
         t.start(name);
@@ -178,26 +171,6 @@ impl<'a> Timer<'a> {
         if let Some(ref mut sink) = maybe_sink {
             sink.println(line);
         }
-    }
-
-    /// Log immediately, but also repeat at the end, to avoid having to scroll up and find
-    /// interesting debug stuff.
-    pub fn note(&mut self, line: String) {
-        // Interrupt the start_iter with a newline.
-        if let Some(StackEntry::Progress(_)) = self.stack.last() {
-            self.println(String::new());
-        }
-
-        self.println(line.clone());
-        self.notes.push(line);
-    }
-
-    pub fn warn(&mut self, line: String) {
-        self.warnings.push(line);
-    }
-
-    pub fn error(&mut self, line: String) {
-        self.errors.push(line);
     }
 
     /// Used to end the scope of a timer early.
@@ -444,34 +417,6 @@ impl<'a> std::ops::Drop for Timer<'a> {
         for line in &self.results {
             Timer::selfless_println(&mut self.sink, line.to_string());
         }
-        self.println(String::new());
-
-        if !self.notes.is_empty() {
-            self.println(format!("{} notes:", self.notes.len()));
-            for line in &self.notes {
-                Timer::selfless_println(&mut self.sink, line.to_string());
-            }
-            self.println(String::new());
-        }
-
-        if !self.warnings.is_empty() {
-            self.println(format!("{} warnings:", self.warnings.len()));
-            for line in &self.warnings {
-                Timer::selfless_println(&mut self.sink, line.to_string());
-            }
-            self.println(String::new());
-        }
-
-        if !self.errors.is_empty() {
-            self.println(format!("***** {} errors: *****", self.errors.len()));
-            for line in &self.errors {
-                Timer::selfless_println(&mut self.sink, line.to_string());
-            }
-            self.println(String::new());
-        }
-
-        // In case of lots of notes and warnings, repeat the overall timing.
-        Timer::selfless_println(&mut self.sink, self.results[0].clone());
 
         if std::thread::panicking() {
             self.println(String::new());

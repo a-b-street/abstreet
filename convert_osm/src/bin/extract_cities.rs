@@ -61,7 +61,6 @@ fn main() {
                 *id,
                 convert_osm::osm_geom::get_multipolygon_members(*id, rel, &doc),
                 None,
-                &mut timer,
             );
             // Simplify the result (which often has thousands of points)
             println!(

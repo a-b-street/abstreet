@@ -49,10 +49,10 @@ pub fn make_all_parking_lots(
             let sidewalk_line = match Line::new(lot_center.to_pt2d(), sidewalk_pos.pt(map)) {
                 Some(l) => trim_path(&orig.polygon, l),
                 None => {
-                    timer.warn(format!(
+                    warn!(
                         "Skipping parking lot {} because front path has 0 length",
                         orig.osm_id
-                    ));
+                    );
                     continue;
                 }
             };
@@ -94,18 +94,18 @@ pub fn make_all_parking_lots(
                     sidewalk_pos: *sidewalk_pos,
                 });
             } else {
-                timer.warn(format!(
+                warn!(
                     "Parking lot from {}, near sidewalk {}, can't have a driveway.",
                     orig.osm_id,
                     sidewalk_pos.lane()
-                ));
+                );
             }
         }
     }
-    timer.note(format!(
+    info!(
         "Discarded {} parking lots that weren't close enough to a sidewalk",
         input.len() - results.len()
-    ));
+    );
 
     let mut closest: FindClosest<ParkingLotID> = FindClosest::new(map.get_bounds());
     for lot in &results {
@@ -144,10 +144,7 @@ pub fn make_all_parking_lots(
                 }
             }
             Err(err) => {
-                timer.warn(format!(
-                    "Parking aisle {} has weird geometry: {}",
-                    aisle_id, err
-                ));
+                warn!("Parking aisle {} has weird geometry: {}", aisle_id, err);
             }
         }
     }

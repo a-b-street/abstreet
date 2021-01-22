@@ -200,11 +200,11 @@ impl SimOptions {
 
 // Setup
 impl Sim {
-    pub fn new(map: &Map, opts: SimOptions, timer: &mut Timer) -> Sim {
+    pub fn new(map: &Map, opts: SimOptions) -> Sim {
         let mut scheduler = Scheduler::new();
         Sim {
             driving: DrivingSimState::new(map, &opts),
-            parking: ParkingSimState::new(map, opts.infinite_parking, timer),
+            parking: ParkingSimState::new(map, opts.infinite_parking),
             walking: WalkingSimState::new(),
             intersections: IntersectionSimState::new(map, &mut scheduler, &opts),
             transit: TransitSimState::new(map),
@@ -931,8 +931,7 @@ impl Sim {
         }
 
         let num_evicted = {
-            let (evicted_cars, cars_parking_in_the_void) =
-                self.parking.handle_live_edits(map, &mut Timer::throwaway());
+            let (evicted_cars, cars_parking_in_the_void) = self.parking.handle_live_edits(map);
             let num_evicted = evicted_cars.len();
             affected.extend(self.walking.find_trips_to_parking(evicted_cars));
             for car in cars_parking_in_the_void {

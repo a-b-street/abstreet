@@ -3,18 +3,17 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use anyhow::Result;
 use nbez::{Bez3o, BezCurve, Point2d};
 
-use abstutil::Timer;
 use geom::{Angle, Distance, PolyLine, Pt2D};
 
 use crate::raw::RestrictionType;
 use crate::{Intersection, Lane, LaneID, Map, RoadID, Turn, TurnID, TurnType};
 
 /// Generate all driving and walking turns at an intersection, accounting for OSM turn restrictions.
-pub fn make_all_turns(map: &Map, i: &Intersection, timer: &mut Timer) -> Vec<Turn> {
+pub fn make_all_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
     let mut raw_turns: Vec<Turn> = Vec::new();
-    raw_turns.extend(make_vehicle_turns(i, map, timer));
+    raw_turns.extend(make_vehicle_turns(i, map));
     raw_turns.extend(crate::make::walking_turns::filter_turns(
-        crate::make::walking_turns::make_walking_turns(map, i, timer),
+        crate::make::walking_turns::make_walking_turns(map, i),
         map,
         i,
     ));
@@ -78,15 +77,12 @@ pub fn make_all_turns(map: &Map, i: &Intersection, timer: &mut Timer) -> Vec<Tur
                     .min_by_key(|t| lc_penalty(t, map))
                     .unwrap();
                 final_turns.push(best);
-                timer.note(format!(
+                info!(
                     "Restricted lane-changing on approach to turn lanes at {}",
                     l
-                ));
+                );
             } else {
-                timer.warn(format!(
-                    "Turn restrictions broke {} outbound, so restoring turns",
-                    l
-                ));
+                warn!("Turn restrictions broke {} outbound, so restoring turns", l);
                 final_turns.extend(turns);
             }
             incoming_missing.remove(&l);
@@ -99,10 +95,7 @@ pub fn make_all_turns(map: &Map, i: &Intersection, timer: &mut Timer) -> Vec<Tur
     if i.merged {
         final_turns.retain(|turn| {
             if turn.turn_type == TurnType::UTurn {
-                timer.warn(format!(
-                    "Removing u-turn from merged intersection: {}",
-                    turn.id
-                ));
+                warn!("Removing u-turn from merged intersection: {}", turn.id);
                 false
             } else {
                 true
@@ -121,10 +114,10 @@ pub fn make_all_turns(map: &Map, i: &Intersection, timer: &mut Timer) -> Vec<Tur
     }
 
     if !incoming_missing.is_empty() || !outgoing_missing.is_empty() {
-        timer.warn(format!(
+        warn!(
             "Turns for {} orphan some lanes. Incoming: {:?}, outgoing: {:?}",
             i.id, incoming_missing, outgoing_missing
-        ));
+        );
     }
 
     final_turns
@@ -188,7 +181,7 @@ fn does_turn_pass_restrictions(turn: &Turn, i: &Intersection, map: &Map) -> bool
     true
 }
 
-fn make_vehicle_turns(i: &Intersection, map: &Map, timer: &mut Timer) -> Vec<Turn> {
+fn make_vehicle_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
     let mut turns = Vec::new();
 
     // Just generate every possible combination of turns between incoming and outgoing lanes.
@@ -212,10 +205,10 @@ fn make_vehicle_turns(i: &Intersection, map: &Map, timer: &mut Timer) -> Vec<Tur
                 continue;
             }
             if src.last_pt() == dst.first_pt() {
-                timer.warn(format!(
+                warn!(
                     "No turn from {} to {}; the endpoints are the same",
                     src.id, dst.id
-                ));
+                );
                 continue;
             }
 

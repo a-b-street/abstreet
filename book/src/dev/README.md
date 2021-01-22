@@ -187,9 +187,7 @@ return them.
 ## Logging
 
 Prefer using `info!`, `warn!`, `error!`, etc from the `log` crate rather than
-`println`. Or if a `Timer` is available and you want to collect all notes
-together, `timer.note`. There are still many places calling `println!`, but
-we're trying to clean these up.
+`println`.
 
 Adjust the log level without recompiling via the `RUST_LOG` env variable.
 

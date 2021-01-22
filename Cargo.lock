@@ -1794,6 +1794,7 @@ dependencies = [
  "geojson",
  "geom",
  "kml",
+ "log",
  "map_model",
  "popdat",
  "rand 0.8.1",
@@ -1954,6 +1955,7 @@ dependencies = [
  "anyhow",
  "csv",
  "geom",
+ "log",
  "roxmltree 0.14.0",
  "serde",
 ]
@@ -2736,6 +2738,7 @@ dependencies = [
  "abstutil",
  "anyhow",
  "geom",
+ "log",
  "map_gui",
  "map_model",
  "reqwest",

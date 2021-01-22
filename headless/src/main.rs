@@ -38,7 +38,7 @@ use sim::{
 
 lazy_static::lazy_static! {
     static ref MAP: RwLock<Map> = RwLock::new(Map::blank());
-    static ref SIM: RwLock<Sim> = RwLock::new(Sim::new(&Map::blank(), SimOptions::new("tmp"), &mut Timer::throwaway()));
+    static ref SIM: RwLock<Sim> = RwLock::new(Sim::new(&Map::blank(), SimOptions::new("tmp")));
     static ref LOAD: RwLock<LoadSim> = RwLock::new({
         LoadSim {
             scenario: abstio::path_scenario(&MapName::seattle("montlake"), "weekday"),
@@ -202,7 +202,7 @@ fn handle_command(
                 old: map.get_i_edit(id),
                 new: EditIntersection::TrafficSignal(ts.export(map)),
             });
-            map.must_apply_edits(edits, &mut Timer::throwaway());
+            map.must_apply_edits(edits);
             map.recalculate_pathfinding_after_edits(&mut Timer::throwaway());
 
             Ok(format!("{} has been updated", id))
@@ -467,7 +467,7 @@ impl LoadSim {
         let mut map = Map::new(scenario.map_name.path(), timer);
         if let Some(perma) = self.edits.clone() {
             let edits = perma.to_edits(&map).unwrap();
-            map.must_apply_edits(edits, timer);
+            map.must_apply_edits(edits);
             map.recalculate_pathfinding_after_edits(timer);
         }
 
@@ -476,7 +476,7 @@ impl LoadSim {
         }
 
         let mut rng = XorShiftRng::seed_from_u64(self.rng_seed);
-        let mut sim = Sim::new(&map, self.opts.clone(), timer);
+        let mut sim = Sim::new(&map, self.opts.clone());
         scenario.instantiate(&mut sim, &map, &mut rng, timer);
 
         (map, sim)

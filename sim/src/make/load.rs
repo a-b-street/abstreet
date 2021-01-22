@@ -62,7 +62,7 @@ impl SimFlags {
         let mut opts = self.opts.clone();
 
         if self.load.starts_with(&abstio::path_player("saves/")) {
-            timer.note(format!("Resuming from {}", self.load));
+            info!("Resuming from {}", self.load);
 
             let sim: Sim = abstio::must_read_object(self.load.clone(), timer);
 
@@ -73,7 +73,7 @@ impl SimFlags {
                 timer,
             ) {
                 Ok(edits) => {
-                    map.must_apply_edits(edits, timer);
+                    map.must_apply_edits(edits);
                     map.recalculate_pathfinding_after_edits(timer);
                 }
                 Err(err) => {
@@ -83,10 +83,7 @@ impl SimFlags {
 
             (map, sim, rng)
         } else if self.load.contains("/scenarios/") {
-            timer.note(format!(
-                "Seeding the simulation from scenario {}",
-                self.load
-            ));
+            info!("Seeding the simulation from scenario {}", self.load);
 
             let mut scenario: Scenario = abstio::must_read_object(self.load.clone(), timer);
 
@@ -99,17 +96,17 @@ impl SimFlags {
             if opts.run_name == "unnamed" {
                 opts.run_name = scenario.scenario_name.clone();
             }
-            let mut sim = Sim::new(&map, opts, timer);
+            let mut sim = Sim::new(&map, opts);
             scenario.instantiate(&mut sim, &map, &mut rng, timer);
 
             (map, sim, rng)
         } else if self.load.contains("/raw_maps/") || self.load.contains("/maps/") {
-            timer.note(format!("Loading map {}", self.load));
+            info!("Loading map {}", self.load);
 
             let map = Map::new(self.load.clone(), timer);
 
             timer.start("create sim");
-            let sim = Sim::new(&map, opts, timer);
+            let sim = Sim::new(&map, opts);
             timer.stop("create sim");
 
             (map, sim, rng)

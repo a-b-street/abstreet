@@ -331,9 +331,7 @@ impl widgetry::State<App> for MainState {
 }
 
 fn preview_intersection(i: osm::NodeID, model: &Model, ctx: &EventCtx) -> Drawable {
-    let (intersection, roads, debug) = model
-        .map
-        .preview_intersection(i, &mut Timer::new("calculate intersection_polygon"));
+    let (intersection, roads, debug) = model.map.preview_intersection(i);
     let mut batch = GeomBatch::new();
     batch.push(Color::ORANGE.alpha(0.5), intersection);
     for r in roads {
@@ -362,7 +360,7 @@ fn preview_all_intersections(model: &Model, ctx: &EventCtx) -> Drawable {
         if model.map.roads_per_intersection(*i).is_empty() {
             continue;
         }
-        let (intersection, _, _) = model.map.preview_intersection(*i, &mut timer);
+        let (intersection, _, _) = model.map.preview_intersection(*i);
         batch.push(Color::ORANGE.alpha(0.5), intersection);
     }
     batch.upload(ctx)

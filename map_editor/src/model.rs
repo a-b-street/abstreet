@@ -201,7 +201,7 @@ impl Model {
         };
 
         let poly = if self.intersection_geom && !self.map.roads_per_intersection(id).is_empty() {
-            let (poly, _, _) = self.map.preview_intersection(id, &mut Timer::throwaway());
+            let (poly, _, _) = self.map.preview_intersection(id);
             poly
         } else {
             Circle::new(i.point, INTERSECTION_RADIUS).to_polygon()

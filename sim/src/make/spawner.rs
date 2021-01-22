@@ -287,8 +287,8 @@ impl TripSpec {
                         maybe_stop2,
                     }
                 } else {
-                    //timer.warn(format!("{:?} not actually using transit, because pathfinding
-                    // didn't find any useful route", trip));
+                    //warn!("{:?} not actually using transit, because pathfinding didn't find any
+                    // useful route", trip);
                     TripSpec::JustWalking { start, goal }
                 }
             }

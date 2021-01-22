@@ -26,7 +26,7 @@ fn main() {
     {
         let mut edits = map.get_edits().clone();
         edits.edits_name = "traffic_seitan".to_string();
-        map.must_apply_edits(edits, &mut timer);
+        map.must_apply_edits(edits);
         map.recalculate_pathfinding_after_edits(&mut timer);
         sim.handle_live_edits(&map);
     }
@@ -36,7 +36,7 @@ fn main() {
     })) {
         let mut edits = map.get_edits().clone();
         edits.edits_name = "traffic_seitan_crash".to_string();
-        map.must_apply_edits(edits, &mut timer);
+        map.must_apply_edits(edits);
         map.save_edits();
 
         println!("Crashed at {}", sim.time());
@@ -58,7 +58,7 @@ fn run(map: &mut Map, sim: &mut Sim, rng: &mut XorShiftRng, timer: &mut Timer) {
         nuke_random_parking(map, rng, &mut edits);
         alter_turn_destinations(sim, map, rng, &mut edits);
 
-        map.must_apply_edits(edits, timer);
+        map.must_apply_edits(edits);
         map.recalculate_pathfinding_after_edits(timer);
         sim.handle_live_edited_traffic_signals(&map);
         sim.handle_live_edits(&map);

@@ -99,10 +99,10 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
             let definitely_no_parking =
                 tags.is_any(osm::HIGHWAY, vec!["motorway", "motorway_link", "trunk"]);
             if has_parking && definitely_no_parking {
-                timer.warn(format!(
+                warn!(
                     "Blockface says there's parking along motorway {}, ignoring",
                     r
-                ));
+                );
                 continue;
             }
 

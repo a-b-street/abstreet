@@ -3,6 +3,8 @@
 
 #[macro_use]
 extern crate anyhow;
+#[macro_use]
+extern crate log;
 
 use abstio::MapName;
 use abstutil::{basename, Timer};
