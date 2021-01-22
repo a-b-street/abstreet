@@ -817,7 +817,6 @@
 <span id="814">814</span>
 <span id="815">815</span>
 <span id="816">816</span>
-<span id="817">817</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -1531,9 +1530,8 @@
                 <span class="comment">// Hide the hit area for selectable tabs unless hovered</span>
                 .<span class="ident">bg_color</span>(<span class="ident">Color</span>::<span class="ident">CLEAR</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
                 .<span class="ident">outline</span>(<span class="number">0.0</span>, <span class="ident">Color</span>::<span class="ident">CLEAR</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
-                .<span class="ident">outline</span>(
-                    <span class="number">2.0</span>,
-                    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_primary_dark</span>.<span class="ident">bg_hover</span>.<span class="ident">alpha</span>(<span class="number">0.4</span>),
+                .<span class="ident">bg_color</span>(
+                    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_primary_dark</span>.<span class="ident">bg</span>.<span class="ident">alpha</span>(<span class="number">0.6</span>),
                     <span class="ident">ControlState</span>::<span class="ident">Hovered</span>,
                 )
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
