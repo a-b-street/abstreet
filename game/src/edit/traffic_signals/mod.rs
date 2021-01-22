@@ -645,12 +645,12 @@ fn make_side_panel(
 
         let up_button = ctx
             .style()
-            .btn_primary_light_icon("system/assets/tools/arrow_up.svg")
+            .btn_primary_light_icon("../widgetry/icons/arrow_up.svg")
             .disabled(idx == 0);
 
         let down_button = ctx
             .style()
-            .btn_primary_light_icon("system/assets/tools/arrow_down.svg")
+            .btn_primary_light_icon("../widgetry/icons/arrow_down.svg")
             .disabled(idx == canonical_signal.stages.len() - 1);
 
         let stage_controls = Widget::row(vec![

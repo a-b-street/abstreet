@@ -87,6 +87,9 @@ pub trait StyledButtons<'a> {
     fn btn_plain_light_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
         icon_button(self.btn_plain_light().image_path(image_path))
     }
+    fn btn_plain_light_icon_bytes(&self, image_bytes: (&'a [u8], &'a str)) -> ButtonBuilder<'a> {
+        icon_button(self.btn_plain_light().image_bytes(image_bytes))
+    }
     fn btn_plain_light_icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
         self.btn_plain_light()
             .label_text(text)
@@ -302,7 +305,10 @@ fn back_button<'a>(builder: ButtonBuilder<'a>, title: &'a str) -> ButtonBuilder<
 
 fn dropdown_button<'a>(builder: ButtonBuilder<'a>) -> ButtonBuilder<'a> {
     builder
-        .image_path("system/assets/tools/arrow_drop_down.svg")
+        .image_bytes((
+            include_bytes!("../../icons/arrow_drop_down.svg"),
+            "../../icons/arrow_drop_down.svg",
+        ))
         .image_dims(12.0)
         .stack_spacing(12.0)
         .label_first()

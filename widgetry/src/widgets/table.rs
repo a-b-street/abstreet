@@ -101,10 +101,13 @@ impl<A, T, F> Table<A, T, F> {
                 if self.sort_by == col.name {
                     ctx.style()
                         .btn_primary_dark_icon_text("tmp", &col.name)
-                        .image_path(if self.descending {
-                            "system/assets/tools/arrow_down.svg"
+                        .image_bytes(if self.descending {
+                            (
+                                include_bytes!("../../icons/arrow_down.svg"),
+                                "arrow_down.svg",
+                            )
                         } else {
-                            "system/assets/tools/arrow_up.svg"
+                            (include_bytes!("../../icons/arrow_up.svg"), "arrow_up.svg")
                         })
                         .label_first()
                         .build_widget(ctx, &col.name)

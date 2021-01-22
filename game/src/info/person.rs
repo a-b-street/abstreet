@@ -191,7 +191,7 @@ pub fn trips(
             },
             {
                 let mut icon =
-                    GeomBatch::load_svg(ctx.prerender, "system/assets/tools/arrow_drop_down.svg")
+                    GeomBatch::load_svg(ctx.prerender, "../widgetry/icons/arrow_drop_down.svg")
                         .autocrop()
                         .color(RewriteColor::ChangeAll(Color::WHITE))
                         .scale(1.5);
