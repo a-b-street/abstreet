@@ -438,7 +438,7 @@ impl InfoPanel {
             tab,
             time: app.primary.sim.time(),
             is_paused: ctx_actions.is_paused(),
-            panel: Panel::new(Widget::col(col).bg(Color::hex("#5B5B5B")).padding(16))
+            panel: Panel::new(Widget::col(col).bg(app.cs.panel_bg).padding(16))
                 .aligned(
                     HorizontalAlignment::Percent(0.02),
                     VerticalAlignment::Percent(0.2),
