@@ -161,7 +161,7 @@ fn make_panel(
         Widget::custom_col(vec![
             (make_task)(ctx),
             ctx.style()
-                .btn_solid_light_text("Start")
+                .btn_solid_dark_text("Start")
                 .hotkey(Key::Enter)
                 .build_def(ctx)
                 .centered_horiz()

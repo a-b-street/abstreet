@@ -17,7 +17,7 @@ pub fn area(ctx: &EventCtx, app: &App, _: &mut Details, id: AreaID) -> Vec<Widge
     if let Some(osm_id) = area.osm_id {
         rows.push(
             ctx.style()
-                .btn_solid_light_text("Open in OSM")
+                .btn_solid_dark_text("Open in OSM")
                 .build_widget(ctx, &format!("open {}", osm_id)),
         );
     }

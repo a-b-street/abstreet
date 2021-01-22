@@ -184,7 +184,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
     if app.opts.dev {
         rows.push(
             ctx.style()
-                .btn_solid_light_text("Open OSM relation")
+                .btn_solid_dark_text("Open OSM relation")
                 .build_widget(ctx, &format!("open {}", route.osm_rel_id)),
         );
     }
