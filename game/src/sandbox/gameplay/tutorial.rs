@@ -739,7 +739,7 @@ impl TutorialState {
                 txt.draw(ctx)
             },
             ctx.style()
-                .btn_prev()
+                .btn_next()
                 .disabled(self.current.stage == self.stages.len() - 1)
                 .build_widget(ctx, "next tutorial"),
             ctx.style().btn_secondary_light_text("Quit").build_def(ctx),
