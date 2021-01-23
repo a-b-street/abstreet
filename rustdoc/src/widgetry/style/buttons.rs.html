@@ -310,9 +310,16 @@
 <span id="307">307</span>
 <span id="308">308</span>
 <span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">ButtonStyle</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ButtonBuilder</span>, <span class="ident">ControlState</span>, <span class="ident">EventCtx</span>, <span class="ident">ScreenDims</span>, <span class="ident">Style</span>, <span class="ident">Widget</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">include_labeled_bytes</span>, <span class="ident">ButtonBuilder</span>, <span class="ident">ControlState</span>, <span class="ident">EventCtx</span>, <span class="ident">ScreenDims</span>, <span class="ident">Style</span>, <span class="ident">Widget</span>,
+};
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">StyledButtons</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">btn_primary_dark</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
@@ -399,6 +406,9 @@
     }
     <span class="kw">fn</span> <span class="ident">btn_plain_light_icon</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="ident">icon_button</span>(<span class="self">self</span>.<span class="ident">btn_plain_light</span>().<span class="ident">image_path</span>(<span class="ident">image_path</span>))
+    }
+    <span class="kw">fn</span> <span class="ident">btn_plain_light_icon_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">labeled_bytes</span>: (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>])) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="ident">icon_button</span>(<span class="self">self</span>.<span class="ident">btn_plain_light</span>().<span class="ident">image_bytes</span>(<span class="ident">labeled_bytes</span>))
     }
     <span class="kw">fn</span> <span class="ident">btn_plain_light_icon_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">btn_plain_light</span>()
@@ -607,7 +617,7 @@
 <span class="kw">fn</span> <span class="ident">back_button</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">builder</span>: <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">title</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="comment">// DESIGN REVIEW: this button seems absurdly large</span>
     <span class="ident">builder</span>
-        .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/pregame/back.svg&quot;</span>)
+        .<span class="ident">image_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/nav_back.svg&quot;</span>))
         .<span class="ident">label_text</span>(<span class="ident">title</span>)
         .<span class="ident">padding_left</span>(<span class="number">8.0</span>)
         .<span class="ident">font_size</span>(<span class="number">30</span>)
@@ -615,7 +625,7 @@
 
 <span class="kw">fn</span> <span class="ident">dropdown_button</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">builder</span>: <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">builder</span>
-        .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/tools/arrow_drop_down.svg&quot;</span>)
+        .<span class="ident">image_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/arrow_drop_down.svg&quot;</span>))
         .<span class="ident">image_dims</span>(<span class="number">12.0</span>)
         .<span class="ident">stack_spacing</span>(<span class="number">12.0</span>)
         .<span class="ident">label_first</span>()

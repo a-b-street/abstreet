@@ -239,6 +239,31 @@
 <span id="236">236</span>
 <span id="237">237</span>
 <span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">lyon</span>::<span class="ident">math</span>::<span class="ident">Point</span>;
 <span class="kw">use</span> <span class="ident">lyon</span>::<span class="ident">path</span>::<span class="ident">PathEvent</span>;
@@ -257,28 +282,53 @@
 <span class="comment">// https://github.com/nical/lyon/blob/0d0ee771180fb317b986d9cf30266722e0773e01/examples/wgpu_svg/src/main.rs</span>
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_svg</span>(<span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>, <span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">GeomBatch</span>, <span class="ident">Bounds</span>) {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pair</span>) <span class="op">=</span> <span class="ident">prerender</span>.<span class="ident">assets</span>.<span class="ident">get_cached_svg</span>(<span class="ident">filename</span>) {
+    <span class="kw">let</span> <span class="ident">cache_key</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;file://{}&quot;</span>, <span class="ident">filename</span>);
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pair</span>) <span class="op">=</span> <span class="ident">prerender</span>.<span class="ident">assets</span>.<span class="ident">get_cached_svg</span>(<span class="kw-2">&amp;</span><span class="ident">cache_key</span>) {
         <span class="kw">return</span> <span class="ident">pair</span>;
     }
 
-    <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> (<span class="ident">prerender</span>.<span class="ident">assets</span>.<span class="ident">read_svg</span>)(<span class="ident">filename</span>);
-    <span class="kw">let</span> <span class="ident">svg_tree</span> <span class="op">=</span> <span class="ident">usvg</span>::<span class="ident">Tree</span>::<span class="ident">from_data</span>(<span class="kw-2">&amp;</span><span class="ident">raw</span>, <span class="kw-2">&amp;</span><span class="ident">usvg</span>::<span class="ident">Options</span>::<span class="ident">default</span>()).<span class="ident">unwrap</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-    <span class="kw">match</span> <span class="ident">add_svg_inner</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>, <span class="ident">svg_tree</span>, <span class="ident">HIGH_QUALITY</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">bounds</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> (<span class="ident">prerender</span>.<span class="ident">assets</span>.<span class="ident">read_svg</span>)(<span class="ident">filename</span>);
+    <span class="ident">load_svg_from_bytes_uncached</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>)
+        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">batch</span>, <span class="ident">bounds</span>)<span class="op">|</span> {
             <span class="ident">prerender</span>
                 .<span class="ident">assets</span>
-                .<span class="ident">cache_svg</span>(<span class="ident">filename</span>.<span class="ident">to_string</span>(), <span class="ident">batch</span>.<span class="ident">clone</span>(), <span class="ident">bounds</span>.<span class="ident">clone</span>());
+                .<span class="ident">cache_svg</span>(<span class="ident">cache_key</span>, <span class="ident">batch</span>.<span class="ident">clone</span>(), <span class="ident">bounds</span>.<span class="ident">clone</span>());
             (<span class="ident">batch</span>, <span class="ident">bounds</span>)
-        }
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;{}: {}&quot;</span>, <span class="ident">filename</span>, <span class="ident">err</span>),
+        })
+        .<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;error loading svg: {}&quot;</span>, <span class="ident">filename</span>))
+}
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_svg_bytes</span>(
+    <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>,
+    <span class="ident">cache_key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+    <span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">GeomBatch</span>, <span class="ident">Bounds</span>)<span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">cache_key</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;bytes://{}&quot;</span>, <span class="ident">cache_key</span>);
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pair</span>) <span class="op">=</span> <span class="ident">prerender</span>.<span class="ident">assets</span>.<span class="ident">get_cached_svg</span>(<span class="kw-2">&amp;</span><span class="ident">cache_key</span>) {
+        <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">pair</span>);
+    }
+
+    <span class="ident">load_svg_from_bytes_uncached</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">batch</span>, <span class="ident">bounds</span>)<span class="op">|</span> {
+        <span class="ident">prerender</span>
+            .<span class="ident">assets</span>
+            .<span class="ident">cache_svg</span>(<span class="ident">cache_key</span>, <span class="ident">batch</span>.<span class="ident">clone</span>(), <span class="ident">bounds</span>.<span class="ident">clone</span>());
+        (<span class="ident">batch</span>, <span class="ident">bounds</span>)
+    })
+}
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_svg_from_bytes_uncached</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">GeomBatch</span>, <span class="ident">Bounds</span>)<span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">svg_tree</span> <span class="op">=</span> <span class="ident">usvg</span>::<span class="ident">Tree</span>::<span class="ident">from_data</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>, <span class="kw-2">&amp;</span><span class="ident">usvg</span>::<span class="ident">Options</span>::<span class="ident">default</span>())<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+    <span class="kw">match</span> <span class="ident">add_svg_inner</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>, <span class="ident">svg_tree</span>, <span class="ident">HIGH_QUALITY</span>) {
+        <span class="prelude-val">Ok</span>(<span class="ident">bounds</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>((<span class="ident">batch</span>, <span class="ident">bounds</span>)),
+        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">anyhow</span><span class="macro">!</span>(<span class="ident">err</span>)),
     }
 }
 
 <span class="comment">// No offset. I&#39;m not exactly sure how the simplification in usvg works, but this doesn&#39;t support</span>
 <span class="comment">// transforms or strokes or text, just fills. Luckily, all of the files exported from Figma so far</span>
 <span class="comment">// work just fine.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_svg_inner</span>(
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">add_svg_inner</span>(
     <span class="ident">batch</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GeomBatch</span>,
     <span class="ident">svg_tree</span>: <span class="ident">usvg</span>::<span class="ident">Tree</span>,
     <span class="ident">tolerance</span>: <span class="ident">f32</span>,

@@ -820,6 +820,52 @@
 <span id="817">817</span>
 <span id="818">818</span>
 <span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
+<span id="864">864</span>
+<span id="865">865</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>};
 
@@ -1077,11 +1123,33 @@
     }
 
     <span class="doccomment">/// Set the image for the button. If not set, the button will have no image.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This will replace any image previously set by [`Self::image_bytes`]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image_path</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="comment">// Currently we don&#39;t support setting image for other states like &quot;hover&quot;, we easily</span>
         <span class="comment">// could, but the API gets more verbose for a thing we don&#39;t currently need.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">image</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">image</span>.<span class="ident">take</span>().<span class="ident">unwrap_or_default</span>();
-        <span class="ident">image</span>.<span class="ident">path</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>);
+        <span class="ident">image</span>.<span class="ident">source</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">ImageSource</span>::<span class="ident">Path</span>(<span class="ident">path</span>));
+        <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">image</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">image</span>);
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Set the image for the button. If not set, the button will have no image.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This will replace any image previously set by [`Self::image_path`].</span>
+    <span class="doccomment">/// * `labeled_bytes`: is a (`label`, `bytes`) tuple you can generate with</span>
+    <span class="doccomment">///   [`include_labeled_bytes!`]</span>
+    <span class="doccomment">/// * `label`: a label to describe the bytes for debugging purposes</span>
+    <span class="doccomment">/// * `bytes`: utf-8 encoded bytes of the svg</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image_bytes</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">labeled_bytes</span>: (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>])) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">let</span> (<span class="ident">label</span>, <span class="ident">bytes</span>) <span class="op">=</span> <span class="ident">labeled_bytes</span>;
+        <span class="comment">// Currently we don&#39;t support setting image for other states like &quot;hover&quot;, we easily</span>
+        <span class="comment">// could, but the API gets more verbose for a thing we don&#39;t currently need.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">image</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">image</span>.<span class="ident">take</span>().<span class="ident">unwrap_or_default</span>();
+        <span class="ident">image</span>.<span class="ident">source</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">ImageSource</span>::<span class="ident">Bytes</span> {
+            <span class="ident">bytes</span>,
+            <span class="ident">cache_key</span>: <span class="ident">label</span>,
+        });
         <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">image</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">image</span>);
         <span class="self">self</span>
     }
@@ -1319,12 +1387,16 @@
             .<span class="ident">or</span>(<span class="ident">default_style</span>.<span class="ident">image</span>.<span class="ident">as_ref</span>())
             .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">image</span><span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">default</span> <span class="op">=</span> <span class="ident">default_style</span>.<span class="ident">image</span>.<span class="ident">as_ref</span>();
-                <span class="kw">let</span> <span class="ident">image_path</span> <span class="op">=</span> <span class="ident">image</span>.<span class="ident">path</span>.<span class="ident">or</span>(<span class="ident">default</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">d</span><span class="op">|</span> <span class="ident">d</span>.<span class="ident">path</span>));
-                <span class="kw">if</span> <span class="ident">image_path</span>.<span class="ident">is_none</span>() {
+                <span class="kw">let</span> <span class="ident">image_source</span> <span class="op">=</span> <span class="ident">image</span>
+                    .<span class="ident">source</span>
+                    .<span class="ident">as_ref</span>()
+                    .<span class="ident">or</span>(<span class="ident">default</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">d</span><span class="op">|</span> <span class="ident">d</span>.<span class="ident">source</span>.<span class="ident">as_ref</span>()));
+                <span class="kw">if</span> <span class="ident">image_source</span>.<span class="ident">is_none</span>() {
                     <span class="kw">return</span> <span class="prelude-val">None</span>;
                 }
-                <span class="kw">let</span> <span class="ident">image_path</span> <span class="op">=</span> <span class="ident">image_path</span>.<span class="ident">unwrap</span>();
-                <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">svg_batch</span>, <span class="ident">svg_bounds</span>) <span class="op">=</span> <span class="ident">svg</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="ident">image_path</span>);
+                <span class="kw">let</span> <span class="ident">image_source</span> <span class="op">=</span> <span class="ident">image_source</span>.<span class="ident">unwrap</span>();
+
+                <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">svg_batch</span>, <span class="ident">svg_bounds</span>) <span class="op">=</span> <span class="ident">image_source</span>.<span class="ident">load</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>);
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">color</span>) <span class="op">=</span> <span class="ident">image</span>.<span class="ident">color</span>.<span class="ident">or</span>(<span class="ident">default</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">d</span><span class="op">|</span> <span class="ident">d</span>.<span class="ident">color</span>)) {
                     <span class="ident">svg_batch</span> <span class="op">=</span> <span class="ident">svg_batch</span>.<span class="ident">color</span>(<span class="ident">color</span>);
                 }
@@ -1446,9 +1518,29 @@
     }
 }
 
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">enum</span> <span class="ident">ImageSource</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="ident">Path</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>),
+    <span class="ident">Bytes</span> { <span class="ident">bytes</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>], <span class="ident">cache_key</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span> },
+}
+
+<span class="kw">impl</span> <span class="ident">ImageSource</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">load</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="kw">crate</span>::<span class="ident">Prerender</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">GeomBatch</span>, <span class="ident">geom</span>::<span class="ident">Bounds</span>) {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">ImageSource</span>::<span class="ident">Path</span>(<span class="ident">image_path</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">svg</span>::<span class="ident">load_svg</span>(<span class="ident">prerender</span>, <span class="ident">image_path</span>),
+            <span class="ident">ImageSource</span>::<span class="ident">Bytes</span> { <span class="ident">bytes</span>, <span class="ident">cache_key</span> } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">svg</span>::<span class="ident">load_svg_bytes</span>(<span class="ident">prerender</span>, <span class="ident">cache_key</span>, <span class="ident">bytes</span>).<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(
+                    <span class="string">&quot;Failed to load svg from bytes. cache_key: {}&quot;</span>,
+                    <span class="ident">cache_key</span>
+                ))
+            }
+        }
+    }
+}
+
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Image</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span>,
+    <span class="ident">source</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ImageSource</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">color</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RewriteColor</span><span class="op">&gt;</span>,
     <span class="ident">dims</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ScreenDims</span><span class="op">&gt;</span>,
     <span class="ident">content_mode</span>: <span class="ident">ContentMode</span>,

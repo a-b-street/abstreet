@@ -274,12 +274,14 @@
 <span id="271">271</span>
 <span id="272">272</span>
 <span id="273">273</span>
+<span id="274">274</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Polygon</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
+    <span class="ident">include_labeled_bytes</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">StyledButtons</span>,
+    <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">const</span> <span class="ident">ROWS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">8</span>;
@@ -378,10 +380,10 @@
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">sort_by</span> <span class="op">=</span><span class="op">=</span> <span class="ident">col</span>.<span class="ident">name</span> {
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_primary_dark_icon_text</span>(<span class="string">&quot;tmp&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">col</span>.<span class="ident">name</span>)
-                        .<span class="ident">image_path</span>(<span class="kw">if</span> <span class="self">self</span>.<span class="ident">descending</span> {
-                            <span class="string">&quot;system/assets/tools/arrow_down.svg&quot;</span>
+                        .<span class="ident">image_bytes</span>(<span class="kw">if</span> <span class="self">self</span>.<span class="ident">descending</span> {
+                            <span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/arrow_down.svg&quot;</span>)
                         } <span class="kw">else</span> {
-                            <span class="string">&quot;system/assets/tools/arrow_up.svg&quot;</span>
+                            <span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/arrow_up.svg&quot;</span>)
                         })
                         .<span class="ident">label_first</span>()
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">col</span>.<span class="ident">name</span>)

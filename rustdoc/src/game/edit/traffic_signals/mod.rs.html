@@ -1581,12 +1581,12 @@
 
         <span class="kw">let</span> <span class="ident">up_button</span> <span class="op">=</span> <span class="ident">ctx</span>
             .<span class="ident">style</span>()
-            .<span class="ident">btn_primary_light_icon</span>(<span class="string">&quot;system/assets/tools/arrow_up.svg&quot;</span>)
+            .<span class="ident">btn_primary_light_icon</span>(<span class="string">&quot;../widgetry/icons/arrow_up.svg&quot;</span>)
             .<span class="ident">disabled</span>(<span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>);
 
         <span class="kw">let</span> <span class="ident">down_button</span> <span class="op">=</span> <span class="ident">ctx</span>
             .<span class="ident">style</span>()
-            .<span class="ident">btn_primary_light_icon</span>(<span class="string">&quot;system/assets/tools/arrow_down.svg&quot;</span>)
+            .<span class="ident">btn_primary_light_icon</span>(<span class="string">&quot;../widgetry/icons/arrow_down.svg&quot;</span>)
             .<span class="ident">disabled</span>(<span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">canonical_signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>);
 
         <span class="kw">let</span> <span class="ident">stage_controls</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[

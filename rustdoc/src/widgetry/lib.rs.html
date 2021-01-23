@@ -210,6 +210,16 @@
 <span id="207">207</span>
 <span id="208">208</span>
 <span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # Widgets</span>
 <span class="doccomment">//!</span>
@@ -234,7 +244,7 @@
 <span class="doccomment">//! * [`Slider`] - horizontal and vertical sliders</span>
 <span class="doccomment">//! * [`Spinner`] - numeric input with up/down buttons</span>
 <span class="doccomment">//! * [`table::Table`] - rows and columns, supporting filtering and pagination</span>
-<span class="doccomment">//! * [`TexBox`] - single line text entry</span>
+<span class="doccomment">//! * [`TextBox`] - single line text entry</span>
 
 <span class="comment">//#![warn(missing_docs)]</span>
 
@@ -304,6 +314,16 @@
 <span class="kw">mod</span> <span class="ident">backend</span> {
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-backend&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm-backend&quot;</span>))]</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">backend_glow</span>::<span class="kw-2">*</span>;
+}
+
+<span class="doccomment">/// Like [`std::include_bytes!`], but also returns its argument, the relative path to the bytes</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// returns a `(path, bytes): (&amp;str, &amp;[u8])` tuple</span>
+<span class="attribute">#[<span class="ident">macro_export</span>]</span>
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">include_labeled_bytes</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">file</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">file</span>, <span class="macro">include_bytes</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">file</span>))
+    };
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>

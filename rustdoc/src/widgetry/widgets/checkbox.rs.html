@@ -241,10 +241,14 @@
 <span id="238">238</span>
 <span id="239">239</span>
 <span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Button</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">MultiKey</span>, <span class="ident">Outcome</span>, <span class="ident">RewriteColor</span>,
-    <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextSpan</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
+    <span class="ident">include_labeled_bytes</span>, <span class="ident">Button</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">MultiKey</span>,
+    <span class="ident">Outcome</span>, <span class="ident">RewriteColor</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextSpan</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>,
+    <span class="ident">WidgetOutput</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Checkbox</span> {
@@ -287,10 +291,10 @@
 
         <span class="kw">let</span> <span class="ident">off_button</span> <span class="op">=</span> <span class="ident">buttons</span>
             .<span class="ident">clone</span>()
-            .<span class="ident">image_path</span>(<span class="string">&quot;../widgetry/icons/toggle_off.svg&quot;</span>)
+            .<span class="ident">image_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/toggle_off.svg&quot;</span>))
             .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">label</span>);
         <span class="kw">let</span> <span class="ident">on_button</span> <span class="op">=</span> <span class="ident">buttons</span>
-            .<span class="ident">image_path</span>(<span class="string">&quot;../widgetry/icons/toggle_on.svg&quot;</span>)
+            .<span class="ident">image_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/toggle_on.svg&quot;</span>))
             .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">label</span>);
 
         <span class="ident">Checkbox</span>::<span class="ident">new</span>(<span class="ident">enabled</span>, <span class="ident">off_button</span>, <span class="ident">on_button</span>).<span class="ident">named</span>(<span class="ident">label</span>)
@@ -326,8 +330,9 @@
 
         <span class="kw">let</span> <span class="ident">false_btn</span> <span class="op">=</span> <span class="ident">buttons</span>
             .<span class="ident">clone</span>()
-            .<span class="ident">image_path</span>(<span class="string">&quot;../widgetry/icons/checkbox_unchecked.svg&quot;</span>);
-        <span class="kw">let</span> <span class="ident">true_btn</span> <span class="op">=</span> <span class="ident">buttons</span>.<span class="ident">image_path</span>(<span class="string">&quot;../widgetry/icons/checkbox_checked.svg&quot;</span>);
+            .<span class="ident">image_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/checkbox_unchecked.svg&quot;</span>));
+        <span class="kw">let</span> <span class="ident">true_btn</span> <span class="op">=</span>
+            <span class="ident">buttons</span>.<span class="ident">image_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/checkbox_checked.svg&quot;</span>));
 
         <span class="ident">Checkbox</span>::<span class="ident">new</span>(
             <span class="ident">enabled</span>,
@@ -368,8 +373,9 @@
 
         <span class="kw">let</span> <span class="ident">false_btn</span> <span class="op">=</span> <span class="ident">buttons</span>
             .<span class="ident">clone</span>()
-            .<span class="ident">image_path</span>(<span class="string">&quot;../widgetry/icons/checkbox_unchecked.svg&quot;</span>);
-        <span class="kw">let</span> <span class="ident">true_btn</span> <span class="op">=</span> <span class="ident">buttons</span>.<span class="ident">image_path</span>(<span class="string">&quot;../widgetry/icons/checkbox_checked.svg&quot;</span>);
+            .<span class="ident">image_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/checkbox_unchecked.svg&quot;</span>));
+        <span class="kw">let</span> <span class="ident">true_btn</span> <span class="op">=</span>
+            <span class="ident">buttons</span>.<span class="ident">image_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/checkbox_checked.svg&quot;</span>));
 
         <span class="ident">Checkbox</span>::<span class="ident">new</span>(
             <span class="ident">enabled</span>,
@@ -384,14 +390,14 @@
 
         <span class="kw">let</span> <span class="ident">false_btn</span> <span class="op">=</span> <span class="ident">buttons</span>
             .<span class="ident">clone</span>()
-            .<span class="ident">image_path</span>(<span class="string">&quot;../widgetry/icons/checkbox_unchecked.svg&quot;</span>)
+            .<span class="ident">image_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/checkbox_unchecked.svg&quot;</span>))
             .<span class="ident">image_color</span>(
                 <span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>, <span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.3</span>)),
                 <span class="ident">ControlState</span>::<span class="ident">Default</span>,
             );
 
         <span class="kw">let</span> <span class="ident">true_btn</span> <span class="op">=</span> <span class="ident">buttons</span>
-            .<span class="ident">image_path</span>(<span class="string">&quot;../widgetry/icons/checkbox_checked.svg&quot;</span>)
+            .<span class="ident">image_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/checkbox_checked.svg&quot;</span>))
             .<span class="ident">image_color</span>(
                 <span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>, <span class="ident">color</span>),
                 <span class="ident">ControlState</span>::<span class="ident">Default</span>,
@@ -416,7 +422,7 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">toggle_left_button</span> <span class="op">=</span> <span class="ident">ctx</span>
             .<span class="ident">style</span>()
-            .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;../widgetry/icons/toggle_left.svg&quot;</span>)
+            .<span class="ident">btn_plain_light_icon_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/toggle_left.svg&quot;</span>))
             .<span class="ident">image_dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="number">40.0</span>, <span class="number">40.0</span>))
             .<span class="ident">padding</span>(<span class="number">4</span>)
             .<span class="ident">image_color</span>(<span class="ident">RewriteColor</span>::<span class="ident">NoOp</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>);
@@ -427,7 +433,7 @@
 
         <span class="kw">let</span> <span class="ident">toggle_right_button</span> <span class="op">=</span> <span class="ident">toggle_left_button</span>
             .<span class="ident">clone</span>()
-            .<span class="ident">image_path</span>(<span class="string">&quot;../widgetry/icons/toggle_right.svg&quot;</span>);
+            .<span class="ident">image_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/toggle_right.svg&quot;</span>));
 
         <span class="kw">let</span> <span class="ident">left_text_button</span> <span class="op">=</span> <span class="ident">ctx</span>
             .<span class="ident">style</span>()

@@ -870,7 +870,7 @@
             },
             {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">icon</span> <span class="op">=</span>
-                    <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/tools/arrow_drop_down.svg&quot;</span>)
+                    <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;../widgetry/icons/arrow_drop_down.svg&quot;</span>)
                         .<span class="ident">autocrop</span>()
                         .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>))
                         .<span class="ident">scale</span>(<span class="number">1.5</span>);
@@ -950,7 +950,7 @@
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">svg_data</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="ident">svg_face</span>::<span class="ident">generate_face</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">svg_data</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>).<span class="ident">unwrap</span>();
-    <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">from_svg_contents</span>(<span class="ident">svg_data</span>).<span class="ident">autocrop</span>();
+    <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">from_uncached_svg_contents</span>(<span class="kw-2">&amp;</span><span class="ident">svg_data</span>).<span class="ident">autocrop</span>();
     <span class="kw">let</span> <span class="ident">dims</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">get_dims</span>();
     <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">scale</span>((<span class="number">200.0</span> <span class="op">/</span> <span class="ident">dims</span>.<span class="ident">width</span>).<span class="ident">min</span>(<span class="number">200.0</span> <span class="op">/</span> <span class="ident">dims</span>.<span class="ident">height</span>));
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>).<span class="ident">centered_horiz</span>());

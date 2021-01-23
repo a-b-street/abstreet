@@ -151,8 +151,8 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">text</span>, <span class="ident">Button</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>,
-    <span class="ident">ScreenRectangle</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
+    <span class="ident">include_labeled_bytes</span>, <span class="ident">text</span>, <span class="ident">Button</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
+    <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
 };
 
 <span class="comment">// TODO MAX_CHAR_WIDTH is a hardcoded nonsense value</span>
@@ -188,11 +188,11 @@
 
         <span class="kw">let</span> <span class="ident">up</span> <span class="op">=</span> <span class="ident">button_builder</span>
             .<span class="ident">clone</span>()
-            .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/tools/arrow_up.svg&quot;</span>)
+            .<span class="ident">image_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/arrow_up.svg&quot;</span>))
             .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;increase value&quot;</span>);
 
         <span class="kw">let</span> <span class="ident">down</span> <span class="op">=</span> <span class="ident">button_builder</span>
-            .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/tools/arrow_down.svg&quot;</span>)
+            .<span class="ident">image_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/arrow_down.svg&quot;</span>))
             .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;decrease value&quot;</span>);
 
         <span class="kw">let</span> <span class="ident">dims</span> <span class="op">=</span> <span class="ident">ScreenDims</span>::<span class="ident">new</span>(
