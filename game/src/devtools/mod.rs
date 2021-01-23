@@ -33,29 +33,29 @@ impl DevToolsMode {
                 Widget::row(vec![
                     "Change map:".draw_text(ctx),
                     ctx.style()
-                        .btn_popup_light(nice_map_name(app.primary.map.get_name()))
+                        .btn_outline_light_popup(nice_map_name(app.primary.map.get_name()))
                         .hotkey(lctrl(Key::L))
                         .build_widget(ctx, "change map"),
                 ]),
                 Widget::custom_row(vec![
                     ctx.style()
-                        .btn_secondary_light_text("edit a polygon")
+                        .btn_outline_light_text("edit a polygon")
                         .hotkey(Key::E)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_secondary_light_text("draw a polygon")
+                        .btn_outline_light_text("draw a polygon")
                         .hotkey(Key::P)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_secondary_light_text("load scenario")
+                        .btn_outline_light_text("load scenario")
                         .hotkey(Key::W)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_secondary_light_text("view KML")
+                        .btn_outline_light_text("view KML")
                         .hotkey(Key::K)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_secondary_light_text("story maps")
+                        .btn_outline_light_text("story maps")
                         .hotkey(Key::S)
                         .build_def(ctx),
                     if abstio::file_exists(abstio::path(format!(
@@ -63,7 +63,7 @@ impl DevToolsMode {
                         app.primary.map.get_city_name()
                     ))) {
                         ctx.style()
-                            .btn_secondary_light_text("collisions")
+                            .btn_outline_light_text("collisions")
                             .hotkey(Key::C)
                             .build_def(ctx)
                     } else {

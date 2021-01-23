@@ -313,11 +313,11 @@ fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) ->
             Line("Story map editor").small_heading().draw(ctx),
             Widget::vert_separator(ctx, 30.0),
             ctx.style()
-                .btn_popup_light(&story.name)
+                .btn_outline_light_popup(&story.name)
                 .hotkey(lctrl(Key::L))
                 .build_widget(ctx, "load"),
             ctx.style()
-                .btn_primary_light_icon("system/assets/tools/save.svg")
+                .btn_solid_light_icon("system/assets/tools/save.svg")
                 .hotkey(lctrl(Key::S))
                 .disabled(!dirty)
                 .build_widget(ctx, "save"),
@@ -511,12 +511,10 @@ impl Marker {
                 Line("Editing marker").small_heading().draw(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
-            ctx.style()
-                .btn_secondary_light_text("delete")
-                .build_def(ctx),
+            ctx.style().btn_outline_light_text("delete").build_def(ctx),
             Widget::text_entry(ctx, self.event.clone(), true).named("event"),
             ctx.style()
-                .btn_secondary_light_text("confirm")
+                .btn_outline_light_text("confirm")
                 .hotkey(Key::Enter)
                 .build_def(ctx),
         ]))

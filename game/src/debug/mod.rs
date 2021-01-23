@@ -59,56 +59,56 @@ impl DebugMode {
                 Checkbox::switch(ctx, "show route for all agents", Key::R, false),
                 Widget::col(vec![
                     ctx.style()
-                        .btn_secondary_light_text("unhide everything")
+                        .btn_outline_light_text("unhide everything")
                         .hotkey(lctrl(Key::H))
                         .build_def(ctx),
                     ctx.style()
-                        .btn_secondary_light_text("screenshot everything (for leaflet)")
+                        .btn_outline_light_text("screenshot everything (for leaflet)")
                         .build_def(ctx),
                     ctx.style()
-                        .btn_secondary_light_text("screenshot all of the everything")
+                        .btn_outline_light_text("screenshot all of the everything")
                         .build_def(ctx),
                     ctx.style()
-                        .btn_secondary_light_text("search OSM metadata")
+                        .btn_outline_light_text("search OSM metadata")
                         .hotkey(Key::Slash)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_secondary_light_text("clear OSM search results")
+                        .btn_outline_light_text("clear OSM search results")
                         .hotkey(Key::Slash)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_secondary_light_text("save sim state")
+                        .btn_outline_light_text("save sim state")
                         .hotkey(Key::O)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_secondary_light_text("load previous sim state")
+                        .btn_outline_light_text("load previous sim state")
                         .hotkey(Key::Y)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_secondary_light_text("load next sim state")
+                        .btn_outline_light_text("load next sim state")
                         .hotkey(Key::U)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_secondary_light_text("pick a savestate to load")
+                        .btn_outline_light_text("pick a savestate to load")
                         .build_def(ctx),
                     ctx.style()
-                        .btn_secondary_light_text("find bad traffic signals")
+                        .btn_outline_light_text("find bad traffic signals")
                         .build_def(ctx),
                     ctx.style()
-                        .btn_secondary_light_text("find degenerate roads")
+                        .btn_outline_light_text("find degenerate roads")
                         .build_def(ctx),
                     ctx.style()
-                        .btn_secondary_light_text("find large intersections")
+                        .btn_outline_light_text("find large intersections")
                         .build_def(ctx),
                     ctx.style()
-                        .btn_secondary_light_text("sim internal stats")
+                        .btn_outline_light_text("sim internal stats")
                         .build_def(ctx),
                     ctx.style()
-                        .btn_secondary_light_text("blocked-by graph")
+                        .btn_outline_light_text("blocked-by graph")
                         .hotkey(Key::B)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_secondary_light_text("render to GeoJSON")
+                        .btn_outline_light_text("render to GeoJSON")
                         .hotkey(Key::G)
                         .build_def(ctx),
                 ]),

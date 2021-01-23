@@ -63,15 +63,15 @@ impl Checkbox {
             .style()
             .btn_plain_light()
             .image_color(
-                RewriteColor::Change(Color::BLACK, ctx.style().btn_primary_light.bg),
+                RewriteColor::Change(Color::BLACK, ctx.style().btn_solid_light.bg),
                 ControlState::Default,
             )
             .image_color(
-                RewriteColor::Change(Color::BLACK, ctx.style().btn_primary_light.bg_hover),
+                RewriteColor::Change(Color::BLACK, ctx.style().btn_solid_light.bg_hover),
                 ControlState::Hovered,
             )
             .image_color(
-                RewriteColor::Change(Color::BLACK, ctx.style().btn_primary_light.bg_disabled),
+                RewriteColor::Change(Color::BLACK, ctx.style().btn_solid_light.bg_disabled),
                 ControlState::Disabled,
             )
             .label_text(label)
@@ -106,15 +106,15 @@ impl Checkbox {
             .style()
             .btn_plain_light()
             .image_color(
-                RewriteColor::Change(Color::BLACK, ctx.style().btn_primary_light.bg),
+                RewriteColor::Change(Color::BLACK, ctx.style().btn_solid_light.bg),
                 ControlState::Default,
             )
             .image_color(
-                RewriteColor::Change(Color::BLACK, ctx.style().btn_primary_light.bg_hover),
+                RewriteColor::Change(Color::BLACK, ctx.style().btn_solid_light.bg_hover),
                 ControlState::Hovered,
             )
             .image_color(
-                RewriteColor::Change(Color::BLACK, ctx.style().btn_primary_light.bg_disabled),
+                RewriteColor::Change(Color::BLACK, ctx.style().btn_solid_light.bg_disabled),
                 ControlState::Disabled,
             )
             .label_styled_text(Text::from_all(spans), ControlState::Default)
@@ -200,7 +200,7 @@ impl Checkbox {
             })
             // TODO: make these clickable. Currently they would explode due to re-use of an action
             .disabled(true)
-            .label_color(ctx.style().btn_secondary_light.fg, ControlState::Disabled)
+            .label_color(ctx.style().btn_outline_light.fg, ControlState::Disabled)
             .bg_color(Color::CLEAR, ControlState::Disabled);
         let right_text_button = left_text_button.clone().label_text(right_label);
         Widget::row(vec![

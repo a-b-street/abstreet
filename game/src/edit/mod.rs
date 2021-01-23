@@ -406,21 +406,21 @@ impl SaveEdits {
                 Widget::row(vec![
                     if discard {
                         ctx.style()
-                            .btn_primary_destructive_text("Discard proposal")
+                            .btn_solid_destructive_text("Discard proposal")
                             .build_def(ctx)
                     } else {
                         Widget::nothing()
                     },
                     if cancel.is_some() {
                         ctx.style()
-                            .btn_primary_dark_text("Cancel")
+                            .btn_solid_dark_text("Cancel")
                             .hotkey(Key::Escape)
                             .build_def(ctx)
                     } else {
                         Widget::nothing()
                     },
                     ctx.style()
-                        .btn_primary_dark_text("Save")
+                        .btn_solid_dark_text("Save")
                         .disabled(true)
                         .build_def(ctx),
                 ])
@@ -441,7 +441,7 @@ impl SaveEdits {
                 ctx,
                 "Save",
                 ctx.style()
-                    .btn_primary_dark_text("Save")
+                    .btn_solid_dark_text("Save")
                     .disabled(true)
                     .build_def(ctx),
             );
@@ -454,7 +454,7 @@ impl SaveEdits {
                 ctx,
                 "Save",
                 ctx.style()
-                    .btn_primary_dark_text("Save")
+                    .btn_solid_dark_text("Save")
                     .disabled(true)
                     .build_def(ctx),
             );
@@ -470,7 +470,7 @@ impl SaveEdits {
                 ctx,
                 "Save",
                 ctx.style()
-                    .btn_primary_dark_text("Save")
+                    .btn_solid_dark_text("Save")
                     .hotkey(Key::Enter)
                     .build_def(ctx),
             );
@@ -547,7 +547,7 @@ impl LoadEdits {
             if MapEdits::load(&app.primary.map, path.clone(), &mut Timer::throwaway()).is_ok() {
                 proposals.push(
                     ctx.style()
-                        .btn_secondary_light_text(&name)
+                        .btn_outline_light_text(&name)
                         .build_widget(ctx, &path),
                 );
             }
@@ -561,7 +561,7 @@ impl LoadEdits {
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 ctx.style()
-                    .btn_secondary_light_text("Start over with blank proposal")
+                    .btn_outline_light_text("Start over with blank proposal")
                     .build_def(ctx),
                 Widget::row(vec![Widget::col(your_edits), Widget::col(proposals)]).evenly_spaced(),
             ]))
@@ -650,7 +650,7 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Panel {
             .draw(ctx)
             .centered_horiz(),
         ctx.style()
-            .btn_primary_dark_text(&format!(
+            .btn_solid_dark_text(&format!(
                 "Finish & resume from {}",
                 app.primary
                     .suspended_sim
@@ -780,7 +780,7 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Panel {
     let mut col = vec![
         Widget::row(vec![
             ctx.style()
-                .btn_popup_light(&edits.edits_name)
+                .btn_outline_light_popup(&edits.edits_name)
                 .hotkey(lctrl(Key::P))
                 .build_widget(ctx, "manage proposals"),
             "autosaved"
@@ -865,11 +865,11 @@ impl ConfirmDiscard {
                 "Are you sure you want to discard changes you made?".draw_text(ctx),
                 Widget::row(vec![
                     ctx.style()
-                        .btn_primary_dark_text("Cancel")
+                        .btn_solid_dark_text("Cancel")
                         .hotkey(Key::Escape)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_primary_destructive_text("Yes, discard")
+                        .btn_solid_destructive_text("Yes, discard")
                         .build_def(ctx),
                 ])
                 .align_right(),

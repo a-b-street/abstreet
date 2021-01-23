@@ -33,24 +33,24 @@ fn make_select_panel(ctx: &mut EventCtx, selector: &RoadSelector) -> Panel {
         selector.make_controls(ctx),
         Widget::row(vec![
             ctx.style()
-                .btn_secondary_light_text(&format!("Edit {} roads", selector.roads.len()))
+                .btn_outline_light_text(&format!("Edit {} roads", selector.roads.len()))
                 .disabled(selector.roads.is_empty())
                 .hotkey(hotkeys(vec![Key::E, Key::Enter]))
                 .build_widget(ctx, "edit roads"),
             ctx.style()
-                .btn_secondary_light_text(&format!(
+                .btn_outline_light_text(&format!(
                     "Export {} roads to shared-row",
                     selector.roads.len()
                 ))
                 .build_widget(ctx, "export roads to shared-row"),
             ctx.style()
-                .btn_secondary_light_text("export one road to Streetmix")
+                .btn_outline_light_text("export one road to Streetmix")
                 .build_def(ctx),
             ctx.style()
-                .btn_secondary_light_text("export list of roads")
+                .btn_outline_light_text("export list of roads")
                 .build_def(ctx),
             ctx.style()
-                .btn_secondary_light_text("Cancel")
+                .btn_outline_light_text("Cancel")
                 .hotkey(Key::Escape)
                 .build_def(ctx),
         ])
@@ -168,7 +168,7 @@ impl BulkEdit {
                 },
                 Widget::row(vec![
                     ctx.style()
-                        .btn_primary_dark_text("Finish")
+                        .btn_solid_dark_text("Finish")
                         .hotkey(Key::Enter)
                         .build_def(ctx),
                     ctx.style()

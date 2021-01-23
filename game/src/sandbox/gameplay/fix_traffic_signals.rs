@@ -255,7 +255,7 @@ impl GameplayState for FixTrafficSignals {
                         .draw(ctx)
                         .centered_vert(),
                     ctx.style()
-                        .btn_secondary_light_text("try again")
+                        .btn_outline_light_text("try again")
                         .build_def(ctx),
                 ]),
             ]))

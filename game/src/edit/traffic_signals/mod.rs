@@ -495,11 +495,11 @@ impl State<App> for TrafficSignalEditor {
 fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool) -> Panel {
     let row = vec![
         ctx.style()
-            .btn_primary_dark_text("Finish")
+            .btn_solid_dark_text("Finish")
             .hotkey(Key::Enter)
             .build_def(ctx),
         ctx.style()
-            .btn_primary_dark_text("Preview")
+            .btn_solid_dark_text("Preview")
             .hotkey(lctrl(Key::P))
             .build_def(ctx),
         (if can_undo {
@@ -547,7 +547,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
         Widget::row(row),
         if app.opts.dev {
             ctx.style()
-                .btn_secondary_light_text("Export")
+                .btn_outline_light_text("Export")
                 .tooltip(Text::from_multiline(vec![
                     Line("This will create a JSON file in traffic_signal_data/.").small(),
                     Line(
@@ -620,14 +620,14 @@ fn make_side_panel(
     if members.len() == 1 {
         col.push(
             ctx.style()
-                .btn_primary_dark_text("Edit entire signal")
+                .btn_solid_dark_text("Edit entire signal")
                 .hotkey(Key::E)
                 .build_def(ctx),
         );
     } else {
         col.push(
             ctx.style()
-                .btn_primary_dark_text("Tune offsets between signals")
+                .btn_solid_dark_text("Tune offsets between signals")
                 .hotkey(Key::O)
                 .build_def(ctx),
         );
@@ -645,12 +645,12 @@ fn make_side_panel(
 
         let up_button = ctx
             .style()
-            .btn_primary_light_icon("../widgetry/icons/arrow_up.svg")
+            .btn_solid_light_icon("../widgetry/icons/arrow_up.svg")
             .disabled(idx == 0);
 
         let down_button = ctx
             .style()
-            .btn_primary_light_icon("../widgetry/icons/arrow_down.svg")
+            .btn_solid_light_icon("../widgetry/icons/arrow_down.svg")
             .disabled(idx == canonical_signal.stages.len() - 1);
 
         let stage_controls = Widget::row(vec![
@@ -686,7 +686,7 @@ fn make_side_panel(
                     },
                     if canonical_signal.stages.len() > 1 {
                         ctx.style()
-                            .btn_primary_destructive_icon("system/assets/tools/trash.svg")
+                            .btn_solid_destructive_icon("system/assets/tools/trash.svg")
                             .build_widget(ctx, &format!("delete stage {}", idx + 1))
                             .align_right()
                     } else {
@@ -707,7 +707,7 @@ fn make_side_panel(
 
     col.push(
         ctx.style()
-            .btn_primary_dark_text("Add a new stage")
+            .btn_solid_dark_text("Add a new stage")
             .build_def(ctx)
             .centered_horiz(),
     );

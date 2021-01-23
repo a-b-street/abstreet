@@ -87,7 +87,7 @@ impl LaneEditor {
             "Type of lane".draw_text(ctx),
             Widget::custom_row(row).centered(),
             ctx.style()
-                .btn_secondary_light_text("reverse direction")
+                .btn_outline_light_text("reverse direction")
                 .hotkey(Key::F)
                 .build_def(ctx),
             {
@@ -104,11 +104,11 @@ impl LaneEditor {
                 ])
             },
             ctx.style()
-                .btn_secondary_light_text("Change access restrictions")
+                .btn_outline_light_text("Change access restrictions")
                 .hotkey(Key::A)
                 .build_def(ctx),
             ctx.style()
-                .btn_primary_dark_text("Finish")
+                .btn_solid_dark_text("Finish")
                 .hotkey(Key::Escape)
                 .build_def(ctx),
         ];

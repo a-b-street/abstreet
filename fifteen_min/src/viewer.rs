@@ -274,7 +274,7 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
     rows.push(Widget::row(vec![
         "Map:".draw_text(ctx),
         ctx.style()
-            .btn_popup_light(nice_map_name(app.map.get_name()))
+            .btn_outline_light_popup(nice_map_name(app.map.get_name()))
             .hotkey(lctrl(Key::L))
             .build_widget(ctx, "change map"),
     ]));
@@ -315,7 +315,7 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
     for (amenity, buildings) in isochrone.amenities_reachable.borrow() {
         rows.push(
             ctx.style()
-                .btn_secondary_light_text(&format!("{}: {}", amenity, buildings.len()))
+                .btn_outline_light_text(&format!("{}: {}", amenity, buildings.len()))
                 .build_widget(ctx, &format!("businesses: {}", amenity)),
         );
     }
@@ -326,7 +326,7 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
     rows.push(options_to_controls(ctx, &isochrone.options));
     rows.push(
         ctx.style()
-            .btn_primary_light_text("Find your perfect home")
+            .btn_solid_light_text("Find your perfect home")
             .build_def(ctx),
     );
     rows.push(Widget::row(vec![

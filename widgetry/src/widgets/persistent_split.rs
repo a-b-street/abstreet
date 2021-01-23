@@ -71,7 +71,7 @@ impl<T: 'static + PartialEq + Clone + std::fmt::Debug> PersistentSplit<T> {
 fn button_builder<'a>(ctx: &EventCtx) -> ButtonBuilder<'a> {
     use crate::{ControlState, StyledButtons};
     ctx.style()
-        .btn_primary_light()
+        .btn_solid_light()
         .outline(0.0, Color::CLEAR, ControlState::Default)
 }
 
