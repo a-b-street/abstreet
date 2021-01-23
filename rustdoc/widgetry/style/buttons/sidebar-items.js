@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["back_button",""],["dropdown_button",""],["icon_button",""],["plain_builder",""]],"trait":[["StyledButtons",""]]});
+initSidebarItems({"fn":[["back_button",""],["dropdown_button",""],["icon_button",""]],"trait":[["StyledButtons",""]]});

@@ -385,7 +385,7 @@
     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
         <span class="ident">rows</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_light_text</span>(<span class="string">&quot;Open OSM&quot;</span>)
+                .<span class="ident">btn_solid_dark_text</span>(<span class="string">&quot;Open OSM&quot;</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">b</span>.<span class="ident">orig_id</span>)),
         );
 
@@ -434,7 +434,7 @@
             .<span class="ident">insert</span>(<span class="ident">p</span>.<span class="ident">to_string</span>(), <span class="ident">Tab</span>::<span class="ident">PersonTrips</span>(<span class="ident">p</span>, <span class="ident">BTreeMap</span>::<span class="ident">new</span>()));
         <span class="kw">let</span> <span class="ident">widget</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_light_text</span>(<span class="kw-2">&amp;</span><span class="ident">p</span>.<span class="ident">to_string</span>())
+                .<span class="ident">btn_solid_dark_text</span>(<span class="kw-2">&amp;</span><span class="ident">p</span>.<span class="ident">to_string</span>())
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">t</span>, <span class="ident">mode</span>)) <span class="op">=</span> <span class="ident">next_trip</span> {
                 <span class="macro">format</span><span class="macro">!</span>(
