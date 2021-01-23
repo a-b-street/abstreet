@@ -99,7 +99,7 @@ impl MinimapControls<App> for MinimapController {
 fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {
     let buttons = ctx
         .style()
-        .btn_primary_light()
+        .btn_solid_light()
         .image_dims(ScreenDims::square(20.0))
         // the default transparent button background is jarring for these buttons which are floating
         // in a transparent panel.

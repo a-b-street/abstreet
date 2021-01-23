@@ -135,7 +135,7 @@ impl ParkingMapper {
                 Widget::row(vec![
                     "Change map:".draw_text(ctx),
                     ctx.style()
-                        .btn_popup_light(nice_map_name(map.get_name()))
+                        .btn_outline_light_popup(nice_map_name(map.get_name()))
                         .build_widget(ctx, "change map"),
                 ]),
                 format!(
@@ -180,7 +180,7 @@ impl ParkingMapper {
                 ]),
                 Checkbox::checkbox(ctx, "max 3 days parking (default in Seattle)", None, false),
                 ctx.style()
-                    .btn_secondary_light_text("Generate OsmChange file")
+                    .btn_outline_light_text("Generate OsmChange file")
                     .build_def(ctx),
                 "Select a road".draw_text(ctx).named("info"),
             ]))

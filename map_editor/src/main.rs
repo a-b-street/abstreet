@@ -78,14 +78,14 @@ impl MainState {
                     Text::new().draw(ctx).named("current info"),
                     Widget::col(vec![
                         ctx.style()
-                            .btn_secondary_light_text("quit")
+                            .btn_outline_light_text("quit")
                             .hotkey(Key::Escape)
                             .build_def(ctx),
                         ctx.style()
-                            .btn_secondary_light_text("export to OSM")
+                            .btn_outline_light_text("export to OSM")
                             .build_def(ctx),
                         ctx.style()
-                            .btn_secondary_light_text("preview all intersections")
+                            .btn_outline_light_text("preview all intersections")
                             .hotkey(Key::G)
                             .build_def(ctx),
                     ]),

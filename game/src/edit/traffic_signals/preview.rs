@@ -26,7 +26,7 @@ impl PreviewTrafficSignal {
             panel: Panel::new(Widget::col(vec![
                 "Previewing traffic signal".draw_text(ctx),
                 ctx.style()
-                    .btn_secondary_light_text("back to editing")
+                    .btn_outline_light_text("back to editing")
                     .hotkey(Key::Escape)
                     .build_def(ctx),
             ]))

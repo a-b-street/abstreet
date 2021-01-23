@@ -742,7 +742,7 @@ impl TutorialState {
                 .btn_prev()
                 .disabled(self.current.stage == self.stages.len() - 1)
                 .build_widget(ctx, "next tutorial"),
-            ctx.style().btn_secondary_light_text("Quit").build_def(ctx),
+            ctx.style().btn_outline_light_text("Quit").build_def(ctx),
         ])
         .centered()];
         {
@@ -772,7 +772,7 @@ impl TutorialState {
         if edit_map {
             col.push(
                 ctx.style()
-                    .btn_secondary_light_icon_text("system/assets/tools/pencil.svg", "Edit map")
+                    .btn_outline_light_icon_text("system/assets/tools/pencil.svg", "Edit map")
                     .hotkey(lctrl(Key::E))
                     .build_widget(ctx, "edit map"),
             );
@@ -833,7 +833,7 @@ impl TutorialState {
                 if self.current.part == self.stage().messages.len() - 1 {
                     controls.push(
                         ctx.style()
-                            .btn_primary_dark_text("Try it")
+                            .btn_solid_dark_text("Try it")
                             .hotkey(hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]))
                             .build_def(ctx),
                     );

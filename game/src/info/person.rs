@@ -210,7 +210,7 @@ pub fn trips(
         .to_geom(ctx, Some(0.3));
         rows.push(
             ctx.style()
-                .btn_primary_light()
+                .btn_solid_light()
                 .custom_batch(row_btn.clone(), ControlState::Default)
                 .custom_batch(
                     row_btn.color(RewriteColor::Change(app.cs.inner_panel, app.cs.hovering)),
@@ -326,7 +326,7 @@ pub fn bio(
             if app.primary.sim.lookup_parked_car(v.id).is_some() {
                 rows.push(
                     ctx.style()
-                        .btn_primary_dark_text(&format!("Owner of {} (parked)", v.id))
+                        .btn_solid_dark_text(&format!("Owner of {} (parked)", v.id))
                         .build_def(ctx),
                 );
                 details
@@ -450,7 +450,7 @@ pub fn crowd(
         rows.push(Widget::row(vec![
             format!("{})", idx + 1).draw_text(ctx).centered_vert(),
             ctx.style()
-                .btn_secondary_light_text(&person.to_string())
+                .btn_outline_light_text(&person.to_string())
                 .build_def(ctx),
         ]));
         details.hyperlinks.insert(
@@ -509,7 +509,7 @@ pub fn parked_car(
     let p = app.primary.sim.get_owner_of_car(id).unwrap();
     rows.push(
         ctx.style()
-            .btn_primary_dark_text(&format!("Owned by {}", p))
+            .btn_solid_dark_text(&format!("Owned by {}", p))
             .build_def(ctx),
     );
     details.hyperlinks.insert(

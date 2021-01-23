@@ -46,7 +46,7 @@ impl TitleScreen {
                     // TODO that nicer font
                     // TODO Any key
                     ctx.style()
-                        .btn_primary_dark_text("Play")
+                        .btn_solid_dark_text("Play")
                         .hotkey(hotkeys(vec![Key::Space, Key::Enter]))
                         .build_widget(ctx, "start game"),
                 ])
@@ -100,7 +100,7 @@ impl MainMenu {
             Widget::row({
                 let btn_builder = ctx
                     .style()
-                    .btn_primary_dark()
+                    .btn_solid_dark()
                     .image_dims(ScreenDims::new(200.0, 100.0))
                     .font_size(40)
                     .font(Font::OverpassBold)
@@ -154,7 +154,7 @@ impl MainMenu {
             .centered(),
             Widget::row(vec![
                 ctx.style()
-                    .btn_secondary_light_text("Community Proposals")
+                    .btn_outline_light_text("Community Proposals")
                     .tooltip({
                         let mut txt = Text::tooltip(ctx, Key::P, "Community Proposals");
                         txt.add(Line("See existing ideas for improving traffic").small());
@@ -163,16 +163,16 @@ impl MainMenu {
                     .hotkey(Key::P)
                     .build_widget(ctx, "Community Proposals"),
                 ctx.style()
-                    .btn_secondary_light_text("Internal Dev Tools")
+                    .btn_outline_light_text("Internal Dev Tools")
                     .hotkey(Key::D)
                     .build_widget(ctx, "Internal Dev Tools"),
             ])
             .centered(),
             Widget::col(vec![
                 Widget::row(vec![
-                    ctx.style().btn_secondary_light_text("About").build_def(ctx),
+                    ctx.style().btn_outline_light_text("About").build_def(ctx),
                     ctx.style()
-                        .btn_secondary_light_text("Feedback")
+                        .btn_outline_light_text("Feedback")
                         .build_def(ctx),
                 ]),
                 built_info::time().draw(ctx),
@@ -255,7 +255,7 @@ impl About {
     fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let col = vec![
             ctx.style()
-                .btn_back_light("Home")
+                .btn_light_back("Home")
                 .hotkey(Key::Escape)
                 .build_widget(ctx, "back")
                 .align_left(),
@@ -289,7 +289,7 @@ impl About {
                 .padding(16)
             },
             ctx.style()
-                .btn_primary_dark_text("See full credits")
+                .btn_solid_dark_text("See full credits")
                 .build_def(ctx)
                 .centered_horiz(),
         ];
@@ -363,20 +363,20 @@ impl Proposals {
                 if edits.proposal_link.is_some() {
                     current_tab.push(
                         ctx.style()
-                            .btn_primary_dark_text("Read detailed write-up")
+                            .btn_solid_dark_text("Read detailed write-up")
                             .build_def(ctx)
                             .margin_below(10),
                     );
                 }
                 current_tab.push(
                     ctx.style()
-                        .btn_primary_dark_text("Try out this proposal")
+                        .btn_solid_dark_text("Try out this proposal")
                         .build_def(ctx),
                 );
 
                 buttons.push(
                     ctx.style()
-                        .btn_primary_dark_text(&edits.proposal_description[0])
+                        .btn_solid_dark_text(&edits.proposal_description[0])
                         .disabled(true)
                         .build_def(ctx)
                         .margin_below(10),
@@ -384,7 +384,7 @@ impl Proposals {
             } else {
                 buttons.push(
                     ctx.style()
-                        .btn_primary_dark_text(&edits.proposal_description[0])
+                        .btn_solid_dark_text(&edits.proposal_description[0])
                         .no_tooltip()
                         .build_widget(ctx, &name)
                         .margin_below(10),
@@ -413,7 +413,7 @@ impl Proposals {
             proposals,
             panel: Panel::new(Widget::custom_col(vec![
                 ctx.style()
-                    .btn_back_light("Home")
+                    .btn_light_back("Home")
                     .hotkey(Key::Escape)
                     .build_widget(ctx, "back")
                     .align_left()

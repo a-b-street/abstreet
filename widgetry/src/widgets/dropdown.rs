@@ -176,7 +176,7 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
 fn make_btn(ctx: &EventCtx, label: &str, tooltip: &str, is_persisten_split: bool) -> Button {
     use crate::StyledButtons;
     // If we want to make Dropdown configurable, pass in or expose its button builder?
-    let mut builder = ctx.style().btn_primary_light_dropdown();
+    let mut builder = ctx.style().btn_solid_light_dropdown();
     if is_persisten_split {
         // Quick hacks to make PersistentSplit's dropdown look a little better.
         // It's not ideal, but we only use one persistent split in the whole app

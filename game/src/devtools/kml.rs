@@ -79,7 +79,7 @@ impl ViewKML {
                     )
                     .draw_text(ctx),
                     ctx.style()
-                        .btn_secondary_light_text("load KML file")
+                        .btn_outline_light_text("load KML file")
                         .hotkey(lctrl(Key::L))
                         .build_def(ctx),
                     Widget::row(vec![

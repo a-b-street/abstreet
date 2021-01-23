@@ -62,7 +62,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
 
                         let btn = ctx
                             .style()
-                            .btn_secondary_light_text(nice_map_name(&name))
+                            .btn_outline_light_text(nice_map_name(&name))
                             .label_color(color, ControlState::Default)
                             .no_tooltip();
 
@@ -87,7 +87,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                         continue;
                     }
                     // If there's only one map in the city, make the button directly load it.
-                    let button = ctx.style().btn_secondary_light_text(&city);
+                    let button = ctx.style().btn_outline_light_text(&city);
                     let maps = MapName::list_all_maps_in_city(&city);
                     if maps.len() == 1 {
                         other_cities.push(button.build_widget(ctx, &maps[0].path()));
@@ -97,7 +97,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                 }
                 other_cities.push(
                     ctx.style()
-                        .btn_primary_dark_text("Search all maps")
+                        .btn_solid_dark_text("Search all maps")
                         .hotkey(Key::Tab)
                         .build_def(ctx),
                 );
@@ -134,7 +134,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                         ]),
                         if cfg!(not(target_arch = "wasm32")) {
                             ctx.style()
-                                .btn_secondary_light_text("Download more cities")
+                                .btn_outline_light_text("Download more cities")
                                 .build_def(ctx)
                         } else {
                             Widget::nothing()
@@ -272,7 +272,7 @@ impl<A: AppLike + 'static> AllCityPicker<A> {
         for name in MapName::list_all_maps() {
             buttons.push(
                 ctx.style()
-                    .btn_secondary_light_text(&name.describe())
+                    .btn_outline_light_text(&name.describe())
                     .build_widget(ctx, &name.path())
                     .margin_right(10)
                     .margin_below(10),
