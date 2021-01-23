@@ -174,13 +174,11 @@ pub trait StyledButtons<'a> {
     /// A right facing caret, like ">", suitable for paging to the "next" set of results
     fn btn_next(&self) -> ButtonBuilder<'a> {
         self.btn_plain_light_icon("system/assets/tools/next.svg")
-            .hotkey(Key::RightArrow)
     }
 
     /// A left facing caret, like "<", suitable for paging to the "next" set of results
     fn btn_prev(&self) -> ButtonBuilder<'a> {
         self.btn_plain_light_icon("system/assets/tools/prev.svg")
-            .hotkey(Key::LeftArrow)
     }
 
     /// An "X" button to close the current state. Bound to the escape key.
