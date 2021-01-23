@@ -578,6 +578,24 @@
 <span id="575">575</span>
 <span id="576">576</span>
 <span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This runs a simulation without any graphics and serves a very basic API to control things. See</span>
 <span class="comment">// https://dabreegster.github.io/abstreet/dev/api.html for documentation. To run this:</span>
@@ -878,6 +896,7 @@
                 };
                 <span class="ident">trips</span>.<span class="ident">push</span>(<span class="ident">FinishedTrip</span> {
                     <span class="ident">id</span>: <span class="kw-2">*</span><span class="ident">id</span>,
+                    <span class="ident">person</span>: <span class="ident">sim</span>.<span class="ident">trip_to_person</span>(<span class="kw-2">*</span><span class="ident">id</span>).<span class="ident">unwrap</span>(),
                     <span class="ident">duration</span>: <span class="kw-2">*</span><span class="ident">maybe_duration</span>,
                     <span class="ident">distance_crossed</span>,
                     <span class="ident">mode</span>: <span class="kw-2">*</span><span class="ident">mode</span>,
@@ -891,10 +910,12 @@
                 .<span class="ident">get_unzoomed_agents</span>(<span class="ident">map</span>)
                 .<span class="ident">into_iter</span>()
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">AgentPosition</span> {
+                    <span class="ident">id</span>: <span class="ident">a</span>.<span class="ident">id</span>,
+                    <span class="ident">trip</span>: <span class="ident">sim</span>.<span class="ident">agent_to_trip</span>(<span class="ident">a</span>.<span class="ident">id</span>),
+                    <span class="ident">person</span>: <span class="ident">a</span>.<span class="ident">person</span>,
                     <span class="ident">vehicle_type</span>: <span class="ident">a</span>.<span class="ident">id</span>.<span class="ident">to_vehicle_type</span>(),
                     <span class="ident">pos</span>: <span class="ident">a</span>.<span class="ident">pos</span>.<span class="ident">to_gps</span>(<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>()),
                     <span class="ident">distance_crossed</span>: <span class="ident">sim</span>.<span class="ident">agent_properties</span>(<span class="ident">map</span>, <span class="ident">a</span>.<span class="ident">id</span>).<span class="ident">dist_crossed</span>,
-                    <span class="ident">person</span>: <span class="ident">a</span>.<span class="ident">person</span>,
                 })
                 .<span class="ident">collect</span>(),
         })),
@@ -908,7 +929,16 @@
                 .<span class="ident">collect</span>(),
         })),
         <span class="string">&quot;/data/get-blocked-by-graph&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="kw-2">&amp;</span><span class="ident">BlockedByGraph</span> {
-            <span class="ident">blocked_by</span>: <span class="ident">sim</span>.<span class="ident">get_blocked_by_graph</span>(<span class="ident">map</span>),
+            <span class="ident">blocked_by</span>: <span class="ident">sim</span>
+                .<span class="ident">get_blocked_by_graph</span>(<span class="ident">map</span>)
+                .<span class="ident">into_iter</span>()
+                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">id</span>, (<span class="ident">delay</span>, <span class="ident">cause</span>))<span class="op">|</span> {
+                    (
+                        <span class="ident">id</span>,
+                        (<span class="ident">delay</span>, <span class="ident">cause</span>, <span class="ident">sim</span>.<span class="ident">agent_to_trip</span>(<span class="ident">id</span>), <span class="ident">sim</span>.<span class="ident">agent_to_person</span>(<span class="ident">id</span>)),
+                    )
+                })
+                .<span class="ident">collect</span>(),
         })),
         <span class="string">&quot;/data/trip-time-lower-bound&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">TripID</span>(<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>)<span class="question-mark">?</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>()<span class="question-mark">?</span>);
@@ -959,6 +989,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>)]</span>
 <span class="kw">struct</span> <span class="ident">FinishedTrip</span> {
     <span class="ident">id</span>: <span class="ident">TripID</span>,
+    <span class="ident">person</span>: <span class="ident">PersonID</span>,
     <span class="ident">duration</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="ident">distance_crossed</span>: <span class="ident">Distance</span>,
     <span class="ident">mode</span>: <span class="ident">TripMode</span>,
@@ -984,6 +1015,12 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>)]</span>
 <span class="kw">struct</span> <span class="ident">AgentPosition</span> {
+    <span class="doccomment">/// The agent&#39;s ID</span>
+    <span class="ident">id</span>: <span class="ident">AgentID</span>,
+    <span class="doccomment">/// None for buses</span>
+    <span class="ident">trip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TripID</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// None for buses</span>
+    <span class="ident">person</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span>,
     <span class="doccomment">/// None for pedestrians</span>
     <span class="ident">vehicle_type</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">VehicleType</span><span class="op">&gt;</span>,
     <span class="doccomment">/// The agent&#39;s current position. For pedestrians, this is their center. For vehicles, this</span>
@@ -1002,8 +1039,6 @@
     <span class="doccomment">/// - At the very end of a driving trip, the agent may wind up crossing slightly more or less</span>
     <span class="doccomment">///   than the total path length, due to where they park along that last road.</span>
     <span class="ident">distance_crossed</span>: <span class="ident">Distance</span>,
-    <span class="doccomment">/// None for buses</span>
-    <span class="ident">person</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>)]</span>
@@ -1024,9 +1059,10 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>)]</span>
 <span class="kw">struct</span> <span class="ident">BlockedByGraph</span> {
     <span class="doccomment">/// Each entry indicates that some agent has been stuck in one place for some amount of time,</span>
-    <span class="doccomment">/// due to being blocked by another agent or because they&#39;re waiting at an intersection.</span>
+    <span class="doccomment">/// due to being blocked by another agent or because they&#39;re waiting at an intersection. Unless</span>
+    <span class="doccomment">/// the agent is a bus, then the TripID and PersonID will also be filled out.</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_btreemap&quot;</span>)]</span>
-    <span class="ident">blocked_by</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">AgentID</span>, (<span class="ident">Duration</span>, <span class="ident">DelayCause</span>)<span class="op">&gt;</span>,
+    <span class="ident">blocked_by</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">AgentID</span>, (<span class="ident">Duration</span>, <span class="ident">DelayCause</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TripID</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
