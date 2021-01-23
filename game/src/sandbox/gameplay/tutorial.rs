@@ -739,7 +739,7 @@ impl TutorialState {
                 txt.draw(ctx)
             },
             ctx.style()
-                .btn_prev()
+                .btn_next()
                 .disabled(self.current.stage == self.stages.len() - 1)
                 .build_widget(ctx, "next tutorial"),
             ctx.style().btn_outline_light_text("Quit").build_def(ctx),
@@ -821,6 +821,7 @@ impl TutorialState {
                     ctx.style()
                         .btn_prev()
                         .disabled(self.current.part == 0)
+                        .hotkey(Key::LeftArrow)
                         .build_widget(ctx, "previous message"),
                     format!("{}/{}", self.current.part + 1, self.stage().messages.len())
                         .draw_text(ctx)
@@ -828,6 +829,7 @@ impl TutorialState {
                     ctx.style()
                         .btn_next()
                         .disabled(self.current.part == self.stage().messages.len() - 1)
+                        .hotkey(Key::RightArrow)
                         .build_widget(ctx, "next message"),
                 ])];
                 if self.current.part == self.stage().messages.len() - 1 {
