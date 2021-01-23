@@ -361,23 +361,6 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                     .build_widget(ctx, "btn_outline_light_icon_text"),
             ]),
         ]),
-        Text::from(
-            Line("Controls should be same height")
-                .big_heading_styled()
-                .size(18),
-        )
-        .draw(ctx),
-        Widget::row(vec![
-            btn.btn_solid_light_icon("system/assets/tools/layers.svg")
-                .build_widget(ctx, "btn_height_icon"),
-            btn.btn_solid_light_text("text")
-                .build_widget(ctx, "btn_height_text"),
-            btn.btn_outline_light_icon_text("system/assets/tools/layers.svg", "icon+text")
-                .build_widget(ctx, "btn_height_icon_text"),
-            btn.btn_outline_light_popup("popup")
-                .build_widget(ctx, "btn_height_popup"),
-            widgetry::Spinner::new(ctx, (0, 11), 1),
-        ]),
         Text::from(Line("Spinner").big_heading_styled().size(18)).draw(ctx),
         widgetry::Spinner::new(ctx, (0, 11), 1),
         Widget::row(vec![
@@ -459,7 +442,71 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 .build_widget(ctx, "apply"),
         ])
         .margin_above(30),
-    ]))
+        Text::from(
+            Line("Controls should be same height")
+                .big_heading_styled()
+                .size(18),
+        )
+        .draw(ctx),
+        {
+            let row_height = 10;
+            let mut id = 0;
+            let mut next_id = || {
+                id += 1;
+                format!("btn_height_check_{}", id)
+            };
+            Widget::row(vec![
+                Widget::col(
+                    (0..row_height)
+                        .map(|_| {
+                            btn.btn_solid_dark_icon("system/assets/tools/layers.svg")
+                                .build_widget(ctx, &next_id())
+                        })
+                        .collect::<Vec<_>>(),
+                ),
+                Widget::col(
+                    (0..row_height)
+                        .map(|_| {
+                            btn.btn_solid_dark_text("text")
+                                .build_widget(ctx, &next_id())
+                        })
+                        .collect::<Vec<_>>(),
+                ),
+                Widget::col(
+                    (0..row_height)
+                        .map(|_| {
+                            btn.btn_outline_light_icon_text(
+                                "system/assets/tools/layers.svg",
+                                "icon+text",
+                            )
+                            .build_widget(ctx, &next_id())
+                        })
+                        .collect::<Vec<_>>(),
+                ),
+                Widget::col(
+                    (0..row_height)
+                        .map(|_| {
+                            btn.btn_outline_light_popup("popup")
+                                .build_widget(ctx, &next_id())
+                        })
+                        .collect::<Vec<_>>(),
+                ),
+                Widget::col(
+                    (0..row_height)
+                        .map(|_| {
+                            btn.btn_solid_dark_hotkey("Jump", Key::J)
+                                .build_widget(ctx, &next_id())
+                        })
+                        .collect::<Vec<_>>(),
+                ),
+                Widget::col(
+                    (0..row_height)
+                        .map(|_| widgetry::Spinner::new(ctx, (0, 11), 1))
+                        .collect::<Vec<_>>(),
+                ),
+            ])
+        },
+    ])) // end panel
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
 }

@@ -106,7 +106,7 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
     if app.opts.dev {
         rows.push(
             ctx.style()
-                .btn_solid_light_text("Open OSM")
+                .btn_solid_dark_text("Open OSM")
                 .build_widget(ctx, &format!("open {}", b.orig_id)),
         );
 
@@ -155,7 +155,7 @@ pub fn people(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Building
             .insert(p.to_string(), Tab::PersonTrips(p, BTreeMap::new()));
         let widget = Widget::col(vec![
             ctx.style()
-                .btn_solid_light_text(&p.to_string())
+                .btn_solid_dark_text(&p.to_string())
                 .build_def(ctx),
             if let Some((t, mode)) = next_trip {
                 format!(

@@ -187,7 +187,7 @@ impl ColorScheme {
             hovering: gui_style.hovering_color,
             panel_bg: gui_style.panel_bg,
             section_bg: Color::grey(0.5),
-            inner_panel: hex("#4C4C4C"),
+            inner_panel: gui_style.panel_bg.alpha(1.0),
             day_time_slider: hex("#F4DA22"),
             night_time_slider: hex("#12409D"),
             selected: Color::RED.alpha(0.7),
@@ -416,7 +416,8 @@ impl ColorScheme {
 
         cs.panel_bg = Color::hex("#003046").alpha(0.9);
         cs.gui_style.panel_bg = cs.panel_bg;
-        cs.inner_panel = cs.panel_bg;
+        cs.inner_panel = cs.panel_bg.alpha(1.0);
+        cs.section_bg = cs.inner_panel;
         cs.minimap_cursor_border = Color::WHITE;
         cs.minimap_cursor_bg = Some(Color::rgba(238, 112, 46, 0.2));
         cs.minimap_selected_zoom = Color::hex("#EE702E");

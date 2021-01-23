@@ -587,7 +587,7 @@ fn trip_category_selector(ctx: &mut EventCtx, app: &App, tab: DashTab) -> Widget
     let total = finished + cancelled + unfinished;
 
     let btn = |dash, action, label| {
-        let mut button = ctx.style().btn_solid_light_text(label);
+        let mut button = ctx.style().btn_solid_dark_text(label);
         if dash == tab {
             button = button
                 .disabled(true)

@@ -48,7 +48,7 @@ impl SpeedControls {
         row.push({
             let button = ctx
                 .style()
-                .btn_solid_light_icon("system/assets/speed/triangle.svg")
+                .btn_plain_light_icon("system/assets/speed/triangle.svg")
                 .hotkey(Key::Space);
 
             Widget::custom_row(vec![if self.paused {
@@ -80,7 +80,6 @@ impl SpeedControls {
                         .btn_plain_light()
                         .image_path("system/assets/speed/triangle.svg")
                         .image_dims(ScreenDims::new(16.0, 26.0))
-                        .bg_color(ctx.style().btn_solid_light.bg_hover, ControlState::Hovered)
                         .tooltip(txt)
                         .padding(EdgeInsets {
                             top: 8.0,
@@ -130,29 +129,17 @@ impl SpeedControls {
         );
 
         row.push(
-            {
-                let buttons = ctx
-                    .style()
-                    .btn_plain_light()
-                    .bg_color(ctx.style().btn_solid_light.bg_hover, ControlState::Hovered)
-                    .image_dims(ScreenDims::square(20.0));
-                Widget::custom_row(vec![
-                    buttons
-                        .clone()
-                        .label_text("jump")
-                        .image_path("system/assets/speed/jump_to_time.svg")
-                        .hotkey(Key::B)
-                        .build_widget(ctx, "jump to specific time"),
-                    buttons
-                        .label_text("reset")
-                        .image_path("system/assets/speed/reset.svg")
-                        .hotkey(Key::X)
-                        .build_widget(ctx, "reset to midnight"),
-                ])
-            }
-            // Inner buttons, styled as one composite button w/ background/border
-            .bg(ctx.style().btn_solid_light.bg)
-            .outline(2.0, ctx.style().btn_solid_light.outline),
+            ctx.style()
+                .btn_plain_light_icon("system/assets/speed/jump_to_time.svg")
+                .hotkey(Key::B)
+                .build_widget(ctx, "jump to specific time"),
+        );
+
+        row.push(
+            ctx.style()
+                .btn_plain_light_icon("system/assets/speed/reset.svg")
+                .hotkey(Key::X)
+                .build_widget(ctx, "reset to midnight"),
         );
 
         self.panel = Panel::new(Widget::custom_row(row))

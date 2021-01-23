@@ -37,7 +37,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID
     if app.opts.dev {
         rows.push(
             ctx.style()
-                .btn_solid_light_text("Open OSM node")
+                .btn_solid_dark_text("Open OSM node")
                 .build_widget(ctx, &format!("open {}", i.orig_id)),
         );
     }
