@@ -305,8 +305,6 @@
 <span id="302">302</span>
 <span id="303">303</span>
 <span id="304">304</span>
-<span id="305">305</span>
-<span id="306">306</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">ButtonStyle</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -484,13 +482,11 @@
     <span class="doccomment">/// A right facing caret, like &quot;&gt;&quot;, suitable for paging to the &quot;next&quot; set of results</span>
     <span class="kw">fn</span> <span class="ident">btn_next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/next.svg&quot;</span>)
-            .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">RightArrow</span>)
     }
 
     <span class="doccomment">/// A left facing caret, like &quot;&lt;&quot;, suitable for paging to the &quot;next&quot; set of results</span>
     <span class="kw">fn</span> <span class="ident">btn_prev</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/prev.svg&quot;</span>)
-            .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">LeftArrow</span>)
     }
 
     <span class="doccomment">/// An &quot;X&quot; button to close the current state. Bound to the escape key.</span>

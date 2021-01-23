@@ -275,13 +275,21 @@
 <span id="272">272</span>
 <span id="273">273</span>
 <span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Polygon</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">include_labeled_bytes</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">StyledButtons</span>,
-    <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
+    <span class="ident">include_labeled_bytes</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>,
+    <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">const</span> <span class="ident">ROWS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">8</span>;
@@ -470,8 +478,16 @@
 }
 
 <span class="kw">fn</span> <span class="ident">make_pagination</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">total</span>: <span class="ident">usize</span>, <span class="ident">skip</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_next</span>().<span class="ident">disabled</span>(<span class="ident">skip</span> <span class="op">+</span> <span class="number">1</span> <span class="op">+</span> <span class="ident">ROWS</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">total</span>);
-    <span class="kw">let</span> <span class="ident">prev</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_prev</span>().<span class="ident">disabled</span>(<span class="ident">skip</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>);
+    <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="ident">ctx</span>
+        .<span class="ident">style</span>()
+        .<span class="ident">btn_next</span>()
+        .<span class="ident">disabled</span>(<span class="ident">skip</span> <span class="op">+</span> <span class="number">1</span> <span class="op">+</span> <span class="ident">ROWS</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">total</span>)
+        .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">LeftArrow</span>);
+    <span class="kw">let</span> <span class="ident">prev</span> <span class="op">=</span> <span class="ident">ctx</span>
+        .<span class="ident">style</span>()
+        .<span class="ident">btn_prev</span>()
+        .<span class="ident">disabled</span>(<span class="ident">skip</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>)
+        .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">RightArrow</span>);
 
     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">prev</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;previous&quot;</span>),

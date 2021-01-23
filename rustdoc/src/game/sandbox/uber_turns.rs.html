@@ -346,6 +346,8 @@
 <span id="343">343</span>
 <span id="344">344</span>
 <span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -535,6 +537,7 @@
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_prev</span>()
                     .<span class="ident">disabled</span>(<span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">LeftArrow</span>)
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;previous uber-turn&quot;</span>),
                 <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/{}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">ic</span>.<span class="ident">uber_turns</span>.<span class="ident">len</span>())).<span class="ident">secondary</span>())
                     .<span class="ident">draw</span>(<span class="ident">ctx</span>)
@@ -542,6 +545,7 @@
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_next</span>()
                     .<span class="ident">disabled</span>(<span class="ident">ic</span>.<span class="ident">uber_turns</span>.<span class="ident">is_empty</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ic</span>.<span class="ident">uber_turns</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">RightArrow</span>)
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;next uber-turn&quot;</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
             ]),

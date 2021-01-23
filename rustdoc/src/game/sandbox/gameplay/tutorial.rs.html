@@ -1413,6 +1413,8 @@
 <span id="1410">1410</span>
 <span id="1411">1411</span>
 <span id="1412">1412</span>
+<span id="1413">1413</span>
+<span id="1414">1414</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -2155,7 +2157,7 @@
                 <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>)
             },
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_prev</span>()
+                .<span class="ident">btn_next</span>()
                 .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">stage</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">stages</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;next tutorial&quot;</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline_light_text</span>(<span class="string">&quot;Quit&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
@@ -2237,6 +2239,7 @@
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_prev</span>()
                         .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>)
+                        .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">LeftArrow</span>)
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;previous message&quot;</span>),
                     <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/{}&quot;</span>, <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">part</span> <span class="op">+</span> <span class="number">1</span>, <span class="self">self</span>.<span class="ident">stage</span>().<span class="ident">messages</span>.<span class="ident">len</span>())
                         .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
@@ -2244,6 +2247,7 @@
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_next</span>()
                         .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">stage</span>().<span class="ident">messages</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>)
+                        .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">RightArrow</span>)
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;next message&quot;</span>),
                 ])];
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">stage</span>().<span class="ident">messages</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
