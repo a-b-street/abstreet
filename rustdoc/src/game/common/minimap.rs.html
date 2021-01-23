@@ -234,7 +234,7 @@
 <span class="kw">fn</span> <span class="ident">make_tool_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
     <span class="kw">let</span> <span class="ident">buttons</span> <span class="op">=</span> <span class="ident">ctx</span>
         .<span class="ident">style</span>()
-        .<span class="ident">btn_primary_light</span>()
+        .<span class="ident">btn_solid_light</span>()
         .<span class="ident">image_dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">square</span>(<span class="number">20.0</span>))
         <span class="comment">// the default transparent button background is jarring for these buttons which are floating</span>
         <span class="comment">// in a transparent panel.</span>

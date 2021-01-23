@@ -56,7 +56,7 @@
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">osm_id</span>) <span class="op">=</span> <span class="ident">area</span>.<span class="ident">osm_id</span> {
         <span class="ident">rows</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_primary_light_text</span>(<span class="string">&quot;Open in OSM&quot;</span>)
+                .<span class="ident">btn_solid_light_text</span>(<span class="string">&quot;Open in OSM&quot;</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">osm_id</span>)),
         );
     }

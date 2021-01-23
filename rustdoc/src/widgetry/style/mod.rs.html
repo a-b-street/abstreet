@@ -111,12 +111,12 @@
     <span class="kw">pub</span> <span class="ident">hotkey_color</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">hovering_color</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">loading_tips</span>: <span class="ident">Text</span>,
-    <span class="kw">pub</span> <span class="ident">btn_primary_dark</span>: <span class="ident">ButtonStyle</span>,
-    <span class="kw">pub</span> <span class="ident">btn_secondary_dark</span>: <span class="ident">ButtonStyle</span>,
-    <span class="kw">pub</span> <span class="ident">btn_primary_light</span>: <span class="ident">ButtonStyle</span>,
-    <span class="kw">pub</span> <span class="ident">btn_secondary_light</span>: <span class="ident">ButtonStyle</span>,
-    <span class="kw">pub</span> <span class="ident">btn_primary_destructive</span>: <span class="ident">ButtonStyle</span>,
-    <span class="kw">pub</span> <span class="ident">btn_secondary_destructive</span>: <span class="ident">ButtonStyle</span>,
+    <span class="kw">pub</span> <span class="ident">btn_solid_dark</span>: <span class="ident">ButtonStyle</span>,
+    <span class="kw">pub</span> <span class="ident">btn_outline_dark</span>: <span class="ident">ButtonStyle</span>,
+    <span class="kw">pub</span> <span class="ident">btn_solid_light</span>: <span class="ident">ButtonStyle</span>,
+    <span class="kw">pub</span> <span class="ident">btn_outline_light</span>: <span class="ident">ButtonStyle</span>,
+    <span class="kw">pub</span> <span class="ident">btn_solid_destructive</span>: <span class="ident">ButtonStyle</span>,
+    <span class="kw">pub</span> <span class="ident">btn_outline_destructive</span>: <span class="ident">ButtonStyle</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
@@ -140,7 +140,7 @@
             <span class="ident">loading_tips</span>: <span class="ident">Text</span>::<span class="ident">new</span>(),
 
             <span class="comment">// Buttons</span>
-            <span class="ident">btn_primary_dark</span>: <span class="ident">ButtonStyle</span> {
+            <span class="ident">btn_solid_dark</span>: <span class="ident">ButtonStyle</span> {
                 <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>),
                 <span class="ident">fg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.3</span>),
                 <span class="ident">bg</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>),
@@ -148,7 +148,7 @@
                 <span class="ident">bg_disabled</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.6</span>),
                 <span class="ident">outline</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>.<span class="ident">alpha</span>(<span class="number">0.6</span>),
             },
-            <span class="ident">btn_secondary_dark</span>: <span class="ident">ButtonStyle</span> {
+            <span class="ident">btn_outline_dark</span>: <span class="ident">ButtonStyle</span> {
                 <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>),
                 <span class="ident">fg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.3</span>),
                 <span class="ident">bg</span>: <span class="ident">Color</span>::<span class="ident">CLEAR</span>,
@@ -156,7 +156,7 @@
                 <span class="ident">bg_disabled</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.8</span>),
                 <span class="ident">outline</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>),
             },
-            <span class="ident">btn_primary_light</span>: <span class="ident">ButtonStyle</span> {
+            <span class="ident">btn_solid_light</span>: <span class="ident">ButtonStyle</span> {
                 <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>),
                 <span class="ident">fg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.3</span>),
                 <span class="ident">bg</span>: <span class="ident">hex</span>(<span class="string">&quot;#003046&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.8</span>),
@@ -164,7 +164,7 @@
                 <span class="ident">bg_disabled</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.1</span>),
                 <span class="ident">outline</span>: <span class="ident">hex</span>(<span class="string">&quot;#003046&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.6</span>),
             },
-            <span class="ident">btn_secondary_light</span>: <span class="ident">ButtonStyle</span> {
+            <span class="ident">btn_outline_light</span>: <span class="ident">ButtonStyle</span> {
                 <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>),
                 <span class="ident">fg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.3</span>),
                 <span class="ident">bg</span>: <span class="ident">Color</span>::<span class="ident">CLEAR</span>,
@@ -172,7 +172,7 @@
                 <span class="ident">bg_disabled</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.5</span>),
                 <span class="ident">outline</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>),
             },
-            <span class="ident">btn_primary_destructive</span>: <span class="ident">ButtonStyle</span> {
+            <span class="ident">btn_solid_destructive</span>: <span class="ident">ButtonStyle</span> {
                 <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>),
                 <span class="ident">fg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.3</span>),
                 <span class="ident">bg</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.8</span>),
@@ -180,7 +180,7 @@
                 <span class="ident">bg_disabled</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.1</span>),
                 <span class="ident">outline</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.6</span>),
             },
-            <span class="ident">btn_secondary_destructive</span>: <span class="ident">ButtonStyle</span> {
+            <span class="ident">btn_outline_destructive</span>: <span class="ident">ButtonStyle</span> {
                 <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>),
                 <span class="ident">fg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.3</span>),
                 <span class="ident">bg</span>: <span class="ident">Color</span>::<span class="ident">CLEAR</span>,

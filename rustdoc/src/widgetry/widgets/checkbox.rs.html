@@ -310,15 +310,15 @@
             .<span class="ident">style</span>()
             .<span class="ident">btn_plain_light</span>()
             .<span class="ident">image_color</span>(
-                <span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_primary_light</span>.<span class="ident">bg</span>),
+                <span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_light</span>.<span class="ident">bg</span>),
                 <span class="ident">ControlState</span>::<span class="ident">Default</span>,
             )
             .<span class="ident">image_color</span>(
-                <span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_primary_light</span>.<span class="ident">bg_hover</span>),
+                <span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_light</span>.<span class="ident">bg_hover</span>),
                 <span class="ident">ControlState</span>::<span class="ident">Hovered</span>,
             )
             .<span class="ident">image_color</span>(
-                <span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_primary_light</span>.<span class="ident">bg_disabled</span>),
+                <span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_light</span>.<span class="ident">bg_disabled</span>),
                 <span class="ident">ControlState</span>::<span class="ident">Disabled</span>,
             )
             .<span class="ident">label_text</span>(<span class="ident">label</span>)
@@ -353,15 +353,15 @@
             .<span class="ident">style</span>()
             .<span class="ident">btn_plain_light</span>()
             .<span class="ident">image_color</span>(
-                <span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_primary_light</span>.<span class="ident">bg</span>),
+                <span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_light</span>.<span class="ident">bg</span>),
                 <span class="ident">ControlState</span>::<span class="ident">Default</span>,
             )
             .<span class="ident">image_color</span>(
-                <span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_primary_light</span>.<span class="ident">bg_hover</span>),
+                <span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_light</span>.<span class="ident">bg_hover</span>),
                 <span class="ident">ControlState</span>::<span class="ident">Hovered</span>,
             )
             .<span class="ident">image_color</span>(
-                <span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_primary_light</span>.<span class="ident">bg_disabled</span>),
+                <span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_light</span>.<span class="ident">bg_disabled</span>),
                 <span class="ident">ControlState</span>::<span class="ident">Disabled</span>,
             )
             .<span class="ident">label_styled_text</span>(<span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="ident">spans</span>), <span class="ident">ControlState</span>::<span class="ident">Default</span>)
@@ -447,7 +447,7 @@
             })
             <span class="comment">// TODO: make these clickable. Currently they would explode due to re-use of an action</span>
             .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
-            .<span class="ident">label_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_secondary_light</span>.<span class="ident">fg</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
+            .<span class="ident">label_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline_light</span>.<span class="ident">fg</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
             .<span class="ident">bg_color</span>(<span class="ident">Color</span>::<span class="ident">CLEAR</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>);
         <span class="kw">let</span> <span class="ident">right_text_button</span> <span class="op">=</span> <span class="ident">left_text_button</span>.<span class="ident">clone</span>().<span class="ident">label_text</span>(<span class="ident">right_label</span>);
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[

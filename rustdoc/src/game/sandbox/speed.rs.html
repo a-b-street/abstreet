@@ -447,12 +447,6 @@
 <span id="444">444</span>
 <span id="445">445</span>
 <span id="446">446</span>
-<span id="447">447</span>
-<span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
-<span id="452">452</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">PopupMsg</span>;
@@ -504,7 +498,7 @@
         <span class="ident">row</span>.<span class="ident">push</span>({
             <span class="kw">let</span> <span class="ident">button</span> <span class="op">=</span> <span class="ident">ctx</span>
                 .<span class="ident">style</span>()
-                .<span class="ident">btn_primary_light_icon</span>(<span class="string">&quot;system/assets/speed/triangle.svg&quot;</span>)
+                .<span class="ident">btn_solid_light_icon</span>(<span class="string">&quot;system/assets/speed/triangle.svg&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Space</span>);
 
             <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="kw">if</span> <span class="self">self</span>.<span class="ident">paused</span> {
@@ -536,10 +530,7 @@
                         .<span class="ident">btn_plain_light</span>()
                         .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/speed/triangle.svg&quot;</span>)
                         .<span class="ident">image_dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="number">16.0</span>, <span class="number">26.0</span>))
-                        .<span class="ident">bg_color</span>(
-                            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_primary_light</span>.<span class="ident">bg_hover</span>,
-                            <span class="ident">ControlState</span>::<span class="ident">Hovered</span>,
-                        )
+                        .<span class="ident">bg_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_light</span>.<span class="ident">bg_hover</span>, <span class="ident">ControlState</span>::<span class="ident">Hovered</span>)
                         .<span class="ident">tooltip</span>(<span class="ident">txt</span>)
                         .<span class="ident">padding</span>(<span class="ident">EdgeInsets</span> {
                             <span class="ident">top</span>: <span class="number">8.0</span>,
@@ -557,7 +548,7 @@
 
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">setting</span> <span class="op">&lt;</span> <span class="ident">s</span> {
                         <span class="ident">triangle_btn</span> <span class="op">=</span> <span class="ident">triangle_btn</span>.<span class="ident">image_color</span>(
-                            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_secondary_light</span>.<span class="ident">fg_disabled</span>,
+                            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline_light</span>.<span class="ident">fg_disabled</span>,
                             <span class="ident">ControlState</span>::<span class="ident">Default</span>,
                         )
                     }
@@ -567,8 +558,8 @@
                 .<span class="ident">collect</span>(),
             )
             <span class="comment">// Inner buttons, styled as one composite button w/ background/border</span>
-            .<span class="ident">bg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_primary_light</span>.<span class="ident">bg</span>)
-            .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_primary_light</span>.<span class="ident">outline</span>)
+            .<span class="ident">bg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_light</span>.<span class="ident">bg</span>)
+            .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_light</span>.<span class="ident">outline</span>)
             .<span class="ident">margin_right</span>(<span class="number">16</span>),
         );
 
@@ -593,10 +584,7 @@
                 <span class="kw">let</span> <span class="ident">buttons</span> <span class="op">=</span> <span class="ident">ctx</span>
                     .<span class="ident">style</span>()
                     .<span class="ident">btn_plain_light</span>()
-                    .<span class="ident">bg_color</span>(
-                        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_primary_light</span>.<span class="ident">bg_hover</span>,
-                        <span class="ident">ControlState</span>::<span class="ident">Hovered</span>,
-                    )
+                    .<span class="ident">bg_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_light</span>.<span class="ident">bg_hover</span>, <span class="ident">ControlState</span>::<span class="ident">Hovered</span>)
                     .<span class="ident">image_dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">square</span>(<span class="number">20.0</span>));
                 <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">buttons</span>
@@ -613,8 +601,8 @@
                 ])
             }
             <span class="comment">// Inner buttons, styled as one composite button w/ background/border</span>
-            .<span class="ident">bg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_primary_light</span>.<span class="ident">bg</span>)
-            .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_primary_light</span>.<span class="ident">outline</span>),
+            .<span class="ident">bg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_light</span>.<span class="ident">bg</span>)
+            .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_light</span>.<span class="ident">outline</span>),
         );
 
         <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">row</span>))

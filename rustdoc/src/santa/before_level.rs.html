@@ -680,7 +680,7 @@
     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">upzones_unlocked</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
         <span class="kw">return</span> <span class="ident">Panel</span>::<span class="ident">new</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_primary_dark_text</span>(<span class="string">&quot;Start game&quot;</span>)
+                .<span class="ident">btn_solid_dark_text</span>(<span class="string">&quot;Start game&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                 .<span class="ident">container</span>(),
@@ -712,23 +712,23 @@
         ]),
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_secondary_light_text</span>(<span class="string">&quot;Randomly choose upzones&quot;</span>)
+                .<span class="ident">btn_outline_light_text</span>(<span class="string">&quot;Randomly choose upzones&quot;</span>)
                 .<span class="ident">disabled</span>(<span class="ident">num_picked</span> <span class="op">=</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">upzones_unlocked</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_secondary_light_text</span>(<span class="string">&quot;Clear upzones&quot;</span>)
+                .<span class="ident">btn_outline_light_text</span>(<span class="string">&quot;Clear upzones&quot;</span>)
                 .<span class="ident">disabled</span>(<span class="ident">num_picked</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                 .<span class="ident">align_right</span>(),
         ]),
         <span class="kw">if</span> <span class="ident">num_picked</span> <span class="op">=</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">upzones_unlocked</span> {
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_primary_dark_text</span>(<span class="string">&quot;Start game&quot;</span>)
+                .<span class="ident">btn_solid_dark_text</span>(<span class="string">&quot;Start game&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
         } <span class="kw">else</span> {
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_primary_dark_text</span>(<span class="string">&quot;Finish upzoning before playing&quot;</span>)
+                .<span class="ident">btn_solid_dark_text</span>(<span class="string">&quot;Finish upzoning before playing&quot;</span>)
                 .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
         },
