@@ -239,12 +239,15 @@ impl Polygon {
     /// Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
     /// If radius is None, be as round as possible. Fails if the radius is too big.
     pub fn maybe_rounded_rectangle<R: Into<CornerRadii>>(w: f64, h: f64, r: R) -> Option<Polygon> {
-        // let r = r.unwrap_or_else(|| w.min(h) / 2.0);
         let r = r.into();
-        // FIXME: REPLACE error handling?
-        // if 2.0 * r > w || 2.0 * r > h {
-        //     return None;
-        // }
+        let max_r = r
+            .top_left
+            .max(r.top_right)
+            .max(r.bottom_right)
+            .max(r.bottom_left);
+        if 2.0 * max_r > w || 2.0 * max_r > h {
+            return None;
+        }
 
         let mut pts = vec![];
 
@@ -258,23 +261,19 @@ impl Polygon {
             }
         };
 
-        // Top-left corner
         arc(r.top_left, Pt2D::new(r.top_left, r.top_left), 180.0, 90.0);
-        // Top-right
         arc(
             r.top_right,
             Pt2D::new(w - r.top_right, r.top_right),
             90.0,
             0.0,
         );
-        // Bottom-right
         arc(
             r.bottom_right,
             Pt2D::new(w - r.bottom_right, h - r.bottom_right),
             360.0,
             270.0,
         );
-        // Bottom-left
         arc(
             r.bottom_left,
             Pt2D::new(r.bottom_left, h - r.bottom_left),
@@ -290,6 +289,7 @@ impl Polygon {
         Some(Ring::must_new(pts).to_polygon())
     }
 
+    /// A rectangle, two sides of which are fully rounded half-circles.
     pub fn pill(w: f64, h: f64) -> Polygon {
         let r = w.min(h) / 2.0;
         Polygon::maybe_rounded_rectangle(w, h, r).unwrap()
