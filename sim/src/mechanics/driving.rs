@@ -654,6 +654,10 @@ impl DrivingSimState {
             ctx.intersections.cancel_request(AgentID::Car(c), t);
         }
 
+        if car.router.last_step() {
+            ctx.parking.unreserve_spot(c);
+        }
+
         self.delete_car_internal(&mut car, dists, idx, now, ctx);
         // delete_car_internal cancels UpdateLaggyHead
         ctx.scheduler.cancel(Command::UpdateCar(c));

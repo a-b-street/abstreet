@@ -28,6 +28,8 @@ pub trait ParkingSim {
     fn get_free_offstreet_spots(&self, b: BuildingID) -> Vec<ParkingSpot>;
     fn get_free_lot_spots(&self, pl: ParkingLotID) -> Vec<ParkingSpot>;
     fn reserve_spot(&mut self, spot: ParkingSpot, car: CarID);
+    /// Needed when abruptly deleting a car, in case they're being deleted during their last step.
+    fn unreserve_spot(&mut self, car: CarID);
     fn remove_parked_car(&mut self, p: ParkedCar);
     fn add_parked_car(&mut self, p: ParkedCar);
     fn get_draw_cars(&self, id: LaneID, map: &Map) -> Vec<DrawCarInput>;
@@ -280,6 +282,10 @@ impl ParkingSim for NormalParkingSimState {
                 assert!(idx < self.num_spots_per_lot[&pl]);
             }
         }
+    }
+
+    fn unreserve_spot(&mut self, car: CarID) {
+        retain_btreemap(&mut self.reserved_spots, |_, c| car != *c);
     }
 
     fn remove_parked_car(&mut self, p: ParkedCar) {
@@ -802,6 +808,10 @@ impl ParkingSim for InfiniteParkingSimState {
     fn reserve_spot(&mut self, spot: ParkingSpot, car: CarID) {
         assert!(self.is_free(spot));
         self.reserved_spots.insert(spot, car);
+    }
+
+    fn unreserve_spot(&mut self, car: CarID) {
+        retain_btreemap(&mut self.reserved_spots, |_, c| car != *c);
     }
 
     fn remove_parked_car(&mut self, p: ParkedCar) {
