@@ -917,22 +917,6 @@
 <span id="914">914</span>
 <span id="915">915</span>
 <span id="916">916</span>
-<span id="917">917</span>
-<span id="918">918</span>
-<span id="919">919</span>
-<span id="920">920</span>
-<span id="921">921</span>
-<span id="922">922</span>
-<span id="923">923</span>
-<span id="924">924</span>
-<span id="925">925</span>
-<span id="926">926</span>
-<span id="927">927</span>
-<span id="928">928</span>
-<span id="929">929</span>
-<span id="930">930</span>
-<span id="931">931</span>
-<span id="932">932</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 
@@ -1438,33 +1422,17 @@
             .<span class="ident">btn_solid_dark_text</span>(<span class="string">&quot;Preview&quot;</span>)
             .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">P</span>))
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-        (<span class="kw">if</span> <span class="ident">can_undo</span> {
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/undo.svg&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">Z</span>))
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;undo&quot;</span>)
-        } <span class="kw">else</span> {
-            <span class="ident">Widget</span>::<span class="ident">draw_svg_transform</span>(
-                <span class="ident">ctx</span>,
-                <span class="string">&quot;system/assets/tools/undo.svg&quot;</span>,
-                <span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>)),
-            )
-        })
-        .<span class="ident">centered_vert</span>(),
-        (<span class="kw">if</span> <span class="ident">can_redo</span> {
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/redo.svg&quot;</span>)
-                <span class="comment">// TODO ctrl+shift+Z!</span>
-                .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">Y</span>))
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;redo&quot;</span>)
-        } <span class="kw">else</span> {
-            <span class="ident">Widget</span>::<span class="ident">draw_svg_transform</span>(
-                <span class="ident">ctx</span>,
-                <span class="string">&quot;system/assets/tools/redo.svg&quot;</span>,
-                <span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>)),
-            )
-        })
-        .<span class="ident">centered_vert</span>(),
+        <span class="ident">ctx</span>.<span class="ident">style</span>()
+            .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/undo.svg&quot;</span>)
+            .<span class="ident">disabled</span>(<span class="op">!</span><span class="ident">can_undo</span>)
+            .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">Z</span>))
+            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;undo&quot;</span>),
+        <span class="ident">ctx</span>.<span class="ident">style</span>()
+            .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/redo.svg&quot;</span>)
+            .<span class="ident">disabled</span>(<span class="op">!</span><span class="ident">can_redo</span>)
+            <span class="comment">// TODO ctrl+shift+Z!</span>
+            .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">Y</span>))
+            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;redo&quot;</span>),
         <span class="ident">ctx</span>.<span class="ident">style</span>()
             .<span class="ident">btn_plain_destructive_text</span>(<span class="string">&quot;Cancel&quot;</span>)
             .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)

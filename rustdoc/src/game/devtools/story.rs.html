@@ -569,27 +569,6 @@
 <span id="566">566</span>
 <span id="567">567</span>
 <span id="568">568</span>
-<span id="569">569</span>
-<span id="570">570</span>
-<span id="571">571</span>
-<span id="572">572</span>
-<span id="573">573</span>
-<span id="574">574</span>
-<span id="575">575</span>
-<span id="576">576</span>
-<span id="577">577</span>
-<span id="578">578</span>
-<span id="579">579</span>
-<span id="580">580</span>
-<span id="581">581</span>
-<span id="582">582</span>
-<span id="583">583</span>
-<span id="584">584</span>
-<span id="585">585</span>
-<span id="586">586</span>
-<span id="587">587</span>
-<span id="588">588</span>
-<span id="589">589</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -917,42 +896,21 @@
             <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
         ]),
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Mode</span>::<span class="ident">PlacingMarker</span> <span class="op">=</span> <span class="ident">mode</span> {
-                <span class="ident">Widget</span>::<span class="ident">draw_svg_transform</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>,
-                    <span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#5B5B5B&quot;</span>), <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#4CA7E9&quot;</span>)),
-                )
-            } <span class="kw">else</span> {
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">M</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;new marker&quot;</span>)
-            },
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Mode</span>::<span class="ident">View</span> <span class="op">=</span> <span class="ident">mode</span> {
-                <span class="ident">Widget</span>::<span class="ident">draw_svg_transform</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;system/assets/tools/pan.svg&quot;</span>,
-                    <span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#4CA7E9&quot;</span>)),
-                )
-            } <span class="kw">else</span> {
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/pan.svg&quot;</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;pan&quot;</span>)
-            },
-            <span class="kw">match</span> <span class="ident">mode</span> {
-                <span class="ident">Mode</span>::<span class="ident">Freehand</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Widget</span>::<span class="ident">draw_svg_transform</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;system/assets/tools/select.svg&quot;</span>,
-                    <span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#4CA7E9&quot;</span>)),
-                ),
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ctx</span>
-                    .<span class="ident">style</span>()
-                    .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/select.svg&quot;</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">P</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;draw freehand&quot;</span>),
-            },
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
+                .<span class="ident">disabled</span>(<span class="macro">matches</span><span class="macro">!</span>(<span class="ident">mode</span>, <span class="ident">Mode</span>::<span class="ident">PlacingMarker</span>))
+                .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">M</span>)
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;new marker&quot;</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/pan.svg&quot;</span>)
+                .<span class="ident">disabled</span>(<span class="macro">matches</span><span class="macro">!</span>(<span class="ident">mode</span>, <span class="ident">Mode</span>::<span class="ident">View</span>))
+                .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;pan&quot;</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/select.svg&quot;</span>)
+                .<span class="ident">disabled</span>(<span class="macro">matches</span><span class="macro">!</span>(<span class="ident">mode</span>, <span class="ident">Mode</span>::<span class="ident">Freehand</span>(<span class="kw">_</span>)))
+                .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">P</span>)
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;draw freehand&quot;</span>),
         ])
         .<span class="ident">evenly_spaced</span>(),
     ]))
