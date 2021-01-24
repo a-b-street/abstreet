@@ -942,6 +942,10 @@
 <span id="939">939</span>
 <span id="940">940</span>
 <span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
@@ -989,6 +993,7 @@
     <span class="kw">pub</span> <span class="ident">controls</span>: <span class="ident">SandboxControls</span>,
 
     <span class="ident">recalc_unzoomed_agent</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span>,
+    <span class="ident">last_cs</span>: <span class="ident">ColorSchemeChoice</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SandboxControls</span> {
@@ -1049,15 +1054,17 @@
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SandboxMode</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">toggle_day_night_colors</span> {
-            <span class="kw">let</span> <span class="ident">cs_changed</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">is_daytime</span>(<span class="ident">app</span>) {
+            <span class="kw">if</span> <span class="ident">is_daytime</span>(<span class="ident">app</span>) {
                 <span class="ident">app</span>.<span class="ident">change_color_scheme</span>(<span class="ident">ctx</span>, <span class="ident">ColorSchemeChoice</span>::<span class="ident">Standard</span>)
             } <span class="kw">else</span> {
                 <span class="ident">app</span>.<span class="ident">change_color_scheme</span>(<span class="ident">ctx</span>, <span class="ident">ColorSchemeChoice</span>::<span class="ident">NightMode</span>)
             };
-            <span class="kw">if</span> <span class="ident">cs_changed</span> {
-                <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">recreate_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                <span class="self">self</span>.<span class="ident">gameplay</span>.<span class="ident">recreate_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-            }
+        }
+
+        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">last_cs</span> {
+            <span class="self">self</span>.<span class="ident">last_cs</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">color_scheme</span>;
+            <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">recreate_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+            <span class="self">self</span>.<span class="ident">gameplay</span>.<span class="ident">recreate_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         }
 
         <span class="comment">// Do this before gameplay</span>
@@ -1779,6 +1786,7 @@
                         <span class="ident">gameplay</span>,
                         <span class="ident">gameplay_mode</span>: <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>(),
                         <span class="ident">recalc_unzoomed_agent</span>: <span class="prelude-val">None</span>,
+                        <span class="ident">last_cs</span>: <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">color_scheme</span>,
                     });
 
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">transitions</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">sandbox</span>)];

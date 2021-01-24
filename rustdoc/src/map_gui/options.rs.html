@@ -373,6 +373,8 @@
 <span id="370">370</span>
 <span id="371">371</span>
 <span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">CmdArgs</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">UnitFmt</span>};
@@ -714,6 +716,8 @@
                     }
 
                     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">change_color_scheme</span>(<span class="ident">ctx</span>, <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;Color scheme&quot;</span>)) {
+                        <span class="comment">// change_color_scheme doesn&#39;t modify our local copy of Options!</span>
+                        <span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">color_scheme</span>;
                         <span class="comment">// If the player picks a different scheme, don&#39;t undo it later.</span>
                         <span class="ident">opts</span>.<span class="ident">toggle_day_night_colors</span> <span class="op">=</span> <span class="bool-val">false</span>;
                     }
