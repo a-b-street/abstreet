@@ -102,12 +102,23 @@ pub struct Widget {
     id: Option<String>,
 }
 
+#[derive(Debug, Clone, Copy)]
+pub enum CornerRounding {
+    CornerRadii(geom::CornerRadii),
+    FullyRounded,
+}
+
+impl std::convert::From<f64> for CornerRounding {
+    fn from(uniform: f64) -> CornerRounding {
+        CornerRounding::CornerRadii(uniform.into())
+    }
+}
+
 struct LayoutStyle {
     bg_color: Option<Color>,
     // (thickness, color)
     outline: Option<(f64, Color)>,
-    // If None, as round as possible
-    rounded_radius: f64,
+    corner_rounding: CornerRounding,
     style: Style,
 }
 
@@ -187,10 +198,11 @@ impl Widget {
         self.layout.outline = Some((thickness, color));
         self
     }
-    // pub fn fully_rounded(mut self) -> Widget {
-    //     self.layout.rounded_radius = None;
-    //     self
-    // }
+
+    pub fn corner_rounding<R: Into<CornerRounding>>(mut self, value: R) -> Widget {
+        self.layout.corner_rounding = value.into();
+        self
+    }
 
     // Things like padding don't work on many widgets, so just make a convenient way to wrap in a
     // row/column first
@@ -316,7 +328,7 @@ impl Widget {
             layout: LayoutStyle {
                 bg_color: None,
                 outline: None,
-                rounded_radius: 5.0,
+                corner_rounding: CornerRounding::from(5.0),
                 style: Style {
                     ..Default::default()
                 },
@@ -565,18 +577,29 @@ impl Widget {
             && (self.layout.bg_color.is_some() || self.layout.outline.is_some())
         {
             let mut batch = GeomBatch::new();
-            if let Some(c) = self.layout.bg_color {
+            if let Some(color) = self.layout.bg_color {
                 batch.push(
-                    c,
-                    Polygon::rounded_rectangle(width, height, self.layout.rounded_radius),
+                    color,
+                    match self.layout.corner_rounding {
+                        CornerRounding::CornerRadii(corner_radii) => {
+                            Polygon::rounded_rectangle(width, height, corner_radii)
+                        }
+                        CornerRounding::FullyRounded => Polygon::pill(width, height),
+                    },
                 );
             }
+
             if let Some((thickness, color)) = self.layout.outline {
                 batch.push(
                     color,
-                    Polygon::rounded_rectangle(width, height, self.layout.rounded_radius)
-                        .to_outline(Distance::meters(thickness))
-                        .unwrap(),
+                    match self.layout.corner_rounding {
+                        CornerRounding::CornerRadii(corner_radii) => {
+                            Polygon::rounded_rectangle(width, height, corner_radii)
+                        }
+                        CornerRounding::FullyRounded => Polygon::pill(width, height),
+                    }
+                    .to_outline(Distance::meters(thickness))
+                    .unwrap(),
                 );
             }
             if defer_draw {
