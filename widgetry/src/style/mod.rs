@@ -22,6 +22,7 @@ pub struct Style {
 pub struct ButtonStyle {
     pub fg: Color,
     pub fg_disabled: Color,
+    pub fg_hotkey: Color,
     pub outline: Color,
     pub bg: Color,
     pub bg_hover: Color,
@@ -42,6 +43,7 @@ impl Style {
             btn_solid_dark: ButtonStyle {
                 fg: hex("#4C4C4C"),
                 fg_disabled: hex("#4C4C4C").alpha(0.3),
+                fg_hotkey: hex("#EE702E"),
                 bg: Color::WHITE.alpha(0.8),
                 bg_hover: Color::WHITE,
                 bg_disabled: Color::grey(0.6),
@@ -50,6 +52,7 @@ impl Style {
             btn_outline_dark: ButtonStyle {
                 fg: hex("#4C4C4C"),
                 fg_disabled: hex("#4C4C4C").alpha(0.3),
+                fg_hotkey: hex("#EE702E"),
                 bg: Color::CLEAR,
                 bg_hover: hex("#4C4C4C").alpha(0.1),
                 bg_disabled: Color::grey(0.8),
@@ -58,6 +61,7 @@ impl Style {
             btn_solid_light: ButtonStyle {
                 fg: hex("#F2F2F2"),
                 fg_disabled: hex("#F2F2F2").alpha(0.3),
+                fg_hotkey: Color::GREEN,
                 bg: hex("#003046").alpha(0.8),
                 bg_hover: hex("#003046"),
                 bg_disabled: Color::grey(0.1),
@@ -66,6 +70,7 @@ impl Style {
             btn_outline_light: ButtonStyle {
                 fg: hex("#F2F2F2"),
                 fg_disabled: hex("#F2F2F2").alpha(0.3),
+                fg_hotkey: Color::GREEN,
                 bg: Color::CLEAR,
                 bg_hover: hex("#F2F2F2").alpha(0.1),
                 bg_disabled: Color::grey(0.5),
@@ -74,6 +79,7 @@ impl Style {
             btn_solid_destructive: ButtonStyle {
                 fg: hex("#F2F2F2"),
                 fg_disabled: hex("#F2F2F2").alpha(0.3),
+                fg_hotkey: Color::GREEN,
                 bg: hex("#FF5E5E").alpha(0.8),
                 bg_hover: hex("#FF5E5E"),
                 bg_disabled: Color::grey(0.1),
@@ -82,6 +88,7 @@ impl Style {
             btn_outline_destructive: ButtonStyle {
                 fg: hex("#FF5E5E"),
                 fg_disabled: hex("#FF5E5E").alpha(0.3),
+                fg_hotkey: Color::GREEN,
                 bg: Color::CLEAR,
                 bg_hover: hex("#FF5E5E").alpha(0.1),
                 bg_disabled: Color::grey(0.1),
