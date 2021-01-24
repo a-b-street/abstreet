@@ -137,7 +137,7 @@ impl GameplayState for PlayScenario {
             if self.scenario_name != "empty" {
                 Widget::row(vec![
                     ctx.style()
-                        .btn_solid_light_icon("system/assets/tools/pencil.svg")
+                        .btn_plain_light_icon("system/assets/tools/pencil.svg")
                         .build_widget(ctx, "edit traffic patterns")
                         .centered_vert(),
                     format!("{} modifications to traffic patterns", self.modifiers.len())
