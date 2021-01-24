@@ -487,6 +487,10 @@ impl Sim {
                     {
                         // Starting the car failed for some reason.
                         if retry_if_no_room {
+                            // Although the agent isn't on the map yet, they're trying.
+                            if let Some((trip, _)) = trip_and_person {
+                                self.trips.agent_starting_trip_leg(AgentID::Car(id), trip);
+                            }
                             self.driving.vehicle_waiting_to_spawn(
                                 id,
                                 req.start,
@@ -498,9 +502,7 @@ impl Sim {
                                 self.time + BLIND_RETRY_TO_SPAWN,
                                 Command::SpawnCar(create_car, retry_if_no_room),
                             );
-                        } else {
-                            // Buses don't use Command::SpawnCar, so this must exist.
-                            let (trip, person) = create_car.trip_and_person.unwrap();
+                        } else if let Some((trip, person)) = create_car.trip_and_person {
                             self.trips.cancel_trip(
                                 self.time,
                                 trip,

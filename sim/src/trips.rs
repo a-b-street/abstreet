@@ -452,9 +452,12 @@ impl TripManager {
 
 // Transitions between different legs of a trip
 impl TripManager {
+    /// This is idempotent to handle the case of cars retrying their spawning.
     pub fn agent_starting_trip_leg(&mut self, agent: AgentID, t: TripID) {
         if let Some(other) = self.active_trip_mode.get(&agent) {
-            panic!("{} is doing both {} and {}?", agent, t, other);
+            if *other != t {
+                panic!("{} is doing both {} and {}?", agent, t, other);
+            }
         }
         self.active_trip_mode.insert(agent, t);
     }
