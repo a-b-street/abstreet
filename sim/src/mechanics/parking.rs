@@ -289,12 +289,12 @@ impl ParkingSim for NormalParkingSimState {
     }
 
     fn remove_parked_car(&mut self, p: ParkedCar) {
-        self.parked_cars
-            .remove(&p.vehicle.id)
-            .expect("remove_parked_car missing from parked_cars");
-        self.occupants
-            .remove(&p.spot)
-            .expect("remove_parked_car missing from occupants");
+        if self.parked_cars.remove(&p.vehicle.id).is_none() {
+            panic!("remove_parked_car {:?} missing from parked_cars", p);
+        }
+        if self.occupants.remove(&p.spot).is_none() {
+            panic!("remove_parked_car {:?} missing from occupants", p);
+        }
         self.events
             .push(Event::CarLeftParkingSpot(p.vehicle.id, p.spot));
     }
