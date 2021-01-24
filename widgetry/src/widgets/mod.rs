@@ -380,9 +380,12 @@ impl Widget {
         .named(label)
     }
 
+    /// Creates a row with the specified widgets. No margins or other layouting is applied.
     pub fn custom_row(widgets: Vec<Widget>) -> Widget {
         Widget::new(Box::new(Container::new(true, widgets)))
     }
+
+    /// Creates a row with the specified widgets. Every member gets a default horizontal margin.
     pub fn row(widgets: Vec<Widget>) -> Widget {
         let mut new = Vec::new();
         let len = widgets.len();
@@ -397,9 +400,12 @@ impl Widget {
         Widget::new(Box::new(Container::new(true, new)))
     }
 
+    /// Creates a column with the specified widgets. No margins or other layouting is applied.
     pub fn custom_col(widgets: Vec<Widget>) -> Widget {
         Widget::new(Box::new(Container::new(false, widgets)))
     }
+
+    /// Creates a column with the specified widgets. Every member gets a default vertical margin.
     pub fn col(widgets: Vec<Widget>) -> Widget {
         let mut new = Vec::new();
         let len = widgets.len();

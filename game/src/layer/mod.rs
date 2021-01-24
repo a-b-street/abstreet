@@ -258,3 +258,12 @@ impl State<App> for PickLayer {
         self.panel.draw(g);
     }
 }
+
+/// Creates the top row for any layer panel.
+pub fn header(ctx: &mut EventCtx, name: &str) -> Widget {
+    Widget::row(vec![
+        Widget::draw_svg(ctx, "system/assets/tools/layers.svg").centered_vert(),
+        name.draw_text(ctx).centered_vert(),
+        ctx.style().btn_close_widget(ctx),
+    ])
+}

@@ -5,12 +5,12 @@ use map_gui::ID;
 use map_model::{AmenityType, LaneType, PathConstraints};
 use sim::AgentType;
 use widgetry::{
-    Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Line, Panel, StyledButtons, Text,
-    TextExt, VerticalAlignment, Widget,
+    Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Line, Panel, Text, TextExt,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::App;
-use crate::layer::{Layer, LayerOutcome};
+use crate::layer::{header, Layer, LayerOutcome};
 
 pub struct BikeNetwork {
     panel: Panel,
@@ -106,11 +106,7 @@ impl BikeNetwork {
         }
 
         let panel = Panel::new(Widget::col(vec![
-            Widget::row(vec![
-                Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
-                "Bike network".draw_text(ctx),
-                ctx.style().btn_close_widget(ctx),
-            ]),
+            header(ctx, "Bike network"),
             Text::from_multiline(vec![
                 Line(format!("{} lanes", num_lanes)),
                 Line(format!(
@@ -187,17 +183,9 @@ impl Static {
         extra: Widget,
     ) -> Static {
         let (unzoomed, zoomed, legend) = colorer.build(ctx);
-        let panel = Panel::new(Widget::col(vec![
-            Widget::row(vec![
-                Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
-                title.draw_text(ctx),
-                ctx.style().btn_close_widget(ctx),
-            ]),
-            extra,
-            legend,
-        ]))
-        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
-        .build(ctx);
+        let panel = Panel::new(Widget::col(vec![header(ctx, &title), extra, legend]))
+            .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+            .build(ctx);
 
         Static {
             panel,
@@ -417,11 +405,7 @@ impl CongestionCaps {
         }
 
         let panel = Panel::new(Widget::col(vec![
-            Widget::row(vec![
-                Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
-                "Congestion caps".draw_text(ctx),
-                ctx.style().btn_close_widget(ctx),
-            ]),
+            header(ctx, "Congestion caps"),
             format!("{} roads have caps", prettyprint_usize(num_roads)).draw_text(ctx),
             ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["available", "full"]),
         ]))

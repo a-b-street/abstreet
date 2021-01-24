@@ -1,12 +1,12 @@
 use map_gui::tools::ColorDiscrete;
 use map_model::{PathConstraints, PathStep};
 use widgetry::{
-    Checkbox, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Outcome, Panel, StyledButtons,
-    TextExt, VerticalAlignment, Widget,
+    Checkbox, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Outcome, Panel, VerticalAlignment,
+    Widget,
 };
 
 use crate::app::App;
-use crate::layer::{Layer, LayerOutcome};
+use crate::layer::{header, Layer, LayerOutcome};
 
 pub struct TransitNetwork {
     panel: Panel,
@@ -115,11 +115,7 @@ impl TransitNetwork {
         let (unzoomed, zoomed, legend) = colorer.build(ctx);
 
         let panel = Panel::new(Widget::col(vec![
-            Widget::row(vec![
-                Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
-                "Transit network".draw_text(ctx),
-                ctx.style().btn_close_widget(ctx),
-            ]),
+            header(ctx, "Transit network"),
             Checkbox::switch(ctx, "show all routes", None, show_all_routes),
             Checkbox::switch(ctx, "show buses", None, show_buses),
             Checkbox::switch(ctx, "show trains", None, show_trains),

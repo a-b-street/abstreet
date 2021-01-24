@@ -7,11 +7,11 @@ use map_model::osm::OsmID;
 use map_model::BuildingID;
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Panel, RewriteColor,
-    StyledButtons, TextExt, VerticalAlignment, Widget,
+    VerticalAlignment,
 };
 
 use crate::app::App;
-use crate::layer::{Layer, LayerOutcome};
+use crate::layer::{header, Layer, LayerOutcome};
 
 /// A set of buildings that the player has starred, persisted as player data.
 #[derive(Serialize, Deserialize)]
@@ -85,13 +85,9 @@ impl ShowFavorites {
             }
         }
 
-        let panel = Panel::new(Widget::row(vec![
-            Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
-            "Your favorite buildings".draw_text(ctx),
-            ctx.style().btn_close_widget(ctx),
-        ]))
-        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
-        .build(ctx);
+        let panel = Panel::new(header(ctx, "Your favorite buildings"))
+            .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+            .build(ctx);
 
         ShowFavorites {
             panel,
