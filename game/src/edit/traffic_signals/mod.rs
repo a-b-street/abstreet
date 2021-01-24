@@ -502,33 +502,17 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
             .btn_solid_dark_text("Preview")
             .hotkey(lctrl(Key::P))
             .build_def(ctx),
-        (if can_undo {
-            ctx.style()
-                .btn_plain_light_icon("system/assets/tools/undo.svg")
-                .hotkey(lctrl(Key::Z))
-                .build_widget(ctx, "undo")
-        } else {
-            Widget::draw_svg_transform(
-                ctx,
-                "system/assets/tools/undo.svg",
-                RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
-            )
-        })
-        .centered_vert(),
-        (if can_redo {
-            ctx.style()
-                .btn_plain_light_icon("system/assets/tools/redo.svg")
-                // TODO ctrl+shift+Z!
-                .hotkey(lctrl(Key::Y))
-                .build_widget(ctx, "redo")
-        } else {
-            Widget::draw_svg_transform(
-                ctx,
-                "system/assets/tools/redo.svg",
-                RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
-            )
-        })
-        .centered_vert(),
+        ctx.style()
+            .btn_plain_light_icon("system/assets/tools/undo.svg")
+            .disabled(!can_undo)
+            .hotkey(lctrl(Key::Z))
+            .build_widget(ctx, "undo"),
+        ctx.style()
+            .btn_plain_light_icon("system/assets/tools/redo.svg")
+            .disabled(!can_redo)
+            // TODO ctrl+shift+Z!
+            .hotkey(lctrl(Key::Y))
+            .build_widget(ctx, "redo"),
         ctx.style()
             .btn_plain_destructive_text("Cancel")
             .hotkey(Key::Escape)

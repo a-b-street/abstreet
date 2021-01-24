@@ -324,42 +324,21 @@ fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) ->
             ctx.style().btn_close_widget(ctx),
         ]),
         Widget::row(vec![
-            if let Mode::PlacingMarker = mode {
-                Widget::draw_svg_transform(
-                    ctx,
-                    "system/assets/timeline/goal_pos.svg",
-                    RewriteColor::Change(Color::hex("#5B5B5B"), Color::hex("#4CA7E9")),
-                )
-            } else {
-                ctx.style()
-                    .btn_plain_light_icon("system/assets/timeline/goal_pos.svg")
-                    .hotkey(Key::M)
-                    .build_widget(ctx, "new marker")
-            },
-            if let Mode::View = mode {
-                Widget::draw_svg_transform(
-                    ctx,
-                    "system/assets/tools/pan.svg",
-                    RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
-                )
-            } else {
-                ctx.style()
-                    .btn_plain_light_icon("system/assets/tools/pan.svg")
-                    .hotkey(Key::Escape)
-                    .build_widget(ctx, "pan")
-            },
-            match mode {
-                Mode::Freehand(_) => Widget::draw_svg_transform(
-                    ctx,
-                    "system/assets/tools/select.svg",
-                    RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
-                ),
-                _ => ctx
-                    .style()
-                    .btn_plain_light_icon("system/assets/tools/select.svg")
-                    .hotkey(Key::P)
-                    .build_widget(ctx, "draw freehand"),
-            },
+            ctx.style()
+                .btn_plain_light_icon("system/assets/timeline/goal_pos.svg")
+                .disabled(matches!(mode, Mode::PlacingMarker))
+                .hotkey(Key::M)
+                .build_widget(ctx, "new marker"),
+            ctx.style()
+                .btn_plain_light_icon("system/assets/tools/pan.svg")
+                .disabled(matches!(mode, Mode::View))
+                .hotkey(Key::Escape)
+                .build_widget(ctx, "pan"),
+            ctx.style()
+                .btn_plain_light_icon("system/assets/tools/select.svg")
+                .disabled(matches!(mode, Mode::Freehand(_)))
+                .hotkey(Key::P)
+                .build_widget(ctx, "draw freehand"),
         ])
         .evenly_spaced(),
     ]))
