@@ -63,6 +63,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
         ("seattle", "north_seattle") => "North Seattle",
         ("seattle", "phinney") => "Phinney Ridge",
         ("seattle", "qa") => "Queen Anne",
+        ("seattle", "rainier_valley") => "Rainier Valley",
         ("seattle", "slu") => "South Lake Union",
         ("seattle", "south_seattle") => "South Seattle",
         ("seattle", "udistrict") => "University District",
