@@ -106,9 +106,6 @@ impl SpeedControls {
                 })
                 .collect(),
             )
-            // Inner buttons, styled as one composite button w/ background/border
-            .bg(ctx.style().btn_solid_light.bg)
-            .outline(2.0, ctx.style().btn_solid_light.outline)
             .margin_right(16),
         );
 

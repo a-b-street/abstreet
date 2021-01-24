@@ -114,16 +114,12 @@ impl Slider {
                 // The background
                 batch.push(
                     Color::hex("#F2F2F2"),
-                    Polygon::rounded_rectangle(self.dims.width, self.dims.height, None),
+                    Polygon::pill(self.dims.width, self.dims.height),
                 );
                 // So far
                 batch.push(
                     Color::hex("#F4DF4D"),
-                    Polygon::rounded_rectangle(
-                        self.current_percent * self.dims.width,
-                        self.dims.height,
-                        None,
-                    ),
+                    Polygon::pill(self.current_percent * self.dims.width, self.dims.height),
                 );
 
                 // The circle dragger

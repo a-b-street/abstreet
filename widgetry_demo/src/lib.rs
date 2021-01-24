@@ -267,7 +267,7 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
     let mut batch = GeomBatch::new();
     batch.push(
         Color::hex("#4E30A6"),
-        Polygon::rounded_rectangle(5000.0, 5000.0, Some(25.0)),
+        Polygon::rounded_rectangle(5000.0, 5000.0, 25.0),
     );
     // SVG support using lyon and usvg. Map-space means don't scale for high DPI monitors.
     batch
@@ -476,6 +476,17 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                     (0..row_height)
                         .map(|_| {
                             btn.btn_outline_light_icon_text(
+                                "system/assets/tools/layers.svg",
+                                "icon+text",
+                            )
+                            .build_widget(ctx, &next_id())
+                        })
+                        .collect::<Vec<_>>(),
+                ),
+                Widget::col(
+                    (0..row_height)
+                        .map(|_| {
+                            btn.btn_light_popup_icon_text(
                                 "system/assets/tools/layers.svg",
                                 "icon+text",
                             )

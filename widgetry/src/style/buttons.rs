@@ -1,3 +1,5 @@
+use geom::CornerRadii;
+
 use super::ButtonStyle;
 use crate::{
     include_labeled_bytes, ButtonBuilder, ControlState, EventCtx, ScreenDims, Style, Widget,
@@ -201,6 +203,7 @@ pub trait StyledButtons<'a> {
 }
 
 use crate::{Key, Line, Text};
+
 impl<'a> StyledButtons<'a> for Style {
     fn btn_solid_dark(&self) -> ButtonBuilder<'a> {
         self.btn_solid(&self.btn_solid_dark)
@@ -248,7 +251,7 @@ impl<'a> StyledButtons<'a> for Style {
 }
 
 impl<'a> Style {
-    fn btn_plain(&self, button_style: &ButtonStyle) -> ButtonBuilder<'a> {
+    pub fn btn_plain(&self, button_style: &ButtonStyle) -> ButtonBuilder<'a> {
         ButtonBuilder::new()
             .label_color(button_style.fg, ControlState::Default)
             .label_color(button_style.fg_disabled, ControlState::Disabled)
@@ -259,7 +262,7 @@ impl<'a> Style {
             .bg_color(button_style.bg_disabled, ControlState::Disabled)
     }
 
-    fn btn_solid(&self, button_style: &ButtonStyle) -> ButtonBuilder<'a> {
+    pub fn btn_solid(&self, button_style: &ButtonStyle) -> ButtonBuilder<'a> {
         self.btn_plain(button_style).outline(
             self.outline_thickness,
             button_style.outline,
@@ -267,7 +270,7 @@ impl<'a> Style {
         )
     }
 
-    fn btn_outline(&self, button_style: &ButtonStyle) -> ButtonBuilder<'a> {
+    pub fn btn_outline(&self, button_style: &ButtonStyle) -> ButtonBuilder<'a> {
         self.btn_plain(button_style).outline(
             self.outline_thickness,
             button_style.outline,
@@ -275,7 +278,12 @@ impl<'a> Style {
         )
     }
 
-    fn btn_hotkey(&self, button_style: &ButtonStyle, label: &str, key: Key) -> ButtonBuilder<'a> {
+    pub fn btn_hotkey(
+        &self,
+        button_style: &ButtonStyle,
+        label: &str,
+        key: Key,
+    ) -> ButtonBuilder<'a> {
         let default = {
             let mut txt = Text::new();
             let key_txt = Line(key.describe()).fg(button_style.fg_hotkey);
@@ -298,6 +306,50 @@ impl<'a> Style {
             .label_styled_text(default, ControlState::Default)
             .label_styled_text(disabled, ControlState::Disabled)
             .hotkey(key)
+    }
+
+    pub fn btn_light_popup_icon_text(
+        &self,
+        icon_path: &'a str,
+        text: &'a str,
+    ) -> ButtonBuilder<'a> {
+        let outline_style = &self.btn_outline_light;
+        let solid_style = &self.btn_solid_dark;
+
+        // The text is styled like an "outline" button, while the image is styled like a "solid"
+        // button.
+        self.btn_outline(outline_style)
+            .label_text(text)
+            .image_path(icon_path)
+            .image_dims(25.0)
+            .image_color(solid_style.fg, ControlState::Default)
+            .outline(
+                self.outline_thickness,
+                solid_style.outline,
+                ControlState::Default,
+            )
+            .outline(
+                self.outline_thickness,
+                solid_style.bg_hover,
+                ControlState::Hovered,
+            )
+            .image_bg_color(solid_style.bg, ControlState::Default)
+            .image_bg_color(solid_style.bg_hover, ControlState::Hovered)
+            // Move the padding from the *entire button* to just the image, so we get a colored
+            // padded area around the image.
+            .padding(0)
+            .image_padding(8.0)
+            // ...though we still need to pad between the text and button edge
+            .padding_right(8.0)
+            // Round the button's image's exterior corners so they don't protrude past the button's
+            // corners. However, per design, we want the images interior corners to be
+            // unrounded.
+            .image_corner_rounding(CornerRadii {
+                top_left: 2.0,
+                top_right: 0.0,
+                bottom_right: 0.0,
+                bottom_left: 2.0,
+            })
     }
 }
 

@@ -11,8 +11,8 @@ use sim::{
     TripMode, TripResult, VehicleType,
 };
 use widgetry::{
-    Color, ControlState, EdgeInsets, EventCtx, GeomBatch, Key, Line, RewriteColor, StyledButtons,
-    Text, TextExt, TextSpan, Widget,
+    Color, ControlState, CornerRounding, EdgeInsets, EventCtx, GeomBatch, Key, Line, RewriteColor,
+    StyledButtons, Text, TextExt, TextSpan, Widget,
 };
 
 use crate::app::App;
@@ -154,7 +154,7 @@ pub fn trips(
                     .padding_bottom(2),
             ])
             .centered()
-            .fully_rounded()
+            .corner_rounding(CornerRounding::FullyRounded)
             .outline(1.0, color)
             .bg(color.alpha(0.2))
             .padding(EdgeInsets {

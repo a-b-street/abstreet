@@ -435,7 +435,7 @@ impl AgentMeter {
                     Widget::nothing()
                 },
                 ctx.style()
-                    .btn_solid_light_icon("system/assets/meters/trip_histogram.svg")
+                    .btn_plain_light_icon("system/assets/meters/trip_histogram.svg")
                     .hotkey(Key::Q)
                     .build_widget(ctx, "more data")
                     .align_right(),

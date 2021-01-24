@@ -63,7 +63,9 @@ pub use crate::widgets::slider::Slider;
 pub use crate::widgets::spinner::Spinner;
 pub use crate::widgets::table;
 pub(crate) use crate::widgets::text_box::TextBox;
-pub use crate::widgets::{EdgeInsets, Outcome, Panel, Widget, WidgetImpl, WidgetOutput};
+pub use crate::widgets::{
+    CornerRounding, EdgeInsets, Outcome, Panel, Widget, WidgetImpl, WidgetOutput,
+};
 
 mod app_state;
 mod assets;

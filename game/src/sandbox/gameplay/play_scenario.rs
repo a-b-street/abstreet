@@ -114,14 +114,18 @@ impl GameplayState for PlayScenario {
             Widget::row(vec![
                 Line("Sandbox").small_heading().draw(ctx),
                 Widget::vert_separator(ctx, 50.0),
-                "Map:".draw_text(ctx),
                 ctx.style()
-                    .btn_outline_light_popup(nice_map_name(app.primary.map.get_name()))
+                    .btn_light_popup_icon_text(
+                        "system/assets/tools/map.svg",
+                        nice_map_name(app.primary.map.get_name()),
+                    )
                     .hotkey(lctrl(Key::L))
                     .build_widget(ctx, "change map"),
-                "Scenario:".draw_text(ctx),
                 ctx.style()
-                    .btn_outline_light_popup(&self.scenario_name)
+                    .btn_light_popup_icon_text(
+                        "system/assets/tools/calendar.svg",
+                        &self.scenario_name,
+                    )
                     .hotkey(Key::S)
                     .build_widget(ctx, "change scenario"),
                 ctx.style()
@@ -133,7 +137,7 @@ impl GameplayState for PlayScenario {
             if self.scenario_name != "empty" {
                 Widget::row(vec![
                     ctx.style()
-                        .btn_solid_light_icon("system/assets/tools/pencil.svg")
+                        .btn_plain_light_icon("system/assets/tools/pencil.svg")
                         .build_widget(ctx, "edit traffic patterns")
                         .centered_vert(),
                     format!("{} modifications to traffic patterns", self.modifiers.len())
