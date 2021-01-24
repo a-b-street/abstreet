@@ -75,7 +75,7 @@ impl Picker {
                 let instructions_panel = Panel::new(Widget::col(vec![
                     txt.draw(ctx),
                     Widget::row(vec![
-                        Widget::draw_svg(ctx, "system/assets/tools/arrow_keys.svg"),
+                        Widget::draw_svg(ctx, "../widgetry/icons/arrow_keys.svg"),
                         Text::from_all(vec![
                             Line("arrow keys").fg(ctx.style().hotkey_color),
                             Line(" to move (or "),

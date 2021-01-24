@@ -393,6 +393,7 @@ impl ColorScheme {
     // Shamelessly adapted from https://github.com/Uriopass/Egregoria
     fn night_mode() -> ColorScheme {
         let mut cs = ColorScheme::standard();
+        cs.void_background = Color::hex("#200A24");
         cs.map_background = Color::BLACK.into();
         cs.grass = Color::hex("#243A1F").into();
         cs.water = Color::hex("#21374E").into();
@@ -413,6 +414,7 @@ impl ColorScheme {
         cs.unzoomed_interesting_intersection = cs.unzoomed_highway;
         cs.stop_sign = Color::rgb_f(0.67, 0.55, 0.55);
         cs.private_road = Color::hex("#9E757F");
+        cs.pedestrian_plaza = Color::hex("#94949C").into();
 
         cs.panel_bg = Color::hex("#003046").alpha(0.9);
         cs.gui_style.panel_bg = cs.panel_bg;
