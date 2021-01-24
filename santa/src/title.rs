@@ -137,10 +137,9 @@ fn locked_level(ctx: &mut EventCtx, app: &App, level: &Level, idx: usize) -> Wid
 
 fn unlocked_level(ctx: &mut EventCtx, app: &App, level: &Level, idx: usize) -> Widget {
     let normal = level_btn(ctx, app, level, idx);
-    let hovered = normal.clone().color(RewriteColor::Change(
-        Color::WHITE,
-        ctx.style().hovering_color,
-    ));
+    let hovered = normal
+        .clone()
+        .color(RewriteColor::Change(Color::WHITE, Color::WHITE.alpha(0.6)));
 
     ButtonBuilder::new()
         .custom_batch(normal, ControlState::Default)

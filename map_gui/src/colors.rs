@@ -57,7 +57,6 @@ pub struct ColorScheme {
     scheme: ColorSchemeChoice,
 
     // UI
-    pub hovering: Color,
     pub panel_bg: Color,
     pub section_bg: Color,
     pub inner_panel: Color,
@@ -184,7 +183,6 @@ impl ColorScheme {
             scheme: ColorSchemeChoice::Standard,
 
             // UI
-            hovering: gui_style.hovering_color,
             panel_bg: gui_style.panel_bg,
             section_bg: Color::grey(0.5),
             inner_panel: gui_style.panel_bg.alpha(1.0),
