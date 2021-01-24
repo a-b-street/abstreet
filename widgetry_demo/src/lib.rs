@@ -504,6 +504,11 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                         .map(|_| widgetry::Spinner::new(ctx, (0, 11), 1))
                         .collect::<Vec<_>>(),
                 ),
+                Widget::col(
+                    (0..row_height)
+                        .map(|_| widgetry::Checkbox::checkbox(ctx, "checkbox", None, true))
+                        .collect::<Vec<_>>(),
+                ),
             ])
         },
     ])) // end panel

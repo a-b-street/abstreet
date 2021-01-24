@@ -59,9 +59,11 @@ impl Checkbox {
         hotkey: MK,
         enabled: bool,
     ) -> Widget {
-        let mut buttons = ctx
+        let mut false_btn = ctx
             .style()
-            .btn_plain_light()
+            .btn_plain_light_icon_bytes(include_labeled_bytes!(
+                "../../icons/checkbox_unchecked.svg"
+            ))
             .image_color(
                 RewriteColor::Change(Color::BLACK, ctx.style().btn_solid_light.bg),
                 ControlState::Default,
@@ -74,18 +76,15 @@ impl Checkbox {
                 RewriteColor::Change(Color::BLACK, ctx.style().btn_solid_light.bg_disabled),
                 ControlState::Disabled,
             )
-            .label_text(label)
-            .padding(4.0);
+            .label_text(label);
 
         if let Some(hotkey) = hotkey.into() {
-            buttons = buttons.hotkey(hotkey);
+            false_btn = false_btn.hotkey(hotkey);
         }
 
-        let false_btn = buttons
+        let true_btn = false_btn
             .clone()
-            .image_bytes(include_labeled_bytes!("../../icons/checkbox_unchecked.svg"));
-        let true_btn =
-            buttons.image_bytes(include_labeled_bytes!("../../icons/checkbox_checked.svg"));
+            .image_bytes(include_labeled_bytes!("../../icons/checkbox_checked.svg"));
 
         Checkbox::new(
             enabled,
@@ -102,9 +101,11 @@ impl Checkbox {
         hotkey: MK,
         enabled: bool,
     ) -> Widget {
-        let mut buttons = ctx
+        let mut false_btn = ctx
             .style()
-            .btn_plain_light()
+            .btn_plain_light_icon_bytes(include_labeled_bytes!(
+                "../../icons/checkbox_unchecked.svg"
+            ))
             .image_color(
                 RewriteColor::Change(Color::BLACK, ctx.style().btn_solid_light.bg),
                 ControlState::Default,
@@ -117,18 +118,15 @@ impl Checkbox {
                 RewriteColor::Change(Color::BLACK, ctx.style().btn_solid_light.bg_disabled),
                 ControlState::Disabled,
             )
-            .label_styled_text(Text::from_all(spans), ControlState::Default)
-            .padding(4.0);
+            .label_styled_text(Text::from_all(spans), ControlState::Default);
 
         if let Some(hotkey) = hotkey.into() {
-            buttons = buttons.hotkey(hotkey);
+            false_btn = false_btn.hotkey(hotkey);
         }
 
-        let false_btn = buttons
+        let true_btn = false_btn
             .clone()
-            .image_bytes(include_labeled_bytes!("../../icons/checkbox_unchecked.svg"));
-        let true_btn =
-            buttons.image_bytes(include_labeled_bytes!("../../icons/checkbox_checked.svg"));
+            .image_bytes(include_labeled_bytes!("../../icons/checkbox_checked.svg"));
 
         Checkbox::new(
             enabled,
@@ -143,14 +141,18 @@ impl Checkbox {
 
         let false_btn = buttons
             .clone()
-            .image_bytes(include_labeled_bytes!("../../icons/checkbox_unchecked.svg"))
+            .image_bytes(include_labeled_bytes!(
+                "../../icons/checkbox_no_border_unchecked.svg"
+            ))
             .image_color(
                 RewriteColor::Change(Color::BLACK, color.alpha(0.3)),
                 ControlState::Default,
             );
 
         let true_btn = buttons
-            .image_bytes(include_labeled_bytes!("../../icons/checkbox_checked.svg"))
+            .image_bytes(include_labeled_bytes!(
+                "../../icons/checkbox_no_border_checked.svg"
+            ))
             .image_color(
                 RewriteColor::Change(Color::BLACK, color),
                 ControlState::Default,
