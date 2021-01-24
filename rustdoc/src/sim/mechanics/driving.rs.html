@@ -1213,6 +1213,10 @@
 <span id="1210">1210</span>
 <span id="1211">1211</span>
 <span id="1212">1212</span>
+<span id="1213">1213</span>
+<span id="1214">1214</span>
+<span id="1215">1215</span>
+<span id="1216">1216</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
@@ -1868,6 +1872,10 @@
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">Traversable</span>::<span class="ident">Turn</span>(<span class="ident">t</span>)) <span class="op">=</span> <span class="ident">car</span>.<span class="ident">router</span>.<span class="ident">maybe_next</span>() {
             <span class="ident">ctx</span>.<span class="ident">intersections</span>.<span class="ident">cancel_request</span>(<span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">c</span>), <span class="ident">t</span>);
+        }
+
+        <span class="kw">if</span> <span class="ident">car</span>.<span class="ident">router</span>.<span class="ident">last_step</span>() {
+            <span class="ident">ctx</span>.<span class="ident">parking</span>.<span class="ident">unreserve_spot</span>(<span class="ident">c</span>);
         }
 
         <span class="self">self</span>.<span class="ident">delete_car_internal</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">car</span>, <span class="ident">dists</span>, <span class="ident">idx</span>, <span class="ident">now</span>, <span class="ident">ctx</span>);
