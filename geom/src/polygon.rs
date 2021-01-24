@@ -8,7 +8,7 @@ use geo::algorithm::convex_hull::ConvexHull;
 use geo_booleanop::boolean::BooleanOp;
 use serde::{Deserialize, Serialize};
 
-use crate::{Angle, Bounds, Distance, GPSBounds, HashablePt2D, PolyLine, Pt2D, Ring};
+use crate::{Angle, Bounds, CornerRadii, Distance, GPSBounds, HashablePt2D, PolyLine, Pt2D, Ring};
 
 #[derive(PartialEq, Serialize, Deserialize, Clone, Debug)]
 pub struct Polygon {
@@ -593,32 +593,4 @@ fn downsize(input: Vec<usize>) -> Vec<u16> {
         }
     }
     output
-}
-
-pub struct CornerRadii {
-    top_left: f64,
-    top_right: f64,
-    bottom_right: f64,
-    bottom_left: f64,
-}
-
-impl CornerRadii {
-    pub fn uniform(radius: f64) -> Self {
-        CornerRadii {
-            top_left: radius,
-            top_right: radius,
-            bottom_right: radius,
-            bottom_left: radius,
-        }
-    }
-
-    pub fn zero() -> Self {
-        Self::uniform(0.0)
-    }
-}
-
-impl std::convert::From<f64> for CornerRadii {
-    fn from(uniform: f64) -> Self {
-        CornerRadii::uniform(uniform)
-    }
 }

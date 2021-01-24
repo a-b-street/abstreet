@@ -271,13 +271,14 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
         ctx.style().btn_close_widget(ctx),
     ]));
 
-    rows.push(Widget::row(vec![
-        "Map:".draw_text(ctx),
-        ctx.style()
-            .btn_outline_light_popup(nice_map_name(app.map.get_name()))
-            .hotkey(lctrl(Key::L))
-            .build_widget(ctx, "change map"),
-    ]));
+    rows.push(Widget::row(vec![ctx
+        .style()
+        .btn_light_popup_icon_text(
+            "system/assets/tools/map.svg",
+            nice_map_name(app.map.get_name()),
+        )
+        .hotkey(lctrl(Key::L))
+        .build_widget(ctx, "change map")]));
 
     rows.push(
         Text::from_all(vec![

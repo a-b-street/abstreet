@@ -1,4 +1,4 @@
-use geom::{Distance, Polygon};
+use geom::{CornerRadii, Distance, Polygon, Pt2D};
 
 use crate::{
     svg, text::Font, Color, ContentMode, ControlState, Drawable, EdgeInsets, EventCtx, GeomBatch,
@@ -299,6 +299,20 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
+    /// Set a background color for the image, other than the buttons background.
+    ///
+    /// This has no effect if the button does not have an image.
+    ///
+    /// If the style hasn't been set for the current ControlState, the style for
+    /// `ControlState::Default` will be used.
+    pub fn image_bg_color(mut self, color: Color, for_state: ControlState) -> Self {
+        let state_style = self.style_mut(for_state);
+        let mut image = state_style.image.take().unwrap_or_default();
+        image.bg_color = Some(color);
+        state_style.image = Some(image);
+        self
+    }
+
     /// Scale the bounds containing the image. If `image_dims` are not specified, the images
     /// intrinsic size will be used.
     ///
@@ -321,6 +335,22 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     pub fn image_content_mode(mut self, content_mode: ContentMode) -> Self {
         let mut image = self.default_style.image.take().unwrap_or_default();
         image.content_mode = content_mode;
+        self.default_style.image = Some(image);
+        self
+    }
+
+    /// Set independent rounding for each of the image's corners
+    pub fn image_corner_radii<R: Into<CornerRadii>>(mut self, value: R) -> Self {
+        let mut image = self.default_style.image.take().unwrap_or_default();
+        image.corner_radii = Some(value.into());
+        self.default_style.image = Some(image);
+        self
+    }
+
+    /// Set padding for the image
+    pub fn image_padding<EI: Into<EdgeInsets>>(mut self, value: EI) -> Self {
+        let mut image = self.default_style.image.take().unwrap_or_default();
+        image.padding = Some(value.into());
         self.default_style.image = Some(image);
         self
     }
@@ -545,13 +575,34 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
                         }
                     }
 
+                    let image_corners = image
+                        .corner_radii
+                        .or(default.and_then(|d| d.corner_radii))
+                        .unwrap_or_default();
+                    let padding = image
+                        .padding
+                        .or(default.and_then(|d| d.padding))
+                        .unwrap_or_default();
                     let mut container_batch = GeomBatch::new();
-                    let container = Polygon::rectangle(image_dims.width, image_dims.height);
-                    container_batch.push(Color::CLEAR, container);
+                    let container = Polygon::rounded_rectangle(
+                        // TODO: EdgeInsets -> f64?
+                        image_dims.width + padding.left as f64 + padding.right as f64,
+                        image_dims.height + padding.top as f64 + padding.bottom as f64,
+                        image_corners,
+                    );
 
-                    svg_batch = svg_batch
-                        .autocrop()
-                        .centered_on(container_batch.get_bounds().center());
+                    let image_bg = image
+                        .bg_color
+                        .or(default.and_then(|d| d.bg_color))
+                        .unwrap_or(Color::CLEAR);
+                    container_batch.push(image_bg, container);
+
+                    let center = Pt2D::new(
+                        image_dims.width / 2.0 + padding.left as f64,
+                        image_dims.height / 2.0 + padding.top as f64,
+                    );
+                    svg_batch = svg_batch.autocrop().centered_on(center);
+
                     container_batch.append(svg_batch);
 
                     svg_batch = container_batch
@@ -673,8 +724,11 @@ impl ImageSource<'_> {
 pub struct Image<'a> {
     source: Option<ImageSource<'a>>,
     color: Option<RewriteColor>,
+    bg_color: Option<Color>,
     dims: Option<ScreenDims>,
     content_mode: ContentMode,
+    corner_radii: Option<CornerRadii>,
+    padding: Option<EdgeInsets>,
 }
 
 #[derive(Clone, Debug, Default)]

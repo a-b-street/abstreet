@@ -105,14 +105,15 @@ impl GameplayState for Freeform {
             Widget::row(vec![
                 Line("Sandbox").small_heading().draw(ctx),
                 Widget::vert_separator(ctx, 50.0),
-                "Map:".draw_text(ctx),
                 ctx.style()
-                    .btn_outline_light_popup(nice_map_name(app.primary.map.get_name()))
+                    .btn_light_popup_icon_text(
+                        "system/assets/tools/map.svg",
+                        nice_map_name(app.primary.map.get_name()),
+                    )
                     .hotkey(lctrl(Key::L))
                     .build_widget(ctx, "change map"),
-                "Scenario:".draw_text(ctx),
                 ctx.style()
-                    .btn_outline_light_popup("none")
+                    .btn_light_popup_icon_text("system/assets/tools/calendar.svg", "none")
                     .hotkey(Key::S)
                     .build_widget(ctx, "change scenario"),
                 ctx.style()
