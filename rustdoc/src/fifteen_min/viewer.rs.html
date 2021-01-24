@@ -569,6 +569,8 @@
 <span id="566">566</span>
 <span id="567">567</span>
 <span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! This is a tool to experiment with the concept of 15-minute neighborhoods. Can you access your</span>
 <span class="doccomment">//! daily needs (like groceries, a cafe, a library) within a 15-minute walk, bike ride, or public</span>
@@ -586,7 +588,7 @@
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Cached</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
     <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>,
-    <span class="ident">TextExt</span>, <span class="ident">Transition</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Transition</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">find_home</span>::<span class="ident">FindHome</span>;
@@ -843,13 +845,15 @@
         <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
     ]));
 
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="string">&quot;Map:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+    <span class="ident">rows</span>.<span class="ident">push</span>(
         <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_outline_light_popup</span>(<span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()))
+            .<span class="ident">btn_light_popup_icon_text</span>(
+                <span class="string">&quot;system/assets/tools/map.svg&quot;</span>,
+                <span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()),
+            )
             .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">L</span>))
             .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change map&quot;</span>),
-    ]));
+    );
 
     <span class="ident">rows</span>.<span class="ident">push</span>(
         <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[

@@ -575,6 +575,27 @@
 <span id="572">572</span>
 <span id="573">573</span>
 <span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -586,7 +607,7 @@
 <span class="kw">use</span> <span class="ident">geo_booleanop</span>::<span class="ident">boolean</span>::<span class="ident">BooleanOp</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">HashablePt2D</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">CornerRadii</span>, <span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">HashablePt2D</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Polygon</span> {
@@ -815,17 +836,21 @@
     }
 
     <span class="doccomment">/// Top-left at the origin. Doesn&#39;t take Distance, because this is usually pixels, actually.</span>
-    <span class="doccomment">/// If radius is None, be as round as possible. Fails if the radius is too big.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_rounded_rectangle</span>(<span class="ident">w</span>: <span class="ident">f64</span>, <span class="ident">h</span>: <span class="ident">f64</span>, <span class="ident">r</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">w</span>.<span class="ident">min</span>(<span class="ident">h</span>) <span class="op">/</span> <span class="number">2.0</span>);
-        <span class="kw">if</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">r</span> <span class="op">&gt;</span> <span class="ident">w</span> <span class="op">|</span><span class="op">|</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">r</span> <span class="op">&gt;</span> <span class="ident">h</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_rounded_rectangle</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">CornerRadii</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">w</span>: <span class="ident">f64</span>, <span class="ident">h</span>: <span class="ident">f64</span>, <span class="ident">r</span>: <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">max_r</span> <span class="op">=</span> <span class="ident">r</span>
+            .<span class="ident">top_left</span>
+            .<span class="ident">max</span>(<span class="ident">r</span>.<span class="ident">top_right</span>)
+            .<span class="ident">max</span>(<span class="ident">r</span>.<span class="ident">bottom_right</span>)
+            .<span class="ident">max</span>(<span class="ident">r</span>.<span class="ident">bottom_left</span>);
+        <span class="kw">if</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">max_r</span> <span class="op">&gt;</span> <span class="ident">w</span> <span class="op">|</span><span class="op">|</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">max_r</span> <span class="op">&gt;</span> <span class="ident">h</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
 
         <span class="kw">const</span> <span class="ident">RESOLUTION</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">5</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">arc</span> <span class="op">=</span> <span class="op">|</span><span class="ident">center</span>: <span class="ident">Pt2D</span>, <span class="ident">angle1_degs</span>: <span class="ident">f64</span>, <span class="ident">angle2_degs</span>: <span class="ident">f64</span><span class="op">|</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">arc</span> <span class="op">=</span> <span class="op">|</span><span class="ident">r</span>: <span class="ident">f64</span>, <span class="ident">center</span>: <span class="ident">Pt2D</span>, <span class="ident">angle1_degs</span>: <span class="ident">f64</span>, <span class="ident">angle2_degs</span>: <span class="ident">f64</span><span class="op">|</span> {
             <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="op">=</span><span class="ident">RESOLUTION</span> {
                 <span class="kw">let</span> <span class="ident">angle</span> <span class="op">=</span> <span class="ident">Angle</span>::<span class="ident">degrees</span>(
                     <span class="ident">angle1_degs</span> <span class="op">+</span> (<span class="ident">angle2_degs</span> <span class="op">-</span> <span class="ident">angle1_degs</span>) <span class="op">*</span> ((<span class="ident">i</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">RESOLUTION</span> <span class="kw">as</span> <span class="ident">f64</span>)),
@@ -834,16 +859,27 @@
             }
         };
 
-        <span class="comment">// Top-left corner</span>
-        <span class="ident">arc</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">r</span>, <span class="ident">r</span>), <span class="number">180.0</span>, <span class="number">90.0</span>);
-        <span class="comment">// Top-right</span>
-        <span class="ident">arc</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">w</span> <span class="op">-</span> <span class="ident">r</span>, <span class="ident">r</span>), <span class="number">90.0</span>, <span class="number">0.0</span>);
-        <span class="comment">// Bottom-right</span>
-        <span class="ident">arc</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">w</span> <span class="op">-</span> <span class="ident">r</span>, <span class="ident">h</span> <span class="op">-</span> <span class="ident">r</span>), <span class="number">360.0</span>, <span class="number">270.0</span>);
-        <span class="comment">// Bottom-left</span>
-        <span class="ident">arc</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">r</span>, <span class="ident">h</span> <span class="op">-</span> <span class="ident">r</span>), <span class="number">270.0</span>, <span class="number">180.0</span>);
+        <span class="ident">arc</span>(<span class="ident">r</span>.<span class="ident">top_left</span>, <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">r</span>.<span class="ident">top_left</span>, <span class="ident">r</span>.<span class="ident">top_left</span>), <span class="number">180.0</span>, <span class="number">90.0</span>);
+        <span class="ident">arc</span>(
+            <span class="ident">r</span>.<span class="ident">top_right</span>,
+            <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">w</span> <span class="op">-</span> <span class="ident">r</span>.<span class="ident">top_right</span>, <span class="ident">r</span>.<span class="ident">top_right</span>),
+            <span class="number">90.0</span>,
+            <span class="number">0.0</span>,
+        );
+        <span class="ident">arc</span>(
+            <span class="ident">r</span>.<span class="ident">bottom_right</span>,
+            <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">w</span> <span class="op">-</span> <span class="ident">r</span>.<span class="ident">bottom_right</span>, <span class="ident">h</span> <span class="op">-</span> <span class="ident">r</span>.<span class="ident">bottom_right</span>),
+            <span class="number">360.0</span>,
+            <span class="number">270.0</span>,
+        );
+        <span class="ident">arc</span>(
+            <span class="ident">r</span>.<span class="ident">bottom_left</span>,
+            <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">r</span>.<span class="ident">bottom_left</span>, <span class="ident">h</span> <span class="op">-</span> <span class="ident">r</span>.<span class="ident">bottom_left</span>),
+            <span class="number">270.0</span>,
+            <span class="number">180.0</span>,
+        );
         <span class="comment">// Close it off</span>
-        <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="ident">r</span>));
+        <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="ident">r</span>.<span class="ident">top_left</span>));
 
         <span class="comment">// If the radius was maximized, then some of the edges will be zero length.</span>
         <span class="ident">pts</span>.<span class="ident">dedup</span>();
@@ -851,9 +887,15 @@
         <span class="prelude-val">Some</span>(<span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">pts</span>).<span class="ident">to_polygon</span>())
     }
 
+    <span class="doccomment">/// A rectangle, two sides of which are fully rounded half-circles.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pill</span>(<span class="ident">w</span>: <span class="ident">f64</span>, <span class="ident">h</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
+        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">w</span>.<span class="ident">min</span>(<span class="ident">h</span>) <span class="op">/</span> <span class="number">2.0</span>;
+        <span class="ident">Polygon</span>::<span class="ident">maybe_rounded_rectangle</span>(<span class="ident">w</span>, <span class="ident">h</span>, <span class="ident">r</span>).<span class="ident">unwrap</span>()
+    }
+
     <span class="doccomment">/// Top-left at the origin. Doesn&#39;t take Distance, because this is usually pixels, actually.</span>
     <span class="doccomment">/// If radius is None, be as round as possible</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rounded_rectangle</span>(<span class="ident">w</span>: <span class="ident">f64</span>, <span class="ident">h</span>: <span class="ident">f64</span>, <span class="ident">r</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rounded_rectangle</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">CornerRadii</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">w</span>: <span class="ident">f64</span>, <span class="ident">h</span>: <span class="ident">f64</span>, <span class="ident">r</span>: <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
         <span class="ident">Polygon</span>::<span class="ident">maybe_rounded_rectangle</span>(<span class="ident">w</span>, <span class="ident">h</span>, <span class="ident">r</span>).<span class="ident">unwrap</span>()
     }
 

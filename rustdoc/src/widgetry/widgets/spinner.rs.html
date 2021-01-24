@@ -280,7 +280,7 @@
         <span class="comment">// TODO Cache</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(
             <span class="ident">text</span>::<span class="ident">BG_COLOR</span>,
-            <span class="ident">Polygon</span>::<span class="ident">rounded_rectangle</span>(<span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">width</span>, <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span>, <span class="prelude-val">Some</span>(<span class="number">5.0</span>)),
+            <span class="ident">Polygon</span>::<span class="ident">rounded_rectangle</span>(<span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">width</span>, <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span>, <span class="number">5.0</span>),
         )]);
         <span class="ident">batch</span>.<span class="ident">append</span>(
             <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">to_string</span>()))

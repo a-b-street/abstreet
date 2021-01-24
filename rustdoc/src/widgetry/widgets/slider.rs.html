@@ -274,10 +274,6 @@
 <span id="271">271</span>
 <span id="272">272</span>
 <span id="273">273</span>
-<span id="274">274</span>
-<span id="275">275</span>
-<span id="276">276</span>
-<span id="277">277</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
@@ -395,16 +391,12 @@
                 <span class="comment">// The background</span>
                 <span class="ident">batch</span>.<span class="ident">push</span>(
                     <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>),
-                    <span class="ident">Polygon</span>::<span class="ident">rounded_rectangle</span>(<span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">width</span>, <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span>, <span class="prelude-val">None</span>),
+                    <span class="ident">Polygon</span>::<span class="ident">pill</span>(<span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">width</span>, <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span>),
                 );
                 <span class="comment">// So far</span>
                 <span class="ident">batch</span>.<span class="ident">push</span>(
                     <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#F4DF4D&quot;</span>),
-                    <span class="ident">Polygon</span>::<span class="ident">rounded_rectangle</span>(
-                        <span class="self">self</span>.<span class="ident">current_percent</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">width</span>,
-                        <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span>,
-                        <span class="prelude-val">None</span>,
-                    ),
+                    <span class="ident">Polygon</span>::<span class="ident">pill</span>(<span class="self">self</span>.<span class="ident">current_percent</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">width</span>, <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span>),
                 );
 
                 <span class="comment">// The circle dragger</span>

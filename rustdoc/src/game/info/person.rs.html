@@ -693,8 +693,8 @@
     <span class="ident">TripMode</span>, <span class="ident">TripResult</span>, <span class="ident">VehicleType</span>,
 };
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">RewriteColor</span>, <span class="ident">StyledButtons</span>,
-    <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">TextSpan</span>, <span class="ident">Widget</span>,
+    <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">CornerRounding</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">RewriteColor</span>,
+    <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">TextSpan</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
@@ -836,7 +836,7 @@
                     .<span class="ident">padding_bottom</span>(<span class="number">2</span>),
             ])
             .<span class="ident">centered</span>()
-            .<span class="ident">fully_rounded</span>()
+            .<span class="ident">corner_rounding</span>(<span class="ident">CornerRounding</span>::<span class="ident">FullyRounded</span>)
             .<span class="ident">outline</span>(<span class="number">1.0</span>, <span class="ident">color</span>)
             .<span class="ident">bg</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.2</span>))
             .<span class="ident">padding</span>(<span class="ident">EdgeInsets</span> {

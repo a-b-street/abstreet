@@ -801,6 +801,41 @@
 <span id="798">798</span>
 <span id="799">799</span>
 <span id="800">800</span>
+<span id="801">801</span>
+<span id="802">802</span>
+<span id="803">803</span>
+<span id="804">804</span>
+<span id="805">805</span>
+<span id="806">806</span>
+<span id="807">807</span>
+<span id="808">808</span>
+<span id="809">809</span>
+<span id="810">810</span>
+<span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -811,7 +846,7 @@
     <span class="ident">AlignItems</span>, <span class="ident">Dimension</span>, <span class="ident">FlexDirection</span>, <span class="ident">FlexWrap</span>, <span class="ident">JustifyContent</span>, <span class="ident">PositionType</span>, <span class="ident">Style</span>,
 };
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Percent</span>, <span class="ident">Polygon</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">CornerRadii</span>, <span class="ident">Distance</span>, <span class="ident">Percent</span>, <span class="ident">Polygon</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">containers</span>::{<span class="ident">Container</span>, <span class="ident">Nothing</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">panel</span>::<span class="ident">Panel</span>;
@@ -906,12 +941,35 @@
     <span class="ident">id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
 
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CornerRounding</span> {
+    <span class="ident">CornerRadii</span>(<span class="ident">CornerRadii</span>),
+    <span class="ident">FullyRounded</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">From</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CornerRounding</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">uniform</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="ident">CornerRounding</span>::<span class="ident">CornerRadii</span>(<span class="ident">uniform</span>.<span class="ident">into</span>())
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">From</span><span class="op">&lt;</span><span class="ident">CornerRadii</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CornerRounding</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">radii</span>: <span class="ident">CornerRadii</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="ident">CornerRounding</span>::<span class="ident">CornerRadii</span>(<span class="ident">radii</span>)
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">default</span>::<span class="ident">Default</span> <span class="kw">for</span> <span class="ident">CornerRounding</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="ident">CornerRounding</span>::<span class="ident">CornerRadii</span>(<span class="ident">CornerRadii</span>::<span class="ident">default</span>())
+    }
+}
+
 <span class="kw">struct</span> <span class="ident">LayoutStyle</span> {
     <span class="ident">bg_color</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span>,
     <span class="comment">// (thickness, color)</span>
     <span class="ident">outline</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">f64</span>, <span class="ident">Color</span>)<span class="op">&gt;</span>,
-    <span class="comment">// If None, as round as possible</span>
-    <span class="ident">rounded_radius</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
+    <span class="ident">corner_rounding</span>: <span class="ident">CornerRounding</span>,
     <span class="ident">style</span>: <span class="ident">Style</span>,
 }
 
@@ -991,8 +1049,9 @@
         <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">outline</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">thickness</span>, <span class="ident">color</span>));
         <span class="self">self</span>
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fully_rounded</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-        <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">rounded_radius</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">corner_rounding</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">CornerRounding</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+        <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">corner_rounding</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">into</span>();
         <span class="self">self</span>
     }
 
@@ -1120,7 +1179,7 @@
             <span class="ident">layout</span>: <span class="ident">LayoutStyle</span> {
                 <span class="ident">bg_color</span>: <span class="prelude-val">None</span>,
                 <span class="ident">outline</span>: <span class="prelude-val">None</span>,
-                <span class="ident">rounded_radius</span>: <span class="prelude-val">Some</span>(<span class="number">5.0</span>),
+                <span class="ident">corner_rounding</span>: <span class="ident">CornerRounding</span>::<span class="ident">from</span>(<span class="number">5.0</span>),
                 <span class="ident">style</span>: <span class="ident">Style</span> {
                     ..<span class="ident">Default</span>::<span class="ident">default</span>()
                 },
@@ -1369,18 +1428,29 @@
             <span class="op">&amp;&amp;</span> (<span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">bg_color</span>.<span class="ident">is_some</span>() <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">outline</span>.<span class="ident">is_some</span>())
         {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">bg_color</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">color</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">bg_color</span> {
                 <span class="ident">batch</span>.<span class="ident">push</span>(
-                    <span class="ident">c</span>,
-                    <span class="ident">Polygon</span>::<span class="ident">rounded_rectangle</span>(<span class="ident">width</span>, <span class="ident">height</span>, <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">rounded_radius</span>),
+                    <span class="ident">color</span>,
+                    <span class="kw">match</span> <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">corner_rounding</span> {
+                        <span class="ident">CornerRounding</span>::<span class="ident">CornerRadii</span>(<span class="ident">corner_radii</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="ident">Polygon</span>::<span class="ident">rounded_rectangle</span>(<span class="ident">width</span>, <span class="ident">height</span>, <span class="ident">corner_radii</span>)
+                        }
+                        <span class="ident">CornerRounding</span>::<span class="ident">FullyRounded</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Polygon</span>::<span class="ident">pill</span>(<span class="ident">width</span>, <span class="ident">height</span>),
+                    },
                 );
             }
+
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">thickness</span>, <span class="ident">color</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">outline</span> {
                 <span class="ident">batch</span>.<span class="ident">push</span>(
                     <span class="ident">color</span>,
-                    <span class="ident">Polygon</span>::<span class="ident">rounded_rectangle</span>(<span class="ident">width</span>, <span class="ident">height</span>, <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">rounded_radius</span>)
-                        .<span class="ident">to_outline</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="ident">thickness</span>))
-                        .<span class="ident">unwrap</span>(),
+                    <span class="kw">match</span> <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">corner_rounding</span> {
+                        <span class="ident">CornerRounding</span>::<span class="ident">CornerRadii</span>(<span class="ident">corner_radii</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="ident">Polygon</span>::<span class="ident">rounded_rectangle</span>(<span class="ident">width</span>, <span class="ident">height</span>, <span class="ident">corner_radii</span>)
+                        }
+                        <span class="ident">CornerRounding</span>::<span class="ident">FullyRounded</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Polygon</span>::<span class="ident">pill</span>(<span class="ident">width</span>, <span class="ident">height</span>),
+                    }
+                    .<span class="ident">to_outline</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="ident">thickness</span>))
+                    .<span class="ident">unwrap</span>(),
                 );
             }
             <span class="kw">if</span> <span class="ident">defer_draw</span> {

@@ -136,8 +136,8 @@
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Polygon</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Button</span>, <span class="ident">ButtonBuilder</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Dropdown</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">JustDraw</span>,
-    <span class="ident">MultiKey</span>, <span class="ident">Outcome</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
+    <span class="ident">Button</span>, <span class="ident">ButtonBuilder</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">Dropdown</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
+    <span class="ident">JustDraw</span>, <span class="ident">MultiKey</span>, <span class="ident">Outcome</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
 };
 
 <span class="comment">// TODO Radio buttons in the menu</span>
@@ -156,8 +156,8 @@
         <span class="ident">hotkey</span>: <span class="ident">MK</span>,
         <span class="ident">choices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="ident">bg</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#003046&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.8</span>);
-        <span class="kw">let</span> <span class="ident">outline</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#003046&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.6</span>);
+        <span class="kw">let</span> <span class="ident">outline_style</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline_light</span>;
+        <span class="kw">let</span> <span class="ident">outline</span> <span class="op">=</span> <span class="ident">outline_style</span>.<span class="ident">outline</span>;
         <span class="ident">Widget</span>::<span class="ident">new</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">PersistentSplit</span>::<span class="ident">new</span>(
             <span class="ident">ctx</span>,
             <span class="ident">label</span>,
@@ -165,7 +165,6 @@
             <span class="ident">hotkey</span>,
             <span class="ident">choices</span>,
         )))
-        .<span class="ident">bg</span>(<span class="ident">bg</span>)
         .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">outline</span>)
         .<span class="ident">named</span>(<span class="ident">label</span>)
     }
@@ -185,7 +184,8 @@
         }
         <span class="kw">let</span> <span class="ident">btn</span> <span class="op">=</span> <span class="ident">btn</span>.<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">label</span>);
 
-        <span class="kw">let</span> <span class="ident">outline</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#003046&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.6</span>);
+        <span class="kw">let</span> <span class="ident">outline_style</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline_light</span>;
+        <span class="kw">let</span> <span class="ident">outline</span> <span class="op">=</span> <span class="ident">outline_style</span>.<span class="ident">outline</span>;
 
         <span class="ident">PersistentSplit</span> {
             <span class="ident">current_value</span>: <span class="ident">dropdown</span>.<span class="ident">current_value</span>(),
@@ -204,9 +204,9 @@
 }
 
 <span class="kw">fn</span> <span class="ident">button_builder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ControlState</span>, <span class="ident">StyledButtons</span>};
+    <span class="kw">let</span> <span class="ident">outline_style</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline_light</span>;
     <span class="ident">ctx</span>.<span class="ident">style</span>()
-        .<span class="ident">btn_solid_light</span>()
+        .<span class="ident">btn_outline</span>(<span class="ident">outline_style</span>)
         .<span class="ident">outline</span>(<span class="number">0.0</span>, <span class="ident">Color</span>::<span class="ident">CLEAR</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
 }
 

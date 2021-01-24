@@ -529,6 +529,17 @@
 <span id="526">526</span>
 <span id="527">527</span>
 <span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -799,7 +810,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
     <span class="ident">batch</span>.<span class="ident">push</span>(
         <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#4E30A6&quot;</span>),
-        <span class="ident">Polygon</span>::<span class="ident">rounded_rectangle</span>(<span class="number">5000.0</span>, <span class="number">5000.0</span>, <span class="prelude-val">Some</span>(<span class="number">25.0</span>)),
+        <span class="ident">Polygon</span>::<span class="ident">rounded_rectangle</span>(<span class="number">5000.0</span>, <span class="number">5000.0</span>, <span class="number">25.0</span>),
     );
     <span class="comment">// SVG support using lyon and usvg. Map-space means don&#39;t scale for high DPI monitors.</span>
     <span class="ident">batch</span>
@@ -1008,6 +1019,17 @@
                     (<span class="number">0</span>..<span class="ident">row_height</span>)
                         .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
                             <span class="ident">btn</span>.<span class="ident">btn_outline_light_icon_text</span>(
+                                <span class="string">&quot;system/assets/tools/layers.svg&quot;</span>,
+                                <span class="string">&quot;icon+text&quot;</span>,
+                            )
+                            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">next_id</span>())
+                        })
+                        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
+                ),
+                <span class="ident">Widget</span>::<span class="ident">col</span>(
+                    (<span class="number">0</span>..<span class="ident">row_height</span>)
+                        .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
+                            <span class="ident">btn</span>.<span class="ident">btn_light_popup_icon_text</span>(
                                 <span class="string">&quot;system/assets/tools/layers.svg&quot;</span>,
                                 <span class="string">&quot;icon+text&quot;</span>,
                             )

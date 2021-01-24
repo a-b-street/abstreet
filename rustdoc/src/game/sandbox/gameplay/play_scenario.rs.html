@@ -459,6 +459,10 @@
 <span id="456">456</span>
 <span id="457">457</span>
 <span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -576,14 +580,18 @@
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;Sandbox&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">vert_separator</span>(<span class="ident">ctx</span>, <span class="number">50.0</span>),
-                <span class="string">&quot;Map:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline_light_popup</span>(<span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()))
+                    .<span class="ident">btn_light_popup_icon_text</span>(
+                        <span class="string">&quot;system/assets/tools/map.svg&quot;</span>,
+                        <span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()),
+                    )
                     .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">L</span>))
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change map&quot;</span>),
-                <span class="string">&quot;Scenario:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline_light_popup</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">scenario_name</span>)
+                    .<span class="ident">btn_light_popup_icon_text</span>(
+                        <span class="string">&quot;system/assets/tools/calendar.svg&quot;</span>,
+                        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">scenario_name</span>,
+                    )
                     .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">S</span>)
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change scenario&quot;</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
@@ -595,7 +603,7 @@
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scenario_name</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;empty&quot;</span> {
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_solid_light_icon</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>)
+                        .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>)
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit traffic patterns&quot;</span>)
                         .<span class="ident">centered_vert</span>(),
                     <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} modifications to traffic patterns&quot;</span>, <span class="self">self</span>.<span class="ident">modifiers</span>.<span class="ident">len</span>())
