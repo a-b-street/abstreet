@@ -287,8 +287,7 @@ impl CommuterPatterns {
                             .centered_on(compare_to_block.shape.polylabel());
 
                         let dims = label.get_dims();
-                        let label_bg =
-                            Polygon::rounded_rectangle(dims.width + 70.0, dims.height + 20.0, None);
+                        let label_bg = Polygon::pill(dims.width + 70.0, dims.height + 20.0);
                         let bg = GeomBatch::from(vec![(Color::WHITE, label_bg)])
                             .centered_on(compare_to_block.shape.polylabel());
                         batch.append(bg);

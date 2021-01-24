@@ -238,8 +238,8 @@ impl Polygon {
 
     /// Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
     /// If radius is None, be as round as possible. Fails if the radius is too big.
-    pub fn maybe_rounded_rectangle(w: f64, h: f64, r: Option<f64>) -> Option<Polygon> {
-        let r = r.unwrap_or_else(|| w.min(h) / 2.0);
+    pub fn maybe_rounded_rectangle(w: f64, h: f64, r: f64) -> Option<Polygon> {
+        // let r = r.unwrap_or_else(|| w.min(h) / 2.0);
         if 2.0 * r > w || 2.0 * r > h {
             return None;
         }
@@ -273,9 +273,14 @@ impl Polygon {
         Some(Ring::must_new(pts).to_polygon())
     }
 
+    pub fn pill(w: f64, h: f64) -> Polygon {
+        let r = w.min(h) / 2.0;
+        Polygon::maybe_rounded_rectangle(w, h, r).unwrap()
+    }
+
     /// Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
     /// If radius is None, be as round as possible
-    pub fn rounded_rectangle(w: f64, h: f64, r: Option<f64>) -> Polygon {
+    pub fn rounded_rectangle(w: f64, h: f64, r: f64) -> Polygon {
         Polygon::maybe_rounded_rectangle(w, h, r).unwrap()
     }
 

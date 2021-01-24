@@ -107,7 +107,7 @@ struct LayoutStyle {
     // (thickness, color)
     outline: Option<(f64, Color)>,
     // If None, as round as possible
-    rounded_radius: Option<f64>,
+    rounded_radius: f64,
     style: Style,
 }
 
@@ -187,10 +187,10 @@ impl Widget {
         self.layout.outline = Some((thickness, color));
         self
     }
-    pub fn fully_rounded(mut self) -> Widget {
-        self.layout.rounded_radius = None;
-        self
-    }
+    // pub fn fully_rounded(mut self) -> Widget {
+    //     self.layout.rounded_radius = None;
+    //     self
+    // }
 
     // Things like padding don't work on many widgets, so just make a convenient way to wrap in a
     // row/column first
@@ -316,7 +316,7 @@ impl Widget {
             layout: LayoutStyle {
                 bg_color: None,
                 outline: None,
-                rounded_radius: Some(5.0),
+                rounded_radius: 5.0,
                 style: Style {
                     ..Default::default()
                 },

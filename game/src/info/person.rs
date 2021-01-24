@@ -154,7 +154,7 @@ pub fn trips(
                     .padding_bottom(2),
             ])
             .centered()
-            .fully_rounded()
+            // .fully_rounded() // FIXME!
             .outline(1.0, color)
             .bg(color.alpha(0.2))
             .padding(EdgeInsets {
