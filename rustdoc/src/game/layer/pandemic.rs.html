@@ -239,10 +239,6 @@
 <span id="236">236</span>
 <span id="237">237</span>
 <span id="238">238</span>
-<span id="239">239</span>
-<span id="240">240</span>
-<span id="241">241</span>
-<span id="242">242</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -252,11 +248,11 @@
 <span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">PersonState</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>,
-    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">layer</span>::{<span class="ident">Layer</span>, <span class="ident">LayerOutcome</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">layer</span>::{<span class="ident">header</span>, <span class="ident">Layer</span>, <span class="ident">LayerOutcome</span>};
 
 <span class="comment">// TODO Disable drawing unzoomed agents... or alternatively, implement this by asking Sim to</span>
 <span class="comment">// return this kind of data instead!</span>
@@ -422,11 +418,7 @@
     <span class="kw">let</span> <span class="ident">pct</span> <span class="op">=</span> <span class="number">100.0</span> <span class="op">/</span> (<span class="ident">model</span>.<span class="ident">count_total</span>() <span class="kw">as</span> <span class="ident">f64</span>);
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Widget</span>::<span class="ident">draw_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/tools/layers.svg&quot;</span>),
-            <span class="string">&quot;Pandemic model&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
-        ]),
+        <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Pandemic model&quot;</span>),
         <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;{} Sane ({:.1}%)&quot;</span>,

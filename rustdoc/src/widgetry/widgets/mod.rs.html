@@ -795,6 +795,12 @@
 <span id="792">792</span>
 <span id="793">793</span>
 <span id="794">794</span>
+<span id="795">795</span>
+<span id="796">796</span>
+<span id="797">797</span>
+<span id="798">798</span>
+<span id="799">799</span>
+<span id="800">800</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -1178,9 +1184,12 @@
         .<span class="ident">named</span>(<span class="ident">label</span>)
     }
 
+    <span class="doccomment">/// Creates a row with the specified widgets. No margins or other layouting is applied.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">custom_row</span>(<span class="ident">widgets</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">Widget</span>::<span class="ident">new</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Container</span>::<span class="ident">new</span>(<span class="bool-val">true</span>, <span class="ident">widgets</span>)))
     }
+
+    <span class="doccomment">/// Creates a row with the specified widgets. Every member gets a default horizontal margin.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">row</span>(<span class="ident">widgets</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">widgets</span>.<span class="ident">len</span>();
@@ -1195,9 +1204,12 @@
         <span class="ident">Widget</span>::<span class="ident">new</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Container</span>::<span class="ident">new</span>(<span class="bool-val">true</span>, <span class="ident">new</span>)))
     }
 
+    <span class="doccomment">/// Creates a column with the specified widgets. No margins or other layouting is applied.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">custom_col</span>(<span class="ident">widgets</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">Widget</span>::<span class="ident">new</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Container</span>::<span class="ident">new</span>(<span class="bool-val">false</span>, <span class="ident">widgets</span>)))
     }
+
+    <span class="doccomment">/// Creates a column with the specified widgets. Every member gets a default vertical margin.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">col</span>(<span class="ident">widgets</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">widgets</span>.<span class="ident">len</span>();
