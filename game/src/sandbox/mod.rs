@@ -106,7 +106,7 @@ impl State<App> for SandboxMode {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if app.opts.toggle_day_night_colors {
             if is_daytime(app) {
-                app.change_color_scheme(ctx, ColorSchemeChoice::Standard)
+                app.change_color_scheme(ctx, ColorSchemeChoice::DayMode)
             } else {
                 app.change_color_scheme(ctx, ColorSchemeChoice::NightMode)
             };

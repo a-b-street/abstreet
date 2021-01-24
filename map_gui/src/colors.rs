@@ -20,7 +20,7 @@ use crate::tools::{loading_tips, ColorScale};
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum ColorSchemeChoice {
-    Standard,
+    DayMode,
     NightMode,
     SAMGreenDay,
     SAMDesertDay,
@@ -37,7 +37,7 @@ pub enum ColorSchemeChoice {
 impl ColorSchemeChoice {
     pub fn choices() -> Vec<Choice<ColorSchemeChoice>> {
         vec![
-            Choice::new("default", ColorSchemeChoice::Standard),
+            Choice::new("day mode", ColorSchemeChoice::DayMode),
             Choice::new("night mode", ColorSchemeChoice::NightMode),
             Choice::new("sam green day", ColorSchemeChoice::SAMGreenDay),
             Choice::new("sam desert day", ColorSchemeChoice::SAMDesertDay),
@@ -158,7 +158,7 @@ pub struct ColorScheme {
 impl ColorScheme {
     pub fn new(ctx: &mut EventCtx, scheme: ColorSchemeChoice) -> ColorScheme {
         let mut cs = match scheme {
-            ColorSchemeChoice::Standard => ColorScheme::standard(),
+            ColorSchemeChoice::DayMode => ColorScheme::day_mode(),
             ColorSchemeChoice::NightMode => ColorScheme::night_mode(),
             ColorSchemeChoice::SAMGreenDay => ColorScheme::sam_green_day(),
             ColorSchemeChoice::SAMDesertDay => ColorScheme::sam_desert_day(),
@@ -176,11 +176,11 @@ impl ColorScheme {
         cs
     }
 
-    fn standard() -> ColorScheme {
+    fn day_mode() -> ColorScheme {
         let mut gui_style = Style::standard();
         gui_style.loading_tips = loading_tips();
         ColorScheme {
-            scheme: ColorSchemeChoice::Standard,
+            scheme: ColorSchemeChoice::DayMode,
 
             // UI
             panel_bg: gui_style.panel_bg,
@@ -390,7 +390,7 @@ fn hex(x: &str) -> Color {
 impl ColorScheme {
     // Shamelessly adapted from https://github.com/Uriopass/Egregoria
     fn night_mode() -> ColorScheme {
-        let mut cs = ColorScheme::standard();
+        let mut cs = ColorScheme::day_mode();
         cs.void_background = Color::hex("#200A24");
         cs.map_background = Color::BLACK.into();
         cs.grass = Color::hex("#243A1F").into();
@@ -427,7 +427,7 @@ impl ColorScheme {
     }
 
     fn sam_green_day() -> ColorScheme {
-        let mut cs = ColorScheme::standard();
+        let mut cs = ColorScheme::day_mode();
         cs.map_background = hex("#CFE2C4").into();
         cs.water = hex("#B4D3E5").into();
         cs.driving_lane = hex("#C6CDD5");
@@ -437,7 +437,7 @@ impl ColorScheme {
     }
 
     fn sam_desert_day() -> ColorScheme {
-        let mut cs = ColorScheme::standard();
+        let mut cs = ColorScheme::day_mode();
         cs.map_background = hex("#FEE4D7").into();
         cs.grass = hex("#F6C6AF").into();
         cs.dialog_bg = hex("#F6C6AF");
@@ -448,7 +448,7 @@ impl ColorScheme {
     }
 
     fn bap() -> ColorScheme {
-        let mut cs = ColorScheme::standard();
+        let mut cs = ColorScheme::day_mode();
         cs.agent_colors = vec![
             /*hex("#DD5444"),
             hex("#C23E46"),
@@ -475,7 +475,7 @@ impl ColorScheme {
     }
 
     fn osm() -> ColorScheme {
-        let mut cs = ColorScheme::standard();
+        let mut cs = ColorScheme::day_mode();
         // TODO normal_intersection, driving_lane, parking_lane depends on osm rank
         cs.general_road_marking = Color::BLACK;
         cs.road_center_line = Color::rgb(202, 177, 39);
@@ -483,7 +483,7 @@ impl ColorScheme {
     }
 
     fn starcat() -> ColorScheme {
-        let mut cs = ColorScheme::standard();
+        let mut cs = ColorScheme::day_mode();
         cs.grass = hex("#3F8C0C").into();
         cs.dialog_bg = hex("#3F8C0C");
         cs.residential_building = hex("#8099A8"); // #5E7486
@@ -499,7 +499,7 @@ impl ColorScheme {
     }
 
     fn textured() -> ColorScheme {
-        let mut cs = ColorScheme::standard();
+        let mut cs = ColorScheme::day_mode();
         cs.grass = Texture::GRASS.into();
         cs.water = Texture::STILL_WATER.into();
         cs.map_background = Texture::CONCRETE.into();
@@ -507,7 +507,7 @@ impl ColorScheme {
     }
 
     fn mapbox_light() -> ColorScheme {
-        let mut cs = ColorScheme::standard();
+        let mut cs = ColorScheme::day_mode();
         cs.map_background = hex("#F2F3F1").into();
         cs.unzoomed_highway = Color::WHITE;
         cs.unzoomed_arterial = Color::WHITE;
@@ -520,7 +520,7 @@ impl ColorScheme {
     }
 
     fn mapbox_dark() -> ColorScheme {
-        let mut cs = ColorScheme::standard();
+        let mut cs = ColorScheme::day_mode();
         cs.map_background = hex("#343332").into();
         let road = hex("#454545");
         cs.unzoomed_highway = road;
@@ -547,7 +547,7 @@ impl ColorScheme {
     }
 
     fn faded_zoom() -> ColorScheme {
-        let mut cs = ColorScheme::standard();
+        let mut cs = ColorScheme::day_mode();
         cs.unzoomed_highway = hex("#F89E59");
         cs.unzoomed_arterial = hex("#F2D163");
         cs.unzoomed_residential = hex("#FFFFFF");
@@ -564,7 +564,7 @@ impl ColorScheme {
     }
 
     fn negative_space() -> ColorScheme {
-        let mut cs = ColorScheme::standard();
+        let mut cs = ColorScheme::day_mode();
         let nonempty_space = Color::BLACK;
         cs.map_background = Color::WHITE.into();
         cs.residential_building = nonempty_space;

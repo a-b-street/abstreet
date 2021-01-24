@@ -55,7 +55,7 @@ impl Options {
             debug_all_agents: false,
 
             traffic_signal_style: TrafficSignalStyle::BAP,
-            color_scheme: ColorSchemeChoice::Standard,
+            color_scheme: ColorSchemeChoice::DayMode,
             toggle_day_night_colors: false,
             min_zoom_for_detail: 4.0,
             camera_angle: CameraAngle::TopDown,

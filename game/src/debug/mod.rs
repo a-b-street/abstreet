@@ -262,7 +262,7 @@ impl State<App> for DebugMode {
                     self.reset_info(ctx);
                 }
                 "screenshot everything (for leaflet)" => {
-                    app.change_color_scheme(ctx, ColorSchemeChoice::Standard);
+                    app.change_color_scheme(ctx, ColorSchemeChoice::DayMode);
                     export_for_leaflet(ctx, app);
                     return Transition::Keep;
                 }
@@ -793,7 +793,7 @@ impl ScreenshotTest {
     fn new(ctx: &mut EventCtx, app: &mut App, mut todo_maps: Vec<MapName>) -> Box<dyn State<App>> {
         // Taking screenshots messes with options and doesn't restore them after. It's expected
         // whoever's taking screenshots (just Dustin so far) will just quit after taking them.
-        app.change_color_scheme(ctx, ColorSchemeChoice::Standard);
+        app.change_color_scheme(ctx, ColorSchemeChoice::DayMode);
         app.opts.min_zoom_for_detail = 0.0;
         MapLoader::new(
             ctx,

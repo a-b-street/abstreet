@@ -26,7 +26,7 @@ pub struct DevToolsMode {
 
 impl DevToolsMode {
     pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
-        app.change_color_scheme(ctx, ColorSchemeChoice::Standard);
+        app.change_color_scheme(ctx, ColorSchemeChoice::DayMode);
 
         Box::new(DevToolsMode {
             panel: Panel::new(Widget::col(vec![
