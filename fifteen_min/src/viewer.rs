@@ -14,7 +14,7 @@ use widgetry::table::{Col, Filter, Table};
 use widgetry::{
     lctrl, Cached, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, StyledButtons, Text,
-    TextExt, Transition, VerticalAlignment, Widget,
+    Transition, VerticalAlignment, Widget,
 };
 
 use crate::find_home::FindHome;
@@ -271,14 +271,15 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
         ctx.style().btn_close_widget(ctx),
     ]));
 
-    rows.push(Widget::row(vec![ctx
-        .style()
-        .btn_light_popup_icon_text(
-            "system/assets/tools/map.svg",
-            nice_map_name(app.map.get_name()),
-        )
-        .hotkey(lctrl(Key::L))
-        .build_widget(ctx, "change map")]));
+    rows.push(
+        ctx.style()
+            .btn_light_popup_icon_text(
+                "system/assets/tools/map.svg",
+                nice_map_name(app.map.get_name()),
+            )
+            .hotkey(lctrl(Key::L))
+            .build_widget(ctx, "change map"),
+    );
 
     rows.push(
         Text::from_all(vec![
