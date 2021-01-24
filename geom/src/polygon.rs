@@ -237,7 +237,6 @@ impl Polygon {
     }
 
     /// Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
-    /// If radius is None, be as round as possible. Fails if the radius is too big.
     pub fn maybe_rounded_rectangle<R: Into<CornerRadii>>(w: f64, h: f64, r: R) -> Option<Polygon> {
         let r = r.into();
         let max_r = r
