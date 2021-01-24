@@ -524,6 +524,11 @@
 <span id="521">521</span>
 <span id="522">522</span>
 <span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -1029,6 +1034,11 @@
                 <span class="ident">Widget</span>::<span class="ident">col</span>(
                     (<span class="number">0</span>..<span class="ident">row_height</span>)
                         .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">widgetry</span>::<span class="ident">Spinner</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, (<span class="number">0</span>, <span class="number">11</span>), <span class="number">1</span>))
+                        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
+                ),
+                <span class="ident">Widget</span>::<span class="ident">col</span>(
+                    (<span class="number">0</span>..<span class="ident">row_height</span>)
+                        .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">widgetry</span>::<span class="ident">Checkbox</span>::<span class="ident">checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;checkbox&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>))
                         .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
                 ),
             ])
