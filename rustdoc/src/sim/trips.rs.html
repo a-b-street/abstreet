@@ -1548,6 +1548,9 @@
 <span id="1545">1545</span>
 <span id="1546">1546</span>
 <span id="1547">1547</span>
+<span id="1548">1548</span>
+<span id="1549">1549</span>
+<span id="1550">1550</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 
@@ -2003,9 +2006,12 @@
 
 <span class="comment">// Transitions between different legs of a trip</span>
 <span class="kw">impl</span> <span class="ident">TripManager</span> {
+    <span class="doccomment">/// This is idempotent to handle the case of cars retrying their spawning.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">agent_starting_trip_leg</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">agent</span>: <span class="ident">AgentID</span>, <span class="ident">t</span>: <span class="ident">TripID</span>) {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">other</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">active_trip_mode</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">agent</span>) {
-            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;{} is doing both {} and {}?&quot;</span>, <span class="ident">agent</span>, <span class="ident">t</span>, <span class="ident">other</span>);
+            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">other</span> <span class="op">!</span><span class="op">=</span> <span class="ident">t</span> {
+                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;{} is doing both {} and {}?&quot;</span>, <span class="ident">agent</span>, <span class="ident">t</span>, <span class="ident">other</span>);
+            }
         }
         <span class="self">self</span>.<span class="ident">active_trip_mode</span>.<span class="ident">insert</span>(<span class="ident">agent</span>, <span class="ident">t</span>);
     }
