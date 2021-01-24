@@ -575,7 +575,7 @@
                 <span class="kw">let</span> <span class="ident">rect</span> <span class="op">=</span> <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="number">20.0</span>, <span class="number">8.0</span>);
 
                 <span class="kw">let</span> <span class="ident">default_batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">color</span>, <span class="ident">rect</span>.<span class="ident">clone</span>())]);
-                <span class="kw">let</span> <span class="ident">hover_batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">hovering</span>, <span class="ident">rect</span>)]);
+                <span class="kw">let</span> <span class="ident">hover_batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">rect</span>)]);
 
                 <span class="kw">let</span> <span class="ident">level_btn</span> <span class="op">=</span> <span class="ident">ctx</span>
                     .<span class="ident">style</span>()
