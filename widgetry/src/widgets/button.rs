@@ -1,9 +1,9 @@
-use geom::{CornerRadii, Distance, Polygon, Pt2D};
+use geom::{Distance, Polygon, Pt2D};
 
 use crate::{
-    svg, text::Font, Color, ContentMode, ControlState, Drawable, EdgeInsets, EventCtx, GeomBatch,
-    GfxCtx, Line, MultiKey, Outcome, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Text,
-    Widget, WidgetImpl, WidgetOutput,
+    svg, text::Font, Color, ContentMode, ControlState, CornerRounding, Drawable, EdgeInsets,
+    EventCtx, GeomBatch, GfxCtx, Line, MultiKey, Outcome, RewriteColor, ScreenDims, ScreenPt,
+    ScreenRectangle, Text, Widget, WidgetImpl, WidgetOutput,
 };
 
 pub struct Button {
@@ -130,6 +130,7 @@ pub struct ButtonBuilder<'a> {
     tooltip: Option<Text>,
     stack_axis: Option<geom_batch_stack::Axis>,
     is_label_before_image: bool,
+    corner_rounding: Option<CornerRounding>,
     is_disabled: bool,
     default_style: ButtonStyle<'a>,
     hover_style: ButtonStyle<'a>,
@@ -339,10 +340,10 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
-    /// Set independent rounding for each of the image's corners
-    pub fn image_corner_radii<R: Into<CornerRadii>>(mut self, value: R) -> Self {
+    /// Set independent rounding for each of the button's image's corners
+    pub fn image_corner_rounding<R: Into<CornerRounding>>(mut self, value: R) -> Self {
         let mut image = self.default_style.image.take().unwrap_or_default();
-        image.corner_radii = Some(value.into());
+        image.corner_rounding = Some(value.into());
         self.default_style.image = Some(image);
         self
     }
@@ -446,6 +447,12 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     /// Has no effect if the button is text-only or image-only.
     pub fn stack_spacing(mut self, value: f64) -> Self {
         self.stack_spacing = value;
+        self
+    }
+
+    /// Set independent rounding for each of the button's corners
+    pub fn corner_rounding<R: Into<CornerRounding>>(mut self, value: R) -> Self {
+        self.corner_rounding = Some(value.into());
         self
     }
 
@@ -576,20 +583,28 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
                     }
 
                     let image_corners = image
-                        .corner_radii
-                        .or(default.and_then(|d| d.corner_radii))
+                        .corner_rounding
+                        .or(default.and_then(|d| d.corner_rounding))
                         .unwrap_or_default();
                     let padding = image
                         .padding
                         .or(default.and_then(|d| d.padding))
                         .unwrap_or_default();
                     let mut container_batch = GeomBatch::new();
-                    let container = Polygon::rounded_rectangle(
-                        // TODO: EdgeInsets -> f64?
-                        image_dims.width + padding.left as f64 + padding.right as f64,
-                        image_dims.height + padding.top as f64 + padding.bottom as f64,
-                        image_corners,
-                    );
+                    let container = match image_corners {
+                        CornerRounding::FullyRounded => Polygon::pill(
+                            image_dims.width + padding.left as f64 + padding.right as f64,
+                            image_dims.height + padding.top as f64 + padding.bottom as f64,
+                        ),
+                        CornerRounding::CornerRadii(image_corners) => {
+                            Polygon::rounded_rectangle(
+                                // TODO: EdgeInsets -> f64?
+                                image_dims.width + padding.left as f64 + padding.right as f64,
+                                image_dims.height + padding.top as f64 + padding.bottom as f64,
+                                image_corners,
+                            )
+                        }
+                    };
 
                     let image_bg = image
                         .bg_color
@@ -695,6 +710,10 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
             button_widget = button_widget.outline(thickness, color);
         }
 
+        if let Some(corner_rounding) = self.corner_rounding {
+            button_widget = button_widget.corner_rounding(corner_rounding);
+        }
+
         let (geom_batch, _hitbox) = button_widget.to_geom(ctx, None);
         geom_batch
     }
@@ -727,7 +746,7 @@ pub struct Image<'a> {
     bg_color: Option<Color>,
     dims: Option<ScreenDims>,
     content_mode: ContentMode,
-    corner_radii: Option<CornerRadii>,
+    corner_rounding: Option<CornerRounding>,
     padding: Option<EdgeInsets>,
 }
 

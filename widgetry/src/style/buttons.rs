@@ -250,7 +250,7 @@ impl<'a> StyledButtons<'a> for Style {
 }
 
 impl<'a> Style {
-    fn btn_plain(&self, button_style: &ButtonStyle) -> ButtonBuilder<'a> {
+    pub fn btn_plain(&self, button_style: &ButtonStyle) -> ButtonBuilder<'a> {
         ButtonBuilder::new()
             .label_color(button_style.fg, ControlState::Default)
             .label_color(button_style.fg_disabled, ControlState::Disabled)
@@ -261,7 +261,7 @@ impl<'a> Style {
             .bg_color(button_style.bg_disabled, ControlState::Disabled)
     }
 
-    fn btn_solid(&self, button_style: &ButtonStyle) -> ButtonBuilder<'a> {
+    pub fn btn_solid(&self, button_style: &ButtonStyle) -> ButtonBuilder<'a> {
         self.btn_plain(button_style).outline(
             self.outline_thickness,
             button_style.outline,
@@ -269,7 +269,7 @@ impl<'a> Style {
         )
     }
 
-    fn btn_outline(&self, button_style: &ButtonStyle) -> ButtonBuilder<'a> {
+    pub fn btn_outline(&self, button_style: &ButtonStyle) -> ButtonBuilder<'a> {
         self.btn_plain(button_style).outline(
             self.outline_thickness,
             button_style.outline,
@@ -277,7 +277,12 @@ impl<'a> Style {
         )
     }
 
-    fn btn_hotkey(&self, button_style: &ButtonStyle, label: &str, key: Key) -> ButtonBuilder<'a> {
+    pub fn btn_hotkey(
+        &self,
+        button_style: &ButtonStyle,
+        label: &str,
+        key: Key,
+    ) -> ButtonBuilder<'a> {
         let default = {
             let mut txt = Text::new();
             let key_txt = Line(key.describe()).fg(button_style.fg_hotkey);
@@ -338,7 +343,7 @@ impl<'a> Style {
             // Round the button's image's exterior corners so they don't protrude past the button's
             // corners. However, per design, we want the images interior corners to be
             // unrounded.
-            .image_corner_radii(CornerRadii {
+            .image_corner_rounding(CornerRadii {
                 top_left: 2.0,
                 top_right: 0.0,
                 bottom_right: 0.0,

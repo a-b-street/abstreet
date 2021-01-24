@@ -7,7 +7,7 @@ use stretch::style::{
     AlignItems, Dimension, FlexDirection, FlexWrap, JustifyContent, PositionType, Style,
 };
 
-use geom::{Distance, Percent, Polygon};
+use geom::{CornerRadii, Distance, Percent, Polygon};
 
 use crate::widgets::containers::{Container, Nothing};
 pub use crate::widgets::panel::Panel;
@@ -104,13 +104,25 @@ pub struct Widget {
 
 #[derive(Debug, Clone, Copy)]
 pub enum CornerRounding {
-    CornerRadii(geom::CornerRadii),
+    CornerRadii(CornerRadii),
     FullyRounded,
 }
 
 impl std::convert::From<f64> for CornerRounding {
-    fn from(uniform: f64) -> CornerRounding {
+    fn from(uniform: f64) -> Self {
         CornerRounding::CornerRadii(uniform.into())
+    }
+}
+
+impl std::convert::From<CornerRadii> for CornerRounding {
+    fn from(radii: CornerRadii) -> Self {
+        CornerRounding::CornerRadii(radii)
+    }
+}
+
+impl std::default::Default for CornerRounding {
+    fn default() -> Self {
+        CornerRounding::CornerRadii(CornerRadii::default())
     }
 }
 
