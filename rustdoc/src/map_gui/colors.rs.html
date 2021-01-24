@@ -610,7 +610,7 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ColorSchemeChoice</span> {
-    <span class="ident">Standard</span>,
+    <span class="ident">DayMode</span>,
     <span class="ident">NightMode</span>,
     <span class="ident">SAMGreenDay</span>,
     <span class="ident">SAMDesertDay</span>,
@@ -627,7 +627,7 @@
 <span class="kw">impl</span> <span class="ident">ColorSchemeChoice</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">choices</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">ColorSchemeChoice</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;default&quot;</span>, <span class="ident">ColorSchemeChoice</span>::<span class="ident">Standard</span>),
+            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;day mode&quot;</span>, <span class="ident">ColorSchemeChoice</span>::<span class="ident">DayMode</span>),
             <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;night mode&quot;</span>, <span class="ident">ColorSchemeChoice</span>::<span class="ident">NightMode</span>),
             <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;sam green day&quot;</span>, <span class="ident">ColorSchemeChoice</span>::<span class="ident">SAMGreenDay</span>),
             <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;sam desert day&quot;</span>, <span class="ident">ColorSchemeChoice</span>::<span class="ident">SAMDesertDay</span>),
@@ -748,7 +748,7 @@
 <span class="kw">impl</span> <span class="ident">ColorScheme</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">scheme</span>: <span class="ident">ColorSchemeChoice</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">scheme</span> {
-            <span class="ident">ColorSchemeChoice</span>::<span class="ident">Standard</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span>::<span class="ident">standard</span>(),
+            <span class="ident">ColorSchemeChoice</span>::<span class="ident">DayMode</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span>::<span class="ident">day_mode</span>(),
             <span class="ident">ColorSchemeChoice</span>::<span class="ident">NightMode</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span>::<span class="ident">night_mode</span>(),
             <span class="ident">ColorSchemeChoice</span>::<span class="ident">SAMGreenDay</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span>::<span class="ident">sam_green_day</span>(),
             <span class="ident">ColorSchemeChoice</span>::<span class="ident">SAMDesertDay</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span>::<span class="ident">sam_desert_day</span>(),
@@ -766,11 +766,11 @@
         <span class="ident">cs</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">standard</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span> {
+    <span class="kw">fn</span> <span class="ident">day_mode</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">gui_style</span> <span class="op">=</span> <span class="ident">Style</span>::<span class="ident">standard</span>();
         <span class="ident">gui_style</span>.<span class="ident">loading_tips</span> <span class="op">=</span> <span class="ident">loading_tips</span>();
         <span class="ident">ColorScheme</span> {
-            <span class="ident">scheme</span>: <span class="ident">ColorSchemeChoice</span>::<span class="ident">Standard</span>,
+            <span class="ident">scheme</span>: <span class="ident">ColorSchemeChoice</span>::<span class="ident">DayMode</span>,
 
             <span class="comment">// UI</span>
             <span class="ident">panel_bg</span>: <span class="ident">gui_style</span>.<span class="ident">panel_bg</span>,
@@ -980,7 +980,7 @@
 <span class="kw">impl</span> <span class="ident">ColorScheme</span> {
     <span class="comment">// Shamelessly adapted from https://github.com/Uriopass/Egregoria</span>
     <span class="kw">fn</span> <span class="ident">night_mode</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">standard</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">day_mode</span>();
         <span class="ident">cs</span>.<span class="ident">void_background</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#200A24&quot;</span>);
         <span class="ident">cs</span>.<span class="ident">map_background</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">BLACK</span>.<span class="ident">into</span>();
         <span class="ident">cs</span>.<span class="ident">grass</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#243A1F&quot;</span>).<span class="ident">into</span>();
@@ -1017,7 +1017,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">sam_green_day</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">standard</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">day_mode</span>();
         <span class="ident">cs</span>.<span class="ident">map_background</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#CFE2C4&quot;</span>).<span class="ident">into</span>();
         <span class="ident">cs</span>.<span class="ident">water</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#B4D3E5&quot;</span>).<span class="ident">into</span>();
         <span class="ident">cs</span>.<span class="ident">driving_lane</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#C6CDD5&quot;</span>);
@@ -1027,7 +1027,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">sam_desert_day</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">standard</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">day_mode</span>();
         <span class="ident">cs</span>.<span class="ident">map_background</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#FEE4D7&quot;</span>).<span class="ident">into</span>();
         <span class="ident">cs</span>.<span class="ident">grass</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#F6C6AF&quot;</span>).<span class="ident">into</span>();
         <span class="ident">cs</span>.<span class="ident">dialog_bg</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#F6C6AF&quot;</span>);
@@ -1038,7 +1038,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">bap</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">standard</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">day_mode</span>();
         <span class="ident">cs</span>.<span class="ident">agent_colors</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
             <span class="comment">/*hex(&quot;#DD5444&quot;),
             hex(&quot;#C23E46&quot;),
@@ -1065,7 +1065,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">osm</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">standard</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">day_mode</span>();
         <span class="comment">// TODO normal_intersection, driving_lane, parking_lane depends on osm rank</span>
         <span class="ident">cs</span>.<span class="ident">general_road_marking</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">BLACK</span>;
         <span class="ident">cs</span>.<span class="ident">road_center_line</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">rgb</span>(<span class="number">202</span>, <span class="number">177</span>, <span class="number">39</span>);
@@ -1073,7 +1073,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">starcat</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">standard</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">day_mode</span>();
         <span class="ident">cs</span>.<span class="ident">grass</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#3F8C0C&quot;</span>).<span class="ident">into</span>();
         <span class="ident">cs</span>.<span class="ident">dialog_bg</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#3F8C0C&quot;</span>);
         <span class="ident">cs</span>.<span class="ident">residential_building</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#8099A8&quot;</span>); <span class="comment">// #5E7486</span>
@@ -1089,7 +1089,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">textured</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">standard</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">day_mode</span>();
         <span class="ident">cs</span>.<span class="ident">grass</span> <span class="op">=</span> <span class="ident">Texture</span>::<span class="ident">GRASS</span>.<span class="ident">into</span>();
         <span class="ident">cs</span>.<span class="ident">water</span> <span class="op">=</span> <span class="ident">Texture</span>::<span class="ident">STILL_WATER</span>.<span class="ident">into</span>();
         <span class="ident">cs</span>.<span class="ident">map_background</span> <span class="op">=</span> <span class="ident">Texture</span>::<span class="ident">CONCRETE</span>.<span class="ident">into</span>();
@@ -1097,7 +1097,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">mapbox_light</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">standard</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">day_mode</span>();
         <span class="ident">cs</span>.<span class="ident">map_background</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#F2F3F1&quot;</span>).<span class="ident">into</span>();
         <span class="ident">cs</span>.<span class="ident">unzoomed_highway</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">WHITE</span>;
         <span class="ident">cs</span>.<span class="ident">unzoomed_arterial</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">WHITE</span>;
@@ -1110,7 +1110,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">mapbox_dark</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">standard</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">day_mode</span>();
         <span class="ident">cs</span>.<span class="ident">map_background</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#343332&quot;</span>).<span class="ident">into</span>();
         <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#454545&quot;</span>);
         <span class="ident">cs</span>.<span class="ident">unzoomed_highway</span> <span class="op">=</span> <span class="ident">road</span>;
@@ -1137,7 +1137,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">faded_zoom</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">standard</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">day_mode</span>();
         <span class="ident">cs</span>.<span class="ident">unzoomed_highway</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#F89E59&quot;</span>);
         <span class="ident">cs</span>.<span class="ident">unzoomed_arterial</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#F2D163&quot;</span>);
         <span class="ident">cs</span>.<span class="ident">unzoomed_residential</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#FFFFFF&quot;</span>);
@@ -1154,7 +1154,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">negative_space</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">standard</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">day_mode</span>();
         <span class="kw">let</span> <span class="ident">nonempty_space</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">BLACK</span>;
         <span class="ident">cs</span>.<span class="ident">map_background</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">WHITE</span>.<span class="ident">into</span>();
         <span class="ident">cs</span>.<span class="ident">residential_building</span> <span class="op">=</span> <span class="ident">nonempty_space</span>;
