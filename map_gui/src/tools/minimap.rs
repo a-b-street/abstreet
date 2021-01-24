@@ -115,7 +115,7 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
                 let rect = Polygon::rectangle(20.0, 8.0);
 
                 let default_batch = GeomBatch::from(vec![(color, rect.clone())]);
-                let hover_batch = GeomBatch::from(vec![(app.cs().hovering, rect)]);
+                let hover_batch = GeomBatch::from(vec![(color.alpha(0.5), rect)]);
 
                 let level_btn = ctx
                     .style()

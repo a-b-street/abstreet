@@ -8,7 +8,6 @@ pub struct Style {
     pub outline_color: Color,
     pub panel_bg: Color,
     pub hotkey_color: Color,
-    pub hovering_color: Color,
     pub loading_tips: Text,
     pub btn_solid_dark: ButtonStyle,
     pub btn_outline_dark: ButtonStyle,
@@ -36,7 +35,6 @@ impl Style {
             outline_color: Color::WHITE,
             panel_bg: Color::grey(0.4),
             hotkey_color: Color::GREEN,
-            hovering_color: Color::ORANGE,
             loading_tips: Text::new(),
 
             // Buttons

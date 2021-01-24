@@ -213,7 +213,10 @@ pub fn trips(
                 .btn_solid_light()
                 .custom_batch(row_btn.clone(), ControlState::Default)
                 .custom_batch(
-                    row_btn.color(RewriteColor::Change(app.cs.inner_panel, app.cs.hovering)),
+                    row_btn.color(RewriteColor::Change(
+                        app.cs.inner_panel,
+                        ctx.style().btn_outline_light.bg_hover,
+                    )),
                     ControlState::Hovered,
                 )
                 .build_widget(

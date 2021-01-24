@@ -296,7 +296,7 @@ impl State<App> for StoryMapEditor {
 
         for (idx, m) in self.story.markers.iter().enumerate() {
             if self.hovering == Some(idx) {
-                m.draw_hovered(g, app);
+                m.draw_hovered(g);
             } else {
                 g.redraw(&m.draw);
             }
@@ -451,14 +451,14 @@ impl Marker {
         }
     }
 
-    fn draw_hovered(&self, g: &mut GfxCtx, app: &App) {
+    fn draw_hovered(&self, g: &mut GfxCtx) {
         let mut batch = GeomBatch::new();
         if self.pts.len() == 1 {
             batch.append(
                 GeomBatch::load_svg(g, "system/assets/timeline/goal_pos.svg")
                     .scale(2.0)
                     .centered_on(self.pts[0])
-                    .color(RewriteColor::Change(Color::hex("#5B5B5B"), app.cs.hovering)),
+                    .color(RewriteColor::Change(Color::hex("#5B5B5B"), Color::RED)),
             );
             batch.append(
                 Text::from(Line(&self.event))
@@ -468,10 +468,7 @@ impl Marker {
                     .centered_on(self.pts[0]),
             );
         } else {
-            batch.push(
-                app.cs.hovering,
-                Ring::must_new(self.pts.clone()).to_polygon(),
-            );
+            batch.push(Color::RED, Ring::must_new(self.pts.clone()).to_polygon());
             // TODO Refactor plz
             batch.append(
                 Text::from(Line(&self.event))
