@@ -338,6 +338,8 @@ impl<A: AppLike> State<A> for OptionsPanel {
                     }
 
                     if app.change_color_scheme(ctx, self.panel.dropdown_value("Color scheme")) {
+                        // change_color_scheme doesn't modify our local copy of Options!
+                        opts.color_scheme = app.opts().color_scheme;
                         // If the player picks a different scheme, don't undo it later.
                         opts.toggle_day_night_colors = false;
                     }

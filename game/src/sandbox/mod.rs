@@ -44,6 +44,7 @@ pub struct SandboxMode {
     pub controls: SandboxControls,
 
     recalc_unzoomed_agent: Option<Time>,
+    last_cs: ColorSchemeChoice,
 }
 
 pub struct SandboxControls {
@@ -104,15 +105,17 @@ impl SandboxMode {
 impl State<App> for SandboxMode {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if app.opts.toggle_day_night_colors {
-            let cs_changed = if is_daytime(app) {
+            if is_daytime(app) {
                 app.change_color_scheme(ctx, ColorSchemeChoice::Standard)
             } else {
                 app.change_color_scheme(ctx, ColorSchemeChoice::NightMode)
             };
-            if cs_changed {
-                self.controls.recreate_panels(ctx, app);
-                self.gameplay.recreate_panels(ctx, app);
-            }
+        }
+
+        if app.opts.color_scheme != self.last_cs {
+            self.last_cs = app.opts.color_scheme;
+            self.controls.recreate_panels(ctx, app);
+            self.gameplay.recreate_panels(ctx, app);
         }
 
         // Do this before gameplay
@@ -834,6 +837,7 @@ impl State<App> for SandboxLoader {
                         gameplay,
                         gameplay_mode: self.mode.clone(),
                         recalc_unzoomed_agent: None,
+                        last_cs: app.opts.color_scheme,
                     });
 
                     let mut transitions = vec![Transition::Replace(sandbox)];
