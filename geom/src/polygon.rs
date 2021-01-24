@@ -238,16 +238,18 @@ impl Polygon {
 
     /// Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
     /// If radius is None, be as round as possible. Fails if the radius is too big.
-    pub fn maybe_rounded_rectangle(w: f64, h: f64, r: f64) -> Option<Polygon> {
+    pub fn maybe_rounded_rectangle<R: Into<CornerRadii>>(w: f64, h: f64, r: R) -> Option<Polygon> {
         // let r = r.unwrap_or_else(|| w.min(h) / 2.0);
-        if 2.0 * r > w || 2.0 * r > h {
-            return None;
-        }
+        let r = r.into();
+        // FIXME: REPLACE error handling?
+        // if 2.0 * r > w || 2.0 * r > h {
+        //     return None;
+        // }
 
         let mut pts = vec![];
 
         const RESOLUTION: usize = 5;
-        let mut arc = |center: Pt2D, angle1_degs: f64, angle2_degs: f64| {
+        let mut arc = |r: f64, center: Pt2D, angle1_degs: f64, angle2_degs: f64| {
             for i in 0..=RESOLUTION {
                 let angle = Angle::degrees(
                     angle1_degs + (angle2_degs - angle1_degs) * ((i as f64) / (RESOLUTION as f64)),
@@ -257,15 +259,30 @@ impl Polygon {
         };
 
         // Top-left corner
-        arc(Pt2D::new(r, r), 180.0, 90.0);
+        arc(r.top_left, Pt2D::new(r.top_left, r.top_left), 180.0, 90.0);
         // Top-right
-        arc(Pt2D::new(w - r, r), 90.0, 0.0);
+        arc(
+            r.top_right,
+            Pt2D::new(w - r.top_right, r.top_right),
+            90.0,
+            0.0,
+        );
         // Bottom-right
-        arc(Pt2D::new(w - r, h - r), 360.0, 270.0);
+        arc(
+            r.bottom_right,
+            Pt2D::new(w - r.bottom_right, h - r.bottom_right),
+            360.0,
+            270.0,
+        );
         // Bottom-left
-        arc(Pt2D::new(r, h - r), 270.0, 180.0);
+        arc(
+            r.bottom_left,
+            Pt2D::new(r.bottom_left, h - r.bottom_left),
+            270.0,
+            180.0,
+        );
         // Close it off
-        pts.push(Pt2D::new(0.0, r));
+        pts.push(Pt2D::new(0.0, r.top_left));
 
         // If the radius was maximized, then some of the edges will be zero length.
         pts.dedup();
@@ -280,7 +297,7 @@ impl Polygon {
 
     /// Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
     /// If radius is None, be as round as possible
-    pub fn rounded_rectangle(w: f64, h: f64, r: f64) -> Polygon {
+    pub fn rounded_rectangle<R: Into<CornerRadii>>(w: f64, h: f64, r: R) -> Polygon {
         Polygon::maybe_rounded_rectangle(w, h, r).unwrap()
     }
 
@@ -576,4 +593,32 @@ fn downsize(input: Vec<usize>) -> Vec<u16> {
         }
     }
     output
+}
+
+pub struct CornerRadii {
+    top_left: f64,
+    top_right: f64,
+    bottom_right: f64,
+    bottom_left: f64,
+}
+
+impl CornerRadii {
+    pub fn uniform(radius: f64) -> Self {
+        CornerRadii {
+            top_left: radius,
+            top_right: radius,
+            bottom_right: radius,
+            bottom_left: radius,
+        }
+    }
+
+    pub fn zero() -> Self {
+        Self::uniform(0.0)
+    }
+}
+
+impl std::convert::From<f64> for CornerRadii {
+    fn from(uniform: f64) -> Self {
+        CornerRadii::uniform(uniform)
+    }
 }
