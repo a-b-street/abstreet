@@ -1,8 +1,9 @@
+use geom::CornerRadii;
+
 use super::ButtonStyle;
 use crate::{
     include_labeled_bytes, ButtonBuilder, ControlState, EventCtx, ScreenDims, Style, Widget,
 };
-use geom::CornerRadii;
 
 pub trait StyledButtons<'a> {
     fn btn_solid_dark(&self) -> ButtonBuilder<'a>;
