@@ -278,7 +278,7 @@ impl<'a> Style {
     fn btn_hotkey(&self, button_style: &ButtonStyle, label: &str, key: Key) -> ButtonBuilder<'a> {
         let default = {
             let mut txt = Text::new();
-            let key_txt = Line(key.describe()).fg(self.hotkey_color);
+            let key_txt = Line(key.describe()).fg(button_style.fg_hotkey);
             txt.append(key_txt);
             let label_text = Line(format!(" - {}", label)).fg(button_style.fg);
             txt.append(label_text);
@@ -287,7 +287,7 @@ impl<'a> Style {
 
         let disabled = {
             let mut txt = Text::new();
-            let key_txt = Line(key.describe()).fg(self.hotkey_color.alpha(0.3));
+            let key_txt = Line(key.describe()).fg(button_style.fg_hotkey.alpha(0.3));
             txt.append(key_txt);
             let label_text = Line(format!(" - {}", label)).fg(button_style.fg_disabled);
             txt.append(label_text);
