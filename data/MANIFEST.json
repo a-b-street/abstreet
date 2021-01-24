@@ -46,24 +46,24 @@
       "compressed_size_bytes": 11174
     },
     "data/input/cambridge/osm/cambridgeshire-latest.osm.pbf": {
-      "checksum": "e7ac328f5b13c1a90da861abc84ae08d",
-      "uncompressed_size_bytes": 22600428,
-      "compressed_size_bytes": 22582107
+      "checksum": "e0c75cbda803bc972e22439eaf8039ae",
+      "uncompressed_size_bytes": 22648539,
+      "compressed_size_bytes": 22630129
     },
     "data/input/cambridge/osm/great_kneighton.osm": {
-      "checksum": "ae033f7695754513fdfaf3f631e3e27f",
-      "uncompressed_size_bytes": 54284236,
-      "compressed_size_bytes": 5427399
+      "checksum": "c86323c21836843cc1e979f58afa7563",
+      "uncompressed_size_bytes": 54364659,
+      "compressed_size_bytes": 5437861
     },
     "data/input/cambridge/raw_maps/great_kneighton.bin": {
-      "checksum": "027d2039553fdb3da18fb61a216a9dda",
-      "uncompressed_size_bytes": 15897744,
-      "compressed_size_bytes": 3648721
+      "checksum": "176632f8a02131cea702b0d7d32c61be",
+      "uncompressed_size_bytes": 15905623,
+      "compressed_size_bytes": 3652579
     },
     "data/input/cambridge/screenshots/great_kneighton.zip": {
-      "checksum": "b6e123ef67ba46313c0d1f2d743abbfc",
-      "uncompressed_size_bytes": 43009066,
-      "compressed_size_bytes": 42983890
+      "checksum": "e34b2e3e505e34b232a0397cacccde08",
+      "uncompressed_size_bytes": 42815332,
+      "compressed_size_bytes": 42789373
     },
     "data/input/cheshire/osm/chapelford.osm": {
       "checksum": "da8daf2687f5fdccd483d4724c63e92e",
@@ -686,19 +686,19 @@
       "compressed_size_bytes": 8239726
     },
     "data/system/cambridge/maps/great_kneighton.bin": {
-      "checksum": "40e008f4178b681fa4bec8fbb7be447d",
-      "uncompressed_size_bytes": 33131475,
-      "compressed_size_bytes": 11709298
+      "checksum": "3fed976abb4ed0a89ed701bcfd35a7e7",
+      "uncompressed_size_bytes": 33150481,
+      "compressed_size_bytes": 11711509
     },
     "data/system/cambridge/scenarios/great_kneighton/baseline.bin": {
-      "checksum": "a2294578999ddab2d014b7caaa9a9b30",
+      "checksum": "6afec9441a361f80d578c1295b17defd",
       "uncompressed_size_bytes": 71756,
-      "compressed_size_bytes": 19431
+      "compressed_size_bytes": 19432
     },
     "data/system/cambridge/scenarios/great_kneighton/go_dutch.bin": {
-      "checksum": "24fab30d3fead56ae2617e7b204aed07",
+      "checksum": "1f1bb20cb9b1de30b290a31a145fb444",
       "uncompressed_size_bytes": 71756,
-      "compressed_size_bytes": 19237
+      "compressed_size_bytes": 19234
     },
     "data/system/cheshire/maps/chapelford.bin": {
       "checksum": "d9886541b5726cf1a5ea4fc516ecfa1b",
