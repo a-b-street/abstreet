@@ -3,7 +3,9 @@
 
 use abstutil::Timer;
 use geom::{LonLat, Percent};
+use map_gui::colors::ColorSchemeChoice;
 use map_gui::tools::{nice_map_name, ChooseSomething, CityPicker};
+use map_gui::AppLike;
 use widgetry::{
     lctrl, Choice, DrawBaselayer, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
     State, StyledButtons, TextExt, VerticalAlignment, Widget,
@@ -23,7 +25,9 @@ pub struct DevToolsMode {
 }
 
 impl DevToolsMode {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
+        app.change_color_scheme(ctx, ColorSchemeChoice::Standard);
+
         Box::new(DevToolsMode {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![

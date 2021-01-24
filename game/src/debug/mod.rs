@@ -3,11 +3,12 @@ use std::collections::HashSet;
 use abstio::MapName;
 use abstutil::{Parallelism, Tags, Timer};
 use geom::{Distance, Pt2D};
+use map_gui::colors::ColorSchemeChoice;
 use map_gui::load::MapLoader;
 use map_gui::options::OptionsPanel;
 use map_gui::render::{calculate_corners, DrawMap, DrawOptions};
 use map_gui::tools::{ChooseSomething, PopupMsg, PromptInput};
-use map_gui::ID;
+use map_gui::{AppLike, ID};
 use map_model::{osm, ControlTrafficSignal, IntersectionID, NORMAL_LANE_THICKNESS};
 use sim::Sim;
 use widgetry::{
@@ -261,6 +262,7 @@ impl State<App> for DebugMode {
                     self.reset_info(ctx);
                 }
                 "screenshot everything (for leaflet)" => {
+                    app.change_color_scheme(ctx, ColorSchemeChoice::Standard);
                     export_for_leaflet(ctx, app);
                     return Transition::Keep;
                 }
@@ -785,12 +787,13 @@ fn find_large_intersections(app: &App) {
 struct ScreenshotTest {
     todo_maps: Vec<MapName>,
     screenshot_done: bool,
-    orig_min_zoom: f64,
 }
 
 impl ScreenshotTest {
     fn new(ctx: &mut EventCtx, app: &mut App, mut todo_maps: Vec<MapName>) -> Box<dyn State<App>> {
-        let orig_min_zoom = app.opts.min_zoom_for_detail;
+        // Taking screenshots messes with options and doesn't restore them after. It's expected
+        // whoever's taking screenshots (just Dustin so far) will just quit after taking them.
+        app.change_color_scheme(ctx, ColorSchemeChoice::Standard);
         app.opts.min_zoom_for_detail = 0.0;
         MapLoader::new(
             ctx,
@@ -800,7 +803,6 @@ impl ScreenshotTest {
                 Transition::Replace(Box::new(ScreenshotTest {
                     todo_maps,
                     screenshot_done: false,
-                    orig_min_zoom,
                 }))
             }),
         )
@@ -811,7 +813,6 @@ impl State<App> for ScreenshotTest {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if self.screenshot_done {
             if self.todo_maps.is_empty() {
-                app.opts.min_zoom_for_detail = self.orig_min_zoom;
                 Transition::Pop
             } else {
                 Transition::Replace(ScreenshotTest::new(
