@@ -670,21 +670,6 @@
       "uncompressed_size_bytes": 32102959,
       "compressed_size_bytes": 7199663
     },
-    "data/input/xian/osm/center.osm": {
-      "checksum": "4084c665ad947bb40173a43cb33fdec8",
-      "uncompressed_size_bytes": 26198743,
-      "compressed_size_bytes": 2690275
-    },
-    "data/input/xian/osm/china-latest.osm.pbf": {
-      "checksum": "0108807f1dc321d5de5579622ac3f4cf",
-      "uncompressed_size_bytes": 634566681,
-      "compressed_size_bytes": 633885669
-    },
-    "data/input/xian/raw_maps/center.bin": {
-      "checksum": "57006fcc6ca877fd32a97d018634d4a7",
-      "uncompressed_size_bytes": 12241248,
-      "compressed_size_bytes": 2358459
-    },
     "data/system/bellevue/maps/huge.bin": {
       "checksum": "1e8e1409b2a968ae78248d9882c64195",
       "uncompressed_size_bytes": 37522924,
@@ -1004,11 +989,6 @@
       "checksum": "751e757dbe40d4425b06383da7baf09b",
       "uncompressed_size_bytes": 91587298,
       "compressed_size_bytes": 29527059
-    },
-    "data/system/xian/maps/center.bin": {
-      "checksum": "9f55fc455181622c8769de34487c7805",
-      "uncompressed_size_bytes": 83419096,
-      "compressed_size_bytes": 28326581
     }
   }
 }

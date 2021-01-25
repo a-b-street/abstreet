@@ -94,7 +94,6 @@ pub fn nice_map_name(name: &MapName) -> &str {
         ("salzburg", "west") => "Salzburg (west)",
         ("tel_aviv", "center") => "Tel Aviv (city center)",
         ("warsaw", "center") => "Warsaw (city center)",
-        ("xian", "center") => "Xi'an (city center)",
         _ => &name.map,
     }
 }

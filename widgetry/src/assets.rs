@@ -55,9 +55,6 @@ impl Assets {
         a.text_opts
             .fontdb
             .load_font_data(include_bytes!("../fonts/Overpass-SemiBold.ttf").to_vec());
-        a.text_opts
-            .fontdb
-            .load_font_data(include_bytes!("../fonts/ZCOOLXiaoWei-Regular.ttf").to_vec());
         for font in vec![
             Font::BungeeInlineRegular,
             Font::BungeeRegular,
@@ -65,7 +62,6 @@ impl Assets {
             Font::OverpassRegular,
             Font::OverpassSemiBold,
             Font::OverpassMonoBold,
-            Font::ZcoolXiaoWei,
         ] {
             a.font_to_id.insert(
                 font,

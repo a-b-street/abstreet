@@ -104,7 +104,6 @@ fn regenerate_everything(config: ImporterConfiguration) {
         "salzburg",
         "tel_aviv",
         "warsaw",
-        "xian",
     ] {
         let mut job = Job {
             city: city.to_string(),
