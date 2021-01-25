@@ -498,7 +498,21 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
     // it's inferred.
     if !tags.contains_key(osm::SIDEWALK) && opts.map_config.inferred_sidewalks {
         tags.insert(osm::INFERRED_SIDEWALKS, "true");
-        if tags.is_any(osm::HIGHWAY, vec!["motorway", "motorway_link"])
+
+        if tags.contains_key("sidewalk:left") || tags.contains_key("sidewalk:right") {
+            // Attempt to mangle
+            // https://wiki.openstreetmap.org/wiki/Key:sidewalk#Separately_mapped_sidewalks_on_only_one_side
+            // into left/right/both. We have to make assumptions for missing values.
+            let right = !tags.is("sidewalk:right", "no");
+            let left = !tags.is("sidewalk:left", "no");
+            let value = match (right, left) {
+                (true, true) => "both",
+                (true, false) => "right",
+                (false, true) => "left",
+                (false, false) => "none",
+            };
+            tags.insert(osm::SIDEWALK, value);
+        } else if tags.is_any(osm::HIGHWAY, vec!["motorway", "motorway_link"])
             || tags.is_any("junction", vec!["intersection", "roundabout"])
             || tags.is("foot", "no")
             || tags.is(osm::HIGHWAY, "service")
@@ -553,7 +567,14 @@ fn get_area_type(tags: &Tags) -> Option<AreaType> {
     }
     if tags.is_any(
         "landuse",
-        vec!["cemetery", "forest", "grass", "meadow", "recreation_ground"],
+        vec![
+            "cemetery",
+            "forest",
+            "grass",
+            "meadow",
+            "recreation_ground",
+            "village_green",
+        ],
     ) || tags.is("amenity", "graveyard")
     {
         return Some(AreaType::Park);

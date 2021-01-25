@@ -118,7 +118,13 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
     {
         n
     } else if let Some(n) = tags.get("lanes").and_then(|num| num.parse::<usize>().ok()) {
-        n - num_driving_fwd
+        let base = n - num_driving_fwd;
+        if oneway {
+            base
+        } else {
+            // lanes=1 but not oneway... what is this supposed to mean?
+            base.max(1)
+        }
     } else {
         if oneway {
             0
@@ -520,6 +526,13 @@ mod tests {
                 DrivingSide::Right,
                 "SdddddS",
                 "vvv^^^^",
+            ),
+            (
+                "https://www.openstreetmap.org/way/335668924",
+                vec!["lanes=1", "sidewalk=none"],
+                DrivingSide::Right,
+                "SddS",
+                "vv^^",
             ),
         ] {
             let cfg = MapConfig {
