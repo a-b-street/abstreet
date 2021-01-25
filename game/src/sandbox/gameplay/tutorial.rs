@@ -1340,7 +1340,7 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: &str) -> Trans
             let lane = app.primary.map.get_l(l);
             if lane.is_parking() {
                 let percent = (app.primary.sim.get_free_onstreet_spots(l).len() as f64)
-                    / (lane.number_parking_spots() as f64);
+                    / (lane.number_parking_spots(app.primary.map.get_config()) as f64);
                 if percent > 0.1 {
                     PopupMsg::new(
                         ctx,

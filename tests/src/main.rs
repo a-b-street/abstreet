@@ -8,7 +8,7 @@ use rand::seq::SliceRandom;
 
 use abstio::MapName;
 use abstutil::Timer;
-use geom::{Duration, Time};
+use geom::{Distance, Duration, Time};
 use map_model::{IntersectionID, Map};
 use sim::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 
@@ -57,6 +57,7 @@ fn import_map(path: String) -> Map {
                 bikes_can_use_bus_lanes: true,
                 inferred_sidewalks: true,
                 separate_cycleways: false,
+                street_parking_spot_length: Distance::meters(8.0),
             },
             onstreet_parking: convert_osm::OnstreetParking::JustOSM,
             public_offstreet_parking: convert_osm::PublicOffstreetParking::None,

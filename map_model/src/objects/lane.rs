@@ -7,13 +7,12 @@ use abstutil::{deserialize_usize, serialize_usize, wraparound_get};
 use geom::{Distance, Line, PolyLine, Polygon, Pt2D, Ring};
 
 use crate::{
-    osm, BusStopID, DirectedRoadID, Direction, IntersectionID, Map, Road, RoadID, TurnType,
+    osm, BusStopID, DirectedRoadID, Direction, IntersectionID, Map, MapConfig, Road, RoadID,
+    TurnType,
 };
 
-/// Bit longer than the longest car.
-pub const PARKING_SPOT_LENGTH: Distance = Distance::const_meters(8.0);
-/// The full PARKING_SPOT_LENGTH used for on-street is looking too conservative for some manually
-/// audited cases in Seattle. This is 0.8 of above
+/// From some manually audited cases in Seattle, the length of parallel street parking spots is a
+/// bit different than the length in parking lots, so set a different value here.
 pub const PARKING_LOT_SPOT_LENGTH: Distance = Distance::const_meters(6.4);
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -178,10 +177,10 @@ impl Lane {
 
     // TODO different types for each lane type might be reasonable
 
-    pub fn number_parking_spots(&self) -> usize {
+    pub fn number_parking_spots(&self, cfg: &MapConfig) -> usize {
         assert_eq!(self.lane_type, LaneType::Parking);
         // No spots next to intersections
-        let spots = (self.length() / PARKING_SPOT_LENGTH).floor() - 2.0;
+        let spots = (self.length() / cfg.street_parking_spot_length).floor() - 2.0;
         if spots >= 1.0 {
             spots as usize
         } else {

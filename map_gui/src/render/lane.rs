@@ -2,9 +2,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 
 use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D};
-use map_model::{
-    Direction, DrivingSide, Lane, LaneID, LaneType, Map, Road, RoadID, TurnID, PARKING_SPOT_LENGTH,
-};
+use map_model::{Direction, DrivingSide, Lane, LaneID, LaneType, Map, Road, RoadID, TurnID};
 use widgetry::{Drawable, GeomBatch, GfxCtx, Prerender, RewriteColor};
 
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
@@ -251,12 +249,12 @@ fn calculate_parking_lines(lane: &Lane, map: &Map) -> Vec<Polygon> {
     let leg_length = Distance::meters(1.0);
 
     let mut result = Vec::new();
-    let num_spots = lane.number_parking_spots();
+    let num_spots = lane.number_parking_spots(map.get_config());
     if num_spots > 0 {
         for idx in 0..=num_spots {
             let (pt, lane_angle) = lane
                 .lane_center_pts
-                .must_dist_along(PARKING_SPOT_LENGTH * (1.0 + idx as f64));
+                .must_dist_along(map.get_config().street_parking_spot_length * (1.0 + idx as f64));
             let perp_angle = if map.get_config().driving_side == DrivingSide::Right {
                 lane_angle.rotate_degs(270.0)
             } else {

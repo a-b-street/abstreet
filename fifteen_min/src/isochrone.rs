@@ -86,7 +86,8 @@ impl Isochrone {
             let r = app.map.get_r(r);
             for (l, _, lt) in r.lanes_ltr() {
                 if lt == LaneType::Parking {
-                    onstreet_parking_spots += app.map.get_l(l).number_parking_spots();
+                    onstreet_parking_spots +=
+                        app.map.get_l(l).number_parking_spots(app.map.get_config());
                 }
             }
         }

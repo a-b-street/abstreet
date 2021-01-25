@@ -186,6 +186,17 @@ pub fn split_up_roads(
     }
     timer.stop("match traffic signals to intersections");
 
+    // For the transit snapping that later uses this, we have to make pt_to_road only refer to
+    // points currently on the roads, not any deduped internal points.
+    pt_to_road.clear();
+    for (id, r) in &map.roads {
+        for (idx, pt) in r.center_points.iter().enumerate() {
+            if idx != 0 && idx != r.center_points.len() - 1 {
+                pt_to_road.insert(pt.to_hashable(), *id);
+            }
+        }
+    }
+
     timer.stop("splitting up roads");
     (input.amenities, pt_to_road)
 }

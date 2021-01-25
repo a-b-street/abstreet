@@ -48,7 +48,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
             format!(
                 "{} / {} spots available",
                 app.primary.sim.get_free_onstreet_spots(l.id).len(),
-                l.number_parking_spots()
+                l.number_parking_spots(app.primary.map.get_config())
             ),
         ));
     } else {
@@ -60,7 +60,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
     rows.extend(make_table(ctx, kv));
 
     if l.is_parking() {
-        let capacity = l.number_parking_spots();
+        let capacity = l.number_parking_spots(app.primary.map.get_config());
         let mut series = vec![Series {
             label: format!("After \"{}\"", app.primary.map.get_edits().edits_name),
             color: app.cs.after_changes,

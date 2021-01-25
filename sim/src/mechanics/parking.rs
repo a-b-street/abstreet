@@ -342,7 +342,8 @@ impl ParkingSim for NormalParkingSimState {
         let p = self.parked_cars.get(&id)?;
         match p.spot {
             ParkingSpot::Onstreet(lane, idx) => {
-                let front_dist = self.onstreet_lanes[&lane].dist_along_for_car(idx, &p.vehicle);
+                let front_dist =
+                    self.onstreet_lanes[&lane].dist_along_for_car(idx, &p.vehicle, map);
                 Some(DrawCarInput {
                     id: p.vehicle.id,
                     waiting_for_turn: None,
@@ -474,11 +475,8 @@ impl ParkingSim for NormalParkingSimState {
         match spot {
             ParkingSpot::Onstreet(l, idx) => {
                 let lane = &self.onstreet_lanes[&l];
-                Position::new(l, lane.dist_along_for_car(idx, vehicle)).equiv_pos_for_long_object(
-                    lane.driving_lane,
-                    vehicle.length,
-                    map,
-                )
+                Position::new(l, lane.dist_along_for_car(idx, vehicle, map))
+                    .equiv_pos_for_long_object(lane.driving_lane, vehicle.length, map)
             }
             ParkingSpot::Offstreet(b, _) => map.get_b(b).driving_connection(map).unwrap().0,
             ParkingSpot::Lot(pl, _) => map.get_pl(pl).driving_pos,
@@ -492,7 +490,7 @@ impl ParkingSim for NormalParkingSimState {
                 // Always centered in the entire parking spot
                 Position::new(
                     l,
-                    lane.spot_dist_along[idx] - (map_model::PARKING_SPOT_LENGTH / 2.0),
+                    lane.spot_dist_along[idx] - (map.get_config().street_parking_spot_length / 2.0),
                 )
                 .equiv_pos(lane.sidewalk, map)
             }
@@ -658,15 +656,16 @@ impl ParkingLane {
             parking_lane: lane.id,
             driving_lane,
             sidewalk,
-            spot_dist_along: (0..lane.number_parking_spots())
-                .map(|idx| map_model::PARKING_SPOT_LENGTH * (2.0 + idx as f64))
+            spot_dist_along: (0..lane.number_parking_spots(map.get_config()))
+                .map(|idx| map.get_config().street_parking_spot_length * (2.0 + idx as f64))
                 .collect(),
         })
     }
 
-    fn dist_along_for_car(&self, spot_idx: usize, vehicle: &Vehicle) -> Distance {
+    fn dist_along_for_car(&self, spot_idx: usize, vehicle: &Vehicle, map: &Map) -> Distance {
         // Find the offset to center this particular car in the parking spot
-        self.spot_dist_along[spot_idx] - (map_model::PARKING_SPOT_LENGTH - vehicle.length) / 2.0
+        self.spot_dist_along[spot_idx]
+            - (map.get_config().street_parking_spot_length - vehicle.length) / 2.0
     }
 
     fn spots(&self) -> Vec<ParkingSpot> {
