@@ -224,14 +224,29 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
         fwd_side.push(fwd(LaneType::Biking));
         back_side.push(back(LaneType::Biking));
     } else {
+        // Note here that we look at driving_side frequently, to match up left/right with fwd/back.
+        // If we're driving on the right, then right=fwd. Driving on the left, then right=back.
+        //
+        // TODO Can we express this more simply by referring to a left_side and right_side here?
         if tags.is_any("cycleway:right", vec!["lane", "track"]) {
-            if tags.is("cycleway:right:oneway", "no") || tags.is("oneway:bicycle", "no") {
-                fwd_side.push(back(LaneType::Biking));
+            if cfg.driving_side == DrivingSide::Right {
+                if tags.is("cycleway:right:oneway", "no") || tags.is("oneway:bicycle", "no") {
+                    fwd_side.push(back(LaneType::Biking));
+                }
+                fwd_side.push(fwd(LaneType::Biking));
+            } else {
+                if tags.is("cycleway:right:oneway", "no") || tags.is("oneway:bicycle", "no") {
+                    back_side.push(fwd(LaneType::Biking));
+                }
+                back_side.push(back(LaneType::Biking));
             }
-            fwd_side.push(fwd(LaneType::Biking));
         }
         if tags.is("cycleway:left", "opposite_lane") || tags.is("cycleway", "opposite_lane") {
-            back_side.push(back(LaneType::Biking));
+            if cfg.driving_side == DrivingSide::Right {
+                back_side.push(back(LaneType::Biking));
+            } else {
+                fwd_side.push(fwd(LaneType::Biking));
+            }
         }
         if tags.is_any("cycleway:left", vec!["lane", "opposite_track", "track"]) {
             if oneway {
@@ -244,7 +259,11 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
                     back_side.push(back(LaneType::Biking));
                 }
             } else {
-                back_side.push(back(LaneType::Biking));
+                if cfg.driving_side == DrivingSide::Right {
+                    back_side.push(back(LaneType::Biking));
+                } else {
+                    fwd_side.push(fwd(LaneType::Biking));
+                }
             }
         }
     }
@@ -488,11 +507,20 @@ mod tests {
                 "sbdd",
                 "^^^^",
             ),
+            (
+                "https://www.openstreetmap.org/way/49207928",
+                vec!["cycleway:right=lane", "sidewalk=both"],
+                DrivingSide::Left,
+                "sddbs",
+                "^^vvv",
+            ),
         ] {
             let cfg = MapConfig {
                 driving_side,
                 bikes_can_use_bus_lanes: true,
                 inferred_sidewalks: true,
+                separate_cycleways: false,
+                street_parking_spot_length: Distance::meters(8.0),
             };
             let actual = get_lane_specs_ltr(&tags(input.clone()), &cfg);
             let actual_lt = actual
