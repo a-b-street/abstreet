@@ -152,10 +152,6 @@
 <span id="149">149</span>
 <span id="150">150</span>
 <span id="151">151</span>
-<span id="152">152</span>
-<span id="153">153</span>
-<span id="154">154</span>
-<span id="155">155</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
@@ -214,9 +210,6 @@
         <span class="ident">a</span>.<span class="ident">text_opts</span>
             .<span class="ident">fontdb</span>
             .<span class="ident">load_font_data</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../fonts/Overpass-SemiBold.ttf&quot;</span>).<span class="ident">to_vec</span>());
-        <span class="ident">a</span>.<span class="ident">text_opts</span>
-            .<span class="ident">fontdb</span>
-            .<span class="ident">load_font_data</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../fonts/ZCOOLXiaoWei-Regular.ttf&quot;</span>).<span class="ident">to_vec</span>());
         <span class="kw">for</span> <span class="ident">font</span> <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Font</span>::<span class="ident">BungeeInlineRegular</span>,
             <span class="ident">Font</span>::<span class="ident">BungeeRegular</span>,
@@ -224,7 +217,6 @@
             <span class="ident">Font</span>::<span class="ident">OverpassRegular</span>,
             <span class="ident">Font</span>::<span class="ident">OverpassSemiBold</span>,
             <span class="ident">Font</span>::<span class="ident">OverpassMonoBold</span>,
-            <span class="ident">Font</span>::<span class="ident">ZcoolXiaoWei</span>,
         ] {
             <span class="ident">a</span>.<span class="ident">font_to_id</span>.<span class="ident">insert</span>(
                 <span class="ident">font</span>,
