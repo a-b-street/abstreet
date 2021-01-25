@@ -106,11 +106,10 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
         } else if n % 2 == 0 {
             n / 2
         } else {
-            // TODO Really, this is ambiguous, but...
-            (n / 2).max(1)
+            // usize division rounds down
+            (n / 2) + 1
         }
     } else {
-        // TODO Grrr.
         1
     };
     let num_driving_back = if let Some(n) = tags
@@ -119,16 +118,8 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
     {
         n
     } else if let Some(n) = tags.get("lanes").and_then(|num| num.parse::<usize>().ok()) {
-        if oneway {
-            0
-        } else if n % 2 == 0 {
-            n / 2
-        } else {
-            // TODO Really, this is ambiguous, but...
-            (n / 2).max(1)
-        }
+        n - num_driving_fwd
     } else {
-        // TODO Grrr.
         if oneway {
             0
         } else {
@@ -513,6 +504,22 @@ mod tests {
                 DrivingSide::Left,
                 "sddbs",
                 "^^vvv",
+            ),
+            // How should an odd number of lanes forward/backwards be split without any clues?
+            (
+                "https://www.openstreetmap.org/way/898731283",
+                vec!["lanes=3", "sidewalk=both"],
+                DrivingSide::Left,
+                "sddds",
+                "^^^vv",
+            ),
+            (
+                // I didn't look for a real example of this
+                "https://www.openstreetmap.org/way/898731283",
+                vec!["lanes=5", "sidewalk=none"],
+                DrivingSide::Right,
+                "SdddddS",
+                "vvv^^^^",
             ),
         ] {
             let cfg = MapConfig {
