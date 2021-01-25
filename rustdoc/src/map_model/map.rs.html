@@ -691,6 +691,12 @@
 <span id="688">688</span>
 <span id="689">689</span>
 <span id="690">690</span>
+<span id="691">691</span>
+<span id="692">692</span>
+<span id="693">693</span>
+<span id="694">694</span>
+<span id="695">695</span>
+<span id="696">696</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.</span>
 
@@ -724,6 +730,11 @@
     <span class="kw">pub</span> <span class="ident">inferred_sidewalks</span>: <span class="ident">bool</span>,
     <span class="doccomment">/// If true, separate cycleways from OSM will be included.</span>
     <span class="kw">pub</span> <span class="ident">separate_cycleways</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Street parking is divided into spots of this length. 8 meters is a reasonable default, but</span>
+    <span class="doccomment">/// people in some regions might be more accustomed to squeezing into smaller spaces. This</span>
+    <span class="doccomment">/// value can be smaller than the hardcoded maximum car length; cars may render on top of each</span>
+    <span class="doccomment">/// other, but otherwise the simulation doesn&#39;t care.</span>
+    <span class="kw">pub</span> <span class="ident">street_parking_spot_length</span>: <span class="ident">Distance</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
@@ -859,6 +870,7 @@
                 <span class="ident">bikes_can_use_bus_lanes</span>: <span class="bool-val">true</span>,
                 <span class="ident">inferred_sidewalks</span>: <span class="bool-val">true</span>,
                 <span class="ident">separate_cycleways</span>: <span class="bool-val">false</span>,
+                <span class="ident">street_parking_spot_length</span>: <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">8.0</span>),
             },
             <span class="ident">pathfinder</span>: <span class="ident">Pathfinder</span>::<span class="ident">Dijkstra</span>,
             <span class="ident">pathfinder_dirty</span>: <span class="bool-val">false</span>,

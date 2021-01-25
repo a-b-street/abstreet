@@ -2758,7 +2758,7 @@
             <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>);
             <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_parking</span>() {
                 <span class="kw">let</span> <span class="ident">percent</span> <span class="op">=</span> (<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_free_onstreet_spots</span>(<span class="ident">l</span>).<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f64</span>)
-                    <span class="op">/</span> (<span class="ident">lane</span>.<span class="ident">number_parking_spots</span>() <span class="kw">as</span> <span class="ident">f64</span>);
+                    <span class="op">/</span> (<span class="ident">lane</span>.<span class="ident">number_parking_spots</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_config</span>()) <span class="kw">as</span> <span class="ident">f64</span>);
                 <span class="kw">if</span> <span class="ident">percent</span> <span class="op">&gt;</span> <span class="number">0.1</span> {
                     <span class="ident">PopupMsg</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,

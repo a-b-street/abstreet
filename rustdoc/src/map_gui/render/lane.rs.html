@@ -396,16 +396,12 @@
 <span id="393">393</span>
 <span id="394">394</span>
 <span id="395">395</span>
-<span id="396">396</span>
-<span id="397">397</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">TurnID</span>, <span class="ident">PARKING_SPOT_LENGTH</span>,
-};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">TurnID</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Drawable</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Prerender</span>, <span class="ident">RewriteColor</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::{<span class="ident">DrawOptions</span>, <span class="ident">Renderable</span>, <span class="ident">OUTLINE_THICKNESS</span>};
@@ -652,12 +648,12 @@
     <span class="kw">let</span> <span class="ident">leg_length</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.0</span>);
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="ident">num_spots</span> <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">number_parking_spots</span>();
+    <span class="kw">let</span> <span class="ident">num_spots</span> <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">number_parking_spots</span>(<span class="ident">map</span>.<span class="ident">get_config</span>());
     <span class="kw">if</span> <span class="ident">num_spots</span> <span class="op">&gt;</span> <span class="number">0</span> {
         <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="number">0</span>..<span class="op">=</span><span class="ident">num_spots</span> {
             <span class="kw">let</span> (<span class="ident">pt</span>, <span class="ident">lane_angle</span>) <span class="op">=</span> <span class="ident">lane</span>
                 .<span class="ident">lane_center_pts</span>
-                .<span class="ident">must_dist_along</span>(<span class="ident">PARKING_SPOT_LENGTH</span> <span class="op">*</span> (<span class="number">1.0</span> <span class="op">+</span> <span class="ident">idx</span> <span class="kw">as</span> <span class="ident">f64</span>));
+                .<span class="ident">must_dist_along</span>(<span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">street_parking_spot_length</span> <span class="op">*</span> (<span class="number">1.0</span> <span class="op">+</span> <span class="ident">idx</span> <span class="kw">as</span> <span class="ident">f64</span>));
             <span class="kw">let</span> <span class="ident">perp_angle</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide</span>::<span class="ident">Right</span> {
                 <span class="ident">lane_angle</span>.<span class="ident">rotate_degs</span>(<span class="number">270.0</span>)
             } <span class="kw">else</span> {

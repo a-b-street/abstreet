@@ -1014,7 +1014,6 @@
 <span id="1011">1011</span>
 <span id="1012">1012</span>
 <span id="1013">1013</span>
-<span id="1014">1014</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">BinaryHeap</span>, <span class="ident">HashMap</span>};
 
@@ -1360,7 +1359,8 @@
         <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parked_cars</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>)<span class="question-mark">?</span>;
         <span class="kw">match</span> <span class="ident">p</span>.<span class="ident">spot</span> {
             <span class="ident">ParkingSpot</span>::<span class="ident">Onstreet</span>(<span class="ident">lane</span>, <span class="ident">idx</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">front_dist</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">onstreet_lanes</span>[<span class="kw-2">&amp;</span><span class="ident">lane</span>].<span class="ident">dist_along_for_car</span>(<span class="ident">idx</span>, <span class="kw-2">&amp;</span><span class="ident">p</span>.<span class="ident">vehicle</span>);
+                <span class="kw">let</span> <span class="ident">front_dist</span> <span class="op">=</span>
+                    <span class="self">self</span>.<span class="ident">onstreet_lanes</span>[<span class="kw-2">&amp;</span><span class="ident">lane</span>].<span class="ident">dist_along_for_car</span>(<span class="ident">idx</span>, <span class="kw-2">&amp;</span><span class="ident">p</span>.<span class="ident">vehicle</span>, <span class="ident">map</span>);
                 <span class="prelude-val">Some</span>(<span class="ident">DrawCarInput</span> {
                     <span class="ident">id</span>: <span class="ident">p</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>,
                     <span class="ident">waiting_for_turn</span>: <span class="prelude-val">None</span>,
@@ -1492,11 +1492,8 @@
         <span class="kw">match</span> <span class="ident">spot</span> {
             <span class="ident">ParkingSpot</span>::<span class="ident">Onstreet</span>(<span class="ident">l</span>, <span class="ident">idx</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">onstreet_lanes</span>[<span class="kw-2">&amp;</span><span class="ident">l</span>];
-                <span class="ident">Position</span>::<span class="ident">new</span>(<span class="ident">l</span>, <span class="ident">lane</span>.<span class="ident">dist_along_for_car</span>(<span class="ident">idx</span>, <span class="ident">vehicle</span>)).<span class="ident">equiv_pos_for_long_object</span>(
-                    <span class="ident">lane</span>.<span class="ident">driving_lane</span>,
-                    <span class="ident">vehicle</span>.<span class="ident">length</span>,
-                    <span class="ident">map</span>,
-                )
+                <span class="ident">Position</span>::<span class="ident">new</span>(<span class="ident">l</span>, <span class="ident">lane</span>.<span class="ident">dist_along_for_car</span>(<span class="ident">idx</span>, <span class="ident">vehicle</span>, <span class="ident">map</span>))
+                    .<span class="ident">equiv_pos_for_long_object</span>(<span class="ident">lane</span>.<span class="ident">driving_lane</span>, <span class="ident">vehicle</span>.<span class="ident">length</span>, <span class="ident">map</span>)
             }
             <span class="ident">ParkingSpot</span>::<span class="ident">Offstreet</span>(<span class="ident">b</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">driving_connection</span>(<span class="ident">map</span>).<span class="ident">unwrap</span>().<span class="number">0</span>,
             <span class="ident">ParkingSpot</span>::<span class="ident">Lot</span>(<span class="ident">pl</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">pl</span>).<span class="ident">driving_pos</span>,
@@ -1510,7 +1507,7 @@
                 <span class="comment">// Always centered in the entire parking spot</span>
                 <span class="ident">Position</span>::<span class="ident">new</span>(
                     <span class="ident">l</span>,
-                    <span class="ident">lane</span>.<span class="ident">spot_dist_along</span>[<span class="ident">idx</span>] <span class="op">-</span> (<span class="ident">map_model</span>::<span class="ident">PARKING_SPOT_LENGTH</span> <span class="op">/</span> <span class="number">2.0</span>),
+                    <span class="ident">lane</span>.<span class="ident">spot_dist_along</span>[<span class="ident">idx</span>] <span class="op">-</span> (<span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">street_parking_spot_length</span> <span class="op">/</span> <span class="number">2.0</span>),
                 )
                 .<span class="ident">equiv_pos</span>(<span class="ident">lane</span>.<span class="ident">sidewalk</span>, <span class="ident">map</span>)
             }
@@ -1676,15 +1673,16 @@
             <span class="ident">parking_lane</span>: <span class="ident">lane</span>.<span class="ident">id</span>,
             <span class="ident">driving_lane</span>,
             <span class="ident">sidewalk</span>,
-            <span class="ident">spot_dist_along</span>: (<span class="number">0</span>..<span class="ident">lane</span>.<span class="ident">number_parking_spots</span>())
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">idx</span><span class="op">|</span> <span class="ident">map_model</span>::<span class="ident">PARKING_SPOT_LENGTH</span> <span class="op">*</span> (<span class="number">2.0</span> <span class="op">+</span> <span class="ident">idx</span> <span class="kw">as</span> <span class="ident">f64</span>))
+            <span class="ident">spot_dist_along</span>: (<span class="number">0</span>..<span class="ident">lane</span>.<span class="ident">number_parking_spots</span>(<span class="ident">map</span>.<span class="ident">get_config</span>()))
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">idx</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">street_parking_spot_length</span> <span class="op">*</span> (<span class="number">2.0</span> <span class="op">+</span> <span class="ident">idx</span> <span class="kw">as</span> <span class="ident">f64</span>))
                 .<span class="ident">collect</span>(),
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">dist_along_for_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot_idx</span>: <span class="ident">usize</span>, <span class="ident">vehicle</span>: <span class="kw-2">&amp;</span><span class="ident">Vehicle</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
+    <span class="kw">fn</span> <span class="ident">dist_along_for_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot_idx</span>: <span class="ident">usize</span>, <span class="ident">vehicle</span>: <span class="kw-2">&amp;</span><span class="ident">Vehicle</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
         <span class="comment">// Find the offset to center this particular car in the parking spot</span>
-        <span class="self">self</span>.<span class="ident">spot_dist_along</span>[<span class="ident">spot_idx</span>] <span class="op">-</span> (<span class="ident">map_model</span>::<span class="ident">PARKING_SPOT_LENGTH</span> <span class="op">-</span> <span class="ident">vehicle</span>.<span class="ident">length</span>) <span class="op">/</span> <span class="number">2.0</span>
+        <span class="self">self</span>.<span class="ident">spot_dist_along</span>[<span class="ident">spot_idx</span>]
+            <span class="op">-</span> (<span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">street_parking_spot_length</span> <span class="op">-</span> <span class="ident">vehicle</span>.<span class="ident">length</span>) <span class="op">/</span> <span class="number">2.0</span>
     }
 
     <span class="kw">fn</span> <span class="ident">spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span> {

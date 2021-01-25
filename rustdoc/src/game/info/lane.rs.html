@@ -320,7 +320,7 @@
             <span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;{} / {} spots available&quot;</span>,
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_free_onstreet_spots</span>(<span class="ident">l</span>.<span class="ident">id</span>).<span class="ident">len</span>(),
-                <span class="ident">l</span>.<span class="ident">number_parking_spots</span>()
+                <span class="ident">l</span>.<span class="ident">number_parking_spots</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_config</span>())
             ),
         ));
     } <span class="kw">else</span> {
@@ -332,7 +332,7 @@
     <span class="ident">rows</span>.<span class="ident">extend</span>(<span class="ident">make_table</span>(<span class="ident">ctx</span>, <span class="ident">kv</span>));
 
     <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">is_parking</span>() {
-        <span class="kw">let</span> <span class="ident">capacity</span> <span class="op">=</span> <span class="ident">l</span>.<span class="ident">number_parking_spots</span>();
+        <span class="kw">let</span> <span class="ident">capacity</span> <span class="op">=</span> <span class="ident">l</span>.<span class="ident">number_parking_spots</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_config</span>());
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">series</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Series</span> {
             <span class="ident">label</span>: <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;After \&quot;{}\&quot;&quot;</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>),
             <span class="ident">color</span>: <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">after_changes</span>,
