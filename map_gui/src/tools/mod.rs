@@ -81,6 +81,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
         ("leeds", "west") => "West Leeds",
         ("leeds", "central") => "Leeds (city center)",
         ("london", "southbank") => "London (Southbank)",
+        ("montreal", "plateau") => "Montréal (Plateau)",
         ("nyc", "lower_manhattan") => "Lower Manhattan",
         ("nyc", "midtown_manhattan") => "Midtown Manhattan",
         ("paris", "center") => "Paris (city center)",
