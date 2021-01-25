@@ -7,7 +7,7 @@ use abstutil::{retain_btreemap, Tags, Timer};
 use geom::{HashablePt2D, Polygon, Pt2D, Ring};
 use kml::{ExtraShape, ExtraShapes};
 use map_model::raw::{RawArea, RawBuilding, RawMap, RawParkingLot, RawRoad, RestrictionType};
-use map_model::{osm, Amenity, AreaType, DrivingSide, NamePerLanguage};
+use map_model::{osm, Amenity, AreaType, Direction, DrivingSide, NamePerLanguage};
 
 use crate::osm_geom::{get_multipolygon_members, glue_multipolygon, multipoly_geometry};
 use crate::{transit, Options};
@@ -15,8 +15,8 @@ use crate::{transit, Options};
 pub struct OsmExtract {
     /// Unsplit roads
     pub roads: Vec<(WayID, RawRoad)>,
-    /// Traffic signals to the direction they apply (or just true if unspecified)
-    pub traffic_signals: HashMap<HashablePt2D, bool>,
+    /// Traffic signals to the direction they apply
+    pub traffic_signals: HashMap<HashablePt2D, Direction>,
     pub osm_node_ids: HashMap<HashablePt2D, NodeID>,
     /// (ID, restriction type, from way ID, via node ID, to way ID)
     pub simple_turn_restrictions: Vec<(RestrictionType, WayID, NodeID, WayID)>,
@@ -69,9 +69,12 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
         out.osm_node_ids.insert(node.pt.to_hashable(), *id);
 
         if node.tags.is(osm::HIGHWAY, "traffic_signals") {
-            let backwards = node.tags.is("traffic_signals:direction", "backward");
-            out.traffic_signals
-                .insert(node.pt.to_hashable(), !backwards);
+            let dir = if node.tags.is("traffic_signals:direction", "backward") {
+                Direction::Back
+            } else {
+                Direction::Fwd
+            };
+            out.traffic_signals.insert(node.pt.to_hashable(), dir);
         }
         for amenity in get_bldg_amenities(&node.tags) {
             out.amenities.push((node.pt, amenity));
