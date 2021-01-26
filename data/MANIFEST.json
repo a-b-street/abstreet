@@ -471,9 +471,9 @@
       "compressed_size_bytes": 485401
     },
     "data/input/seattle/osm/rainier_valley.osm": {
-      "checksum": "adcdf2d6dd31d1a3f78d6dddecb76246",
-      "uncompressed_size_bytes": 18076671,
-      "compressed_size_bytes": 1489178
+      "checksum": "9a99a50227bce93210156ece26234340",
+      "uncompressed_size_bytes": 7711542,
+      "compressed_size_bytes": 644177
     },
     "data/input/seattle/osm/slu.osm": {
       "checksum": "9c502c978ea67ea62818411a2723dfcd",
@@ -566,9 +566,9 @@
       "compressed_size_bytes": 380887
     },
     "data/input/seattle/raw_maps/rainier_valley.bin": {
-      "checksum": "07229265cb296ae5b633cb80919a3833",
-      "uncompressed_size_bytes": 4981802,
-      "compressed_size_bytes": 1144683
+      "checksum": "693a6b5b41ce94ebdce2c7ccc07660f0",
+      "uncompressed_size_bytes": 2181472,
+      "compressed_size_bytes": 501643
     },
     "data/input/seattle/raw_maps/slu.bin": {
       "checksum": "2315ef60c8d324583d8f5e1112e621cb",
@@ -811,7 +811,7 @@
       "compressed_size_bytes": 7491972
     },
     "data/system/seattle/city.bin": {
-      "checksum": "c0861783993aa90fd1008b5f5f762431",
+      "checksum": "53f2bd04c09bf47a065a678961ecc2bc",
       "uncompressed_size_bytes": 1566770,
       "compressed_size_bytes": 821449
     },
@@ -826,9 +826,9 @@
       "compressed_size_bytes": 10112927
     },
     "data/system/seattle/maps/huge_seattle.bin": {
-      "checksum": "86294aa2ff56286cd98de60d0d5390f8",
+      "checksum": "8ecfb978b8f811a19600249e474d338d",
       "uncompressed_size_bytes": 312764929,
-      "compressed_size_bytes": 112921878
+      "compressed_size_bytes": 112873961
     },
     "data/system/seattle/maps/lakeslice.bin": {
       "checksum": "3fbee9fc2f29607a49a026b4758be161",
@@ -856,9 +856,9 @@
       "compressed_size_bytes": 1283945
     },
     "data/system/seattle/maps/rainier_valley.bin": {
-      "checksum": "30106222d262680300afb9dcef16a41b",
-      "uncompressed_size_bytes": 10494158,
-      "compressed_size_bytes": 3655123
+      "checksum": "c7e778d9581cdf16cb6410d74ce22d02",
+      "uncompressed_size_bytes": 4259777,
+      "compressed_size_bytes": 1451688
     },
     "data/system/seattle/maps/slu.bin": {
       "checksum": "5d9090139188bee8c717ddde647a0f3d",
@@ -946,9 +946,9 @@
       "compressed_size_bytes": 399393
     },
     "data/system/seattle/scenarios/rainier_valley/weekday.bin": {
-      "checksum": "4459a1b6d9bb97cb84f089ef97d92486",
-      "uncompressed_size_bytes": 4832176,
-      "compressed_size_bytes": 995012
+      "checksum": "6a5ac7780c142b5890525dd1d31bf330",
+      "uncompressed_size_bytes": 2367410,
+      "compressed_size_bytes": 482853
     },
     "data/system/seattle/scenarios/slu/weekday.bin": {
       "checksum": "8b391e9d82154e68cc04e62a2da10e63",
