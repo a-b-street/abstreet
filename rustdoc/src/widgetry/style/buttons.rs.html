@@ -555,17 +555,17 @@
 
     <span class="doccomment">/// A right facing caret, like &quot;&gt;&quot;, suitable for paging to the &quot;next&quot; set of results</span>
     <span class="kw">fn</span> <span class="ident">btn_next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/next.svg&quot;</span>)
+        <span class="self">self</span>.<span class="ident">btn_plain_light_icon_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/next.svg&quot;</span>))
     }
 
     <span class="doccomment">/// A left facing caret, like &quot;&lt;&quot;, suitable for paging to the &quot;next&quot; set of results</span>
     <span class="kw">fn</span> <span class="ident">btn_prev</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/prev.svg&quot;</span>)
+        <span class="self">self</span>.<span class="ident">btn_plain_light_icon_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/prev.svg&quot;</span>))
     }
 
     <span class="doccomment">/// An &quot;X&quot; button to close the current state. Bound to the escape key.</span>
     <span class="kw">fn</span> <span class="ident">btn_close</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/close.svg&quot;</span>)
+        <span class="self">self</span>.<span class="ident">btn_plain_light_icon_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/close.svg&quot;</span>))
             .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
     }
 
