@@ -1,8 +1,7 @@
-use map_gui::theme::StyledButtons;
 use map_gui::tools::grey_out_map;
 use widgetry::{
-    hotkeys, Btn, Color, ControlState, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line,
-    Outcome, Panel, State, Text, Widget,
+    hotkeys, Color, ControlState, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
+    Panel, State, StyledButtons, Text, Widget,
 };
 
 use crate::app::App;
@@ -64,11 +63,10 @@ impl CutsceneBuilder {
     pub fn build(
         self,
         ctx: &mut EventCtx,
-        app: &App,
         make_task: Box<dyn Fn(&mut EventCtx) -> Widget>,
     ) -> Box<dyn State<App>> {
         Box::new(CutscenePlayer {
-            panel: make_panel(ctx, app, &self.name, &self.scenes, &make_task, 0),
+            panel: make_panel(ctx, &self.name, &self.scenes, &make_task, 0),
             name: self.name,
             scenes: self.scenes,
             idx: 0,
@@ -97,36 +95,18 @@ impl State<App> for CutscenePlayer {
                 }
                 "back" => {
                     self.idx -= 1;
-                    self.panel = make_panel(
-                        ctx,
-                        app,
-                        &self.name,
-                        &self.scenes,
-                        &self.make_task,
-                        self.idx,
-                    );
+                    self.panel =
+                        make_panel(ctx, &self.name, &self.scenes, &self.make_task, self.idx);
                 }
                 "next" => {
                     self.idx += 1;
-                    self.panel = make_panel(
-                        ctx,
-                        app,
-                        &self.name,
-                        &self.scenes,
-                        &self.make_task,
-                        self.idx,
-                    );
+                    self.panel =
+                        make_panel(ctx, &self.name, &self.scenes, &self.make_task, self.idx);
                 }
                 "Skip cutscene" => {
                     self.idx = self.scenes.len();
-                    self.panel = make_panel(
-                        ctx,
-                        app,
-                        &self.name,
-                        &self.scenes,
-                        &self.make_task,
-                        self.idx,
-                    );
+                    self.panel =
+                        make_panel(ctx, &self.name, &self.scenes, &self.make_task, self.idx);
                 }
                 "Start" => {
                     return Transition::Pop;
@@ -137,14 +117,7 @@ impl State<App> for CutscenePlayer {
         }
         // TODO Should the Panel for text widgets with wrapping do this instead?
         if ctx.input.is_window_resized() {
-            self.panel = make_panel(
-                ctx,
-                app,
-                &self.name,
-                &self.scenes,
-                &self.make_task,
-                self.idx,
-            );
+            self.panel = make_panel(ctx, &self.name, &self.scenes, &self.make_task, self.idx);
         }
 
         Transition::Keep
@@ -163,26 +136,23 @@ impl State<App> for CutscenePlayer {
 
 fn make_panel(
     ctx: &mut EventCtx,
-    app: &App,
     name: &str,
     scenes: &Vec<Scene>,
     make_task: &Box<dyn Fn(&mut EventCtx) -> Widget>,
     idx: usize,
 ) -> Panel {
-    let mut prev = app
-        .cs
-        .btn_plain_dark_icon("system/assets/tools/prev.svg")
+    let prev = ctx
+        .style()
+        .btn_plain_dark_icon("system/assets/tools/circled_prev.svg")
         .image_dims(45.0)
         .hotkey(Key::LeftArrow)
-        .bg_color(Color::CLEAR, ControlState::Disabled);
-    if idx == 0 {
-        prev = prev.disabled();
-    }
-    let prev = prev.build_widget(ctx, "back");
+        .bg_color(Color::CLEAR, ControlState::Disabled)
+        .disabled(idx == 0)
+        .build_widget(ctx, "back");
 
-    let next = app
-        .cs
-        .btn_plain_dark_icon("system/assets/tools/next.svg")
+    let next = ctx
+        .style()
+        .btn_plain_dark_icon("system/assets/tools/circled_next.svg")
         .image_dims(45.0)
         .hotkey(hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]))
         .build_widget(ctx, "next");
@@ -190,8 +160,8 @@ fn make_panel(
     let inner = if idx == scenes.len() {
         Widget::custom_col(vec![
             (make_task)(ctx),
-            app.cs
-                .btn_primary_light_text("Start")
+            ctx.style()
+                .btn_solid_dark_text("Start")
                 .hotkey(Key::Enter)
                 .build_def(ctx)
                 .centered_horiz()
@@ -249,8 +219,8 @@ fn make_panel(
             .margin_above(100),
             Widget::col(vec![
                 Widget::row(vec![prev.margin_right(40), next]).centered_horiz(),
-                app.cs
-                    .btn_secondary_dark_text("Skip cutscene")
+                ctx.style()
+                    .btn_outline_dark_text("Skip cutscene")
                     .build_def(ctx)
                     .centered_horiz(),
             ])
@@ -261,8 +231,8 @@ fn make_panel(
     let col = vec![
         // TODO Can't get this to alignment to work
         Widget::custom_row(vec![
-            app.cs
-                .btn_back_light("Home")
+            ctx.style()
+                .btn_light_back("Home")
                 .build_widget(ctx, "quit")
                 .margin_right(100),
             Line(name).big_heading_styled().draw(ctx),
@@ -290,8 +260,10 @@ impl FYI {
             panel: Panel::new(
                 Widget::custom_col(vec![
                     contents,
-                    Btn::txt("Okay", Text::from(Line("Okay").fg(Color::BLACK)))
-                        .build_def(ctx, hotkeys(vec![Key::Escape, Key::Space, Key::Enter]))
+                    ctx.style()
+                        .btn_solid_dark_text("Okay")
+                        .hotkey(hotkeys(vec![Key::Escape, Key::Space, Key::Enter]))
+                        .build_def(ctx)
                         .centered_horiz()
                         .align_bottom(),
                 ])

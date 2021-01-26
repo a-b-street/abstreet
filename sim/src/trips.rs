@@ -452,9 +452,12 @@ impl TripManager {
 
 // Transitions between different legs of a trip
 impl TripManager {
+    /// This is idempotent to handle the case of cars retrying their spawning.
     pub fn agent_starting_trip_leg(&mut self, agent: AgentID, t: TripID) {
         if let Some(other) = self.active_trip_mode.get(&agent) {
-            panic!("{} is doing both {} and {}?", agent, t, other);
+            if *other != t {
+                panic!("{} is doing both {} and {}?", agent, t, other);
+            }
         }
         self.active_trip_mode.insert(agent, t);
     }
@@ -1056,6 +1059,12 @@ impl TripManager {
         // Don't forget the car!
         if let Some(vehicle) = abandoned_vehicle {
             if vehicle.vehicle_type == VehicleType::Car {
+                // First remove the parked car, if needed. Maybe the trip was cancelled while the
+                // car was parked in the starting building.
+                if let Some(parked_car) = ctx.parking.lookup_parked_car(vehicle.id).cloned() {
+                    ctx.parking.remove_parked_car(parked_car);
+                }
+
                 if let TripEndpoint::Bldg(b) = trip.info.end {
                     let driving_lane = ctx.map.find_driving_lane_near_building(b);
                     if let Some(spot) = ctx
@@ -1093,17 +1102,6 @@ impl TripManager {
                             ),
                         ));
                     }
-                } else if let Some(parked_car) = ctx.parking.lookup_parked_car(vehicle.id).cloned()
-                {
-                    self.events.push(Event::Alert(
-                        AlertLocation::Person(person),
-                        format!(
-                            "{} had a trip from on-map to off-map cancelled, so warping their car \
-                             off-map",
-                            person
-                        ),
-                    ));
-                    ctx.parking.remove_parked_car(parked_car);
                 }
             }
         } else {

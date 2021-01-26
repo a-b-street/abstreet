@@ -3,7 +3,6 @@ use rand::Rng;
 
 use abstutil::Timer;
 use geom::{Distance, Polygon};
-use map_gui::theme::StyledButtons;
 use map_gui::tools::{
     grey_out_map, nice_map_name, open_browser, CityPicker, PopupMsg, PromptInput,
 };
@@ -11,8 +10,8 @@ use map_gui::ID;
 use map_model::{BuildingID, IntersectionID, Position, NORMAL_LANE_THICKNESS};
 use sim::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 use widgetry::{
-    lctrl, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    SimpleState, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    SimpleState, Spinner, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -106,28 +105,29 @@ impl GameplayState for Freeform {
             Widget::row(vec![
                 Line("Sandbox").small_heading().draw(ctx),
                 Widget::vert_separator(ctx, 50.0),
-                "Map:".draw_text(ctx),
-                app.cs
-                    .btn_popup_light(nice_map_name(app.primary.map.get_name()))
+                ctx.style()
+                    .btn_light_popup_icon_text(
+                        "system/assets/tools/map.svg",
+                        nice_map_name(app.primary.map.get_name()),
+                    )
                     .hotkey(lctrl(Key::L))
                     .build_widget(ctx, "change map"),
-                "Scenario:".draw_text(ctx),
-                app.cs
-                    .btn_popup_light("none")
+                ctx.style()
+                    .btn_light_popup_icon_text("system/assets/tools/calendar.svg", "none")
                     .hotkey(Key::S)
                     .build_widget(ctx, "change scenario"),
-                app.cs
-                    .btn_secondary_light_icon_text("system/assets/tools/pencil.svg", "Edit map")
+                ctx.style()
+                    .btn_outline_light_icon_text("system/assets/tools/pencil.svg", "Edit map")
                     .hotkey(lctrl(Key::E))
                     .build_widget(ctx, "edit map"),
             ])
             .centered(),
             Widget::row(vec![
-                app.cs
-                    .btn_secondary_light_text("Start a new trip")
+                ctx.style()
+                    .btn_outline_light_text("Start a new trip")
                     .build_def(ctx),
-                app.cs
-                    .btn_secondary_light_text("Record trips as a scenario")
+                ctx.style()
+                    .btn_outline_light_text("Record trips as a scenario")
                     .build_def(ctx),
             ])
             .centered(),
@@ -205,14 +205,13 @@ impl ChangeScenario {
             Line("Each scenario determines what people live and travel around this map").draw(ctx),
         ];
         for (name, label, description) in choices {
-            let btn = if name == current_scenario {
-                Btn::text_bg2(label).inactive(ctx)
-            } else {
-                Btn::text_bg2(label).build(ctx, name, None)
-            };
+            let btn = ctx
+                .style()
+                .btn_solid_dark_text(&label)
+                .disabled(name == current_scenario);
             col.push(
                 Widget::row(vec![
-                    btn,
+                    btn.build_widget(ctx, &name),
                     Text::from(Line(description).secondary())
                         .wrap_to_pct(ctx, 40)
                         .draw(ctx)
@@ -221,7 +220,11 @@ impl ChangeScenario {
                 .margin_above(30),
             );
         }
-        col.push(Btn::text_fg("Import your own data").build_def(ctx, None));
+        col.push(
+            ctx.style()
+                .btn_outline_light_text("Import your own data")
+                .build_def(ctx),
+        );
 
         SimpleState::new(
             Panel::new(Widget::col(col)).build(ctx),
@@ -299,7 +302,10 @@ impl AgentSpawner {
                     "Number of trips:".draw_text(ctx),
                     Spinner::new(ctx, (1, 1000), 1).named("number"),
                 ]),
-                Btn::text_fg("Confirm").inactive(ctx),
+                ctx.style()
+                    .btn_outline_light_text("Confirm")
+                    .disabled(true)
+                    .build_def(ctx),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
@@ -379,8 +385,14 @@ impl State<App> for AgentSpawner {
                             "instructions",
                             "Click a building or border to specify end".draw_text(ctx),
                         );
-                        self.panel
-                            .replace(ctx, "Confirm", Btn::text_fg("Confirm").inactive(ctx));
+                        self.panel.replace(
+                            ctx,
+                            "Confirm",
+                            ctx.style()
+                                .btn_outline_light_text("Confirm")
+                                .disabled(true)
+                                .build_def(ctx),
+                        );
                     }
                 }
             }
@@ -452,7 +464,10 @@ impl State<App> for AgentSpawner {
                     self.panel.replace(
                         ctx,
                         "Confirm",
-                        Btn::text_fg("Confirm").build_def(ctx, Key::Enter),
+                        ctx.style()
+                            .btn_outline_light_text("Confirm")
+                            .hotkey(Key::Enter)
+                            .build_def(ctx),
                     );
                 }
             }

@@ -92,11 +92,10 @@ impl PickLayer {
             Some(ref l) => l.name().unwrap_or(""),
         };
         let btn = |name: &str, key| {
-            let mut button = app.cs.btn_hotkey_light(name, key);
-            if name == current {
-                button = button.disabled();
-            }
-            button.build_widget(ctx, name)
+            ctx.style()
+                .btn_solid_dark_hotkey(name, key)
+                .disabled(name == current)
+                .build_widget(ctx, name)
         };
 
         col.push(btn("None", Key::N));
@@ -258,4 +257,13 @@ impl State<App> for PickLayer {
         grey_out_map(g, app);
         self.panel.draw(g);
     }
+}
+
+/// Creates the top row for any layer panel.
+pub fn header(ctx: &mut EventCtx, name: &str) -> Widget {
+    Widget::row(vec![
+        Widget::draw_svg(ctx, "system/assets/tools/layers.svg").centered_vert(),
+        name.draw_text(ctx).centered_vert(),
+        ctx.style().btn_close_widget(ctx),
+    ])
 }

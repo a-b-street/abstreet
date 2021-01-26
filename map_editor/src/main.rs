@@ -9,8 +9,8 @@ use map_gui::tools::CameraState;
 use map_model::osm;
 use map_model::raw::OriginalRoad;
 use widgetry::{
-    Btn, Canvas, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, ScreenPt, SharedAppState, Text, Transition, VerticalAlignment, Widget,
+    Canvas, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, ScreenPt, SharedAppState, StyledButtons, Text, Transition, VerticalAlignment, Widget,
 };
 
 mod model;
@@ -77,9 +77,17 @@ impl MainState {
                     Line("Map Editor").small_heading().draw(ctx),
                     Text::new().draw(ctx).named("current info"),
                     Widget::col(vec![
-                        Btn::text_fg("quit").build_def(ctx, Key::Escape),
-                        Btn::text_fg("export to OSM").build_def(ctx, None),
-                        Btn::text_fg("preview all intersections").build_def(ctx, Key::G),
+                        ctx.style()
+                            .btn_outline_light_text("quit")
+                            .hotkey(Key::Escape)
+                            .build_def(ctx),
+                        ctx.style()
+                            .btn_outline_light_text("export to OSM")
+                            .build_def(ctx),
+                        ctx.style()
+                            .btn_outline_light_text("preview all intersections")
+                            .hotkey(Key::G)
+                            .build_def(ctx),
                     ]),
                 ]))
                 .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
@@ -323,9 +331,7 @@ impl widgetry::State<App> for MainState {
 }
 
 fn preview_intersection(i: osm::NodeID, model: &Model, ctx: &EventCtx) -> Drawable {
-    let (intersection, roads, debug) = model
-        .map
-        .preview_intersection(i, &mut Timer::new("calculate intersection_polygon"));
+    let (intersection, roads, debug) = model.map.preview_intersection(i);
     let mut batch = GeomBatch::new();
     batch.push(Color::ORANGE.alpha(0.5), intersection);
     for r in roads {
@@ -354,7 +360,7 @@ fn preview_all_intersections(model: &Model, ctx: &EventCtx) -> Drawable {
         if model.map.roads_per_intersection(*i).is_empty() {
             continue;
         }
-        let (intersection, _, _) = model.map.preview_intersection(*i, &mut timer);
+        let (intersection, _, _) = model.map.preview_intersection(*i);
         batch.push(Color::ORANGE.alpha(0.5), intersection);
     }
     batch.upload(ctx)

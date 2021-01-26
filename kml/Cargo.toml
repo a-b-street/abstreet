@@ -10,5 +10,6 @@ abstutil = { path = "../abstutil" }
 anyhow = "1.0.37"
 csv = "1.1.4"
 geom = { path = "../geom" }
+log = "0.4.11"
 roxmltree = { version = "0.14.0", features=["std"] }
 serde = "1.0.116"

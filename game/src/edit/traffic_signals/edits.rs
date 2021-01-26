@@ -4,7 +4,7 @@ use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, StageType,
 };
 use widgetry::{
-    Btn, Checkbox, Choice, DrawBaselayer, EventCtx, Key, Line, Panel, SimpleState, Spinner, State,
+    Checkbox, Choice, DrawBaselayer, EventCtx, Key, Line, Panel, SimpleState, Spinner, State,
     StyledButtons, TextExt, Widget,
 };
 
@@ -94,7 +94,10 @@ impl ChangeDuration {
             Line("Minimum time is set by the time required for crosswalk")
                 .secondary()
                 .draw(ctx),
-            Btn::text_bg2("Apply").build_def(ctx, Key::Enter),
+            ctx.style()
+                .btn_solid_dark_text("Apply")
+                .hotkey(Key::Enter)
+                .build_def(ctx),
         ]))
         .build(ctx);
         SimpleState::new(panel, Box::new(ChangeDuration { idx }))

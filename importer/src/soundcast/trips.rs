@@ -164,11 +164,11 @@ fn clip_trips(map: &Map, popdat: &PopDat, huge_map: &Map, timer: &mut Timer) -> 
     );
     let trips: Vec<Trip> = maybe_results.into_iter().flatten().collect();
 
-    timer.note(format!(
+    info!(
         "{} trips clipped down to just {}",
         prettyprint_usize(total_trips),
         prettyprint_usize(trips.len())
-    ));
+    );
 
     trips
 }
@@ -197,11 +197,11 @@ pub fn make_weekday_scenario(
         )));
         trips_per_person.insert(trip.orig.person, (trip.orig.seq, idx));
     }
-    timer.note(format!(
+    info!(
         "{} clipped trips, over {} people",
         prettyprint_usize(individ_trips.len()),
         prettyprint_usize(trips_per_person.len())
-    ));
+    );
 
     let mut people = Vec::new();
     for (orig_id, seq_trips) in trips_per_person.consume() {
@@ -217,10 +217,10 @@ pub fn make_weekday_scenario(
             let destination = &pair[0].1.destination;
             let origin = &pair[1].0;
             if destination != origin {
-                timer.warn(format!(
+                warn!(
                     "Skipping {:?}, with adjacent trips that warp from {:?} to {:?}",
                     orig_id, destination, origin
-                ));
+                );
                 continue;
             }
         }

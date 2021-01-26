@@ -1,8 +1,7 @@
 use geom::{Angle, Bounds, GPSBounds, Polygon, Pt2D};
 
-use crate::widgets::button::BtnBuilder;
 use crate::{
-    svg, Btn, Color, DeferDraw, Drawable, EventCtx, Fill, GfxCtx, Prerender, ScreenDims, Widget,
+    svg, Color, DeferDraw, Drawable, EventCtx, Fill, GfxCtx, Prerender, ScreenDims, Widget,
 };
 
 /// A mutable builder for a group of colored polygons.
@@ -87,18 +86,6 @@ impl GeomBatch {
         DeferDraw::new(self)
     }
 
-    /// Turn this batch into a button, with the hovered version rewriting all colors.
-    pub fn to_btn(self, ctx: &EventCtx) -> BtnBuilder {
-        self.to_btn_custom(RewriteColor::ChangeAll(ctx.style().hovering_color))
-    }
-
-    /// Turn this batch into a button.
-    pub fn to_btn_custom(self, rewrite: RewriteColor) -> BtnBuilder {
-        let hovered = self.clone().color(rewrite);
-        let hitbox = self.get_bounds().get_rectangle();
-        Btn::custom(self, hovered, hitbox, None)
-    }
-
     /// Compute the bounds of all polygons in this batch.
     pub fn get_bounds(&self) -> Bounds {
         let mut bounds = Bounds::new();
@@ -149,11 +136,8 @@ impl GeomBatch {
     }
 
     /// Returns a batch containing a parsed SVG string.
-    pub fn from_svg_contents(raw: Vec<u8>) -> GeomBatch {
-        let mut batch = GeomBatch::new();
-        let svg_tree = usvg::Tree::from_data(&raw, &usvg::Options::default()).unwrap();
-        svg::add_svg_inner(&mut batch, svg_tree, svg::HIGH_QUALITY).unwrap();
-        batch
+    pub fn from_uncached_svg_contents(raw: &[u8]) -> GeomBatch {
+        svg::load_svg_from_bytes_uncached(raw).unwrap().0
     }
 
     /// Returns a batch containing an SVG from a file.
@@ -267,6 +251,7 @@ impl<F: Into<Fill>> From<Vec<(F, Polygon)>> for GeomBatch {
 }
 
 /// A way to transform all colors in a GeomBatch.
+#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum RewriteColor {
     /// Don't do anything
     NoOp,
@@ -279,6 +264,12 @@ pub enum RewriteColor {
     ChangeAlpha(f32),
     /// Convert all colors to greyscale.
     MakeGrayscale,
+}
+
+impl std::convert::From<Color> for RewriteColor {
+    fn from(color: Color) -> RewriteColor {
+        RewriteColor::ChangeAll(color)
+    }
 }
 
 impl RewriteColor {

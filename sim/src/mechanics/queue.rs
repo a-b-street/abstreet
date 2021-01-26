@@ -12,7 +12,7 @@ use crate::{CarID, VehicleType, FOLLOWING_DISTANCE};
 /// A Queue of vehicles on a single lane or turn. No over-taking or lane-changing. This is where
 /// https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html#exact-positions is
 /// implemented.
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub(crate) struct Queue {
     pub id: Traversable,
     pub cars: VecDeque<CarID>,

@@ -3,9 +3,12 @@
 
 #[macro_use]
 extern crate anyhow;
+#[macro_use]
+extern crate log;
 
 use abstio::MapName;
 use abstutil::{basename, Timer};
+use geom::Distance;
 
 use configuration::{load_configuration, ImporterConfiguration};
 use dependencies::are_dependencies_callable;
@@ -102,7 +105,6 @@ fn regenerate_everything(config: ImporterConfiguration) {
         "salzburg",
         "tel_aviv",
         "warsaw",
-        "xian",
     ] {
         let mut job = Job {
             city: city.to_string(),
@@ -309,6 +311,7 @@ fn oneshot(
                 bikes_can_use_bus_lanes: true,
                 inferred_sidewalks: true,
                 separate_cycleways: false,
+                street_parking_spot_length: Distance::meters(8.0),
             },
 
             onstreet_parking: convert_osm::OnstreetParking::JustOSM,

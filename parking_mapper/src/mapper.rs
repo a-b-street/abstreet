@@ -9,8 +9,9 @@ use map_gui::{SimpleApp, ID};
 use map_model::{osm, RoadID};
 use osm::WayID;
 use widgetry::{
-    Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Menu, Outcome, Panel, State, Text, TextExt, Transition, VerticalAlignment, Widget,
+    Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Menu, Outcome, Panel, State, StyledButtons, Text, TextExt, Transition, VerticalAlignment,
+    Widget,
 };
 
 type App = SimpleApp<()>;
@@ -133,11 +134,9 @@ impl ParkingMapper {
                 ]),
                 Widget::row(vec![
                     "Change map:".draw_text(ctx),
-                    Btn::pop_up(ctx, Some(nice_map_name(map.get_name()))).build(
-                        ctx,
-                        "change map",
-                        None,
-                    ),
+                    ctx.style()
+                        .btn_outline_light_popup(nice_map_name(map.get_name()))
+                        .build_widget(ctx, "change map"),
                 ]),
                 format!(
                     "{} / {} ways done (you've mapped {})",
@@ -180,7 +179,9 @@ impl ParkingMapper {
                     ),
                 ]),
                 Checkbox::checkbox(ctx, "max 3 days parking (default in Seattle)", None, false),
-                Btn::text_fg("Generate OsmChange file").build_def(ctx, None),
+                ctx.style()
+                    .btn_outline_light_text("Generate OsmChange file")
+                    .build_def(ctx),
                 "Select a road".draw_text(ctx).named("info"),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
@@ -516,7 +517,7 @@ fn generate_osmc(data: &BTreeMap<WayID, Value>, in_seattle: bool, timer: &mut Ti
         }
 
         let url = format!("https://api.openstreetmap.org/api/0.6/way/{}", way.0);
-        timer.note(format!("Fetching {}", url));
+        info!("Fetching {}", url);
         let resp = reqwest::blocking::get(&url)?.text()?;
         let mut tree = xmltree::Element::parse(resp.as_bytes())?
             .take_child("way")
@@ -591,7 +592,7 @@ fn generate_osmc(data: &BTreeMap<WayID, Value>, in_seattle: bool, timer: &mut Ti
         writeln!(f, "  {}", w)?;
     }
     writeln!(f, "</modify></osmChange>")?;
-    timer.note(format!("Wrote diff.osc"));
+    info!("Wrote diff.osc");
     Ok(())
 }
 

@@ -7,7 +7,7 @@ use stretch::style::{
     AlignItems, Dimension, FlexDirection, FlexWrap, JustifyContent, PositionType, Style,
 };
 
-use geom::{Distance, Percent, Polygon};
+use geom::{CornerRadii, Distance, Percent, Polygon};
 
 use crate::widgets::containers::{Container, Nothing};
 pub use crate::widgets::panel::Panel;
@@ -102,12 +102,35 @@ pub struct Widget {
     id: Option<String>,
 }
 
+#[derive(Debug, Clone, Copy)]
+pub enum CornerRounding {
+    CornerRadii(CornerRadii),
+    FullyRounded,
+}
+
+impl std::convert::From<f64> for CornerRounding {
+    fn from(uniform: f64) -> Self {
+        CornerRounding::CornerRadii(uniform.into())
+    }
+}
+
+impl std::convert::From<CornerRadii> for CornerRounding {
+    fn from(radii: CornerRadii) -> Self {
+        CornerRounding::CornerRadii(radii)
+    }
+}
+
+impl std::default::Default for CornerRounding {
+    fn default() -> Self {
+        CornerRounding::CornerRadii(CornerRadii::default())
+    }
+}
+
 struct LayoutStyle {
     bg_color: Option<Color>,
     // (thickness, color)
     outline: Option<(f64, Color)>,
-    // If None, as round as possible
-    rounded_radius: Option<f64>,
+    corner_rounding: CornerRounding,
     style: Style,
 }
 
@@ -187,8 +210,9 @@ impl Widget {
         self.layout.outline = Some((thickness, color));
         self
     }
-    pub fn fully_rounded(mut self) -> Widget {
-        self.layout.rounded_radius = None;
+
+    pub fn corner_rounding<R: Into<CornerRounding>>(mut self, value: R) -> Widget {
+        self.layout.corner_rounding = value.into();
         self
     }
 
@@ -316,7 +340,7 @@ impl Widget {
             layout: LayoutStyle {
                 bg_color: None,
                 outline: None,
-                rounded_radius: Some(5.0),
+                corner_rounding: CornerRounding::from(5.0),
                 style: Style {
                     ..Default::default()
                 },
@@ -380,9 +404,12 @@ impl Widget {
         .named(label)
     }
 
+    /// Creates a row with the specified widgets. No margins or other layouting is applied.
     pub fn custom_row(widgets: Vec<Widget>) -> Widget {
         Widget::new(Box::new(Container::new(true, widgets)))
     }
+
+    /// Creates a row with the specified widgets. Every member gets a default horizontal margin.
     pub fn row(widgets: Vec<Widget>) -> Widget {
         let mut new = Vec::new();
         let len = widgets.len();
@@ -397,9 +424,12 @@ impl Widget {
         Widget::new(Box::new(Container::new(true, new)))
     }
 
+    /// Creates a column with the specified widgets. No margins or other layouting is applied.
     pub fn custom_col(widgets: Vec<Widget>) -> Widget {
         Widget::new(Box::new(Container::new(false, widgets)))
     }
+
+    /// Creates a column with the specified widgets. Every member gets a default vertical margin.
     pub fn col(widgets: Vec<Widget>) -> Widget {
         let mut new = Vec::new();
         let len = widgets.len();
@@ -559,18 +589,29 @@ impl Widget {
             && (self.layout.bg_color.is_some() || self.layout.outline.is_some())
         {
             let mut batch = GeomBatch::new();
-            if let Some(c) = self.layout.bg_color {
+            if let Some(color) = self.layout.bg_color {
                 batch.push(
-                    c,
-                    Polygon::rounded_rectangle(width, height, self.layout.rounded_radius),
+                    color,
+                    match self.layout.corner_rounding {
+                        CornerRounding::CornerRadii(corner_radii) => {
+                            Polygon::rounded_rectangle(width, height, corner_radii)
+                        }
+                        CornerRounding::FullyRounded => Polygon::pill(width, height),
+                    },
                 );
             }
+
             if let Some((thickness, color)) = self.layout.outline {
                 batch.push(
                     color,
-                    Polygon::rounded_rectangle(width, height, self.layout.rounded_radius)
-                        .to_outline(Distance::meters(thickness))
-                        .unwrap(),
+                    match self.layout.corner_rounding {
+                        CornerRounding::CornerRadii(corner_radii) => {
+                            Polygon::rounded_rectangle(width, height, corner_radii)
+                        }
+                        CornerRounding::FullyRounded => Polygon::pill(width, height),
+                    }
+                    .to_outline(Distance::meters(thickness))
+                    .unwrap(),
                 );
             }
             if defer_draw {
@@ -724,9 +765,6 @@ impl Widget {
         }
     }
 
-    pub(crate) fn take_btn(self) -> Button {
-        *self.widget.downcast::<Button>().ok().unwrap()
-    }
     pub(crate) fn take_menu<T: 'static + Clone>(self) -> Menu<T> {
         *self.widget.downcast::<Menu<T>>().ok().unwrap()
     }

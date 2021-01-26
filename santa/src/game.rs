@@ -5,8 +5,8 @@ use geom::{ArrowCap, Circle, Distance, Duration, PolyLine, Pt2D, Time};
 use map_gui::tools::{ChooseSomething, ColorLegend, Minimap, MinimapControls};
 use map_model::BuildingID;
 use widgetry::{
-    Btn, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, State, Text, TextExt, UpdateType, VerticalAlignment, Widget,
+    Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, State, StyledButtons, Text, TextExt, UpdateType, VerticalAlignment, Widget,
 };
 
 use crate::after_level::{RecordPath, Results, Strategize};
@@ -73,8 +73,10 @@ impl Game {
         .build(ctx);
 
         let pause_panel = Panel::new(
-            Btn::svg_def("system/assets/speed/pause_v2.svg")
-                .build(ctx, "pause", Key::Escape)
+            ctx.style()
+                .btn_plain_light_icon_text("system/assets/speed/pause.svg", "Pause")
+                .hotkey(Key::Escape)
+                .build_widget(ctx, "pause")
                 .container(),
         )
         // TODO Very brittle layout to wind up to the right of the volume panel...

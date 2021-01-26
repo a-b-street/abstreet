@@ -10,8 +10,8 @@ use geom::Duration;
 use map_model::{EditCmd, EditIntersection, MapEdits};
 use sim::{OrigPersonID, Scenario, ScenarioGenerator, ScenarioModifier};
 use widgetry::{
-    lctrl, Btn, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, TextExt,
-    Widget,
+    lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, StyledButtons,
+    TextExt, Widget,
 };
 
 pub use self::freeform::spawn_agents_around;
@@ -221,12 +221,15 @@ impl GameplayMode {
 fn challenge_header(ctx: &mut EventCtx, title: &str) -> Widget {
     Widget::row(vec![
         Line(title).small_heading().draw(ctx).centered_vert(),
-        Btn::svg_def("system/assets/tools/info.svg")
-            .build(ctx, "instructions", None)
+        ctx.style()
+            .btn_plain_light_icon("system/assets/tools/info.svg")
+            .build_widget(ctx, "instructions")
             .centered_vert(),
         Widget::vert_separator(ctx, 50.0),
-        Btn::svg_def("system/assets/tools/edit_map.svg")
-            .build(ctx, "edit map", lctrl(Key::E))
+        ctx.style()
+            .btn_outline_light_icon_text("system/assets/tools/pencil.svg", "Edit map")
+            .hotkey(lctrl(Key::E))
+            .build_widget(ctx, "edit map")
             .centered_vert(),
     ])
     .padding(5)
@@ -264,14 +267,20 @@ impl FinalScore {
                     Widget::col(vec![
                         msg.draw_text(ctx),
                         // TODO Adjust wording
-                        Btn::text_bg2("Keep simulating").build_def(ctx, None),
-                        Btn::text_bg2("Try again").build_def(ctx, None),
+                        ctx.style()
+                            .btn_solid_dark_text("Keep simulating")
+                            .build_def(ctx),
+                        ctx.style().btn_solid_dark_text("Try again").build_def(ctx),
                         if next_mode.is_some() {
-                            Btn::text_bg2("Next challenge").build_def(ctx, None)
+                            ctx.style()
+                                .btn_solid_dark_text("Next challenge")
+                                .build_def(ctx)
                         } else {
                             Widget::nothing()
                         },
-                        Btn::text_bg2("Back to challenges").build_def(ctx, None),
+                        ctx.style()
+                            .btn_solid_dark_text("Back to challenges")
+                            .build_def(ctx),
                     ])
                     .outline(10.0, Color::BLACK)
                     .padding(10),
@@ -337,7 +346,7 @@ impl State<App> for FinalScore {
 
         if self.chose_next {
             return Transition::Clear(vec![
-                MainMenu::new(ctx, app),
+                MainMenu::new(ctx),
                 // Constructing the cutscene doesn't require the map/scenario to be loaded.
                 SandboxMode::simple_new(ctx, app, self.next_mode.clone().unwrap()),
                 (Challenge::find(self.next_mode.as_ref().unwrap())
@@ -347,10 +356,7 @@ impl State<App> for FinalScore {
             ]);
         }
         if self.chose_back_to_challenges {
-            return Transition::Clear(vec![
-                MainMenu::new(ctx, app),
-                ChallengesPicker::new(ctx, app),
-            ]);
+            return Transition::Clear(vec![MainMenu::new(ctx), ChallengesPicker::new(ctx, app)]);
         }
 
         Transition::Keep

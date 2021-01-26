@@ -2,8 +2,8 @@ use geom::{Duration, Time};
 use map_gui::ID;
 use map_model::IntersectionID;
 use widgetry::{
-    Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor,
-    State, StyledButtons, Text, VerticalAlignment, Widget,
+    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State,
+    StyledButtons, Text, VerticalAlignment, Widget,
 };
 
 use crate::app::Transition;
@@ -38,7 +38,7 @@ impl FixTrafficSignals {
         })
     }
 
-    pub fn cutscene_pt1(ctx: &mut EventCtx, app: &App, _: &GameplayMode) -> Box<dyn State<App>> {
+    pub fn cutscene_pt1(ctx: &mut EventCtx, _: &App, _: &GameplayMode) -> Box<dyn State<App>> {
         CutsceneBuilder::new("Traffic signal survivor")
             .boss("I hope you've had your coffee. There's a huge mess downtown.")
             .player("Did two buses get tangled together again?")
@@ -79,7 +79,7 @@ impl FixTrafficSignals {
                  the worst problems first.",
             )
             .player("Sigh... it's going to be a long day.")
-            .build(ctx, app, Box::new(cutscene_pt1_task))
+            .build(ctx, Box::new(cutscene_pt1_task))
     }
 }
 
@@ -245,7 +245,7 @@ impl GameplayState for FixTrafficSignals {
         self.meter.draw(g);
     }
 
-    fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
+    fn recreate_panels(&mut self, ctx: &mut EventCtx, _app: &App) {
         if let Some(time) = self.done_at {
             self.top_center = Panel::new(Widget::col(vec![
                 challenge_header(ctx, "Traffic signal survivor"),
@@ -254,7 +254,9 @@ impl GameplayState for FixTrafficSignals {
                         .fg(Color::RED)
                         .draw(ctx)
                         .centered_vert(),
-                    Btn::text_fg("try again").build_def(ctx, None),
+                    ctx.style()
+                        .btn_outline_light_text("try again")
+                        .build_def(ctx),
                 ]),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
@@ -268,12 +270,10 @@ impl GameplayState for FixTrafficSignals {
                         THRESHOLD
                     ))
                     .draw(ctx),
-                    Btn::svg(
-                        "system/assets/tools/hint.svg",
-                        RewriteColor::Change(Color::WHITE, app.cs.hovering),
-                    )
-                    .build(ctx, "hint", None)
-                    .align_right(),
+                    ctx.style()
+                        .btn_plain_light_icon_text("system/assets/tools/lightbulb.svg", "Hint")
+                        .build_widget(ctx, "hint")
+                        .align_right(),
                 ]),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
@@ -306,7 +306,7 @@ fn make_meter(ctx: &mut EventCtx, app: &App, worst: Option<(IntersectionID, Dura
                     }),
                 ])
                 .draw(ctx),
-                app.cs
+                ctx.style()
                     .btn_plain_light_icon("system/assets/tools/location.svg")
                     .build_widget(ctx, "go to slowest intersection")
                     .align_right(),
@@ -314,7 +314,9 @@ fn make_meter(ctx: &mut EventCtx, app: &App, worst: Option<(IntersectionID, Dura
         } else {
             Widget::row(vec![
                 if app.primary.dirty_from_edits {
-                    Btn::plaintext("(!)").build(ctx, "explain score", None)
+                    ctx.style()
+                        .btn_plain_light_icon("system/assets/tools/info.svg")
+                        .build_widget(ctx, "explain score")
                 } else {
                     Widget::nothing()
                 },

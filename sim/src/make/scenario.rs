@@ -299,10 +299,10 @@ fn seed_parked_cars(
             }
         }
         if blackholed > 0 {
-            timer.warn(format!(
+            warn!(
                 "{} parked cars weren't seeded, due to blackholed buildings",
                 prettyprint_usize(blackholed)
-            ));
+            );
         }
         return;
     }
@@ -347,11 +347,11 @@ fn seed_parked_cars(
             seeded += 1;
             sim.seed_parked_car(vehicle, spot);
         } else {
-            timer.warn(format!(
+            warn!(
                 "Not enough room to seed parked cars. Only found spots for {} of {}",
                 prettyprint_usize(seeded),
                 prettyprint_usize(total_cars)
-            ));
+            );
             ok = false;
         }
     }

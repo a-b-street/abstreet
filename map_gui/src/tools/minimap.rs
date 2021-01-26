@@ -3,8 +3,8 @@ use std::marker::PhantomData;
 use abstutil::clamp;
 use geom::{Distance, Polygon, Pt2D, Ring};
 use widgetry::{
-    Btn, Drawable, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel,
-    ScreenPt, Spinner, Transition, VerticalAlignment, Widget,
+    ControlState, Drawable, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Line,
+    Outcome, Panel, ScreenPt, Spinner, StyledButtons, Transition, VerticalAlignment, Widget,
 };
 
 use crate::AppLike;
@@ -100,8 +100,11 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
         }
 
         let zoom_col = {
-            let mut col = vec![Btn::svg_def("system/assets/speed/speed_up.svg")
-                .build(ctx, "zoom in", None)
+            let mut col = vec![ctx
+                .style()
+                .btn_plain_light_icon("system/assets/speed/speed_up.svg")
+                .build_widget(ctx, "zoom in")
+                .centered_horiz()
                 .margin_below(20)];
             for i in (0..=3).rev() {
                 let color = if self.zoom_lvl < i {
@@ -110,19 +113,29 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
                     app.cs().minimap_selected_zoom
                 };
                 let rect = Polygon::rectangle(20.0, 8.0);
+
+                let default_batch = GeomBatch::from(vec![(color, rect.clone())]);
+                let hover_batch = GeomBatch::from(vec![(color.alpha(0.5), rect)]);
+
+                let level_btn = ctx
+                    .style()
+                    .btn_plain_light()
+                    .custom_batch(default_batch, ControlState::Default)
+                    .custom_batch(hover_batch, ControlState::Hovered)
+                    .padding(10);
+
                 col.push(
-                    Btn::custom(
-                        GeomBatch::from(vec![(color, rect.clone())]),
-                        GeomBatch::from(vec![(app.cs().hovering, rect.clone())]),
-                        rect,
-                        None,
-                    )
-                    .build(ctx, format!("zoom to level {}", i + 1), None)
-                    .margin_below(20),
+                    level_btn
+                        .build_widget(ctx, &format!("zoom to level {}", i + 1))
+                        .centered_horiz()
+                        .margin_below(20),
                 );
             }
             col.push(
-                Btn::svg_def("system/assets/speed/slow_down.svg").build(ctx, "zoom out", None),
+                ctx.style()
+                    .btn_plain_light_icon("system/assets/speed/slow_down.svg")
+                    .build_widget(ctx, "zoom out")
+                    .centered_horiz(),
             );
             // The zoom column should start below the "pan up" arrow. But if we put it on the row
             // with <, minimap, and > then it messes up the horizontal alignment of the
@@ -144,23 +157,34 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
             .margin_above(26)
         };
 
-        let minimap_controls = Widget::col(vec![
-            Btn::svg_def("system/assets/minimap/up.svg")
-                .build(ctx, "pan up", None)
-                .centered_horiz(),
-            Widget::row(vec![
-                Btn::svg_def("system/assets/minimap/left.svg")
-                    .build(ctx, "pan left", None)
-                    .centered_vert(),
-                Filler::square_width(ctx, 0.15).named("minimap"),
-                Btn::svg_def("system/assets/minimap/right.svg")
-                    .build(ctx, "pan right", None)
-                    .centered_vert(),
-            ]),
-            Btn::svg_def("system/assets/minimap/down.svg")
-                .build(ctx, "pan down", None)
-                .centered_horiz(),
-        ]);
+        let minimap_controls = {
+            let buttons = ctx.style().btn_plain_light().padding(4);
+            Widget::col(vec![
+                buttons
+                    .clone()
+                    .image_path("system/assets/minimap/up.svg")
+                    .build_widget(ctx, "pan up")
+                    .centered_horiz(),
+                Widget::row(vec![
+                    buttons
+                        .clone()
+                        .image_path("system/assets/minimap/left.svg")
+                        .build_widget(ctx, "pan left")
+                        .centered_vert(),
+                    Filler::square_width(ctx, 0.15).named("minimap"),
+                    buttons
+                        .clone()
+                        .image_path("system/assets/minimap/right.svg")
+                        .build_widget(ctx, "pan right")
+                        .centered_vert(),
+                ]),
+                buttons
+                    .clone()
+                    .image_path("system/assets/minimap/down.svg")
+                    .build_widget(ctx, "pan down")
+                    .centered_horiz(),
+            ])
+        };
 
         self.panel = Panel::new(Widget::row(vec![
             self.controls.make_zoomed_side_panel(ctx, app),

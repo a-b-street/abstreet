@@ -63,6 +63,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
         ("seattle", "north_seattle") => "North Seattle",
         ("seattle", "phinney") => "Phinney Ridge",
         ("seattle", "qa") => "Queen Anne",
+        ("seattle", "rainier_valley") => "Rainier Valley",
         ("seattle", "slu") => "South Lake Union",
         ("seattle", "south_seattle") => "South Seattle",
         ("seattle", "udistrict") => "University District",
@@ -93,7 +94,6 @@ pub fn nice_map_name(name: &MapName) -> &str {
         ("salzburg", "west") => "Salzburg (west)",
         ("tel_aviv", "center") => "Tel Aviv (city center)",
         ("warsaw", "center") => "Warsaw (city center)",
-        ("xian", "center") => "Xi'an (city center)",
         _ => &name.map,
     }
 }

@@ -211,11 +211,11 @@ impl Settings {
         self
     }
 
-    /// When calling `Widget::draw_svg`, `Btn::svg`, and similar, use this function to transform
-    /// the filename given to the raw bytes of that SVG file. By default, this just reads the
-    /// file normally. You may want to override this to more conveniently locate the file
-    /// (transforming a short filename to a full path) or to handle reading files in WASM (where
-    /// regular filesystem IO doesn't work).
+    /// When calling `Widget::draw_svg`, `ButtonBuilder::image_path`, and similar, use this function
+    /// to transform the filename given to the raw bytes of that SVG file. By default, this just
+    /// reads the file normally. You may want to override this to more conveniently locate the
+    /// file (transforming a short filename to a full path) or to handle reading files in WASM
+    /// (where regular filesystem IO doesn't work).
     pub fn read_svg(mut self, function: Box<dyn Fn(&str) -> Vec<u8>>) -> Self {
         self.read_svg = function;
         self

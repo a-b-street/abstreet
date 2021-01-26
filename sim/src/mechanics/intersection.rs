@@ -49,7 +49,7 @@ pub(crate) struct IntersectionSimState {
     blocked_by_someone_requests: usize,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 struct State {
     id: IntersectionID,
     // The in-progress turns which any potential new turns must not conflict with
@@ -68,7 +68,7 @@ struct State {
     signal: Option<SignalState>,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 struct SignalState {
     // The current stage of the signal, zero based
     current_stage: usize,
@@ -456,21 +456,16 @@ impl IntersectionSimState {
                     } else if let Some(c) = queue.cars.get(0) {
                         self.blocked_by.insert((car.vehicle.id, *c));
                     } else {
-                        // Nobody's in the target lane, but there's somebody already in the
-                        // intersection headed there, taking up all of the space.
-                        // I guess we shouldn't count reservations for uber-turns here, because
-                        // we're not going to do block-the-box resolution in the interior at
-                        // all?
-                        self.blocked_by.insert((
-                            car.vehicle.id,
-                            self.state[&turn.parent]
-                                .accepted
-                                .iter()
-                                .find(|r| r.turn.dst == turn.dst)
-                                .unwrap()
-                                .agent
-                                .as_car(),
-                        ));
+                        // try_to_reserve_entry must have failed because somebody has filled up
+                        // reserved_length. That only happens while a turn is in progress, so this
+                        // unwrap() must work.
+                        let blocking_req = self.state[&turn.parent]
+                            .accepted
+                            .iter()
+                            .find(|r| r.turn.dst == turn.dst)
+                            .unwrap();
+                        self.blocked_by
+                            .insert((car.vehicle.id, blocking_req.agent.as_car()));
                     }
                 }
 

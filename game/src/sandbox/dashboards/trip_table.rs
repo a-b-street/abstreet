@@ -4,7 +4,9 @@ use abstutil::prettyprint_usize;
 use geom::{Duration, Time};
 use sim::{TripEndpoint, TripID, TripMode};
 use widgetry::table::{Col, Filter, Table};
-use widgetry::{Btn, Checkbox, EventCtx, Filler, Line, Panel, State, Text, Widget};
+use widgetry::{
+    Checkbox, ControlState, EventCtx, Filler, Line, Panel, State, StyledButtons, Text, Widget,
+};
 
 use crate::app::App;
 use crate::common::{checkbox_per_mode, cmp_duration_shorter, color_for_mode};
@@ -585,20 +587,21 @@ fn trip_category_selector(ctx: &mut EventCtx, app: &App, tab: DashTab) -> Widget
     let total = finished + cancelled + unfinished;
 
     let btn = |dash, action, label| {
+        let mut button = ctx.style().btn_solid_dark_text(label);
         if dash == tab {
-            Text::from(Line(label).underlined())
-                .draw(ctx)
-                .centered_vert()
-        } else {
-            Btn::plaintext(label).build(ctx, action, None)
+            button = button
+                .disabled(true)
+                .bg_color(ctx.style().btn_solid_light.bg, ControlState::Disabled)
+                .label_styled_text(Text::from(Line(label).underlined()), ControlState::Default)
         }
+        button.build_widget(ctx, action)
     };
 
     Widget::custom_row(vec![
         btn(
             DashTab::FinishedTripTable,
             "finished trips",
-            format!(
+            &format!(
                 "{} ({:.1}%) Finished Trips",
                 prettyprint_usize(finished),
                 if total > 0 {
@@ -612,13 +615,13 @@ fn trip_category_selector(ctx: &mut EventCtx, app: &App, tab: DashTab) -> Widget
         btn(
             DashTab::CancelledTripTable,
             "cancelled trips",
-            format!("{} Cancelled Trips", prettyprint_usize(cancelled)),
+            &format!("{} Cancelled Trips", prettyprint_usize(cancelled)),
         )
         .margin_right(28),
         btn(
             DashTab::UnfinishedTripTable,
             "unfinished trips",
-            format!(
+            &format!(
                 "{} ({:.1}%) Unfinished Trips",
                 prettyprint_usize(unfinished),
                 if total > 0 {

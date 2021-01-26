@@ -38,7 +38,7 @@ use sim::{
 
 lazy_static::lazy_static! {
     static ref MAP: RwLock<Map> = RwLock::new(Map::blank());
-    static ref SIM: RwLock<Sim> = RwLock::new(Sim::new(&Map::blank(), SimOptions::new("tmp"), &mut Timer::throwaway()));
+    static ref SIM: RwLock<Sim> = RwLock::new(Sim::new(&Map::blank(), SimOptions::new("tmp")));
     static ref LOAD: RwLock<LoadSim> = RwLock::new({
         LoadSim {
             scenario: abstio::path_scenario(&MapName::seattle("montlake"), "weekday"),
@@ -202,7 +202,7 @@ fn handle_command(
                 old: map.get_i_edit(id),
                 new: EditIntersection::TrafficSignal(ts.export(map)),
             });
-            map.must_apply_edits(edits, &mut Timer::throwaway());
+            map.must_apply_edits(edits);
             map.recalculate_pathfinding_after_edits(&mut Timer::throwaway());
 
             Ok(format!("{} has been updated", id))
@@ -297,6 +297,7 @@ fn handle_command(
                 };
                 trips.push(FinishedTrip {
                     id: *id,
+                    person: sim.trip_to_person(*id).unwrap(),
                     duration: *maybe_duration,
                     distance_crossed,
                     mode: *mode,
@@ -310,10 +311,12 @@ fn handle_command(
                 .get_unzoomed_agents(map)
                 .into_iter()
                 .map(|a| AgentPosition {
+                    id: a.id,
+                    trip: sim.agent_to_trip(a.id),
+                    person: a.person,
                     vehicle_type: a.id.to_vehicle_type(),
                     pos: a.pos.to_gps(map.get_gps_bounds()),
                     distance_crossed: sim.agent_properties(map, a.id).dist_crossed,
-                    person: a.person,
                 })
                 .collect(),
         })),
@@ -327,7 +330,16 @@ fn handle_command(
                 .collect(),
         })),
         "/data/get-blocked-by-graph" => Ok(abstutil::to_json(&BlockedByGraph {
-            blocked_by: sim.get_blocked_by_graph(map),
+            blocked_by: sim
+                .get_blocked_by_graph(map)
+                .into_iter()
+                .map(|(id, (delay, cause))| {
+                    (
+                        id,
+                        (delay, cause, sim.agent_to_trip(id), sim.agent_to_person(id)),
+                    )
+                })
+                .collect(),
         })),
         "/data/trip-time-lower-bound" => {
             let id = TripID(get("id")?.parse::<usize>()?);
@@ -378,6 +390,7 @@ fn handle_command(
 #[derive(Serialize)]
 struct FinishedTrip {
     id: TripID,
+    person: PersonID,
     duration: Option<Duration>,
     distance_crossed: Distance,
     mode: TripMode,
@@ -403,6 +416,12 @@ struct AgentPositions {
 
 #[derive(Serialize)]
 struct AgentPosition {
+    /// The agent's ID
+    id: AgentID,
+    /// None for buses
+    trip: Option<TripID>,
+    /// None for buses
+    person: Option<PersonID>,
     /// None for pedestrians
     vehicle_type: Option<VehicleType>,
     /// The agent's current position. For pedestrians, this is their center. For vehicles, this
@@ -421,8 +440,6 @@ struct AgentPosition {
     /// - At the very end of a driving trip, the agent may wind up crossing slightly more or less
     ///   than the total path length, due to where they park along that last road.
     distance_crossed: Distance,
-    /// None for buses
-    person: Option<PersonID>,
 }
 
 #[derive(Serialize)]
@@ -443,9 +460,10 @@ struct TrafficSignalState {
 #[derive(Serialize)]
 struct BlockedByGraph {
     /// Each entry indicates that some agent has been stuck in one place for some amount of time,
-    /// due to being blocked by another agent or because they're waiting at an intersection.
+    /// due to being blocked by another agent or because they're waiting at an intersection. Unless
+    /// the agent is a bus, then the TripID and PersonID will also be filled out.
     #[serde(serialize_with = "serialize_btreemap")]
-    blocked_by: BTreeMap<AgentID, (Duration, DelayCause)>,
+    blocked_by: BTreeMap<AgentID, (Duration, DelayCause, Option<TripID>, Option<PersonID>)>,
 }
 
 #[derive(Deserialize)]
@@ -467,7 +485,7 @@ impl LoadSim {
         let mut map = Map::new(scenario.map_name.path(), timer);
         if let Some(perma) = self.edits.clone() {
             let edits = perma.to_edits(&map).unwrap();
-            map.must_apply_edits(edits, timer);
+            map.must_apply_edits(edits);
             map.recalculate_pathfinding_after_edits(timer);
         }
 
@@ -476,7 +494,7 @@ impl LoadSim {
         }
 
         let mut rng = XorShiftRng::seed_from_u64(self.rng_seed);
-        let mut sim = Sim::new(&map, self.opts.clone(), timer);
+        let mut sim = Sim::new(&map, self.opts.clone());
         scenario.instantiate(&mut sim, &map, &mut rng, timer);
 
         (map, sim)

@@ -36,11 +36,8 @@ pub fn main() {
         live_map_edits: args.enabled("--live_map_edits"),
     };
     let mut opts = Options::default();
+    opts.toggle_day_night_colors = true;
     opts.update_from_args(&mut args);
-    if args.enabled("--day_night") {
-        opts.toggle_day_night_colors = true;
-        opts.color_scheme = map_gui::colors::ColorSchemeChoice::NightMode;
-    }
     let mut settings = widgetry::Settings::new("A/B Street")
         .read_svg(Box::new(abstio::slurp_bytes))
         .window_icon(abstio::path("system/assets/pregame/icon.png"))
@@ -108,7 +105,7 @@ pub fn main() {
 fn setup_app(
     ctx: &mut EventCtx,
     flags: Flags,
-    opts: Options,
+    mut opts: Options,
     start_with_edits: Option<String>,
     maybe_mode: Option<GameplayMode>,
     initialize_tutorial: bool,
@@ -117,6 +114,12 @@ fn setup_app(
         && !flags.sim_flags.load.contains("player/save")
         && !flags.sim_flags.load.contains("/scenarios/")
         && maybe_mode.is_none();
+    // If we're starting directly in sandbox mode, usually time is midnight, so save some effort
+    // and start with the correct color scheme. If we're loading a savestate and it's actually
+    // daytime, we'll pay a small penalty to switch colors.
+    if !title {
+        opts.color_scheme = map_gui::colors::ColorSchemeChoice::NightMode;
+    }
     let cs = map_gui::colors::ColorScheme::new(ctx, opts.color_scheme);
 
     // SimFlags::load doesn't know how to do async IO, which we need on the web. But in the common
@@ -124,7 +127,7 @@ fn setup_app(
     if flags.sim_flags.load.contains("/maps/") {
         // Get App created with a dummy blank map
         let map = Map::blank();
-        let sim = Sim::new(&map, flags.sim_flags.opts.clone(), &mut Timer::throwaway());
+        let sim = Sim::new(&map, flags.sim_flags.opts.clone());
         let primary = crate::app::PerMap::map_loaded(
             map,
             sim,

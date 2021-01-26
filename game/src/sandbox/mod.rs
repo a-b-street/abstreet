@@ -7,13 +7,12 @@ use map_gui::colors::ColorSchemeChoice;
 use map_gui::load::{FileLoader, MapLoader};
 use map_gui::options::OptionsPanel;
 use map_gui::render::{unzoomed_agent_radius, UnzoomedAgents};
-use map_gui::theme::StyledButtons;
 use map_gui::tools::{ChooseSomething, Minimap, PopupMsg, TurnExplorer};
 use map_gui::{AppLike, ID};
 use sim::{Analytics, Scenario};
 use widgetry::{
-    lctrl, Btn, Choice, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, State, Text, TextExt, UpdateType, VerticalAlignment, Widget,
+    lctrl, Choice, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, State, StyledButtons, Text, TextExt, UpdateType, VerticalAlignment, Widget,
 };
 
 pub use self::gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};
@@ -45,6 +44,7 @@ pub struct SandboxMode {
     pub controls: SandboxControls,
 
     recalc_unzoomed_agent: Option<Time>,
+    last_cs: ColorSchemeChoice,
 }
 
 pub struct SandboxControls {
@@ -105,15 +105,17 @@ impl SandboxMode {
 impl State<App> for SandboxMode {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if app.opts.toggle_day_night_colors {
-            let cs_changed = if is_daytime(app) {
-                app.change_color_scheme(ctx, ColorSchemeChoice::Standard)
+            if is_daytime(app) {
+                app.change_color_scheme(ctx, ColorSchemeChoice::DayMode)
             } else {
                 app.change_color_scheme(ctx, ColorSchemeChoice::NightMode)
             };
-            if cs_changed {
-                self.controls.recreate_panels(ctx, app);
-                self.gameplay.recreate_panels(ctx, app);
-            }
+        }
+
+        if app.opts.color_scheme != self.last_cs {
+            self.last_cs = app.opts.color_scheme;
+            self.controls.recreate_panels(ctx, app);
+            self.gameplay.recreate_panels(ctx, app);
         }
 
         // Do this before gameplay
@@ -135,7 +137,7 @@ impl State<App> for SandboxMode {
 
         // Order here is pretty arbitrary
         if app.opts.dev && ctx.input.pressed(lctrl(Key::D)) {
-            return Transition::Push(DebugMode::new(ctx, app));
+            return Transition::Push(DebugMode::new(ctx));
         }
 
         if let Some(ref mut m) = self.controls.minimap {
@@ -295,7 +297,7 @@ struct BackToMainMenu;
 impl State<App> for BackToMainMenu {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         app.clear_everything(ctx);
-        Transition::Clear(vec![MainMenu::new(ctx, app)])
+        Transition::Clear(vec![MainMenu::new(ctx)])
     }
 
     fn draw(&self, _: &mut GfxCtx, _: &App) {}
@@ -424,15 +426,16 @@ impl AgentMeter {
                     txt.draw(ctx).centered_vert()
                 },
                 if app.primary.dirty_from_edits {
-                    Btn::svg_def("system/assets/tools/warning.svg")
-                        .build(ctx, "see why results are tentative", None)
+                    ctx.style()
+                        .btn_plain_light_icon("system/assets/tools/warning.svg")
+                        .build_widget(ctx, "see why results are tentative")
                         .centered_vert()
                         .align_right()
                 } else {
                     Widget::nothing()
                 },
-                app.cs
-                    .btn_primary_light_icon("system/assets/meters/trip_histogram.svg")
+                ctx.style()
+                    .btn_plain_light_icon("system/assets/meters/trip_histogram.svg")
                     .hotkey(Key::Q)
                     .build_widget(ctx, "more data")
                     .align_right(),
@@ -451,7 +454,10 @@ impl AgentMeter {
                 )
                 .centered_vert(),
                 format!("{} trips captured", prettyprint_usize(n)).draw_text(ctx),
-                Btn::text_bg2("Stop").build_def(ctx, None).align_right(),
+                ctx.style()
+                    .btn_solid_dark_text("Stop")
+                    .build_def(ctx)
+                    .align_right(),
             ]));
         }
 
@@ -831,6 +837,7 @@ impl State<App> for SandboxLoader {
                         gameplay,
                         gameplay_mode: self.mode.clone(),
                         recalc_unzoomed_agent: None,
+                        last_cs: app.opts.color_scheme,
                     });
 
                     let mut transitions = vec![Transition::Replace(sandbox)];
@@ -897,7 +904,7 @@ impl SandboxControls {
                 None
             },
             tool_panel: if gameplay.has_tool_panel() {
-                Some(tool_panel(ctx, app))
+                Some(tool_panel(ctx))
             } else {
                 None
             },
@@ -926,7 +933,7 @@ impl SandboxControls {
 
     fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
         if self.tool_panel.is_some() {
-            self.tool_panel = Some(tool_panel(ctx, app));
+            self.tool_panel = Some(tool_panel(ctx));
         }
         if let Some(ref mut speed) = self.speed {
             speed.recreate_panel(ctx, app);

@@ -21,6 +21,7 @@ geojson = "0.21.0"
 geom = { path = "../geom" }
 gdal = { version = "0.7.0", optional = true }
 kml = { path = "../kml" }
+log = "0.4.11"
 map_model = { path = "../map_model" }
 popdat = { path = "../popdat" }
 rand = "0.8.1"

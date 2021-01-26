@@ -2,7 +2,6 @@ use std::collections::HashMap;
 
 use anyhow::Result;
 
-use abstutil::Timer;
 use geom::{HashablePt2D, Polygon, Pt2D};
 use map_model::osm::{NodeID, OsmID, RelationID, WayID};
 use map_model::raw::{OriginalRoad, RawBusRoute, RawBusStop, RawMap};
@@ -15,7 +14,6 @@ pub fn extract_route(
     rel: &Relation,
     doc: &Document,
     boundary: &Polygon,
-    timer: &mut Timer,
 ) -> Option<RawBusRoute> {
     let full_name = rel.tags.get("name")?.clone();
     let short_name = rel
@@ -98,10 +96,7 @@ pub fn extract_route(
             .map(|osm_node_id| (osm_node_id, doc.nodes[&osm_node_id].pt))
             .collect(),
         Err(err) => {
-            timer.error(format!(
-                "Skipping route {} ({}): {}",
-                rel_id, full_name, err
-            ));
+            error!("Skipping route {} ({}): {}", rel_id, full_name, err);
             return None;
         }
     };
@@ -204,7 +199,6 @@ pub fn snap_bus_stops(
     mut route: RawBusRoute,
     raw: &mut RawMap,
     pt_to_road: &HashMap<HashablePt2D, OriginalRoad>,
-    timer: &mut Timer,
 ) -> Result<RawBusRoute> {
     // TODO RawBusStop should have an osm_node_id()
 
@@ -314,10 +308,10 @@ pub fn snap_bus_stops(
             } else {
                 continue;
             }
-            timer.note(format!(
+            info!(
                 "Inferring a sidewalk on {} for bus stop {}",
                 road, stop.vehicle_pos.0
-            ));
+            );
         }
     }
     Ok(route)

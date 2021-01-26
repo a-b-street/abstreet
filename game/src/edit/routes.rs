@@ -1,7 +1,7 @@
 use geom::{Duration, Time};
 use map_model::{BusRouteID, EditCmd};
 use widgetry::{
-    Btn, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Spinner, State,
+    EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Spinner, State,
     StyledButtons, TextExt, VerticalAlignment, Widget,
 };
 
@@ -31,7 +31,10 @@ impl RouteEditor {
                     "Frequency in minutes".draw_text(ctx),
                     Spinner::new(ctx, (1, 120), 60).named("freq_mins"),
                 ]),
-                Btn::text_bg2("Apply").build_def(ctx, Key::Enter),
+                ctx.style()
+                    .btn_solid_dark_text("Apply")
+                    .hotkey(Key::Enter)
+                    .build_def(ctx),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),

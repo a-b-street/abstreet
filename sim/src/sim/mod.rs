@@ -200,11 +200,11 @@ impl SimOptions {
 
 // Setup
 impl Sim {
-    pub fn new(map: &Map, opts: SimOptions, timer: &mut Timer) -> Sim {
+    pub fn new(map: &Map, opts: SimOptions) -> Sim {
         let mut scheduler = Scheduler::new();
         Sim {
             driving: DrivingSimState::new(map, &opts),
-            parking: ParkingSimState::new(map, opts.infinite_parking, timer),
+            parking: ParkingSimState::new(map, opts.infinite_parking),
             walking: WalkingSimState::new(),
             intersections: IntersectionSimState::new(map, &mut scheduler, &opts),
             transit: TransitSimState::new(map),
@@ -487,6 +487,10 @@ impl Sim {
                     {
                         // Starting the car failed for some reason.
                         if retry_if_no_room {
+                            // Although the agent isn't on the map yet, they're trying.
+                            if let Some((trip, _)) = trip_and_person {
+                                self.trips.agent_starting_trip_leg(AgentID::Car(id), trip);
+                            }
                             self.driving.vehicle_waiting_to_spawn(
                                 id,
                                 req.start,
@@ -498,9 +502,7 @@ impl Sim {
                                 self.time + BLIND_RETRY_TO_SPAWN,
                                 Command::SpawnCar(create_car, retry_if_no_room),
                             );
-                        } else {
-                            // Buses don't use Command::SpawnCar, so this must exist.
-                            let (trip, person) = create_car.trip_and_person.unwrap();
+                        } else if let Some((trip, person)) = create_car.trip_and_person {
                             self.trips.cancel_trip(
                                 self.time,
                                 trip,
@@ -931,8 +933,7 @@ impl Sim {
         }
 
         let num_evicted = {
-            let (evicted_cars, cars_parking_in_the_void) =
-                self.parking.handle_live_edits(map, &mut Timer::throwaway());
+            let (evicted_cars, cars_parking_in_the_void) = self.parking.handle_live_edits(map);
             let num_evicted = evicted_cars.len();
             affected.extend(self.walking.find_trips_to_parking(evicted_cars));
             for car in cars_parking_in_the_void {

@@ -484,11 +484,7 @@ impl map_gui::AppLike for App {
     }
 
     fn map_switched(&mut self, ctx: &mut EventCtx, map: Map, timer: &mut Timer) {
-        let sim = Sim::new(
-            &map,
-            self.primary.current_flags.sim_flags.opts.clone(),
-            timer,
-        );
+        let sim = Sim::new(&map, self.primary.current_flags.sim_flags.opts.clone());
 
         CameraState::save(ctx.canvas, self.primary.map.get_name());
         self.primary = PerMap::map_loaded(
@@ -671,11 +667,7 @@ impl PerMap {
         self.dirty_from_edits = false;
         std::mem::replace(
             &mut self.sim,
-            Sim::new(
-                &self.map,
-                self.current_flags.sim_flags.opts.clone(),
-                &mut Timer::new("reset simulation"),
-            ),
+            Sim::new(&self.map, self.current_flags.sim_flags.opts.clone()),
         )
     }
 

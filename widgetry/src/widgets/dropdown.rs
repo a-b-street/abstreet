@@ -1,8 +1,8 @@
-use geom::{Distance, Polygon, Pt2D};
+use geom::{CornerRadii, Distance, Polygon, Pt2D};
 
 use crate::{
-    Button, Choice, Color, ControlState, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Menu, Outcome,
-    ScreenDims, ScreenPt, ScreenRectangle, WidgetImpl, WidgetOutput,
+    Button, Choice, Color, ControlState, CornerRounding, EdgeInsets, EventCtx, GeomBatch, GfxCtx,
+    Menu, Outcome, ScreenDims, ScreenPt, ScreenRectangle, StyledButtons, WidgetImpl, WidgetOutput,
 };
 
 pub struct Dropdown<T: Clone> {
@@ -135,7 +135,7 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
             let pad = 5.0;
             let width = m.get_dims().width + 2.0 * pad;
             let height = m.get_dims().height + 2.0 * pad;
-            let rect = Polygon::rounded_rectangle(width, height, Some(5.0));
+            let rect = Polygon::rounded_rectangle(width, height, 5.0);
             let draw_bg = g.upload(GeomBatch::from(vec![
                 (Color::grey(0.3), rect.clone()),
                 (
@@ -174,21 +174,25 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
 }
 
 fn make_btn(ctx: &EventCtx, label: &str, tooltip: &str, is_persisten_split: bool) -> Button {
-    use crate::StyledButtons;
     // If we want to make Dropdown configurable, pass in or expose its button builder?
-    let mut builder = ctx.style().btn_primary_light_dropdown();
+    let mut builder = ctx.style().btn_solid_dark_dropdown();
     if is_persisten_split {
         // Quick hacks to make PersistentSplit's dropdown look a little better.
         // It's not ideal, but we only use one persistent split in the whole app
         // and it's front and center - we'll notice if something breaks.
         builder = builder
             .padding(EdgeInsets {
-                top: 13.0,
-                bottom: 13.0,
+                top: 15.0,
+                bottom: 15.0,
                 left: 8.0,
                 right: 8.0,
             })
-            .bg_color(Color::CLEAR, ControlState::Default)
+            .corner_rounding(CornerRounding::CornerRadii(CornerRadii {
+                top_left: 0.0,
+                bottom_left: 0.0,
+                bottom_right: 2.0,
+                top_right: 2.0,
+            }))
             .outline(0.0, Color::CLEAR, ControlState::Default);
     } else {
         builder = builder.label_text(label);

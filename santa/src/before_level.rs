@@ -11,8 +11,9 @@ use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use map_model::BuildingID;
 use widgetry::{
-    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, RewriteColor, State, Text, TextExt, VerticalAlignment, Widget,
+    ButtonBuilder, Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
+    Key, Line, Outcome, Panel, RewriteColor, State, StyledButtons, Text, TextExt,
+    VerticalAlignment, Widget,
 };
 
 use crate::buildings::{BldgState, Buildings};
@@ -74,7 +75,7 @@ impl Picker {
                 let instructions_panel = Panel::new(Widget::col(vec![
                     txt.draw(ctx),
                     Widget::row(vec![
-                        Widget::draw_svg(ctx, "system/assets/tools/arrow_keys.svg"),
+                        Widget::draw_svg(ctx, "../widgetry/icons/arrow_keys.svg"),
                         Text::from_all(vec![
                             Line("arrow keys").fg(ctx.style().hotkey_color),
                             Line(" to move (or "),
@@ -249,10 +250,12 @@ fn make_vehicle_panel(ctx: &mut EventCtx, app: &App) -> Panel {
                     .padding(5)
                     .outline(2.0, Color::WHITE)
             } else {
-                let hitbox = batch.get_bounds().get_rectangle();
                 let normal = batch.clone().color(RewriteColor::MakeGrayscale);
                 let hovered = batch;
-                Btn::custom(normal, hovered, hitbox, None).build(ctx, name, None)
+                ButtonBuilder::new()
+                    .custom_batch(normal, ControlState::Default)
+                    .custom_batch(hovered, ControlState::Hovered)
+                    .build_widget(ctx, name)
             }
             .centered_vert(),
         );
@@ -296,8 +299,10 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
     // Don't overwhelm players on the very first level.
     if app.session.upzones_unlocked == 0 {
         return Panel::new(
-            Btn::text_bg2("Start game")
-                .build_def(ctx, Key::Enter)
+            ctx.style()
+                .btn_solid_dark_text("Start game")
+                .hotkey(Key::Enter)
+                .build_def(ctx)
                 .container(),
         )
         .aligned(
@@ -310,8 +315,9 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
     Panel::new(Widget::col(vec![
         Widget::row(vec![
             Line("Upzoning").small_heading().draw(ctx),
-            Btn::svg_def("system/assets/tools/info.svg")
-                .build(ctx, "help", None)
+            ctx.style()
+                .btn_plain_light_icon("system/assets/tools/info.svg")
+                .build_widget(ctx, "help")
                 .align_right(),
         ]),
         Widget::row(vec![
@@ -325,22 +331,26 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
             make_bar(ctx, Color::PINK, num_picked, app.session.upzones_unlocked),
         ]),
         Widget::row(vec![
-            if num_picked == app.session.upzones_unlocked {
-                Btn::text_fg("Randomly choose upzones").inactive(ctx)
-            } else {
-                Btn::text_fg("Randomly choose upzones").build_def(ctx, None)
-            },
-            if num_picked == 0 {
-                Btn::text_fg("Clear upzones").inactive(ctx)
-            } else {
-                Btn::text_fg("Clear upzones").build_def(ctx, None)
-            }
-            .align_right(),
+            ctx.style()
+                .btn_outline_light_text("Randomly choose upzones")
+                .disabled(num_picked == app.session.upzones_unlocked)
+                .build_def(ctx),
+            ctx.style()
+                .btn_outline_light_text("Clear upzones")
+                .disabled(num_picked == 0)
+                .build_def(ctx)
+                .align_right(),
         ]),
         if num_picked == app.session.upzones_unlocked {
-            Btn::text_bg2("Start game").build_def(ctx, Key::Enter)
+            ctx.style()
+                .btn_solid_dark_text("Start game")
+                .hotkey(Key::Enter)
+                .build_def(ctx)
         } else {
-            Btn::text_bg2("Finish upzoning before playing").inactive(ctx)
+            ctx.style()
+                .btn_solid_dark_text("Finish upzoning before playing")
+                .disabled(true)
+                .build_def(ctx)
         },
     ]))
     .aligned(

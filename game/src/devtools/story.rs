@@ -4,7 +4,7 @@ use geom::{Distance, LonLat, PolyLine, Polygon, Pt2D, Ring};
 use map_gui::render::DrawOptions;
 use map_gui::tools::{ChooseSomething, PromptInput};
 use widgetry::{
-    lctrl, Btn, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
+    lctrl, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, StyledButtons, Text,
     VerticalAlignment, Widget,
 };
@@ -226,9 +226,9 @@ impl State<App> for StoryMapEditor {
                         },
                     ));
 
-                    return Transition::Push(ChooseSomething::new_below(
+                    return Transition::Push(ChooseSomething::new(
                         ctx,
-                        self.panel.rect_of("load"),
+                        "Load story",
                         choices,
                         Box::new(|story, _, _| {
                             Transition::Multi(vec![
@@ -296,7 +296,7 @@ impl State<App> for StoryMapEditor {
 
         for (idx, m) in self.story.markers.iter().enumerate() {
             if self.hovering == Some(idx) {
-                m.draw_hovered(g, app);
+                m.draw_hovered(g);
             } else {
                 g.redraw(&m.draw);
             }
@@ -312,49 +312,33 @@ fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) ->
         Widget::row(vec![
             Line("Story map editor").small_heading().draw(ctx),
             Widget::vert_separator(ctx, 30.0),
-            Btn::pop_up(ctx, Some(&story.name)).build(ctx, "load", lctrl(Key::L)),
-            if dirty {
-                Btn::svg_def("system/assets/tools/save.svg").build(ctx, "save", lctrl(Key::S))
-            } else {
-                Widget::draw_svg_transform(
-                    ctx,
-                    "system/assets/tools/save.svg",
-                    RewriteColor::ChangeAlpha(0.5),
-                )
-            },
+            ctx.style()
+                .btn_outline_light_popup(&story.name)
+                .hotkey(lctrl(Key::L))
+                .build_widget(ctx, "load"),
+            ctx.style()
+                .btn_solid_light_icon("system/assets/tools/save.svg")
+                .hotkey(lctrl(Key::S))
+                .disabled(!dirty)
+                .build_widget(ctx, "save"),
             ctx.style().btn_close_widget(ctx),
         ]),
         Widget::row(vec![
-            if let Mode::PlacingMarker = mode {
-                Widget::draw_svg_transform(
-                    ctx,
-                    "system/assets/timeline/goal_pos.svg",
-                    RewriteColor::Change(Color::hex("#5B5B5B"), Color::hex("#4CA7E9")),
-                )
-            } else {
-                Btn::svg_def("system/assets/timeline/goal_pos.svg").build(ctx, "new marker", Key::M)
-            },
-            if let Mode::View = mode {
-                Widget::draw_svg_transform(
-                    ctx,
-                    "system/assets/tools/pan.svg",
-                    RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
-                )
-            } else {
-                Btn::svg_def("system/assets/tools/pan.svg").build(ctx, "pan", Key::Escape)
-            },
-            match mode {
-                Mode::Freehand(_) => Widget::draw_svg_transform(
-                    ctx,
-                    "system/assets/tools/select.svg",
-                    RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
-                ),
-                _ => Btn::svg_def("system/assets/tools/select.svg").build(
-                    ctx,
-                    "draw freehand",
-                    Key::P,
-                ),
-            },
+            ctx.style()
+                .btn_plain_light_icon("system/assets/timeline/goal_pos.svg")
+                .disabled(matches!(mode, Mode::PlacingMarker))
+                .hotkey(Key::M)
+                .build_widget(ctx, "new marker"),
+            ctx.style()
+                .btn_plain_light_icon("system/assets/tools/pan.svg")
+                .disabled(matches!(mode, Mode::View))
+                .hotkey(Key::Escape)
+                .build_widget(ctx, "pan"),
+            ctx.style()
+                .btn_plain_light_icon("system/assets/tools/select.svg")
+                .disabled(matches!(mode, Mode::Freehand(_)))
+                .hotkey(Key::P)
+                .build_widget(ctx, "draw freehand"),
         ])
         .evenly_spaced(),
     ]))
@@ -467,14 +451,14 @@ impl Marker {
         }
     }
 
-    fn draw_hovered(&self, g: &mut GfxCtx, app: &App) {
+    fn draw_hovered(&self, g: &mut GfxCtx) {
         let mut batch = GeomBatch::new();
         if self.pts.len() == 1 {
             batch.append(
                 GeomBatch::load_svg(g, "system/assets/timeline/goal_pos.svg")
                     .scale(2.0)
                     .centered_on(self.pts[0])
-                    .color(RewriteColor::Change(Color::hex("#5B5B5B"), app.cs.hovering)),
+                    .color(RewriteColor::Change(Color::hex("#5B5B5B"), Color::RED)),
             );
             batch.append(
                 Text::from(Line(&self.event))
@@ -484,10 +468,7 @@ impl Marker {
                     .centered_on(self.pts[0]),
             );
         } else {
-            batch.push(
-                app.cs.hovering,
-                Ring::must_new(self.pts.clone()).to_polygon(),
-            );
+            batch.push(Color::RED, Ring::must_new(self.pts.clone()).to_polygon());
             // TODO Refactor plz
             batch.append(
                 Text::from(Line(&self.event))
@@ -506,9 +487,12 @@ impl Marker {
                 Line("Editing marker").small_heading().draw(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
-            Btn::text_fg("delete").build_def(ctx, None),
+            ctx.style().btn_outline_light_text("delete").build_def(ctx),
             Widget::text_entry(ctx, self.event.clone(), true).named("event"),
-            Btn::text_fg("confirm").build_def(ctx, Key::Enter),
+            ctx.style()
+                .btn_outline_light_text("confirm")
+                .hotkey(Key::Enter)
+                .build_def(ctx),
         ]))
         .build(ctx)
     }

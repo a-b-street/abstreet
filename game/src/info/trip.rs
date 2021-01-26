@@ -7,8 +7,8 @@ use map_gui::ID;
 use map_model::{Map, Path, PathStep};
 use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhase, TripPhaseType};
 use widgetry::{
-    Btn, Color, DrawWithTooltips, EventCtx, GeomBatch, Line, LinePlot, PlotOptions, RewriteColor,
-    Series, Text, TextExt, Widget,
+    Color, ControlState, DrawWithTooltips, EventCtx, GeomBatch, Line, LinePlot, PlotOptions,
+    RewriteColor, Series, StyledButtons, Text, TextExt, Widget,
 };
 
 use crate::app::App;
@@ -252,18 +252,18 @@ pub fn finished(
             Tab::PersonTrips(person, open),
         );
         col.push(
-            Btn::text_bg(
-                format!("show before changes for {}", id),
-                Text::from_all(vec![
-                    Line("After / "),
-                    Line("Before").secondary(),
-                    Line(" "),
-                    Line(&app.primary.map.get_edits().edits_name).underlined(),
-                ]),
-                app.cs.section_bg,
-                app.cs.hovering,
-            )
-            .build_def(ctx, None),
+            ctx.style()
+                .btn_solid_light()
+                .label_styled_text(
+                    Text::from_all(vec![
+                        Line("After / "),
+                        Line("Before").secondary(),
+                        Line(" "),
+                        Line(&app.primary.map.get_edits().edits_name).underlined(),
+                    ]),
+                    ControlState::Default,
+                )
+                .build_widget(ctx, &format!("show before changes for {}", id)),
         );
     } else if app.has_prebaked().is_some() {
         let mut open = open_trips.clone();
@@ -273,18 +273,18 @@ pub fn finished(
             Tab::PersonTrips(person, open),
         );
         col.push(
-            Btn::text_bg(
-                format!("show after changes for {}", id),
-                Text::from_all(vec![
-                    Line("After / ").secondary(),
-                    Line("Before"),
-                    Line(" "),
-                    Line(&app.primary.map.get_edits().edits_name).underlined(),
-                ]),
-                app.cs.section_bg,
-                app.cs.hovering,
-            )
-            .build_def(ctx, None),
+            ctx.style()
+                .btn_solid_light()
+                .label_styled_text(
+                    Text::from_all(vec![
+                        Line("After / ").secondary(),
+                        Line("Before"),
+                        Line(" "),
+                        Line(&app.primary.map.get_edits().edits_name).underlined(),
+                    ]),
+                    ControlState::Default,
+                )
+                .build_widget(ctx, &format!("show after changes for {}", id)),
         );
     }
 
@@ -693,12 +693,10 @@ fn make_trip_details(
                 .centered_on(center),
         );
 
-        Btn::svg(
-            "system/assets/timeline/start_pos.svg",
-            RewriteColor::Change(Color::WHITE, app.cs.hovering),
-        )
-        .tooltip(Text::from(Line(name)))
-        .build(ctx, format!("jump to start of {}", trip_id), None)
+        ctx.style()
+            .btn_plain_light_icon("system/assets/timeline/start_pos.svg")
+            .tooltip(Text::from(Line(name)))
+            .build_widget(ctx, &format!("jump to start of {}", trip_id))
     };
 
     let goal_btn = {
@@ -727,12 +725,10 @@ fn make_trip_details(
                 .centered_on(center),
         );
 
-        Btn::svg(
-            "system/assets/timeline/goal_pos.svg",
-            RewriteColor::Change(Color::WHITE, app.cs.hovering),
-        )
-        .tooltip(Text::from(Line(name)))
-        .build(ctx, format!("jump to goal of {}", trip_id), None)
+        ctx.style()
+            .btn_plain_light_icon("system/assets/timeline/goal_pos.svg")
+            .tooltip(Text::from(Line(name)))
+            .build_widget(ctx, &format!("jump to goal of {}", trip_id))
     };
 
     let timeline = make_timeline(ctx, app, trip_id, &phases, progress_along_path);
@@ -802,18 +798,16 @@ fn make_trip_details(
                     format!("jump to {}", trip.departure),
                     (trip_id, trip.departure),
                 );
-                Btn::svg(
-                    "system/assets/speed/info_jump_to_time.svg",
-                    RewriteColor::Change(Color::WHITE, app.cs.hovering),
-                )
-                .tooltip({
-                    let mut txt = Text::from(Line("This will jump to "));
-                    txt.append(Line(trip.departure.ampm_tostring()).fg(Color::hex("#F9EC51")));
-                    txt.add(Line("The simulation will continue, and your score"));
-                    txt.add(Line("will be calculated at this new time."));
-                    txt
-                })
-                .build(ctx, format!("jump to {}", trip.departure), None)
+                ctx.style()
+                    .btn_plain_light_icon("system/assets/speed/jump_to_time.svg")
+                    .tooltip({
+                        let mut txt = Text::from(Line("This will jump to "));
+                        txt.append(Line(trip.departure.ampm_tostring()).fg(Color::hex("#F9EC51")));
+                        txt.add(Line("The simulation will continue, and your score"));
+                        txt.add(Line("will be calculated at this new time."));
+                        txt
+                    })
+                    .build_widget(ctx, &format!("jump to {}", trip.departure))
             } else {
                 Widget::nothing()
             },
@@ -822,19 +816,17 @@ fn make_trip_details(
                     details
                         .time_warpers
                         .insert(format!("jump to {}", t), (trip_id, t));
-                    Btn::svg(
-                        "system/assets/speed/info_jump_to_time.svg",
-                        RewriteColor::Change(Color::WHITE, app.cs.hovering),
-                    )
-                    .tooltip({
-                        let mut txt = Text::from(Line("This will jump to "));
-                        txt.append(Line(t.ampm_tostring()).fg(Color::hex("#F9EC51")));
-                        txt.add(Line("The simulation will continue, and your score"));
-                        txt.add(Line("will be calculated at this new time."));
-                        txt
-                    })
-                    .build(ctx, format!("jump to {}", t), None)
-                    .align_right()
+                    ctx.style()
+                        .btn_plain_light_icon("system/assets/speed/jump_to_time.svg")
+                        .tooltip({
+                            let mut txt = Text::from(Line("This will jump to "));
+                            txt.append(Line(t.ampm_tostring()).fg(Color::hex("#F9EC51")));
+                            txt.add(Line("The simulation will continue, and your score"));
+                            txt.add(Line("will be calculated at this new time."));
+                            txt
+                        })
+                        .build_widget(ctx, &format!("jump to {}", t))
+                        .align_right()
                 } else {
                     Widget::nothing()
                 }

@@ -10,7 +10,7 @@ use map_model::{
     TurnPriority,
 };
 use widgetry::{
-    lctrl, Btn, Color, ControlState, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
+    lctrl, Color, ControlState, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, MultiButton, Outcome, Panel, RewriteColor, State,
     StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
@@ -494,33 +494,25 @@ impl State<App> for TrafficSignalEditor {
 
 fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool) -> Panel {
     let row = vec![
-        Btn::text_bg2("Finish").build_def(ctx, Key::Enter),
-        Btn::text_bg2("Preview").build_def(ctx, lctrl(Key::P)),
-        (if can_undo {
-            Btn::svg_def("system/assets/tools/undo.svg").build(ctx, "undo", lctrl(Key::Z))
-        } else {
-            Widget::draw_svg_transform(
-                ctx,
-                "system/assets/tools/undo.svg",
-                RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
-            )
-        })
-        .centered_vert(),
-        (if can_redo {
-            Btn::svg_def("system/assets/tools/redo.svg").build(
-                ctx,
-                "redo",
-                // TODO ctrl+shift+Z!
-                lctrl(Key::Y),
-            )
-        } else {
-            Widget::draw_svg_transform(
-                ctx,
-                "system/assets/tools/redo.svg",
-                RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
-            )
-        })
-        .centered_vert(),
+        ctx.style()
+            .btn_solid_dark_text("Finish")
+            .hotkey(Key::Enter)
+            .build_def(ctx),
+        ctx.style()
+            .btn_solid_dark_text("Preview")
+            .hotkey(lctrl(Key::P))
+            .build_def(ctx),
+        ctx.style()
+            .btn_plain_light_icon("system/assets/tools/undo.svg")
+            .disabled(!can_undo)
+            .hotkey(lctrl(Key::Z))
+            .build_widget(ctx, "undo"),
+        ctx.style()
+            .btn_plain_light_icon("system/assets/tools/redo.svg")
+            .disabled(!can_redo)
+            // TODO ctrl+shift+Z!
+            .hotkey(lctrl(Key::Y))
+            .build_widget(ctx, "redo"),
         ctx.style()
             .btn_plain_destructive_text("Cancel")
             .hotkey(Key::Escape)
@@ -538,7 +530,8 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
         ]),
         Widget::row(row),
         if app.opts.dev {
-            Btn::text_fg("Export")
+            ctx.style()
+                .btn_outline_light_text("Export")
                 .tooltip(Text::from_multiline(vec![
                     Line("This will create a JSON file in traffic_signal_data/.").small(),
                     Line(
@@ -547,7 +540,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
                     )
                     .small(),
                 ]))
-                .build_def(ctx, None)
+                .build_def(ctx)
         } else {
             Widget::nothing()
         },
@@ -609,9 +602,19 @@ fn make_side_panel(
     );
 
     if members.len() == 1 {
-        col.push(Btn::text_bg2("Edit entire signal").build_def(ctx, Key::E));
+        col.push(
+            ctx.style()
+                .btn_solid_dark_text("Edit entire signal")
+                .hotkey(Key::E)
+                .build_def(ctx),
+        );
     } else {
-        col.push(Btn::text_bg2("Tune offsets between signals").build_def(ctx, Key::O));
+        col.push(
+            ctx.style()
+                .btn_solid_dark_text("Tune offsets between signals")
+                .hotkey(Key::O)
+                .build_def(ctx),
+        );
     }
 
     let translations = squish_polygons_together(
@@ -624,18 +627,20 @@ fn make_side_panel(
     for (idx, canonical_stage) in canonical_signal.stages.iter().enumerate() {
         let stage_btn = draw_multiple_signals(ctx, app, members, idx, &translations);
 
+        let up_button = ctx
+            .style()
+            .btn_solid_light_icon("../widgetry/icons/arrow_up.svg")
+            .disabled(idx == 0);
+
+        let down_button = ctx
+            .style()
+            .btn_solid_light_icon("../widgetry/icons/arrow_down.svg")
+            .disabled(idx == canonical_signal.stages.len() - 1);
+
         let stage_controls = Widget::row(vec![
             Widget::col(vec![
-                if idx == 0 {
-                    Btn::plaintext("↑").inactive(ctx)
-                } else {
-                    Btn::plaintext("↑").build(ctx, format!("move up stage {}", idx + 1), None)
-                },
-                if idx == canonical_signal.stages.len() - 1 {
-                    Btn::plaintext("↓").inactive(ctx)
-                } else {
-                    Btn::plaintext("↓").build(ctx, format!("move down stage {}", idx + 1), None)
-                },
+                up_button.build_widget(ctx, &format!("move up stage {}", idx + 1)),
+                down_button.build_widget(ctx, &format!("move down stage {}", idx + 1)),
             ])
             .centered_vert(),
             Widget::col(vec![
@@ -650,15 +655,23 @@ fn make_side_panel(
                             additional
                         ),
                     }
-                    .draw_text(ctx),
-                    Btn::svg_def("system/assets/tools/edit.svg").build(
-                        ctx,
-                        format!("change duration of stage {}", idx + 1),
-                        if selected == idx { Key::X.into() } else { None },
-                    ),
+                    .draw_text(ctx)
+                    .centered_vert(),
+                    {
+                        let mut button = ctx
+                            .style()
+                            .btn_plain_light_icon("system/assets/tools/pencil.svg");
+                        if selected == idx {
+                            button = button.hotkey(Key::X);
+                        }
+                        button
+                            .build_widget(ctx, &format!("change duration of stage {}", idx + 1))
+                            .align_right()
+                    },
                     if canonical_signal.stages.len() > 1 {
-                        Btn::svg_def("system/assets/tools/delete.svg")
-                            .build(ctx, format!("delete stage {}", idx + 1), None)
+                        ctx.style()
+                            .btn_solid_destructive_icon("system/assets/tools/trash.svg")
+                            .build_widget(ctx, &format!("delete stage {}", idx + 1))
                             .align_right()
                     } else {
                         Widget::nothing()
@@ -677,8 +690,9 @@ fn make_side_panel(
     }
 
     col.push(
-        Btn::text_bg2("Add a new stage")
-            .build_def(ctx, None)
+        ctx.style()
+            .btn_solid_dark_text("Add a new stage")
+            .build_def(ctx)
             .centered_horiz(),
     );
 

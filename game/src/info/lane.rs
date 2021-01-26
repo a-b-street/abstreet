@@ -48,7 +48,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
             format!(
                 "{} / {} spots available",
                 app.primary.sim.get_free_onstreet_spots(l.id).len(),
-                l.number_parking_spots()
+                l.number_parking_spots(app.primary.map.get_config())
             ),
         ));
     } else {
@@ -60,7 +60,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
     rows.extend(make_table(ctx, kv));
 
     if l.is_parking() {
-        let capacity = l.number_parking_spots();
+        let capacity = l.number_parking_spots(app.primary.map.get_config());
         let mut series = vec![Series {
             label: format!("After \"{}\"", app.primary.map.get_edits().edits_name),
             color: app.cs.after_changes,
@@ -167,7 +167,7 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
 
     rows.push(
         ctx.style()
-            .btn_primary_light_text("Open OSM way")
+            .btn_solid_dark_text("Open OSM way")
             .build_widget(ctx, &format!("open {}", r.orig_id.osm_way_id)),
     );
 
@@ -251,7 +251,7 @@ fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID, tab: Tab
         Line(format!("{} #{}", label, id.0))
             .small_heading()
             .draw(ctx),
-        header_btns(ctx, app),
+        header_btns(ctx),
     ]));
     rows.push(format!("@ {}", r.get_name(app.opts.language.as_ref())).draw_text(ctx));
 

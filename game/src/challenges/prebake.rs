@@ -44,7 +44,7 @@ fn prebake(map: &Map, scenario: Scenario, time_limit: Option<Duration>, timer: &
 
     let mut opts = SimOptions::new("prebaked");
     opts.alerts = AlertHandler::Silence;
-    let mut sim = Sim::new(&map, opts, timer);
+    let mut sim = Sim::new(&map, opts);
     // Bit of an abuse of this, but just need to fix the rng seed.
     let mut rng = SimFlags::for_test("prebaked").make_rng();
     scenario.instantiate(&mut sim, &map, &mut rng, timer);
@@ -64,7 +64,7 @@ fn prebake(map: &Map, scenario: Scenario, time_limit: Option<Duration>, timer: &
         sim.get_analytics(),
     );
     let agents_left = sim.num_agents().sum();
-    timer.note(format!("{} agents left by end of day", agents_left));
+    info!("{} agents left by end of day", agents_left);
     timer.stop(format!(
         "prebake for {} / {}",
         scenario.map_name.describe(),

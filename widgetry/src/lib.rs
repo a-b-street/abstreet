@@ -21,7 +21,7 @@
 //! * [`Slider`] - horizontal and vertical sliders
 //! * [`Spinner`] - numeric input with up/down buttons
 //! * [`table::Table`] - rows and columns, supporting filtering and pagination
-//! * [`TexBox`] - single line text entry
+//! * [`TextBox`] - single line text entry
 
 //#![warn(missing_docs)]
 
@@ -47,7 +47,7 @@ pub use crate::tools::warper::Warper;
 pub use crate::tools::Cached;
 pub use crate::widgets::autocomplete::Autocomplete;
 pub(crate) use crate::widgets::button::Button;
-pub use crate::widgets::button::{Btn, ButtonBuilder, MultiButton};
+pub use crate::widgets::button::{ButtonBuilder, MultiButton};
 pub use crate::widgets::checkbox::Checkbox;
 pub use crate::widgets::compare_times::CompareTimes;
 pub(crate) use crate::widgets::dropdown::Dropdown;
@@ -63,7 +63,9 @@ pub use crate::widgets::slider::Slider;
 pub use crate::widgets::spinner::Spinner;
 pub use crate::widgets::table;
 pub(crate) use crate::widgets::text_box::TextBox;
-pub use crate::widgets::{EdgeInsets, Outcome, Panel, Widget, WidgetImpl, WidgetOutput};
+pub use crate::widgets::{
+    CornerRounding, EdgeInsets, Outcome, Panel, Widget, WidgetImpl, WidgetOutput,
+};
 
 mod app_state;
 mod assets;
@@ -91,6 +93,16 @@ mod widgets;
 mod backend {
     #[cfg(any(feature = "native-backend", feature = "wasm-backend"))]
     pub use crate::backend_glow::*;
+}
+
+/// Like [`std::include_bytes!`], but also returns its argument, the relative path to the bytes
+///
+/// returns a `(path, bytes): (&str, &[u8])` tuple
+#[macro_export]
+macro_rules! include_labeled_bytes {
+    ($file:expr) => {
+        ($file, include_bytes!($file))
+    };
 }
 
 #[derive(Clone, Copy, Debug)]

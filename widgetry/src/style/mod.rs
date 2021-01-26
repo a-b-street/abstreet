@@ -8,20 +8,20 @@ pub struct Style {
     pub outline_color: Color,
     pub panel_bg: Color,
     pub hotkey_color: Color,
-    pub hovering_color: Color,
     pub loading_tips: Text,
-    pub btn_primary_dark: ButtonStyle,
-    pub btn_secondary_dark: ButtonStyle,
-    pub btn_primary_light: ButtonStyle,
-    pub btn_secondary_light: ButtonStyle,
-    pub btn_primary_destructive: ButtonStyle,
-    pub btn_secondary_destructive: ButtonStyle,
+    pub btn_solid_dark: ButtonStyle,
+    pub btn_outline_dark: ButtonStyle,
+    pub btn_solid_light: ButtonStyle,
+    pub btn_outline_light: ButtonStyle,
+    pub btn_solid_destructive: ButtonStyle,
+    pub btn_outline_destructive: ButtonStyle,
 }
 
 #[derive(Clone)]
 pub struct ButtonStyle {
     pub fg: Color,
     pub fg_disabled: Color,
+    pub fg_hotkey: Color,
     pub outline: Color,
     pub bg: Color,
     pub bg_hover: Color,
@@ -35,53 +35,58 @@ impl Style {
             outline_color: Color::WHITE,
             panel_bg: Color::grey(0.4),
             hotkey_color: Color::GREEN,
-            hovering_color: Color::ORANGE,
             loading_tips: Text::new(),
 
             // Buttons
-            btn_primary_dark: ButtonStyle {
+            btn_solid_dark: ButtonStyle {
                 fg: hex("#4C4C4C"),
                 fg_disabled: hex("#4C4C4C").alpha(0.3),
+                fg_hotkey: hex("#EE702E"),
                 bg: Color::WHITE.alpha(0.8),
                 bg_hover: Color::WHITE,
                 bg_disabled: Color::grey(0.6),
                 outline: Color::WHITE.alpha(0.6),
             },
-            btn_secondary_dark: ButtonStyle {
+            btn_outline_dark: ButtonStyle {
                 fg: hex("#4C4C4C"),
                 fg_disabled: hex("#4C4C4C").alpha(0.3),
+                fg_hotkey: hex("#EE702E"),
                 bg: Color::CLEAR,
                 bg_hover: hex("#4C4C4C").alpha(0.1),
                 bg_disabled: Color::grey(0.8),
                 outline: hex("#4C4C4C"),
             },
-            btn_primary_light: ButtonStyle {
+            btn_solid_light: ButtonStyle {
                 fg: hex("#F2F2F2"),
                 fg_disabled: hex("#F2F2F2").alpha(0.3),
+                fg_hotkey: Color::GREEN,
                 bg: hex("#003046").alpha(0.8),
                 bg_hover: hex("#003046"),
                 bg_disabled: Color::grey(0.1),
                 outline: hex("#003046").alpha(0.6),
             },
-            btn_secondary_light: ButtonStyle {
+            btn_outline_light: ButtonStyle {
                 fg: hex("#F2F2F2"),
                 fg_disabled: hex("#F2F2F2").alpha(0.3),
+                fg_hotkey: Color::GREEN,
                 bg: Color::CLEAR,
                 bg_hover: hex("#F2F2F2").alpha(0.1),
-                bg_disabled: Color::grey(0.9),
+                bg_disabled: Color::grey(0.5),
                 outline: hex("#F2F2F2"),
             },
-            btn_primary_destructive: ButtonStyle {
+            btn_solid_destructive: ButtonStyle {
                 fg: hex("#F2F2F2"),
                 fg_disabled: hex("#F2F2F2").alpha(0.3),
+                fg_hotkey: Color::GREEN,
                 bg: hex("#FF5E5E").alpha(0.8),
                 bg_hover: hex("#FF5E5E"),
                 bg_disabled: Color::grey(0.1),
                 outline: hex("#FF5E5E").alpha(0.6),
             },
-            btn_secondary_destructive: ButtonStyle {
+            btn_outline_destructive: ButtonStyle {
                 fg: hex("#FF5E5E"),
                 fg_disabled: hex("#FF5E5E").alpha(0.3),
+                fg_hotkey: Color::GREEN,
                 bg: Color::CLEAR,
                 bg_hover: hex("#FF5E5E").alpha(0.1),
                 bg_disabled: Color::grey(0.1),

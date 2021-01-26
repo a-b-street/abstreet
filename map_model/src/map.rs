@@ -30,6 +30,11 @@ pub struct MapConfig {
     pub inferred_sidewalks: bool,
     /// If true, separate cycleways from OSM will be included.
     pub separate_cycleways: bool,
+    /// Street parking is divided into spots of this length. 8 meters is a reasonable default, but
+    /// people in some regions might be more accustomed to squeezing into smaller spaces. This
+    /// value can be smaller than the hardcoded maximum car length; cars may render on top of each
+    /// other, but otherwise the simulation doesn't care.
+    pub street_parking_spot_length: Distance,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
@@ -165,6 +170,7 @@ impl Map {
                 bikes_can_use_bus_lanes: true,
                 inferred_sidewalks: true,
                 separate_cycleways: false,
+                street_parking_spot_length: Distance::meters(8.0),
             },
             pathfinder: Pathfinder::Dijkstra,
             pathfinder_dirty: false,

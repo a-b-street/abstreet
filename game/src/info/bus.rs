@@ -4,9 +4,7 @@ use map_gui::tools::ColorNetwork;
 use map_gui::ID;
 use map_model::{BusRoute, BusRouteID, BusStopID, PathStep};
 use sim::{AgentID, CarID};
-use widgetry::{
-    Btn, Color, EventCtx, Key, Line, RewriteColor, StyledButtons, Text, TextExt, Widget,
-};
+use widgetry::{Color, EventCtx, Key, Line, StyledButtons, Text, TextExt, Widget};
 
 use crate::app::App;
 use crate::info::{header_btns, make_tabs, Details, Tab};
@@ -19,7 +17,7 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
 
     rows.push(Widget::row(vec![
         Line("Bus stop").small_heading().draw(ctx),
-        header_btns(ctx, app),
+        header_btns(ctx),
     ]));
     rows.push(Line(&bs.name).draw(ctx));
 
@@ -27,7 +25,11 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
     for r in app.primary.map.get_routes_serving_stop(id) {
         // Full names can overlap, so include the ID
         let label = format!("{} ({})", r.full_name, r.id);
-        rows.push(Btn::text_fg(format!("Route {}", r.short_name)).build(ctx, &label, None));
+        rows.push(
+            ctx.style()
+                .btn_outline_light_text(&format!("Route {}", r.short_name))
+                .build_widget(ctx, &label),
+        );
         details.hyperlinks.insert(label, Tab::BusRoute(r.id));
 
         let arrivals: Vec<(Time, CarID)> = all_arrivals
@@ -103,7 +105,11 @@ pub fn bus_status(ctx: &mut EventCtx, app: &App, details: &mut Details, id: CarI
         .map
         .get_br(app.primary.sim.bus_route_id(id).unwrap());
 
-    rows.push(Btn::text_fg(format!("Serves route {}", route.short_name)).build_def(ctx, None));
+    rows.push(
+        ctx.style()
+            .btn_outline_light_text(&format!("Serves route {}", route.short_name))
+            .build_def(ctx),
+    );
     details.hyperlinks.insert(
         format!("Serves route {}", route.short_name),
         Tab::BusRoute(route.id),
@@ -146,7 +152,7 @@ fn bus_header(
         ))
         .small_heading()
         .draw(ctx),
-        header_btns(ctx, app),
+        header_btns(ctx),
     ]));
     rows.push(make_tabs(
         ctx,
@@ -167,7 +173,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
         Line(format!("Route {}", route.short_name))
             .small_heading()
             .draw(ctx),
-        header_btns(ctx, app),
+        header_btns(ctx),
     ]));
     rows.push(
         Text::from(Line(&route.full_name))
@@ -178,7 +184,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
     if app.opts.dev {
         rows.push(
             ctx.style()
-                .btn_primary_light_text("Open OSM relation")
+                .btn_solid_dark_text("Open OSM relation")
                 .build_widget(ctx, &format!("open {}", route.osm_rel_id)),
         );
     }
@@ -189,7 +195,11 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
         rows.push(format!("No {} running", route.plural_noun()).draw_text(ctx));
     } else {
         for (bus, _, _, pt) in buses {
-            rows.push(Btn::text_fg(bus.to_string()).build_def(ctx, None));
+            rows.push(
+                ctx.style()
+                    .btn_outline_light_text(&bus.to_string())
+                    .build_def(ctx),
+            );
             details
                 .hyperlinks
                 .insert(bus.to_string(), Tab::BusStatus(bus));
@@ -242,11 +252,9 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
         let i = map.get_i(map.get_l(route.start).src_i);
         let name = format!("Starts at {}", i.name(app.opts.language.as_ref(), map));
         rows.push(Widget::row(vec![
-            Btn::svg(
-                "system/assets/timeline/goal_pos.svg",
-                RewriteColor::Change(Color::WHITE, app.cs.hovering),
-            )
-            .build(ctx, &name, None),
+            ctx.style()
+                .btn_plain_light_icon("system/assets/timeline/goal_pos.svg")
+                .build_widget(ctx, &name),
             name.clone().draw_text(ctx),
         ]));
         details.warpers.insert(name, ID::Intersection(i.id));
@@ -255,11 +263,9 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
         let bs = map.get_bs(*bs);
         let name = format!("Stop {}: {}", idx + 1, bs.name);
         rows.push(Widget::row(vec![
-            Btn::svg(
-                "system/assets/tools/pin.svg",
-                RewriteColor::Change(Color::hex("#CC4121"), app.cs.hovering),
-            )
-            .build(ctx, &name, None),
+            ctx.style()
+                .btn_plain_light_icon("system/assets/tools/pin.svg")
+                .build_widget(ctx, &name),
             Text::from_all(vec![
                 Line(&bs.name),
                 Line(format!(
@@ -278,11 +284,9 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
         let i = map.get_i(map.get_l(l).dst_i);
         let name = format!("Ends at {}", i.name(app.opts.language.as_ref(), map));
         rows.push(Widget::row(vec![
-            Btn::svg(
-                "system/assets/timeline/goal_pos.svg",
-                RewriteColor::Change(Color::WHITE, app.cs.hovering),
-            )
-            .build(ctx, &name, None),
+            ctx.style()
+                .btn_plain_light_icon("system/assets/timeline/goal_pos.svg")
+                .build_widget(ctx, &name),
             name.clone().draw_text(ctx),
         ]));
         details.warpers.insert(name, ID::Intersection(i.id));
@@ -290,7 +294,12 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
 
     // TODO Soon it'll be time to split into tabs
     {
-        rows.push(Btn::text_fg("Edit schedule").build(ctx, format!("edit {}", route.id), Key::E));
+        rows.push(
+            ctx.style()
+                .btn_outline_light_text("Edit schedule")
+                .hotkey(Key::E)
+                .build_widget(ctx, &format!("edit {}", route.id)),
+        );
         rows.push(describe_schedule(route).draw(ctx));
     }
 

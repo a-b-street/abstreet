@@ -7,7 +7,7 @@ use map_gui::render::traffic_signal::draw_signal_stage;
 use map_model::{IntersectionID, IntersectionType, StageType};
 use sim::AgentType;
 use widgetry::{
-    Btn, Checkbox, Color, DrawWithTooltips, EventCtx, FanChart, GeomBatch, Line, PlotOptions,
+    Checkbox, Color, DrawWithTooltips, EventCtx, FanChart, GeomBatch, Line, PlotOptions,
     ScatterPlot, Series, StyledButtons, Text, Widget,
 };
 
@@ -37,7 +37,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID
     if app.opts.dev {
         rows.push(
             ctx.style()
-                .btn_primary_light_text("Open OSM node")
+                .btn_solid_dark_text("Open OSM node")
                 .build_widget(ctx, &format!("open {}", i.orig_id)),
         );
     }
@@ -214,13 +214,17 @@ pub fn current_demand(
         .bg(app.cs.inner_panel)
         .outline(2.0, Color::WHITE),
     );
-    rows.push(Btn::text_fg("Explore demand across all traffic signals").build_def(ctx, None));
+    rows.push(
+        ctx.style()
+            .btn_outline_light_text("Explore demand across all traffic signals")
+            .build_def(ctx),
+    );
     if app.opts.dev {
-        rows.push(Btn::text_fg("Where are these agents headed?").build(
-            ctx,
-            format!("routes across {}", id),
-            None,
-        ));
+        rows.push(
+            ctx.style()
+                .btn_outline_light_text("Where are these agents headed?")
+                .build_widget(ctx, &format!("routes across {}", id)),
+        );
     }
 
     rows
@@ -401,7 +405,7 @@ fn header(
     };
     rows.push(Widget::row(vec![
         Line(label).small_heading().draw(ctx),
-        header_btns(ctx, app),
+        header_btns(ctx),
     ]));
 
     rows.push(make_tabs(ctx, &mut details.hyperlinks, tab, {

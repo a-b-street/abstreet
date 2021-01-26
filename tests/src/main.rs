@@ -8,7 +8,7 @@ use rand::seq::SliceRandom;
 
 use abstio::MapName;
 use abstutil::Timer;
-use geom::{Duration, Time};
+use geom::{Distance, Duration, Time};
 use map_model::{IntersectionID, Map};
 use sim::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 
@@ -57,6 +57,7 @@ fn import_map(path: String) -> Map {
                 bikes_can_use_bus_lanes: true,
                 inferred_sidewalks: true,
                 separate_cycleways: false,
+                street_parking_spot_length: Distance::meters(8.0),
             },
             onstreet_parking: convert_osm::OnstreetParking::JustOSM,
             public_offstreet_parking: convert_osm::PublicOffstreetParking::None,
@@ -94,7 +95,7 @@ fn smoke_test() -> Result<()> {
 
         let mut opts = sim::SimOptions::new("smoke_test");
         opts.alerts = sim::AlertHandler::Silence;
-        let mut sim = sim::Sim::new(&map, opts, &mut timer);
+        let mut sim = sim::Sim::new(&map, opts);
         // Bit of an abuse of this, but just need to fix the rng seed.
         let mut rng = sim::SimFlags::for_test("smoke_test").make_rng();
         scenario.instantiate(&mut sim, &map, &mut rng, &mut timer);
@@ -214,7 +215,7 @@ fn test_lane_changing(map: &Map) -> Result<()> {
 
     let mut opts = sim::SimOptions::new("test_lane_changing");
     opts.alerts = sim::AlertHandler::Silence;
-    let mut sim = sim::Sim::new(&map, opts, &mut Timer::throwaway());
+    let mut sim = sim::Sim::new(&map, opts);
     let mut rng = sim::SimFlags::for_test("test_lane_changing").make_rng();
     scenario.instantiate(&mut sim, &map, &mut rng, &mut Timer::throwaway());
     while !sim.is_done() {

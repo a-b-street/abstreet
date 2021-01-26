@@ -3,16 +3,17 @@ use std::collections::HashSet;
 use abstio::MapName;
 use abstutil::{Parallelism, Tags, Timer};
 use geom::{Distance, Pt2D};
+use map_gui::colors::ColorSchemeChoice;
 use map_gui::load::MapLoader;
 use map_gui::options::OptionsPanel;
 use map_gui::render::{calculate_corners, DrawMap, DrawOptions};
 use map_gui::tools::{ChooseSomething, PopupMsg, PromptInput};
-use map_gui::ID;
+use map_gui::{AppLike, ID};
 use map_model::{osm, ControlTrafficSignal, IntersectionID, NORMAL_LANE_THICKNESS};
 use sim::Sim;
 use widgetry::{
-    lctrl, Btn, Cached, Checkbox, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch,
-    GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, ScreenDims, State, StyledButtons, Text,
+    lctrl, Cached, Checkbox, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Panel, ScreenDims, State, StyledButtons, Text,
     UpdateType, VerticalAlignment, Widget,
 };
 
@@ -43,7 +44,7 @@ pub struct DebugMode {
 }
 
 impl DebugMode {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    pub fn new(ctx: &mut EventCtx) -> Box<dyn State<App>> {
         Box::new(DebugMode {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
@@ -58,21 +59,59 @@ impl DebugMode {
                 Checkbox::switch(ctx, "show labels", Key::Num5, false),
                 Checkbox::switch(ctx, "show route for all agents", Key::R, false),
                 Widget::col(vec![
-                    Btn::text_fg("unhide everything").build_def(ctx, lctrl(Key::H)),
-                    Btn::text_fg("screenshot everything (for leaflet)").build_def(ctx, None),
-                    Btn::text_fg("screenshot all of the everything").build_def(ctx, None),
-                    Btn::text_fg("search OSM metadata").build_def(ctx, Key::Slash),
-                    Btn::text_fg("clear OSM search results").build_def(ctx, lctrl(Key::Slash)),
-                    Btn::text_fg("save sim state").build_def(ctx, Key::O),
-                    Btn::text_fg("load previous sim state").build_def(ctx, Key::Y),
-                    Btn::text_fg("load next sim state").build_def(ctx, Key::U),
-                    Btn::text_fg("pick a savestate to load").build_def(ctx, None),
-                    Btn::text_fg("find bad traffic signals").build_def(ctx, None),
-                    Btn::text_fg("find degenerate roads").build_def(ctx, None),
-                    Btn::text_fg("find large intersections").build_def(ctx, None),
-                    Btn::text_fg("sim internal stats").build_def(ctx, None),
-                    Btn::text_fg("blocked-by graph").build_def(ctx, Key::B),
-                    Btn::text_fg("render to GeoJSON").build_def(ctx, Key::G),
+                    ctx.style()
+                        .btn_outline_light_text("unhide everything")
+                        .hotkey(lctrl(Key::H))
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline_light_text("screenshot everything (for leaflet)")
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline_light_text("screenshot all of the everything")
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline_light_text("search OSM metadata")
+                        .hotkey(Key::Slash)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline_light_text("clear OSM search results")
+                        .hotkey(Key::Slash)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline_light_text("save sim state")
+                        .hotkey(Key::O)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline_light_text("load previous sim state")
+                        .hotkey(Key::Y)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline_light_text("load next sim state")
+                        .hotkey(Key::U)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline_light_text("pick a savestate to load")
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline_light_text("find bad traffic signals")
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline_light_text("find degenerate roads")
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline_light_text("find large intersections")
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline_light_text("sim internal stats")
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline_light_text("blocked-by graph")
+                        .hotkey(Key::B)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline_light_text("render to GeoJSON")
+                        .hotkey(Key::G)
+                        .build_def(ctx),
                 ]),
                 Text::from_all(vec![
                     Line("Hold "),
@@ -84,7 +123,7 @@ impl DebugMode {
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
             common: CommonState::new(),
-            tool_panel: tool_panel(ctx, app),
+            tool_panel: tool_panel(ctx),
             objects: objects::ObjectDebugger,
             hidden: HashSet::new(),
             layers: ShowLayers::new(),
@@ -223,6 +262,7 @@ impl State<App> for DebugMode {
                     self.reset_info(ctx);
                 }
                 "screenshot everything (for leaflet)" => {
+                    app.change_color_scheme(ctx, ColorSchemeChoice::DayMode);
                     export_for_leaflet(ctx, app);
                     return Transition::Keep;
                 }
@@ -747,12 +787,13 @@ fn find_large_intersections(app: &App) {
 struct ScreenshotTest {
     todo_maps: Vec<MapName>,
     screenshot_done: bool,
-    orig_min_zoom: f64,
 }
 
 impl ScreenshotTest {
     fn new(ctx: &mut EventCtx, app: &mut App, mut todo_maps: Vec<MapName>) -> Box<dyn State<App>> {
-        let orig_min_zoom = app.opts.min_zoom_for_detail;
+        // Taking screenshots messes with options and doesn't restore them after. It's expected
+        // whoever's taking screenshots (just Dustin so far) will just quit after taking them.
+        app.change_color_scheme(ctx, ColorSchemeChoice::DayMode);
         app.opts.min_zoom_for_detail = 0.0;
         MapLoader::new(
             ctx,
@@ -762,7 +803,6 @@ impl ScreenshotTest {
                 Transition::Replace(Box::new(ScreenshotTest {
                     todo_maps,
                     screenshot_done: false,
-                    orig_min_zoom,
                 }))
             }),
         )
@@ -773,7 +813,6 @@ impl State<App> for ScreenshotTest {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if self.screenshot_done {
             if self.todo_maps.is_empty() {
-                app.opts.min_zoom_for_detail = self.orig_min_zoom;
                 Transition::Pop
             } else {
                 Transition::Replace(ScreenshotTest::new(

@@ -6,8 +6,8 @@ use geom::Speed;
 use map_gui::tools::PopupMsg;
 use map_model::{LaneType, RoadID};
 use widgetry::{
-    hotkeys, Btn, Choice, Color, ControlState, Drawable, EventCtx, GfxCtx, HorizontalAlignment,
-    Key, Line, Outcome, Panel, State, StyledButtons, TextExt, VerticalAlignment, Widget,
+    hotkeys, Choice, Color, ControlState, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Panel, State, StyledButtons, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -32,23 +32,27 @@ fn make_select_panel(ctx: &mut EventCtx, selector: &RoadSelector) -> Panel {
         Line("Edit many roads").small_heading().draw(ctx),
         selector.make_controls(ctx),
         Widget::row(vec![
-            if selector.roads.is_empty() {
-                Btn::text_fg("Edit 0 roads").inactive(ctx)
-            } else {
-                Btn::text_fg(format!("Edit {} roads", selector.roads.len())).build(
-                    ctx,
-                    "edit roads",
-                    hotkeys(vec![Key::E, Key::Enter]),
-                )
-            },
-            Btn::text_fg(format!(
-                "Export {} roads to shared-row",
-                selector.roads.len()
-            ))
-            .build(ctx, "export roads to shared-row", None),
-            Btn::text_fg("export one road to Streetmix").build_def(ctx, None),
-            Btn::text_fg("export list of roads").build_def(ctx, None),
-            Btn::text_fg("Cancel").build_def(ctx, Key::Escape),
+            ctx.style()
+                .btn_outline_light_text(&format!("Edit {} roads", selector.roads.len()))
+                .disabled(selector.roads.is_empty())
+                .hotkey(hotkeys(vec![Key::E, Key::Enter]))
+                .build_widget(ctx, "edit roads"),
+            ctx.style()
+                .btn_outline_light_text(&format!(
+                    "Export {} roads to shared-row",
+                    selector.roads.len()
+                ))
+                .build_widget(ctx, "export roads to shared-row"),
+            ctx.style()
+                .btn_outline_light_text("export one road to Streetmix")
+                .build_def(ctx),
+            ctx.style()
+                .btn_outline_light_text("export list of roads")
+                .build_def(ctx),
+            ctx.style()
+                .btn_outline_light_text("Cancel")
+                .hotkey(Key::Escape)
+                .build_def(ctx),
         ])
         .evenly_spaced(),
     ]))
@@ -163,7 +167,10 @@ impl BulkEdit {
                     ])
                 },
                 Widget::row(vec![
-                    Btn::text_bg2("Finish").build_def(ctx, Key::Enter),
+                    ctx.style()
+                        .btn_solid_dark_text("Finish")
+                        .hotkey(Key::Enter)
+                        .build_def(ctx),
                     ctx.style()
                         .btn_plain_destructive_text("Cancel")
                         .hotkey(Key::Escape)

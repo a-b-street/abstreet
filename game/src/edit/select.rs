@@ -2,7 +2,9 @@ use std::collections::BTreeSet;
 
 use map_gui::ID;
 use map_model::{IntersectionID, RoadID};
-use widgetry::{Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, RewriteColor, Widget};
+use widgetry::{
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, RewriteColor, StyledButtons, Widget,
+};
 
 use crate::app::App;
 use crate::common::{intersections_from_roads, CommonState};
@@ -48,46 +50,26 @@ impl RoadSelector {
 
     pub fn make_controls(&self, ctx: &mut EventCtx) -> Widget {
         Widget::custom_row(vec![
-            if let Mode::Paint = self.mode {
-                Widget::draw_svg_transform(
-                    ctx,
-                    "system/assets/tools/pencil.svg",
-                    RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
-                )
-            } else {
-                Btn::svg_def("system/assets/tools/pencil.svg").build(ctx, "paint", Key::P)
-            },
-            if let Mode::Erase = self.mode {
-                Widget::draw_svg_transform(
-                    ctx,
-                    "system/assets/tools/eraser.svg",
-                    RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
-                )
-            } else {
-                Btn::svg_def("system/assets/tools/eraser.svg").build(ctx, "erase", Key::Backspace)
-            },
-            if let Mode::Route { .. } = self.mode {
-                Widget::draw_svg_transform(
-                    ctx,
-                    "system/assets/timeline/start_pos.svg",
-                    RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
-                )
-            } else {
-                Btn::svg_def("system/assets/timeline/start_pos.svg").build(
-                    ctx,
-                    "select along route",
-                    Key::R,
-                )
-            },
-            if let Mode::Pan = self.mode {
-                Widget::draw_svg_transform(
-                    ctx,
-                    "system/assets/tools/pan.svg",
-                    RewriteColor::ChangeAll(Color::hex("#4CA7E9")),
-                )
-            } else {
-                Btn::svg_def("system/assets/tools/pan.svg").build(ctx, "pan", Key::Escape)
-            },
+            ctx.style()
+                .btn_plain_light_icon("system/assets/tools/pencil.svg")
+                .disabled(matches!(self.mode, Mode::Paint))
+                .hotkey(Key::P)
+                .build_widget(ctx, "paint"),
+            ctx.style()
+                .btn_plain_light_icon("system/assets/tools/eraser.svg")
+                .hotkey(Key::Backspace)
+                .disabled(matches!(self.mode, Mode::Erase))
+                .build_widget(ctx, "erase"),
+            ctx.style()
+                .btn_plain_light_icon("system/assets/timeline/start_pos.svg")
+                .hotkey(Key::R)
+                .disabled(matches!(self.mode, Mode::Route { .. }))
+                .build_widget(ctx, "select along route"),
+            ctx.style()
+                .btn_plain_light_icon("system/assets/tools/pan.svg")
+                .hotkey(Key::Escape)
+                .disabled(matches!(self.mode, Mode::Pan))
+                .build_widget(ctx, "pan"),
         ])
         .evenly_spaced()
     }

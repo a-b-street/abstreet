@@ -54,10 +54,10 @@ pub fn make_all_buildings(
             let sidewalk_line = match Line::new(bldg_center.to_pt2d(), sidewalk_pos.pt(map)) {
                 Some(l) => trim_path(&b.polygon, l),
                 None => {
-                    timer.warn(format!(
+                    warn!(
                         "Skipping building {} because front path has 0 length",
                         orig_id
-                    ));
+                    );
                     continue;
                 }
             };
@@ -119,10 +119,10 @@ pub fn make_all_buildings(
         }
     }
 
-    timer.note(format!(
+    info!(
         "Discarded {} buildings that weren't close enough to a sidewalk",
         input.len() - results.len()
-    ));
+    );
     timer.stop("convert buildings");
 
     results

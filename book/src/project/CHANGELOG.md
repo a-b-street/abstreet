@@ -720,3 +720,10 @@ changes here.
 - import trip data from the actdev project for Cambridge
 - improve inferred map elements (stop signs and crosswalks) near short roads
 - heuristics for automatically finding and merging short roads. disabled, but solid start
+
+0.2.28
+
+- massive button overhaul by Yuwen and Michael
+- the color scheme automatically switches between day/night based on simulation time!
+- significant progress on editing the map without resetting the simulation
+- various bugfixes, new maps, improvements to running the importer, faster updater

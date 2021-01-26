@@ -2,7 +2,6 @@
 
 use anyhow::Result;
 
-use abstutil::Timer;
 use geom::{PolyLine, Polygon, Pt2D, Ring};
 use map_model::osm::{OsmID, RelationID, WayID};
 
@@ -33,7 +32,6 @@ pub fn glue_multipolygon(
     rel_id: RelationID,
     mut pts_per_way: Vec<(WayID, Vec<Pt2D>)>,
     boundary: Option<&Ring>,
-    timer: &mut Timer,
 ) -> Vec<Polygon> {
     // First deal with all of the closed loops.
     let mut polygons: Vec<Polygon> = Vec::new();
@@ -102,7 +100,7 @@ pub fn glue_multipolygon(
             }
         }
         Err(err) => {
-            timer.error(format!("Really weird multipolygon {}: {}", rel_id, err));
+            error!("Really weird multipolygon {}: {}", rel_id, err);
         }
     }
 

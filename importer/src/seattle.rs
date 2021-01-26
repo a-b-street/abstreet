@@ -6,7 +6,7 @@ use serde::Deserialize;
 
 use abstio::MapName;
 use abstutil::{MultiMap, Timer};
-use geom::{Duration, Polygon, Ring, Time};
+use geom::{Distance, Duration, Polygon, Ring, Time};
 use kml::ExtraShapes;
 use map_model::{BuildingID, BuildingType, BusRouteID, Map};
 use sim::Scenario;
@@ -115,6 +115,7 @@ pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration)
                 bikes_can_use_bus_lanes: true,
                 inferred_sidewalks: true,
                 separate_cycleways: false,
+                street_parking_spot_length: Distance::meters(8.0),
             },
 
             onstreet_parking: convert_osm::OnstreetParking::Blockface(abstio::path(

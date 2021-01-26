@@ -21,10 +21,7 @@ pub fn make_stops_and_routes(map: &mut Map, raw_routes: &Vec<RawBusRoute>, timer
     let mut pt_to_stop: BTreeMap<(Position, Position), BusStopID> = BTreeMap::new();
     for r in raw_routes {
         if let Err(err) = make_route(map, r, &mut pt_to_stop, &matcher) {
-            timer.warn(format!(
-                "Skipping route {} ({}): {}",
-                r.full_name, r.osm_rel_id, err
-            ));
+            warn!("Skipping route {} ({}): {}", r.full_name, r.osm_rel_id, err);
         }
     }
 

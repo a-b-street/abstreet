@@ -15,28 +15,53 @@ pub const LOW_QUALITY: f32 = 1.0;
 // https://github.com/nical/lyon/blob/0d0ee771180fb317b986d9cf30266722e0773e01/examples/wgpu_svg/src/main.rs
 
 pub fn load_svg(prerender: &Prerender, filename: &str) -> (GeomBatch, Bounds) {
-    if let Some(pair) = prerender.assets.get_cached_svg(filename) {
+    let cache_key = format!("file://{}", filename);
+    if let Some(pair) = prerender.assets.get_cached_svg(&cache_key) {
         return pair;
     }
 
-    let raw = (prerender.assets.read_svg)(filename);
-    let svg_tree = usvg::Tree::from_data(&raw, &usvg::Options::default()).unwrap();
-    let mut batch = GeomBatch::new();
-    match add_svg_inner(&mut batch, svg_tree, HIGH_QUALITY) {
-        Ok(bounds) => {
+    let bytes = (prerender.assets.read_svg)(filename);
+    load_svg_from_bytes_uncached(&bytes)
+        .map(|(batch, bounds)| {
             prerender
                 .assets
-                .cache_svg(filename.to_string(), batch.clone(), bounds.clone());
+                .cache_svg(cache_key, batch.clone(), bounds.clone());
             (batch, bounds)
-        }
-        Err(err) => panic!("{}: {}", filename, err),
+        })
+        .expect(&format!("error loading svg: {}", filename))
+}
+
+pub fn load_svg_bytes(
+    prerender: &Prerender,
+    cache_key: &str,
+    bytes: &[u8],
+) -> anyhow::Result<(GeomBatch, Bounds)> {
+    let cache_key = format!("bytes://{}", cache_key);
+    if let Some(pair) = prerender.assets.get_cached_svg(&cache_key) {
+        return Ok(pair);
+    }
+
+    load_svg_from_bytes_uncached(&bytes).map(|(batch, bounds)| {
+        prerender
+            .assets
+            .cache_svg(cache_key, batch.clone(), bounds.clone());
+        (batch, bounds)
+    })
+}
+
+pub fn load_svg_from_bytes_uncached(bytes: &[u8]) -> anyhow::Result<(GeomBatch, Bounds)> {
+    let svg_tree = usvg::Tree::from_data(&bytes, &usvg::Options::default())?;
+    let mut batch = GeomBatch::new();
+    match add_svg_inner(&mut batch, svg_tree, HIGH_QUALITY) {
+        Ok(bounds) => Ok((batch, bounds)),
+        Err(err) => Err(anyhow!(err)),
     }
 }
 
 // No offset. I'm not exactly sure how the simplification in usvg works, but this doesn't support
 // transforms or strokes or text, just fills. Luckily, all of the files exported from Figma so far
 // work just fine.
-pub fn add_svg_inner(
+pub(crate) fn add_svg_inner(
     batch: &mut GeomBatch,
     svg_tree: usvg::Tree,
     tolerance: f32,

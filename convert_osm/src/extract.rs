@@ -7,7 +7,7 @@ use abstutil::{retain_btreemap, Tags, Timer};
 use geom::{HashablePt2D, Polygon, Pt2D, Ring};
 use kml::{ExtraShape, ExtraShapes};
 use map_model::raw::{RawArea, RawBuilding, RawMap, RawParkingLot, RawRoad, RestrictionType};
-use map_model::{osm, Amenity, AreaType, DrivingSide, NamePerLanguage};
+use map_model::{osm, Amenity, AreaType, Direction, DrivingSide, NamePerLanguage};
 
 use crate::osm_geom::{get_multipolygon_members, glue_multipolygon, multipoly_geometry};
 use crate::{transit, Options};
@@ -15,8 +15,8 @@ use crate::{transit, Options};
 pub struct OsmExtract {
     /// Unsplit roads
     pub roads: Vec<(WayID, RawRoad)>,
-    /// Traffic signals to the direction they apply (or just true if unspecified)
-    pub traffic_signals: HashMap<HashablePt2D, bool>,
+    /// Traffic signals to the direction they apply
+    pub traffic_signals: HashMap<HashablePt2D, Direction>,
     pub osm_node_ids: HashMap<HashablePt2D, NodeID>,
     /// (ID, restriction type, from way ID, via node ID, to way ID)
     pub simple_turn_restrictions: Vec<(RestrictionType, WayID, NodeID, WayID)>,
@@ -69,9 +69,12 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
         out.osm_node_ids.insert(node.pt.to_hashable(), *id);
 
         if node.tags.is(osm::HIGHWAY, "traffic_signals") {
-            let backwards = node.tags.is("traffic_signals:direction", "backward");
-            out.traffic_signals
-                .insert(node.pt.to_hashable(), !backwards);
+            let dir = if node.tags.is("traffic_signals:direction", "backward") {
+                Direction::Back
+            } else {
+                Direction::Fwd
+            };
+            out.traffic_signals.insert(node.pt.to_hashable(), dir);
         }
         for amenity in get_bldg_amenities(&node.tags) {
             out.amenities.push((node.pt, amenity));
@@ -201,12 +204,9 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
 
         if let Some(area_type) = get_area_type(&rel.tags) {
             if rel.tags.is("type", "multipolygon") {
-                for polygon in glue_multipolygon(
-                    id,
-                    get_multipolygon_members(id, rel, &doc),
-                    Some(&boundary),
-                    timer,
-                ) {
+                for polygon in
+                    glue_multipolygon(id, get_multipolygon_members(id, rel, &doc), Some(&boundary))
+                {
                     map.areas.push(RawArea {
                         area_type,
                         osm_id: OsmID::Relation(id),
@@ -252,11 +252,11 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                         if rt == RestrictionType::BanTurns {
                             out.complicated_turn_restrictions.push((id, from, via, to));
                         } else {
-                            timer.warn(format!(
+                            warn!(
                                 "Weird complicated turn restriction \"{}\" from {} to {} via {}: \
                                  {}",
                                 restriction, from, to, via, id
-                            ));
+                            );
                         }
                     }
                 }
@@ -278,12 +278,9 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                 Err(err) => println!("Skipping building {}: {}", id, err),
             }
         } else if rel.tags.is("amenity", "parking") {
-            for polygon in glue_multipolygon(
-                id,
-                get_multipolygon_members(id, rel, &doc),
-                Some(&boundary),
-                timer,
-            ) {
+            for polygon in
+                glue_multipolygon(id, get_multipolygon_members(id, rel, &doc), Some(&boundary))
+            {
                 map.parking_lots.push(RawParkingLot {
                     osm_id: OsmID::Relation(id),
                     polygon,
@@ -291,13 +288,8 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                 });
             }
         } else if rel.tags.is("type", "route") {
-            map.bus_routes.extend(transit::extract_route(
-                id,
-                rel,
-                &doc,
-                &map.boundary_polygon,
-                timer,
-            ));
+            map.bus_routes
+                .extend(transit::extract_route(id, rel, &doc, &map.boundary_polygon));
         } else if rel.tags.is("type", "multipolygon") && rel.tags.contains_key("amenity") {
             let amenity = Amenity {
                 names: NamePerLanguage::new(&rel.tags).unwrap_or_else(NamePerLanguage::unnamed),
@@ -341,7 +333,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
 
     // Special case the coastline.
     println!("{} ways of coastline", coastline_groups.len());
-    for polygon in glue_multipolygon(RelationID(-1), coastline_groups, Some(&boundary), timer) {
+    for polygon in glue_multipolygon(RelationID(-1), coastline_groups, Some(&boundary)) {
         let mut osm_tags = Tags::new(BTreeMap::new());
         osm_tags.insert("water", "ocean");
         // Put it at the beginning, so that it's naturally beneath island areas
@@ -506,7 +498,21 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
     // it's inferred.
     if !tags.contains_key(osm::SIDEWALK) && opts.map_config.inferred_sidewalks {
         tags.insert(osm::INFERRED_SIDEWALKS, "true");
-        if tags.is_any(osm::HIGHWAY, vec!["motorway", "motorway_link"])
+
+        if tags.contains_key("sidewalk:left") || tags.contains_key("sidewalk:right") {
+            // Attempt to mangle
+            // https://wiki.openstreetmap.org/wiki/Key:sidewalk#Separately_mapped_sidewalks_on_only_one_side
+            // into left/right/both. We have to make assumptions for missing values.
+            let right = !tags.is("sidewalk:right", "no");
+            let left = !tags.is("sidewalk:left", "no");
+            let value = match (right, left) {
+                (true, true) => "both",
+                (true, false) => "right",
+                (false, true) => "left",
+                (false, false) => "none",
+            };
+            tags.insert(osm::SIDEWALK, value);
+        } else if tags.is_any(osm::HIGHWAY, vec!["motorway", "motorway_link"])
             || tags.is_any("junction", vec!["intersection", "roundabout"])
             || tags.is("foot", "no")
             || tags.is(osm::HIGHWAY, "service")
@@ -561,7 +567,14 @@ fn get_area_type(tags: &Tags) -> Option<AreaType> {
     }
     if tags.is_any(
         "landuse",
-        vec!["cemetery", "forest", "grass", "meadow", "recreation_ground"],
+        vec![
+            "cemetery",
+            "forest",
+            "grass",
+            "meadow",
+            "recreation_ground",
+            "village_green",
+        ],
     ) || tags.is("amenity", "graveyard")
     {
         return Some(AreaType::Park);

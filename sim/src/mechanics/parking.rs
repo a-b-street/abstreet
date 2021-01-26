@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::{
     deserialize_btreemap, deserialize_multimap, retain_btreemap, serialize_btreemap,
-    serialize_multimap, MultiMap, Timer,
+    serialize_multimap, MultiMap,
 };
 use geom::{Distance, PolyLine, Pt2D};
 use map_model::{
@@ -23,11 +23,13 @@ use crate::{CarID, CarStatus, DrawCarInput, Event, ParkedCar, ParkingSpot, Perso
 pub trait ParkingSim {
     /// Returns any cars that got very abruptly evicted from existence, and also cars actively
     /// moving into a deleted spot.
-    fn handle_live_edits(&mut self, map: &Map, timer: &mut Timer) -> (Vec<ParkedCar>, Vec<CarID>);
+    fn handle_live_edits(&mut self, map: &Map) -> (Vec<ParkedCar>, Vec<CarID>);
     fn get_free_onstreet_spots(&self, l: LaneID) -> Vec<ParkingSpot>;
     fn get_free_offstreet_spots(&self, b: BuildingID) -> Vec<ParkingSpot>;
     fn get_free_lot_spots(&self, pl: ParkingLotID) -> Vec<ParkingSpot>;
     fn reserve_spot(&mut self, spot: ParkingSpot, car: CarID);
+    /// Needed when abruptly deleting a car, in case they're being deleted during their last step.
+    fn unreserve_spot(&mut self, car: CarID);
     fn remove_parked_car(&mut self, p: ParkedCar);
     fn add_parked_car(&mut self, p: ParkedCar);
     fn get_draw_cars(&self, id: LaneID, map: &Map) -> Vec<DrawCarInput>;
@@ -81,11 +83,11 @@ pub enum ParkingSimState {
 impl ParkingSimState {
     /// Counterintuitive: any spots located in blackholes are just not represented here. If somebody
     /// tries to drive from a blackholed spot, they couldn't reach most places.
-    pub fn new(map: &Map, infinite: bool, timer: &mut Timer) -> ParkingSimState {
+    pub fn new(map: &Map, infinite: bool) -> ParkingSimState {
         if infinite {
             ParkingSimState::Infinite(InfiniteParkingSimState::new(map))
         } else {
-            ParkingSimState::Normal(NormalParkingSimState::new(map, timer))
+            ParkingSimState::Normal(NormalParkingSimState::new(map))
         }
     }
 
@@ -145,7 +147,7 @@ pub struct NormalParkingSimState {
 }
 
 impl NormalParkingSimState {
-    fn new(map: &Map, timer: &mut Timer) -> NormalParkingSimState {
+    fn new(map: &Map) -> NormalParkingSimState {
         let mut sim = NormalParkingSimState {
             parked_cars: BTreeMap::new(),
             occupants: BTreeMap::new(),
@@ -161,7 +163,7 @@ impl NormalParkingSimState {
             events: Vec::new(),
         };
         for l in map.all_lanes() {
-            if let Some(lane) = ParkingLane::new(l, map, timer) {
+            if let Some(lane) = ParkingLane::new(l, map) {
                 sim.driving_to_parking_lanes.insert(lane.driving_lane, l.id);
                 sim.onstreet_lanes.insert(lane.parking_lane, lane);
             }
@@ -190,9 +192,9 @@ impl NormalParkingSimState {
 }
 
 impl ParkingSim for NormalParkingSimState {
-    fn handle_live_edits(&mut self, map: &Map, timer: &mut Timer) -> (Vec<ParkedCar>, Vec<CarID>) {
+    fn handle_live_edits(&mut self, map: &Map) -> (Vec<ParkedCar>, Vec<CarID>) {
         let (filled_before, _) = self.get_all_parking_spots();
-        let new = NormalParkingSimState::new(map, timer);
+        let new = NormalParkingSimState::new(map);
         let (_, avail_after) = new.get_all_parking_spots();
         let avail_after: BTreeSet<ParkingSpot> = avail_after.into_iter().collect();
 
@@ -282,13 +284,17 @@ impl ParkingSim for NormalParkingSimState {
         }
     }
 
+    fn unreserve_spot(&mut self, car: CarID) {
+        retain_btreemap(&mut self.reserved_spots, |_, c| car != *c);
+    }
+
     fn remove_parked_car(&mut self, p: ParkedCar) {
-        self.parked_cars
-            .remove(&p.vehicle.id)
-            .expect("remove_parked_car missing from parked_cars");
-        self.occupants
-            .remove(&p.spot)
-            .expect("remove_parked_car missing from occupants");
+        if self.parked_cars.remove(&p.vehicle.id).is_none() {
+            panic!("remove_parked_car {:?} missing from parked_cars", p);
+        }
+        if self.occupants.remove(&p.spot).is_none() {
+            panic!("remove_parked_car {:?} missing from occupants", p);
+        }
         self.events
             .push(Event::CarLeftParkingSpot(p.vehicle.id, p.spot));
     }
@@ -336,7 +342,8 @@ impl ParkingSim for NormalParkingSimState {
         let p = self.parked_cars.get(&id)?;
         match p.spot {
             ParkingSpot::Onstreet(lane, idx) => {
-                let front_dist = self.onstreet_lanes[&lane].dist_along_for_car(idx, &p.vehicle);
+                let front_dist =
+                    self.onstreet_lanes[&lane].dist_along_for_car(idx, &p.vehicle, map);
                 Some(DrawCarInput {
                     id: p.vehicle.id,
                     waiting_for_turn: None,
@@ -468,11 +475,8 @@ impl ParkingSim for NormalParkingSimState {
         match spot {
             ParkingSpot::Onstreet(l, idx) => {
                 let lane = &self.onstreet_lanes[&l];
-                Position::new(l, lane.dist_along_for_car(idx, vehicle)).equiv_pos_for_long_object(
-                    lane.driving_lane,
-                    vehicle.length,
-                    map,
-                )
+                Position::new(l, lane.dist_along_for_car(idx, vehicle, map))
+                    .equiv_pos_for_long_object(lane.driving_lane, vehicle.length, map)
             }
             ParkingSpot::Offstreet(b, _) => map.get_b(b).driving_connection(map).unwrap().0,
             ParkingSpot::Lot(pl, _) => map.get_pl(pl).driving_pos,
@@ -486,7 +490,7 @@ impl ParkingSim for NormalParkingSimState {
                 // Always centered in the entire parking spot
                 Position::new(
                     l,
-                    lane.spot_dist_along[idx] - (map_model::PARKING_SPOT_LENGTH / 2.0),
+                    lane.spot_dist_along[idx] - (map.get_config().street_parking_spot_length / 2.0),
                 )
                 .equiv_pos(lane.sidewalk, map)
             }
@@ -623,7 +627,7 @@ struct ParkingLane {
 }
 
 impl ParkingLane {
-    fn new(lane: &Lane, map: &Map, timer: &mut Timer) -> Option<ParkingLane> {
+    fn new(lane: &Lane, map: &Map) -> Option<ParkingLane> {
         if lane.lane_type != LaneType::Parking {
             return None;
         }
@@ -644,7 +648,7 @@ impl ParkingLane {
         {
             l
         } else {
-            timer.warn(format!("Parking lane {} has no sidewalk!", lane.id));
+            warn!("Parking lane {} has no sidewalk!", lane.id);
             return None;
         };
 
@@ -652,15 +656,16 @@ impl ParkingLane {
             parking_lane: lane.id,
             driving_lane,
             sidewalk,
-            spot_dist_along: (0..lane.number_parking_spots())
-                .map(|idx| map_model::PARKING_SPOT_LENGTH * (2.0 + idx as f64))
+            spot_dist_along: (0..lane.number_parking_spots(map.get_config()))
+                .map(|idx| map.get_config().street_parking_spot_length * (2.0 + idx as f64))
                 .collect(),
         })
     }
 
-    fn dist_along_for_car(&self, spot_idx: usize, vehicle: &Vehicle) -> Distance {
+    fn dist_along_for_car(&self, spot_idx: usize, vehicle: &Vehicle, map: &Map) -> Distance {
         // Find the offset to center this particular car in the parking spot
-        self.spot_dist_along[spot_idx] - (map_model::PARKING_SPOT_LENGTH - vehicle.length) / 2.0
+        self.spot_dist_along[spot_idx]
+            - (map.get_config().street_parking_spot_length - vehicle.length) / 2.0
     }
 
     fn spots(&self) -> Vec<ParkingSpot> {
@@ -777,7 +782,7 @@ impl InfiniteParkingSimState {
 }
 
 impl ParkingSim for InfiniteParkingSimState {
-    fn handle_live_edits(&mut self, map: &Map, _: &mut Timer) -> (Vec<ParkedCar>, Vec<CarID>) {
+    fn handle_live_edits(&mut self, map: &Map) -> (Vec<ParkedCar>, Vec<CarID>) {
         // Can live edits possibly affect anything?
         let new = InfiniteParkingSimState::new(map);
         self.driving_to_offstreet = new.driving_to_offstreet;
@@ -802,6 +807,10 @@ impl ParkingSim for InfiniteParkingSimState {
     fn reserve_spot(&mut self, spot: ParkingSpot, car: CarID) {
         assert!(self.is_free(spot));
         self.reserved_spots.insert(spot, car);
+    }
+
+    fn unreserve_spot(&mut self, car: CarID) {
+        retain_btreemap(&mut self.reserved_spots, |_, c| car != *c);
     }
 
     fn remove_parked_car(&mut self, p: ParkedCar) {

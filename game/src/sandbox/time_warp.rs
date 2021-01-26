@@ -6,8 +6,8 @@ use map_gui::render::DrawOptions;
 use map_gui::tools::{grey_out_map, PopupMsg};
 use map_gui::ID;
 use widgetry::{
-    Btn, Checkbox, Choice, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
-    Panel, Slider, State, StyledButtons, Text, UpdateType, Widget,
+    Checkbox, Choice, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
+    Slider, State, StyledButtons, Text, UpdateType, Widget,
 };
 
 use crate::app::{App, FindDelayedIntersections, ShowEverything, Transition};
@@ -35,8 +35,14 @@ impl JumpToTime {
             panel: Panel::new(Widget::col(vec![
                 ctx.style().btn_close_widget(ctx),
                 Widget::custom_row(vec![
-                    Btn::text_bg2("Jump to time").inactive(ctx),
-                    Btn::text_bg2("Jump to delay").build_def(ctx, Key::D),
+                    ctx.style()
+                        .btn_solid_dark_text("Jump to time")
+                        .disabled(true)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_solid_dark_text("Jump to delay")
+                        .hotkey(Key::D)
+                        .build_def(ctx),
                 ])
                 .bg(Color::WHITE),
                 Line("Jump to what time?").small_heading().draw(ctx),
@@ -164,8 +170,14 @@ impl JumpToDelay {
             panel: Panel::new(Widget::col(vec![
                 ctx.style().btn_close_widget(ctx),
                 Widget::custom_row(vec![
-                    Btn::text_bg2("Jump to time").build_def(ctx, Key::T),
-                    Btn::text_bg2("Jump to delay").inactive(ctx),
+                    ctx.style()
+                        .btn_solid_dark_text("Jump to time")
+                        .hotkey(Key::T)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_solid_dark_text("Jump to delay")
+                        .disabled(true)
+                        .build_def(ctx),
                 ])
                 .bg(Color::WHITE),
                 Widget::row(vec![
@@ -283,8 +295,10 @@ impl TimeWarpScreen {
             panel: Panel::new(
                 Widget::col(vec![
                     Text::new().draw(ctx).named("text"),
-                    Btn::text_bg2("stop now")
-                        .build_def(ctx, Key::Escape)
+                    ctx.style()
+                        .btn_solid_dark_text("stop now")
+                        .hotkey(Key::Escape)
+                        .build_def(ctx)
                         .centered_horiz(),
                 ])
                 // hardcoded width avoids jiggle due to text updates
@@ -460,15 +474,19 @@ fn compare_count(after: usize, before: usize) -> String {
 }
 
 fn build_jump_to_time_btn(ctx: &EventCtx, target: Time) -> Widget {
-    Btn::text_bg2(format!("Jump to {}", target.ampm_tostring()))
-        .build(ctx, "jump to time", Key::Enter)
+    ctx.style()
+        .btn_solid_dark_text(&format!("Jump to {}", target.ampm_tostring()))
+        .hotkey(Key::Enter)
+        .build_widget(ctx, "jump to time")
         .centered_horiz()
         .margin_above(16)
 }
 
 fn build_jump_to_delay_button(ctx: &EventCtx, delay: Duration) -> Widget {
-    Btn::text_bg2(format!("Jump to next {} delay", delay))
-        .build(ctx, "jump to delay", Key::Enter)
+    ctx.style()
+        .btn_solid_dark_text(&format!("Jump to next {} delay", delay))
+        .hotkey(Key::Enter)
+        .build_widget(ctx, "jump to delay")
         .centered_horiz()
         .margin_above(16)
 }

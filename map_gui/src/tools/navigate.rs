@@ -2,8 +2,8 @@ use std::collections::HashSet;
 
 use map_model::RoadID;
 use widgetry::{
-    Autocomplete, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
-    State, StyledButtons, Text, Transition, Widget,
+    Autocomplete, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State,
+    StyledButtons, Text, Transition, Widget,
 };
 
 use crate::tools::grey_out_map;
@@ -31,7 +31,10 @@ impl Navigator {
                         .collect(),
                 )
                 .named("street"),
-                Btn::text_fg("Search by business name or address").build_def(ctx, Key::Tab),
+                ctx.style()
+                    .btn_outline_light_text("Search by business name or address")
+                    .hotkey(Key::Tab)
+                    .build_def(ctx),
             ]))
             .build(ctx),
         })
@@ -235,7 +238,10 @@ impl SearchBuildings {
                         .collect(),
                 )
                 .named("bldg"),
-                Btn::text_fg("Search for streets").build_def(ctx, Key::Tab),
+                ctx.style()
+                    .btn_outline_light_text("Search for streets")
+                    .hotkey(Key::Tab)
+                    .build_def(ctx),
             ]))
             .build(ctx),
         })

@@ -2,7 +2,7 @@ use abstio::MapName;
 use geom::{Distance, Percent, Polygon, Pt2D};
 use map_model::City;
 use widgetry::{
-    Autocomplete, Btn, Color, ControlState, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line,
+    Autocomplete, Color, ControlState, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line,
     Outcome, Panel, ScreenPt, State, StyledButtons, Text, TextExt, Transition, Widget,
 };
 
@@ -60,17 +60,18 @@ impl<A: AppLike + 'static> CityPicker<A> {
                     for (name, polygon) in city.regions {
                         let color = app.cs().rotating_color_agents(regions.len());
 
-                        let btn = Btn::txt(
-                            name.path(),
-                            Text::from(Line(nice_map_name(&name)).fg(color)),
-                        )
-                        .no_tooltip();
+                        let btn = ctx
+                            .style()
+                            .btn_outline_light_text(nice_map_name(&name))
+                            .label_color(color, ControlState::Default)
+                            .no_tooltip();
 
+                        let action = name.path();
                         if &name == app.map().get_name() {
-                            this_city.push(btn.inactive(ctx));
-                            batch.push(color.alpha(0.5), polygon.clone());
+                            let btn = btn.disabled(true);
+                            this_city.push(btn.build_widget(ctx, &action));
                         } else {
-                            this_city.push(btn.build_def(ctx, None));
+                            this_city.push(btn.build_widget(ctx, &action));
                             batch.push(color, polygon.to_outline(Distance::meters(200.0)).unwrap());
                             regions.push((name, color, polygon.scale(zoom)));
                         }
@@ -86,14 +87,20 @@ impl<A: AppLike + 'static> CityPicker<A> {
                         continue;
                     }
                     // If there's only one map in the city, make the button directly load it.
+                    let button = ctx.style().btn_outline_light_text(&city);
                     let maps = MapName::list_all_maps_in_city(&city);
                     if maps.len() == 1 {
-                        other_cities.push(Btn::text_fg(city).build(ctx, maps[0].path(), None));
+                        other_cities.push(button.build_widget(ctx, &maps[0].path()));
                     } else {
-                        other_cities.push(Btn::text_fg(city).no_tooltip().build_def(ctx, None));
+                        other_cities.push(button.no_tooltip().build_def(ctx));
                     }
                 }
-                other_cities.push(Btn::text_bg2("Search all maps").build_def(ctx, Key::Tab));
+                other_cities.push(
+                    ctx.style()
+                        .btn_solid_dark_text("Search all maps")
+                        .hotkey(Key::Tab)
+                        .build_def(ctx),
+                );
 
                 Transition::Replace(Box::new(CityPicker {
                     regions,
@@ -126,7 +133,9 @@ impl<A: AppLike + 'static> CityPicker<A> {
                                 .build_widget(ctx, "import new city"),
                         ]),
                         if cfg!(not(target_arch = "wasm32")) {
-                            Btn::text_fg("Download more cities").build_def(ctx, None)
+                            ctx.style()
+                                .btn_outline_light_text("Download more cities")
+                                .build_def(ctx)
                         } else {
                             Widget::nothing()
                         },
@@ -262,8 +271,9 @@ impl<A: AppLike + 'static> AllCityPicker<A> {
 
         for name in MapName::list_all_maps() {
             buttons.push(
-                Btn::text_fg(name.describe())
-                    .build(ctx, name.path(), None)
+                ctx.style()
+                    .btn_outline_light_text(&name.describe())
+                    .build_widget(ctx, &name.path())
                     .margin_right(10)
                     .margin_below(10),
             );

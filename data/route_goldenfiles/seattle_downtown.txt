@@ -1,12 +1,12 @@
-https://www.openstreetmap.org/relation/8624462 from Lane #8061 to None
-  3rd Ave & Madison St: Position(Lane #17103, 64.6298m) driving, Position(Lane #17102, 64.6692m) sidewalk
-  3rd Ave & Union St: Position(Lane #12627, 86.6295m) driving, Position(Lane #12628, 86.6407m) sidewalk
-https://www.openstreetmap.org/relation/8624463 from Lane #8061 to None
-  3rd Ave & Madison St: Position(Lane #17103, 64.6298m) driving, Position(Lane #17102, 64.6692m) sidewalk
-  3rd Ave & Union St: Position(Lane #12627, 86.6295m) driving, Position(Lane #12628, 86.6407m) sidewalk
-https://www.openstreetmap.org/relation/9338838 from Lane #8061 to None
-  3rd Ave & Madison St: Position(Lane #17103, 64.6298m) driving, Position(Lane #17102, 64.6692m) sidewalk
-  3rd Ave & Union St: Position(Lane #12627, 86.6295m) driving, Position(Lane #12628, 86.6407m) sidewalk
-https://www.openstreetmap.org/relation/9341184 from Lane #8061 to None
-  3rd Ave & Madison St: Position(Lane #17103, 64.6298m) driving, Position(Lane #17102, 64.6692m) sidewalk
-  3rd Ave & Union St: Position(Lane #12627, 86.6295m) driving, Position(Lane #12628, 86.6407m) sidewalk
+https://www.openstreetmap.org/relation/8624462 from Lane #8208 to None
+  3rd Ave & Madison St: Position(Lane #17370, 64.6298m) driving, Position(Lane #17369, 64.6692m) sidewalk
+  3rd Ave & Union St: Position(Lane #12859, 86.6295m) driving, Position(Lane #12860, 86.6407m) sidewalk
+https://www.openstreetmap.org/relation/8624463 from Lane #8208 to None
+  3rd Ave & Madison St: Position(Lane #17370, 64.6298m) driving, Position(Lane #17369, 64.6692m) sidewalk
+  3rd Ave & Union St: Position(Lane #12859, 86.6295m) driving, Position(Lane #12860, 86.6407m) sidewalk
+https://www.openstreetmap.org/relation/9338838 from Lane #8208 to None
+  3rd Ave & Madison St: Position(Lane #17370, 64.6298m) driving, Position(Lane #17369, 64.6692m) sidewalk
+  3rd Ave & Union St: Position(Lane #12859, 86.6295m) driving, Position(Lane #12860, 86.6407m) sidewalk
+https://www.openstreetmap.org/relation/9341184 from Lane #8208 to None
+  3rd Ave & Madison St: Position(Lane #17370, 64.6298m) driving, Position(Lane #17369, 64.6692m) sidewalk
+  3rd Ave & Union St: Position(Lane #12859, 86.6295m) driving, Position(Lane #12860, 86.6407m) sidewalk

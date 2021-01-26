@@ -1,12 +1,12 @@
 use geom::{ArrowCap, Distance, PolyLine};
 use map_gui::tools::{ColorLegend, ColorNetwork};
 use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Panel, StyledButtons,
-    Text, TextExt, VerticalAlignment, Widget,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Panel, Text,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::App;
-use crate::layer::{Layer, LayerOutcome};
+use crate::layer::{header, Layer, LayerOutcome};
 
 pub struct Elevation {
     unzoomed: Drawable,
@@ -88,11 +88,7 @@ impl Elevation {
         colorer.unzoomed.append(batch);
 
         let panel = Panel::new(Widget::col(vec![
-            Widget::row(vec![
-                Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
-                "Elevation change".draw_text(ctx),
-                ctx.style().btn_close_widget(ctx),
-            ]),
+            header(ctx, "Elevation change"),
             Text::from_multiline(vec![
                 Line(format!("Steepest road: {:.0}% grade", max * 100.0)),
                 Line("Note: elevation data is currently wrong!").secondary(),

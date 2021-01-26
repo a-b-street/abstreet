@@ -12,9 +12,9 @@ use map_model::connectivity::WalkingOptions;
 use map_model::{AmenityType, Building, BuildingID, LaneType};
 use widgetry::table::{Col, Filter, Table};
 use widgetry::{
-    lctrl, Btn, Cached, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, Text, TextExt, Transition,
-    VerticalAlignment, Widget,
+    lctrl, Cached, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, StyledButtons, Text,
+    Transition, VerticalAlignment, Widget,
 };
 
 use crate::find_home::FindHome;
@@ -271,14 +271,15 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
         ctx.style().btn_close_widget(ctx),
     ]));
 
-    rows.push(Widget::row(vec![
-        "Map:".draw_text(ctx),
-        Btn::pop_up(ctx, Some(nice_map_name(app.map.get_name()))).build(
-            ctx,
-            "change map",
-            lctrl(Key::L),
-        ),
-    ]));
+    rows.push(
+        ctx.style()
+            .btn_light_popup_icon_text(
+                "system/assets/tools/map.svg",
+                nice_map_name(app.map.get_name()),
+            )
+            .hotkey(lctrl(Key::L))
+            .build_widget(ctx, "change map"),
+    );
 
     rows.push(
         Text::from_all(vec![
@@ -315,11 +316,9 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
 
     for (amenity, buildings) in isochrone.amenities_reachable.borrow() {
         rows.push(
-            Btn::text_fg(format!("{}: {}", amenity, buildings.len())).build(
-                ctx,
-                format!("businesses: {}", amenity),
-                None,
-            ),
+            ctx.style()
+                .btn_outline_light_text(&format!("{}: {}", amenity, buildings.len()))
+                .build_widget(ctx, &format!("businesses: {}", amenity)),
         );
     }
 
@@ -327,10 +326,17 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
     rows.push(Widget::horiz_separator(ctx, 0.3).margin_above(10));
 
     rows.push(options_to_controls(ctx, &isochrone.options));
-    rows.push(Btn::text_bg1("Find your perfect home").build_def(ctx, None));
+    rows.push(
+        ctx.style()
+            .btn_solid_dark_text("Find your perfect home")
+            .build_def(ctx),
+    );
     rows.push(Widget::row(vec![
-        Btn::plaintext("About").build_def(ctx, None),
-        Btn::svg_def("system/assets/tools/search.svg").build(ctx, "search", lctrl(Key::F)),
+        ctx.style().btn_plain_light_text("About").build_def(ctx),
+        ctx.style()
+            .btn_plain_light_icon("system/assets/tools/search.svg")
+            .hotkey(lctrl(Key::F))
+            .build_widget(ctx, "search"),
     ]));
 
     Panel::new(Widget::col(rows))
