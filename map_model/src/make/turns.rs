@@ -212,8 +212,15 @@ fn make_vehicle_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
                 continue;
             }
 
-            let turn_type =
+            let mut turn_type =
                 turn_type_from_angles(src.last_line().angle(), dst.first_line().angle());
+            if turn_type == TurnType::UTurn {
+                // Lots of false positives when classifying these just based on angles. So also
+                // require the road names to match.
+                if map.get_parent(src.id).get_name(None) != map.get_parent(dst.id).get_name(None) {
+                    turn_type = TurnType::Left;
+                }
+            }
             let geom = if turn_type == TurnType::Straight {
                 PolyLine::must_new(vec![src.last_pt(), dst.first_pt()])
             } else {
