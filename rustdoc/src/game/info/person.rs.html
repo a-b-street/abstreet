@@ -679,6 +679,10 @@
 <span id="676">676</span>
 <span id="677">677</span>
 <span id="678">678</span>
+<span id="679">679</span>
+<span id="680">680</span>
+<span id="681">681</span>
+<span id="682">682</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -1282,11 +1286,15 @@
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">id</span>)).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">icon</span>) <span class="op">=</span> <span class="ident">maybe_icon</span> {
-            <span class="ident">Widget</span>::<span class="ident">draw_svg_transform</span>(<span class="ident">ctx</span>, <span class="ident">icon</span>, <span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#A3A3A3&quot;</span>)))
-                .<span class="ident">margin_left</span>(<span class="number">28</span>)
+            <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>, <span class="ident">icon</span>)
+                .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#A3A3A3&quot;</span>)))
+                .<span class="ident">autocrop</span>();
+            <span class="kw">let</span> <span class="ident">y_factor</span> <span class="op">=</span> <span class="number">20.0</span> <span class="op">/</span> <span class="ident">batch</span>.<span class="ident">get_dims</span>().<span class="ident">height</span>;
+            <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>.<span class="ident">scale</span>(<span class="ident">y_factor</span>)).<span class="ident">margin_left</span>(<span class="number">28</span>)
         } <span class="kw">else</span> {
             <span class="ident">Widget</span>::<span class="ident">nothing</span>()
-        },
+        }
+        .<span class="ident">centered_vert</span>(),
         <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">descr</span>))
             .<span class="ident">small_heading</span>()
             .<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#A3A3A3&quot;</span>))
