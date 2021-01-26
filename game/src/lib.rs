@@ -124,6 +124,9 @@ fn setup_app(
 
     // SimFlags::load doesn't know how to do async IO, which we need on the web. But in the common
     // case, all we're creating there is a map. If so, use the proper async interface.
+    //
+    // Note if we started with a scenario, main() rewrote it to be the appropriate map, along with
+    // maybe_mode.
     if flags.sim_flags.load.contains("/maps/") {
         // Get App created with a dummy blank map
         let map = Map::blank();
@@ -162,9 +165,8 @@ fn setup_app(
         )];
         (app, states)
     } else {
-        // We're loading a savestate or a scenario or a RawMap. Do it with blocking IO. This won't
+        // We're loading a savestate or a RawMap. Do it with blocking IO. This won't
         // work on the web.
-        // TODO Handle starting from a scenario; that's also a likely useful case for the web.
         let primary = ctx.loading_screen("load map", |ctx, mut timer| {
             assert!(flags.sim_flags.modifiers.is_empty());
             let (map, sim, _) = flags.sim_flags.load(timer);
