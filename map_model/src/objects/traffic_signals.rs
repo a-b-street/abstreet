@@ -57,13 +57,7 @@ impl StageType {
     pub fn simple_duration(&self) -> Duration {
         match self {
             StageType::Fixed(d) => *d,
-            StageType::Variable(duration, delay, _) => {
-                if *duration > Duration::ZERO {
-                    *duration
-                } else {
-                    *delay
-                }
-            }
+            StageType::Variable(duration, _, _) => *duration,
         }
     }
 }
@@ -175,6 +169,14 @@ impl ControlTrafficSignal {
 
     /// Returns true if this did anything
     pub fn convert_to_ped_scramble(&mut self) -> bool {
+        self.internal_convert_to_ped_scramble(true)
+    }
+    /// Returns true if this did anything
+    pub fn convert_to_ped_scramble_without_promotion(&mut self) -> bool {
+        self.internal_convert_to_ped_scramble(false)
+    }
+
+    fn internal_convert_to_ped_scramble(&mut self, promote_yield_to_protected: bool) -> bool {
         let orig = self.clone();
 
         let mut all_walk_stage = Stage::new();
@@ -197,17 +199,19 @@ impl ControlTrafficSignal {
             retain_btreeset(&mut stage.protected_movements, |m| {
                 self.movements[m].turn_type != TurnType::Crosswalk
             });
-
-            // Blindly try to promote yield movements to protected, now that crosswalks are gone.
-            let mut promoted = Vec::new();
-            for m in &stage.yield_movements {
-                if stage.could_be_protected(*m, &self.movements) {
-                    stage.protected_movements.insert(*m);
-                    promoted.push(*m);
+            if promote_yield_to_protected {
+                // Blindly try to promote yield movements to protected, now that crosswalks are
+                // gone.
+                let mut promoted = Vec::new();
+                for m in &stage.yield_movements {
+                    if stage.could_be_protected(*m, &self.movements) {
+                        stage.protected_movements.insert(*m);
+                        promoted.push(*m);
+                    }
                 }
-            }
-            for m in promoted {
-                stage.yield_movements.remove(&m);
+                for m in promoted {
+                    stage.yield_movements.remove(&m);
+                }
             }
         }
         self.stages = replaced;
