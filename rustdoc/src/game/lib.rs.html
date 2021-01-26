@@ -262,6 +262,8 @@
 <span id="259">259</span>
 <span id="260">260</span>
 <span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
@@ -389,6 +391,9 @@
 
     <span class="comment">// SimFlags::load doesn&#39;t know how to do async IO, which we need on the web. But in the common</span>
     <span class="comment">// case, all we&#39;re creating there is a map. If so, use the proper async interface.</span>
+    <span class="comment">//</span>
+    <span class="comment">// Note if we started with a scenario, main() rewrote it to be the appropriate map, along with</span>
+    <span class="comment">// maybe_mode.</span>
     <span class="kw">if</span> <span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>.<span class="ident">contains</span>(<span class="string">&quot;/maps/&quot;</span>) {
         <span class="comment">// Get App created with a dummy blank map</span>
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map</span>::<span class="ident">blank</span>();
@@ -427,9 +432,8 @@
         )];
         (<span class="ident">app</span>, <span class="ident">states</span>)
     } <span class="kw">else</span> {
-        <span class="comment">// We&#39;re loading a savestate or a scenario or a RawMap. Do it with blocking IO. This won&#39;t</span>
+        <span class="comment">// We&#39;re loading a savestate or a RawMap. Do it with blocking IO. This won&#39;t</span>
         <span class="comment">// work on the web.</span>
-        <span class="comment">// TODO Handle starting from a scenario; that&#39;s also a likely useful case for the web.</span>
         <span class="kw">let</span> <span class="ident">primary</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;load map&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
             <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">modifiers</span>.<span class="ident">is_empty</span>());
             <span class="kw">let</span> (<span class="ident">map</span>, <span class="ident">sim</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>(<span class="ident">timer</span>);
