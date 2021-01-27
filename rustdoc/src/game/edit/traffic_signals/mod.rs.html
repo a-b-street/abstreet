@@ -916,7 +916,6 @@
 <span id="913">913</span>
 <span id="914">914</span>
 <span id="915">915</span>
-<span id="916">916</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 
@@ -1016,9 +1015,8 @@
         } <span class="kw">else</span> {
             <span class="self">self</span>.<span class="ident">current_stage</span> <span class="op">=</span> <span class="ident">idx</span>;
             <span class="self">self</span>.<span class="ident">side_panel</span> <span class="op">=</span> <span class="ident">make_side_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span>, <span class="self">self</span>.<span class="ident">current_stage</span>);
-            <span class="comment">// TODO Maybe center of previous member</span>
             <span class="self">self</span>.<span class="ident">side_panel</span>
-                .<span class="ident">scroll_to_member</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>));
+                .<span class="ident">scroll_to_member</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;change duration of stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>));
         }
 
         <span class="self">self</span>.<span class="ident">recalc_draw_current</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
