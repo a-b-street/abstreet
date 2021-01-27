@@ -5,6 +5,7 @@ extern crate log;
 
 use abstio::MapName;
 use abstutil::{CmdArgs, Timer};
+use geom::{LonLat, Pt2D};
 use map_gui::options::Options;
 use map_model::Map;
 use sim::{Sim, SimFlags};
@@ -88,6 +89,7 @@ pub fn main() {
         ));
     }
     let start_with_edits = args.optional("--edits");
+    let center_camera = args.optional("--cam");
 
     args.done();
 
@@ -99,6 +101,7 @@ pub fn main() {
             start_with_edits,
             mode,
             initialize_tutorial,
+            center_camera,
         )
     });
 }
@@ -110,6 +113,7 @@ fn setup_app(
     start_with_edits: Option<String>,
     maybe_mode: Option<GameplayMode>,
     initialize_tutorial: bool,
+    center_camera: Option<String>,
 ) -> (App, Vec<Box<dyn State<App>>>) {
     let title = !opts.dev
         && !flags.sim_flags.load.contains("player/save")
@@ -161,6 +165,7 @@ fn setup_app(
                     start_with_edits,
                     maybe_mode,
                     initialize_tutorial,
+                    center_camera,
                 ))
             }),
         )];
@@ -187,6 +192,7 @@ fn setup_app(
             start_with_edits,
             maybe_mode,
             initialize_tutorial,
+            center_camera,
         );
         (app, states)
     }
@@ -199,8 +205,16 @@ fn finish_app_setup(
     start_with_edits: Option<String>,
     maybe_mode: Option<GameplayMode>,
     initialize_tutorial: bool,
+    center_camera: Option<String>,
 ) -> Vec<Box<dyn State<App>>> {
-    app.primary.init_camera_for_loaded_map(ctx, title);
+    if let Some((pt, _zoom)) =
+        center_camera.and_then(|cam| parse_center_camera(&app.primary.map, cam))
+    {
+        // TODO Handle zoom
+        ctx.canvas.center_on_map_pt(pt);
+    } else {
+        app.primary.init_camera_for_loaded_map(ctx, title);
+    }
 
     // Handle savestates
     let savestate = if app
@@ -252,6 +266,26 @@ fn finish_app_setup(
     }
 
     states
+}
+
+/// Parse an OSM-style `zoom/lat/lon` string
+/// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks), returning the map point to
+/// center on and the camera zoom.
+// TODO This flag would also be useful in the other tools; lift to map_gui.
+fn parse_center_camera(map: &Map, raw: String) -> Option<(Pt2D, f64)> {
+    let parts: Vec<&str> = raw.split("/").collect();
+    if parts.len() != 3 {
+        return None;
+    }
+    let zoom = parts[0].parse::<usize>().ok()?;
+    let lat = parts[1].parse::<f64>().ok()?;
+    let lon = parts[2].parse::<f64>().ok()?;
+    let gps = LonLat::new(lon, lat);
+    if !map.get_gps_bounds().contains(gps) {
+        return None;
+    }
+    let pt = gps.to_pt(map.get_gps_bounds());
+    Some((pt, zoom as f64))
 }
 
 #[cfg(target_arch = "wasm32")]
