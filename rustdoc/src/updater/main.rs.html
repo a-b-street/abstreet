@@ -284,6 +284,9 @@
 <span id="281">281</span>
 <span id="282">282</span>
 <span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
@@ -467,7 +470,10 @@
         }
         <span class="kw">let</span> <span class="ident">orig_path</span> <span class="op">=</span> <span class="ident">entry</span>.<span class="ident">path</span>().<span class="ident">display</span>().<span class="ident">to_string</span>();
         <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">orig_path</span>.<span class="ident">replace</span>(<span class="string">&quot;\\&quot;</span>, <span class="string">&quot;/&quot;</span>);
-        <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">contains</span>(<span class="string">&quot;system/assets/&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">contains</span>(<span class="string">&quot;system/proposals&quot;</span>) {
+        <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">contains</span>(<span class="string">&quot;system/assets/&quot;</span>)
+            <span class="op">|</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">contains</span>(<span class="string">&quot;system/proposals&quot;</span>)
+            <span class="op">|</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">contains</span>(<span class="string">&quot;system/study_areas&quot;</span>)
+        {
             <span class="kw">continue</span>;
         }
         <span class="ident">paths</span>.<span class="ident">push</span>((<span class="ident">orig_path</span>, <span class="ident">path</span>));
