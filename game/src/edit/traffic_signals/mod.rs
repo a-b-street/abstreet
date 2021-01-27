@@ -96,9 +96,8 @@ impl TrafficSignalEditor {
         } else {
             self.current_stage = idx;
             self.side_panel = make_side_panel(ctx, app, &self.members, self.current_stage);
-            // TODO Maybe center of previous member
             self.side_panel
-                .scroll_to_member(ctx, format!("stage {}", idx + 1));
+                .scroll_to_member(ctx, format!("change duration of stage {}", idx + 1));
         }
 
         self.recalc_draw_current(ctx, app);
