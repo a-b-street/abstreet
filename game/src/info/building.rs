@@ -178,7 +178,7 @@ pub fn people(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Building
         details
             .hyperlinks
             .insert(p.to_string(), Tab::PersonTrips(p, BTreeMap::new()));
-        let widget = Widget::col(vec![
+        let widget = Widget::row(vec![
             ctx.style()
                 .btn_solid_dark_text(&p.to_string())
                 .build_def(ctx),
