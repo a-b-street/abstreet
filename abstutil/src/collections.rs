@@ -238,6 +238,10 @@ impl Tags {
         Tags(map)
     }
 
+    pub fn empty() -> Tags {
+        Tags(BTreeMap::new())
+    }
+
     pub fn get(&self, k: &str) -> Option<&String> {
         self.0.get(k)
     }

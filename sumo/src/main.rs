@@ -99,23 +99,23 @@ fn convert(orig_path: &str, network: Network) -> Result<Map> {
             intersections[dst_i.0].roads.insert(road_id);
             let speed_limit = edge.lanes[0].speed;
 
-            let mut tags = BTreeMap::new();
-            tags.insert("id".to_string(), edge.id.0.clone());
+            let mut osm_tags = Tags::empty();
+            osm_tags.insert("id", edge.id.0.clone());
             if let Some(name) = &edge.name {
-                tags.insert("name".to_string(), name.clone());
+                osm_tags.insert("name", name);
             }
             let parts: Vec<&str> = edge.edge_type.split(".").collect();
             // "highway.footway"
             if parts.len() != 2 {
                 bail!("Unknown edge_type {}", edge.edge_type);
             }
-            tags.insert(parts[0].to_string(), parts[1].to_string());
+            osm_tags.insert(parts[0], parts[1]);
             let mut lanes_ltr = lanes_rtl;
             lanes_ltr.reverse();
 
             roads.push(Road {
                 id: road_id,
-                osm_tags: Tags::new(tags),
+                osm_tags,
                 turn_restrictions: Vec::new(),
                 complicated_turn_restrictions: Vec::new(),
                 // TODO Temporary ID. We could consider squeezing SUMO IDs into this scheme.

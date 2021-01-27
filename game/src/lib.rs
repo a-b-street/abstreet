@@ -34,6 +34,7 @@ pub fn main() {
     let mut flags = Flags {
         sim_flags: SimFlags::from_args(&mut args),
         live_map_edits: args.enabled("--live_map_edits"),
+        study_area: args.optional("--study_area"),
     };
     let mut opts = Options::default();
     opts.toggle_day_night_colors = true;

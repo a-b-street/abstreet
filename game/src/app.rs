@@ -1,17 +1,19 @@
 use std::cell::RefCell;
 use std::collections::BTreeMap;
 
+use anyhow::Result;
 use maplit::btreemap;
 use rand::seq::SliceRandom;
 
 use abstio::MapName;
-use abstutil::Timer;
-use geom::{Bounds, Circle, Distance, Duration, Pt2D, Time};
+use abstutil::{Tags, Timer};
+use geom::{Bounds, Circle, Distance, Duration, LonLat, Pt2D, Ring, Time};
 use map_gui::colors::ColorScheme;
 use map_gui::options::Options;
 use map_gui::render::{unzoomed_agent_radius, AgentCache, DrawMap, DrawOptions, Renderable};
 use map_gui::tools::CameraState;
 use map_gui::ID;
+use map_model::AreaType;
 use map_model::{IntersectionID, LaneID, Map, Traversable};
 use sim::{AgentID, Analytics, Scenario, Sim, SimCallback, SimFlags};
 use widgetry::{Canvas, EventCtx, GfxCtx, Prerender, SharedAppState, State};
@@ -568,6 +570,9 @@ pub struct Flags {
     /// If true, all map edits immediately apply to the live simulation. Otherwise, most edits
     /// require resetting to midnight.
     pub live_map_edits: bool,
+    /// Display an extra area with this name on the map. This gets applied to every map loaded, if
+    /// the area is within map bounds.
+    pub study_area: Option<String>,
 }
 
 /// All of the state that's bound to a specific map.
@@ -606,7 +611,7 @@ pub struct PerMap {
 
 impl PerMap {
     pub fn map_loaded(
-        map: Map,
+        mut map: Map,
         sim: Sim,
         flags: Flags,
         opts: &Options,
@@ -614,6 +619,12 @@ impl PerMap {
         ctx: &mut EventCtx,
         timer: &mut Timer,
     ) -> PerMap {
+        if let Some(ref name) = flags.study_area {
+            if let Err(err) = add_study_area(&mut map, name) {
+                error!("Didn't apply study area {}: {}", name, err);
+            }
+        }
+
         timer.start("draw_map");
         let draw_map = DrawMap::new(ctx, &map, opts, cs, timer);
         timer.stop("draw_map");
@@ -826,4 +837,39 @@ impl SharedAppState for App {
     fn before_quit(&self, canvas: &Canvas) {
         CameraState::save(canvas, self.primary.map.get_name());
     }
+}
+
+/// Load an extra GeoJSON file, and add the area to the map dynamically.
+fn add_study_area(map: &mut Map, name: &str) -> Result<()> {
+    let bytes = abstio::slurp_file(abstio::path(format!("system/study_areas/{}.geojson", name)))?;
+    let raw_string = std::str::from_utf8(&bytes)?;
+    let geojson = raw_string.parse::<geojson::GeoJson>()?;
+
+    if let geojson::GeoJson::FeatureCollection(collection) = geojson {
+        for feature in collection.features {
+            if let Some(geom) = feature.geometry {
+                if let geojson::Value::Polygon(raw_pts) = geom.value {
+                    // TODO Handle holes, and also, refactor this!
+                    let gps_pts: Vec<LonLat> = raw_pts[0]
+                        .iter()
+                        .map(|pt| LonLat::new(pt[0], pt[1]))
+                        .collect();
+                    if let Some(pts) = map.get_gps_bounds().try_convert(&gps_pts) {
+                        let mut tags = Tags::empty();
+                        if let Some(props) = feature.properties {
+                            for (k, v) in props {
+                                tags.insert(k, v.to_string());
+                            }
+                        }
+
+                        if let Ok(ring) = Ring::new(pts) {
+                            map.hack_add_area(AreaType::StudyArea, ring.to_polygon(), tags);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(())
 }

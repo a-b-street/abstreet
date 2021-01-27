@@ -522,7 +522,7 @@ fn generate_osmc(data: &BTreeMap<WayID, Value>, in_seattle: bool, timer: &mut Ti
         let mut tree = xmltree::Element::parse(resp.as_bytes())?
             .take_child("way")
             .unwrap();
-        let mut osm_tags = Tags::new(BTreeMap::new());
+        let mut osm_tags = Tags::empty();
         let mut other_children = Vec::new();
         for node in tree.children.drain(..) {
             if let Some(elem) = node.as_element() {

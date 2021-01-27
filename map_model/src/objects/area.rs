@@ -29,6 +29,8 @@ pub enum AreaType {
     Island,
     MedianStrip,
     PedestrianPlaza,
+    /// Not from OSM. A user-specified area to focus on.
+    StudyArea,
 }
 
 /// Areas are just used for drawing.

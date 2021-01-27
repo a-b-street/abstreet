@@ -385,7 +385,7 @@ mod tests {
     }
 
     fn tags(kv: Vec<&str>) -> Tags {
-        let mut tags = Tags::new(std::collections::BTreeMap::new());
+        let mut tags = Tags::empty();
         for pair in kv {
             let parts = pair.split('=').collect::<Vec<_>>();
             tags.insert(parts[0], parts[1]);

@@ -87,7 +87,7 @@ pub fn make_all_buildings(
                         .iter()
                         .map(|a| {
                             let mut a = a.clone();
-                            a.osm_tags = Tags::new(BTreeMap::new());
+                            a.osm_tags = Tags::empty();
                             a
                         })
                         .collect()
@@ -110,7 +110,7 @@ pub fn make_all_buildings(
                 osm_tags: if keep_bldg_tags {
                     b.osm_tags.clone()
                 } else {
-                    Tags::new(BTreeMap::new())
+                    Tags::empty()
                 },
 
                 sidewalk_pos: *sidewalk_pos,
