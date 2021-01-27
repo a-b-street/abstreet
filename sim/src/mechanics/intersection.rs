@@ -8,7 +8,7 @@ use abstutil::{
 use geom::{Duration, Time};
 use map_model::{
     ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, LaneID, Map, PhaseType,
-    Stage, Traversable, TurnID, TurnPriority, TurnType, UberTurn,
+    Traversable, TurnID, TurnPriority, TurnType, UberTurn,
 };
 
 use crate::mechanics::car::Car;
@@ -254,16 +254,6 @@ impl IntersectionSimState {
         map: &Map,
         scheduler: &mut Scheduler,
     ) {
-        // trivial function that returns true if the stage is just crosswalks
-        // todo bb: consider moving to Stage impl
-        fn is_all_walk(stage: &Stage) -> bool {
-            for m in &stage.protected_movements {
-                if !m.crosswalk {
-                    return false;
-                }
-            }
-            stage.yield_movements.is_empty()
-        }
         // trivial function that advances the signal stage and returns duration
         fn advance(
             signal_state: &mut SignalState,
@@ -274,7 +264,7 @@ impl IntersectionSimState {
             let stage = &signal.stages[signal_state.current_stage];
             // only skip for variable all-walk crosswalk
             if let PhaseType::Variable(_, _, _) = stage.phase_type {
-                if allow_crosswalk_skip && is_all_walk(stage) {
+                if allow_crosswalk_skip && stage.contains_only_crosswalks() {
                     // we can skip this stage, as its all walk and we're allowed to skip (no
                     // pedestrian waiting).
                     signal_state.current_stage =
