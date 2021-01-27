@@ -129,6 +129,7 @@ pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration)
                 match name {
                     "downtown" => 5,
                     "lakeslice" => 5,
+                    "rainier_valley" => 3,
                     "south_seattle" => 5,
                     "udistrict" => 5,
                     _ => 1,

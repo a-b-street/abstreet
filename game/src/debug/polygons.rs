@@ -1,8 +1,8 @@
 use geom::{Polygon, Pt2D, Triangle};
 use map_gui::tools::PopupMsg;
 use widgetry::{
-    EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, State, StyledButtons,
-    Text, TextExt, VerticalAlignment, Widget,
+    EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
+    StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -39,10 +39,17 @@ impl PolygonDebugger {
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 Widget::row(vec![
-                    // TODO inactive
-                    ctx.style().btn_prev().build_widget(ctx, "previous"),
+                    // TODO Make these inactive when on the first/last. More generally, refactor
+                    // some kind of pagination helper.
+                    ctx.style()
+                        .btn_prev()
+                        .hotkey(Key::LeftArrow)
+                        .build_widget(ctx, "previous"),
                     "noun X/Y".draw_text(ctx).named("pointer"),
-                    ctx.style().btn_next().build_widget(ctx, "next"),
+                    ctx.style()
+                        .btn_next()
+                        .hotkey(Key::RightArrow)
+                        .build_widget(ctx, "next"),
                 ])
                 .evenly_spaced(),
             ]))

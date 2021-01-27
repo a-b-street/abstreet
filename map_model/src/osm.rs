@@ -49,6 +49,34 @@ impl RoadRank {
             _ => RoadRank::Local,
         }
     }
+
+    /// Larger number means a bigger road, according to https://wiki.openstreetmap.org/wiki/Key:highway
+    pub fn detailed_from_highway(hwy: &str) -> usize {
+        for (idx, x) in vec![
+            "motorway",
+            "motorway_link",
+            "trunk",
+            "trunk_link",
+            "primary",
+            "primary_link",
+            "secondary",
+            "secondary_link",
+            "tertiary",
+            "tertiary_link",
+            "unclassified",
+            "residential",
+            "cycleway",
+        ]
+        .into_iter()
+        .enumerate()
+        {
+            if hwy == x {
+                return 100 - idx;
+            }
+        }
+        // Everything else gets lowest priority
+        0
+    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]

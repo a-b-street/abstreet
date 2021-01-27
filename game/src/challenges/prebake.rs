@@ -27,7 +27,10 @@ pub fn prebake_all() {
         }
     }
 
-    for name in vec![MapName::seattle("lakeslice")] {
+    for name in vec![
+        MapName::seattle("lakeslice"),
+        MapName::seattle("rainier_valley"),
+    ] {
         let map = map_model::Map::new(name.path(), &mut timer);
         let scenario: Scenario =
             abstio::read_binary(abstio::path_scenario(map.get_name(), "weekday"), &mut timer);

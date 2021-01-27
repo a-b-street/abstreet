@@ -196,12 +196,12 @@ fn make_pagination(ctx: &mut EventCtx, total: usize, skip: usize) -> Widget {
         .style()
         .btn_next()
         .disabled(skip + 1 + ROWS >= total)
-        .hotkey(Key::LeftArrow);
+        .hotkey(Key::RightArrow);
     let prev = ctx
         .style()
         .btn_prev()
         .disabled(skip == 0)
-        .hotkey(Key::RightArrow);
+        .hotkey(Key::LeftArrow);
 
     Widget::row(vec![
         prev.build_widget(ctx, "previous"),

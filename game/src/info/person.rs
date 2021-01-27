@@ -600,11 +600,15 @@ fn header(
     rows.push(Widget::custom_row(vec![
         Line(format!("{}", id)).small_heading().draw(ctx),
         if let Some(icon) = maybe_icon {
-            Widget::draw_svg_transform(ctx, icon, RewriteColor::ChangeAll(Color::hex("#A3A3A3")))
-                .margin_left(28)
+            let batch = GeomBatch::load_svg(ctx, icon)
+                .color(RewriteColor::ChangeAll(Color::hex("#A3A3A3")))
+                .autocrop();
+            let y_factor = 20.0 / batch.get_dims().height;
+            Widget::draw_batch(ctx, batch.scale(y_factor)).margin_left(28)
         } else {
             Widget::nothing()
-        },
+        }
+        .centered_vert(),
         Line(format!("{}", descr))
             .small_heading()
             .fg(Color::hex("#A3A3A3"))
