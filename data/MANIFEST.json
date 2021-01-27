@@ -275,6 +275,21 @@
       "uncompressed_size_bytes": 24392306,
       "compressed_size_bytes": 6861518
     },
+    "data/input/providence/osm/downtown.osm": {
+      "checksum": "463b986adc83ae4d1174496a4ce744d1",
+      "uncompressed_size_bytes": 28835517,
+      "compressed_size_bytes": 2722837
+    },
+    "data/input/providence/osm/rhode-island-latest.osm.pbf": {
+      "checksum": "125f6f64b3d211b0a7759ed21abb3b79",
+      "uncompressed_size_bytes": 41818936,
+      "compressed_size_bytes": 41774574
+    },
+    "data/input/providence/raw_maps/downtown.bin": {
+      "checksum": "c54db43fa183110ef7cafe6b8d77cc9a",
+      "uncompressed_size_bytes": 5520075,
+      "compressed_size_bytes": 1669798
+    },
     "data/input/salzburg/osm/austria-latest.osm.pbf": {
       "checksum": "53a70dc6134b6370502218b9f2f5ecf2",
       "uncompressed_size_bytes": 631097048,
@@ -785,6 +800,11 @@
       "uncompressed_size_bytes": 49575210,
       "compressed_size_bytes": 16935174
     },
+    "data/system/providence/maps/downtown.bin": {
+      "checksum": "e627ea0c650a54faf5b970a9219a389a",
+      "uncompressed_size_bytes": 17093516,
+      "compressed_size_bytes": 6220693
+    },
     "data/system/salzburg/city.bin": {
       "checksum": "79aa21f2df73501818c02821ba915bb8",
       "uncompressed_size_bytes": 1084423,
@@ -821,9 +841,9 @@
       "compressed_size_bytes": 18228660
     },
     "data/system/seattle/maps/downtown.bin": {
-      "checksum": "661a133625f2e997e11e790b53beb0da",
-      "uncompressed_size_bytes": 29297095,
-      "compressed_size_bytes": 10109042
+      "checksum": "3587f8705569ee8955a4b5c32160a0c6",
+      "uncompressed_size_bytes": 29308389,
+      "compressed_size_bytes": 10095928
     },
     "data/system/seattle/maps/huge_seattle.bin": {
       "checksum": "65362090429b5fcd5ad736dd7b66aee8",

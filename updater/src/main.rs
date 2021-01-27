@@ -180,7 +180,10 @@ fn generate_manifest() -> Manifest {
         }
         let orig_path = entry.path().display().to_string();
         let path = orig_path.replace("\\", "/");
-        if path.contains("system/assets/") || path.contains("system/proposals") {
+        if path.contains("system/assets/")
+            || path.contains("system/proposals")
+            || path.contains("system/study_areas")
+        {
             continue;
         }
         paths.push((orig_path, path));
