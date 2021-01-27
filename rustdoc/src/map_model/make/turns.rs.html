@@ -403,6 +403,12 @@
 <span id="400">400</span>
 <span id="401">401</span>
 <span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -618,13 +624,19 @@
                 <span class="kw">continue</span>;
             }
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">turn_type</span> <span class="op">=</span>
-                <span class="ident">turn_type_from_angles</span>(<span class="ident">src</span>.<span class="ident">last_line</span>().<span class="ident">angle</span>(), <span class="ident">dst</span>.<span class="ident">first_line</span>().<span class="ident">angle</span>());
+            <span class="kw">let</span> <span class="ident">from_angle</span> <span class="op">=</span> <span class="ident">src</span>.<span class="ident">last_line</span>().<span class="ident">angle</span>();
+            <span class="kw">let</span> <span class="ident">to_angle</span> <span class="op">=</span> <span class="ident">dst</span>.<span class="ident">first_line</span>().<span class="ident">angle</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">turn_type</span> <span class="op">=</span> <span class="ident">turn_type_from_angles</span>(<span class="ident">from_angle</span>, <span class="ident">to_angle</span>);
             <span class="kw">if</span> <span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TurnType</span>::<span class="ident">UTurn</span> {
                 <span class="comment">// Lots of false positives when classifying these just based on angles. So also</span>
                 <span class="comment">// require the road names to match.</span>
                 <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">src</span>.<span class="ident">id</span>).<span class="ident">get_name</span>(<span class="prelude-val">None</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">dst</span>.<span class="ident">id</span>).<span class="ident">get_name</span>(<span class="prelude-val">None</span>) {
-                    <span class="ident">turn_type</span> <span class="op">=</span> <span class="ident">TurnType</span>::<span class="ident">Left</span>;
+                    <span class="comment">// Distinguish really sharp lefts/rights based on clockwiseness</span>
+                    <span class="kw">if</span> <span class="ident">from_angle</span>.<span class="ident">simple_shortest_rotation_towards</span>(<span class="ident">to_angle</span>) <span class="op">&lt;</span> <span class="number">0.0</span> {
+                        <span class="ident">turn_type</span> <span class="op">=</span> <span class="ident">TurnType</span>::<span class="ident">Right</span>;
+                    } <span class="kw">else</span> {
+                        <span class="ident">turn_type</span> <span class="op">=</span> <span class="ident">TurnType</span>::<span class="ident">Left</span>;
+                    }
                 }
             }
             <span class="kw">let</span> <span class="ident">geom</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TurnType</span>::<span class="ident">Straight</span> {
