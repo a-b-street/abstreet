@@ -1,11 +1,11 @@
 use std::fs::File;
 
-use rand::{Rng, SeedableRng};
+use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use serde::Deserialize;
 
-use abstutil::{prettyprint_usize, Timer};
-use geom::{Polygon, Ring};
+use abstutil::Timer;
+use geom::Ring;
 use kml::ExtraShapes;
 use map_model::raw::RawMap;
 use map_model::BuildingType;
@@ -42,7 +42,7 @@ pub fn import_extra_data(map: &RawMap, config: &ImporterConfiguration, timer: &m
 
 // Modify the filtered KML of planning areas with the number of residents from a different dataset.
 fn correlate_population(kml_path: &str, csv_path: &str, timer: &mut Timer) {
-    let mut shapes = abstutil::read_binary::<ExtraShapes>(kml_path.to_string(), timer);
+    let mut shapes = abstio::read_binary::<ExtraShapes>(kml_path.to_string(), timer);
     for rec in csv::ReaderBuilder::new()
         .delimiter(b';')
         .from_reader(File::open(csv_path).unwrap())
@@ -58,7 +58,7 @@ fn correlate_population(kml_path: &str, csv_path: &str, timer: &mut Timer) {
             }
         }
     }
-    abstutil::write_binary(kml_path.to_string(), &shapes);
+    abstio::write_binary(kml_path.to_string(), &shapes);
 }
 
 #[derive(Debug, Deserialize)]
@@ -72,7 +72,7 @@ struct Record {
 }
 
 pub fn distribute_residents(map: &mut map_model::Map, timer: &mut Timer) {
-    for shape in abstutil::read_binary::<ExtraShapes>(
+    for shape in abstio::read_binary::<ExtraShapes>(
         "data/input/berlin/planning_areas.bin".to_string(),
         timer,
     )
@@ -86,45 +86,17 @@ pub fn distribute_residents(map: &mut map_model::Map, timer: &mut Timer) {
             continue;
         }
         let region = Ring::must_new(pts).to_polygon();
-        let bldgs: Vec<map_model::BuildingID> = map
-            .all_buildings()
-            .into_iter()
-            .filter(|b| region.contains_pt(b.label_center) && b.bldg_type.has_residents())
-            .map(|b| b.id)
-            .collect();
-        let orig_num_residents = shape.attributes["num_residents"].parse::<f64>().unwrap();
-
-        // If the region is partly out-of-bounds, then scale down the number of residents linearly
-        // based on area of the overlapping part of the polygon.
-        let pct_overlap = Polygon::union_all(region.intersection(map.get_boundary_polygon()))
-            .area()
-            / region.area();
-        let num_residents = (pct_overlap * orig_num_residents) as usize;
-        timer.note(format!(
-            "Distributing {} residents in {} to {} buildings. {}% of this area overlapped with \
-             the map, scaled residents accordingly.",
-            prettyprint_usize(num_residents),
-            shape.attributes["spatial_alias"],
-            prettyprint_usize(bldgs.len()),
-            (pct_overlap * 100.0) as usize
-        ));
-
         // Deterministically seed using the planning area's ID.
         let mut rng =
             XorShiftRng::seed_from_u64(shape.attributes["spatial_name"].parse::<u64>().unwrap());
 
-        // How do you randomly distribute num_residents into some buildings?
-        // https://stackoverflow.com/questions/2640053/getting-n-random-numbers-whose-sum-is-m
-        // TODO Problems:
-        // - Because of how we round, the sum might not exactly be num_residents
-        // - This is not a uniform distribution, per stackoverflow
-        // - Larger buildings should get more people
-
-        let mut rand_nums: Vec<f64> = (0..bldgs.len()).map(|_| rng.gen_range(0.0, 1.0)).collect();
-        let sum: f64 = rand_nums.iter().sum();
-        for b in bldgs {
-            let n = (rand_nums.pop().unwrap() / sum * (num_residents as f64)) as usize;
-            let bldg_type = match map.get_b(b).bldg_type {
+        for (home, n) in popdat::distribute_population_to_homes(
+            geo::Polygon::from(region),
+            shape.attributes["num_residents"].parse::<usize>().unwrap(),
+            map,
+            &mut rng,
+        ) {
+            let bldg_type = match map.get_b(home).bldg_type {
                 BuildingType::Residential {
                     num_housing_units, ..
                 } => BuildingType::Residential {
@@ -136,7 +108,7 @@ pub fn distribute_residents(map: &mut map_model::Map, timer: &mut Timer) {
                 }
                 _ => unreachable!(),
             };
-            map.hack_override_bldg_type(b, bldg_type);
+            map.hack_override_bldg_type(home, bldg_type);
         }
     }
 

@@ -3,12 +3,13 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
-use lane_specs::LaneSpec;
+use anyhow::Result;
 
 use abstutil::{Tags, Timer};
 use geom::{Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
 
 pub use self::geometry::intersection_polygon;
+use crate::make::initial::lane_specs::LaneSpec;
 use crate::raw::{OriginalRoad, RawMap, RawRoad};
 use crate::{osm, IntersectionType, MapConfig};
 
@@ -35,11 +36,11 @@ pub struct Road {
 }
 
 impl Road {
-    pub fn new(id: OriginalRoad, r: &RawRoad, cfg: &MapConfig) -> Road {
+    pub fn new(id: OriginalRoad, r: &RawRoad, cfg: &MapConfig) -> Result<Road> {
         let lane_specs_ltr = lane_specs::get_lane_specs_ltr(&r.osm_tags, cfg);
-        let (trimmed_center_pts, total_width) = r.get_geometry(id, cfg);
+        let (trimmed_center_pts, total_width) = r.get_geometry(id, cfg)?;
 
-        Road {
+        Ok(Road {
             id,
             src_i: id.i1,
             dst_i: id.i2,
@@ -47,7 +48,7 @@ impl Road {
             half_width: total_width / 2.0,
             lane_specs_ltr,
             osm_tags: r.osm_tags.clone(),
-        }
+        })
     }
 }
 
@@ -84,32 +85,29 @@ impl InitialMap {
 
         for (id, r) in &raw.roads {
             if id.i1 == id.i2 {
-                timer.warn(format!("Skipping loop {}", id));
+                warn!("Skipping loop {}", id);
                 continue;
             }
             if PolyLine::new(r.center_points.clone()).is_err() {
-                timer.warn(format!("Skipping broken geom {}", id));
+                warn!("Skipping broken geom {}", id);
                 continue;
             }
 
             m.intersections.get_mut(&id.i1).unwrap().roads.insert(*id);
             m.intersections.get_mut(&id.i2).unwrap().roads.insert(*id);
 
-            m.roads.insert(*id, Road::new(*id, r, &raw.config));
+            m.roads.insert(*id, Road::new(*id, r, &raw.config).unwrap());
         }
 
         timer.start_iter("find each intersection polygon", m.intersections.len());
         for i in m.intersections.values_mut() {
             timer.next();
-            match intersection_polygon(i, &mut m.roads, timer) {
+            match intersection_polygon(i, &mut m.roads) {
                 Ok((poly, _)) => {
                     i.polygon = poly;
                 }
                 Err(err) => {
-                    timer.error(format!(
-                        "Can't make intersection geometry for {}: {}",
-                        i.id, err
-                    ));
+                    error!("Can't make intersection geometry for {}: {}", i.id, err);
 
                     // Don't trim lines back at all
                     let r = &m.roads[i.roads.iter().next().unwrap()];
@@ -147,11 +145,11 @@ impl InitialMap {
                     .extend_to_length(min_len)
                     .reversed();
             }
-            i.polygon = intersection_polygon(i, &mut m.roads, timer).unwrap().0;
-            timer.note(format!(
+            i.polygon = intersection_polygon(i, &mut m.roads).unwrap().0;
+            info!(
                 "Shifted border {} out a bit to make the road a reasonable length",
                 i.id
-            ));
+            );
         }
 
         m

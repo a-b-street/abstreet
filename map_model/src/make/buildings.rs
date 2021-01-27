@@ -54,10 +54,10 @@ pub fn make_all_buildings(
             let sidewalk_line = match Line::new(bldg_center.to_pt2d(), sidewalk_pos.pt(map)) {
                 Some(l) => trim_path(&b.polygon, l),
                 None => {
-                    timer.warn(format!(
+                    warn!(
                         "Skipping building {} because front path has 0 length",
                         orig_id
-                    ));
+                    );
                     continue;
                 }
             };
@@ -119,10 +119,10 @@ pub fn make_all_buildings(
         }
     }
 
-    timer.note(format!(
+    info!(
         "Discarded {} buildings that weren't close enough to a sidewalk",
         input.len() - results.len()
-    ));
+    );
     timer.stop("convert buildings");
 
     results
@@ -223,9 +223,9 @@ fn classify_bldg(
         "building",
         vec!["house", "detached", "semidetached_house", "farm"],
     ) {
-        residents = rng.gen_range(0, 3);
+        residents = rng.gen_range(0..3);
     } else if tags.is_any("building", vec!["hut", "static_caravan", "cabin"]) {
-        residents = rng.gen_range(0, 2);
+        residents = rng.gen_range(0..2);
     } else if tags.is_any("building", vec!["apartments", "terrace", "residential"]) {
         // 1 person per 10 square meters
         // TODO: Hone in this parameter. Space per person varies with (among other things):
@@ -233,7 +233,7 @@ fn classify_bldg(
         //  - regional/cultural norms
         residents = (area_sq_meters / 10.0) as usize;
     } else {
-        residents = rng.gen_range(0, 2);
+        residents = rng.gen_range(0..2);
     }
 
     if commercial && workers == 0 {

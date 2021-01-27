@@ -2,8 +2,8 @@ use std::collections::HashSet;
 
 use map_model::RoadID;
 use widgetry::{
-    Autocomplete, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
-    State, Text, Transition, Widget,
+    Autocomplete, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State,
+    StyledButtons, Text, Transition, Widget,
 };
 
 use crate::tools::grey_out_map;
@@ -20,7 +20,7 @@ impl Navigator {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Enter a street name").small_heading().draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 Autocomplete::new(
                     ctx,
@@ -31,7 +31,10 @@ impl Navigator {
                         .collect(),
                 )
                 .named("street"),
-                Btn::text_fg("Search by business name or address").build_def(ctx, Key::Tab),
+                ctx.style()
+                    .btn_outline_light_text("Search by business name or address")
+                    .hotkey(Key::Tab)
+                    .build_def(ctx),
             ]))
             .build(ctx),
         })
@@ -113,7 +116,7 @@ impl CrossStreet {
                         )));
                         txt.draw(ctx)
                     },
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 Autocomplete::new(
                     ctx,
@@ -202,7 +205,7 @@ impl SearchBuildings {
                     Line("Enter a business name or address")
                         .small_heading()
                         .draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 Autocomplete::new(
                     ctx,
@@ -235,7 +238,10 @@ impl SearchBuildings {
                         .collect(),
                 )
                 .named("bldg"),
-                Btn::text_fg("Search for streets").build_def(ctx, Key::Tab),
+                ctx.style()
+                    .btn_outline_light_text("Search for streets")
+                    .hotkey(Key::Tab)
+                    .build_def(ctx),
             ]))
             .build(ctx),
         })

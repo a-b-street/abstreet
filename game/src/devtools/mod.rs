@@ -3,10 +3,12 @@
 
 use abstutil::Timer;
 use geom::{LonLat, Percent};
+use map_gui::colors::ColorSchemeChoice;
 use map_gui::tools::{nice_map_name, ChooseSomething, CityPicker};
+use map_gui::AppLike;
 use widgetry::{
-    lctrl, Btn, Choice, DrawBaselayer, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, State, TextExt, VerticalAlignment, Widget,
+    lctrl, Choice, DrawBaselayer, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    State, StyledButtons, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -23,32 +25,51 @@ pub struct DevToolsMode {
 }
 
 impl DevToolsMode {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
+        app.change_color_scheme(ctx, ColorSchemeChoice::DayMode);
+
         Box::new(DevToolsMode {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Internal dev tools").small_heading().draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 Widget::row(vec![
                     "Change map:".draw_text(ctx),
-                    Btn::pop_up(ctx, Some(nice_map_name(app.primary.map.get_name()))).build(
-                        ctx,
-                        "change map",
-                        lctrl(Key::L),
-                    ),
+                    ctx.style()
+                        .btn_outline_light_popup(nice_map_name(app.primary.map.get_name()))
+                        .hotkey(lctrl(Key::L))
+                        .build_widget(ctx, "change map"),
                 ]),
                 Widget::custom_row(vec![
-                    Btn::text_fg("edit a polygon").build_def(ctx, Key::E),
-                    Btn::text_fg("draw a polygon").build_def(ctx, Key::P),
-                    Btn::text_fg("load scenario").build_def(ctx, Key::W),
-                    Btn::text_fg("view KML").build_def(ctx, Key::K),
-                    Btn::text_fg("story maps").build_def(ctx, Key::S),
-                    if abstutil::file_exists(abstutil::path(format!(
+                    ctx.style()
+                        .btn_outline_light_text("edit a polygon")
+                        .hotkey(Key::E)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline_light_text("draw a polygon")
+                        .hotkey(Key::P)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline_light_text("load scenario")
+                        .hotkey(Key::W)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline_light_text("view KML")
+                        .hotkey(Key::K)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline_light_text("story maps")
+                        .hotkey(Key::S)
+                        .build_def(ctx),
+                    if abstio::file_exists(abstio::path(format!(
                         "input/{}/collisions.bin",
                         app.primary.map.get_city_name()
                     ))) {
-                        Btn::text_fg("collisions").build_def(ctx, Key::C)
+                        ctx.style()
+                            .btn_outline_light_text("collisions")
+                            .hotkey(Key::C)
+                            .build_def(ctx)
                     } else {
                         Widget::nothing()
                     },
@@ -73,9 +94,9 @@ impl State<App> for DevToolsMode {
                         ctx,
                         "Choose a polygon",
                         // This directory won't exist on the web or for binary releases, only for
-                        // people building from source. Also, abstutil::path is abused to find the
+                        // people building from source. Also, abstio::path is abused to find the
                         // importer/ directory.
-                        abstutil::list_dir(abstutil::path(format!(
+                        abstio::list_dir(abstio::path(format!(
                             "../importer/config/{}",
                             app.primary.map.get_city_name()
                         )))
@@ -107,12 +128,12 @@ impl State<App> for DevToolsMode {
                     return Transition::Push(ChooseSomething::new(
                         ctx,
                         "Choose a scenario",
-                        Choice::strings(abstutil::list_all_objects(abstutil::path_all_scenarios(
+                        Choice::strings(abstio::list_all_objects(abstio::path_all_scenarios(
                             app.primary.map.get_name(),
                         ))),
                         Box::new(|s, ctx, app| {
-                            let scenario = abstutil::read_binary(
-                                abstutil::path_scenario(app.primary.map.get_name(), &s),
+                            let scenario = abstio::read_binary(
+                                abstio::path_scenario(app.primary.map.get_name(), &s),
                                 &mut Timer::throwaway(),
                             );
                             Transition::Replace(scenario::ScenarioManager::new(scenario, ctx, app))

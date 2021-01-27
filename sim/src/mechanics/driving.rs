@@ -641,11 +641,21 @@ impl DrivingSimState {
         // Hacks to delete cars that're mid-turn
         if let Traversable::Turn(t) = car.router.head() {
             let queue = self.queues.get_mut(&car.router.head()).unwrap();
+            // delete_car_internal will call free_reserved_space, so this is necessary to balance
+            // that.
             queue.reserved_length += car.vehicle.length + FOLLOWING_DISTANCE;
             ctx.intersections.agent_deleted_mid_turn(AgentID::Car(c), t);
+
+            // Free any reserved space on the next step.
+            let queue = self.queues.get_mut(&car.router.next()).unwrap();
+            queue.free_reserved_space(&car);
         }
         if let Some(Traversable::Turn(t)) = car.router.maybe_next() {
             ctx.intersections.cancel_request(AgentID::Car(c), t);
+        }
+
+        if car.router.last_step() {
+            ctx.parking.unreserve_spot(c);
         }
 
         self.delete_car_internal(&mut car, dists, idx, now, ctx);
@@ -671,7 +681,7 @@ impl DrivingSimState {
                 Traversable::Lane(l) => ctx.map.get_l(l).src_i,
                 Traversable::Turn(t) => t.parent,
             };
-            if !ctx.handling_live_edits {
+            if ctx.handling_live_edits.is_none() {
                 ctx.intersections
                     .space_freed(now, i, ctx.scheduler, ctx.map);
             }
@@ -689,6 +699,14 @@ impl DrivingSimState {
         // Update the follower so that they don't suddenly jump forwards.
         if idx != dists.len() - 1 {
             let (follower_id, follower_dist) = dists[idx + 1];
+
+            // If we're going to delete the follower soon, don't bother waking them up.
+            if let Some(ref deleting_agents) = ctx.handling_live_edits {
+                if deleting_agents.contains(&AgentID::Car(follower_id)) {
+                    return;
+                }
+            }
+
             let mut follower = self.cars.get_mut(&follower_id).unwrap();
             // TODO If the leader vanished at a border node, this still jumps a bit -- the lead
             // car's back is still sticking out. Need to still be bound by them, even though they
@@ -803,12 +821,12 @@ impl DrivingSimState {
                         t,
                         ctx.scheduler,
                         ctx.map,
-                        ctx.handling_live_edits,
+                        ctx.handling_live_edits.is_some(),
                     );
                 }
                 Traversable::Lane(l) => {
                     old_queue.free_reserved_space(car);
-                    if !ctx.handling_live_edits {
+                    if ctx.handling_live_edits.is_none() {
                         ctx.intersections.space_freed(
                             now,
                             ctx.map.get_l(l).src_i,
@@ -833,7 +851,7 @@ impl DrivingSimState {
                                 // gets out of the way. So immediately promote them to
                                 // WaitingToAdvance.
                                 follower.state = CarState::WaitingToAdvance { blocked_since };
-                                if self.recalc_lanechanging && !ctx.handling_live_edits {
+                                if self.recalc_lanechanging && ctx.handling_live_edits.is_none() {
                                     follower.router.opportunistically_lanechange(
                                         &self.queues,
                                         ctx.map,
@@ -1013,26 +1031,46 @@ impl DrivingSimState {
     }
 
     pub fn agent_properties(&self, id: CarID, now: Time) -> AgentProperties {
-        let car = self.cars.get(&id).unwrap();
-        let path = car.router.get_path();
-        let time_spent_waiting = car.state.time_spent_waiting(now);
+        if let Some(car) = self.cars.get(&id) {
+            let path = car.router.get_path();
+            let time_spent_waiting = car.state.time_spent_waiting(now);
 
-        // In all cases, we can figure out exactly where we are along the current queue, then
-        // assume we've travelled from the start of that, unless it's the very first step.
-        let front = self.get_car_front(now, car);
-        let current_state_dist =
-            if car.router.head() == Traversable::Lane(path.get_req().start.lane()) {
-                front - path.get_req().start.dist_along()
-            } else {
-                front
-            };
+            // In all cases, we can figure out exactly where we are along the current queue, then
+            // assume we've travelled from the start of that, unless it's the very first step.
+            let front = self.get_car_front(now, car);
+            let current_state_dist =
+                if car.router.head() == Traversable::Lane(path.get_req().start.lane()) {
+                    front - path.get_req().start.dist_along()
+                } else {
+                    front
+                };
 
-        AgentProperties {
-            total_time: now - car.started_at,
-            waiting_here: time_spent_waiting,
-            total_waiting: car.total_blocked_time + time_spent_waiting,
-            dist_crossed: path.crossed_so_far() + current_state_dist,
-            total_dist: path.total_length(),
+            AgentProperties {
+                total_time: now - car.started_at,
+                waiting_here: time_spent_waiting,
+                total_waiting: car.total_blocked_time + time_spent_waiting,
+                dist_crossed: path.crossed_so_far() + current_state_dist,
+                total_dist: path.total_length(),
+            }
+        } else {
+            for (car, _) in &self.waiting_to_spawn {
+                if id == *car {
+                    // If the vehicle is waiting to spawn, we don't have any stats on them yet.  We
+                    // could track when they originally tried to spawn and use for a few of these
+                    // fields, but we should also make sure that delay gets recorded later.
+                    return AgentProperties {
+                        total_time: Duration::ZERO,
+                        waiting_here: Duration::ZERO,
+                        total_waiting: Duration::ZERO,
+                        dist_crossed: Distance::ZERO,
+                        total_dist: Distance::ZERO,
+                    };
+                }
+            }
+            panic!(
+                "Can't get agent_properties of {} at {}; they don't exist",
+                id, now
+            );
         }
     }
 

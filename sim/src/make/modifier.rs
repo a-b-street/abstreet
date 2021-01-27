@@ -71,8 +71,8 @@ impl ScenarioModifier {
                 s
             }
             ScenarioModifier::AddExtraTrips(name) => {
-                let other: Scenario = abstutil::must_read_object(
-                    abstutil::path_scenario(map.get_name(), name),
+                let other: Scenario = abstio::must_read_object(
+                    abstio::path_scenario(map.get_name(), name),
                     &mut Timer::throwaway(),
                 );
                 for mut p in other.people {

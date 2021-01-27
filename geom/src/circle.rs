@@ -1,5 +1,6 @@
 use std::fmt;
 
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 use crate::{Angle, Bounds, Distance, Polygon, Pt2D, Ring};
@@ -81,12 +82,13 @@ impl Circle {
     }
 
     /// Creates an outline around the circle, strictly contained with the circle's original radius.
-    pub fn to_outline(&self, thickness: Distance) -> Result<Polygon, String> {
+    pub fn to_outline(&self, thickness: Distance) -> Result<Polygon> {
         if self.radius <= thickness {
-            return Err(format!(
+            bail!(
                 "Can't make Circle outline with radius {} and thickness {}",
-                self.radius, thickness
-            ));
+                self.radius,
+                thickness
+            );
         }
 
         let bigger = self.to_ring();

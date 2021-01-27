@@ -5,11 +5,12 @@ use model::{Model, ID};
 
 use abstutil::{CmdArgs, Timer};
 use geom::{Distance, Line, Polygon};
+use map_gui::tools::CameraState;
 use map_model::osm;
 use map_model::raw::OriginalRoad;
 use widgetry::{
-    Btn, Canvas, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, ScreenPt, SharedAppState, Text, Transition, VerticalAlignment, Widget,
+    Canvas, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, ScreenPt, SharedAppState, StyledButtons, Text, Transition, VerticalAlignment, Widget,
 };
 
 mod model;
@@ -22,13 +23,13 @@ struct App {
 impl SharedAppState for App {
     fn dump_before_abort(&self, canvas: &Canvas) {
         if !self.model.map.name.map.is_empty() {
-            canvas.save_camera_state(&self.model.map.name);
+            CameraState::save(canvas, &self.model.map.name);
         }
     }
 
     fn before_quit(&self, canvas: &Canvas) {
         if !self.model.map.name.map.is_empty() {
-            canvas.save_camera_state(&self.model.map.name);
+            CameraState::save(canvas, &self.model.map.name);
         }
     }
 }
@@ -64,7 +65,7 @@ impl MainState {
             Model::blank()
         };
         if !model.map.name.map.is_empty() {
-            ctx.canvas.load_camera_state(&model.map.name);
+            CameraState::load(ctx, &model.map.name);
         }
         let bounds = model.map.gps_bounds.to_bounds();
         ctx.canvas.map_dims = (bounds.width(), bounds.height());
@@ -76,9 +77,17 @@ impl MainState {
                     Line("Map Editor").small_heading().draw(ctx),
                     Text::new().draw(ctx).named("current info"),
                     Widget::col(vec![
-                        Btn::text_fg("quit").build_def(ctx, Key::Escape),
-                        Btn::text_fg("export to OSM").build_def(ctx, None),
-                        Btn::text_fg("preview all intersections").build_def(ctx, Key::G),
+                        ctx.style()
+                            .btn_outline_light_text("quit")
+                            .hotkey(Key::Escape)
+                            .build_def(ctx),
+                        ctx.style()
+                            .btn_outline_light_text("export to OSM")
+                            .build_def(ctx),
+                        ctx.style()
+                            .btn_outline_light_text("preview all intersections")
+                            .hotkey(Key::G)
+                            .build_def(ctx),
                     ]),
                 ]))
                 .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
@@ -322,9 +331,7 @@ impl widgetry::State<App> for MainState {
 }
 
 fn preview_intersection(i: osm::NodeID, model: &Model, ctx: &EventCtx) -> Drawable {
-    let (intersection, roads, debug) = model
-        .map
-        .preview_intersection(i, &mut Timer::new("calculate intersection_polygon"));
+    let (intersection, roads, debug) = model.map.preview_intersection(i);
     let mut batch = GeomBatch::new();
     batch.push(Color::ORANGE.alpha(0.5), intersection);
     for r in roads {
@@ -353,15 +360,18 @@ fn preview_all_intersections(model: &Model, ctx: &EventCtx) -> Drawable {
         if model.map.roads_per_intersection(*i).is_empty() {
             continue;
         }
-        let (intersection, _, _) = model.map.preview_intersection(*i, &mut timer);
+        let (intersection, _, _) = model.map.preview_intersection(*i);
         batch.push(Color::ORANGE.alpha(0.5), intersection);
     }
     batch.upload(ctx)
 }
 
 fn main() {
-    widgetry::run(widgetry::Settings::new("RawMap editor"), |ctx| {
-        let (app, state) = MainState::new(ctx);
-        (app, vec![Box::new(state)])
-    });
+    widgetry::run(
+        widgetry::Settings::new("RawMap editor").read_svg(Box::new(abstio::slurp_bytes)),
+        |ctx| {
+            let (app, state) = MainState::new(ctx);
+            (app, vec![Box::new(state)])
+        },
+    );
 }

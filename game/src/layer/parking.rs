@@ -9,12 +9,12 @@ use map_model::{
 };
 use sim::{ParkingSpot, Scenario, VehicleType};
 use widgetry::{
-    Btn, Checkbox, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome,
-    Panel, Text, TextExt, VerticalAlignment, Widget,
+    Checkbox, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel,
+    Text, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
-use crate::layer::{Layer, LayerOutcome};
+use crate::layer::{header, Layer, LayerOutcome};
 
 pub struct Occupancy {
     time: Time,
@@ -111,11 +111,7 @@ impl Occupancy {
 
         if app.primary.sim.infinite_parking() {
             let panel = Panel::new(Widget::col(vec![
-                Widget::row(vec![
-                    Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
-                    "Parking occupancy".draw_text(ctx),
-                    Btn::close(ctx),
-                ]),
+                header(ctx, "Parking occupancy"),
                 Text::from_multiline(vec![
                     Line(format!(
                         "{:.0}% of the population owns a car",
@@ -209,11 +205,7 @@ impl Occupancy {
         }
 
         let panel = Panel::new(Widget::col(vec![
-            Widget::row(vec![
-                Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
-                "Parking occupancy".draw_text(ctx),
-                Btn::close(ctx),
-            ]),
+            header(ctx, "Parking occupancy"),
             Text::from_multiline(vec![
                 Line(format!(
                     "{:.0}% of the population owns a car",
@@ -368,11 +360,7 @@ impl Layer for Efficiency {
 impl Efficiency {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Efficiency {
         let panel = Panel::new(Widget::col(vec![
-            Widget::row(vec![
-                Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
-                "Parking efficiency".draw_text(ctx),
-                Btn::close(ctx),
-            ]),
+            header(ctx, "Parking efficiency"),
             Text::from(Line("How far away are people parked? (minutes)").secondary())
                 .wrap_to_pct(ctx, 15)
                 .draw(ctx),

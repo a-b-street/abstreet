@@ -11,8 +11,8 @@ use sim::{
     SpawnOverTime, TripEndpoint, TripMode, TripPurpose, VehicleType,
 };
 use widgetry::{
-    hotkeys, lctrl, Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    RewriteColor, ScreenPt, State, Text, TextExt, VerticalAlignment, Widget,
+    hotkeys, lctrl, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    ScreenPt, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -67,7 +67,7 @@ impl Tutorial {
                         .unwrap_or(TutorialPointer::new(0, 0)),
                 ),
             )),
-            Transition::Push(intro_story(ctx, app)),
+            Transition::Push(intro_story(ctx)),
         ])
     }
 
@@ -728,23 +728,21 @@ impl TutorialState {
         let mut col = vec![Widget::row(vec![
             Line("Tutorial").small_heading().draw(ctx),
             Widget::vert_separator(ctx, 50.0),
-            if self.current.stage == 0 {
-                Btn::text_fg("<").inactive(ctx)
-            } else {
-                Btn::text_fg("<").build(ctx, "previous tutorial", None)
-            },
+            ctx.style()
+                .btn_prev()
+                .disabled(self.current.stage == 0)
+                .build_widget(ctx, "previous tutorial"),
             {
                 let mut txt = Text::from(Line(format!("Task {}", self.current.stage + 1)));
                 // TODO Smaller font and use alpha for the "/9" part
                 txt.append(Line(format!("/{}", self.stages.len())).fg(Color::grey(0.7)));
                 txt.draw(ctx)
             },
-            if self.current.stage == self.stages.len() - 1 {
-                Btn::text_fg(">").inactive(ctx)
-            } else {
-                Btn::text_fg(">").build(ctx, "next tutorial", None)
-            },
-            Btn::text_fg("Quit").build_def(ctx, None),
+            ctx.style()
+                .btn_next()
+                .disabled(self.current.stage == self.stages.len() - 1)
+                .build_widget(ctx, "next tutorial"),
+            ctx.style().btn_outline_light_text("Quit").build_def(ctx),
         ])
         .centered()];
         {
@@ -762,8 +760,9 @@ impl TutorialState {
                     .draw(ctx),
                     // TODO also text saying "instructions"... can we layout two things easily to
                     // make a button?
-                    Btn::svg_def("system/assets/tools/info.svg")
-                        .build(ctx, "instructions", None)
+                    ctx.style()
+                        .btn_plain_light_icon("system/assets/tools/info.svg")
+                        .build_widget(ctx, "instructions")
                         .centered_vert()
                         .align_right(),
                 ]));
@@ -771,11 +770,12 @@ impl TutorialState {
             }
         }
         if edit_map {
-            col.push(Btn::svg_def("system/assets/tools/edit_map.svg").build(
-                ctx,
-                "edit map",
-                lctrl(Key::E),
-            ));
+            col.push(
+                ctx.style()
+                    .btn_outline_light_icon_text("system/assets/tools/pencil.svg", "Edit map")
+                    .hotkey(lctrl(Key::E))
+                    .build_widget(ctx, "edit map"),
+            );
         }
 
         Panel::new(Widget::col(col))
@@ -818,45 +818,26 @@ impl TutorialState {
                     txt.wrap_to_pct(ctx, 30).draw(ctx)
                 }];
                 let mut controls = vec![Widget::row(vec![
-                    if self.current.part > 0 {
-                        Btn::svg(
-                            "system/assets/tools/prev.svg",
-                            RewriteColor::Change(Color::WHITE, app.cs.hovering),
-                        )
-                        .build(ctx, "previous message", Key::LeftArrow)
-                    } else {
-                        Widget::draw_svg_transform(
-                            ctx,
-                            "system/assets/tools/prev.svg",
-                            RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
-                        )
-                    },
+                    ctx.style()
+                        .btn_prev()
+                        .disabled(self.current.part == 0)
+                        .hotkey(Key::LeftArrow)
+                        .build_widget(ctx, "previous message"),
                     format!("{}/{}", self.current.part + 1, self.stage().messages.len())
                         .draw_text(ctx)
                         .centered_vert(),
-                    if self.current.part == self.stage().messages.len() - 1 {
-                        Widget::draw_svg_transform(
-                            ctx,
-                            "system/assets/tools/next.svg",
-                            RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
-                        )
-                        .named("next message")
-                    } else {
-                        Btn::svg(
-                            "system/assets/tools/next.svg",
-                            RewriteColor::Change(Color::WHITE, app.cs.hovering),
-                        )
-                        .build(
-                            ctx,
-                            "next message",
-                            hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]),
-                        )
-                    },
+                    ctx.style()
+                        .btn_next()
+                        .disabled(self.current.part == self.stage().messages.len() - 1)
+                        .hotkey(Key::RightArrow)
+                        .build_widget(ctx, "next message"),
                 ])];
                 if self.current.part == self.stage().messages.len() - 1 {
                     controls.push(
-                        Btn::text_bg2("Try it")
-                            .build_def(ctx, hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter])),
+                        ctx.style()
+                            .btn_solid_dark_text("Try it")
+                            .hotkey(hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]))
+                            .build_def(ctx),
                     );
                 }
                 col.push(Widget::col(controls).align_bottom());
@@ -1359,7 +1340,7 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: &str) -> Trans
             let lane = app.primary.map.get_l(l);
             if lane.is_parking() {
                 let percent = (app.primary.sim.get_free_onstreet_spots(l).len() as f64)
-                    / (lane.number_parking_spots() as f64);
+                    / (lane.number_parking_spots(app.primary.map.get_config()) as f64);
                 if percent > 0.1 {
                     PopupMsg::new(
                         ctx,
@@ -1387,7 +1368,7 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: &str) -> Trans
     Transition::Push(response)
 }
 
-fn intro_story(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+fn intro_story(ctx: &mut EventCtx) -> Box<dyn State<App>> {
     CutsceneBuilder::new("Introduction")
         .boss(
             "Argh, the mayor's on my case again about the West Seattle bridge. This day couldn't \
@@ -1412,7 +1393,7 @@ fn intro_story(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
              buses! Cheaper housing! Less rain! Free this, subsidized that!",
         )
         .boss("Light rail and robot cars aren't here to save the day! Know what you'll be using?")
-        .extra("drone", 1.0, "The traffic drone")
+        .extra("drone.svg", 1.0, "The traffic drone")
         .player("Is that... duct tape?")
         .boss(
             "Can't spit anymore cause of COVID and don't get me started on prayers. Well, off to \
@@ -1420,7 +1401,6 @@ fn intro_story(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         )
         .build(
             ctx,
-            app,
             Box::new(|ctx| {
                 Text::from(Line("Use the tutorial to learn the basic controls.").fg(Color::BLACK))
                     .draw(ctx)

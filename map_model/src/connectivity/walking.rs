@@ -125,7 +125,15 @@ pub fn all_walking_costs_from(
     // end of the sidewalk to the building
     for b in map.all_buildings() {
         if let Some(cost) = cost_per_node.get(&WalkingNode::closest(b.sidewalk_pos, map)) {
-            results.insert(b.id, *cost);
+            let sidewalk_len = map.get_l(b.sidewalk()).length();
+            let bldg_dist = b.sidewalk_pos.dist_along();
+            let distance_from_closest_node = if sidewalk_len - bldg_dist <= bldg_dist {
+                bldg_dist
+            } else {
+                sidewalk_len - bldg_dist
+            };
+            let total_cost = *cost + distance_from_closest_node / opts.walking_speed;
+            results.insert(b.id, total_cost);
         }
     }
 

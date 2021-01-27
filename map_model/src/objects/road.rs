@@ -104,7 +104,8 @@ pub struct Road {
     pub zorder: isize,
 
     /// Invariant: A road must contain at least one child
-    pub(crate) lanes_ltr: Vec<(LaneID, Direction, LaneType)>,
+    // TODO Only public for Map::import_minimal. Can we avoid this?
+    pub lanes_ltr: Vec<(LaneID, Direction, LaneType)>,
 
     /// The physical center of the road, including sidewalks, after trimming. The order implies
     /// road orientation. No edits ever change this.
@@ -336,6 +337,18 @@ impl Road {
         self.osm_tags.is(osm::HIGHWAY, "service")
     }
 
+    pub fn is_cycleway(&self) -> bool {
+        let mut bike = false;
+        for (_, _, lt) in self.lanes_ltr() {
+            if lt == LaneType::Biking {
+                bike = true;
+            } else if lt != LaneType::Shoulder {
+                return false;
+            }
+        }
+        bike
+    }
+
     pub fn common_endpt(&self, other: &Road) -> IntersectionID {
         if self.src_i == other.src_i || self.src_i == other.dst_i {
             self.src_i
@@ -379,6 +392,13 @@ impl Road {
                 .find(|z| z.members.contains(&self.id))
                 .unwrap(),
         )
+    }
+
+    /// Many roads wind up with almost no length, due to their representation in OpenStreetMap. In
+    /// reality, these segments are likely located within the interior of an intersection. This
+    /// method uses a hardcoded threshold to detect these cases.
+    pub fn is_extremely_short(&self) -> bool {
+        self.center_pts.length() < Distance::meters(2.0)
     }
 }
 

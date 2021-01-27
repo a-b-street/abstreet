@@ -1,5 +1,6 @@
 //! All sorts of read-only queries about a simulation
 
+use anyhow::Result;
 use serde::Serialize;
 use std::collections::BTreeMap;
 
@@ -404,7 +405,7 @@ impl Sim {
     /// Returns the best-case time for a trip in a world with no traffic or intersection delays.
     /// Might fail in some cases where the real trip succeeds, but the single-mode path can't be
     /// found. Assumes the TripID exists.
-    pub fn get_trip_time_lower_bound(&self, map: &Map, id: TripID) -> Result<Duration, String> {
+    pub fn get_trip_time_lower_bound(&self, map: &Map, id: TripID) -> Result<Duration> {
         let info = self.trips.trip_info(id);
         match TripEndpoint::path_req(info.start, info.end, info.mode, map) {
             Some(req) => {
@@ -434,12 +435,12 @@ impl Sim {
                 };
                 Ok(path.estimate_duration(map, constraints, max_speed))
             }
-            None => Err(format!(
+            None => bail!(
                 "can't figure out PathRequest from {:?} to {:?} via {}",
                 info.start,
                 info.end,
                 info.mode.ongoing_verb()
-            )),
+            ),
         }
     }
 }

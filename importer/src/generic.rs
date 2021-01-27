@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use abstutil::MapName;
+use abstio::MapName;
 use map_model::raw::RawMap;
 
 use crate::configuration::ImporterConfiguration;
@@ -65,7 +65,7 @@ impl GenericCityImporter {
 
         let map = convert_osm::convert(
             convert_osm::Options {
-                osm_input: abstutil::path(format!("input/{}/osm/{}.osm", name.city, name.map)),
+                osm_input: abstio::path(format!("input/{}/osm/{}.osm", name.city, name.map)),
                 name: name.clone(),
 
                 clip: Some(format!("importer/config/{}/{}.poly", name.city, name.map)),

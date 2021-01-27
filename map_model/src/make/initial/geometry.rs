@@ -7,7 +7,9 @@
 
 use std::collections::BTreeMap;
 
-use abstutil::{wraparound_get, Timer};
+use anyhow::Result;
+
+use abstutil::wraparound_get;
 use geom::{Circle, Distance, Line, PolyLine, Polygon, Pt2D, Ring, EPSILON_DIST};
 
 use crate::make::initial::{Intersection, Road};
@@ -24,8 +26,7 @@ const DEGENERATE_INTERSECTION_HALF_LENGTH: Distance = Distance::const_meters(2.5
 pub fn intersection_polygon(
     i: &Intersection,
     roads: &mut BTreeMap<OriginalRoad, Road>,
-    timer: &mut Timer,
-) -> Result<(Polygon, Vec<(String, Polygon)>), String> {
+) -> Result<(Polygon, Vec<(String, Polygon)>)> {
     if i.roads.is_empty() {
         panic!("{} has no roads", i.id);
     }
@@ -72,7 +73,7 @@ pub fn intersection_polygon(
         for (r, trimmed_center_pts) in rollback {
             roads.get_mut(&r).unwrap().trimmed_center_pts = trimmed_center_pts;
         }
-        generalized_trim_back(roads, i.id, &lines, timer)
+        generalized_trim_back(roads, i.id, &lines)
     }
 }
 
@@ -80,8 +81,7 @@ fn generalized_trim_back(
     roads: &mut BTreeMap<OriginalRoad, Road>,
     i: osm::NodeID,
     lines: &Vec<(OriginalRoad, Pt2D, PolyLine, PolyLine)>,
-    timer: &mut Timer,
-) -> Result<(Polygon, Vec<(String, Polygon)>), String> {
+) -> Result<(Polygon, Vec<(String, Polygon)>)> {
     let mut debug = Vec::new();
 
     let mut road_lines: Vec<(OriginalRoad, PolyLine)> = Vec::new();
@@ -146,11 +146,12 @@ fn generalized_trim_back(
             };
 
             if use_pl1 == use_pl2 {
-                return Err(format!(
+                bail!(
                     "{} and {} have overlapping segments. You likely need to fix OSM and make the \
                      two ways meet at exactly one node.",
-                    r1, r2
-                ));
+                    r1,
+                    r2
+                );
             }
 
             // Sometimes two road PLs may hit at multiple points because they're thick and close
@@ -177,11 +178,11 @@ fn generalized_trim_back(
                         shortest_center = trimmed;
                     }
                 } else {
-                    timer.warn(format!(
+                    warn!(
                         "{} and {} hit, but the perpendicular never hit the original center line, \
                          or the trimmed thing is empty",
                         r1, r2
-                    ));
+                    );
                 }
 
                 // We could also do the update for r2, but we'll just get to it later.
@@ -224,11 +225,11 @@ fn generalized_trim_back(
                 endpoints.push(hit);
             }
         } else {
-            timer.warn(format!(
+            warn!(
                 "Excluding collision between original polylines of {} and something, because \
                  stuff's too short",
                 id
-            ));
+            );
         }
 
         // Shift those final centers out again to find the main endpoints for the polygon.
@@ -248,11 +249,11 @@ fn generalized_trim_back(
                 endpoints.push(hit);
             }
         } else {
-            timer.warn(format!(
+            warn!(
                 "Excluding collision between original polylines of {} and something, because \
                  stuff's too short",
                 id
-            ));
+            );
         }
     }
 
@@ -271,10 +272,10 @@ fn generalized_trim_back(
     if main_result.len() == deduped.len() {
         Ok((Ring::must_new(main_result).to_polygon(), debug))
     } else {
-        timer.warn(format!(
+        warn!(
             "{}'s polygon has weird repeats, forcibly removing points",
             i
-        ));
+        );
         Ok((Ring::must_new(deduped).to_polygon(), debug))
     }
 
@@ -290,7 +291,7 @@ fn deadend(
     roads: &mut BTreeMap<OriginalRoad, Road>,
     i: osm::NodeID,
     lines: &Vec<(OriginalRoad, Pt2D, PolyLine, PolyLine)>,
-) -> Result<(Polygon, Vec<(String, Polygon)>), String> {
+) -> Result<(Polygon, Vec<(String, Polygon)>)> {
     let len = DEGENERATE_INTERSECTION_HALF_LENGTH * 4.0;
 
     let (id, _, mut pl_a, mut pl_b) = lines[0].clone();

@@ -1,6 +1,7 @@
 use std::fs::File;
-use std::io::{stdout, BufReader, Error, ErrorKind, Read, Write};
+use std::io::{stdout, BufReader, ErrorKind, Read, Write};
 
+use anyhow::Result;
 use instant::Instant;
 
 use crate::{prettyprint_usize, PROGRESS_FREQUENCY_SECONDS};
@@ -112,10 +113,6 @@ pub struct Timer<'a> {
 
     outermost_name: String,
 
-    notes: Vec<String>,
-    pub(crate) warnings: Vec<String>,
-    pub(crate) errors: Vec<String>,
-
     sink: Option<Box<dyn TimerSink + 'a>>,
 }
 
@@ -140,9 +137,6 @@ impl<'a> Timer<'a> {
             results: Vec::new(),
             stack: Vec::new(),
             outermost_name: name.clone(),
-            notes: Vec::new(),
-            warnings: Vec::new(),
-            errors: Vec::new(),
             sink: None,
         };
         t.start(name);
@@ -172,31 +166,11 @@ impl<'a> Timer<'a> {
         }
         #[cfg(target_arch = "wasm32")]
         {
-            debug!("{}", line);
+            log::debug!("{}", line);
         }
         if let Some(ref mut sink) = maybe_sink {
             sink.println(line);
         }
-    }
-
-    /// Log immediately, but also repeat at the end, to avoid having to scroll up and find
-    /// interesting debug stuff.
-    pub fn note(&mut self, line: String) {
-        // Interrupt the start_iter with a newline.
-        if let Some(StackEntry::Progress(_)) = self.stack.last() {
-            self.println(String::new());
-        }
-
-        self.println(line.clone());
-        self.notes.push(line);
-    }
-
-    pub fn warn(&mut self, line: String) {
-        self.warnings.push(line);
-    }
-
-    pub fn error(&mut self, line: String) {
-        self.errors.push(line);
     }
 
     /// Used to end the scope of a timer early.
@@ -324,7 +298,7 @@ impl<'a> Timer<'a> {
         self.add_result(elapsed, format!("cancelled early"));
     }
 
-    pub(crate) fn add_result(&mut self, elapsed: f64, line: String) {
+    pub fn add_result(&mut self, elapsed: f64, line: String) {
         let padding = "  ".repeat(self.stack.len());
         match self.stack.last_mut() {
             Some(StackEntry::TimerSpan(ref mut s)) => {
@@ -400,10 +374,9 @@ impl<'a> Timer<'a> {
     }
 
     /// Then the caller passes this in as a reader
-    pub(crate) fn read_file(&mut self, path: &str) -> Result<(), String> {
-        self.stack.push(StackEntry::File(
-            TimedFileReader::new(path).map_err(|err| err.to_string())?,
-        ));
+    pub fn read_file(&mut self, path: &str) -> Result<()> {
+        self.stack
+            .push(StackEntry::File(TimedFileReader::new(path)?));
         Ok(())
     }
 }
@@ -444,34 +417,6 @@ impl<'a> std::ops::Drop for Timer<'a> {
         for line in &self.results {
             Timer::selfless_println(&mut self.sink, line.to_string());
         }
-        self.println(String::new());
-
-        if !self.notes.is_empty() {
-            self.println(format!("{} notes:", self.notes.len()));
-            for line in &self.notes {
-                Timer::selfless_println(&mut self.sink, line.to_string());
-            }
-            self.println(String::new());
-        }
-
-        if !self.warnings.is_empty() {
-            self.println(format!("{} warnings:", self.warnings.len()));
-            for line in &self.warnings {
-                Timer::selfless_println(&mut self.sink, line.to_string());
-            }
-            self.println(String::new());
-        }
-
-        if !self.errors.is_empty() {
-            self.println(format!("***** {} errors: *****", self.errors.len()));
-            for line in &self.errors {
-                Timer::selfless_println(&mut self.sink, line.to_string());
-            }
-            self.println(String::new());
-        }
-
-        // In case of lots of notes and warnings, repeat the overall timing.
-        Timer::selfless_println(&mut self.sink, self.results[0].clone());
 
         if std::thread::panicking() {
             self.println(String::new());
@@ -519,7 +464,7 @@ struct TimedFileReader {
 }
 
 impl TimedFileReader {
-    fn new(path: &str) -> Result<TimedFileReader, Error> {
+    fn new(path: &str) -> Result<TimedFileReader> {
         let file = File::open(path)?;
         let total_bytes = file.metadata()?.len() as usize;
         Ok(TimedFileReader {
@@ -534,11 +479,11 @@ impl TimedFileReader {
 }
 
 impl<'a> Read for Timer<'a> {
-    fn read(&mut self, buf: &mut [u8]) -> Result<usize, Error> {
+    fn read(&mut self, buf: &mut [u8]) -> Result<usize, std::io::Error> {
         let mut file = match self.stack.last_mut() {
             Some(StackEntry::File(ref mut f)) => f,
             _ => {
-                return Err(Error::new(
+                return Err(std::io::Error::new(
                     ErrorKind::Other,
                     "trying to read when Timer doesn't have file on the stack?!",
                 ));

@@ -3,7 +3,9 @@
   "map_config": {
     "driving_side": "Left",
     "bikes_can_use_bus_lanes": true,
-    "inferred_sidewalks": true
+    "inferred_sidewalks": true,
+    "separate_cycleways": false,
+    "street_parking_spot_length": 8.0
   },
   "onstreet_parking": "JustOSM",
   "public_offstreet_parking": "None",

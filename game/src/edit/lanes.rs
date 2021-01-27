@@ -2,8 +2,8 @@ use map_gui::render::Renderable;
 use map_gui::ID;
 use map_model::{EditCmd, LaneID, LaneType, Map};
 use widgetry::{
-    Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, SimpleState,
-    State, Text, TextExt, VerticalAlignment, Widget,
+    Choice, Color, ControlState, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel,
+    SimpleState, State, StyledButtons, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -62,7 +62,10 @@ impl LaneEditor {
             ),
         ] {
             row.push(if active {
-                Btn::svg_def(format!("system/assets/edit/{}.svg", icon)).build(ctx, label, key)
+                ctx.style()
+                    .btn_plain_light_icon(&format!("system/assets/edit/{}.svg", icon))
+                    .hotkey(key)
+                    .build_widget(ctx, label)
             } else {
                 Widget::draw_svg(ctx, &format!("system/assets/edit/{}.svg", icon))
                     .container()
@@ -75,15 +78,18 @@ impl LaneEditor {
         let col = vec![
             Widget::row(vec![
                 Line(format!("Editing {}", l)).small_heading().draw(ctx),
-                Btn::plaintext_custom(
-                    "Edit multiple lanes",
-                    Text::from(Line("+ Edit multiple").fg(Color::hex("#4CA7E9"))),
-                )
-                .build_def(ctx, Key::M),
+                ctx.style()
+                    .btn_plain_light_text("+ Edit multiple")
+                    .label_color(Color::hex("#4CA7E9"), ControlState::Default)
+                    .hotkey(Key::M)
+                    .build_widget(ctx, "Edit multiple lanes"),
             ]),
             "Type of lane".draw_text(ctx),
             Widget::custom_row(row).centered(),
-            Btn::text_fg("reverse direction").build_def(ctx, Key::F),
+            ctx.style()
+                .btn_outline_light_text("reverse direction")
+                .hotkey(Key::F)
+                .build_def(ctx),
             {
                 let mut choices = speed_limit_choices(app);
                 if !choices.iter().any(|c| c.data == parent.speed_limit) {
@@ -97,8 +103,14 @@ impl LaneEditor {
                     Widget::dropdown(ctx, "speed limit", parent.speed_limit, choices),
                 ])
             },
-            Btn::text_fg("Change access restrictions").build_def(ctx, Key::A),
-            Btn::text_bg2("Finish").build_def(ctx, Key::Escape),
+            ctx.style()
+                .btn_outline_light_text("Change access restrictions")
+                .hotkey(Key::A)
+                .build_def(ctx),
+            ctx.style()
+                .btn_solid_dark_text("Finish")
+                .hotkey(Key::Escape)
+                .build_def(ctx),
         ];
         let panel = Panel::new(Widget::col(col))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)

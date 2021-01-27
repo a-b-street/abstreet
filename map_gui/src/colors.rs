@@ -20,7 +20,7 @@ use crate::tools::{loading_tips, ColorScale};
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum ColorSchemeChoice {
-    Standard,
+    DayMode,
     NightMode,
     SAMGreenDay,
     SAMDesertDay,
@@ -37,7 +37,7 @@ pub enum ColorSchemeChoice {
 impl ColorSchemeChoice {
     pub fn choices() -> Vec<Choice<ColorSchemeChoice>> {
         vec![
-            Choice::new("default", ColorSchemeChoice::Standard),
+            Choice::new("day mode", ColorSchemeChoice::DayMode),
             Choice::new("night mode", ColorSchemeChoice::NightMode),
             Choice::new("sam green day", ColorSchemeChoice::SAMGreenDay),
             Choice::new("sam desert day", ColorSchemeChoice::SAMDesertDay),
@@ -57,7 +57,6 @@ pub struct ColorScheme {
     scheme: ColorSchemeChoice,
 
     // UI
-    pub hovering: Color,
     pub panel_bg: Color,
     pub section_bg: Color,
     pub inner_panel: Color,
@@ -69,7 +68,7 @@ pub struct ColorScheme {
     pub bottom_bar_id: Color,
     pub bottom_bar_name: Color,
     pub fade_map_dark: Color,
-    pub gui_style: Style,
+    gui_style: Style,
     pub dialog_bg: Color,
     pub minimap_cursor_border: Color,
     pub minimap_cursor_bg: Option<Color>,
@@ -90,6 +89,7 @@ pub struct ColorScheme {
     unzoomed_highway: Color,
     unzoomed_arterial: Color,
     unzoomed_residential: Color,
+    pub unzoomed_trail: Color,
 
     // Intersections
     pub normal_intersection: Color,
@@ -118,6 +118,7 @@ pub struct ColorScheme {
     pub grass: Fill,
     pub water: Fill,
     pub median_strip: Fill,
+    pub pedestrian_plaza: Fill,
 
     // Unzoomed dynamic elements
     pub unzoomed_car: Color,
@@ -157,7 +158,7 @@ pub struct ColorScheme {
 impl ColorScheme {
     pub fn new(ctx: &mut EventCtx, scheme: ColorSchemeChoice) -> ColorScheme {
         let mut cs = match scheme {
-            ColorSchemeChoice::Standard => ColorScheme::standard(),
+            ColorSchemeChoice::DayMode => ColorScheme::day_mode(),
             ColorSchemeChoice::NightMode => ColorScheme::night_mode(),
             ColorSchemeChoice::SAMGreenDay => ColorScheme::sam_green_day(),
             ColorSchemeChoice::SAMDesertDay => ColorScheme::sam_desert_day(),
@@ -175,17 +176,16 @@ impl ColorScheme {
         cs
     }
 
-    fn standard() -> ColorScheme {
+    fn day_mode() -> ColorScheme {
         let mut gui_style = Style::standard();
         gui_style.loading_tips = loading_tips();
         ColorScheme {
-            scheme: ColorSchemeChoice::Standard,
+            scheme: ColorSchemeChoice::DayMode,
 
             // UI
-            hovering: gui_style.hovering_color,
             panel_bg: gui_style.panel_bg,
             section_bg: Color::grey(0.5),
-            inner_panel: hex("#4C4C4C"),
+            inner_panel: gui_style.panel_bg.alpha(1.0),
             day_time_slider: hex("#F4DA22"),
             night_time_slider: hex("#12409D"),
             selected: Color::RED.alpha(0.7),
@@ -215,6 +215,7 @@ impl ColorScheme {
             unzoomed_highway: Color::rgb(232, 146, 162),
             unzoomed_arterial: Color::rgb(255, 199, 62),
             unzoomed_residential: Color::WHITE,
+            unzoomed_trail: Color::rgb(15, 125, 75),
 
             // Intersections
             normal_intersection: Color::grey(0.2),
@@ -243,6 +244,7 @@ impl ColorScheme {
             grass: hex("#94C84A").into(),
             water: Color::rgb(164, 200, 234).into(),
             median_strip: Color::CYAN.into(),
+            pedestrian_plaza: Color::hex("#DDDDE8").into(),
 
             // Unzoomed dynamic elements
             unzoomed_car: hex("#A32015"),
@@ -388,7 +390,8 @@ fn hex(x: &str) -> Color {
 impl ColorScheme {
     // Shamelessly adapted from https://github.com/Uriopass/Egregoria
     fn night_mode() -> ColorScheme {
-        let mut cs = ColorScheme::standard();
+        let mut cs = ColorScheme::day_mode();
+        cs.void_background = Color::hex("#200A24");
         cs.map_background = Color::BLACK.into();
         cs.grass = Color::hex("#243A1F").into();
         cs.water = Color::hex("#21374E").into();
@@ -409,10 +412,12 @@ impl ColorScheme {
         cs.unzoomed_interesting_intersection = cs.unzoomed_highway;
         cs.stop_sign = Color::rgb_f(0.67, 0.55, 0.55);
         cs.private_road = Color::hex("#9E757F");
+        cs.pedestrian_plaza = Color::hex("#94949C").into();
 
         cs.panel_bg = Color::hex("#003046").alpha(0.9);
         cs.gui_style.panel_bg = cs.panel_bg;
-        cs.inner_panel = cs.panel_bg;
+        cs.inner_panel = cs.panel_bg.alpha(1.0);
+        cs.section_bg = cs.inner_panel;
         cs.minimap_cursor_border = Color::WHITE;
         cs.minimap_cursor_bg = Some(Color::rgba(238, 112, 46, 0.2));
         cs.minimap_selected_zoom = Color::hex("#EE702E");
@@ -422,7 +427,7 @@ impl ColorScheme {
     }
 
     fn sam_green_day() -> ColorScheme {
-        let mut cs = ColorScheme::standard();
+        let mut cs = ColorScheme::day_mode();
         cs.map_background = hex("#CFE2C4").into();
         cs.water = hex("#B4D3E5").into();
         cs.driving_lane = hex("#C6CDD5");
@@ -432,7 +437,7 @@ impl ColorScheme {
     }
 
     fn sam_desert_day() -> ColorScheme {
-        let mut cs = ColorScheme::standard();
+        let mut cs = ColorScheme::day_mode();
         cs.map_background = hex("#FEE4D7").into();
         cs.grass = hex("#F6C6AF").into();
         cs.dialog_bg = hex("#F6C6AF");
@@ -443,7 +448,7 @@ impl ColorScheme {
     }
 
     fn bap() -> ColorScheme {
-        let mut cs = ColorScheme::standard();
+        let mut cs = ColorScheme::day_mode();
         cs.agent_colors = vec![
             /*hex("#DD5444"),
             hex("#C23E46"),
@@ -470,7 +475,7 @@ impl ColorScheme {
     }
 
     fn osm() -> ColorScheme {
-        let mut cs = ColorScheme::standard();
+        let mut cs = ColorScheme::day_mode();
         // TODO normal_intersection, driving_lane, parking_lane depends on osm rank
         cs.general_road_marking = Color::BLACK;
         cs.road_center_line = Color::rgb(202, 177, 39);
@@ -478,7 +483,7 @@ impl ColorScheme {
     }
 
     fn starcat() -> ColorScheme {
-        let mut cs = ColorScheme::standard();
+        let mut cs = ColorScheme::day_mode();
         cs.grass = hex("#3F8C0C").into();
         cs.dialog_bg = hex("#3F8C0C");
         cs.residential_building = hex("#8099A8"); // #5E7486
@@ -494,7 +499,7 @@ impl ColorScheme {
     }
 
     fn textured() -> ColorScheme {
-        let mut cs = ColorScheme::standard();
+        let mut cs = ColorScheme::day_mode();
         cs.grass = Texture::GRASS.into();
         cs.water = Texture::STILL_WATER.into();
         cs.map_background = Texture::CONCRETE.into();
@@ -502,7 +507,7 @@ impl ColorScheme {
     }
 
     fn mapbox_light() -> ColorScheme {
-        let mut cs = ColorScheme::standard();
+        let mut cs = ColorScheme::day_mode();
         cs.map_background = hex("#F2F3F1").into();
         cs.unzoomed_highway = Color::WHITE;
         cs.unzoomed_arterial = Color::WHITE;
@@ -515,7 +520,7 @@ impl ColorScheme {
     }
 
     fn mapbox_dark() -> ColorScheme {
-        let mut cs = ColorScheme::standard();
+        let mut cs = ColorScheme::day_mode();
         cs.map_background = hex("#343332").into();
         let road = hex("#454545");
         cs.unzoomed_highway = road;
@@ -542,7 +547,7 @@ impl ColorScheme {
     }
 
     fn faded_zoom() -> ColorScheme {
-        let mut cs = ColorScheme::standard();
+        let mut cs = ColorScheme::day_mode();
         cs.unzoomed_highway = hex("#F89E59");
         cs.unzoomed_arterial = hex("#F2D163");
         cs.unzoomed_residential = hex("#FFFFFF");
@@ -559,7 +564,7 @@ impl ColorScheme {
     }
 
     fn negative_space() -> ColorScheme {
-        let mut cs = ColorScheme::standard();
+        let mut cs = ColorScheme::day_mode();
         let nonempty_space = Color::BLACK;
         cs.map_background = Color::WHITE.into();
         cs.residential_building = nonempty_space;
@@ -575,7 +580,7 @@ impl ColorScheme {
         cs.grass = nonempty_space.into();
         cs.water = nonempty_space.into();
         // TODO Why is this showing up?!
-        cs.light_rail_track = Color::INVISIBLE;
+        cs.light_rail_track = Color::CLEAR;
         cs
     }
 }

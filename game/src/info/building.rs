@@ -4,7 +4,7 @@ use geom::{Angle, Circle, Distance, Speed, Time};
 use map_gui::render::DrawPedestrian;
 use map_model::{BuildingID, LaneID, OffstreetParking, Traversable, SIDEWALK_THICKNESS};
 use sim::{DrawPedestrianInput, PedestrianID, PersonID, TripMode, TripResult};
-use widgetry::{Btn, Color, EventCtx, Line, Text, TextExt, Widget};
+use widgetry::{Color, EventCtx, Line, StyledButtons, Text, TextExt, Widget};
 
 use crate::app::App;
 use crate::info::{header_btns, make_table, make_tabs, Details, Tab};
@@ -104,7 +104,11 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
     }
 
     if app.opts.dev {
-        rows.push(Btn::text_bg1("Open OSM").build(ctx, format!("open {}", b.orig_id), None));
+        rows.push(
+            ctx.style()
+                .btn_solid_dark_text("Open OSM")
+                .build_widget(ctx, &format!("open {}", b.orig_id)),
+        );
 
         if !b.osm_tags.is_empty() {
             rows.push("Raw OpenStreetMap data".draw_text(ctx));
@@ -150,7 +154,9 @@ pub fn people(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Building
             .hyperlinks
             .insert(p.to_string(), Tab::PersonTrips(p, BTreeMap::new()));
         let widget = Widget::col(vec![
-            Btn::text_bg1(p.to_string()).build_def(ctx, None),
+            ctx.style()
+                .btn_solid_dark_text(&p.to_string())
+                .build_def(ctx),
             if let Some((t, mode)) = next_trip {
                 format!(
                     "Leaving in {} to {}",

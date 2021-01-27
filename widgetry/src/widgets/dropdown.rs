@@ -1,8 +1,8 @@
-use geom::{Distance, Polygon, Pt2D};
+use geom::{CornerRadii, Distance, Polygon, Pt2D};
 
 use crate::{
-    Btn, Button, Choice, Color, EventCtx, GeomBatch, GfxCtx, Menu, Outcome, ScreenDims, ScreenPt,
-    ScreenRectangle, WidgetImpl, WidgetOutput,
+    Button, Choice, Color, ControlState, CornerRounding, EdgeInsets, EventCtx, GeomBatch, GfxCtx,
+    Menu, Outcome, ScreenDims, ScreenPt, ScreenRectangle, StyledButtons, WidgetImpl, WidgetOutput,
 };
 
 pub struct Dropdown<T: Clone> {
@@ -11,7 +11,7 @@ pub struct Dropdown<T: Clone> {
     // TODO Why not T?
     menu: Option<Menu<usize>>,
     label: String,
-    blank_btn_label: bool,
+    is_persisten_split: bool,
 
     choices: Vec<Choice<T>>,
 }
@@ -23,7 +23,7 @@ impl<T: 'static + PartialEq + Clone + std::fmt::Debug> Dropdown<T> {
         default_value: T,
         choices: Vec<Choice<T>>,
         // TODO Ideally builder style
-        blank_btn_label: bool,
+        is_persisten_split: bool,
     ) -> Dropdown<T> {
         let current_idx = if let Some(idx) = choices.iter().position(|c| c.data == default_value) {
             idx
@@ -36,10 +36,10 @@ impl<T: 'static + PartialEq + Clone + std::fmt::Debug> Dropdown<T> {
 
         Dropdown {
             current_idx,
-            btn: make_btn(ctx, &choices[current_idx].label, label, blank_btn_label),
+            btn: make_btn(ctx, &choices[current_idx].label, label, is_persisten_split),
             menu: None,
             label: label.to_string(),
-            blank_btn_label,
+            is_persisten_split,
             choices,
         }
     }
@@ -49,8 +49,8 @@ impl<T: 'static + PartialEq + Clone> Dropdown<T> {
     pub fn current_value(&self) -> T {
         self.choices[self.current_idx].data.clone()
     }
-    pub(crate) fn current_value_label(&self) -> String {
-        self.choices[self.current_idx].label.clone()
+    pub(crate) fn current_value_label(&self) -> &str {
+        &self.choices[self.current_idx].label
     }
 }
 
@@ -102,7 +102,7 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
                     ctx,
                     &self.choices[self.current_idx].label,
                     &self.label,
-                    self.blank_btn_label,
+                    self.is_persisten_split,
                 );
                 self.btn.set_pos(top_left);
                 output.redo_layout = true;
@@ -135,7 +135,7 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
             let pad = 5.0;
             let width = m.get_dims().width + 2.0 * pad;
             let height = m.get_dims().height + 2.0 * pad;
-            let rect = Polygon::rounded_rectangle(width, height, Some(5.0));
+            let rect = Polygon::rounded_rectangle(width, height, 5.0);
             let draw_bg = g.upload(GeomBatch::from(vec![
                 (Color::grey(0.3), rect.clone()),
                 (
@@ -173,9 +173,30 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
     }
 }
 
-fn make_btn(ctx: &EventCtx, label: &str, tooltip: &str, blank_btn_label: bool) -> Button {
-    let button_label = if blank_btn_label { None } else { Some(label) };
-    Btn::pop_up(ctx, button_label)
-        .build(ctx, tooltip, None)
-        .take_btn()
+fn make_btn(ctx: &EventCtx, label: &str, tooltip: &str, is_persisten_split: bool) -> Button {
+    // If we want to make Dropdown configurable, pass in or expose its button builder?
+    let mut builder = ctx.style().btn_solid_dark_dropdown();
+    if is_persisten_split {
+        // Quick hacks to make PersistentSplit's dropdown look a little better.
+        // It's not ideal, but we only use one persistent split in the whole app
+        // and it's front and center - we'll notice if something breaks.
+        builder = builder
+            .padding(EdgeInsets {
+                top: 15.0,
+                bottom: 15.0,
+                left: 8.0,
+                right: 8.0,
+            })
+            .corner_rounding(CornerRounding::CornerRadii(CornerRadii {
+                top_left: 0.0,
+                bottom_left: 0.0,
+                bottom_right: 2.0,
+                top_right: 2.0,
+            }))
+            .outline(0.0, Color::CLEAR, ControlState::Default);
+    } else {
+        builder = builder.label_text(label);
+    }
+
+    builder.build(ctx, tooltip)
 }

@@ -1,12 +1,11 @@
-use abstutil::Timer;
 use geom::Duration;
-use map_gui::tools::ChooseSomething;
+use map_gui::tools::{ChooseSomething, PopupMsg};
 use map_model::{
-    ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, PhaseType,
+    ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, StageType,
 };
 use widgetry::{
-    Btn, Checkbox, Choice, DrawBaselayer, EventCtx, Key, Line, Panel, SimpleState, Spinner, State,
-    TextExt, Widget,
+    Checkbox, Choice, DrawBaselayer, EventCtx, Key, Line, Panel, SimpleState, Spinner, State,
+    StyledButtons, TextExt, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -29,7 +28,7 @@ impl ChangeDuration {
                 Line("How long should this stage last?")
                     .small_heading()
                     .draw(ctx),
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
             Widget::row(vec![
                 "Seconds:".draw_text(ctx).centered_vert(),
@@ -40,7 +39,7 @@ impl ChangeDuration {
                         300,
                     ),
                     signal.stages[idx]
-                        .phase_type
+                        .stage_type
                         .simple_duration()
                         .inner_seconds() as isize,
                 )
@@ -50,14 +49,13 @@ impl ChangeDuration {
                 "Type:".draw_text(ctx),
                 Checkbox::toggle(
                     ctx,
-                    "phase type",
+                    "stage type",
                     "fixed",
-                    "adaptive",
+                    "variable",
                     None,
-                    match signal.stages[idx].phase_type {
-                        PhaseType::Fixed(_) => true,
-                        PhaseType::Adaptive(_) => false,
-                        PhaseType::Variable(_, _, _) => false,
+                    match signal.stages[idx].stage_type {
+                        StageType::Fixed(_) => true,
+                        StageType::Variable(_, _, _) => false,
                     },
                 ),
             ]),
@@ -69,10 +67,9 @@ impl ChangeDuration {
                 Spinner::new(
                     ctx,
                     (1, 300),
-                    match signal.stages[idx].phase_type {
-                        PhaseType::Fixed(_) => 0,
-                        PhaseType::Adaptive(_) => 0,
-                        PhaseType::Variable(_, _, additional) => {
+                    match signal.stages[idx].stage_type {
+                        StageType::Fixed(_) => 0,
+                        StageType::Variable(_, _, additional) => {
                             additional.inner_seconds() as isize
                         }
                     },
@@ -87,10 +84,9 @@ impl ChangeDuration {
                 Spinner::new(
                     ctx,
                     (1, 300),
-                    match signal.stages[idx].phase_type {
-                        PhaseType::Fixed(_) => 0,
-                        PhaseType::Adaptive(_) => 0,
-                        PhaseType::Variable(_, delay, _) => delay.inner_seconds() as isize,
+                    match signal.stages[idx].stage_type {
+                        StageType::Fixed(_) => 0,
+                        StageType::Variable(_, delay, _) => delay.inner_seconds() as isize,
                     },
                 )
                 .named("delay"),
@@ -98,7 +94,10 @@ impl ChangeDuration {
             Line("Minimum time is set by the time required for crosswalk")
                 .secondary()
                 .draw(ctx),
-            Btn::text_bg2("Apply").build_def(ctx, Key::Enter),
+            ctx.style()
+                .btn_solid_dark_text("Apply")
+                .hotkey(Key::Enter)
+                .build_def(ctx),
         ]))
         .build(ctx);
         SimpleState::new(panel, Box::new(ChangeDuration { idx }))
@@ -111,12 +110,12 @@ impl SimpleState<App> for ChangeDuration {
             "close" => Transition::Pop,
             "Apply" => {
                 let dt = Duration::seconds(panel.spinner("duration") as f64);
-                let new_type = if panel.is_checked("phase type") {
-                    PhaseType::Fixed(dt)
+                let new_type = if panel.is_checked("stage type") {
+                    StageType::Fixed(dt)
                 } else {
                     let delay = Duration::seconds(panel.spinner("delay") as f64);
                     let additional = Duration::seconds(panel.spinner("additional") as f64);
-                    PhaseType::Variable(dt, delay, additional)
+                    StageType::Variable(dt, delay, additional)
                 };
                 let idx = self.idx;
                 Transition::Multi(vec![
@@ -124,7 +123,7 @@ impl SimpleState<App> for ChangeDuration {
                     Transition::ModifyState(Box::new(move |state, ctx, app| {
                         let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
                         editor.add_new_edit(ctx, app, idx, |ts| {
-                            ts.stages[idx].phase_type = new_type.clone();
+                            ts.stages[idx].stage_type = new_type.clone();
                         });
                     })),
                 ])
@@ -161,6 +160,7 @@ pub fn edit_entire_signal(
 
     let use_template = "use template";
     let all_walk = "add an all-walk stage at the end";
+    let major_minor_timing = "use timing pattern for a major/minor intersection";
     let stop_sign = "convert to stop signs";
     let close = "close intersection for construction";
     let reset = "reset to default";
@@ -169,6 +169,7 @@ pub fn edit_entire_signal(
     if has_sidewalks {
         choices.push(all_walk);
     }
+    choices.push(major_minor_timing);
     // TODO Conflating stop signs and construction here
     if mode.can_edit_stop_signs() {
         choices.push(stop_sign);
@@ -187,7 +188,6 @@ pub fn edit_entire_signal(
                 Choice::from(ControlTrafficSignal::get_possible_policies(
                     &app.primary.map,
                     i,
-                    &mut Timer::throwaway(),
                 )),
                 Box::new(move |new_signal, _, _| {
                     Transition::Multi(vec![
@@ -213,6 +213,38 @@ pub fn edit_entire_signal(
                     }
                 })),
             ]),
+            x if x == major_minor_timing => Transition::Replace(ChooseSomething::new(
+                ctx,
+                "Use what timing split?",
+                vec![
+                    Choice::new(
+                        "120s cycle: 96s major roads, 24s minor roads",
+                        (Duration::seconds(96.0), Duration::seconds(24.0)),
+                    ),
+                    Choice::new(
+                        "60s cycle: 36s major roads, 24s minor roads",
+                        (Duration::seconds(36.0), Duration::seconds(24.0)),
+                    ),
+                ],
+                Box::new(move |timing, ctx, app| {
+                    let mut new_signal = app.primary.map.get_traffic_signal(i).clone();
+                    match new_signal.adjust_major_minor_timing(timing.0, timing.1, &app.primary.map)
+                    {
+                        Ok(()) => Transition::Multi(vec![
+                            Transition::Pop,
+                            Transition::ModifyState(Box::new(move |state, ctx, app| {
+                                let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
+                                editor.add_new_edit(ctx, app, 0, |ts| {
+                                    *ts = new_signal.clone();
+                                });
+                            })),
+                        ]),
+                        Err(err) => {
+                            Transition::Replace(PopupMsg::new(ctx, "Error", vec![err.to_string()]))
+                        }
+                    }
+                }),
+            )),
             x if x == stop_sign => {
                 original.apply(app);
 
@@ -250,13 +282,10 @@ pub fn edit_entire_signal(
                 Transition::Pop,
                 Transition::ModifyState(Box::new(move |state, ctx, app| {
                     let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-                    let new_signal = ControlTrafficSignal::get_possible_policies(
-                        &app.primary.map,
-                        i,
-                        &mut Timer::throwaway(),
-                    )
-                    .remove(0)
-                    .1;
+                    let new_signal =
+                        ControlTrafficSignal::get_possible_policies(&app.primary.map, i)
+                            .remove(0)
+                            .1;
                     editor.add_new_edit(ctx, app, 0, |ts| {
                         *ts = new_signal.clone();
                     });

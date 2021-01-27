@@ -1,15 +1,16 @@
 use std::convert::TryFrom;
 use std::fmt;
 
+use anyhow::Result;
 use geo::algorithm::area::Area;
 use geo::algorithm::concave_hull::ConcaveHull;
 use geo::algorithm::convex_hull::ConvexHull;
 use geo_booleanop::boolean::BooleanOp;
 use serde::{Deserialize, Serialize};
 
-use crate::{Angle, Bounds, Distance, HashablePt2D, PolyLine, Pt2D, Ring};
+use crate::{Angle, Bounds, CornerRadii, Distance, GPSBounds, HashablePt2D, PolyLine, Pt2D, Ring};
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(PartialEq, Serialize, Deserialize, Clone, Debug)]
 pub struct Polygon {
     points: Vec<Pt2D>,
     /// Groups of three indices make up the triangles
@@ -79,8 +80,8 @@ impl Polygon {
         }
     }
 
-    // TODO No guarantee points forms a ring. In fact, the main caller is PolyLine, and it's NOT
-    // true there yet.
+    // TODO No guarantee points forms a ring. In fact, the main caller is from SVG->lyon parsing,
+    // and it's NOT true there yet.
     pub fn precomputed(points: Vec<Pt2D>, indices: Vec<usize>) -> Polygon {
         assert!(indices.len() % 3 == 0);
         Polygon {
@@ -143,6 +144,10 @@ impl Polygon {
 
     pub fn scale(&self, factor: f64) -> Polygon {
         self.transform(|pt| Pt2D::new(pt.x() * factor, pt.y() * factor))
+    }
+
+    pub fn scale_xy(&self, x_factor: f64, y_factor: f64) -> Polygon {
+        self.transform(|pt| Pt2D::new(pt.x() * x_factor, pt.y() * y_factor))
     }
 
     pub fn rotate(&self, angle: Angle) -> Polygon {
@@ -232,17 +237,21 @@ impl Polygon {
     }
 
     /// Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
-    /// If radius is None, be as round as possible. Fails if the radius is too big.
-    pub fn maybe_rounded_rectangle(w: f64, h: f64, r: Option<f64>) -> Option<Polygon> {
-        let r = r.unwrap_or_else(|| w.min(h) / 2.0);
-        if 2.0 * r > w || 2.0 * r > h {
+    pub fn maybe_rounded_rectangle<R: Into<CornerRadii>>(w: f64, h: f64, r: R) -> Option<Polygon> {
+        let r = r.into();
+        let max_r = r
+            .top_left
+            .max(r.top_right)
+            .max(r.bottom_right)
+            .max(r.bottom_left);
+        if 2.0 * max_r > w || 2.0 * max_r > h {
             return None;
         }
 
         let mut pts = vec![];
 
         const RESOLUTION: usize = 5;
-        let mut arc = |center: Pt2D, angle1_degs: f64, angle2_degs: f64| {
+        let mut arc = |r: f64, center: Pt2D, angle1_degs: f64, angle2_degs: f64| {
             for i in 0..=RESOLUTION {
                 let angle = Angle::degrees(
                     angle1_degs + (angle2_degs - angle1_degs) * ((i as f64) / (RESOLUTION as f64)),
@@ -251,16 +260,27 @@ impl Polygon {
             }
         };
 
-        // Top-left corner
-        arc(Pt2D::new(r, r), 180.0, 90.0);
-        // Top-right
-        arc(Pt2D::new(w - r, r), 90.0, 0.0);
-        // Bottom-right
-        arc(Pt2D::new(w - r, h - r), 360.0, 270.0);
-        // Bottom-left
-        arc(Pt2D::new(r, h - r), 270.0, 180.0);
+        arc(r.top_left, Pt2D::new(r.top_left, r.top_left), 180.0, 90.0);
+        arc(
+            r.top_right,
+            Pt2D::new(w - r.top_right, r.top_right),
+            90.0,
+            0.0,
+        );
+        arc(
+            r.bottom_right,
+            Pt2D::new(w - r.bottom_right, h - r.bottom_right),
+            360.0,
+            270.0,
+        );
+        arc(
+            r.bottom_left,
+            Pt2D::new(r.bottom_left, h - r.bottom_left),
+            270.0,
+            180.0,
+        );
         // Close it off
-        pts.push(Pt2D::new(0.0, r));
+        pts.push(Pt2D::new(0.0, r.top_left));
 
         // If the radius was maximized, then some of the edges will be zero length.
         pts.dedup();
@@ -268,9 +288,15 @@ impl Polygon {
         Some(Ring::must_new(pts).to_polygon())
     }
 
+    /// A rectangle, two sides of which are fully rounded half-circles.
+    pub fn pill(w: f64, h: f64) -> Polygon {
+        let r = w.min(h) / 2.0;
+        Polygon::maybe_rounded_rectangle(w, h, r).unwrap()
+    }
+
     /// Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
     /// If radius is None, be as round as possible
-    pub fn rounded_rectangle(w: f64, h: f64, r: Option<f64>) -> Polygon {
+    pub fn rounded_rectangle<R: Into<CornerRadii>>(w: f64, h: f64, r: R) -> Polygon {
         Polygon::maybe_rounded_rectangle(w, h, r).unwrap()
     }
 
@@ -321,7 +347,7 @@ impl Polygon {
     /// Creates the outline around the polygon, with the thickness half straddling the polygon and
     /// half of it just outside. Only works for polygons that're formed from rings. Those made from
     /// PolyLines won't work, for example.
-    pub fn to_outline(&self, thickness: Distance) -> Result<Polygon, String> {
+    pub fn to_outline(&self, thickness: Distance) -> Result<Polygon> {
         if let Some(ref rings) = self.rings {
             Ok(Polygon::union_all(
                 rings.iter().map(|r| r.to_outline(thickness)).collect(),
@@ -409,6 +435,33 @@ impl Polygon {
         }
 
         None
+    }
+
+    /// If the polygon is just a single outer ring, produces a GeoJSON polygon. Otherwise, produces
+    /// a GeoJSON multipolygon consisting of individual triangles. Optionally map the world-space
+    /// points back to GPS.
+    pub fn to_geojson(&self, gps: Option<&GPSBounds>) -> geojson::Geometry {
+        if let Ok(ring) = Ring::new(self.points.clone()) {
+            return ring.to_geojson(gps);
+        }
+
+        let mut polygons = Vec::new();
+        for triangle in self.triangles() {
+            let raw_pts = vec![triangle.pt1, triangle.pt2, triangle.pt3, triangle.pt1];
+            let mut pts = Vec::new();
+            if let Some(ref gps) = gps {
+                for pt in gps.convert_back(&raw_pts) {
+                    pts.push(vec![pt.x(), pt.y()]);
+                }
+            } else {
+                for pt in raw_pts {
+                    pts.push(vec![pt.x(), pt.y()]);
+                }
+            }
+            polygons.push(vec![pts]);
+        }
+
+        geojson::Geometry::new(geojson::Value::MultiPolygon(polygons))
     }
 }
 

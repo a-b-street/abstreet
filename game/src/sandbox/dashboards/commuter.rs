@@ -8,8 +8,9 @@ use map_gui::tools::ColorLegend;
 use map_model::{osm, BuildingID, BuildingType, IntersectionID, LaneID, Map, RoadID, TurnType};
 use sim::{TripEndpoint, TripInfo, TripMode};
 use widgetry::{
-    Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, RewriteColor, Slider, State, Text, TextExt, VerticalAlignment, Widget,
+    Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Panel, RewriteColor, Slider, State, StyledButtons, Text, TextExt, VerticalAlignment,
+    Widget,
 };
 
 use crate::app::{App, Transition};
@@ -286,8 +287,7 @@ impl CommuterPatterns {
                             .centered_on(compare_to_block.shape.polylabel());
 
                         let dims = label.get_dims();
-                        let label_bg =
-                            Polygon::rounded_rectangle(dims.width + 70.0, dims.height + 20.0, None);
+                        let label_bg = Polygon::pill(dims.width + 70.0, dims.height + 20.0);
                         let bg = GeomBatch::from(vec![(Color::WHITE, label_bg)])
                             .centered_on(compare_to_block.shape.polylabel());
                         batch.append(bg);
@@ -684,7 +684,7 @@ fn make_panel(ctx: &mut EventCtx, app: &App) -> Panel {
     Panel::new(Widget::col(vec![
         Widget::row(vec![
             Line("Commute map by block").small_heading().draw(ctx),
-            Btn::close(ctx),
+            ctx.style().btn_close_widget(ctx),
         ]),
         Checkbox::toggle(ctx, "from / to this block", "from", "to", Key::Space, true),
         Checkbox::switch(ctx, "include borders", None, true),

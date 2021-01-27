@@ -3,15 +3,16 @@
 
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
+use abstio::MapName;
 use abstutil::{Parallelism, Tags, Timer};
-use geom::{Bounds, Distance, FindClosest, HashablePt2D, Speed, EPSILON_DIST};
+use geom::{Bounds, Distance, FindClosest, GPSBounds, HashablePt2D, Speed, EPSILON_DIST};
 
 use crate::pathfind::Pathfinder;
 use crate::raw::{OriginalRoad, RawMap};
 use crate::{
     connectivity, osm, AccessRestrictions, Area, AreaID, AreaType, ControlStopSign,
     ControlTrafficSignal, Direction, Intersection, IntersectionID, IntersectionType, Lane, LaneID,
-    Map, MapEdits, Movement, PathConstraints, Position, Road, RoadID, Zone,
+    Map, MapEdits, Movement, PathConstraints, Position, Road, RoadID, Turn, Zone,
 };
 
 mod bridges;
@@ -121,10 +122,10 @@ impl Map {
                         {
                             Some((*via, *to))
                         } else {
-                            timer.warn(format!(
+                            warn!(
                                 "Complicated turn restriction from {} has invalid via {} or dst {}",
                                 r.id, via, to
-                            ));
+                            );
                             None
                         }
                     })
@@ -183,7 +184,7 @@ impl Map {
                     if let Ok(pl) = road_left_pts.shift_right(width_so_far + (lane.width / 2.0)) {
                         pl
                     } else {
-                        timer.error(format!("{} geometry broken; lane not shifted!", id));
+                        error!("{} geometry broken; lane not shifted!", id);
                         road_left_pts.clone()
                     };
                 let lane_center_pts = if lane.dir == Direction::Fwd {
@@ -242,17 +243,17 @@ impl Map {
                 continue;
             }
             if !i.is_footway(&map) && (i.incoming_lanes.is_empty() || i.outgoing_lanes.is_empty()) {
-                timer.warn(format!("{} is orphaned!", i.orig_id));
+                warn!("{} is orphaned!", i.orig_id);
                 continue;
             }
 
-            all_turns.extend(turns::make_all_turns(&map, i, timer));
+            all_turns.extend(turns::make_all_turns(&map, i));
         }
         for t in all_turns {
             assert!(!map.turns.contains_key(&t.id));
             map.intersections[t.id.parent.0].turns.insert(t.id);
             if t.geom.length() < geom::EPSILON_DIST {
-                timer.warn(format!("{} is a very short turn", t.id));
+                warn!("{} is a very short turn", t.id);
             }
             map.turns.insert(t.id, t);
         }
@@ -309,14 +310,15 @@ impl Map {
                 }
                 IntersectionType::TrafficSignal => match Movement::for_i(i.id, &map) {
                     Ok(_) => {
-                        traffic_signals.insert(i.id, ControlTrafficSignal::new(&map, i.id, timer));
+                        traffic_signals
+                            .insert(i.id, ControlTrafficSignal::validating_new(&map, i.id));
                     }
                     Err(err) => {
-                        timer.error(format!(
+                        error!(
                             "Traffic signal at {} downgraded to stop sign because of weird \
                              problem: {}",
                             i.orig_id, err
-                        ));
+                        );
                         stop_signs.insert(i.id, ControlStopSign::new(&map, i.id));
                     }
                 },
@@ -344,6 +346,47 @@ impl Map {
                 &map, timer,
             ));
             timer.stop("setup ContractionHierarchyPathfinder");
+        }
+
+        map
+    }
+}
+
+impl Map {
+    /// Use for creating a map directly from some external format, not from a RawMap.
+    pub fn import_minimal(
+        name: MapName,
+        bounds: Bounds,
+        gps_bounds: GPSBounds,
+        intersections: Vec<Intersection>,
+        roads: Vec<Road>,
+        lanes: Vec<Lane>,
+        turns: Vec<Turn>,
+    ) -> Map {
+        let mut map = Map::blank();
+        map.name = name;
+        map.map_loaded_directly();
+        map.bounds = bounds;
+        map.gps_bounds = gps_bounds;
+        map.boundary_polygon = map.bounds.get_rectangle();
+        map.intersections = intersections;
+        map.roads = roads;
+        map.lanes = lanes;
+        map.turns = turns.into_iter().map(|turn| (turn.id, turn)).collect();
+
+        let stop_signs = map
+            .intersections
+            .iter()
+            .filter_map(|i| {
+                if i.intersection_type == IntersectionType::StopSign {
+                    Some(i.id)
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<_>>();
+        for i in stop_signs {
+            map.stop_signs.insert(i, ControlStopSign::new(&map, i));
         }
 
         map

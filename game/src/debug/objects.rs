@@ -18,6 +18,10 @@ impl ObjectDebugger {
                 ));
                 txt.add(Line(format!("{:?}", g.canvas.get_cursor())));
                 txt.add(Line(format!("zoom: {}", g.canvas.cam_zoom)));
+                txt.add(Line(format!(
+                    "cam_x = {}, cam_y = {}",
+                    g.canvas.cam_x, g.canvas.cam_y
+                )));
                 g.draw_mouse_tooltip(txt);
             }
         }

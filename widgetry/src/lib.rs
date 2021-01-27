@@ -21,10 +21,12 @@
 //! * [`Slider`] - horizontal and vertical sliders
 //! * [`Spinner`] - numeric input with up/down buttons
 //! * [`table::Table`] - rows and columns, supporting filtering and pagination
-//! * [`TexBox`] - single line text entry
+//! * [`TextBox`] - single line text entry
 
 //#![warn(missing_docs)]
 
+#[macro_use]
+extern crate anyhow;
 #[macro_use]
 extern crate log;
 
@@ -39,13 +41,13 @@ pub use crate::geom::{GeomBatch, RewriteColor};
 pub use crate::input::UserInput;
 pub use crate::runner::{run, Settings};
 pub use crate::screen_geom::{ScreenDims, ScreenPt, ScreenRectangle};
-pub use crate::style::Style;
-pub use crate::text::{Line, Text, TextExt, TextSpan};
+pub use crate::style::{buttons::StyledButtons, Style};
+pub use crate::text::{Font, Line, Text, TextExt, TextSpan};
 pub use crate::tools::warper::Warper;
 pub use crate::tools::Cached;
 pub use crate::widgets::autocomplete::Autocomplete;
 pub(crate) use crate::widgets::button::Button;
-pub use crate::widgets::button::{Btn, MultiButton};
+pub use crate::widgets::button::{ButtonBuilder, MultiButton};
 pub use crate::widgets::checkbox::Checkbox;
 pub use crate::widgets::compare_times::CompareTimes;
 pub(crate) use crate::widgets::dropdown::Dropdown;
@@ -61,7 +63,9 @@ pub use crate::widgets::slider::Slider;
 pub use crate::widgets::spinner::Spinner;
 pub use crate::widgets::table;
 pub(crate) use crate::widgets::text_box::TextBox;
-pub use crate::widgets::{EdgeInsets, Outcome, Panel, Widget, WidgetImpl, WidgetOutput};
+pub use crate::widgets::{
+    CornerRounding, EdgeInsets, Outcome, Panel, Widget, WidgetImpl, WidgetOutput,
+};
 
 mod app_state;
 mod assets;
@@ -89,6 +93,50 @@ mod widgets;
 mod backend {
     #[cfg(any(feature = "native-backend", feature = "wasm-backend"))]
     pub use crate::backend_glow::*;
+}
+
+/// Like [`std::include_bytes!`], but also returns its argument, the relative path to the bytes
+///
+/// returns a `(path, bytes): (&str, &[u8])` tuple
+#[macro_export]
+macro_rules! include_labeled_bytes {
+    ($file:expr) => {
+        ($file, include_bytes!($file))
+    };
+}
+
+#[derive(Clone, Copy, Debug)]
+pub enum ControlState {
+    Default,
+    Hovered,
+    Disabled,
+    // TODO: Pressing
+}
+
+/// Rules for how content should stretch to fill its bounds
+#[derive(Clone, Debug)]
+pub enum ContentMode {
+    /// Stretches content to fit its bounds exactly, breaking aspect ratio as necessary.
+    ScaleToFill,
+
+    /// Maintaining aspect ratio, content grows until it touches its bounds in one dimension.
+    /// This is the default ContentMode.
+    ///
+    /// If the aspect ratio of the bounds do not exactly match the aspect ratio of the content,
+    /// then there will be some empty space within the bounds to center the content.
+    ScaleAspectFit,
+
+    /// Maintaining aspect ratio, content grows until both bounds are met.
+    ///
+    /// If the aspect ratio of the bounds do not exactly match the aspect ratio of the content,
+    /// the content will overflow one dimension of its bounds.
+    ScaleAspectFill,
+}
+
+impl Default for ContentMode {
+    fn default() -> Self {
+        ContentMode::ScaleAspectFit
+    }
 }
 
 pub struct Choice<T> {
@@ -125,8 +173,8 @@ impl<T> Choice<T> {
         self
     }
 
-    pub fn multikey(mut self, mk: Option<MultiKey>) -> Choice<T> {
-        self.hotkey = mk;
+    pub fn multikey(mut self, mk: MultiKey) -> Choice<T> {
+        self.hotkey = Some(mk);
         self
     }
 

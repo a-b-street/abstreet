@@ -5,12 +5,12 @@ use geom::{Circle, Distance, Pt2D, Time};
 use map_gui::tools::{make_heatmap, HeatmapOptions};
 use sim::PersonState;
 use widgetry::{
-    Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
+    Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
     Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
-use crate::layer::{Layer, LayerOutcome};
+use crate::layer::{header, Layer, LayerOutcome};
 
 // TODO Disable drawing unzoomed agents... or alternatively, implement this by asking Sim to
 // return this kind of data instead!
@@ -176,11 +176,7 @@ fn make_controls(ctx: &mut EventCtx, app: &App, opts: &Options, legend: Option<W
     let pct = 100.0 / (model.count_total() as f64);
 
     let mut col = vec![
-        Widget::row(vec![
-            Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
-            "Pandemic model".draw_text(ctx),
-            Btn::close(ctx),
-        ]),
+        header(ctx, "Pandemic model"),
         Text::from_multiline(vec![
             Line(format!(
                 "{} Sane ({:.1}%)",

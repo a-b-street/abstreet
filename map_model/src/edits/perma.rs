@@ -1,8 +1,10 @@
 use std::collections::{BTreeMap, BTreeSet};
 
+use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 
-use abstutil::{deserialize_btreemap, serialize_btreemap, MapName};
+use abstio::MapName;
+use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Time;
 
 use crate::edits::{EditCmd, EditIntersection, EditRoad, MapEdits};
@@ -38,7 +40,7 @@ pub enum PermanentEditIntersection {
         )]
         must_stop: BTreeMap<OriginalRoad, bool>,
     },
-    TrafficSignal(seattle_traffic_signals::TrafficSignal),
+    TrafficSignal(traffic_signal_data::TrafficSignal),
     Closed,
 }
 
@@ -86,7 +88,7 @@ impl EditCmd {
 }
 
 impl PermanentEditCmd {
-    pub fn to_cmd(self, map: &Map) -> Result<EditCmd, String> {
+    pub fn to_cmd(self, map: &Map) -> Result<EditCmd> {
         match self {
             PermanentEditCmd::ChangeRoad { r, new, old } => {
                 let id = map.find_r_by_osm_id(r)?;
@@ -94,12 +96,12 @@ impl PermanentEditCmd {
                 // The basemap changed -- it'd be pretty hard to understand the original
                 // intent of the edit.
                 if num_current != new.lanes_ltr.len() {
-                    return Err(format!(
+                    bail!(
                         "number of lanes in {} is {} now, but {} in the edits",
                         r,
                         num_current,
                         new.lanes_ltr.len()
-                    ));
+                    );
                 }
                 Ok(EditCmd::ChangeRoad { r: id, new, old })
             }
@@ -107,12 +109,12 @@ impl PermanentEditCmd {
                 let id = map.find_i_by_osm_id(i)?;
                 Ok(EditCmd::ChangeIntersection {
                     i: id,
-                    new: new.from_permanent(id, map).map_err(|err| {
-                        format!("new ChangeIntersection of {} invalid: {}", i, err)
-                    })?,
-                    old: old.from_permanent(id, map).map_err(|err| {
-                        format!("old ChangeIntersection of {} invalid: {}", i, err)
-                    })?,
+                    new: new
+                        .from_permanent(id, map)
+                        .with_context(|| format!("new ChangeIntersection of {} invalid", i))?,
+                    old: old
+                        .from_permanent(id, map)
+                        .with_context(|| format!("old ChangeIntersection of {} invalid", i))?,
                 })
             }
             PermanentEditCmd::ChangeRouteSchedule {
@@ -122,7 +124,7 @@ impl PermanentEditCmd {
             } => {
                 let id = map
                     .find_br(osm_rel_id)
-                    .ok_or(format!("can't find {}", osm_rel_id))?;
+                    .ok_or(anyhow!("can't find {}", osm_rel_id))?;
                 Ok(EditCmd::ChangeRouteSchedule { id, old, new })
             }
         }
@@ -136,7 +138,7 @@ impl MapEdits {
             map_name: map.get_name().clone(),
             edits_name: self.edits_name.clone(),
             // Increase this every time there's a schema change
-            version: 4,
+            version: 7,
             proposal_description: self.proposal_description.clone(),
             proposal_link: self.proposal_link.clone(),
             commands: self.commands.iter().map(|cmd| cmd.to_perma(map)).collect(),
@@ -148,7 +150,7 @@ impl MapEdits {
 impl PermanentMapEdits {
     /// Transform permanent edits to MapEdits, looking up the map IDs by the hopefully stabler OSM
     /// IDs. Validate that the basemap hasn't changed in important ways.
-    pub fn to_edits(self, map: &Map) -> Result<MapEdits, String> {
+    pub fn to_edits(self, map: &Map) -> Result<MapEdits> {
         let mut edits = MapEdits {
             edits_name: self.edits_name,
             proposal_description: self.proposal_description,
@@ -157,7 +159,7 @@ impl PermanentMapEdits {
                 .commands
                 .into_iter()
                 .map(|cmd| cmd.to_cmd(map))
-                .collect::<Result<Vec<EditCmd>, String>>()?,
+                .collect::<Result<Vec<EditCmd>>>()?,
             merge_zones: self.merge_zones,
 
             changed_roads: BTreeSet::new(),
@@ -210,7 +212,7 @@ impl EditIntersection {
 }
 
 impl PermanentEditIntersection {
-    fn from_permanent(self, i: IntersectionID, map: &Map) -> Result<EditIntersection, String> {
+    fn from_permanent(self, i: IntersectionID, map: &Map) -> Result<EditIntersection> {
         match self {
             PermanentEditIntersection::StopSign { must_stop } => {
                 let mut translated_must_stop = BTreeMap::new();
@@ -221,17 +223,17 @@ impl PermanentEditIntersection {
                 // Make sure the roads exactly match up
                 let mut ss = ControlStopSign::new(map, i);
                 if translated_must_stop.len() != ss.roads.len() {
-                    return Err(format!(
+                    bail!(
                         "Stop sign has {} roads now, but {} from edits",
                         ss.roads.len(),
                         translated_must_stop.len()
-                    ));
+                    );
                 }
                 for (r, stop) in translated_must_stop {
                     if let Some(road) = ss.roads.get_mut(&r) {
                         road.must_stop = stop;
                     } else {
-                        return Err(format!("{} doesn't connect to {}", i, r));
+                        bail!("{} doesn't connect to {}", i, r);
                     }
                 }
 

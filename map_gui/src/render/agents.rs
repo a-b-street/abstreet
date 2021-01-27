@@ -212,7 +212,7 @@ impl UnzoomedAgents {
             Checkbox::colored(ctx, "Car", self.car_color, self.cars).margin_right(24),
             Checkbox::colored(ctx, "Bike", self.bike_color, self.bikes).margin_right(24),
             Checkbox::colored(ctx, "Bus", self.bus_color, self.buses_and_trains).margin_right(24),
-            Checkbox::colored(ctx, "Pedestrian", self.ped_color, self.peds).margin_right(8),
+            Checkbox::colored(ctx, "Walk", self.ped_color, self.peds).margin_right(8),
         ])
     }
 
@@ -221,7 +221,7 @@ impl UnzoomedAgents {
             Checkbox::colored(ctx, "Car", self.car_color, self.cars),
             Checkbox::colored(ctx, "Bike", self.bike_color, self.bikes),
             Checkbox::colored(ctx, "Bus", self.bus_color, self.buses_and_trains),
-            Checkbox::colored(ctx, "Pedestrian", self.ped_color, self.peds),
+            Checkbox::colored(ctx, "Walk", self.ped_color, self.peds),
         ])
     }
 
@@ -229,6 +229,6 @@ impl UnzoomedAgents {
         self.cars = panel.is_checked("Car");
         self.bikes = panel.is_checked("Bike");
         self.buses_and_trains = panel.is_checked("Bus");
-        self.peds = panel.is_checked("Pedestrian");
+        self.peds = panel.is_checked("Walk");
     }
 }

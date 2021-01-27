@@ -1,26 +1,10 @@
 //! The contents of this crate need to be organized better:
 //!
 //! - Timer (a mix of logging, profiling, and even parallel execution)
-//! - IO utilities, some of which have web equivalents using include_dir
-//! - Utilities to find A/B Street-specific data
 //! - true utility functions (collections, prettyprinting, CLI parsing
-
-#[macro_use]
-extern crate log;
-
-#[cfg(not(target_arch = "wasm32"))]
-mod io_native;
-#[cfg(not(target_arch = "wasm32"))]
-pub use io_native::*;
-#[cfg(target_arch = "wasm32")]
-mod io_web;
-#[cfg(target_arch = "wasm32")]
-pub use io_web::*;
 
 // I'm not generally a fan of wildcard exports, but they're more maintable here.
 pub use crate::serde::*;
-pub use abst_data::*;
-pub use abst_paths::*;
 pub use cli::*;
 pub use collections::*;
 pub use logger::*;
@@ -28,15 +12,12 @@ pub use process::*;
 pub use time::*;
 pub use utils::*;
 
-mod abst_data;
-mod abst_paths;
 mod cli;
 mod collections;
-mod io;
 mod logger;
 mod process;
 mod serde;
-mod time;
+pub mod time;
 mod utils;
 
-const PROGRESS_FREQUENCY_SECONDS: f64 = 0.2;
+pub const PROGRESS_FREQUENCY_SECONDS: f64 = 0.2;

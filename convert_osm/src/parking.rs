@@ -18,8 +18,7 @@ pub fn apply_parking(map: &mut RawMap, opts: &Options, timer: &mut Timer) {
         OnstreetParking::SomeAdditionalWhereNoData { pct } => {
             let pct = pct as i64;
             for (id, r) in map.roads.iter_mut() {
-                // The 20m minimum is a heuristic. PARKING_SPOT_LENGTH is only 8m, but we haven't
-                // trimmed roads between intersections yet.
+                // The 20m minimum is a rough heuristic.
                 if r.osm_tags.contains_key(osm::INFERRED_PARKING)
                     && r.osm_tags
                         .is_any(osm::HIGHWAY, vec!["residential", "tertiary"])
@@ -49,7 +48,7 @@ pub fn apply_parking(map: &mut RawMap, opts: &Options, timer: &mut Timer) {
 
 fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
     timer.start("apply parking hints");
-    let shapes: ExtraShapes = abstutil::read_binary(path, timer);
+    let shapes: ExtraShapes = abstio::read_binary(path, timer);
 
     // Match shapes with the nearest road + direction (true for forwards)
     let mut closest: FindClosest<(OriginalRoad, bool)> =
@@ -99,10 +98,10 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
             let definitely_no_parking =
                 tags.is_any(osm::HIGHWAY, vec!["motorway", "motorway_link", "trunk"]);
             if has_parking && definitely_no_parking {
-                timer.warn(format!(
+                warn!(
                     "Blockface says there's parking along motorway {}, ignoring",
                     r
-                ));
+                );
                 continue;
             }
 
@@ -148,7 +147,7 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
 
 fn use_offstreet_parking(map: &mut RawMap, path: String, timer: &mut Timer) {
     timer.start("match offstreet parking points");
-    let shapes: ExtraShapes = abstutil::read_binary(path, timer);
+    let shapes: ExtraShapes = abstio::read_binary(path, timer);
 
     let mut closest: FindClosest<osm::OsmID> = FindClosest::new(&map.gps_bounds.to_bounds());
     for (id, b) in &map.buildings {

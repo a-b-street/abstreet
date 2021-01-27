@@ -1,5 +1,8 @@
 use map_gui::tools::{MinimapControls, Navigator};
-use widgetry::{Btn, EventCtx, GfxCtx, HorizontalAlignment, Key, Panel, VerticalAlignment, Widget};
+use widgetry::{
+    ControlState, EventCtx, GfxCtx, HorizontalAlignment, Key, Panel, ScreenDims, StyledButtons,
+    VerticalAlignment, Widget,
+};
 
 use crate::app::App;
 use crate::app::Transition;
@@ -94,26 +97,35 @@ impl MinimapControls<App> for MinimapController {
 }
 
 fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {
+    let buttons = ctx
+        .style()
+        .btn_solid_light()
+        .image_dims(ScreenDims::square(20.0))
+        // the default transparent button background is jarring for these buttons which are floating
+        // in a transparent panel.
+        .bg_color(app.cs.inner_panel, ControlState::Default)
+        .padding(8);
+
     Widget::col(vec![
         (if ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail {
-            Btn::svg_def("system/assets/minimap/zoom_out_fully.svg").build(
-                ctx,
-                "zoom out fully",
-                None,
-            )
+            buttons
+                .clone()
+                .image_path("system/assets/minimap/zoom_out_fully.svg")
+                .build_widget(ctx, "zoom out fully")
         } else {
-            Btn::svg_def("system/assets/minimap/zoom_in_fully.svg").build(
-                ctx,
-                "zoom in fully",
-                None,
-            )
-        })
-        .bg(app.cs.inner_panel),
-        Btn::svg_def("system/assets/tools/layers.svg")
-            .build(ctx, "change layers", Key::L)
-            .bg(app.cs.inner_panel),
-        Btn::svg_def("system/assets/tools/search.svg")
-            .build(ctx, "search", Key::K)
-            .bg(app.cs.inner_panel),
+            buttons
+                .clone()
+                .image_path("system/assets/minimap/zoom_in_fully.svg")
+                .build_widget(ctx, "zoom in fully")
+        }),
+        buttons
+            .clone()
+            .image_path("system/assets/tools/layers.svg")
+            .hotkey(Key::L)
+            .build_widget(ctx, "change layers"),
+        buttons
+            .image_path("system/assets/tools/search.svg")
+            .hotkey(Key::K)
+            .build_widget(ctx, "search"),
     ])
 }

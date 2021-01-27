@@ -693,3 +693,37 @@ changes here.
 - 15 min santa: remember upzoning choices
 - misc bugfixes and refactoring
 - 2021 roadmap drafted
+
+0.2.25
+
+- huge breakthrough on merging intersections to handle short roads. applied to just a few places so far
+- support one-way roads with default traffic signal heuristics
+- 15 min explorer: find residences close to user-specified businesses, see unwalkable roads
+- bugfix from Bruce to prevent sim from crashing when a short road is over capacity
+- automatically fetch census data for any US map and use for scenario generation, from Michael
+- some initial experiments to bring A/B Street's lane rendering to the web using Leaflet
+
+0.2.26
+
+- dramatically improve initial web loading and be able to start with any map
+- city picker UI now better organizes other regions with many maps
+- new tool to convert SUMO networks into A/B Street maps
+- taking screenshots of the entire map now much faster, portable. trying to use for Leaflet raster tiles, but not working yet.
+- widgetry UI library now doesn't depend on anything specific to A/B Street
+- internal refactoring for error handling
+
+0.2.27
+
+- dramatically speed up starting scenarios by deferring when public transit riders pick their route
+- start importing separate cyclepaths and pedestrian plazas for Cambridge, many adjustments to make these start working
+- full panel for picking a scenario to start
+- import trip data from the actdev project for Cambridge
+- improve inferred map elements (stop signs and crosswalks) near short roads
+- heuristics for automatically finding and merging short roads. disabled, but solid start
+
+0.2.28
+
+- massive button overhaul by Yuwen and Michael
+- the color scheme automatically switches between day/night based on simulation time!
+- significant progress on editing the map without resetting the simulation
+- various bugfixes, new maps, improvements to running the importer, faster updater

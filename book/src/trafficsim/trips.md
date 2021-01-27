@@ -85,23 +85,22 @@ ToBorder --> [*]
 
 ## Spawning code overview
 
-As of November 2020, starting a traffic simulation works like this:
+As of January 2021, starting a traffic simulation works like this:
 
 1. Something creates a `Scenario`, which defines a bunch of people. Each person
    has a schedule of trips, carrying them between `TripEndpoints` via some
    `TripMode`, leaving at some `Time`.
-2. When a scenario is instantiated, every trip for every person passes through
-   `TripSpec::maybe_new`. This transforms the origin, destination, and mode into
-   a `TripSpec`.
-3. `TripSpec::to_plan` further validates these and attempts to repair impossible
-   plans. Each `TripSpec` is turned into a list of `TripLegs`. The `TripSpec` is
-   then passed to the discrete-event scheduler inside a `Command::StartTrip`.
-   This way, `TripManager` knows about all trips immediately, and at the right
-   time, each trip can be initiated.
-4. Later, the scheduler gets one of these commands, and calls
-   `TripManager::start_trip` with the `TripSpec`. Each type of trip has its own
-   initialization logic to kick off the first leg of the trip.
-5. Most trips have multiple legs. When the first car, bike, or pedestrian
+2. When a scenario is instantiated, not much happens besides scheduling the trip
+   to start at the appropriate time and filling out `TripInfo` in `TripManager`.
+   Some state in `StartTripArgs` has to be plumbed forward in the
+   `Command::StartTrip`.
+3. When the command gets run later, `TripManager::start_trip` happens. The
+   origin, destination, and mode flow through `TripSpec::maybe_new`.
+4. `TripSpec::to_plan` further validates these and attempts to repair impossible
+   plans. Each `TripSpec` is turned into a list of `TripLegs`.
+5. Each `TripSpec` has its own initialization logic to kick off the first leg of
+   the trip.
+6. Most trips have multiple legs. When the first car, bike, or pedestrian
    reaches their goal, `TripManager` gets called with some sort of transition
    function to initiate the next leg of the trip, or declare the trip finished.
    These transition functions also record stats from that leg of the trip, like

@@ -8,8 +8,8 @@ use crate::{trim_f64, Angle, Distance, GPSBounds, LonLat, EPSILON_DIST};
 /// This represents world-space in meters.
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct Pt2D {
-    inner_x: f64,
-    inner_y: f64,
+    x: f64,
+    y: f64,
 }
 
 impl std::cmp::PartialEq for Pt2D {
@@ -27,8 +27,8 @@ impl Pt2D {
         // TODO enforce >=0
 
         Pt2D {
-            inner_x: trim_f64(x),
-            inner_y: trim_f64(y),
+            x: trim_f64(x),
+            y: trim_f64(y),
         }
     }
 
@@ -49,11 +49,11 @@ impl Pt2D {
     }
 
     pub fn x(self) -> f64 {
-        self.inner_x
+        self.x
     }
 
     pub fn y(self) -> f64 {
-        self.inner_y
+        self.y
     }
 
     // TODO better name
@@ -185,16 +185,13 @@ impl HashablePt2D {
 
 impl From<Pt2D> for geo::Coordinate<f64> {
     fn from(pt: Pt2D) -> Self {
-        geo::Coordinate {
-            x: pt.inner_x,
-            y: pt.inner_y,
-        }
+        geo::Coordinate { x: pt.x, y: pt.y }
     }
 }
 
 impl From<Pt2D> for geo::Point<f64> {
     fn from(pt: Pt2D) -> Self {
-        geo::Point::new(pt.inner_x, pt.inner_y)
+        geo::Point::new(pt.x, pt.y)
     }
 }
 

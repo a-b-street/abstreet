@@ -5,8 +5,8 @@ use geom::Duration;
 use map_gui::tools::ChooseSomething;
 use map_model::IntersectionID;
 use widgetry::{
-    Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, TextExt,
-    UpdateType, VerticalAlignment, Widget,
+    Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, StyledButtons,
+    TextExt, UpdateType, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -25,7 +25,10 @@ impl PreviewTrafficSignal {
         Box::new(PreviewTrafficSignal {
             panel: Panel::new(Widget::col(vec![
                 "Previewing traffic signal".draw_text(ctx),
-                Btn::text_fg("back to editing").build_def(ctx, Key::Escape),
+                ctx.style()
+                    .btn_outline_light_text("back to editing")
+                    .hotkey(Key::Escape)
+                    .build_def(ctx),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
@@ -94,10 +97,10 @@ pub fn make_previewer(
                         // Start at the current stage
                         let signal = app.primary.map.get_traffic_signal(*i);
                         // TODO Use the offset correctly
-                        // TODO If there are adaptive stages, this could land anywhere
+                        // TODO If there are variable stages, this could land anywhere
                         let mut step = Duration::ZERO;
                         for idx in 0..stage {
-                            step += signal.stages[idx].phase_type.simple_duration();
+                            step += signal.stages[idx].stage_type.simple_duration();
                         }
                         app.primary.sim.timed_step(
                             &app.primary.map,

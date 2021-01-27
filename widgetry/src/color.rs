@@ -68,7 +68,7 @@ impl Texture {
 
 impl Color {
     // TODO Won't this confuse the shader? :P
-    pub const INVISIBLE: Color = Color::rgba_f(1.0, 0.0, 0.0, 0.0);
+    pub const CLEAR: Color = Color::rgba_f(1.0, 0.0, 0.0, 0.0);
     pub const BLACK: Color = Color::rgb_f(0.0, 0.0, 0.0);
     pub const WHITE: Color = Color::rgb_f(1.0, 1.0, 1.0);
     pub const RED: Color = Color::rgb_f(1.0, 0.0, 0.0);

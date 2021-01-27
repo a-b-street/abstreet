@@ -77,7 +77,7 @@ use it as well.
 
 6.  Run it: `./import.sh --city=your_city --raw --map`
 
-7.  Update `.gitignore` and `data/regen.sh`, following `tel_aviv` as an example.
+7.  Update `.gitignore` and `importer/src/main.rs`, following `tel_aviv` as an example.
 
 8.  Fill out `nice_map_name` in `map_gui/src/tools/mod.rs`.
 

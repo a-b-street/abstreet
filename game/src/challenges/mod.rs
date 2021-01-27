@@ -3,8 +3,8 @@ use std::collections::BTreeMap;
 use geom::{Duration, Percent};
 use sim::OrigPersonID;
 use widgetry::{
-    Btn, Color, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt,
-    Widget,
+    Color, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, StyledButtons, Text,
+    TextExt, Widget,
 };
 
 use crate::app::App;
@@ -132,8 +132,10 @@ impl ChallengesPicker {
     ) -> Box<dyn State<App>> {
         let mut links = BTreeMap::new();
         let mut master_col = vec![
-            Btn::svg_def("system/assets/pregame/back.svg")
-                .build(ctx, "back", Key::Escape)
+            ctx.style()
+                .btn_light_back("Home")
+                .hotkey(Key::Escape)
+                .build_widget(ctx, "back")
                 .align_left(),
             Text::from_multiline(vec![
                 Line("A/B STREET").display_title(),
@@ -141,8 +143,9 @@ impl ChallengesPicker {
             ])
             .draw(ctx)
             .centered_horiz(),
-            Btn::text_bg2("Introduction and tutorial")
-                .build_def(ctx, None)
+            ctx.style()
+                .btn_solid_dark_text("Introduction and tutorial")
+                .build_def(ctx)
                 .centered_horiz()
                 .bg(app.cs.panel_bg)
                 .padding(16)
@@ -152,16 +155,18 @@ impl ChallengesPicker {
         // First list challenges
         let mut flex_row = Vec::new();
         for (idx, (name, _)) in Challenge::all().into_iter().enumerate() {
-            if challenge_and_stage
+            let is_current_stage = challenge_and_stage
                 .as_ref()
                 .map(|(n, _)| n == &name)
-                .unwrap_or(false)
-            {
-                flex_row.push(Btn::text_bg2(&name).inactive(ctx));
-            } else {
-                flex_row.push(Btn::text_bg2(&name).build_def(ctx, Key::NUM_KEYS[idx]));
-                links.insert(name.clone(), (name, 0));
-            }
+                .unwrap_or(false);
+            flex_row.push(
+                ctx.style()
+                    .btn_solid_dark_text(&name)
+                    .disabled(is_current_stage)
+                    .hotkey(Key::NUM_KEYS[idx])
+                    .build_def(ctx),
+            );
+            links.insert(name.clone(), (name, 0));
         }
         master_col.push(
             Widget::custom_row(flex_row)
@@ -182,12 +187,13 @@ impl ChallengesPicker {
                 .into_iter()
                 .enumerate()
             {
-                if current == idx {
-                    col.push(Btn::text_fg(&stage.title).inactive(ctx));
-                } else {
-                    col.push(Btn::text_fg(&stage.title).build_def(ctx, None));
-                    links.insert(stage.title, (name.to_string(), idx));
-                }
+                col.push(
+                    ctx.style()
+                        .btn_outline_light_text(&stage.title)
+                        .disabled(current == idx)
+                        .build_def(ctx),
+                );
+                links.insert(stage.title, (name.to_string(), idx));
             }
             main_row.push(
                 Widget::col(col)
@@ -208,7 +214,10 @@ impl ChallengesPicker {
 
             let mut inner_col = vec![
                 txt.draw(ctx),
-                Btn::text_fg("Start!").build_def(ctx, Key::Enter),
+                ctx.style()
+                    .btn_outline_light_text("Start!")
+                    .hotkey(Key::Enter)
+                    .build_def(ctx),
             ];
 
             if let Some(scores) = app.session.high_scores.get(&challenge.gameplay) {

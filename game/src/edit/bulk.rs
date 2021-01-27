@@ -6,8 +6,8 @@ use geom::Speed;
 use map_gui::tools::PopupMsg;
 use map_model::{LaneType, RoadID};
 use widgetry::{
-    hotkeys, Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, State, Text, TextExt, VerticalAlignment, Widget,
+    hotkeys, Choice, Color, ControlState, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Panel, State, StyledButtons, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -32,23 +32,27 @@ fn make_select_panel(ctx: &mut EventCtx, selector: &RoadSelector) -> Panel {
         Line("Edit many roads").small_heading().draw(ctx),
         selector.make_controls(ctx),
         Widget::row(vec![
-            if selector.roads.is_empty() {
-                Btn::text_fg("Edit 0 roads").inactive(ctx)
-            } else {
-                Btn::text_fg(format!("Edit {} roads", selector.roads.len())).build(
-                    ctx,
-                    "edit roads",
-                    hotkeys(vec![Key::E, Key::Enter]),
-                )
-            },
-            Btn::text_fg(format!(
-                "Export {} roads to shared-row",
-                selector.roads.len()
-            ))
-            .build(ctx, "export roads to shared-row", None),
-            Btn::text_fg("export one road to Streetmix").build_def(ctx, None),
-            Btn::text_fg("export list of roads").build_def(ctx, None),
-            Btn::text_fg("Cancel").build_def(ctx, Key::Escape),
+            ctx.style()
+                .btn_outline_light_text(&format!("Edit {} roads", selector.roads.len()))
+                .disabled(selector.roads.is_empty())
+                .hotkey(hotkeys(vec![Key::E, Key::Enter]))
+                .build_widget(ctx, "edit roads"),
+            ctx.style()
+                .btn_outline_light_text(&format!(
+                    "Export {} roads to shared-row",
+                    selector.roads.len()
+                ))
+                .build_widget(ctx, "export roads to shared-row"),
+            ctx.style()
+                .btn_outline_light_text("export one road to Streetmix")
+                .build_def(ctx),
+            ctx.style()
+                .btn_outline_light_text("export list of roads")
+                .build_def(ctx),
+            ctx.style()
+                .btn_outline_light_text("Cancel")
+                .hotkey(Key::Escape)
+                .build_def(ctx),
         ])
         .evenly_spaced(),
     ]))
@@ -103,7 +107,7 @@ impl State<App> for BulkSelect {
                     for r in &self.selector.roads {
                         osm_ids.insert(app.primary.map.get_r(*r).orig_id.osm_way_id);
                     }
-                    abstutil::write_json("osm_ways.json".to_string(), &osm_ids);
+                    abstio::write_json("osm_ways.json".to_string(), &osm_ids);
                     return Transition::Push(PopupMsg::new(
                         ctx,
                         "List of roads exported",
@@ -163,13 +167,15 @@ impl BulkEdit {
                     ])
                 },
                 Widget::row(vec![
-                    Btn::text_bg2("Finish").build_def(ctx, Key::Enter),
-                    Btn::plaintext_custom(
-                        "Cancel",
-                        Text::from(Line("Cancel").fg(Color::hex("#FF5E5E"))),
-                    )
-                    .build_def(ctx, Key::Escape)
-                    .align_right(),
+                    ctx.style()
+                        .btn_solid_dark_text("Finish")
+                        .hotkey(Key::Enter)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_plain_destructive_text("Cancel")
+                        .hotkey(Key::Escape)
+                        .build_def(ctx)
+                        .align_right(),
                 ]),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
@@ -278,11 +284,10 @@ fn make_lt_switcher(
                     Choice::new("construction", Some(LaneType::Construction)),
                 ],
             ),
-            Btn::plaintext_custom(
-                "add another lane type transformation",
-                Text::from(Line("+ Add").fg(Color::hex("#4CA7E9"))),
-            )
-            .build_def(ctx, None),
+            ctx.style()
+                .btn_plain_light_text("+ Add")
+                .label_color(Color::hex("#4CA7E9"), ControlState::Default)
+                .build_widget(ctx, "add another lane type transformation"),
         ]));
     }
     Widget::col(col)

@@ -11,8 +11,8 @@ use sim::{
     TripMode, TripResult, VehicleType,
 };
 use widgetry::{
-    Btn, Color, EdgeInsets, EventCtx, GeomBatch, Key, Line, RewriteColor, Text, TextExt, TextSpan,
-    Widget,
+    Color, ControlState, CornerRounding, EdgeInsets, EventCtx, GeomBatch, Key, Line, RewriteColor,
+    StyledButtons, Text, TextExt, TextSpan, Widget,
 };
 
 use crate::app::App;
@@ -123,7 +123,7 @@ pub fn trips(
         };
         let trip = sim.trip_info(*t);
 
-        let (row_btn, hitbox) = Widget::custom_row(vec![
+        let (row_btn, _hitbox) = Widget::custom_row(vec![
             format!("Trip {} ", idx + 1)
                 .batch_text(ctx)
                 .centered_vert()
@@ -154,7 +154,7 @@ pub fn trips(
                     .padding_bottom(2),
             ])
             .centered()
-            .fully_rounded()
+            .corner_rounding(CornerRounding::FullyRounded)
             .outline(1.0, color)
             .bg(color.alpha(0.2))
             .padding(EdgeInsets {
@@ -191,7 +191,7 @@ pub fn trips(
             },
             {
                 let mut icon =
-                    GeomBatch::load_svg(ctx.prerender, "system/assets/tools/arrow_drop_down.svg")
+                    GeomBatch::load_svg(ctx.prerender, "../widgetry/icons/arrow_drop_down.svg")
                         .autocrop()
                         .color(RewriteColor::ChangeAll(Color::WHITE))
                         .scale(1.5);
@@ -209,26 +209,29 @@ pub fn trips(
         .bg(app.cs.inner_panel)
         .to_geom(ctx, Some(0.3));
         rows.push(
-            Btn::custom(
-                row_btn.clone(),
-                row_btn.color(RewriteColor::Change(app.cs.inner_panel, app.cs.hovering)),
-                hitbox,
-                None,
-            )
-            .build(
-                ctx,
-                format!(
-                    "{} {}",
-                    if open_trips.contains_key(t) {
-                        "hide"
-                    } else {
-                        "show"
-                    },
-                    t
-                ),
-                None,
-            )
-            .margin_above(if idx == 0 { 0 } else { 16 }),
+            ctx.style()
+                .btn_solid_light()
+                .custom_batch(row_btn.clone(), ControlState::Default)
+                .custom_batch(
+                    row_btn.color(RewriteColor::Change(
+                        app.cs.inner_panel,
+                        ctx.style().btn_outline_light.bg_hover,
+                    )),
+                    ControlState::Hovered,
+                )
+                .build_widget(
+                    ctx,
+                    &format!(
+                        "{} {}",
+                        if open_trips.contains_key(t) {
+                            "hide"
+                        } else {
+                            "show"
+                        },
+                        t
+                    ),
+                )
+                .margin_above(if idx == 0 { 0 } else { 16 }),
         );
 
         if let Some(info) = maybe_info {
@@ -271,13 +274,13 @@ pub fn bio(
 
     let mut svg_data = Vec::new();
     svg_face::generate_face(&mut svg_data, &mut rng).unwrap();
-    let batch = GeomBatch::from_svg_contents(svg_data).autocrop();
+    let batch = GeomBatch::from_uncached_svg_contents(&svg_data).autocrop();
     let dims = batch.get_dims();
     let batch = batch.scale((200.0 / dims.width).min(200.0 / dims.height));
     rows.push(Widget::draw_batch(ctx, batch).centered_horiz());
 
     let nickname = petname::Petnames::default().generate(&mut rng, 2, " ");
-    let age = rng.gen_range(5, 100);
+    let age = rng.gen_range(5..100);
 
     let mut table = vec![("Nickname", nickname), ("Age", age.to_string())];
     if app.opts.dev {
@@ -325,7 +328,9 @@ pub fn bio(
         } else {
             if app.primary.sim.lookup_parked_car(v.id).is_some() {
                 rows.push(
-                    Btn::text_bg2(format!("Owner of {} (parked)", v.id)).build_def(ctx, None),
+                    ctx.style()
+                        .btn_solid_dark_text(&format!("Owner of {} (parked)", v.id))
+                        .build_def(ctx),
                 );
                 details
                     .hyperlinks
@@ -447,7 +452,9 @@ pub fn crowd(
         // TODO What other info is useful to summarize?
         rows.push(Widget::row(vec![
             format!("{})", idx + 1).draw_text(ctx).centered_vert(),
-            Btn::text_fg(person.to_string()).build_def(ctx, None),
+            ctx.style()
+                .btn_outline_light_text(&person.to_string())
+                .build_def(ctx),
         ]));
         details.hyperlinks.insert(
             person.to_string(),
@@ -483,19 +490,19 @@ pub fn parked_car(
             // Little indirect, but the handler of this action is actually the ContextualActions
             // for SandboxMode.
             if is_paused {
-                Btn::svg_def("system/assets/tools/location.svg").build(
-                    ctx,
-                    "follow (run the simulation)",
-                    Key::F,
-                )
+                ctx.style()
+                    .btn_plain_light_icon("system/assets/tools/location.svg")
+                    .hotkey(Key::F)
+                    .build_widget(ctx, "follow (run the simulation)")
             } else {
                 // TODO Blink
-                GeomBatch::load_svg(ctx, "system/assets/tools/location.svg")
-                    .color(RewriteColor::ChangeAll(Color::hex("#7FFA4D")))
-                    .to_btn(ctx)
-                    .build(ctx, "unfollow (pause the simulation)", Key::F)
+                ctx.style()
+                    .btn_plain_light_icon("system/assets/tools/location.svg")
+                    .image_color(Color::hex("#7FFA4D"), ControlState::Default)
+                    .hotkey(Key::F)
+                    .build_widget(ctx, "unfollow (pause the simulation)")
             },
-            Btn::close(ctx),
+            ctx.style().btn_close_widget(ctx),
         ])
         .align_right(),
     ]));
@@ -503,7 +510,11 @@ pub fn parked_car(
     // TODO prev trips, next trips, etc
 
     let p = app.primary.sim.get_owner_of_car(id).unwrap();
-    rows.push(Btn::text_bg2(format!("Owned by {}", p)).build_def(ctx, None));
+    rows.push(
+        ctx.style()
+            .btn_solid_dark_text(&format!("Owned by {}", p))
+            .build_def(ctx),
+    );
     details.hyperlinks.insert(
         format!("Owned by {}", p),
         Tab::PersonTrips(p, BTreeMap::new()),
@@ -589,11 +600,15 @@ fn header(
     rows.push(Widget::custom_row(vec![
         Line(format!("{}", id)).small_heading().draw(ctx),
         if let Some(icon) = maybe_icon {
-            Widget::draw_svg_transform(ctx, icon, RewriteColor::ChangeAll(Color::hex("#A3A3A3")))
-                .margin_left(28)
+            let batch = GeomBatch::load_svg(ctx, icon)
+                .color(RewriteColor::ChangeAll(Color::hex("#A3A3A3")))
+                .autocrop();
+            let y_factor = 20.0 / batch.get_dims().height;
+            Widget::draw_batch(ctx, batch.scale(y_factor)).margin_left(28)
         } else {
             Widget::nothing()
-        },
+        }
+        .centered_vert(),
         Line(format!("{}", descr))
             .small_heading()
             .fg(Color::hex("#A3A3A3"))
@@ -603,19 +618,19 @@ fn header(
             // Little indirect, but the handler of this action is actually the ContextualActions
             // for SandboxMode.
             if is_paused {
-                Btn::svg_def("system/assets/tools/location.svg").build(
-                    ctx,
-                    "follow (run the simulation)",
-                    Key::F,
-                )
+                ctx.style()
+                    .btn_plain_light_icon("system/assets/tools/location.svg")
+                    .hotkey(Key::F)
+                    .build_widget(ctx, "follow (run the simulation)")
             } else {
                 // TODO Blink
-                GeomBatch::load_svg(ctx, "system/assets/tools/location.svg")
-                    .color(RewriteColor::ChangeAll(Color::hex("#7FFA4D")))
-                    .to_btn(ctx)
-                    .build(ctx, "unfollow (pause the simulation)", Key::F)
+                ctx.style()
+                    .btn_plain_light_icon("system/assets/tools/location.svg")
+                    .image_color(Color::hex("#7FFA4D"), ControlState::Default)
+                    .hotkey(Key::F)
+                    .build_widget(ctx, "unfollow (pause the simulation)")
             },
-            Btn::close(ctx),
+            ctx.style().btn_close_widget(ctx),
         ])
         .align_right(),
     ]));

@@ -5,10 +5,12 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
+anyhow = "1.0.37"
 flate2 = "1.0.19"
 geom = { path = "../geom" }
 md5 = "0.7.0"
-reqwest = { version = "0.10.8", default-features=false, features=["rustls-tls"] }
+reqwest = { version = "0.10.10", default-features=false, features=["rustls-tls"] }
 tokio = { version = "0.2.22", features = ["full"] }
 walkdir = "2.3.1"

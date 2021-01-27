@@ -1,8 +1,8 @@
 use abstutil::CmdArgs;
 use geom::{Duration, UnitFmt};
 use widgetry::{
-    Btn, Checkbox, Choice, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, Spinner, State,
-    TextExt, Widget,
+    Checkbox, Choice, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, Spinner, State,
+    StyledButtons, TextExt, Widget,
 };
 
 use crate::colors::ColorSchemeChoice;
@@ -55,7 +55,7 @@ impl Options {
             debug_all_agents: false,
 
             traffic_signal_style: TrafficSignalStyle::BAP,
-            color_scheme: ColorSchemeChoice::Standard,
+            color_scheme: ColorSchemeChoice::DayMode,
             toggle_day_night_colors: false,
             min_zoom_for_detail: 4.0,
             camera_angle: CameraAngle::TopDown,
@@ -129,7 +129,7 @@ impl OptionsPanel {
             panel: Panel::new(Widget::col(vec![
                 Widget::custom_row(vec![
                     Line("Settings").small_heading().draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 "Camera controls".draw_text(ctx),
                 Widget::col(vec![
@@ -259,8 +259,10 @@ impl OptionsPanel {
                 ])
                 .bg(app.cs().section_bg)
                 .padding(8),
-                Btn::text_bg2("Apply")
-                    .build_def(ctx, Key::Enter)
+                ctx.style()
+                    .btn_solid_dark_text("Apply")
+                    .hotkey(Key::Enter)
+                    .build_def(ctx)
                     .centered_horiz(),
             ]))
             .build(ctx),
@@ -336,6 +338,8 @@ impl<A: AppLike> State<A> for OptionsPanel {
                     }
 
                     if app.change_color_scheme(ctx, self.panel.dropdown_value("Color scheme")) {
+                        // change_color_scheme doesn't modify our local copy of Options!
+                        opts.color_scheme = app.opts().color_scheme;
                         // If the player picks a different scheme, don't undo it later.
                         opts.toggle_day_night_colors = false;
                     }

@@ -9,7 +9,7 @@ use geom::{Duration, Histogram, Time};
 use map_model::{BusRouteID, IntersectionID};
 
 use crate::{
-    pandemic, AgentID, CarID, CreateCar, CreatePedestrian, PedestrianID, TripID, TripSpec,
+    pandemic, AgentID, CarID, CreateCar, CreatePedestrian, PedestrianID, StartTripArgs, TripID,
 };
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
@@ -17,7 +17,7 @@ pub(crate) enum Command {
     /// If true, retry when there's no room to spawn somewhere
     SpawnCar(CreateCar, bool),
     SpawnPed(CreatePedestrian),
-    StartTrip(TripID, TripSpec),
+    StartTrip(TripID, StartTripArgs),
     UpdateCar(CarID),
     /// Distinguish this from UpdateCar to avoid confusing things
     UpdateLaggyHead(CarID),

@@ -1,7 +1,7 @@
 use map_gui::tools::grey_out_map;
 use widgetry::{
-    hotkeys, Btn, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
-    RewriteColor, State, Text, Widget,
+    hotkeys, Color, ControlState, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
+    Panel, State, StyledButtons, Text, Widget,
 };
 
 use crate::app::App;
@@ -63,11 +63,10 @@ impl CutsceneBuilder {
     pub fn build(
         self,
         ctx: &mut EventCtx,
-        app: &App,
         make_task: Box<dyn Fn(&mut EventCtx) -> Widget>,
     ) -> Box<dyn State<App>> {
         Box::new(CutscenePlayer {
-            panel: make_panel(ctx, app, &self.name, &self.scenes, &make_task, 0),
+            panel: make_panel(ctx, &self.name, &self.scenes, &make_task, 0),
             name: self.name,
             scenes: self.scenes,
             idx: 0,
@@ -96,36 +95,18 @@ impl State<App> for CutscenePlayer {
                 }
                 "back" => {
                     self.idx -= 1;
-                    self.panel = make_panel(
-                        ctx,
-                        app,
-                        &self.name,
-                        &self.scenes,
-                        &self.make_task,
-                        self.idx,
-                    );
+                    self.panel =
+                        make_panel(ctx, &self.name, &self.scenes, &self.make_task, self.idx);
                 }
                 "next" => {
                     self.idx += 1;
-                    self.panel = make_panel(
-                        ctx,
-                        app,
-                        &self.name,
-                        &self.scenes,
-                        &self.make_task,
-                        self.idx,
-                    );
+                    self.panel =
+                        make_panel(ctx, &self.name, &self.scenes, &self.make_task, self.idx);
                 }
                 "Skip cutscene" => {
                     self.idx = self.scenes.len();
-                    self.panel = make_panel(
-                        ctx,
-                        app,
-                        &self.name,
-                        &self.scenes,
-                        &self.make_task,
-                        self.idx,
-                    );
+                    self.panel =
+                        make_panel(ctx, &self.name, &self.scenes, &self.make_task, self.idx);
                 }
                 "Start" => {
                     return Transition::Pop;
@@ -136,14 +117,7 @@ impl State<App> for CutscenePlayer {
         }
         // TODO Should the Panel for text widgets with wrapping do this instead?
         if ctx.input.is_window_resized() {
-            self.panel = make_panel(
-                ctx,
-                app,
-                &self.name,
-                &self.scenes,
-                &self.make_task,
-                self.idx,
-            );
+            self.panel = make_panel(ctx, &self.name, &self.scenes, &self.make_task, self.idx);
         }
 
         Transition::Keep
@@ -162,40 +136,34 @@ impl State<App> for CutscenePlayer {
 
 fn make_panel(
     ctx: &mut EventCtx,
-    app: &App,
     name: &str,
     scenes: &Vec<Scene>,
     make_task: &Box<dyn Fn(&mut EventCtx) -> Widget>,
     idx: usize,
 ) -> Panel {
-    let prev = if idx > 0 {
-        Btn::svg(
-            "system/assets/tools/prev.svg",
-            RewriteColor::Change(Color::WHITE, app.cs.hovering),
-        )
-        .build(ctx, "back", Key::LeftArrow)
-    } else {
-        Widget::draw_svg_transform(
-            ctx,
-            "system/assets/tools/prev.svg",
-            RewriteColor::ChangeAlpha(0.3),
-        )
-    };
-    let next = Btn::svg(
-        "system/assets/tools/next.svg",
-        RewriteColor::Change(Color::WHITE, app.cs.hovering),
-    )
-    .build(
-        ctx,
-        "next",
-        hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]),
-    );
+    let prev = ctx
+        .style()
+        .btn_plain_dark_icon("system/assets/tools/circled_prev.svg")
+        .image_dims(45.0)
+        .hotkey(Key::LeftArrow)
+        .bg_color(Color::CLEAR, ControlState::Disabled)
+        .disabled(idx == 0)
+        .build_widget(ctx, "back");
+
+    let next = ctx
+        .style()
+        .btn_plain_dark_icon("system/assets/tools/circled_next.svg")
+        .image_dims(45.0)
+        .hotkey(hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]))
+        .build_widget(ctx, "next");
 
     let inner = if idx == scenes.len() {
         Widget::custom_col(vec![
             (make_task)(ctx),
-            Btn::txt("Start", Text::from(Line("Start").fg(Color::BLACK)))
-                .build_def(ctx, Key::Enter)
+            ctx.style()
+                .btn_solid_dark_text("Start")
+                .hotkey(Key::Enter)
+                .build_def(ctx)
                 .centered_horiz()
                 .align_bottom(),
         ])
@@ -205,7 +173,7 @@ fn make_panel(
                 Layout::PlayerSpeaking => Widget::custom_row(vec![
                     Widget::draw_batch(
                         ctx,
-                        GeomBatch::load_svg(ctx, "system/assets/characters/boss.svg")
+                        GeomBatch::load_svg(ctx, "system/assets/characters/boss.svg.gz")
                             .scale(0.75)
                             .autocrop(),
                     ),
@@ -218,17 +186,17 @@ fn make_panel(
                 Layout::BossSpeaking => Widget::custom_row(vec![
                     Widget::draw_batch(
                         ctx,
-                        GeomBatch::load_svg(ctx, "system/assets/characters/boss.svg")
+                        GeomBatch::load_svg(ctx, "system/assets/characters/boss.svg.gz")
                             .scale(0.75)
                             .autocrop(),
                     ),
                     scenes[idx].msg.clone().wrap_to_pct(ctx, 30).draw(ctx),
                     Widget::draw_svg(ctx, "system/assets/characters/player.svg").align_right(),
                 ]),
-                Layout::Extra(name, scale) => Widget::custom_row(vec![
+                Layout::Extra(filename, scale) => Widget::custom_row(vec![
                     Widget::draw_batch(
                         ctx,
-                        GeomBatch::load_svg(ctx, "system/assets/characters/boss.svg")
+                        GeomBatch::load_svg(ctx, "system/assets/characters/boss.svg.gz")
                             .scale(0.75)
                             .autocrop(),
                     ),
@@ -237,7 +205,7 @@ fn make_panel(
                             ctx,
                             GeomBatch::load_svg(
                                 ctx.prerender,
-                                &format!("system/assets/characters/{}.svg", name),
+                                &format!("system/assets/characters/{}", filename),
                             )
                             .scale(scale)
                             .autocrop(),
@@ -250,13 +218,11 @@ fn make_panel(
             }
             .margin_above(100),
             Widget::col(vec![
-                Widget::row(vec![prev, next]).centered_horiz(),
-                Btn::txt(
-                    "Skip cutscene",
-                    Text::from(Line("Skip cutscene").fg(Color::BLACK)),
-                )
-                .build_def(ctx, None)
-                .centered_horiz(),
+                Widget::row(vec![prev.margin_right(40), next]).centered_horiz(),
+                ctx.style()
+                    .btn_outline_dark_text("Skip cutscene")
+                    .build_def(ctx)
+                    .centered_horiz(),
             ])
             .align_bottom(),
         ])
@@ -265,8 +231,9 @@ fn make_panel(
     let col = vec![
         // TODO Can't get this to alignment to work
         Widget::custom_row(vec![
-            Btn::svg_def("system/assets/pregame/back.svg")
-                .build(ctx, "quit", None)
+            ctx.style()
+                .btn_light_back("Home")
+                .build_widget(ctx, "quit")
                 .margin_right(100),
             Line(name).big_heading_styled().draw(ctx),
         ])
@@ -293,8 +260,10 @@ impl FYI {
             panel: Panel::new(
                 Widget::custom_col(vec![
                     contents,
-                    Btn::txt("Okay", Text::from(Line("Okay").fg(Color::BLACK)))
-                        .build_def(ctx, hotkeys(vec![Key::Escape, Key::Space, Key::Enter]))
+                    ctx.style()
+                        .btn_solid_dark_text("Okay")
+                        .hotkey(hotkeys(vec![Key::Escape, Key::Space, Key::Enter]))
+                        .build_def(ctx)
                         .centered_horiz()
                         .align_bottom(),
                 ])

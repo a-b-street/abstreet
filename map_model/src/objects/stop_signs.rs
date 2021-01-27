@@ -95,13 +95,21 @@ impl ControlStopSign {
             // Degenerate roads and deadends don't need any stop signs.
             return ss;
         }
-
-        // What's the rank of each road?
-        let mut rank: HashMap<RoadID, osm::RoadRank> = HashMap::new();
-        for r in ss.roads.keys() {
-            rank.insert(*r, map.get_r(*r).get_rank());
+        if map.get_i(id).is_cycleway(map) {
+            // Two cyclepaths intersecting can just yield.
+            return ss;
         }
-        let mut ranks: Vec<osm::RoadRank> = rank.values().cloned().collect();
+
+        // Rank each road based on OSM highway type, and additionally treat cycleways as lower
+        // priority than local roads. (Sad but typical reality.)
+        let mut rank: HashMap<RoadID, (osm::RoadRank, usize)> = HashMap::new();
+        for r in ss.roads.keys() {
+            let r = map.get_r(*r);
+            // Lower number is lower priority
+            let priority = if r.is_cycleway() { 0 } else { 1 };
+            rank.insert(r.id, (r.get_rank(), priority));
+        }
+        let mut ranks = rank.values().cloned().collect::<Vec<_>>();
         ranks.sort();
         ranks.dedup();
         // Highest rank is first
@@ -111,7 +119,10 @@ impl ControlStopSign {
         // highest-priority roads.
         for (r, cfg) in ss.roads.iter_mut() {
             if ranks.len() == 1 || rank[r] != ranks[0] {
-                cfg.must_stop = true;
+                // Don't stop in the middle of something that's likely actually an intersection.
+                if !map.get_r(*r).is_extremely_short() {
+                    cfg.must_stop = true;
+                }
             }
         }
         ss

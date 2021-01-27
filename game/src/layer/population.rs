@@ -5,12 +5,12 @@ use geom::{Circle, Distance, Pt2D, Time};
 use map_gui::tools::{make_heatmap, HeatmapOptions};
 use sim::PersonState;
 use widgetry::{
-    Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
-    Outcome, Panel, VerticalAlignment, Widget,
+    Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome,
+    Panel, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
-use crate::layer::{Layer, LayerOutcome};
+use crate::layer::{header, Layer, LayerOutcome};
 
 // TODO Disable drawing unzoomed agents... or alternatively, implement this by asking Sim to
 // return this kind of data instead!
@@ -146,11 +146,10 @@ fn make_controls(ctx: &mut EventCtx, app: &App, opts: &Options, legend: Option<W
     let (total_ppl, ppl_in_bldg, ppl_off_map) = app.primary.sim.num_ppl();
 
     let mut col = vec![
-        Widget::row(vec![
-            Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
-            Line(format!("Population: {}", prettyprint_usize(total_ppl))).draw(ctx),
-            Btn::close(ctx),
-        ]),
+        header(
+            ctx,
+            &format!("Population: {}", prettyprint_usize(total_ppl)),
+        ),
         Widget::row(vec![
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/home.svg"),

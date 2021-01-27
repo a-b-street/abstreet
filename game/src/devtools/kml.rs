@@ -11,8 +11,8 @@ use map_gui::colors::ColorScheme;
 use map_gui::tools::{ChooseSomething, PopupMsg};
 use map_model::BuildingID;
 use widgetry::{
-    lctrl, Btn, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Panel, State, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Panel, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -70,7 +70,7 @@ impl ViewKML {
                 panel: Panel::new(Widget::col(vec![
                     Widget::row(vec![
                         Line("KML viewer").small_heading().draw(ctx),
-                        Btn::close(ctx),
+                        ctx.style().btn_close_widget(ctx),
                     ]),
                     format!(
                         "{}: {} objects",
@@ -78,7 +78,10 @@ impl ViewKML {
                         prettyprint_usize(objects.len())
                     )
                     .draw_text(ctx),
-                    Btn::text_fg("load KML file").build_def(ctx, lctrl(Key::L)),
+                    ctx.style()
+                        .btn_outline_light_text("load KML file")
+                        .hotkey(lctrl(Key::L))
+                        .build_def(ctx),
                     Widget::row(vec![
                         "Query:".draw_text(ctx),
                         Widget::dropdown(ctx, "query", "None".to_string(), choices),
@@ -143,7 +146,7 @@ impl State<App> for ViewKML {
                         ctx,
                         "Load file",
                         Choice::strings(
-                            abstutil::list_dir(abstutil::path(format!(
+                            abstio::list_dir(abstio::path(format!(
                                 "input/{}/",
                                 app.primary.map.get_city_name()
                             )))
@@ -222,17 +225,17 @@ fn load_objects(
             // Assuming this is some huge file, conveniently convert the extract to .bin.
             // The new file will show up as untracked in git, so it'll be obvious this
             // happened.
-            abstutil::write_binary(path.replace(".kml", ".bin"), &shapes);
+            abstio::write_binary(path.replace(".kml", ".bin"), &shapes);
             shapes
         } else if path.ends_with(".csv") {
             let shapes = ExtraShapes::load_csv(&path, bounds, timer).unwrap();
             // Assuming this is some huge file, conveniently convert the extract to .bin.
             // The new file will show up as untracked in git, so it'll be obvious this
             // happened.
-            abstutil::write_binary(path.replace(".csv", ".bin"), &shapes);
+            abstio::write_binary(path.replace(".csv", ".bin"), &shapes);
             shapes
         } else {
-            abstutil::read_binary::<ExtraShapes>(path.to_string(), timer)
+            abstio::read_binary::<ExtraShapes>(path.to_string(), timer)
         }
     } else {
         ExtraShapes { shapes: Vec::new() }
@@ -283,7 +286,7 @@ fn load_objects(
         clipped_shapes.push(shape);
     }
     if path.is_some() && dump_clipped_shapes {
-        abstutil::write_binary(
+        abstio::write_binary(
             format!("{}_clipped_for_{}.bin", dataset_name, map.get_name().map),
             &clipped_shapes,
         );

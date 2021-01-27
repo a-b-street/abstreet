@@ -1,12 +1,13 @@
 use std::collections::BTreeMap;
-use std::error::Error;
 use std::fs::File;
 use std::io::{BufReader, Read, Write};
 use std::process::Command;
 
+use anyhow::{Context, Result};
 use walkdir::WalkDir;
 
-use abstutil::{prettyprint_usize, CmdArgs, DataPacks, Entry, Manifest, Timer};
+use abstio::{DataPacks, Entry, Manifest};
+use abstutil::{must_run_cmd, prettyprint_usize, CmdArgs, Parallelism, Timer};
 use geom::Percent;
 
 const MD5_BUF_READ_SIZE: usize = 4096;
@@ -17,16 +18,29 @@ async fn main() {
     let version = args.optional("--version").unwrap_or("dev".to_string());
     if args.enabled("--upload") {
         assert_eq!(version, "dev");
+        args.done();
         upload(version);
-        return;
+    } else if args.enabled("--dry") {
+        let single_file = args.optional_free();
+        args.done();
+        if let Some(path) = single_file {
+            let (local, _) = md5sum(&path);
+            let truth = Manifest::load()
+                .entries
+                .remove(&path)
+                .expect(&format!("{} not in data/MANIFEST.txt", path))
+                .checksum;
+            if local != truth {
+                println!("{} has changed", path);
+            }
+        } else {
+            just_compare();
+        }
+    } else {
+        let quiet = args.enabled("--quiet");
+        args.done();
+        download(version, quiet).await;
     }
-    if args.enabled("--dry") {
-        just_compare();
-        return;
-    }
-    let quiet = args.enabled("--quiet");
-    args.done();
-    download(version, quiet).await;
 }
 
 async fn download(version: String, quiet: bool) {
@@ -97,7 +111,7 @@ fn upload(version: String) {
     let remote_base = format!("/home/dabreegster/s3_abst_data/{}", version);
 
     let mut local = generate_manifest();
-    let remote: Manifest = abstutil::maybe_read_json(
+    let remote: Manifest = abstio::maybe_read_json(
         format!("{}/MANIFEST.json", remote_base),
         &mut Timer::throwaway(),
     )
@@ -132,8 +146,8 @@ fn upload(version: String) {
         entry.compressed_size_bytes = std::fs::metadata(&remote_path).unwrap().len() as usize;
     }
 
-    abstutil::write_json(format!("{}/MANIFEST.json", remote_base), &local);
-    abstutil::write_json("data/MANIFEST.json".to_string(), &local);
+    abstio::write_json(format!("{}/MANIFEST.json", remote_base), &local);
+    abstio::write_json("data/MANIFEST.json".to_string(), &local);
 
     must_run_cmd(
         Command::new("aws")
@@ -155,7 +169,7 @@ fn upload(version: String) {
 }
 
 fn generate_manifest() -> Manifest {
-    let mut kv = BTreeMap::new();
+    let mut paths = Vec::new();
     for entry in WalkDir::new("data/input")
         .into_iter()
         .chain(WalkDir::new("data/system").into_iter())
@@ -169,50 +183,48 @@ fn generate_manifest() -> Manifest {
         if path.contains("system/assets/") || path.contains("system/proposals") {
             continue;
         }
-
-        abstutil::clear_current_line();
-        print!("> compute md5sum of {}", path);
-        std::io::stdout().flush().unwrap();
-
-        // since these files can be very large, computes the md5 hash in chunks
-        let mut file = File::open(&orig_path).unwrap();
-        let mut buffer = [0 as u8; MD5_BUF_READ_SIZE];
-        let mut context = md5::Context::new();
-        let mut uncompressed_size_bytes = 0;
-        while let Ok(n) = file.read(&mut buffer) {
-            if n == 0 {
-                break;
-            }
-            uncompressed_size_bytes += n;
-            context.consume(&buffer[..n]);
-        }
-        let checksum = format!("{:x}", context.compute());
-        kv.insert(
-            path,
-            Entry {
-                checksum,
-                uncompressed_size_bytes,
-                // Will calculate later
-                compressed_size_bytes: 0,
-            },
-        );
+        paths.push((orig_path, path));
     }
-    println!();
+
+    let mut kv = BTreeMap::new();
+    for (path, entry) in Timer::new("compute md5sums").parallelize(
+        "compute md5sums",
+        Parallelism::Fastest,
+        paths,
+        |(orig_path, path)| {
+            let (checksum, uncompressed_size_bytes) = md5sum(&orig_path);
+            (
+                path,
+                Entry {
+                    checksum,
+                    uncompressed_size_bytes,
+                    // Will calculate later
+                    compressed_size_bytes: 0,
+                },
+            )
+        },
+    ) {
+        kv.insert(path, entry);
+    }
+
     Manifest { entries: kv }
 }
 
-fn must_run_cmd(cmd: &mut Command) {
-    println!("> Running {:?}", cmd);
-    match cmd.status() {
-        Ok(status) => {
-            if !status.success() {
-                panic!("{:?} failed", cmd);
-            }
+/// Returns (checksum, uncompressed_size_bytes)
+fn md5sum(path: &str) -> (String, usize) {
+    // since these files can be very large, computes the md5 hash in chunks
+    let mut file = File::open(path).unwrap();
+    let mut buffer = [0 as u8; MD5_BUF_READ_SIZE];
+    let mut context = md5::Context::new();
+    let mut uncompressed_size_bytes = 0;
+    while let Ok(n) = file.read(&mut buffer) {
+        if n == 0 {
+            break;
         }
-        Err(err) => {
-            panic!("Failed to run {:?}: {:?}", cmd, err);
-        }
+        uncompressed_size_bytes += n;
+        context.consume(&buffer[..n]);
     }
+    (format!("{:x}", context.compute()), uncompressed_size_bytes)
 }
 
 fn rm(path: &str) {
@@ -230,7 +242,15 @@ fn rm(path: &str) {
     }
 }
 
-async fn curl(version: &str, path: &str, quiet: bool) -> Result<Vec<u8>, Box<dyn Error>> {
+async fn curl(version: &str, path: &str, quiet: bool) -> Result<Vec<u8>> {
+    // Manually enable to "download" from my local copy
+    if false {
+        return abstio::slurp_file(format!(
+            "/home/dabreegster/s3_abst_data/{}/{}.gz",
+            version, path
+        ));
+    }
+
     let src = format!(
         "http://abstreet.s3-website.us-east-2.amazonaws.com/{}/{}.gz",
         version, path
@@ -238,13 +258,8 @@ async fn curl(version: &str, path: &str, quiet: bool) -> Result<Vec<u8>, Box<dyn
     println!("> download {}", src);
 
     let mut resp = reqwest::get(&src).await.unwrap();
-    match resp.error_for_status_ref() {
-        Ok(_) => {}
-        Err(err) => {
-            let err = format!("error getting {}: {}", src, err);
-            return Err(err.into());
-        }
-    }
+    resp.error_for_status_ref()
+        .with_context(|| format!("downloading {}", src))?;
 
     let total_size = resp.content_length().map(|x| x as usize);
     let mut bytes = Vec::new();

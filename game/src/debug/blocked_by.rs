@@ -4,8 +4,8 @@ use abstutil::Counter;
 use geom::{ArrowCap, Circle, Distance, Duration, PolyLine, Polygon, Pt2D};
 use sim::{AgentID, DelayCause};
 use widgetry::{
-    Btn, Cached, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome,
-    Panel, State, Text, VerticalAlignment, Widget,
+    Cached, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome,
+    Panel, State, StyledButtons, Text, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -39,7 +39,7 @@ impl Viewer {
                     Line("What agents are blocked by others?")
                         .small_heading()
                         .draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 Text::from(Line("Root causes"))
                     .draw(ctx)

@@ -181,8 +181,8 @@ impl SnowEffect {
         // TODO Amp back up after fixing slow performance in debug mode
         for _ in 0..20 {
             let initial_pos = Pt2D::new(
-                snow.rng.gen_range(0.0, ctx.canvas.window_width),
-                snow.rng.gen_range(0.0, ctx.canvas.window_height),
+                snow.rng.gen_range(0.0..ctx.canvas.window_width),
+                snow.rng.gen_range(0.0..ctx.canvas.window_height),
             );
             let flake = snow.spawn_new(now, initial_pos);
             snow.flakes.push(flake);
@@ -198,10 +198,10 @@ impl SnowEffect {
             initial_pos,
             // Pixels per second
             // TODO It'd be neat to speed this up as time runs out
-            fall_speed: self.rng.gen_range(150.0, 300.0),
-            swoop_period: self.rng.gen_range(1.0, 5.0),
+            fall_speed: self.rng.gen_range(150.0..300.0),
+            swoop_period: self.rng.gen_range(1.0..5.0),
             // Pixels
-            max_swoop: self.rng.gen_range(0.0, 50.0),
+            max_swoop: self.rng.gen_range(0.0..50.0),
         }
     }
 
@@ -214,7 +214,7 @@ impl SnowEffect {
         for flake in prev_flakes {
             let pt = flake.pos(now);
             if pt.y() > ctx.canvas.window_height {
-                let initial_pos = Pt2D::new(self.rng.gen_range(0.0, ctx.canvas.window_width), 0.0);
+                let initial_pos = Pt2D::new(self.rng.gen_range(0.0..ctx.canvas.window_width), 0.0);
                 new_flakes.push(self.spawn_new(now, initial_pos));
             } else {
                 batch.append(shape.clone().translate(pt.x(), pt.y()));

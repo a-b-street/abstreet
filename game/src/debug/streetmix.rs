@@ -4,7 +4,7 @@ use map_model::{Direction, Lane, LaneType, Map, RoadID};
 pub fn export(r: RoadID, map: &Map) -> String {
     let path = format!("streetmix_export_{}.json", r.0);
     let street = road(r, map);
-    abstutil::write_json(path.clone(), &street);
+    abstio::write_json(path.clone(), &street);
     path
 }
 

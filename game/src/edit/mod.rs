@@ -10,8 +10,8 @@ use map_gui::tools::{grey_out_map, ChooseSomething, ColorLegend, PopupMsg};
 use map_gui::ID;
 use map_model::{EditCmd, IntersectionID, LaneID, LaneType, MapEdits};
 use widgetry::{
-    lctrl, Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Menu,
-    Outcome, Panel, State, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, Choice, Color, ControlState, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
+    Menu, Outcome, Panel, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub use self::cluster_traffic_signals::ClusterTrafficSignalEditor;
@@ -187,9 +187,9 @@ impl State<App> for EditMode {
             Outcome::Clicked(x) => match x.as_ref() {
                 "manage proposals" => {
                     let mode = self.mode.clone();
-                    return Transition::Push(ChooseSomething::new_below(
+                    return Transition::Push(ChooseSomething::new(
                         ctx,
-                        self.changelist.rect_of("manage proposals"),
+                        "Manage proposals",
                         vec![
                             Choice::string("rename current proposal"),
                             Choice::string("open a saved proposal").multikey(lctrl(Key::L)),
@@ -208,7 +208,7 @@ impl State<App> for EditMode {
                                     false,
                                     Some(Transition::Pop),
                                     Box::new(move |_, app| {
-                                        abstutil::delete_file(abstutil::path_edits(
+                                        abstio::delete_file(abstio::path_edits(
                                             app.primary.map.get_name(),
                                             &old_name,
                                         ));
@@ -261,7 +261,7 @@ impl State<App> for EditMode {
                                 Box::new(|_, _| {}),
                             )),
                             "delete this proposal and remove all edits" => {
-                                abstutil::delete_file(abstutil::path_edits(
+                                abstio::delete_file(abstio::path_edits(
                                     app.primary.map.get_name(),
                                     &app.primary.map.get_edits().edits_name,
                                 ));
@@ -405,16 +405,24 @@ impl SaveEdits {
                 Text::new().draw(ctx).named("warning"),
                 Widget::row(vec![
                     if discard {
-                        Btn::text_bg2("Discard proposal").build_def(ctx, None)
+                        ctx.style()
+                            .btn_solid_destructive_text("Discard proposal")
+                            .build_def(ctx)
                     } else {
                         Widget::nothing()
                     },
                     if cancel.is_some() {
-                        Btn::plaintext("Cancel").build_def(ctx, Key::Escape)
+                        ctx.style()
+                            .btn_solid_dark_text("Cancel")
+                            .hotkey(Key::Escape)
+                            .build_def(ctx)
                     } else {
                         Widget::nothing()
                     },
-                    Btn::text_bg2("Save").inactive(ctx),
+                    ctx.style()
+                        .btn_solid_dark_text("Save")
+                        .disabled(true)
+                        .build_def(ctx),
                 ])
                 .align_right(),
             ]))
@@ -429,15 +437,27 @@ impl SaveEdits {
 
     fn recalc_btn(&mut self, ctx: &mut EventCtx, app: &App) {
         if self.current_name.is_empty() {
-            self.panel
-                .replace(ctx, "Save", Btn::text_bg2("Save").inactive(ctx));
+            self.panel.replace(
+                ctx,
+                "Save",
+                ctx.style()
+                    .btn_solid_dark_text("Save")
+                    .disabled(true)
+                    .build_def(ctx),
+            );
             self.panel.replace(ctx, "warning", Text::new().draw(ctx));
-        } else if abstutil::file_exists(abstutil::path_edits(
+        } else if abstio::file_exists(abstio::path_edits(
             app.primary.map.get_name(),
             &self.current_name,
         )) {
-            self.panel
-                .replace(ctx, "Save", Btn::text_bg2("Save").inactive(ctx));
+            self.panel.replace(
+                ctx,
+                "Save",
+                ctx.style()
+                    .btn_solid_dark_text("Save")
+                    .disabled(true)
+                    .build_def(ctx),
+            );
             self.panel.replace(
                 ctx,
                 "warning",
@@ -449,7 +469,10 @@ impl SaveEdits {
             self.panel.replace(
                 ctx,
                 "Save",
-                Btn::text_bg2("Save").build_def(ctx, Key::Enter),
+                ctx.style()
+                    .btn_solid_dark_text("Save")
+                    .hotkey(Key::Enter)
+                    .build_def(ctx),
             );
             self.panel.replace(ctx, "warning", Text::new().draw(ctx));
         }
@@ -463,9 +486,7 @@ impl State<App> for SaveEdits {
                 "Save" | "Overwrite existing proposal" => {
                     let mut edits = app.primary.map.get_edits().clone();
                     edits.edits_name = self.current_name.clone();
-                    app.primary
-                        .map
-                        .must_apply_edits(edits, &mut Timer::new("name map edits"));
+                    app.primary.map.must_apply_edits(edits);
                     app.primary.map.save_edits();
                     if self.reset {
                         apply_map_edits(ctx, app, app.primary.map.new_edits());
@@ -511,7 +532,7 @@ impl LoadEdits {
             Line("Your proposals").small_heading().draw(ctx),
             Menu::new(
                 ctx,
-                abstutil::list_all_objects(abstutil::path_all_edits(app.primary.map.get_name()))
+                abstio::list_all_objects(abstio::path_all_edits(app.primary.map.get_name()))
                     .into_iter()
                     .map(|name| Choice::new(name.clone(), ()).active(&name != current_edits_name))
                     .collect(),
@@ -521,10 +542,14 @@ impl LoadEdits {
         // common use case.
         let mut proposals = vec![Line("Community proposals").small_heading().draw(ctx)];
         // Up-front filter out proposals that definitely don't fit the current map
-        for name in abstutil::list_all_objects(abstutil::path("system/proposals")) {
-            let path = abstutil::path(format!("system/proposals/{}.json", name));
+        for name in abstio::list_all_objects(abstio::path("system/proposals")) {
+            let path = abstio::path(format!("system/proposals/{}.json", name));
             if MapEdits::load(&app.primary.map, path.clone(), &mut Timer::throwaway()).is_ok() {
-                proposals.push(Btn::text_fg(&name).build(ctx, path, None));
+                proposals.push(
+                    ctx.style()
+                        .btn_outline_light_text(&name)
+                        .build_widget(ctx, &path),
+                );
             }
         }
 
@@ -533,9 +558,11 @@ impl LoadEdits {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Load proposal").small_heading().draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
-                Btn::text_fg("Start over with blank proposal").build_def(ctx, None),
+                ctx.style()
+                    .btn_outline_light_text("Start over with blank proposal")
+                    .build_def(ctx),
                 Widget::row(vec![Widget::col(your_edits), Widget::col(proposals)]).evenly_spaced(),
             ]))
             .exact_size_percent(50, 50)
@@ -560,7 +587,7 @@ impl State<App> for LoadEdits {
                         let path = if path.ends_with(".json") {
                             path.to_string()
                         } else {
-                            abstutil::path_edits(app.primary.map.get_name(), path)
+                            abstio::path_edits(app.primary.map.get_name(), path)
                         };
 
                         match MapEdits::load(
@@ -572,11 +599,10 @@ impl State<App> for LoadEdits {
                             if self.mode.allows(&edits) {
                                 Ok(edits)
                             } else {
-                                Err(
+                                Err(anyhow!(
                                     "The current gameplay mode restricts edits. This proposal has \
                                      a banned command."
-                                        .to_string(),
-                                )
+                                ))
                             }
                         }) {
                             Ok(edits) => {
@@ -599,7 +625,7 @@ impl State<App> for LoadEdits {
                                     Transition::Push(PopupMsg::new(
                                         ctx,
                                         "Error",
-                                        vec![format!("Can't load {}", path), err.clone()],
+                                        vec![format!("Can't load {}", path), err.to_string()],
                                     )),
                                 ])
                             }
@@ -623,16 +649,18 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Panel {
             .small_heading()
             .draw(ctx)
             .centered_horiz(),
-        Btn::text_bg2(format!(
-            "Finish & resume from {}",
-            app.primary
-                .suspended_sim
-                .as_ref()
-                .unwrap()
-                .time()
-                .ampm_tostring()
-        ))
-        .build(ctx, "finish editing", Key::Escape),
+        ctx.style()
+            .btn_solid_dark_text(&format!(
+                "Finish & resume from {}",
+                app.primary
+                    .suspended_sim
+                    .as_ref()
+                    .unwrap()
+                    .time()
+                    .ampm_tostring()
+            ))
+            .hotkey(Key::Escape)
+            .build_widget(ctx, "finish editing"),
     ]))
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
@@ -642,7 +670,7 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
     let mut timer = Timer::new("apply map edits");
 
     let (roads_changed, turns_deleted, turns_added, mut modified_intersections) =
-        app.primary.map.must_apply_edits(edits, &mut timer);
+        app.primary.map.must_apply_edits(edits);
 
     if !roads_changed.is_empty() || !modified_intersections.is_empty() {
         app.primary
@@ -751,7 +779,10 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Panel {
     let edits = app.primary.map.get_edits();
     let mut col = vec![
         Widget::row(vec![
-            Btn::pop_up(ctx, Some(&edits.edits_name)).build(ctx, "manage proposals", lctrl(Key::P)),
+            ctx.style()
+                .btn_outline_light_popup(&edits.edits_name)
+                .hotkey(lctrl(Key::P))
+                .build_widget(ctx, "manage proposals"),
             "autosaved"
                 .draw_text(ctx)
                 .container()
@@ -778,14 +809,19 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Panel {
         for line in details {
             txt.add(Line(line).secondary());
         }
-        let btn = Btn::plaintext_custom(format!("change #{}", idx + 1), txt).build_def(ctx, None);
+        let btn = ctx
+            .style()
+            .btn_plain_light()
+            .label_styled_text(txt, ControlState::Default)
+            .build_widget(ctx, &format!("change #{}", idx + 1));
         if idx == edits.commands.len() - 1 {
             col.push(
                 Widget::row(vec![
                     btn,
-                    Btn::plaintext("X")
-                        .build(ctx, "undo", lctrl(Key::Z))
-                        .align_right(),
+                    ctx.style()
+                        .btn_close()
+                        .hotkey(lctrl(Key::Z))
+                        .build_widget(ctx, "undo"),
                 ])
                 .padding(16)
                 .outline(2.0, Color::WHITE),
@@ -820,14 +856,21 @@ impl ConfirmDiscard {
             discard,
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
-                    Widget::draw_svg(ctx, "system/assets/tools/alert.svg"),
+                    Widget::draw_svg(ctx, "system/assets/tools/alert.svg")
+                        .container()
+                        .padding_top(6),
                     Line("Alert").small_heading().draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 "Are you sure you want to discard changes you made?".draw_text(ctx),
                 Widget::row(vec![
-                    Btn::plaintext("Cancel").build_def(ctx, Key::Escape),
-                    Btn::text_bg2("Yes, discard").build_def(ctx, None),
+                    ctx.style()
+                        .btn_solid_dark_text("Cancel")
+                        .hotkey(Key::Escape)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_solid_destructive_text("Yes, discard")
+                        .build_def(ctx),
                 ])
                 .align_right(),
             ]))

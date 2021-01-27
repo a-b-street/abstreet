@@ -2,10 +2,12 @@
 
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 
+use anyhow::Result;
 use petgraph::graphmap::UnGraphMap;
 use serde::{Deserialize, Serialize};
 
-use abstutil::{MapName, Timer};
+use abstio::MapName;
+use abstutil::Timer;
 use geom::{Bounds, Distance, GPSBounds, Polygon, Pt2D, Ring, Time};
 
 use crate::raw::{OriginalRoad, RawMap};
@@ -26,6 +28,13 @@ pub struct MapConfig {
     /// false, no sidewalks will be inferred if not tagged in OSM, and separate sidewalks will be
     /// included.
     pub inferred_sidewalks: bool,
+    /// If true, separate cycleways from OSM will be included.
+    pub separate_cycleways: bool,
+    /// Street parking is divided into spots of this length. 8 meters is a reasonable default, but
+    /// people in some regions might be more accustomed to squeezing into smaller spaces. This
+    /// value can be smaller than the hardcoded maximum car length; cars may render on top of each
+    /// other, but otherwise the simulation doesn't care.
+    pub street_parking_spot_length: Distance,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
@@ -37,7 +46,7 @@ pub enum DrivingSide {
 impl Map {
     pub fn new(path: String, timer: &mut Timer) -> Map {
         if path.contains("/maps/") {
-            match abstutil::maybe_read_binary(path.clone(), timer) {
+            match abstio::maybe_read_binary(path.clone(), timer) {
                 Ok(map) => {
                     let mut map: Map = map;
                     map.edits = map.new_edits();
@@ -99,7 +108,7 @@ impl Map {
                 }
                 Err(err) => {
                     error!("\nError loading {}: {}\n", path, err);
-                    if err.contains("No such file") {
+                    if err.to_string().contains("No such file") {
                         error!(
                             "{} is missing. You may need to do: cargo run --bin updater",
                             path
@@ -122,7 +131,7 @@ impl Map {
             }
         }
 
-        let raw: RawMap = abstutil::read_binary(path, timer);
+        let raw: RawMap = abstio::read_binary(path, timer);
         Map::create_from_raw(raw, true, false, timer)
     }
 
@@ -160,6 +169,8 @@ impl Map {
                 driving_side: DrivingSide::Right,
                 bikes_can_use_bus_lanes: true,
                 inferred_sidewalks: true,
+                separate_cycleways: false,
+                street_parking_spot_length: Distance::meters(8.0),
             },
             pathfinder: Pathfinder::Dijkstra,
             pathfinder_dirty: false,
@@ -473,7 +484,7 @@ impl Map {
         assert!(self.edits.edits_name.starts_with("Untitled Proposal"));
         assert!(self.edits.commands.is_empty());
         assert!(!self.pathfinder_dirty);
-        abstutil::write_binary(self.name.path(), self);
+        abstio::write_binary(self.name.path(), self);
     }
 
     /// Cars trying to park near this building should head for the driving lane returned here, then
@@ -537,11 +548,11 @@ impl Map {
         &self.boundary_polygon
     }
 
-    pub fn pathfind(&self, req: PathRequest) -> Result<Path, String> {
+    pub fn pathfind(&self, req: PathRequest) -> Result<Path> {
         assert!(!self.pathfinder_dirty);
         self.pathfinder
             .pathfind(req.clone(), self)
-            .ok_or_else(|| format!("can't fulfill {}", req))
+            .ok_or_else(|| anyhow!("can't fulfill {}", req))
     }
     pub fn pathfind_avoiding_lanes(
         &self,
@@ -576,22 +587,22 @@ impl Map {
         None
     }
 
-    pub fn find_r_by_osm_id(&self, id: OriginalRoad) -> Result<RoadID, String> {
+    pub fn find_r_by_osm_id(&self, id: OriginalRoad) -> Result<RoadID> {
         for r in self.all_roads() {
             if r.orig_id == id {
                 return Ok(r.id);
             }
         }
-        Err(format!("Can't find {}", id))
+        bail!("Can't find {}", id)
     }
 
-    pub fn find_i_by_osm_id(&self, id: osm::NodeID) -> Result<IntersectionID, String> {
+    pub fn find_i_by_osm_id(&self, id: osm::NodeID) -> Result<IntersectionID> {
         for i in self.all_intersections() {
             if i.orig_id == id {
                 return Ok(i.id);
             }
         }
-        Err(format!("Can't find {}", id))
+        bail!("Can't find {}", id)
     }
 
     pub fn find_b_by_osm_id(&self, id: osm::OsmID) -> Option<BuildingID> {

@@ -5,7 +5,7 @@ use map_model::{
     Direction, DrivingSide, Intersection, IntersectionID, IntersectionType, LaneType, Map, Road,
     RoadWithStopSign, Turn, TurnType, SIDEWALK_THICKNESS,
 };
-use widgetry::{Color, Drawable, GeomBatch, GfxCtx, RewriteColor};
+use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Prerender, RewriteColor};
 
 use crate::colors::ColorScheme;
 use crate::render::{
@@ -36,7 +36,7 @@ impl DrawIntersection {
         *self.draw_traffic_signal.borrow_mut() = None;
     }
 
-    fn render(&self, g: &mut GfxCtx, app: &dyn AppLike) -> Drawable {
+    pub fn render<P: AsRef<Prerender>>(&self, prerender: &P, app: &dyn AppLike) -> GeomBatch {
         let map = app.map();
         let i = map.get_i(self.id);
 
@@ -94,7 +94,7 @@ impl DrawIntersection {
             IntersectionType::Construction => {
                 // TODO Centering seems weird
                 default_geom.append(
-                    GeomBatch::load_svg(g, "system/assets/map/under_construction.svg")
+                    GeomBatch::load_svg(prerender, "system/assets/map/under_construction.svg")
                         .scale(0.08)
                         .centered_on(i.polygon.center()),
                 );
@@ -107,7 +107,7 @@ impl DrawIntersection {
             default_geom = default_geom.color(RewriteColor::ChangeAlpha(0.5));
         }
 
-        g.upload(default_geom)
+        default_geom
     }
 
     // Returns the (octagon, pole) if there's room to draw it.
@@ -154,7 +154,7 @@ impl Renderable for DrawIntersection {
         // exhaustively see every intersection during a single session
         let mut draw = self.draw_default.borrow_mut();
         if draw.is_none() {
-            *draw = Some(self.render(g, app));
+            *draw = Some(g.upload(self.render(g, app)));
         }
         g.redraw(draw.as_ref().unwrap());
 
@@ -396,7 +396,7 @@ pub fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &ColorS
         for _ in 0..=num_markings {
             let pt1 = line.dist_along(dist_along).expect(&err);
             // Reuse perp_line. Project away an arbitrary amount
-            let pt2 = pt1.project_away(Distance::meters(1.0), turn.angle());
+            let pt2 = pt1.project_away(Distance::meters(1.0), line.angle());
             let general_road_marking =
                 cs.general_road_marking(map.get_i(turn.id.parent).get_rank(map));
             batch.push(
@@ -408,7 +408,7 @@ pub fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &ColorS
             let pt3 = line
                 .dist_along(dist_along + 2.0 * CROSSWALK_LINE_THICKNESS)
                 .expect(&err);
-            let pt4 = pt3.project_away(Distance::meters(1.0), turn.angle());
+            let pt4 = pt3.project_away(Distance::meters(1.0), line.angle());
             batch.push(
                 general_road_marking,
                 perp_line(Line::must_new(pt3, pt4), width).make_polygons(CROSSWALK_LINE_THICKNESS),

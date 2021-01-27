@@ -1,7 +1,7 @@
 use geom::{Circle, Distance, LonLat, Pt2D, Ring};
 use widgetry::{
-    Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
-    VerticalAlignment, Widget,
+    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, StyledButtons,
+    Text, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -30,9 +30,12 @@ impl PolygonEditor {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Polygon editor").small_heading().draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
-                Btn::text_fg("export as an Osmosis polygon filter").build_def(ctx, Key::X),
+                ctx.style()
+                    .btn_outline_light_text("export as an Osmosis polygon filter")
+                    .hotkey(Key::X)
+                    .build_def(ctx),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),

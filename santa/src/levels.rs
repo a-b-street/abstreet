@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use abstutil::MapName;
+use abstio::MapName;
 use geom::Duration;
 use map_model::osm;
 

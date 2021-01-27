@@ -6,13 +6,13 @@ use map_gui::options::TrafficSignalStyle;
 use map_gui::render::{traffic_signal, DrawMovement, DrawOptions};
 use map_gui::tools::PopupMsg;
 use map_model::{
-    ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, MovementID, PhaseType, Stage,
+    ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, MovementID, Stage, StageType,
     TurnPriority,
 };
 use widgetry::{
-    lctrl, Btn, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, MultiButton, Outcome, Panel, RewriteColor, State, Text, TextExt, VerticalAlignment,
-    Widget,
+    lctrl, Color, ControlState, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, MultiButton, Outcome, Panel, RewriteColor, State,
+    StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, ShowEverything, Transition};
@@ -96,9 +96,8 @@ impl TrafficSignalEditor {
         } else {
             self.current_stage = idx;
             self.side_panel = make_side_panel(ctx, app, &self.members, self.current_stage);
-            // TODO Maybe center of previous member
             self.side_panel
-                .scroll_to_member(ctx, format!("stage {}", idx + 1));
+                .scroll_to_member(ctx, format!("change duration of stage {}", idx + 1));
         }
 
         self.recalc_draw_current(ctx, app);
@@ -331,7 +330,7 @@ impl State<App> for TrafficSignalEditor {
                 "Export" => {
                     for signal in BundleEdits::get_current(app, &self.members).signals {
                         let ts = signal.export(&app.primary.map);
-                        abstutil::write_json(
+                        abstio::write_json(
                             format!("traffic_signal_data/{}.json", ts.intersection_osm_node_id),
                             &ts,
                         );
@@ -494,52 +493,44 @@ impl State<App> for TrafficSignalEditor {
 
 fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool) -> Panel {
     let row = vec![
-        Btn::text_bg2("Finish").build_def(ctx, Key::Enter),
-        Btn::text_bg2("Preview").build_def(ctx, lctrl(Key::P)),
-        (if can_undo {
-            Btn::svg_def("system/assets/tools/undo.svg").build(ctx, "undo", lctrl(Key::Z))
-        } else {
-            Widget::draw_svg_transform(
-                ctx,
-                "system/assets/tools/undo.svg",
-                RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
-            )
-        })
-        .centered_vert(),
-        (if can_redo {
-            Btn::svg_def("system/assets/tools/redo.svg").build(
-                ctx,
-                "redo",
-                // TODO ctrl+shift+Z!
-                lctrl(Key::Y),
-            )
-        } else {
-            Widget::draw_svg_transform(
-                ctx,
-                "system/assets/tools/redo.svg",
-                RewriteColor::ChangeAll(Color::WHITE.alpha(0.5)),
-            )
-        })
-        .centered_vert(),
-        Btn::plaintext_custom(
-            "Cancel",
-            Text::from(Line("Cancel").fg(Color::hex("#FF5E5E"))),
-        )
-        .build_def(ctx, Key::Escape)
-        .align_right(),
+        ctx.style()
+            .btn_solid_dark_text("Finish")
+            .hotkey(Key::Enter)
+            .build_def(ctx),
+        ctx.style()
+            .btn_solid_dark_text("Preview")
+            .hotkey(lctrl(Key::P))
+            .build_def(ctx),
+        ctx.style()
+            .btn_plain_light_icon("system/assets/tools/undo.svg")
+            .disabled(!can_undo)
+            .hotkey(lctrl(Key::Z))
+            .build_widget(ctx, "undo"),
+        ctx.style()
+            .btn_plain_light_icon("system/assets/tools/redo.svg")
+            .disabled(!can_redo)
+            // TODO ctrl+shift+Z!
+            .hotkey(lctrl(Key::Y))
+            .build_widget(ctx, "redo"),
+        ctx.style()
+            .btn_plain_destructive_text("Cancel")
+            .hotkey(Key::Escape)
+            .build_def(ctx)
+            .align_right(),
     ];
     Panel::new(Widget::col(vec![
         Widget::row(vec![
             Line("Traffic signal editor").small_heading().draw(ctx),
-            Btn::plaintext_custom(
-                "Edit multiple signals",
-                Text::from(Line("+ Edit multiple").fg(Color::hex("#4CA7E9"))),
-            )
-            .build_def(ctx, Key::M),
+            ctx.style()
+                .btn_plain_light_text("+ Edit multiple")
+                .label_color(Color::hex("#4CA7E9"), ControlState::Default)
+                .hotkey(Key::M)
+                .build_widget(ctx, "Edit multiple signals"),
         ]),
         Widget::row(row),
         if app.opts.dev {
-            Btn::text_fg("Export")
+            ctx.style()
+                .btn_outline_light_text("Export")
                 .tooltip(Text::from_multiline(vec![
                     Line("This will create a JSON file in traffic_signal_data/.").small(),
                     Line(
@@ -548,7 +539,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
                     )
                     .small(),
                 ]))
-                .build_def(ctx, None)
+                .build_def(ctx)
         } else {
             Widget::nothing()
         },
@@ -600,7 +591,7 @@ fn make_side_panel(
     let mut col = vec![txt.draw(ctx)];
     col.push(Widget::horiz_separator(ctx, 0.2));
 
-    // TODO Say "normally" to account for adaptive stages?
+    // TODO Say "normally" to account for variable stages?
     col.push(
         format!(
             "One full cycle lasts {}",
@@ -610,9 +601,19 @@ fn make_side_panel(
     );
 
     if members.len() == 1 {
-        col.push(Btn::text_bg2("Edit entire signal").build_def(ctx, Key::E));
+        col.push(
+            ctx.style()
+                .btn_solid_dark_text("Edit entire signal")
+                .hotkey(Key::E)
+                .build_def(ctx),
+        );
     } else {
-        col.push(Btn::text_bg2("Tune offsets between signals").build_def(ctx, Key::O));
+        col.push(
+            ctx.style()
+                .btn_solid_dark_text("Tune offsets between signals")
+                .hotkey(Key::O)
+                .build_def(ctx),
+        );
     }
 
     let translations = squish_polygons_together(
@@ -625,26 +626,27 @@ fn make_side_panel(
     for (idx, canonical_stage) in canonical_signal.stages.iter().enumerate() {
         let stage_btn = draw_multiple_signals(ctx, app, members, idx, &translations);
 
+        let up_button = ctx
+            .style()
+            .btn_solid_light_icon("../widgetry/icons/arrow_up.svg")
+            .disabled(idx == 0);
+
+        let down_button = ctx
+            .style()
+            .btn_solid_light_icon("../widgetry/icons/arrow_down.svg")
+            .disabled(idx == canonical_signal.stages.len() - 1);
+
         let stage_controls = Widget::row(vec![
             Widget::col(vec![
-                if idx == 0 {
-                    Btn::plaintext("↑").inactive(ctx)
-                } else {
-                    Btn::plaintext("↑").build(ctx, format!("move up stage {}", idx + 1), None)
-                },
-                if idx == canonical_signal.stages.len() - 1 {
-                    Btn::plaintext("↓").inactive(ctx)
-                } else {
-                    Btn::plaintext("↓").build(ctx, format!("move down stage {}", idx + 1), None)
-                },
+                up_button.build_widget(ctx, &format!("move up stage {}", idx + 1)),
+                down_button.build_widget(ctx, &format!("move down stage {}", idx + 1)),
             ])
             .centered_vert(),
             Widget::col(vec![
                 Widget::row(vec![
-                    match canonical_stage.phase_type {
-                        PhaseType::Fixed(d) => format!("Stage {}: {}", idx + 1, d),
-                        PhaseType::Adaptive(d) => format!("Stage {}: {} (adaptive)", idx + 1, d),
-                        PhaseType::Variable(min, delay, additional) => format!(
+                    match canonical_stage.stage_type {
+                        StageType::Fixed(d) => format!("Stage {}: {}", idx + 1, d),
+                        StageType::Variable(min, delay, additional) => format!(
                             "Stage {}: {}, {}, {} (variable)",
                             idx + 1,
                             min,
@@ -652,15 +654,23 @@ fn make_side_panel(
                             additional
                         ),
                     }
-                    .draw_text(ctx),
-                    Btn::svg_def("system/assets/tools/edit.svg").build(
-                        ctx,
-                        format!("change duration of stage {}", idx + 1),
-                        if selected == idx { Key::X.into() } else { None },
-                    ),
+                    .draw_text(ctx)
+                    .centered_vert(),
+                    {
+                        let mut button = ctx
+                            .style()
+                            .btn_plain_light_icon("system/assets/tools/pencil.svg");
+                        if selected == idx {
+                            button = button.hotkey(Key::X);
+                        }
+                        button
+                            .build_widget(ctx, &format!("change duration of stage {}", idx + 1))
+                            .align_right()
+                    },
                     if canonical_signal.stages.len() > 1 {
-                        Btn::svg_def("system/assets/tools/delete.svg")
-                            .build(ctx, format!("delete stage {}", idx + 1), None)
+                        ctx.style()
+                            .btn_solid_destructive_icon("system/assets/tools/trash.svg")
+                            .build_widget(ctx, &format!("delete stage {}", idx + 1))
                             .align_right()
                     } else {
                         Widget::nothing()
@@ -679,8 +689,9 @@ fn make_side_panel(
     }
 
     col.push(
-        Btn::text_bg2("Add a new stage")
-            .build_def(ctx, None)
+        ctx.style()
+            .btn_solid_dark_text("Add a new stage")
+            .build_def(ctx)
             .centered_horiz(),
     );
 
@@ -742,7 +753,7 @@ impl BundleEdits {
                 if signal.stages.len() == idx {
                     signal.stages.push(Stage::new());
                 }
-                signal.stages[idx].phase_type = canonical_stage.phase_type.clone();
+                signal.stages[idx].stage_type = canonical_stage.stage_type.clone();
             }
             signals.push(signal);
         }

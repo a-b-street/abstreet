@@ -4,7 +4,7 @@
     "map": "lakeslice"
   },
   "edits_name": "stay healthy lake wash blvd",
-  "version": 4,
+  "version": 7,
   "commands": [
     {
       "ChangeRoad": {
@@ -5869,8 +5869,67 @@
       "ChangeRoad": {
         "r": {
           "osm_way_id": 332355469,
-          "i1": 1726088131,
+          "i1": 53155658,
           "i2": 53217949
+        },
+        "new": {
+          "lanes_ltr": [
+            [
+              "Sidewalk",
+              "Back"
+            ],
+            [
+              "Driving",
+              "Back"
+            ],
+            [
+              "Driving",
+              "Fwd"
+            ],
+            [
+              "Sidewalk",
+              "Fwd"
+            ]
+          ],
+          "speed_limit": 13.4112,
+          "access_restrictions": {
+            "allow_through_traffic": 29,
+            "cap_vehicles_per_hour": null
+          }
+        },
+        "old": {
+          "lanes_ltr": [
+            [
+              "Sidewalk",
+              "Back"
+            ],
+            [
+              "Driving",
+              "Back"
+            ],
+            [
+              "Driving",
+              "Fwd"
+            ],
+            [
+              "Sidewalk",
+              "Fwd"
+            ]
+          ],
+          "speed_limit": 13.4112,
+          "access_restrictions": {
+            "allow_through_traffic": 31,
+            "cap_vehicles_per_hour": null
+          }
+        }
+      }
+    },
+    {
+      "ChangeRoad": {
+        "r": {
+          "osm_way_id": 332355469,
+          "i1": 1726088131,
+          "i2": 53155658
         },
         "new": {
           "lanes_ltr": [
@@ -6678,6 +6737,183 @@
             ]
           ],
           "speed_limit": 11.176,
+          "access_restrictions": {
+            "allow_through_traffic": 31,
+            "cap_vehicles_per_hour": null
+          }
+        }
+      }
+    },
+    {
+      "ChangeRoad": {
+        "r": {
+          "osm_way_id": 537681170,
+          "i1": 53217949,
+          "i2": 3556907791
+        },
+        "new": {
+          "lanes_ltr": [
+            [
+              "Sidewalk",
+              "Back"
+            ],
+            [
+              "Driving",
+              "Back"
+            ],
+            [
+              "Driving",
+              "Fwd"
+            ],
+            [
+              "Sidewalk",
+              "Fwd"
+            ]
+          ],
+          "speed_limit": 13.4112,
+          "access_restrictions": {
+            "allow_through_traffic": 29,
+            "cap_vehicles_per_hour": null
+          }
+        },
+        "old": {
+          "lanes_ltr": [
+            [
+              "Sidewalk",
+              "Back"
+            ],
+            [
+              "Driving",
+              "Back"
+            ],
+            [
+              "Driving",
+              "Fwd"
+            ],
+            [
+              "Sidewalk",
+              "Fwd"
+            ]
+          ],
+          "speed_limit": 13.4112,
+          "access_restrictions": {
+            "allow_through_traffic": 31,
+            "cap_vehicles_per_hour": null
+          }
+        }
+      }
+    },
+    {
+      "ChangeRoad": {
+        "r": {
+          "osm_way_id": 855674785,
+          "i1": 53096936,
+          "i2": 1724731506
+        },
+        "new": {
+          "lanes_ltr": [
+            [
+              "Sidewalk",
+              "Back"
+            ],
+            [
+              "Driving",
+              "Back"
+            ],
+            [
+              "Driving",
+              "Fwd"
+            ],
+            [
+              "Sidewalk",
+              "Fwd"
+            ]
+          ],
+          "speed_limit": 13.4112,
+          "access_restrictions": {
+            "allow_through_traffic": 29,
+            "cap_vehicles_per_hour": null
+          }
+        },
+        "old": {
+          "lanes_ltr": [
+            [
+              "Sidewalk",
+              "Back"
+            ],
+            [
+              "Driving",
+              "Back"
+            ],
+            [
+              "Driving",
+              "Fwd"
+            ],
+            [
+              "Sidewalk",
+              "Fwd"
+            ]
+          ],
+          "speed_limit": 13.4112,
+          "access_restrictions": {
+            "allow_through_traffic": 31,
+            "cap_vehicles_per_hour": null
+          }
+        }
+      }
+    },
+    {
+      "ChangeRoad": {
+        "r": {
+          "osm_way_id": 855674785,
+          "i1": 3556907791,
+          "i2": 53096936
+        },
+        "new": {
+          "lanes_ltr": [
+            [
+              "Sidewalk",
+              "Back"
+            ],
+            [
+              "Driving",
+              "Back"
+            ],
+            [
+              "Driving",
+              "Fwd"
+            ],
+            [
+              "Sidewalk",
+              "Fwd"
+            ]
+          ],
+          "speed_limit": 13.4112,
+          "access_restrictions": {
+            "allow_through_traffic": 29,
+            "cap_vehicles_per_hour": null
+          }
+        },
+        "old": {
+          "lanes_ltr": [
+            [
+              "Sidewalk",
+              "Back"
+            ],
+            [
+              "Driving",
+              "Back"
+            ],
+            [
+              "Driving",
+              "Fwd"
+            ],
+            [
+              "Sidewalk",
+              "Fwd"
+            ]
+          ],
+          "speed_limit": 13.4112,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null

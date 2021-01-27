@@ -2,7 +2,9 @@ use std::collections::HashSet;
 
 use abstutil::prettyprint_usize;
 use map_model::{LaneID, PathConstraints};
-use widgetry::{Btn, EventCtx, Line, LinePlot, PlotOptions, Series, Text, TextExt, Widget};
+use widgetry::{
+    EventCtx, Line, LinePlot, PlotOptions, Series, StyledButtons, Text, TextExt, Widget,
+};
 
 use crate::app::App;
 use crate::info::{header_btns, make_table, make_tabs, throughput, DataOptions, Details, Tab};
@@ -46,7 +48,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
             format!(
                 "{} / {} spots available",
                 app.primary.sim.get_free_onstreet_spots(l.id).len(),
-                l.number_parking_spots()
+                l.number_parking_spots(app.primary.map.get_config())
             ),
         ));
     } else {
@@ -58,7 +60,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
     rows.extend(make_table(ctx, kv));
 
     if l.is_parking() {
-        let capacity = l.number_parking_spots();
+        let capacity = l.number_parking_spots(app.primary.map.get_config());
         let mut series = vec![Series {
             label: format!("After \"{}\"", app.primary.map.get_edits().edits_name),
             color: app.cs.after_changes,
@@ -163,11 +165,11 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
 
     rows.extend(make_table(ctx, kv));
 
-    rows.push(Btn::text_bg1("Open OSM way").build(
-        ctx,
-        format!("open {}", r.orig_id.osm_way_id),
-        None,
-    ));
+    rows.push(
+        ctx.style()
+            .btn_solid_dark_text("Open OSM way")
+            .build_widget(ctx, &format!("open {}", r.orig_id.osm_way_id)),
+    );
 
     let mut txt = Text::from(Line(""));
     txt.add(Line("Raw OpenStreetMap data"));

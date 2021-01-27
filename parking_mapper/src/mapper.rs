@@ -1,16 +1,17 @@
 use std::collections::{BTreeMap, HashSet};
-use std::error::Error;
 
-use osm::WayID;
+use anyhow::Result;
 
 use abstutil::{prettyprint_usize, Timer};
 use geom::{Distance, FindClosest, PolyLine, Polygon};
 use map_gui::tools::{nice_map_name, open_browser, CityPicker, ColorLegend, PopupMsg};
 use map_gui::{SimpleApp, ID};
 use map_model::{osm, RoadID};
+use osm::WayID;
 use widgetry::{
-    Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Menu, Outcome, Panel, State, Text, TextExt, Transition, VerticalAlignment, Widget,
+    Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Menu, Outcome, Panel, State, StyledButtons, Text, TextExt, Transition, VerticalAlignment,
+    Widget,
 };
 
 type App = SimpleApp<()>;
@@ -129,15 +130,13 @@ impl ParkingMapper {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Parking mapper").small_heading().draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 Widget::row(vec![
                     "Change map:".draw_text(ctx),
-                    Btn::pop_up(ctx, Some(nice_map_name(map.get_name()))).build(
-                        ctx,
-                        "change map",
-                        None,
-                    ),
+                    ctx.style()
+                        .btn_outline_light_popup(nice_map_name(map.get_name()))
+                        .build_widget(ctx, "change map"),
                 ]),
                 format!(
                     "{} / {} ways done (you've mapped {})",
@@ -180,7 +179,9 @@ impl ParkingMapper {
                     ),
                 ]),
                 Checkbox::checkbox(ctx, "max 3 days parking (default in Seattle)", None, false),
-                Btn::text_fg("Generate OsmChange file").build_def(ctx, None),
+                ctx.style()
+                    .btn_outline_light_text("Generate OsmChange file")
+                    .build_def(ctx),
                 "Select a road".draw_text(ctx).named("info"),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
@@ -428,7 +429,7 @@ impl ChangeWay {
                     Line("What kind of parking does this road have?")
                         .small_heading()
                         .draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 Menu::new(
                     ctx,
@@ -501,11 +502,7 @@ impl State<App> for ChangeWay {
     }
 }
 
-fn generate_osmc(
-    data: &BTreeMap<WayID, Value>,
-    in_seattle: bool,
-    timer: &mut Timer,
-) -> Result<(), Box<dyn Error>> {
+fn generate_osmc(data: &BTreeMap<WayID, Value>, in_seattle: bool, timer: &mut Timer) -> Result<()> {
     use std::fs::File;
     use std::io::Write;
 
@@ -520,7 +517,7 @@ fn generate_osmc(
         }
 
         let url = format!("https://api.openstreetmap.org/api/0.6/way/{}", way.0);
-        timer.note(format!("Fetching {}", url));
+        info!("Fetching {}", url);
         let resp = reqwest::blocking::get(&url)?.text()?;
         let mut tree = xmltree::Element::parse(resp.as_bytes())?
             .take_child("way")
@@ -595,7 +592,7 @@ fn generate_osmc(
         writeln!(f, "  {}", w)?;
     }
     writeln!(f, "</modify></osmChange>")?;
-    timer.note(format!("Wrote diff.osc"));
+    info!("Wrote diff.osc");
     Ok(())
 }
 

@@ -10,6 +10,9 @@ data/input
 
 data/system/bellevue
 data/system/berlin
+data/system/cambridge
+data/system/cheshire
+data/system/detroit
 data/system/krakow
 data/system/leeds
 data/system/london
@@ -18,4 +21,4 @@ data/system/paris
 data/system/salzburg
 data/system/seattle
 data/system/tel_aviv
-data/system/xian
+data/system/warsaw

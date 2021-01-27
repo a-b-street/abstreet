@@ -31,7 +31,7 @@ pub const ENDPT_BACK: &str = "abst:endpt_back";
 pub const INFERRED_PARKING: &str = "abst:parking_inferred";
 pub const INFERRED_SIDEWALKS: &str = "abst:sidewalks_inferred";
 
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
 pub enum RoadRank {
     Local,
     Arterial,
@@ -48,6 +48,34 @@ impl RoadRank {
             "tertiary" | "tertiary_link" => RoadRank::Arterial,
             _ => RoadRank::Local,
         }
+    }
+
+    /// Larger number means a bigger road, according to https://wiki.openstreetmap.org/wiki/Key:highway
+    pub fn detailed_from_highway(hwy: &str) -> usize {
+        for (idx, x) in vec![
+            "motorway",
+            "motorway_link",
+            "trunk",
+            "trunk_link",
+            "primary",
+            "primary_link",
+            "secondary",
+            "secondary_link",
+            "tertiary",
+            "tertiary_link",
+            "unclassified",
+            "residential",
+            "cycleway",
+        ]
+        .into_iter()
+        .enumerate()
+        {
+            if hwy == x {
+                return 100 - idx;
+            }
+        }
+        // Everything else gets lowest priority
+        0
     }
 }
 

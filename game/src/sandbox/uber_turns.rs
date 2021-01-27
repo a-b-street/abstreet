@@ -6,9 +6,8 @@ use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use map_model::{IntersectionCluster, IntersectionID, Map, PathConstraints, RoadID};
 use widgetry::{
-    Btn, Checkbox, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Panel, SimpleState, State, Text, TextExt, VerticalAlignment,
-    Widget,
+    Checkbox, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
+    Key, Line, Panel, SimpleState, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, ShowEverything, Transition};
@@ -33,12 +32,24 @@ impl UberTurnPicker {
                 Line("Select multiple intersections")
                     .small_heading()
                     .draw(ctx),
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
-            Btn::text_fg("View uber-turns").build_def(ctx, Key::Enter),
-            Btn::text_fg("Edit").build_def(ctx, Key::E),
-            Btn::text_fg("Detect all clusters").build_def(ctx, Key::D),
-            Btn::text_fg("Preview merged intersection").build_def(ctx, Key::P),
+            ctx.style()
+                .btn_outline_light_text("View uber-turns")
+                .hotkey(Key::Enter)
+                .build_def(ctx),
+            ctx.style()
+                .btn_outline_light_text("Edit")
+                .hotkey(Key::E)
+                .build_def(ctx),
+            ctx.style()
+                .btn_outline_light_text("Detect all clusters")
+                .hotkey(Key::D)
+                .build_def(ctx),
+            ctx.style()
+                .btn_outline_light_text("Preview merged intersection")
+                .hotkey(Key::P)
+                .build_def(ctx),
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);
@@ -172,20 +183,20 @@ impl UberTurnViewer {
             Widget::row(vec![
                 Line("Uber-turn viewer").small_heading().draw(ctx),
                 Widget::vert_separator(ctx, 50.0),
-                if idx == 0 {
-                    Btn::text_fg("<").inactive(ctx)
-                } else {
-                    Btn::text_fg("<").build(ctx, "previous uber-turn", Key::LeftArrow)
-                },
+                ctx.style()
+                    .btn_prev()
+                    .disabled(idx == 0)
+                    .hotkey(Key::LeftArrow)
+                    .build_widget(ctx, "previous uber-turn"),
                 Text::from(Line(format!("{}/{}", idx + 1, ic.uber_turns.len())).secondary())
                     .draw(ctx)
                     .centered_vert(),
-                if ic.uber_turns.is_empty() || idx == ic.uber_turns.len() - 1 {
-                    Btn::text_fg(">").inactive(ctx)
-                } else {
-                    Btn::text_fg(">").build(ctx, "next uber-turn", Key::RightArrow)
-                },
-                Btn::close(ctx),
+                ctx.style()
+                    .btn_next()
+                    .disabled(ic.uber_turns.is_empty() || idx == ic.uber_turns.len() - 1)
+                    .hotkey(Key::RightArrow)
+                    .build_widget(ctx, "next uber-turn"),
+                ctx.style().btn_close_widget(ctx),
             ]),
             format!("driving_cost for a Car: {}", sum_cost).draw_text(ctx),
             Widget::row(vec![
@@ -277,7 +288,7 @@ impl MergeIntersections {
     fn new(ctx: &mut EventCtx, app: &App, merge: BTreeSet<IntersectionID>) -> Box<dyn State<App>> {
         let panel = Panel::new(Widget::row(vec![
             Line("Merged intersections").small_heading().draw(ctx),
-            Btn::close(ctx),
+            ctx.style().btn_close_widget(ctx),
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::TopInset)
         .build(ctx);

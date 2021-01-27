@@ -1,0 +1,21 @@
+{
+  "osm_url": "http://download.geofabrik.de/europe/poland/mazowieckie-latest.osm.pbf",
+  "map_config": {
+    "driving_side": "Right",
+    "bikes_can_use_bus_lanes": false,
+    "inferred_sidewalks": false,
+    "separate_cycleways": false,
+    "street_parking_spot_length": 8.0
+  },
+  "onstreet_parking": {
+    "SomeAdditionalWhereNoData": {
+      "pct": 90
+    }
+  },
+  "public_offstreet_parking": "None",
+  "private_offstreet_parking": {
+    "FixedPerBldg": 3
+  },
+  "elevation": null,
+  "include_railroads": true
+}

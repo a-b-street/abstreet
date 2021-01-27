@@ -11,12 +11,13 @@ use sim::{
     VehicleType,
 };
 use widgetry::{
-    Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    LinePlot, Outcome, Panel, PlotOptions, Series, TextExt, VerticalAlignment, Widget,
+    Checkbox, Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, LinePlot, Outcome, Panel, PlotOptions, Series, StyledButtons, TextExt, VerticalAlignment,
+    Widget,
 };
 
 use crate::app::{App, Transition};
-use crate::common::{color_for_agent_type, hotkey_btn, Warping};
+use crate::common::{color_for_agent_type, Warping};
 use crate::debug::path_counter::PathCounter;
 use crate::edit::{EditMode, RouteEditor};
 use crate::sandbox::{dashboards, GameplayMode, SandboxMode, TimeWarpScreen};
@@ -372,7 +373,11 @@ impl InfoPanel {
             if let Some(id) = maybe_id.clone() {
                 for (key, label) in ctx_actions.actions(app, id) {
                     cached_actions.push(key);
-                    col.push(hotkey_btn(ctx, app, label, key));
+                    let button = ctx
+                        .style()
+                        .btn_solid_dark_hotkey(&label, key)
+                        .build_widget(ctx, &label);
+                    col.push(button);
                 }
             }
         }
@@ -433,7 +438,7 @@ impl InfoPanel {
             tab,
             time: app.primary.sim.time(),
             is_paused: ctx_actions.is_paused(),
-            panel: Panel::new(Widget::col(col).bg(Color::hex("#5B5B5B")).padding(16))
+            panel: Panel::new(Widget::col(col).bg(app.cs.panel_bg).padding(16))
                 .aligned(
                     HorizontalAlignment::Percent(0.02),
                     VerticalAlignment::Percent(0.2),
@@ -554,7 +559,7 @@ impl InfoPanel {
                         ))),
                     )
                 } else if let Some(url) = action.strip_prefix("open ") {
-                    open_browser(url.to_string());
+                    open_browser(url);
                     (false, None)
                 } else if let Some(x) = action.strip_prefix("edit BusRoute #") {
                     (
@@ -689,22 +694,42 @@ fn make_tabs(
 ) -> Widget {
     let mut row = Vec::new();
     for (name, link) in tabs {
-        if current_tab.variant() == link.variant() {
-            row.push(Btn::text_bg2(name).inactive(ctx).centered_vert());
-        } else {
-            hyperlinks.insert(name.to_string(), link);
-            row.push(Btn::text_bg2(name).build_def(ctx, None).centered_vert());
-        }
+        row.push(
+            ctx.style()
+                .btn_solid_dark_text(name)
+                // We use "disabled" to denote "currently selected", but we want to style it like
+                // normal
+                .disabled(current_tab.variant() == link.variant())
+                .bg_color(ctx.style().btn_solid_dark.bg, ControlState::Disabled)
+                .label_color(ctx.style().btn_solid_dark.fg, ControlState::Disabled)
+                .outline(
+                    2.0,
+                    ctx.style().btn_solid_dark.bg_hover,
+                    ControlState::Disabled,
+                )
+                // Hide the hit area for selectable tabs unless hovered
+                .bg_color(Color::CLEAR, ControlState::Default)
+                .outline(0.0, Color::CLEAR, ControlState::Default)
+                .bg_color(
+                    ctx.style().btn_solid_dark.bg.alpha(0.6),
+                    ControlState::Hovered,
+                )
+                .build_def(ctx),
+        );
+        hyperlinks.insert(name.to_string(), link);
     }
     // TODO Centered, but actually, we need to set the padding of each button to divide the
     // available space evenly. Fancy fill rules... hmmm.
-    Widget::custom_row(row).bg(Color::WHITE).margin_vert(16)
+    Widget::custom_row(row).bg(Color::grey(0.8)).margin_vert(16)
 }
 
 fn header_btns(ctx: &EventCtx) -> Widget {
     Widget::row(vec![
-        Btn::svg_def("system/assets/tools/location.svg").build(ctx, "jump to object", Key::J),
-        Btn::close(ctx),
+        ctx.style()
+            .btn_plain_light_icon("system/assets/tools/location.svg")
+            .hotkey(Key::J)
+            .build_widget(ctx, "jump to object"),
+        ctx.style().btn_close_widget(ctx),
     ])
     .align_right()
 }

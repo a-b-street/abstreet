@@ -4,12 +4,13 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
-pub use perma::PermanentMapEdits;
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 use abstutil::{retain_btreemap, retain_btreeset, Timer};
 use geom::{Speed, Time};
 
+pub use self::perma::PermanentMapEdits;
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
 use crate::{
     connectivity, AccessRestrictions, BusRouteID, ControlStopSign, ControlTrafficSignal, Direction,
@@ -49,7 +50,7 @@ pub enum EditIntersection {
     StopSign(ControlStopSign),
     // Don't keep ControlTrafficSignal here, because it contains movements that should be
     // generated after all lane edits are applied.
-    TrafficSignal(seattle_traffic_signals::TrafficSignal),
+    TrafficSignal(traffic_signal_data::TrafficSignal),
     Closed,
 }
 
@@ -146,14 +147,14 @@ impl MapEdits {
         }
     }
 
-    pub fn load(map: &Map, path: String, timer: &mut Timer) -> Result<MapEdits, String> {
-        match abstutil::maybe_read_json::<PermanentMapEdits>(path.clone(), timer) {
+    pub fn load(map: &Map, path: String, timer: &mut Timer) -> Result<MapEdits> {
+        match abstio::maybe_read_json::<PermanentMapEdits>(path.clone(), timer) {
             Ok(perma) => perma.to_edits(map),
             Err(_) => {
                 // The JSON format may have changed, so attempt backwards compatibility.
-                let bytes = abstutil::slurp_file(&path)?;
-                let contents = std::str::from_utf8(&bytes).map_err(|err| err.to_string())?;
-                let value = serde_json::from_str(contents).map_err(|err| err.to_string())?;
+                let bytes = abstio::slurp_file(path)?;
+                let contents = std::str::from_utf8(&bytes)?;
+                let value = serde_json::from_str(contents)?;
                 let perma = compat::upgrade(value, map)?;
                 perma.to_edits(map)
             }
@@ -166,8 +167,8 @@ impl MapEdits {
             return;
         }
 
-        abstutil::write_json(
-            abstutil::path_edits(map.get_name(), &self.edits_name),
+        abstio::write_json(
+            abstio::path_edits(map.get_name(), &self.edits_name),
             &self.to_permanent(map),
         );
     }
@@ -296,7 +297,7 @@ impl EditCmd {
     }
 
     // Must be idempotent
-    fn apply(&self, effects: &mut EditEffects, map: &mut Map, timer: &mut Timer) {
+    fn apply(&self, effects: &mut EditEffects, map: &mut Map) {
         match self {
             EditCmd::ChangeRoad { r, ref new, .. } => {
                 if map.get_r_edit(*r) == new.clone() {
@@ -337,7 +338,7 @@ impl EditCmd {
                         }
                     }
 
-                    recalculate_turns(i.id, map, effects, timer);
+                    recalculate_turns(i.id, map, effects);
                 }
             }
             EditCmd::ChangeIntersection {
@@ -360,7 +361,7 @@ impl EditCmd {
                     EditIntersection::TrafficSignal(ref raw_ts) => {
                         map.intersections[i.0].intersection_type = IntersectionType::TrafficSignal;
                         if old == &EditIntersection::Closed {
-                            recalculate_turns(*i, map, effects, timer);
+                            recalculate_turns(*i, map, effects);
                         }
                         map.traffic_signals.insert(
                             *i,
@@ -373,7 +374,7 @@ impl EditCmd {
                 }
 
                 if old == &EditIntersection::Closed || new == &EditIntersection::Closed {
-                    recalculate_turns(*i, map, effects, timer);
+                    recalculate_turns(*i, map, effects);
                 }
             }
             EditCmd::ChangeRouteSchedule { id, new, .. } => {
@@ -406,12 +407,7 @@ impl EditCmd {
 // This clobbers previously set traffic signal overrides.
 // TODO Step 1: Detect and warn about that
 // TODO Step 2: Avoid when possible
-fn recalculate_turns(
-    id: IntersectionID,
-    map: &mut Map,
-    effects: &mut EditEffects,
-    timer: &mut Timer,
-) {
+fn recalculate_turns(id: IntersectionID, map: &mut Map, effects: &mut EditEffects) {
     let i = &mut map.intersections[id.0];
 
     if i.is_border() {
@@ -429,7 +425,7 @@ fn recalculate_turns(
         return;
     }
 
-    let turns = crate::make::turns::make_all_turns(map, map.get_i(id), timer);
+    let turns = crate::make::turns::make_all_turns(map, map.get_i(id));
     let i = &mut map.intersections[id.0];
     for t in turns {
         effects.added_turns.insert(t.id);
@@ -451,7 +447,7 @@ fn recalculate_turns(
         }
         IntersectionType::TrafficSignal => {
             map.traffic_signals
-                .insert(id, ControlTrafficSignal::new(map, id, timer));
+                .insert(id, ControlTrafficSignal::new(map, id));
         }
         IntersectionType::Border | IntersectionType::Construction => unreachable!(),
     }
@@ -465,7 +461,7 @@ impl Map {
         let mut i = 1;
         loop {
             let name = format!("Untitled Proposal {}", i);
-            if !abstutil::file_exists(abstutil::path_edits(&self.name, &name)) {
+            if !abstio::file_exists(abstio::path_edits(&self.name, &name)) {
                 edits.edits_name = name;
                 return edits;
             }
@@ -525,18 +521,17 @@ impl Map {
     pub fn must_apply_edits(
         &mut self,
         new_edits: MapEdits,
-        timer: &mut Timer,
     ) -> (
         BTreeSet<RoadID>,
         BTreeSet<TurnID>,
         BTreeSet<TurnID>,
         BTreeSet<IntersectionID>,
     ) {
-        self.apply_edits(new_edits, true, timer)
+        self.apply_edits(new_edits, true)
     }
 
-    pub fn try_apply_edits(&mut self, new_edits: MapEdits, timer: &mut Timer) {
-        self.apply_edits(new_edits, false, timer);
+    pub fn try_apply_edits(&mut self, new_edits: MapEdits) {
+        self.apply_edits(new_edits, false);
     }
 
     // new_edits don't necessarily have to be valid; this could be used for speculatively testing
@@ -546,7 +541,6 @@ impl Map {
         &mut self,
         mut new_edits: MapEdits,
         enforce_valid: bool,
-        timer: &mut Timer,
     ) -> (
         BTreeSet<RoadID>,
         BTreeSet<TurnID>,
@@ -585,12 +579,12 @@ impl Map {
                 .pop()
                 .unwrap()
                 .undo()
-                .apply(&mut effects, self, timer);
+                .apply(&mut effects, self);
         }
 
         // Apply new edits.
         for cmd in &new_edits.commands[start_at_idx..] {
-            cmd.apply(&mut effects, self, timer);
+            cmd.apply(&mut effects, self);
         }
 
         // Might need to update bus stops.

@@ -3,13 +3,15 @@ use rand::Rng;
 
 use abstutil::Timer;
 use geom::{Distance, Polygon};
-use map_gui::tools::{nice_map_name, ChooseSomething, CityPicker, PopupMsg, PromptInput};
+use map_gui::tools::{
+    grey_out_map, nice_map_name, open_browser, CityPicker, PopupMsg, PromptInput,
+};
 use map_gui::ID;
 use map_model::{BuildingID, IntersectionID, Position, NORMAL_LANE_THICKNESS};
 use sim::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 use widgetry::{
-    lctrl, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    ScreenRectangle, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    SimpleState, Spinner, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -55,12 +57,7 @@ impl GameplayState for Freeform {
                         ])
                     }),
                 ))),
-                "change traffic" => Some(Transition::Push(make_change_traffic(
-                    ctx,
-                    app,
-                    self.top_center.rect_of("change traffic").clone(),
-                    "none".to_string(),
-                ))),
+                "change scenario" => Some(Transition::Push(ChangeScenario::new(ctx, app, "none"))),
                 "edit map" => Some(Transition::Push(EditMode::new(
                     ctx,
                     app,
@@ -71,7 +68,7 @@ impl GameplayState for Freeform {
                     ctx,
                     "Name this scenario",
                     Box::new(|name, ctx, app| {
-                        if abstutil::file_exists(abstutil::path_scenario(
+                        if abstio::file_exists(abstio::path_scenario(
                             app.primary.map.get_name(),
                             &name,
                         )) {
@@ -108,24 +105,30 @@ impl GameplayState for Freeform {
             Widget::row(vec![
                 Line("Sandbox").small_heading().draw(ctx),
                 Widget::vert_separator(ctx, 50.0),
-                "Map:".draw_text(ctx),
-                Btn::pop_up(ctx, Some(nice_map_name(app.primary.map.get_name()))).build(
-                    ctx,
-                    "change map",
-                    lctrl(Key::L),
-                ),
-                "Traffic:".draw_text(ctx),
-                Btn::pop_up(ctx, Some("none")).build(ctx, "change traffic", Key::S),
-                Btn::svg_def("system/assets/tools/edit_map.svg").build(
-                    ctx,
-                    "edit map",
-                    lctrl(Key::E),
-                ),
+                ctx.style()
+                    .btn_light_popup_icon_text(
+                        "system/assets/tools/map.svg",
+                        nice_map_name(app.primary.map.get_name()),
+                    )
+                    .hotkey(lctrl(Key::L))
+                    .build_widget(ctx, "change map"),
+                ctx.style()
+                    .btn_light_popup_icon_text("system/assets/tools/calendar.svg", "none")
+                    .hotkey(Key::S)
+                    .build_widget(ctx, "change scenario"),
+                ctx.style()
+                    .btn_outline_light_icon_text("system/assets/tools/pencil.svg", "Edit map")
+                    .hotkey(lctrl(Key::E))
+                    .build_widget(ctx, "edit map"),
             ])
             .centered(),
             Widget::row(vec![
-                Btn::text_fg("Start a new trip").build_def(ctx, None),
-                Btn::text_fg("Record trips as a scenario").build_def(ctx, None),
+                ctx.style()
+                    .btn_outline_light_text("Start a new trip")
+                    .build_def(ctx),
+                ctx.style()
+                    .btn_outline_light_text("Record trips as a scenario")
+                    .build_def(ctx),
             ])
             .centered(),
             Text::from_all(vec![
@@ -142,78 +145,124 @@ impl GameplayState for Freeform {
     }
 }
 
-pub fn make_change_traffic(
-    ctx: &mut EventCtx,
-    app: &App,
-    btn: ScreenRectangle,
-    current: String,
-) -> Box<dyn State<App>> {
-    let mut choices = Vec::new();
-    for name in abstutil::list_all_objects(abstutil::path_all_scenarios(app.primary.map.get_name()))
-    {
-        if name == "weekday" {
-            choices.push(Choice::new("realistic weekday traffic", name).tooltip(
-                "Trips will begin throughout the entire day. Midnight is usually quiet, so you \
-                 may need to fast-forward to morning rush hour. Data comes from Puget Sound \
-                 Regional Council's Soundcast model.",
-            ));
-        } else {
-            choices.push(Choice::new(name.clone(), name));
-        }
-    }
-    choices.push(
-        Choice::new("trips between home and work", "home_to_work".to_string()).tooltip(
-            "Randomized people will leave homes in the morning, go to work, then return in the \
-             afternoon. It'll be very quiet before 7am and between 10am to 5pm.",
-        ),
-    );
-    choices.push(
-        Choice::new("random unrealistic trips", "random".to_string()).tooltip(
-            "Lots of trips will start at midnight, but not constantly appear through the day.",
-        ),
-    );
-    choices.push(Choice::new(
-        "generate from census data",
-        "census".to_string(),
-    ));
-    choices.push(Choice::new(
-        "none, except for buses -- you manually spawn traffic",
-        "none".to_string(),
-    ));
-    let choices = choices
-        .into_iter()
-        .map(|c| {
-            if c.data == current {
-                c.active(false)
-            } else {
-                c
-            }
-        })
-        .collect();
+pub struct ChangeScenario;
 
-    ChooseSomething::new_below(
-        ctx,
-        &btn,
-        choices,
-        Box::new(|scenario_name, ctx, app| {
+impl ChangeScenario {
+    pub fn new(ctx: &mut EventCtx, app: &App, current_scenario: &str) -> Box<dyn State<App>> {
+        // (Button action, label, full description)
+        let mut choices = Vec::new();
+        for name in abstio::list_all_objects(abstio::path_all_scenarios(app.primary.map.get_name()))
+        {
+            if name == "weekday" {
+                choices.push((
+                    name,
+                    "realistic weekday traffic".to_string(),
+                    "Trips will begin throughout the entire day. Midnight is usually quiet, so \
+                     you may need to fast-forward to morning rush hour. Data comes from Puget \
+                     Sound Regional Council's Soundcast model from 2014.",
+                ));
+            } else {
+                choices.push((
+                    name.clone(),
+                    name,
+                    "This is custom scenario data for this map",
+                ));
+            }
+        }
+        choices.push((
+            "home_to_work".to_string(),
+            "trips between home and work".to_string(),
+            "Randomized people will leave homes in the morning, go to work, then return in the \
+             afternoon. It'll be very quiet before 7am and between 10am to 5pm. The population \
+             size and location of homes and workplaces is all guessed just from OpenStreetMap \
+             tags.",
+        ));
+        choices.push((
+            "random".to_string(),
+            "random unrealistic trips".to_string(),
+            "A fixed number of trips will start at midnight, but not constantly appear through \
+             the day.",
+        ));
+        choices.push((
+            "census".to_string(),
+            "generate from US census data".to_string(),
+            "A population from 2010 US census data will travel between home and workplaces. This \
+             option will only work for maps in the US, and generating it will take a few moments \
+             as some data is downloaded for this map.",
+        ));
+        choices.push((
+            "none".to_string(),
+            "none, except for buses".to_string(),
+            "You can manually spawn traffic around a single intersection or by using the tool in \
+             the top panel to start individual trips.",
+        ));
+
+        let mut col = vec![
+            Widget::row(vec![
+                Line("Pick your scenario").small_heading().draw(ctx),
+                ctx.style().btn_close_widget(ctx),
+            ]),
+            Line("Each scenario determines what people live and travel around this map").draw(ctx),
+        ];
+        for (name, label, description) in choices {
+            let btn = ctx
+                .style()
+                .btn_solid_dark_text(&label)
+                .disabled(name == current_scenario);
+            col.push(
+                Widget::row(vec![
+                    btn.build_widget(ctx, &name),
+                    Text::from(Line(description).secondary())
+                        .wrap_to_pct(ctx, 40)
+                        .draw(ctx)
+                        .align_right(),
+                ])
+                .margin_above(30),
+            );
+        }
+        col.push(
+            ctx.style()
+                .btn_outline_light_text("Import your own data")
+                .build_def(ctx),
+        );
+
+        SimpleState::new(
+            Panel::new(Widget::col(col)).build(ctx),
+            Box::new(ChangeScenario),
+        )
+    }
+}
+
+impl SimpleState<App> for ChangeScenario {
+    fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
+        if x == "close" {
+            Transition::Pop
+        } else if x == "Import your own data" {
+            open_browser("https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html#custom-import");
+            Transition::Keep
+        } else {
             Transition::Multi(vec![
                 Transition::Pop,
                 Transition::Replace(SandboxMode::simple_new(
                     ctx,
                     app,
-                    if scenario_name == "none" {
+                    if x == "none" {
                         GameplayMode::Freeform(app.primary.map.get_name().clone())
                     } else {
                         GameplayMode::PlayScenario(
                             app.primary.map.get_name().clone(),
-                            scenario_name,
+                            x.to_string(),
                             Vec::new(),
                         )
                     },
                 )),
             ])
-        }),
-    )
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        grey_out_map(g, app);
+    }
 }
 
 struct AgentSpawner {
@@ -232,7 +281,7 @@ impl AgentSpawner {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("New trip").small_heading().draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 "Click a building or border to specify start"
                     .draw_text(ctx)
@@ -253,7 +302,10 @@ impl AgentSpawner {
                     "Number of trips:".draw_text(ctx),
                     Spinner::new(ctx, (1, 1000), 1).named("number"),
                 ]),
-                Btn::text_fg("Confirm").inactive(ctx),
+                ctx.style()
+                    .btn_outline_light_text("Confirm")
+                    .disabled(true)
+                    .build_def(ctx),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
@@ -333,8 +385,14 @@ impl State<App> for AgentSpawner {
                             "instructions",
                             "Click a building or border to specify end".draw_text(ctx),
                         );
-                        self.panel
-                            .replace(ctx, "Confirm", Btn::text_fg("Confirm").inactive(ctx));
+                        self.panel.replace(
+                            ctx,
+                            "Confirm",
+                            ctx.style()
+                                .btn_outline_light_text("Confirm")
+                                .disabled(true)
+                                .build_def(ctx),
+                        );
                     }
                 }
             }
@@ -406,7 +464,10 @@ impl State<App> for AgentSpawner {
                     self.panel.replace(
                         ctx,
                         "Confirm",
-                        Btn::text_fg("Confirm").build_def(ctx, Key::Enter),
+                        ctx.style()
+                            .btn_outline_light_text("Confirm")
+                            .hotkey(Key::Enter)
+                            .build_def(ctx),
                     );
                 }
             }

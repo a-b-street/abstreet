@@ -10,17 +10,22 @@ scenarios = ["gdal"]
 
 [dependencies]
 aabb-quadtree = "0.1.0"
+abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
+anyhow = "1.0.37"
 collisions = { path = "../collisions" }
 convert_osm = { path = "../convert_osm" }
 csv = "1.1.4"
+geo = "0.16.0"
 geojson = "0.21.0"
 geom = { path = "../geom" }
-gdal = { version = "0.6.0", optional = true }
+gdal = { version = "0.7.0", optional = true }
 kml = { path = "../kml" }
+log = "0.4.11"
 map_model = { path = "../map_model" }
-rand = "0.7.0"
-rand_xorshift = "0.2.0"
+popdat = { path = "../popdat" }
+rand = "0.8.1"
+rand_xorshift = "0.3.0"
 serde = "1.0.116"
-serde_json = "1.0.57"
+serde_json = "1.0.61"
 sim = { path = "../sim" }

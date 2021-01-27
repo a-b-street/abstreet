@@ -1,41 +1,49 @@
 use std::collections::HashSet;
 
-use abstutil::Timer;
 use geom::Duration;
 
 use crate::{
-    ControlTrafficSignal, IntersectionCluster, IntersectionID, Map, Movement, MovementID,
-    PhaseType, RoadID, Stage, TurnPriority, TurnType,
+    ControlTrafficSignal, IntersectionCluster, IntersectionID, Map, Movement, MovementID, RoadID,
+    Stage, StageType, TurnPriority, TurnType,
 };
 
 /// Applies a bunch of heuristics to a single intersection, returning the valid results in
 /// best-first order. The signal configuration is only based on the roads connected to the
 /// intersection.
+///
+/// If `enforce_manual_signals` is true, then any data from the `traffic_signal_data` crate that
+/// matches the map will be validated against the current map. If the config is out-of-date, this
+/// method will panic, so that whoever is running the importer can immediately fix the config.
 pub fn get_possible_policies(
     map: &Map,
     id: IntersectionID,
-    timer: &mut Timer,
+    enforce_manual_signals: bool,
 ) -> Vec<(String, ControlTrafficSignal)> {
     let mut results = Vec::new();
 
-    // TODO Cache with lazy_static. Don't serialize in Map; the repo of signal data may evolve
-    // independently.
-    if let Some(raw) = seattle_traffic_signals::load_all_data()
+    if let Some(raw) = traffic_signal_data::load_all_data()
         .unwrap()
         .remove(&map.get_i(id).orig_id.0)
     {
-        match ControlTrafficSignal::import(raw, id, map) {
+        match ControlTrafficSignal::import(raw, id, map).and_then(|ts| ts.validate().map(|_| ts)) {
             Ok(ts) => {
-                results.push(("hand-mapped current real settings".to_string(), ts));
+                results.push(("manually specified settings".to_string(), ts));
             }
             Err(err) => {
                 let i = map.get_i(id);
-                timer.error(format!(
-                    "seattle_traffic_signals data for {} ({}) out of date, go update it: {}",
-                    i.orig_id,
-                    i.name(None, map),
-                    err
-                ));
+                if enforce_manual_signals {
+                    panic!(
+                        "traffic_signal_data data for {} ({}) out of date, go update it: {}",
+                        i.orig_id,
+                        i.name(None, map),
+                        err
+                    );
+                } else {
+                    warn!(
+                        "traffic_signal_data data for {} no longer valid with map edits: {}",
+                        i.orig_id, err
+                    );
+                }
             }
         }
     }
@@ -157,8 +165,8 @@ fn half_signal(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
             vehicle_stage.edit_movement(movement, TurnPriority::Protected);
         }
     }
-    vehicle_stage.phase_type = PhaseType::Fixed(Duration::minutes(1));
-    ped_stage.phase_type = PhaseType::Fixed(Duration::seconds(10.0));
+    vehicle_stage.stage_type = StageType::Fixed(Duration::minutes(1));
+    ped_stage.stage_type = StageType::Fixed(Duration::seconds(10.0));
 
     ts.stages = vec![vehicle_stage, ped_stage];
     Some(ts)
@@ -479,7 +487,7 @@ fn helper(items: &[usize], max_size: usize) -> Vec<Partition> {
 pub fn synchronize(map: &mut Map) {
     let mut seen = HashSet::new();
     let mut pairs = Vec::new();
-    let handmapped = seattle_traffic_signals::load_all_data().unwrap();
+    let handmapped = traffic_signal_data::load_all_data().unwrap();
     for i in map.all_intersections() {
         if !i.is_traffic_signal() || seen.contains(&i.id) || handmapped.contains_key(&i.orig_id.0) {
             continue;

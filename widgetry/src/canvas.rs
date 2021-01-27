@@ -1,9 +1,6 @@
 use std::cell::RefCell;
 use std::collections::HashSet;
 
-use serde::{Deserialize, Serialize};
-
-use abstutil::{MapName, Timer};
 use geom::{Bounds, Pt2D};
 
 use crate::{Key, ScreenDims, ScreenPt, ScreenRectangle, UpdateType, UserInput};
@@ -288,31 +285,6 @@ impl Canvas {
         b
     }
 
-    pub fn save_camera_state(&self, name: &MapName) {
-        let state = CameraState {
-            cam_x: self.cam_x,
-            cam_y: self.cam_y,
-            cam_zoom: self.cam_zoom,
-        };
-        abstutil::write_json(abstutil::path_camera_state(name), &state);
-    }
-
-    // True if this succeeds
-    pub fn load_camera_state(&mut self, name: &MapName) -> bool {
-        match abstutil::maybe_read_json::<CameraState>(
-            abstutil::path_camera_state(name),
-            &mut Timer::throwaway(),
-        ) {
-            Ok(ref loaded) => {
-                self.cam_x = loaded.cam_x;
-                self.cam_y = loaded.cam_y;
-                self.cam_zoom = loaded.cam_zoom;
-                true
-            }
-            Err(_) => false,
-        }
-    }
-
     pub(crate) fn align_window(
         &self,
         dims: ScreenDims,
@@ -368,11 +340,4 @@ pub enum VerticalAlignment {
     Percent(f64),
     Above(f64),
     Below(f64),
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct CameraState {
-    cam_x: f64,
-    cam_y: f64,
-    cam_zoom: f64,
 }

@@ -50,10 +50,7 @@ pub fn remove_disconnected_roads(map: &mut RawMap, timer: &mut Timer) {
     partitions.reverse();
     for p in partitions.iter().skip(1) {
         for id in p {
-            timer.note(format!(
-                "Removing {} because it's disconnected from most roads",
-                id
-            ));
+            info!("Removing {} because it's disconnected from most roads", id);
             map.roads.remove(id).unwrap();
             next_roads.remove(id.i1, *id);
             next_roads.remove(id.i2, *id);

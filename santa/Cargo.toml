@@ -9,17 +9,20 @@ crate-type = ["cdylib", "lib"]
 
 [features]
 default = ["map_gui/native", "widgetry/native-backend"]
-wasm = ["map_gui/wasm", "wasm-bindgen", "widgetry/wasm-backend"]
+wasm = ["getrandom/js", "map_gui/wasm", "wasm-bindgen", "widgetry/wasm-backend"]
 
 [dependencies]
+abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
+anyhow = "1.0.37"
 geom = { path = "../geom" }
+getrandom = { version = "0.2.0", optional = true }
 kml = { path = "../kml" }
 log = "0.4.11"
 map_gui = { path = "../map_gui" }
 map_model = { path = "../map_model" }
-rand = "0.7.0"
-rand_xorshift = "0.2.0"
+rand = "0.8.1"
+rand_xorshift = "0.3.0"
 rodio = { version = "0.13.0", default-features = false, features = ["vorbis"] }
 serde = "1.0.116"
 wasm-bindgen = { version = "0.2.68", optional = true }

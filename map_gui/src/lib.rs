@@ -1,6 +1,8 @@
 //! This crate contains common code for applications that draw and interact with a `Map`.
 
 #[macro_use]
+extern crate anyhow;
+#[macro_use]
 extern crate log;
 
 use abstutil::Timer;

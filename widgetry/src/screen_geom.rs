@@ -97,6 +97,7 @@ impl ScreenRectangle {
     }
 }
 
+// REVIEW: Rename to something shorter? e.g. Dims / Size
 /// ScreenDims is in units of logical pixels, as opposed to physical pixels.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct ScreenDims {
@@ -110,6 +111,10 @@ impl ScreenDims {
             width: trim_f64(width),
             height: trim_f64(height),
         }
+    }
+
+    pub fn square(square: f64) -> Self {
+        Self::new(square, square)
     }
 
     pub fn top_left_for_corner(&self, corner: ScreenPt, canvas: &Canvas) -> ScreenPt {
@@ -152,5 +157,11 @@ impl From<winit::dpi::LogicalSize<f64>> for ScreenDims {
 impl From<ScreenDims> for winit::dpi::LogicalSize<f64> {
     fn from(dims: ScreenDims) -> winit::dpi::LogicalSize<f64> {
         winit::dpi::LogicalSize::new(dims.width, dims.height)
+    }
+}
+
+impl From<f64> for ScreenDims {
+    fn from(square: f64) -> ScreenDims {
+        ScreenDims::square(square)
     }
 }

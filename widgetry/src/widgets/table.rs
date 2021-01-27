@@ -1,7 +1,10 @@
 use abstutil::prettyprint_usize;
 use geom::Polygon;
 
-use crate::{Btn, Color, EventCtx, GeomBatch, Key, Line, Panel, Text, TextExt, Widget};
+use crate::{
+    include_labeled_bytes, Color, ControlState, EventCtx, GeomBatch, Key, Line, Panel,
+    StyledButtons, Text, TextExt, Widget,
+};
 
 const ROWS: usize = 8;
 
@@ -97,14 +100,17 @@ impl<A, T, F> Table<A, T, F> {
             .iter()
             .map(|col| {
                 if self.sort_by == col.name {
-                    Btn::text_bg2(format!(
-                        "{} {}",
-                        col.name,
-                        if self.descending { "↓" } else { "↑" }
-                    ))
-                    .build(ctx, &col.name, None)
+                    ctx.style()
+                        .btn_solid_dark_icon_text("tmp", &col.name)
+                        .image_bytes(if self.descending {
+                            include_labeled_bytes!("../../icons/arrow_down.svg")
+                        } else {
+                            include_labeled_bytes!("../../icons/arrow_up.svg")
+                        })
+                        .label_first()
+                        .build_widget(ctx, &col.name)
                 } else if let Col::Sortable(_) = col.col {
-                    Btn::text_bg2(&col.name).build_def(ctx, None)
+                    ctx.style().btn_solid_dark_text(&col.name).build_def(ctx)
                 } else {
                     Line(&col.name).draw(ctx).centered_vert()
                 }
@@ -186,12 +192,19 @@ impl<A, T: 'static, F> Table<A, T, F> {
 }
 
 fn make_pagination(ctx: &mut EventCtx, total: usize, skip: usize) -> Widget {
+    let next = ctx
+        .style()
+        .btn_next()
+        .disabled(skip + 1 + ROWS >= total)
+        .hotkey(Key::RightArrow);
+    let prev = ctx
+        .style()
+        .btn_prev()
+        .disabled(skip == 0)
+        .hotkey(Key::LeftArrow);
+
     Widget::row(vec![
-        if skip > 0 {
-            Btn::plaintext("<").build(ctx, "previous", Key::LeftArrow)
-        } else {
-            Btn::plaintext("<").inactive(ctx)
-        },
+        prev.build_widget(ctx, "previous"),
         format!(
             "{}-{} of {}",
             if total > 0 {
@@ -204,11 +217,7 @@ fn make_pagination(ctx: &mut EventCtx, total: usize, skip: usize) -> Widget {
         )
         .draw_text(ctx)
         .centered_vert(),
-        if skip + 1 + ROWS < total {
-            Btn::plaintext(">").build(ctx, "next", Key::RightArrow)
-        } else {
-            Btn::plaintext(">").inactive(ctx)
-        },
+        next.build_widget(ctx, "next"),
     ])
 }
 
@@ -260,9 +269,12 @@ fn make_table(
         hovered.append(batch.clone());
 
         col.push(
-            Btn::custom(batch, hovered, rect, None)
-                .tooltip(Text::new())
-                .build(ctx, label, None),
+            ctx.style()
+                .btn_plain_light()
+                .custom_batch(batch, ControlState::Default)
+                .custom_batch(hovered, ControlState::Hovered)
+                .no_tooltip()
+                .build_widget(ctx, &label),
         );
     }
 

@@ -5,8 +5,8 @@ use map_gui::ID;
 use map_model::IntersectionID;
 use sim::AgentID;
 use widgetry::{
-    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, State, VerticalAlignment, Widget,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    State, StyledButtons, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -85,7 +85,7 @@ impl TrafficRecorder {
                     Line("Select the bounding intersections for recording traffic")
                         .small_heading()
                         .draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 make_btn(ctx, members.len()),
             ]))
@@ -150,16 +150,14 @@ impl State<App> for TrafficRecorder {
 }
 
 fn make_btn(ctx: &mut EventCtx, num: usize) -> Widget {
-    if num == 0 {
-        return Btn::text_bg2("Record 0 intersections")
-            .inactive(ctx)
-            .named("record");
-    }
-
-    let title = if num == 1 {
-        "Record 1 intersection".to_string()
-    } else {
-        format!("Record {} intersections", num)
+    let title = match num {
+        0 => "Record 0 intersections".to_string(),
+        1 => "Record 1 intersection".to_string(),
+        _ => format!("Record {} intersections", num),
     };
-    Btn::text_bg2(title).build(ctx, "record", Key::Enter)
+    ctx.style()
+        .btn_solid_dark_text(&title)
+        .disabled(num == 0)
+        .hotkey(Key::Enter)
+        .build_widget(ctx, "record")
 }

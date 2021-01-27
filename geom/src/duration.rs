@@ -1,6 +1,6 @@
-use std::error::Error;
 use std::{cmp, ops};
 
+use anyhow::Result;
 use instant::Instant;
 use serde::{Deserialize, Serialize};
 
@@ -89,17 +89,17 @@ impl Duration {
 
     /// Parses a duration such as "3:00" to `Duration::minutes(3)`.
     // TODO This is NOT the inverse of Display!
-    pub fn parse(string: &str) -> Result<Duration, Box<dyn Error>> {
+    pub fn parse(string: &str) -> Result<Duration> {
         let parts: Vec<&str> = string.split(':').collect();
         if parts.is_empty() {
-            return Err(format!("Duration {}: no :'s", string).into());
+            bail!("Duration {}: no :'s", string);
         }
 
         let mut seconds: f64 = 0.0;
         if parts.last().unwrap().contains('.') {
             let last_parts: Vec<&str> = parts.last().unwrap().split('.').collect();
             if last_parts.len() != 2 {
-                return Err(format!("Duration {}: no . in last part", string).into());
+                bail!("Duration {}: no . in last part", string);
             }
             seconds += last_parts[1].parse::<f64>()? / 10.0;
             seconds += last_parts[0].parse::<f64>()?;
@@ -118,7 +118,7 @@ impl Duration {
                 seconds += 3600.0 * parts[0].parse::<f64>()?;
                 Ok(Duration::seconds(seconds))
             }
-            _ => Err(format!("Duration {}: weird number of parts", string).into()),
+            _ => bail!("Duration {}: weird number of parts", string),
         }
     }
 

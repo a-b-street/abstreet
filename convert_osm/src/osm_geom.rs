@@ -1,6 +1,7 @@
 //! Utilities for extracting concrete geometry from OSM objects.
 
-use abstutil::Timer;
+use anyhow::Result;
+
 use geom::{PolyLine, Polygon, Pt2D, Ring};
 use map_model::osm::{OsmID, RelationID, WayID};
 
@@ -31,7 +32,6 @@ pub fn glue_multipolygon(
     rel_id: RelationID,
     mut pts_per_way: Vec<(WayID, Vec<Pt2D>)>,
     boundary: Option<&Ring>,
-    timer: &mut Timer,
 ) -> Vec<Polygon> {
     // First deal with all of the closed loops.
     let mut polygons: Vec<Polygon> = Vec::new();
@@ -100,7 +100,7 @@ pub fn glue_multipolygon(
             }
         }
         Err(err) => {
-            timer.error(format!("Really weird multipolygon {}: {}", rel_id, err));
+            error!("Really weird multipolygon {}: {}", rel_id, err);
         }
     }
 
@@ -129,11 +129,7 @@ fn glue_to_boundary(result_pl: PolyLine, boundary: &Ring) -> Option<Polygon> {
     Some(Ring::must_new(trimmed_pts).to_polygon())
 }
 
-pub fn multipoly_geometry(
-    rel_id: RelationID,
-    rel: &Relation,
-    doc: &Document,
-) -> Result<Polygon, String> {
+pub fn multipoly_geometry(rel_id: RelationID, rel: &Relation, doc: &Document) -> Result<Polygon> {
     let mut outer: Vec<Vec<Pt2D>> = Vec::new();
     let mut inner: Vec<Vec<Pt2D>> = Vec::new();
     for (role, member) in &rel.members {
@@ -149,18 +145,18 @@ pub fn multipoly_geometry(
             } else if role == "inner" {
                 inner.push(deduped);
             } else {
-                return Err(format!("What's role {} for multipolygon {}?", role, rel_id));
+                bail!("What's role {} for multipolygon {}?", role, rel_id);
             }
         }
     }
     // TODO Handle multiple outers with holes
     if outer.len() == 0 || outer.len() > 1 && !inner.is_empty() {
-        return Err(format!(
+        bail!(
             "Multipolygon {} has {} outer, {} inner. Huh?",
             rel_id,
             outer.len(),
             inner.len()
-        ));
+        );
     }
     if inner.is_empty() {
         if outer.len() > 1 {

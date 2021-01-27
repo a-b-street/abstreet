@@ -5,9 +5,11 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
+anyhow = "1.0.37"
 convert_osm = { path = "../convert_osm" }
 geom = { path = "../geom" }
 map_model = { path = "../map_model" }
-rand = "0.7.0"
+rand = "0.8.1"
 sim = { path = "../sim" }

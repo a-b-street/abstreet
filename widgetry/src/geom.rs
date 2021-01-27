@@ -1,8 +1,7 @@
-use geom::{Angle, Bounds, Polygon, Pt2D};
+use geom::{Angle, Bounds, GPSBounds, Polygon, Pt2D};
 
-use crate::widgets::button::BtnBuilder;
 use crate::{
-    svg, Btn, Color, DeferDraw, Drawable, EventCtx, Fill, GfxCtx, Prerender, ScreenDims, Widget,
+    svg, Color, DeferDraw, Drawable, EventCtx, Fill, GfxCtx, Prerender, ScreenDims, Widget,
 };
 
 /// A mutable builder for a group of colored polygons.
@@ -12,6 +11,16 @@ pub struct GeomBatch {
     // rendering above values closer to 0.0.
     pub(crate) list: Vec<(Fill, Polygon, f64)>,
     pub autocrop_dims: bool,
+}
+
+impl std::fmt::Debug for GeomBatch {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("GeomBatch")
+            .field("bounds", &self.get_bounds())
+            .field("items", &self.list.len())
+            .field("autocrop_dims", &self.autocrop_dims)
+            .finish()
+    }
 }
 
 impl GeomBatch {
@@ -77,18 +86,6 @@ impl GeomBatch {
         DeferDraw::new(self)
     }
 
-    /// Turn this batch into a button, with the hovered version rewriting all colors.
-    pub fn to_btn(self, ctx: &EventCtx) -> BtnBuilder {
-        self.to_btn_custom(RewriteColor::ChangeAll(ctx.style().hovering_color))
-    }
-
-    /// Turn this batch into a button.
-    pub fn to_btn_custom(self, rewrite: RewriteColor) -> BtnBuilder {
-        let hovered = self.clone().color(rewrite);
-        let hitbox = self.get_bounds().get_rectangle();
-        Btn::custom(self, hovered, hitbox, None)
-    }
-
     /// Compute the bounds of all polygons in this batch.
     pub fn get_bounds(&self) -> Bounds {
         let mut bounds = Bounds::new();
@@ -139,11 +136,8 @@ impl GeomBatch {
     }
 
     /// Returns a batch containing a parsed SVG string.
-    pub fn from_svg_contents(raw: Vec<u8>) -> GeomBatch {
-        let mut batch = GeomBatch::new();
-        let svg_tree = usvg::Tree::from_data(&raw, &usvg::Options::default()).unwrap();
-        svg::add_svg_inner(&mut batch, svg_tree, svg::HIGH_QUALITY).unwrap();
-        batch
+    pub fn from_uncached_svg_contents(raw: &[u8]) -> GeomBatch {
+        svg::load_svg_from_bytes_uncached(raw).unwrap().0
     }
 
     /// Returns a batch containing an SVG from a file.
@@ -195,14 +189,19 @@ impl GeomBatch {
     }
 
     /// Scales the batch by some factor.
-    pub fn scale(mut self, factor: f64) -> GeomBatch {
-        if factor == 1.0 {
+    pub fn scale(self, factor: f64) -> GeomBatch {
+        self.scale_xy(factor, factor)
+    }
+
+    pub fn scale_xy(mut self, x_factor: f64, y_factor: f64) -> GeomBatch {
+        if x_factor == 1.0 && y_factor == 1.0 {
             return self;
         }
+
         for (_, poly, _) in &mut self.list {
             // strip_rings first -- sometimes when scaling down, the original rings collapse. Since
             // this polygon is part of a GeomBatch anyway, not calling to_outline on it.
-            *poly = poly.strip_rings().scale(factor);
+            *poly = poly.strip_rings().scale_xy(x_factor, y_factor);
         }
         self
     }
@@ -218,6 +217,27 @@ impl GeomBatch {
         }
         self
     }
+
+    /// Exports the batch to a list of GeoJSON features, labeling each colored polygon. Z-values,
+    /// alpha values from the color, and non-RGB fill patterns are lost. If the polygon isn't a
+    /// ring, it's skipped. The world-space coordinates are optionally translated back to GPS.
+    pub fn to_geojson(self, gps_bounds: Option<&GPSBounds>) -> Vec<geojson::Feature> {
+        let mut features = Vec::new();
+        for (fill, polygon, _) in self.list {
+            if let Fill::Color(color) = fill {
+                let mut properties = serde_json::Map::new();
+                properties.insert("color".to_string(), color.to_hex().into());
+                features.push(geojson::Feature {
+                    bbox: None,
+                    geometry: Some(polygon.to_geojson(gps_bounds)),
+                    id: None,
+                    properties: Some(properties),
+                    foreign_members: None,
+                });
+            }
+        }
+        features
+    }
 }
 
 impl<F: Into<Fill>> From<Vec<(F, Polygon)>> for GeomBatch {
@@ -231,6 +251,7 @@ impl<F: Into<Fill>> From<Vec<(F, Polygon)>> for GeomBatch {
 }
 
 /// A way to transform all colors in a GeomBatch.
+#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum RewriteColor {
     /// Don't do anything
     NoOp,
@@ -243,6 +264,12 @@ pub enum RewriteColor {
     ChangeAlpha(f32),
     /// Convert all colors to greyscale.
     MakeGrayscale,
+}
+
+impl std::convert::From<Color> for RewriteColor {
+    fn from(color: Color) -> RewriteColor {
+        RewriteColor::ChangeAll(color)
+    }
 }
 
 impl RewriteColor {

@@ -2,13 +2,15 @@ use std::collections::BTreeSet;
 use std::fs::File;
 use std::io::Write;
 
+use anyhow::Result;
+
 use abstutil::prettyprint_usize;
 use geom::{Distance, Duration, Polygon, Pt2D};
 use map_gui::tools::PopupMsg;
 use sim::TripMode;
 use widgetry::{
-    Btn, Checkbox, Choice, Color, CompareTimes, DrawBaselayer, DrawWithTooltips, EventCtx,
-    GeomBatch, GfxCtx, Line, Outcome, Panel, State, Text, TextExt, Widget,
+    Checkbox, Choice, Color, CompareTimes, DrawBaselayer, DrawWithTooltips, EventCtx, GeomBatch,
+    GfxCtx, Line, Outcome, Panel, State, StyledButtons, Text, TextExt, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -42,8 +44,9 @@ impl TripSummaries {
             ],
         ));
         filters.push(
-            Btn::plaintext("Export to CSV")
-                .build_def(ctx, None)
+            ctx.style()
+                .btn_plain_light_text("Export to CSV")
+                .build_def(ctx)
                 .align_bottom(),
         );
 
@@ -438,7 +441,7 @@ fn pct_diff(a: Duration, b: Duration) -> f64 {
     }
 }
 
-fn export_times(app: &App) -> Result<String, std::io::Error> {
+fn export_times(app: &App) -> Result<String> {
     let path = format!(
         "trip_times_{}_{}.csv",
         app.primary.map.get_name().as_filename(),

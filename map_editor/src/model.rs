@@ -1,7 +1,8 @@
 use std::collections::{BTreeMap, HashMap};
 use std::io::Write;
 
-use abstutil::{MapName, Tags, Timer};
+use abstio::MapName;
+use abstutil::{Tags, Timer};
 use geom::{
     Bounds, Circle, Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D,
 };
@@ -50,7 +51,7 @@ impl Model {
         let mut timer = Timer::new("import map");
         let mut model = Model::blank();
         model.include_bldgs = include_bldgs;
-        model.map = abstutil::read_binary(path, &mut timer);
+        model.map = abstio::read_binary(path, &mut timer);
         model.intersection_geom = intersection_geom;
 
         if model.include_bldgs {
@@ -200,7 +201,7 @@ impl Model {
         };
 
         let poly = if self.intersection_geom && !self.map.roads_per_intersection(id).is_empty() {
-            let (poly, _, _) = self.map.preview_intersection(id, &mut Timer::throwaway());
+            let (poly, _, _) = self.map.preview_intersection(id);
             poly
         } else {
             Circle::new(i.point, INTERSECTION_RADIUS).to_polygon()
@@ -305,7 +306,9 @@ impl Model {
     }
 
     fn road_object(&self, id: OriginalRoad) -> Object<ID> {
-        let (center, total_width) = self.map.roads[&id].get_geometry(id, &self.map.config);
+        let (center, total_width) = self.map.roads[&id]
+            .get_geometry(id, &self.map.config)
+            .unwrap();
         Object::new(
             ID::Road(id),
             Color::grey(0.8),

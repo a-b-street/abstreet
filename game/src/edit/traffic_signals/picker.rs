@@ -3,8 +3,8 @@ use std::collections::BTreeSet;
 use map_gui::ID;
 use map_model::IntersectionID;
 use widgetry::{
-    hotkeys, Btn, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, State, VerticalAlignment, Widget,
+    hotkeys, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    State, StyledButtons, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -31,7 +31,7 @@ impl SignalPicker {
                     Line("Select multiple traffic signals")
                         .small_heading()
                         .draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 make_btn(ctx, members.len()),
             ]))
@@ -107,14 +107,14 @@ impl State<App> for SignalPicker {
 }
 
 fn make_btn(ctx: &mut EventCtx, num: usize) -> Widget {
-    if num == 0 {
-        return Btn::text_bg2("Edit 0 signals").inactive(ctx).named("edit");
-    }
-
-    let title = if num == 1 {
-        "Edit 1 signal".to_string()
-    } else {
-        format!("Edit {} signals", num)
+    let title = match num {
+        0 => "Edit 0 signals".to_string(),
+        1 => "Edit 1 signal".to_string(),
+        _ => format!("Edit {} signals", num),
     };
-    Btn::text_bg2(title).build(ctx, "edit", hotkeys(vec![Key::Enter, Key::E]))
+    ctx.style()
+        .btn_solid_dark_text(&title)
+        .disabled(num == 0)
+        .hotkey(hotkeys(vec![Key::Enter, Key::E]))
+        .build_widget(ctx, "edit")
 }

@@ -1,6 +1,7 @@
 [workspace]
 
 members = [
+  "abstio",
   "abstutil",
   "collisions",
   "convert_osm",
@@ -18,8 +19,10 @@ members = [
   "popdat",
   "santa",
   "sim",
+  "sumo",
   "tests",
   "traffic_seitan",
+  "traffic_signal_data",
   "updater",
   "widgetry",
   "widgetry_demo",
@@ -33,4 +36,6 @@ members = [
 opt-level = 3
 
 [patch.crates-io]
-geojson = { git = "https://github.com/georust/geojson", branch = "mkirk/try_from" }
+# Some niceties for parsing geojson feature properties.
+# Upstreaming at https://github.com/georust/geojson/pull/155
+geojson = { git = "https://github.com/georust/geojson" }

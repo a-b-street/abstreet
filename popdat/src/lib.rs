@@ -25,10 +25,11 @@ extern crate log;
 use rand_xorshift::XorShiftRng;
 
 use abstutil::Timer;
-use geom::Polygon;
 use geom::{Distance, Time};
 use map_model::{BuildingID, Map};
 use sim::Scenario;
+
+pub use self::distribute_people::distribute_population_to_homes;
 
 mod activities;
 mod distribute_people;
@@ -39,8 +40,9 @@ mod make_person;
 /// blocks, depending what data we find. All of the areas should roughly partition the map -- we
 /// probably don't need to guarantee we cover every single building, but we definitely shouldn't
 /// have two overlapping areas.
+#[derive(Debug, PartialEq)]
 pub struct CensusArea {
-    pub polygon: Polygon,
+    pub polygon: geo::Polygon<f64>,
     pub population: usize,
     // TODO Not sure what goes here, whatever census data actually has that could be useful
 }
@@ -102,17 +104,15 @@ impl Config {
 /// appropriate census data, and use it to produce a Scenario.
 pub fn generate_scenario(
     scenario_name: &str,
+    areas: Vec<CensusArea>,
     config: Config,
     map: &Map,
     rng: &mut XorShiftRng,
-) -> Result<Scenario, String> {
+) -> Scenario {
+    let mut timer = Timer::new("building scenario");
+
     // find_data_for_map may return an error. If so, just plumb it back to the caller using the ?
     // operator
-    let mut timer = Timer::new("generate census scenario");
-    timer.start("building population areas for map");
-    let areas = CensusArea::find_data_for_map(map, &mut timer).map_err(|e| e.to_string())?;
-    timer.stop("building population areas for map");
-
     timer.start("assigning people to houses");
     let people = distribute_people::assign_people_to_houses(areas, map, rng, &config);
     timer.stop("assigning people to houses");
@@ -128,5 +128,5 @@ pub fn generate_scenario(
     scenario = scenario.remove_weird_schedules();
     timer.stop("removing weird schedules");
 
-    Ok(scenario)
+    scenario
 }

@@ -1,8 +1,8 @@
 use geom::{ArrowCap, Distance};
 use map_model::{LaneID, TurnType};
 use widgetry::{
-    Btn, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, State, Text, TextExt, Transition, VerticalAlignment, Widget,
+    Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, State, StyledButtons, Text, TextExt, Transition, VerticalAlignment, Widget,
 };
 
 use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
@@ -119,20 +119,20 @@ impl TurnExplorer {
             )
             .draw(ctx),
             Widget::vert_separator(ctx, 50.0),
-            if idx == 0 {
-                Btn::text_fg("<").inactive(ctx)
-            } else {
-                Btn::text_fg("<").build(ctx, "previous turn", Key::LeftArrow)
-            },
+            ctx.style()
+                .btn_prev()
+                .disabled(idx == 0)
+                .hotkey(Key::LeftArrow)
+                .build_widget(ctx, "previous turn"),
             Text::from(Line(format!("{}/{}", idx, turns.len())).secondary())
                 .draw(ctx)
                 .centered_vert(),
-            if idx == turns.len() {
-                Btn::text_fg(">").inactive(ctx)
-            } else {
-                Btn::text_fg(">").build(ctx, "next turn", Key::RightArrow)
-            },
-            Btn::close(ctx),
+            ctx.style()
+                .btn_next()
+                .disabled(idx == turns.len())
+                .hotkey(Key::RightArrow)
+                .build_widget(ctx, "next turn"),
+            ctx.style().btn_close_widget(ctx),
         ])];
         if idx == 0 {
             if app.map().get_l(l).is_walkable() {

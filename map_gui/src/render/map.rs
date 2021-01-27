@@ -162,10 +162,10 @@ impl DrawMap {
         }
         timer.stop("create quadtree");
 
-        timer.note(format!(
+        info!(
             "static DrawMap consumes {} MB on the GPU",
             abstutil::prettyprint_usize(ctx.prerender.get_total_bytes_uploaded() / 1024 / 1024)
-        ));
+        );
 
         let bounds = map.get_bounds();
         ctx.canvas.map_dims = (bounds.width(), bounds.height());
@@ -207,6 +207,8 @@ impl DrawMap {
                 r.get_thick_polygon(map),
                 if r.is_light_rail() {
                     cs.light_rail_track
+                } else if r.is_cycleway() {
+                    cs.unzoomed_trail
                 } else if r.is_private() {
                     cs.private_road
                 } else {
@@ -221,6 +223,8 @@ impl DrawMap {
                 if i.is_stop_sign() {
                     if i.is_light_rail(map) {
                         cs.light_rail_track
+                    } else if i.is_cycleway(map) {
+                        cs.unzoomed_trail
                     } else if i.is_private(map) {
                         cs.private_road
                     } else {
@@ -378,5 +382,61 @@ impl DrawMap {
         borrows.sort_by_key(|x| x.get_zorder());
 
         borrows
+    }
+
+    /// Build a single gigantic `GeomBatch` to render the entire map when zoomed in. Likely messes
+    /// up Z-ordering.
+    pub fn zoomed_batch(ctx: &EventCtx, app: &dyn AppLike) -> GeomBatch {
+        // TODO This repeats code. There are other approaches, like making EventCtx intercept
+        // "uploads" and instead save the batches.
+        let mut batch = GeomBatch::new();
+        let map = app.map();
+        let cs = app.cs();
+
+        batch.push(
+            cs.map_background.clone(),
+            map.get_boundary_polygon().clone(),
+        );
+
+        for a in map.all_areas() {
+            DrawArea::new(ctx, a, cs, &mut batch);
+        }
+
+        for pl in map.all_parking_lots() {
+            batch.append(DrawParkingLot::new(ctx, pl, cs, &mut GeomBatch::new()).render(app));
+        }
+
+        for l in map.all_lanes() {
+            batch.append(DrawLane::new(l, map).render(ctx, app));
+        }
+
+        for r in map.all_roads() {
+            batch.append(DrawRoad::new(r).render(ctx, app));
+        }
+
+        for i in map.all_intersections() {
+            batch.append(DrawIntersection::new(i, map).render(ctx, app));
+        }
+
+        let mut bldgs_batch = GeomBatch::new();
+        let mut paths_batch = GeomBatch::new();
+        let mut outlines_batch = GeomBatch::new();
+        for b in map.all_buildings() {
+            DrawBuilding::new(
+                ctx,
+                b,
+                map,
+                cs,
+                app.opts(),
+                &mut bldgs_batch,
+                &mut paths_batch,
+                &mut outlines_batch,
+            );
+        }
+        batch.append(paths_batch);
+        batch.append(bldgs_batch);
+        batch.append(outlines_batch);
+
+        batch
     }
 }

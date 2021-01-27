@@ -5,7 +5,7 @@ use widgetry::{Color, EventCtx, GeomBatch, Line, Text, Widget};
 pub fn custom_bar(ctx: &mut EventCtx, filled_color: Color, pct_full: f64, txt: Text) -> Widget {
     let total_width = 300.0;
     let height = 32.0;
-    let radius = Some(4.0);
+    let radius = 4.0;
 
     let mut batch = GeomBatch::new();
     // Background

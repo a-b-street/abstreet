@@ -9,13 +9,15 @@ crate-type = ["cdylib", "lib"]
 
 [features]
 default = ["map_gui/native", "widgetry/native-backend"]
-wasm = ["map_gui/wasm", "wasm-bindgen", "widgetry/wasm-backend"]
+wasm = ["getrandom/js", "map_gui/wasm", "wasm-bindgen", "widgetry/wasm-backend"]
 
 [dependencies]
+abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 contour = "0.3.0"
 geojson = "0.21.0"
 geom = { path = "../geom" }
+getrandom = { version = "0.2.0", optional = true }
 log = "0.4"
 map_gui = { path = "../map_gui" }
 map_model = { path = "../map_model" }

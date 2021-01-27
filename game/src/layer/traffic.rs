@@ -10,12 +10,12 @@ use map_gui::ID;
 use map_model::{IntersectionID, Map, Traversable};
 use sim::VehicleType;
 use widgetry::{
-    Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
-    Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
+    Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome,
+    Panel, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
-use crate::layer::{Layer, LayerOutcome};
+use crate::layer::{header, Layer, LayerOutcome};
 
 pub struct Backpressure {
     time: Time,
@@ -71,11 +71,7 @@ impl Backpressure {
         }
 
         let panel = Panel::new(Widget::col(vec![
-            Widget::row(vec![
-                Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
-                "Backpressure".draw_text(ctx),
-                Btn::close(ctx),
-            ]),
+            header(ctx, "Backpressure"),
             Text::from(
                 Line("This counts all active trips passing through a road in the future")
                     .secondary(),
@@ -198,11 +194,7 @@ impl Throughput {
         let road_counter = stats.road_thruput.all_total_counts();
         let intersection_counter = stats.intersection_thruput.all_total_counts();
         let panel = Panel::new(Widget::col(vec![
-            Widget::row(vec![
-                Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
-                "Throughput".draw_text(ctx),
-                Btn::close(ctx),
-            ]),
+            header(ctx, "Throughput"),
             Text::from(Line("This counts all people crossing since midnight").secondary())
                 .wrap_to_pct(ctx, 15)
                 .draw(ctx),
@@ -331,11 +323,7 @@ impl CompareThroughput {
         }
 
         let panel = Panel::new(Widget::col(vec![
-            Widget::row(vec![
-                Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
-                "Relative Throughput".draw_text(ctx),
-                Btn::close(ctx),
-            ]),
+            header(ctx, "Relative Throughput"),
             Checkbox::switch(ctx, "Compare before proposal", None, true),
             scale.make_legend(ctx, vec!["less traffic", "same", "more"]),
         ]))
@@ -419,11 +407,7 @@ impl TrafficJams {
         }
 
         let panel = Panel::new(Widget::col(vec![
-            Widget::row(vec![
-                Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
-                "Traffic jams".draw_text(ctx),
-                Btn::close(ctx),
-            ]),
+            header(ctx, "Traffic jams"),
             Text::from(
                 Line("A jam starts when delay exceeds 5 mins, then spreads out").secondary(),
             )
@@ -571,11 +555,7 @@ impl Delay {
             time: app.primary.sim.time(),
             unzoomed: ctx.upload(unzoomed),
             panel: Panel::new(Widget::col(vec![
-                Widget::row(vec![
-                    Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
-                    "Delay per agent (minutes)".draw_text(ctx),
-                    Btn::close(ctx),
-                ]),
+                header(ctx, "Delay per agent (minutes)"),
                 ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0", "5", "10", "15+"]),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)

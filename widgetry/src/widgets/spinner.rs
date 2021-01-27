@@ -1,8 +1,8 @@
 use geom::{Polygon, Pt2D};
 
 use crate::{
-    text, Btn, Button, EventCtx, GeomBatch, GfxCtx, Line, Outcome, ScreenDims, ScreenPt,
-    ScreenRectangle, Text, Widget, WidgetImpl, WidgetOutput,
+    include_labeled_bytes, text, Button, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Line, Outcome,
+    ScreenDims, ScreenPt, ScreenRectangle, StyledButtons, Text, Widget, WidgetImpl, WidgetOutput,
 };
 
 // TODO MAX_CHAR_WIDTH is a hardcoded nonsense value
@@ -25,16 +25,29 @@ pub struct Spinner {
 
 impl Spinner {
     pub fn new(ctx: &EventCtx, (low, high): (isize, isize), mut current: isize) -> Widget {
-        let up = Btn::text_fg("↑")
-            .build(ctx, "increase value", None)
-            .take_btn();
-        let down = Btn::text_fg("↓")
-            .build(ctx, "decrease value", None)
-            .take_btn();
+        let button_builder = ctx
+            .style()
+            .btn_plain_light()
+            .padding(EdgeInsets {
+                top: 2.0,
+                bottom: 2.0,
+                left: 4.0,
+                right: 4.0,
+            })
+            .image_dims(17.0);
+
+        let up = button_builder
+            .clone()
+            .image_bytes(include_labeled_bytes!("../../icons/arrow_up.svg"))
+            .build(ctx, "increase value");
+
+        let down = button_builder
+            .image_bytes(include_labeled_bytes!("../../icons/arrow_down.svg"))
+            .build(ctx, "decrease value");
 
         let dims = ScreenDims::new(
             TEXT_WIDTH + up.get_dims().width,
-            up.get_dims().height + down.get_dims().height,
+            up.get_dims().height + down.get_dims().height + 1.0,
         );
         if current < low {
             current = low;
@@ -117,7 +130,7 @@ impl WidgetImpl for Spinner {
         // TODO Cache
         let mut batch = GeomBatch::from(vec![(
             text::BG_COLOR,
-            Polygon::rounded_rectangle(self.dims.width, self.dims.height, Some(5.0)),
+            Polygon::rounded_rectangle(self.dims.width, self.dims.height, 5.0),
         )]);
         batch.append(
             Text::from(Line(self.current.to_string()))

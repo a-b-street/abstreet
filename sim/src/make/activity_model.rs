@@ -3,6 +3,7 @@
 //! somewhere at some time. This is an extremely simple activity model that just uses data inferred
 //! from OSM.
 
+use anyhow::Result;
 use rand::seq::SliceRandom;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
@@ -207,11 +208,11 @@ fn create_prole(
     work: TripEndpoint,
     map: &Map,
     rng: &mut XorShiftRng,
-) -> Result<PersonSpec, Box<dyn std::error::Error>> {
+) -> Result<PersonSpec> {
     if home == work {
         // TODO: handle edge-case of working and living in the same building...  maybe more likely
         // to go for a walk later in the day or something
-        return Err("TODO: handle working and living in the same building".into());
+        bail!("TODO: handle working and living in the same building");
     }
 
     let mode = match (&home, &work) {
@@ -229,7 +230,7 @@ fn create_prole(
             {
                 path.total_length()
             } else {
-                return Err("no path found".into());
+                bail!("no path found");
             };
 
             // TODO If home or work is in an access-restricted zone (like a living street),
@@ -320,5 +321,5 @@ fn select_trip_mode(distance: Distance, rng: &mut XorShiftRng) -> TripMode {
 
 fn rand_time(rng: &mut XorShiftRng, low: Time, high: Time) -> Time {
     assert!(high > low);
-    Time::START_OF_DAY + Duration::seconds(rng.gen_range(low.inner_seconds(), high.inner_seconds()))
+    Time::START_OF_DAY + Duration::seconds(rng.gen_range(low.inner_seconds()..high.inner_seconds()))
 }

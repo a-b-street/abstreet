@@ -1,8 +1,8 @@
 use geom::Percent;
 use map_gui::tools::open_browser;
 use widgetry::{
-    Btn, Color, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Key, Line, Panel, RewriteColor,
-    SimpleState, State, Text, TextExt, Widget,
+    ButtonBuilder, Color, ControlState, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Key, Line, Panel,
+    RewriteColor, SimpleState, State, StyledButtons, Text, TextExt, Widget,
 };
 
 use crate::levels::Level;
@@ -23,9 +23,12 @@ impl TitleScreen {
 
         SimpleState::new(
             Panel::new(Widget::col(vec![
-                Btn::svg_def("system/assets/tools/quit.svg")
-                    .build(ctx, "quit", Key::Escape)
-                    .align_right(),
+                ctx.style()
+                    .btn_outline_light_icon_text("system/assets/tools/quit.svg", "Quit")
+                    .hotkey(Key::Escape)
+                    .build_widget(ctx, "quit")
+                    .align_right()
+                    .margin_above(4), // not sure why, but top border is partially cropped w/o this
                 Line("15-minute Santa")
                     .display_title()
                     .draw(ctx)
@@ -51,11 +54,13 @@ impl TitleScreen {
                 .centered_horiz(),
                 Widget::custom_row(level_buttons).flex_wrap(ctx, Percent::int(80)),
                 Widget::row(vec![
-                    Btn::text_bg1("Credits").build_def(ctx, None),
+                    ctx.style().btn_solid_light_text("Credits").build_def(ctx),
                     "Created by Dustin Carlino, Yuwen Li, & Michael Kirk"
                         .draw_text(ctx)
                         .container()
-                        .padding(16)
+                        .padding(6)
+                        // cheat this to lineup with button text
+                        .padding_bottom(2)
                         .bg(app.cs.fade_map_dark),
                 ])
                 .centered_horiz()
@@ -131,12 +136,15 @@ fn locked_level(ctx: &mut EventCtx, app: &App, level: &Level, idx: usize) -> Wid
 }
 
 fn unlocked_level(ctx: &mut EventCtx, app: &App, level: &Level, idx: usize) -> Widget {
-    level_btn(ctx, app, level, idx)
-        .to_btn_custom(RewriteColor::Change(
-            Color::WHITE,
-            ctx.style().hovering_color,
-        ))
-        .build(ctx, &level.title, None)
+    let normal = level_btn(ctx, app, level, idx);
+    let hovered = normal
+        .clone()
+        .color(RewriteColor::Change(Color::WHITE, Color::WHITE.alpha(0.6)));
+
+    ButtonBuilder::new()
+        .custom_batch(normal, ControlState::Default)
+        .custom_batch(hovered, ControlState::Hovered)
+        .build_widget(ctx, &level.title)
 }
 
 struct Credits;
@@ -147,7 +155,7 @@ impl Credits {
             Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("15-minute Santa").big_heading_plain().draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 link(
                     ctx,
@@ -172,14 +180,16 @@ impl Credits {
                 link(ctx, "Music from various sources", "https://github.com/dabreegster/abstreet/tree/master/data/system/assets/music/sources.md"),
                 link(ctx, "Fonts and icons by various sources", "https://dabreegster.github.io/abstreet/howto/#data-source-licensing"),
                 "Playtesting by Fridgehaus".draw_text(ctx),
-                Btn::text_bg2("Back").build_def(ctx, Key::Enter).centered_horiz(),
+                ctx.style().btn_solid_dark_text("Back").hotkey(Key::Enter).build_def(ctx).centered_horiz(),
             ]))
             .build(ctx), Box::new(Credits))
     }
 }
 
 fn link(ctx: &mut EventCtx, label: &str, url: &str) -> Widget {
-    Btn::plaintext(label).build(ctx, format!("open {}", url), None)
+    ctx.style()
+        .btn_plain_light_text(label)
+        .build_widget(ctx, &format!("open {}", url))
 }
 
 impl SimpleState<App> for Credits {
@@ -188,7 +198,7 @@ impl SimpleState<App> for Credits {
             "close" | "Back" => Transition::Pop,
             x => {
                 if let Some(url) = x.strip_prefix("open ") {
-                    open_browser(url.to_string());
+                    open_browser(url);
                     return Transition::Keep;
                 }
 

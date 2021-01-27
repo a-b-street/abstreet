@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate anyhow;
+
 pub use crate::angle::Angle;
 pub use crate::bounds::{Bounds, GPSBounds};
 pub use crate::circle::Circle;
@@ -49,4 +52,39 @@ pub struct UnitFmt {
     pub round_durations: bool,
     /// Display in metric; US imperial otherwise.
     pub metric: bool,
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct CornerRadii {
+    pub top_left: f64,
+    pub top_right: f64,
+    pub bottom_right: f64,
+    pub bottom_left: f64,
+}
+
+impl CornerRadii {
+    pub fn uniform(radius: f64) -> Self {
+        Self {
+            top_left: radius,
+            top_right: radius,
+            bottom_right: radius,
+            bottom_left: radius,
+        }
+    }
+
+    pub fn zero() -> Self {
+        Self::uniform(0.0)
+    }
+}
+
+impl std::convert::From<f64> for CornerRadii {
+    fn from(uniform: f64) -> Self {
+        Self::uniform(uniform)
+    }
+}
+
+impl std::default::Default for CornerRadii {
+    fn default() -> Self {
+        Self::zero()
+    }
 }

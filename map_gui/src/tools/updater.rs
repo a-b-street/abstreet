@@ -1,17 +1,20 @@
 use std::collections::BTreeMap;
-use std::error::Error;
 use std::fs::File;
 
-use abstutil::{DataPacks, Manifest, Timer};
+use anyhow::Result;
+
+use abstio::{DataPacks, Manifest};
+use abstutil::Timer;
 use widgetry::{
-    Btn, Checkbox, EventCtx, GfxCtx, Line, Outcome, Panel, State, TextExt, Transition, Widget,
+    Checkbox, EventCtx, GfxCtx, Line, Outcome, Panel, State, StyledButtons, TextExt, Transition,
+    Widget,
 };
 
 use crate::tools::PopupMsg;
 use crate::AppLike;
 
 // Update this ___before___ pushing the commit with "[rebuild] [release]".
-const NEXT_RELEASE: &str = "0.2.25";
+const NEXT_RELEASE: &str = "0.2.29";
 
 pub struct Picker<A: AppLike> {
     panel: Panel,
@@ -29,7 +32,7 @@ impl<A: AppLike + 'static> Picker<A> {
         let mut col = vec![
             Widget::row(vec![
                 Line("Download more cities").small_heading().draw(ctx),
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
             "Select the cities you want to include".draw_text(ctx),
             Line(
@@ -45,7 +48,7 @@ impl<A: AppLike + 'static> Picker<A> {
                 prettyprint_bytes(bytes).draw_text(ctx).centered_vert(),
             ]));
         }
-        col.push(Btn::text_bg2("Sync files").build_def(ctx, None));
+        col.push(ctx.style().btn_solid_dark_text("Sync files").build_def(ctx));
 
         Box::new(Picker {
             panel: Panel::new(Widget::col(col)).build(ctx),
@@ -71,7 +74,7 @@ impl<A: AppLike + 'static> State<A> for Picker<A> {
                             data_packs.runtime.insert(city);
                         }
                     }
-                    abstutil::write_json(abstutil::path("player/data.json"), &data_packs);
+                    abstio::write_json(abstio::path_player("data.json"), &data_packs);
 
                     let messages = ctx.loading_screen("sync files", |_, timer| sync(timer));
                     return Transition::Multi(vec![
@@ -143,29 +146,29 @@ fn sync(timer: &mut Timer) -> Vec<String> {
     timer.start_iter("sync files", truth.entries.len());
     for (path, entry) in truth.entries {
         timer.next();
-        let local_path = abstutil::path(path.strip_prefix("data/").unwrap());
-        if abstutil::file_exists(&local_path) {
+        let local_path = abstio::path(path.strip_prefix("data/").unwrap());
+        if abstio::file_exists(&local_path) {
             continue;
         }
         let url = format!(
             "http://abstreet.s3-website.us-east-2.amazonaws.com/{}/{}.gz",
             version, path
         );
-        timer.note(format!(
+        info!(
             "Downloading {} ({})",
             url,
             prettyprint_bytes(entry.compressed_size_bytes)
-        ));
+        );
         files_downloaded += 1;
 
         std::fs::create_dir_all(std::path::Path::new(&local_path).parent().unwrap()).unwrap();
-        match download(&url, local_path, timer) {
+        match download(&url, local_path) {
             Ok(bytes) => {
                 bytes_downloaded += bytes;
             }
             Err(err) => {
                 let msg = format!("Problem with {}: {}", url, err);
-                timer.error(msg.clone());
+                error!("{}", msg);
                 messages.push(msg);
             }
         }
@@ -182,19 +185,15 @@ fn sync(timer: &mut Timer) -> Vec<String> {
 }
 
 // Bytes downloaded if succesful
-fn download(url: &str, local_path: String, timer: &mut Timer) -> Result<usize, Box<dyn Error>> {
+fn download(url: &str, local_path: String) -> Result<usize> {
     let mut resp = reqwest::blocking::get(url)?;
     if !resp.status().is_success() {
-        return Err(format!("bad status: {:?}", resp.status()).into());
+        bail!("bad status: {:?}", resp.status());
     }
     let mut buffer: Vec<u8> = Vec::new();
     let bytes = resp.copy_to(&mut buffer)? as usize;
 
-    timer.note(format!(
-        "Decompressing {} ({})",
-        url,
-        prettyprint_bytes(bytes)
-    ));
+    info!("Decompressing {} ({})", url, prettyprint_bytes(bytes));
     let mut decoder = flate2::read::GzDecoder::new(&buffer[..]);
     let mut out = File::create(&local_path).unwrap();
     std::io::copy(&mut decoder, &mut out)?;

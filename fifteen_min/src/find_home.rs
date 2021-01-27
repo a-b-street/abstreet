@@ -5,8 +5,8 @@ use geom::Percent;
 use map_gui::tools::PopupMsg;
 use map_model::{AmenityType, BuildingID};
 use widgetry::{
-    Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Panel, SimpleState, State, TextExt, Transition, VerticalAlignment, Widget,
+    Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel,
+    SimpleState, State, StyledButtons, TextExt, Transition, VerticalAlignment, Widget,
 };
 
 use crate::isochrone::Options;
@@ -23,18 +23,21 @@ impl FindHome {
         let panel = Panel::new(Widget::col(vec![
             Widget::row(vec![
                 Line("Find your walkable home").small_heading().draw(ctx),
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
             // TODO Adjust text to say bikeshed, or otherwise reflect the options chosen
             "Select the types of businesses you want within a 15 minute walkshed.".draw_text(ctx),
             Widget::custom_row(
                 AmenityType::all()
                     .into_iter()
-                    .map(|at| Checkbox::switch(ctx, at.to_string(), None, false))
+                    .map(|at| Checkbox::switch(ctx, &at.to_string(), None, false))
                     .collect(),
             )
             .flex_wrap(ctx, Percent::int(50)),
-            Btn::text_bg2("Search").build_def(ctx, Key::Enter),
+            ctx.style()
+                .btn_solid_dark_text("Search")
+                .hotkey(Key::Enter)
+                .build_def(ctx),
         ]))
         .build(ctx);
 
@@ -149,7 +152,10 @@ impl Results {
                     .join(", ")
             )
             .draw_text(ctx),
-            Btn::text_bg2("Back").build_def(ctx, Key::Escape),
+            ctx.style()
+                .btn_solid_dark_text("Back")
+                .hotkey(Key::Escape)
+                .build_def(ctx),
         ]))
         .aligned(HorizontalAlignment::RightInset, VerticalAlignment::TopInset)
         .build(ctx);

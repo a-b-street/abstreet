@@ -1,14 +1,14 @@
 use std::collections::HashMap;
 
 use abstutil::{Counter, Timer};
-use geom::{Distance, HashablePt2D, Pt2D};
-use map_model::raw::{OriginalRoad, RawIntersection, RawMap};
-use map_model::{osm, Amenity, IntersectionType};
+use geom::{Distance, HashablePt2D, PolyLine, Pt2D};
+use map_model::raw::{OriginalRoad, RawIntersection, RawMap, RawRoad};
+use map_model::{osm, Amenity, Direction, IntersectionType};
 
 use crate::extract::OsmExtract;
 
-/// Returns amenities and a mapping of all points to split road. (Some internal points on roads are
-/// removed, so this mapping isn't redundant.)
+/// Returns amenities and a mapping of all points to split road. (Some internal points on roads get
+/// removed in this call, so this mapping isn't redundant.)
 pub fn split_up_roads(
     map: &mut RawMap,
     mut input: OsmExtract,
@@ -16,7 +16,29 @@ pub fn split_up_roads(
 ) -> (Vec<(Pt2D, Amenity)>, HashMap<HashablePt2D, OriginalRoad>) {
     timer.start("splitting up roads");
 
+    let mut roundabout_centers: HashMap<osm::NodeID, Pt2D> = HashMap::new();
     let mut pt_to_intersection: HashMap<HashablePt2D, osm::NodeID> = HashMap::new();
+
+    {
+        let mut roads = std::mem::replace(&mut input.roads, Vec::new());
+        roads.retain(|(id, r)| {
+            if should_collapse_roundabout(r) {
+                info!("Collapsing tiny roundabout {}", id);
+                // Arbitrarily use the first node's ID
+                let id = input.osm_node_ids[&r.center_points[0].to_hashable()];
+                roundabout_centers.insert(id, Pt2D::center(&r.center_points));
+                for pt in &r.center_points {
+                    pt_to_intersection.insert(pt.to_hashable(), id);
+                }
+
+                false
+            } else {
+                true
+            }
+        });
+        input.roads = roads;
+    }
+
     let mut counts_per_pt = Counter::new();
     for (_, r) in &input.roads {
         for (idx, raw_pt) in r.center_points.iter().enumerate() {
@@ -43,6 +65,19 @@ pub fn split_up_roads(
                 } else {
                     IntersectionType::StopSign
                 },
+                // Filled out later
+                elevation: Distance::ZERO,
+            },
+        );
+    }
+
+    // Set roundabouts to their center
+    for (id, point) in roundabout_centers {
+        map.intersections.insert(
+            id,
+            RawIntersection {
+                point,
+                intersection_type: IntersectionType::StopSign,
                 // Filled out later
                 elevation: Distance::ZERO,
             },
@@ -80,8 +115,12 @@ pub fn split_up_roads(
                     i1,
                     i2: *i2,
                 };
-                for pt in &pts {
-                    pt_to_road.insert(pt.to_hashable(), id);
+                // Note we populate this before dedupe_angles, so even if some points are removed,
+                // we can still associate them to the road.
+                for (idx, pt) in pts.iter().enumerate() {
+                    if idx != 0 && idx != pts.len() - 1 {
+                        pt_to_road.insert(pt.to_hashable(), id);
+                    }
                 }
 
                 r.center_points = dedupe_angles(std::mem::replace(&mut pts, Vec::new()));
@@ -128,11 +167,11 @@ pub fn split_up_roads(
             .cloned()
             .collect();
         if via_candidates.len() != 1 {
-            timer.warn(format!(
+            warn!(
                 "Couldn't resolve turn restriction from way {} to way {} via way {}. Candidate \
                  roads for via: {:?}. See {}",
                 from_osm, to_osm, via_osm, via_candidates, rel_osm
-            ));
+            );
             continue;
         }
         let via = via_candidates[0];
@@ -152,10 +191,10 @@ pub fn split_up_roads(
                 complicated_restrictions.push((from, via, to));
             }
             _ => {
-                timer.warn(format!(
+                warn!(
                     "Couldn't resolve turn restriction from {} to {} via {:?}",
                     from_osm, to_osm, via
-                ));
+                );
             }
         }
     }
@@ -170,7 +209,21 @@ pub fn split_up_roads(
     timer.start("match traffic signals to intersections");
     // Handle traffic signals tagged on incoming ways and not at intersections
     // (https://wiki.openstreetmap.org/wiki/Tag:highway=traffic%20signals?uselang=en#Tag_all_incoming_ways).
-    let mut pt_to_road: HashMap<HashablePt2D, OriginalRoad> = HashMap::new();
+    for (pt, dir) in input.traffic_signals {
+        if let Some(r) = pt_to_road.get(&pt) {
+            // Example: https://www.openstreetmap.org/node/26734224
+            if !map.roads[r].osm_tags.is(osm::HIGHWAY, "construction") {
+                let i = if dir == Direction::Fwd { r.i2 } else { r.i1 };
+                map.intersections.get_mut(&i).unwrap().intersection_type =
+                    IntersectionType::TrafficSignal;
+            }
+        }
+    }
+    timer.stop("match traffic signals to intersections");
+
+    // For the transit snapping that later uses this, we have to make pt_to_road only refer to
+    // points currently on the roads, not any deduped internal points.
+    pt_to_road.clear();
     for (id, r) in &map.roads {
         for (idx, pt) in r.center_points.iter().enumerate() {
             if idx != 0 && idx != r.center_points.len() - 1 {
@@ -178,17 +231,6 @@ pub fn split_up_roads(
             }
         }
     }
-    for (pt, forwards) in input.traffic_signals {
-        if let Some(r) = pt_to_road.get(&pt) {
-            // Example: https://www.openstreetmap.org/node/26734224
-            if !map.roads[r].osm_tags.is(osm::HIGHWAY, "construction") {
-                let i = if forwards { r.i2 } else { r.i1 };
-                map.intersections.get_mut(&i).unwrap().intersection_type =
-                    IntersectionType::TrafficSignal;
-            }
-        }
-    }
-    timer.stop("match traffic signals to intersections");
 
     timer.stop("splitting up roads");
     (input.amenities, pt_to_road)
@@ -212,4 +254,15 @@ fn dedupe_angles(pts: Vec<Pt2D>) -> Vec<Pt2D> {
         }
     }
     result
+}
+
+/// Many "roundabouts" like https://www.openstreetmap.org/way/427144965 are so tiny that they wind
+/// up with ridiculous geometry and cause constant gridlock.
+///
+/// Note https://www.openstreetmap.org/way/394991047 is an example of something that shouldn't get
+/// modified. The only distinction, currently, is length -- but I'd love a better definition.
+fn should_collapse_roundabout(r: &RawRoad) -> bool {
+    r.osm_tags.is("junction", "roundabout")
+        && r.center_points[0] == *r.center_points.last().unwrap()
+        && PolyLine::unchecked_new(r.center_points.clone()).length() < Distance::meters(30.0)
 }

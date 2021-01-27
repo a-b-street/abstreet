@@ -7,7 +7,7 @@ use abstutil::{
 };
 use geom::{Duration, Time};
 use map_model::{
-    ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, LaneID, Map, PhaseType,
+    ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, LaneID, Map, StageType,
     Traversable, TurnID, TurnPriority, TurnType, UberTurn,
 };
 
@@ -49,7 +49,7 @@ pub(crate) struct IntersectionSimState {
     blocked_by_someone_requests: usize,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 struct State {
     id: IntersectionID,
     // The in-progress turns which any potential new turns must not conflict with
@@ -68,13 +68,13 @@ struct State {
     signal: Option<SignalState>,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 struct SignalState {
     // The current stage of the signal, zero based
     current_stage: usize,
     // The time when the signal is checked for advancing
     stage_ends_at: Time,
-    // The count of time an adaptive signal has been extended during the current stage.
+    // The number of times a variable signal has been extended during the current stage.
     extensions_count: usize,
 }
 
@@ -175,7 +175,12 @@ impl IntersectionSimState {
     pub fn agent_deleted_mid_turn(&mut self, agent: AgentID, turn: TurnID) {
         let state = self.state.get_mut(&turn.parent).unwrap();
         assert!(state.accepted.remove(&Request { agent, turn }));
-        state.reserved.remove(&Request { agent, turn });
+
+        // This agent might have a few more nearby turns reserved, because they're part of an
+        // uber-turn. It's a blunt response to just clear them all out, but it should be correct.
+        for state in self.state.values_mut() {
+            retain_btreeset(&mut state.reserved, |req| req.agent != agent);
+        }
     }
 
     fn wakeup_waiting(&self, now: Time, i: IntersectionID, scheduler: &mut Scheduler, map: &Map) {
@@ -272,7 +277,7 @@ impl IntersectionSimState {
                 }
             }
             signal.stages[signal_state.current_stage]
-                .phase_type
+                .stage_type
                 .simple_duration()
         }
         let state = self.state.get_mut(&id).unwrap();
@@ -288,32 +293,11 @@ impl IntersectionSimState {
         // Switch to a new stage?
         assert_eq!(now, signal_state.stage_ends_at);
         let old_stage = &signal.stages[signal_state.current_stage];
-        match old_stage.phase_type {
-            PhaseType::Fixed(_) => {
+        match old_stage.stage_type {
+            StageType::Fixed(_) => {
                 duration = advance(signal_state, signal, !ped_waiting);
             }
-            PhaseType::Adaptive(_) => {
-                // TODO Make a better policy here. For now, if there's _anyone_ waiting to start a
-                // protected turn, repeat this stage for the full duration. Note that "waiting" is
-                // only defined as "at the end of the lane, ready to start the turn." If a
-                // vehicle/ped is a second away from the intersection, this won't detect that. We
-                // could pass in all of the Queues here and use that to count all incoming agents,
-                // even ones a little farther away.
-                if state.waiting.keys().all(|req| {
-                    old_stage.get_priority_of_turn(req.turn, signal) != TurnPriority::Protected
-                }) {
-                    duration = advance(signal_state, signal, !ped_waiting);
-                    self.events.push(Event::Alert(
-                        AlertLocation::Intersection(id),
-                        "Repeating an adaptive stage".to_string(),
-                    ));
-                } else {
-                    duration = signal.stages[signal_state.current_stage]
-                        .phase_type
-                        .simple_duration();
-                }
-            }
-            PhaseType::Variable(min, delay, additional) => {
+            StageType::Variable(min, delay, additional) => {
                 // test if anyone is waiting in current stage, and if so, extend the signal cycle.
                 // Filter out pedestrians, as they've had their chance and the delay
                 // could be short enough to keep them on the curb.
@@ -491,21 +475,16 @@ impl IntersectionSimState {
                     } else if let Some(c) = queue.cars.get(0) {
                         self.blocked_by.insert((car.vehicle.id, *c));
                     } else {
-                        // Nobody's in the target lane, but there's somebody already in the
-                        // intersection headed there, taking up all of the space.
-                        // I guess we shouldn't count reservations for uber-turns here, because
-                        // we're not going to do block-the-box resolution in the interior at
-                        // all?
-                        self.blocked_by.insert((
-                            car.vehicle.id,
-                            self.state[&turn.parent]
-                                .accepted
-                                .iter()
-                                .find(|r| r.turn.dst == turn.dst)
-                                .unwrap()
-                                .agent
-                                .as_car(),
-                        ));
+                        // try_to_reserve_entry must have failed because somebody has filled up
+                        // reserved_length. That only happens while a turn is in progress, so this
+                        // unwrap() must work.
+                        let blocking_req = self.state[&turn.parent]
+                            .accepted
+                            .iter()
+                            .find(|r| r.turn.dst == turn.dst)
+                            .unwrap();
+                        self.blocked_by
+                            .insert((car.vehicle.id, blocking_req.agent.as_car()));
                     }
                 }
 
@@ -816,7 +795,7 @@ impl IntersectionSimState {
         let state = &self.state[&req.turn.parent];
         let signal_state = state.signal.as_ref().unwrap();
         let stage = &signal.stages[signal_state.current_stage];
-        let full_stage_duration = stage.phase_type.simple_duration();
+        let full_stage_duration = stage.stage_type.simple_duration();
         let remaining_stage_time = signal_state.stage_ends_at - now;
         let our_time = state.waiting[req];
 
@@ -979,7 +958,7 @@ impl SignalState {
         let mut offset = (now - Time::START_OF_DAY) + signal.offset;
         loop {
             let dt = signal.stages[state.current_stage]
-                .phase_type
+                .stage_type
                 .simple_duration();
             if offset >= dt {
                 offset -= dt;
@@ -1008,19 +987,22 @@ fn allow_block_the_box(i: &Intersection) -> bool {
 
     // TODO Sometimes a traffic signal is surrounded by tiny lanes with almost no capacity.
     // Workaround for now.
+    //
+    // When adding new cases:
+    // 1) Organize by which map the intersection fixes
+    // 2) Ensure a prebaked scenario covers this, to track regressions and make sure it actually
+    //    helps.
     let id = i.orig_id.0;
-    // 23rd and Madison, Madison and John, Boren and 12th, Boren and Yesler, Lake Wash and Madison,
-    // Green Lake Way N and 50th, Green Lake Way and N 64th
-    id == 53211693
+    // lakeslice
+    if id == 53211693
         || id == 53214134
         || id == 53214133
-        || id == 53165712
-        || id == 53209840
-        || id == 4249361353
         || id == 987334546
         || id == 848817336
-        || id == 3393025729
-        || id == 59995197
-        || id == 53077575
-        || id == 2632986818
+        || id == 1726088131
+        || id == 1726088130
+    {
+        return true;
+    }
+    false
 }

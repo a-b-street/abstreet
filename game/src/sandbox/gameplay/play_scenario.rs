@@ -5,14 +5,14 @@ use maplit::btreeset;
 use map_gui::tools::{grey_out_map, nice_map_name, ChooseSomething, CityPicker, PopupMsg};
 use sim::{ScenarioModifier, TripMode};
 use widgetry::{
-    lctrl, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    Slider, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Slider,
+    Spinner, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
 use crate::common::checkbox_per_mode;
 use crate::edit::EditMode;
-use crate::sandbox::gameplay::freeform::make_change_traffic;
+use crate::sandbox::gameplay::freeform::ChangeScenario;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{Actions, SandboxControls, SandboxMode};
 
@@ -56,8 +56,8 @@ impl GameplayState for PlayScenario {
                         ctx,
                         app,
                         Box::new(move |ctx, app| {
-                            // Try to load a scenario with the same name exists
-                            let mode = if abstutil::file_exists(abstutil::path_scenario(
+                            // Try to load a scenario with the same name if it exists
+                            let mode = if abstio::file_exists(abstio::path_scenario(
                                 app.primary.map.get_name(),
                                 &scenario,
                             )) {
@@ -76,11 +76,10 @@ impl GameplayState for PlayScenario {
                         }),
                     )))
                 }
-                "change traffic" => Some(Transition::Push(make_change_traffic(
+                "change scenario" => Some(Transition::Push(ChangeScenario::new(
                     ctx,
                     app,
-                    self.top_center.rect_of("change traffic").clone(),
-                    self.scenario_name.clone(),
+                    &self.scenario_name,
                 ))),
                 "edit map" => Some(Transition::Push(EditMode::new(
                     ctx,
@@ -115,30 +114,35 @@ impl GameplayState for PlayScenario {
             Widget::row(vec![
                 Line("Sandbox").small_heading().draw(ctx),
                 Widget::vert_separator(ctx, 50.0),
-                "Map:".draw_text(ctx),
-                Btn::pop_up(ctx, Some(nice_map_name(app.primary.map.get_name()))).build(
-                    ctx,
-                    "change map",
-                    lctrl(Key::L),
-                ),
-                "Traffic:".draw_text(ctx),
-                Btn::pop_up(ctx, Some(&self.scenario_name)).build(ctx, "change traffic", Key::S),
-                Btn::svg_def("system/assets/tools/edit_map.svg").build(
-                    ctx,
-                    "edit map",
-                    lctrl(Key::E),
-                ),
+                ctx.style()
+                    .btn_light_popup_icon_text(
+                        "system/assets/tools/map.svg",
+                        nice_map_name(app.primary.map.get_name()),
+                    )
+                    .hotkey(lctrl(Key::L))
+                    .build_widget(ctx, "change map"),
+                ctx.style()
+                    .btn_light_popup_icon_text(
+                        "system/assets/tools/calendar.svg",
+                        &self.scenario_name,
+                    )
+                    .hotkey(Key::S)
+                    .build_widget(ctx, "change scenario"),
+                ctx.style()
+                    .btn_outline_light_icon_text("system/assets/tools/pencil.svg", "Edit map")
+                    .hotkey(lctrl(Key::E))
+                    .build_widget(ctx, "edit map"),
             ])
             .centered(),
-            if self.scenario_name == "weekday" {
+            if self.scenario_name != "empty" {
                 Widget::row(vec![
-                    Btn::svg_def("system/assets/tools/pencil.svg").build(
-                        ctx,
-                        "edit traffic patterns",
-                        None,
-                    ),
+                    ctx.style()
+                        .btn_plain_light_icon("system/assets/tools/pencil.svg")
+                        .build_widget(ctx, "edit traffic patterns")
+                        .centered_vert(),
                     format!("{} modifications to traffic patterns", self.modifiers.len())
-                        .draw_text(ctx),
+                        .draw_text(ctx)
+                        .centered_vert(),
                 ])
                 .centered_horiz()
             } else {
@@ -181,26 +185,43 @@ impl EditScenarioModifiers {
         for (idx, m) in modifiers.iter().enumerate() {
             rows.push(
                 Widget::row(vec![
-                    m.describe().draw_text(ctx),
-                    Btn::svg_def("system/assets/tools/delete.svg")
-                        .build(ctx, format!("delete modifier {}", idx + 1), None)
+                    m.describe().draw_text(ctx).centered_vert(),
+                    ctx.style()
+                        .btn_solid_destructive_icon("system/assets/tools/trash.svg")
+                        .build_widget(ctx, &format!("delete modifier {}", idx + 1))
                         .align_right(),
                 ])
                 .padding(10)
                 .outline(2.0, Color::WHITE),
             );
         }
-        rows.push(Btn::text_bg2("Change trip mode").build_def(ctx, None));
-        rows.push(Btn::text_bg2("Add extra new trips").build_def(ctx, None));
+        rows.push(
+            ctx.style()
+                .btn_solid_dark_text("Change trip mode")
+                .build_def(ctx),
+        );
+        rows.push(
+            ctx.style()
+                .btn_solid_dark_text("Add extra new trips")
+                .build_def(ctx),
+        );
         rows.push(Widget::row(vec![
             Spinner::new(ctx, (2, 14), 2).named("repeat_days"),
-            Btn::text_bg2("Repeat schedule multiple days").build_def(ctx, None),
+            ctx.style()
+                .btn_solid_dark_text("Repeat schedule multiple days")
+                .build_def(ctx),
         ]));
         rows.push(Widget::horiz_separator(ctx, 0.5));
         rows.push(
             Widget::row(vec![
-                Btn::text_bg2("Apply").build_def(ctx, Key::Enter),
-                Btn::text_bg2("Discard changes").build_def(ctx, Key::Escape),
+                ctx.style()
+                    .btn_solid_dark_text("Apply")
+                    .hotkey(Key::Enter)
+                    .build_def(ctx),
+                ctx.style()
+                    .btn_solid_dark_text("Discard changes")
+                    .hotkey(Key::Escape)
+                    .build_def(ctx),
             ])
             .centered(),
         );
@@ -255,7 +276,7 @@ impl State<App> for EditScenarioModifiers {
                         ctx,
                         "Which trips do you want to add in?",
                         // TODO Exclude weekday?
-                        Choice::strings(abstutil::list_all_objects(abstutil::path_all_scenarios(
+                        Choice::strings(abstio::list_all_objects(abstio::path_all_scenarios(
                             app.primary.map.get_name(),
                         ))),
                         Box::new(|name, _, _| {
@@ -356,8 +377,14 @@ impl ChangeMode {
                     }),
                 ]),
                 Widget::row(vec![
-                    Btn::text_bg2("Apply").build_def(ctx, Key::Enter),
-                    Btn::text_bg2("Discard changes").build_def(ctx, Key::Escape),
+                    ctx.style()
+                        .btn_solid_dark_text("Apply")
+                        .hotkey(Key::Enter)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_solid_dark_text("Discard changes")
+                        .hotkey(Key::Escape)
+                        .build_def(ctx),
                 ])
                 .centered(),
             ]))
