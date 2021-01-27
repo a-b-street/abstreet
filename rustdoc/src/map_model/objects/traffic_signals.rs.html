@@ -555,6 +555,16 @@
 <span id="552">552</span>
 <span id="553">553</span>
 <span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
@@ -960,6 +970,16 @@
                 }
             };
         }
+    }
+
+    <span class="comment">// trivial function that returns true if the stage is just crosswalks</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains_only_crosswalks</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">protected_movements</span> {
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">m</span>.<span class="ident">crosswalk</span> {
+                <span class="kw">return</span> <span class="bool-val">false</span>;
+            }
+        }
+        <span class="self">self</span>.<span class="ident">yield_movements</span>.<span class="ident">is_empty</span>()
     }
 }
 
