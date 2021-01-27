@@ -403,6 +403,16 @@ impl Stage {
             };
         }
     }
+
+    // trivial function that returns true if the stage is just crosswalks
+    pub fn contains_only_crosswalks(&self) -> bool {
+        for m in &self.protected_movements {
+            if !m.crosswalk {
+                return false;
+            }
+        }
+        self.yield_movements.is_empty()
+    }
 }
 
 impl ControlTrafficSignal {
