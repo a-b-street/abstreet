@@ -587,6 +587,9 @@
 <span id="584">584</span>
 <span id="585">585</span>
 <span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A color scheme groups colors used for different map, dynamic, and UI elements in one place, to</span>
 <span class="doccomment">//! encourage deduplication. The player can also switch between different color schemes.</span>
@@ -709,6 +712,7 @@
     <span class="kw">pub</span> <span class="ident">water</span>: <span class="ident">Fill</span>,
     <span class="kw">pub</span> <span class="ident">median_strip</span>: <span class="ident">Fill</span>,
     <span class="kw">pub</span> <span class="ident">pedestrian_plaza</span>: <span class="ident">Fill</span>,
+    <span class="kw">pub</span> <span class="ident">study_area</span>: <span class="ident">Fill</span>,
 
     <span class="comment">// Unzoomed dynamic elements</span>
     <span class="kw">pub</span> <span class="ident">unzoomed_car</span>: <span class="ident">Color</span>,
@@ -834,7 +838,8 @@
             <span class="ident">grass</span>: <span class="ident">hex</span>(<span class="string">&quot;#94C84A&quot;</span>).<span class="ident">into</span>(),
             <span class="ident">water</span>: <span class="ident">Color</span>::<span class="ident">rgb</span>(<span class="number">164</span>, <span class="number">200</span>, <span class="number">234</span>).<span class="ident">into</span>(),
             <span class="ident">median_strip</span>: <span class="ident">Color</span>::<span class="ident">CYAN</span>.<span class="ident">into</span>(),
-            <span class="ident">pedestrian_plaza</span>: <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#DDDDE8&quot;</span>).<span class="ident">into</span>(),
+            <span class="ident">pedestrian_plaza</span>: <span class="ident">hex</span>(<span class="string">&quot;#DDDDE8&quot;</span>).<span class="ident">into</span>(),
+            <span class="ident">study_area</span>: <span class="ident">hex</span>(<span class="string">&quot;#96830C&quot;</span>).<span class="ident">into</span>(),
 
             <span class="comment">// Unzoomed dynamic elements</span>
             <span class="ident">unzoomed_car</span>: <span class="ident">hex</span>(<span class="string">&quot;#A32015&quot;</span>),
@@ -981,17 +986,17 @@
     <span class="comment">// Shamelessly adapted from https://github.com/Uriopass/Egregoria</span>
     <span class="kw">fn</span> <span class="ident">night_mode</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">day_mode</span>();
-        <span class="ident">cs</span>.<span class="ident">void_background</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#200A24&quot;</span>);
+        <span class="ident">cs</span>.<span class="ident">void_background</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#200A24&quot;</span>);
         <span class="ident">cs</span>.<span class="ident">map_background</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">BLACK</span>.<span class="ident">into</span>();
-        <span class="ident">cs</span>.<span class="ident">grass</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#243A1F&quot;</span>).<span class="ident">into</span>();
-        <span class="ident">cs</span>.<span class="ident">water</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#21374E&quot;</span>).<span class="ident">into</span>();
-        <span class="ident">cs</span>.<span class="ident">residential_building</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#5E8962&quot;</span>);
-        <span class="ident">cs</span>.<span class="ident">commercial_building</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#5D5F97&quot;</span>);
+        <span class="ident">cs</span>.<span class="ident">grass</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#243A1F&quot;</span>).<span class="ident">into</span>();
+        <span class="ident">cs</span>.<span class="ident">water</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#21374E&quot;</span>).<span class="ident">into</span>();
+        <span class="ident">cs</span>.<span class="ident">residential_building</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#5E8962&quot;</span>);
+        <span class="ident">cs</span>.<span class="ident">commercial_building</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#5D5F97&quot;</span>);
 
-        <span class="ident">cs</span>.<span class="ident">driving_lane</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#404040&quot;</span>);
-        <span class="ident">cs</span>.<span class="ident">parking_lane</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#353535&quot;</span>);
-        <span class="ident">cs</span>.<span class="ident">sidewalk</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#6B6B6B&quot;</span>);
-        <span class="ident">cs</span>.<span class="ident">general_road_marking</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#B1B1B1&quot;</span>);
+        <span class="ident">cs</span>.<span class="ident">driving_lane</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#404040&quot;</span>);
+        <span class="ident">cs</span>.<span class="ident">parking_lane</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#353535&quot;</span>);
+        <span class="ident">cs</span>.<span class="ident">sidewalk</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#6B6B6B&quot;</span>);
+        <span class="ident">cs</span>.<span class="ident">general_road_marking</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#B1B1B1&quot;</span>);
         <span class="ident">cs</span>.<span class="ident">normal_intersection</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">driving_lane</span>;
         <span class="ident">cs</span>.<span class="ident">road_center_line</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">general_road_marking</span>;
 
@@ -1001,16 +1006,17 @@
         <span class="ident">cs</span>.<span class="ident">unzoomed_residential</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">driving_lane</span>;
         <span class="ident">cs</span>.<span class="ident">unzoomed_interesting_intersection</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">unzoomed_highway</span>;
         <span class="ident">cs</span>.<span class="ident">stop_sign</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">rgb_f</span>(<span class="number">0.67</span>, <span class="number">0.55</span>, <span class="number">0.55</span>);
-        <span class="ident">cs</span>.<span class="ident">private_road</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#9E757F&quot;</span>);
-        <span class="ident">cs</span>.<span class="ident">pedestrian_plaza</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#94949C&quot;</span>).<span class="ident">into</span>();
+        <span class="ident">cs</span>.<span class="ident">private_road</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#9E757F&quot;</span>);
+        <span class="ident">cs</span>.<span class="ident">pedestrian_plaza</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#94949C&quot;</span>).<span class="ident">into</span>();
+        <span class="ident">cs</span>.<span class="ident">study_area</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#D9B002&quot;</span>).<span class="ident">into</span>();
 
-        <span class="ident">cs</span>.<span class="ident">panel_bg</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#003046&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.9</span>);
+        <span class="ident">cs</span>.<span class="ident">panel_bg</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#003046&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.9</span>);
         <span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">panel_bg</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">panel_bg</span>;
         <span class="ident">cs</span>.<span class="ident">inner_panel</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">panel_bg</span>.<span class="ident">alpha</span>(<span class="number">1.0</span>);
         <span class="ident">cs</span>.<span class="ident">section_bg</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">inner_panel</span>;
         <span class="ident">cs</span>.<span class="ident">minimap_cursor_border</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">WHITE</span>;
         <span class="ident">cs</span>.<span class="ident">minimap_cursor_bg</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Color</span>::<span class="ident">rgba</span>(<span class="number">238</span>, <span class="number">112</span>, <span class="number">46</span>, <span class="number">0.2</span>));
-        <span class="ident">cs</span>.<span class="ident">minimap_selected_zoom</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>);
+        <span class="ident">cs</span>.<span class="ident">minimap_selected_zoom</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>);
         <span class="ident">cs</span>.<span class="ident">minimap_unselected_zoom</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">WHITE</span>.<span class="ident">alpha</span>(<span class="number">0.3</span>);
 
         <span class="ident">cs</span>

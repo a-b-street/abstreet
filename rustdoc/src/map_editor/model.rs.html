@@ -598,7 +598,7 @@
 <span id="595">595</span>
 <span id="596">596</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Write</span>;
 
 <span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">MapName</span>;
@@ -872,7 +872,7 @@
             <span class="ident">i1</span>,
             <span class="ident">i2</span>,
         };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">osm_tags</span> <span class="op">=</span> <span class="ident">Tags</span>::<span class="ident">new</span>(<span class="ident">BTreeMap</span>::<span class="ident">new</span>());
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">osm_tags</span> <span class="op">=</span> <span class="ident">Tags</span>::<span class="ident">empty</span>();
         <span class="ident">osm_tags</span>.<span class="ident">insert</span>(<span class="ident">osm</span>::<span class="ident">HIGHWAY</span>, <span class="string">&quot;residential&quot;</span>);
         <span class="ident">osm_tags</span>.<span class="ident">insert</span>(<span class="ident">osm</span>::<span class="ident">PARKING_BOTH</span>, <span class="string">&quot;parallel&quot;</span>);
         <span class="ident">osm_tags</span>.<span class="ident">insert</span>(<span class="ident">osm</span>::<span class="ident">SIDEWALK</span>, <span class="string">&quot;both&quot;</span>);
@@ -1080,7 +1080,7 @@
             <span class="ident">id</span>,
             <span class="ident">RawBuilding</span> {
                 <span class="ident">polygon</span>: <span class="ident">Polygon</span>::<span class="ident">rectangle_centered</span>(<span class="ident">center</span>, <span class="ident">BUILDING_LENGTH</span>, <span class="ident">BUILDING_LENGTH</span>),
-                <span class="ident">osm_tags</span>: <span class="ident">Tags</span>::<span class="ident">new</span>(<span class="ident">BTreeMap</span>::<span class="ident">new</span>()),
+                <span class="ident">osm_tags</span>: <span class="ident">Tags</span>::<span class="ident">empty</span>(),
                 <span class="ident">public_garage_name</span>: <span class="prelude-val">None</span>,
                 <span class="ident">num_parking_spots</span>: <span class="number">0</span>,
                 <span class="ident">amenities</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),

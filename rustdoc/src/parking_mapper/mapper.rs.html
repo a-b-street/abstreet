@@ -1209,7 +1209,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tree</span> <span class="op">=</span> <span class="ident">xmltree</span>::<span class="ident">Element</span>::<span class="ident">parse</span>(<span class="ident">resp</span>.<span class="ident">as_bytes</span>())<span class="question-mark">?</span>
             .<span class="ident">take_child</span>(<span class="string">&quot;way&quot;</span>)
             .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">osm_tags</span> <span class="op">=</span> <span class="ident">Tags</span>::<span class="ident">new</span>(<span class="ident">BTreeMap</span>::<span class="ident">new</span>());
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">osm_tags</span> <span class="op">=</span> <span class="ident">Tags</span>::<span class="ident">empty</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">other_children</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">node</span> <span class="kw">in</span> <span class="ident">tree</span>.<span class="ident">children</span>.<span class="ident">drain</span>(..) {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">elem</span>) <span class="op">=</span> <span class="ident">node</span>.<span class="ident">as_element</span>() {

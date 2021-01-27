@@ -345,7 +345,7 @@
                         .<span class="ident">iter</span>()
                         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> {
                             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">a</span>.<span class="ident">clone</span>();
-                            <span class="ident">a</span>.<span class="ident">osm_tags</span> <span class="op">=</span> <span class="ident">Tags</span>::<span class="ident">new</span>(<span class="ident">BTreeMap</span>::<span class="ident">new</span>());
+                            <span class="ident">a</span>.<span class="ident">osm_tags</span> <span class="op">=</span> <span class="ident">Tags</span>::<span class="ident">empty</span>();
                             <span class="ident">a</span>
                         })
                         .<span class="ident">collect</span>()
@@ -368,7 +368,7 @@
                 <span class="ident">osm_tags</span>: <span class="kw">if</span> <span class="ident">keep_bldg_tags</span> {
                     <span class="ident">b</span>.<span class="ident">osm_tags</span>.<span class="ident">clone</span>()
                 } <span class="kw">else</span> {
-                    <span class="ident">Tags</span>::<span class="ident">new</span>(<span class="ident">BTreeMap</span>::<span class="ident">new</span>())
+                    <span class="ident">Tags</span>::<span class="ident">empty</span>()
                 },
 
                 <span class="ident">sidewalk_pos</span>: <span class="kw-2">*</span><span class="ident">sidewalk_pos</span>,
