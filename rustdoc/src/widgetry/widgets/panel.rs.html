@@ -573,6 +573,13 @@
 <span id="570">570</span>
 <span id="571">571</span>
 <span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -583,6 +590,7 @@
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Percent</span>, <span class="ident">Polygon</span>};
 
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">slider</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">Container</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">Autocomplete</span>, <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">Dropdown</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Menu</span>, <span class="ident">Outcome</span>,
@@ -664,9 +672,15 @@
             <span class="self">self</span>.<span class="ident">top_level</span> <span class="op">=</span> <span class="ident">container</span>.<span class="ident">members</span>.<span class="ident">remove</span>(<span class="number">0</span>);
         }
 
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">container_dims</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">container_dims</span>;
+        <span class="comment">// TODO Handle making room for a horizontal scrollbar on the bottom. The equivalent change</span>
+        <span class="comment">// to container_dims.height doesn&#39;t work as expected.</span>
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scrollable_y</span> {
+            <span class="ident">container_dims</span>.<span class="ident">width</span> <span class="op">+</span><span class="op">=</span> <span class="ident">slider</span>::<span class="ident">BG_CROSS_AXIS_LEN</span>;
+        }
         <span class="kw">let</span> <span class="ident">top_left</span> <span class="op">=</span> <span class="ident">ctx</span>
             .<span class="ident">canvas</span>
-            .<span class="ident">align_window</span>(<span class="self">self</span>.<span class="ident">container_dims</span>, <span class="self">self</span>.<span class="ident">horiz</span>, <span class="self">self</span>.<span class="ident">vert</span>);
+            .<span class="ident">align_window</span>(<span class="ident">container_dims</span>, <span class="self">self</span>.<span class="ident">horiz</span>, <span class="self">self</span>.<span class="ident">vert</span>);
 
         <span class="comment">// Wrap the main widget in scrollable containers if necessary.</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scrollable_x</span> {
