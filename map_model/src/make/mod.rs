@@ -285,7 +285,7 @@ impl Map {
                 id: AreaID(map.areas.len()),
                 area_type: AreaType::MedianStrip,
                 polygon,
-                osm_tags: Tags::new(BTreeMap::new()),
+                osm_tags: Tags::empty(),
                 osm_id: None,
             });
         }

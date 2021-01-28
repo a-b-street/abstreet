@@ -42,6 +42,7 @@ impl DrawArea {
             AreaType::Island => cs.map_background.clone(),
             AreaType::MedianStrip => cs.median_strip.clone(),
             AreaType::PedestrianPlaza => cs.pedestrian_plaza.clone(),
+            AreaType::StudyArea => cs.study_area.clone(),
         }
     }
 }

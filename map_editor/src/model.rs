@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, HashMap};
+use std::collections::HashMap;
 use std::io::Write;
 
 use abstio::MapName;
@@ -272,7 +272,7 @@ impl Model {
             i1,
             i2,
         };
-        let mut osm_tags = Tags::new(BTreeMap::new());
+        let mut osm_tags = Tags::empty();
         osm_tags.insert(osm::HIGHWAY, "residential");
         osm_tags.insert(osm::PARKING_BOTH, "parallel");
         osm_tags.insert(osm::SIDEWALK, "both");
@@ -480,7 +480,7 @@ impl Model {
             id,
             RawBuilding {
                 polygon: Polygon::rectangle_centered(center, BUILDING_LENGTH, BUILDING_LENGTH),
-                osm_tags: Tags::new(BTreeMap::new()),
+                osm_tags: Tags::empty(),
                 public_garage_name: None,
                 num_parking_spots: 0,
                 amenities: Vec::new(),

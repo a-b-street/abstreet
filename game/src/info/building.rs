@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use geom::{Angle, Circle, Distance, Speed, Time};
 use map_gui::render::DrawPedestrian;
 use map_model::{BuildingID, LaneID, OffstreetParking, Traversable, SIDEWALK_THICKNESS};
-use sim::{DrawPedestrianInput, PedestrianID, PersonID, TripMode, TripResult};
+use sim::{DrawPedestrianInput, PedestrianID, PersonID, TripMode, TripResult, VehicleType};
 use widgetry::{Color, EventCtx, Line, StyledButtons, Text, TextExt, Widget};
 
 use crate::app::App;
@@ -129,9 +129,34 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
 pub fn people(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID) -> Vec<Widget> {
     let mut rows = header(ctx, app, details, id, Tab::BldgPeople(id));
 
+    // Two caveats about these counts:
+    // 1) A person might use multiple modes through the day, but this just picks a single category.
+    // 2) Only people currently in the building currently are counted, whether or not that's their
+    //    home.
+    let mut drivers = 0;
+    let mut cyclists = 0;
+    let mut others = 0;
+
     let mut ppl: Vec<(Time, Widget)> = Vec::new();
     for p in app.primary.sim.bldg_to_people(id) {
         let person = app.primary.sim.get_person(p);
+
+        let mut has_car = false;
+        let mut has_bike = false;
+        for vehicle in &person.vehicles {
+            if vehicle.vehicle_type == VehicleType::Car {
+                has_car = true;
+            } else if vehicle.vehicle_type == VehicleType::Bike {
+                has_bike = true;
+            }
+        }
+        if has_car {
+            drivers += 1;
+        } else if has_bike {
+            cyclists += 1;
+        } else {
+            others += 1;
+        }
 
         let mut next_trip: Option<(Time, TripMode)> = None;
         for t in &person.trips {
@@ -153,7 +178,7 @@ pub fn people(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Building
         details
             .hyperlinks
             .insert(p.to_string(), Tab::PersonTrips(p, BTreeMap::new()));
-        let widget = Widget::col(vec![
+        let widget = Widget::row(vec![
             ctx.style()
                 .btn_solid_dark_text(&p.to_string())
                 .build_def(ctx),
@@ -175,11 +200,20 @@ pub fn people(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Building
             widget,
         ));
     }
+
     // Sort by time to next trip
     ppl.sort_by_key(|(t, _)| *t);
     if ppl.is_empty() {
         rows.push("Nobody's inside right now".draw_text(ctx));
     } else {
+        rows.push(
+            format!(
+                "{} drivers, {} cyclists, {} others",
+                drivers, cyclists, others
+            )
+            .draw_text(ctx),
+        );
+
         for (_, w) in ppl {
             rows.push(w);
         }

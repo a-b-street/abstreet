@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::collections::{BTreeSet, HashMap};
 
 use osm::{NodeID, OsmID, RelationID, WayID};
 
@@ -334,7 +334,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
     // Special case the coastline.
     println!("{} ways of coastline", coastline_groups.len());
     for polygon in glue_multipolygon(RelationID(-1), coastline_groups, Some(&boundary)) {
-        let mut osm_tags = Tags::new(BTreeMap::new());
+        let mut osm_tags = Tags::empty();
         osm_tags.insert("water", "ocean");
         // Put it at the beginning, so that it's naturally beneath island areas
         map.areas.insert(

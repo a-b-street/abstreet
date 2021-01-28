@@ -12,10 +12,18 @@ use abstutil::{to_json, Timer};
 pub use crate::io::*;
 use crate::{path_player, Manifest};
 
-// Bring in all assets (except for music) and proposals. Everything else has to be dynamically
-// loaded over HTTP.
-static SYSTEM_DATA: include_dir::Dir =
-    include_dir::include_dir!("../data/system", "assets/", "-assets/music/", "proposals/",);
+// Bring in all assets (except for music), proposals, and study areas. Everything else has to be
+// dynamically loaded over HTTP.
+//
+// As the number of study areas grows, we might need to load these asynchronously instead of
+// bundling.
+static SYSTEM_DATA: include_dir::Dir = include_dir::include_dir!(
+    "../data/system",
+    "assets/",
+    "-assets/music/",
+    "proposals/",
+    "study_areas/"
+);
 
 // For file_exists and list_dir only, also check if the file is in the Manifest. The caller has to
 // know when to load this remotely, though.

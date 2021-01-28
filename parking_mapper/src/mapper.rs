@@ -9,9 +9,9 @@ use map_gui::{SimpleApp, ID};
 use map_model::{osm, RoadID};
 use osm::WayID;
 use widgetry::{
-    Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Menu, Outcome, Panel, State, StyledButtons, Text, TextExt, Transition, VerticalAlignment,
-    Widget,
+    lctrl, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
+    Key, Line, Menu, Outcome, Panel, State, StyledButtons, Text, TextExt, Transition,
+    VerticalAlignment, Widget,
 };
 
 type App = SimpleApp<()>;
@@ -128,16 +128,14 @@ impl ParkingMapper {
             draw_layer: ctx.upload(batch),
             show,
             panel: Panel::new(Widget::col(vec![
-                Widget::row(vec![
-                    Line("Parking mapper").small_heading().draw(ctx),
-                    ctx.style().btn_close_widget(ctx),
-                ]),
-                Widget::row(vec![
-                    "Change map:".draw_text(ctx),
-                    ctx.style()
-                        .btn_outline_light_popup(nice_map_name(map.get_name()))
-                        .build_widget(ctx, "change map"),
-                ]),
+                Line("Parking mapper").small_heading().draw(ctx),
+                ctx.style()
+                    .btn_light_popup_icon_text(
+                        "system/assets/tools/map.svg",
+                        nice_map_name(app.map.get_name()),
+                    )
+                    .hotkey(lctrl(Key::L))
+                    .build_widget(ctx, "change map"),
                 format!(
                     "{} / {} ways done (you've mapped {})",
                     prettyprint_usize(done.len()),
@@ -312,9 +310,6 @@ impl State<App> for ParkingMapper {
 
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "close" => {
-                    return Transition::Pop;
-                }
                 "Generate OsmChange file" => {
                     if self.data.is_empty() {
                         return Transition::Push(PopupMsg::new(
@@ -522,7 +517,7 @@ fn generate_osmc(data: &BTreeMap<WayID, Value>, in_seattle: bool, timer: &mut Ti
         let mut tree = xmltree::Element::parse(resp.as_bytes())?
             .take_child("way")
             .unwrap();
-        let mut osm_tags = Tags::new(BTreeMap::new());
+        let mut osm_tags = Tags::empty();
         let mut other_children = Vec::new();
         for node in tree.children.drain(..) {
             if let Some(elem) = node.as_element() {

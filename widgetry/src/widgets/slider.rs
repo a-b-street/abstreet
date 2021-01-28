@@ -24,7 +24,7 @@ enum Style {
     Area { width: f64 },
 }
 
-const BG_CROSS_AXIS_LEN: f64 = 20.0;
+pub const BG_CROSS_AXIS_LEN: f64 = 20.0;
 
 impl Slider {
     pub fn horizontal(

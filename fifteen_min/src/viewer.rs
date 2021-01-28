@@ -128,9 +128,6 @@ impl State<App> for Viewer {
                         }),
                     ));
                 }
-                "close" => {
-                    return Transition::Pop;
-                }
                 "About" => {
                     return Transition::Push(PopupMsg::new(
                         ctx,
@@ -264,12 +261,11 @@ fn draw_star(ctx: &mut EventCtx, b: &Building) -> GeomBatch {
 fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isochrone) -> Panel {
     let mut rows = Vec::new();
 
-    rows.push(Widget::row(vec![
+    rows.push(
         Line("15-minute neighborhood explorer")
             .small_heading()
             .draw(ctx),
-        ctx.style().btn_close_widget(ctx),
-    ]));
+    );
 
     rows.push(
         ctx.style()

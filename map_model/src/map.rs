@@ -7,12 +7,12 @@ use petgraph::graphmap::UnGraphMap;
 use serde::{Deserialize, Serialize};
 
 use abstio::MapName;
-use abstutil::Timer;
+use abstutil::{Tags, Timer};
 use geom::{Bounds, Distance, GPSBounds, Polygon, Pt2D, Ring, Time};
 
 use crate::raw::{OriginalRoad, RawMap};
 use crate::{
-    osm, Area, AreaID, Building, BuildingID, BuildingType, BusRoute, BusRouteID, BusStop,
+    osm, Area, AreaID, AreaType, Building, BuildingID, BuildingType, BusRoute, BusRouteID, BusStop,
     BusStopID, ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, Lane, LaneID,
     LaneType, Map, MapEdits, MovementID, OffstreetParking, ParkingLot, ParkingLotID, Path,
     PathConstraints, PathRequest, Pathfinder, Position, Road, RoadID, Turn, TurnID, TurnType, Zone,
@@ -645,6 +645,16 @@ impl Map {
     pub fn hack_override_orig_spawn_times(&mut self, br: BusRouteID, times: Vec<Time>) {
         self.bus_routes[br.0].orig_spawn_times = times.clone();
         self.bus_routes[br.0].spawn_times = times;
+    }
+
+    pub fn hack_add_area(&mut self, area_type: AreaType, polygon: Polygon, osm_tags: Tags) {
+        self.areas.push(Area {
+            id: AreaID(self.areas.len()),
+            area_type,
+            polygon,
+            osm_tags,
+            osm_id: None,
+        });
     }
 
     pub fn get_languages(&self) -> BTreeSet<&str> {

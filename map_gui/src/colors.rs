@@ -119,6 +119,7 @@ pub struct ColorScheme {
     pub water: Fill,
     pub median_strip: Fill,
     pub pedestrian_plaza: Fill,
+    pub study_area: Fill,
 
     // Unzoomed dynamic elements
     pub unzoomed_car: Color,
@@ -244,7 +245,8 @@ impl ColorScheme {
             grass: hex("#94C84A").into(),
             water: Color::rgb(164, 200, 234).into(),
             median_strip: Color::CYAN.into(),
-            pedestrian_plaza: Color::hex("#DDDDE8").into(),
+            pedestrian_plaza: hex("#DDDDE8").into(),
+            study_area: hex("#96830C").into(),
 
             // Unzoomed dynamic elements
             unzoomed_car: hex("#A32015"),
@@ -391,17 +393,17 @@ impl ColorScheme {
     // Shamelessly adapted from https://github.com/Uriopass/Egregoria
     fn night_mode() -> ColorScheme {
         let mut cs = ColorScheme::day_mode();
-        cs.void_background = Color::hex("#200A24");
+        cs.void_background = hex("#200A24");
         cs.map_background = Color::BLACK.into();
-        cs.grass = Color::hex("#243A1F").into();
-        cs.water = Color::hex("#21374E").into();
-        cs.residential_building = Color::hex("#5E8962");
-        cs.commercial_building = Color::hex("#5D5F97");
+        cs.grass = hex("#243A1F").into();
+        cs.water = hex("#21374E").into();
+        cs.residential_building = hex("#5E8962");
+        cs.commercial_building = hex("#5D5F97");
 
-        cs.driving_lane = Color::hex("#404040");
-        cs.parking_lane = Color::hex("#353535");
-        cs.sidewalk = Color::hex("#6B6B6B");
-        cs.general_road_marking = Color::hex("#B1B1B1");
+        cs.driving_lane = hex("#404040");
+        cs.parking_lane = hex("#353535");
+        cs.sidewalk = hex("#6B6B6B");
+        cs.general_road_marking = hex("#B1B1B1");
         cs.normal_intersection = cs.driving_lane;
         cs.road_center_line = cs.general_road_marking;
 
@@ -411,16 +413,17 @@ impl ColorScheme {
         cs.unzoomed_residential = cs.driving_lane;
         cs.unzoomed_interesting_intersection = cs.unzoomed_highway;
         cs.stop_sign = Color::rgb_f(0.67, 0.55, 0.55);
-        cs.private_road = Color::hex("#9E757F");
-        cs.pedestrian_plaza = Color::hex("#94949C").into();
+        cs.private_road = hex("#9E757F");
+        cs.pedestrian_plaza = hex("#94949C").into();
+        cs.study_area = hex("#D9B002").into();
 
-        cs.panel_bg = Color::hex("#003046").alpha(0.9);
+        cs.panel_bg = hex("#003046").alpha(0.9);
         cs.gui_style.panel_bg = cs.panel_bg;
         cs.inner_panel = cs.panel_bg.alpha(1.0);
         cs.section_bg = cs.inner_panel;
         cs.minimap_cursor_border = Color::WHITE;
         cs.minimap_cursor_bg = Some(Color::rgba(238, 112, 46, 0.2));
-        cs.minimap_selected_zoom = Color::hex("#EE702E");
+        cs.minimap_selected_zoom = hex("#EE702E");
         cs.minimap_unselected_zoom = Color::WHITE.alpha(0.3);
 
         cs

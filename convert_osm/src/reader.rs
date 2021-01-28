@@ -176,7 +176,7 @@ pub fn read(path: &str, input_gps_bounds: &GPSBounds, timer: &mut Timer) -> Resu
 }
 
 fn read_tags(obj: roxmltree::Node) -> Tags {
-    let mut tags = Tags::new(BTreeMap::new());
+    let mut tags = Tags::empty();
     for child in obj.children() {
         if child.tag_name().name() == "tag" {
             let key = child.attribute("k").unwrap();

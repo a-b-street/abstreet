@@ -88,6 +88,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
         ("paris", "south") => "Paris (south)",
         ("paris", "east") => "Paris (east)",
         ("paris", "west") => "Paris (west)",
+        ("providence", "downtown") => "Providence",
         ("salzburg", "north") => "Salzburg (north)",
         ("salzburg", "south") => "Salzburg (south)",
         ("salzburg", "east") => "Salzburg (east)",
