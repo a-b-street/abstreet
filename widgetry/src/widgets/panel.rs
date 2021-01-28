@@ -7,6 +7,7 @@ use stretch::style::{Dimension, Style};
 
 use geom::{Percent, Polygon};
 
+use crate::widgets::slider;
 use crate::widgets::Container;
 use crate::{
     Autocomplete, Checkbox, Color, Dropdown, EventCtx, GfxCtx, HorizontalAlignment, Menu, Outcome,
@@ -88,9 +89,15 @@ impl Panel {
             self.top_level = container.members.remove(0);
         }
 
+        let mut container_dims = self.container_dims;
+        // TODO Handle making room for a horizontal scrollbar on the bottom. The equivalent change
+        // to container_dims.height doesn't work as expected.
+        if self.scrollable_y {
+            container_dims.width += slider::BG_CROSS_AXIS_LEN;
+        }
         let top_left = ctx
             .canvas
-            .align_window(self.container_dims, self.horiz, self.vert);
+            .align_window(container_dims, self.horiz, self.vert);
 
         // Wrap the main widget in scrollable containers if necessary.
         if self.scrollable_x {
