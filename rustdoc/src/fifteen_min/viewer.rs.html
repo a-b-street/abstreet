@@ -567,10 +567,6 @@
 <span id="564">564</span>
 <span id="565">565</span>
 <span id="566">566</span>
-<span id="567">567</span>
-<span id="568">568</span>
-<span id="569">569</span>
-<span id="570">570</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! This is a tool to experiment with the concept of 15-minute neighborhoods. Can you access your</span>
 <span class="doccomment">//! daily needs (like groceries, a cafe, a library) within a 15-minute walk, bike ride, or public</span>
@@ -701,9 +697,6 @@
                             ])
                         }),
                     ));
-                }
-                <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                 }
                 <span class="string">&quot;About&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(
@@ -838,12 +831,11 @@
 <span class="kw">fn</span> <span class="ident">build_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">start</span>: <span class="kw-2">&amp;</span><span class="ident">Building</span>, <span class="ident">isochrone</span>: <span class="kw-2">&amp;</span><span class="ident">Isochrone</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
 
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+    <span class="ident">rows</span>.<span class="ident">push</span>(
         <span class="ident">Line</span>(<span class="string">&quot;15-minute neighborhood explorer&quot;</span>)
             .<span class="ident">small_heading</span>()
             .<span class="ident">draw</span>(<span class="ident">ctx</span>),
-        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
-    ]));
+    );
 
     <span class="ident">rows</span>.<span class="ident">push</span>(
         <span class="ident">ctx</span>.<span class="ident">style</span>()
