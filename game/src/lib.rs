@@ -5,7 +5,7 @@ extern crate log;
 
 use abstio::MapName;
 use abstutil::{CmdArgs, Timer};
-use geom::{LonLat, Pt2D};
+use geom::{Duration, LonLat, Pt2D, Time};
 use map_gui::options::Options;
 use map_model::Map;
 use sim::{Sim, SimFlags};
@@ -13,7 +13,7 @@ use widgetry::{EventCtx, State, Transition};
 
 use crate::app::{App, Flags};
 use crate::pregame::TitleScreen;
-use crate::sandbox::{GameplayMode, SandboxMode};
+use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 
 mod app;
 mod challenges;
@@ -119,10 +119,11 @@ fn setup_app(
         && !flags.sim_flags.load.contains("player/save")
         && !flags.sim_flags.load.contains("/scenarios/")
         && maybe_mode.is_none();
-    // If we're starting directly in sandbox mode, usually time is midnight, so save some effort
-    // and start with the correct color scheme. If we're loading a savestate and it's actually
-    // daytime, we'll pay a small penalty to switch colors.
-    if !title {
+    // If we're starting directly in a challenge mode, the tutorial, or by playing a scenario,
+    // usually time is midnight, so save some effort and start with the correct color scheme. If
+    // we're loading a savestate and it's actually daytime, we'll pay a small penalty to switch
+    // colors.
+    if maybe_mode.is_some() {
         opts.color_scheme = map_gui::colors::ColorSchemeChoice::NightMode;
     }
     let cs = map_gui::colors::ColorScheme::new(ctx, opts.color_scheme);
@@ -254,10 +255,19 @@ fn finish_app_setup(
 
     let states: Vec<Box<dyn State<App>>> = if title {
         vec![Box::new(TitleScreen::new(ctx, app))]
-    } else {
-        let mode = maybe_mode
-            .unwrap_or_else(|| GameplayMode::Freeform(app.primary.map.get_name().clone()));
+    } else if let Some(mode) = maybe_mode {
         vec![SandboxMode::simple_new(ctx, app, mode)]
+    } else {
+        // We got here by just passing --dev and a map as flags; we're just looking at an empty
+        // map. Start in the daytime.
+        vec![
+            SandboxMode::simple_new(
+                ctx,
+                app,
+                GameplayMode::Freeform(app.primary.map.get_name().clone()),
+            ),
+            TimeWarpScreen::new(ctx, app, Time::START_OF_DAY + Duration::hours(6), None),
+        ]
     };
     if let Some(ss) = savestate {
         // TODO This is weird, we're left in Freeform mode with the wrong UI. Can't instantiate
