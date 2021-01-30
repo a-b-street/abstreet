@@ -10,9 +10,9 @@ use map_model::{
     TurnPriority,
 };
 use widgetry::{
-    lctrl, Color, ControlState, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, MultiButton, Outcome, Panel, RewriteColor, State,
-    StyledButtons, Text, TextExt, VerticalAlignment, Widget,
+    include_labeled_bytes, lctrl, Color, ControlState, DrawBaselayer, Drawable, EventCtx,
+    GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, MultiButton, Outcome, Panel, RewriteColor,
+    State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, ShowEverything, Transition};
@@ -628,12 +628,16 @@ fn make_side_panel(
 
         let up_button = ctx
             .style()
-            .btn_solid_light_icon("../widgetry/icons/arrow_up.svg")
+            .btn_solid_light_icon_bytes(include_labeled_bytes!(
+                "../../../../widgetry/icons/arrow_up.svg"
+            ))
             .disabled(idx == 0);
 
         let down_button = ctx
             .style()
-            .btn_solid_light_icon("../widgetry/icons/arrow_down.svg")
+            .btn_solid_light_icon_bytes(include_labeled_bytes!(
+                "../../../../widgetry/icons/arrow_down.svg"
+            ))
             .disabled(idx == canonical_signal.stages.len() - 1);
 
         let stage_controls = Widget::row(vec![

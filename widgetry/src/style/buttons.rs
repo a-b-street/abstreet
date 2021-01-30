@@ -41,6 +41,9 @@ pub trait StyledButtons<'a> {
     fn btn_solid_light_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
         icon_button(self.btn_solid_light().image_path(image_path))
     }
+    fn btn_solid_light_icon_bytes(&self, labeled_bytes: (&'a str, &'a [u8])) -> ButtonBuilder<'a> {
+        icon_button(self.btn_solid_light().image_bytes(labeled_bytes))
+    }
     fn btn_solid_light_icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
         self.btn_solid_light()
             .label_text(text)

@@ -190,11 +190,13 @@ pub fn trips(
                 Widget::nothing()
             },
             {
-                let mut icon =
-                    GeomBatch::load_svg(ctx.prerender, "../widgetry/icons/arrow_drop_down.svg")
-                        .autocrop()
-                        .color(RewriteColor::ChangeAll(Color::WHITE))
-                        .scale(1.5);
+                // TODO Maybe generalize ImageSource::Bytes beyond just buttons
+                let mut icon = GeomBatch::from_uncached_svg_contents(include_bytes!(
+                    "../../../widgetry/icons/arrow_drop_down.svg"
+                ))
+                .autocrop()
+                .color(RewriteColor::ChangeAll(Color::WHITE))
+                .scale(1.5);
 
                 if !open_trips.contains_key(t) {
                     icon = icon.rotate(Angle::degrees(180.0));
