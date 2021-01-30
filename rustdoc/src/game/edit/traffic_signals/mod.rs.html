@@ -916,6 +916,10 @@
 <span id="913">913</span>
 <span id="914">914</span>
 <span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 
@@ -929,9 +933,9 @@
     <span class="ident">TurnPriority</span>,
 };
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
-    <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">MultiButton</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">State</span>,
-    <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">include_labeled_bytes</span>, <span class="ident">lctrl</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>,
+    <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">MultiButton</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>,
+    <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">ShowEverything</span>, <span class="ident">Transition</span>};
@@ -1547,12 +1551,16 @@
 
         <span class="kw">let</span> <span class="ident">up_button</span> <span class="op">=</span> <span class="ident">ctx</span>
             .<span class="ident">style</span>()
-            .<span class="ident">btn_solid_light_icon</span>(<span class="string">&quot;../widgetry/icons/arrow_up.svg&quot;</span>)
+            .<span class="ident">btn_solid_light_icon_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(
+                <span class="string">&quot;../../../../widgetry/icons/arrow_up.svg&quot;</span>
+            ))
             .<span class="ident">disabled</span>(<span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>);
 
         <span class="kw">let</span> <span class="ident">down_button</span> <span class="op">=</span> <span class="ident">ctx</span>
             .<span class="ident">style</span>()
-            .<span class="ident">btn_solid_light_icon</span>(<span class="string">&quot;../widgetry/icons/arrow_down.svg&quot;</span>)
+            .<span class="ident">btn_solid_light_icon_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(
+                <span class="string">&quot;../../../../widgetry/icons/arrow_down.svg&quot;</span>
+            ))
             .<span class="ident">disabled</span>(<span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">canonical_signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>);
 
         <span class="kw">let</span> <span class="ident">stage_controls</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[

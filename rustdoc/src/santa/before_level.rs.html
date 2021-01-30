@@ -377,6 +377,11 @@
 <span id="374">374</span>
 <span id="375">375</span>
 <span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>};
 
@@ -455,7 +460,12 @@
                 <span class="kw">let</span> <span class="ident">instructions_panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>),
                     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="ident">Widget</span>::<span class="ident">draw_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;../widgetry/icons/arrow_keys.svg&quot;</span>),
+                        <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="ident">GeomBatch</span>::<span class="ident">from_uncached_svg_contents</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(
+                                <span class="string">&quot;../../widgetry/icons/arrow_keys.svg&quot;</span>
+                            )),
+                        ),
                         <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
                             <span class="ident">Line</span>(<span class="string">&quot;arrow keys&quot;</span>).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">hotkey_color</span>),
                             <span class="ident">Line</span>(<span class="string">&quot; to move (or &quot;</span>),

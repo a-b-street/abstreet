@@ -377,6 +377,9 @@
 <span id="374">374</span>
 <span id="375">375</span>
 <span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">CornerRadii</span>;
 
@@ -420,6 +423,9 @@
     }
     <span class="kw">fn</span> <span class="ident">btn_solid_light_icon</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="ident">icon_button</span>(<span class="self">self</span>.<span class="ident">btn_solid_light</span>().<span class="ident">image_path</span>(<span class="ident">image_path</span>))
+    }
+    <span class="kw">fn</span> <span class="ident">btn_solid_light_icon_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">labeled_bytes</span>: (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>])) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="ident">icon_button</span>(<span class="self">self</span>.<span class="ident">btn_solid_light</span>().<span class="ident">image_bytes</span>(<span class="ident">labeled_bytes</span>))
     }
     <span class="kw">fn</span> <span class="ident">btn_solid_light_icon_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">btn_solid_light</span>()
