@@ -1,5 +1,5 @@
 //! Intermediate structures used to instantiate a Scenario. Badly needs simplification:
-//! https://github.com/dabreegster/abstreet/issues/258
+//! https://github.com/a-b-street/abstreet/issues/258
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};

@@ -92,7 +92,7 @@ impl Music {
 impl Inner {
     fn new(ctx: &mut EventCtx, play_music: bool, song: &str) -> Result<Inner> {
         if cfg!(windows) {
-            bail!("Audio disabled on Windows: https://github.com/dabreegster/abstreet/issues/430");
+            bail!("Audio disabled on Windows: https://github.com/a-b-street/abstreet/issues/430");
         }
 
         let (stream, stream_handle) = OutputStream::try_default()?;

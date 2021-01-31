@@ -12,7 +12,7 @@ example code is instead in the
 [widgetry_demo crate](../widgetry_demo/src/lib.rs).
 
 ```
-git clone https://github.com/dabreegster/abstreet.git
+git clone https://github.com/a-b-street/abstreet.git
 cd abstreet/widgetry_demo
 cargo run
 

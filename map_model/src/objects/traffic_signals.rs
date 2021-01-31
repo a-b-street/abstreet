@@ -39,7 +39,7 @@ pub struct Stage {
     pub protected_movements: BTreeSet<MovementID>,
     pub yield_movements: BTreeSet<MovementID>,
     // TODO Not renaming this, because this is going to change radically in
-    // https://github.com/dabreegster/abstreet/pull/298 anyway
+    // https://github.com/a-b-street/abstreet/pull/298 anyway
     pub stage_type: StageType,
 }
 

@@ -30,7 +30,7 @@ pub fn setup(
                 .with_vsync(true)
                 .build_windowed(window.clone(), &event_loop)
         }).unwrap_or_else(|err| {
-        panic!("Your videocard doesn't support the OpenGL mode requested. This is a common issue when running inside a virtual machine; please run natively if possible. See https://github.com/dabreegster/abstreet/issues/103 for more info, and feel free to ask for help using that issue.\n\nError: {:?}", err);
+        panic!("Your videocard doesn't support the OpenGL mode requested. This is a common issue when running inside a virtual machine; please run natively if possible. See https://github.com/a-b-street/abstreet/issues/103 for more info, and feel free to ask for help using that issue.\n\nError: {:?}", err);
     });
 
     let windowed_context = unsafe { context.make_current().unwrap() };

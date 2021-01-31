@@ -310,7 +310,7 @@ impl State<App> for About {
                     return Transition::Pop;
                 }
                 "See full credits" => {
-                    open_browser("https://github.com/dabreegster/abstreet#credits");
+                    open_browser("https://github.com/a-b-street/abstreet#credits");
                 }
                 _ => unreachable!(),
             },

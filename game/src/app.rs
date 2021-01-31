@@ -798,7 +798,7 @@ impl SharedAppState for App {
         );
         CameraState::save(canvas, self.primary.map.get_name());
         println!(
-            "Crash! Please report to https://github.com/dabreegster/abstreet/issues/ and include \
+            "Crash! Please report to https://github.com/a-b-street/abstreet/issues/ and include \
              all output.txt; at least everything starting from the stack trace above!"
         );
 
@@ -826,7 +826,7 @@ impl SharedAppState for App {
         // Repeat, because it can be hard to see the top of the report if it's long
         println!();
         println!(
-            "Crash! Please report to https://github.com/dabreegster/abstreet/issues/ and include \
+            "Crash! Please report to https://github.com/a-b-street/abstreet/issues/ and include \
              all output.txt; at least everything above here until the start of the report!"
         );
         println!(

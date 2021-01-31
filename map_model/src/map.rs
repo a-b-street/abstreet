@@ -122,8 +122,8 @@ impl Map {
                         );
                     }
                     error!(
-                        "Check https://dabreegster.github.io/abstreet/dev/index.html and file an \
-                         issue if you have trouble."
+                        "Check https://a-b-street.github.io/docs/dev/index.html and file an issue \
+                         if you have trouble."
                     );
 
                     std::process::exit(1);

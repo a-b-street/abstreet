@@ -506,7 +506,7 @@ pub struct TripPhase {
     pub phase_type: TripPhaseType,
 }
 
-/// See https://github.com/dabreegster/abstreet/issues/85
+/// See https://github.com/a-b-street/abstreet/issues/85
 #[derive(Clone, Serialize, Deserialize)]
 pub struct TimeSeriesCount<X: Ord + Clone> {
     /// (Road or intersection, type, hour block) -> count for that hour

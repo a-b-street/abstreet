@@ -249,7 +249,7 @@ impl Car {
     }
 }
 
-/// See <https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html> for details about the
+/// See <https://a-b-street.github.io/docs/trafficsim/discrete_event.html> for details about the
 /// state machine encoded here.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub(crate) enum CarState {

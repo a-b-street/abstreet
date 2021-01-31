@@ -2,7 +2,7 @@
 //! daily needs (like groceries, a cafe, a library) within a 15-minute walk, bike ride, or public
 //! transit ride of your home?
 //!
-//! See https://github.com/dabreegster/abstreet/issues/393 for more context.
+//! See https://github.com/a-b-street/abstreet/issues/393 for more context.
 
 use abstutil::prettyprint_usize;
 use geom::{Distance, Duration};
