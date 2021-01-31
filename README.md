@@ -23,15 +23,15 @@ pedestrians.
 
 Find a problem:
 
-![exploring_traffic](book/exploring_traffic.gif)
+![exploring_traffic](videos/exploring_traffic.gif)
 
 Make some changes:
 
-![editing_map](book/editing_map.gif)
+![editing_map](videos/editing_map.gif)
 
 Measure the effects:
 
-![evaluating_impacts](book/evaluating_impacts.gif)
+![evaluating_impacts](videos/evaluating_impacts.gif)
 
 ## Documentation
 

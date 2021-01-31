@@ -30,7 +30,8 @@ esac
 
 mkdir $output
 
-cp book/src/howto/README.md $output/INSTRUCTIONS.txt
+# TODO Probably need to have a simpler copy of the README here.
+#cp book/src/howto/README.md $output/INSTRUCTIONS.txt
 cp release/$runner $output
 
 # Put most binaries in the root directory, but hide game to encourage people to

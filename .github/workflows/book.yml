@@ -1,5 +1,4 @@
-# From https://github.com/rust-lang/mdBook/pull/1248
-name: Book
+name: Rust docs
 on:
   push:
     branches:
@@ -12,26 +11,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install mdbook
-        uses: peaceiris/actions-mdbook@v1
-        with:
-          mdbook-version: "0.3.7"
-
       - name: Install Rust
         uses: hecrj/setup-rust-action@v1
 
       - name: Update apt
         run: sudo apt-get update
-      - name: Install plantuml and ALSA
-        run: sudo apt-get install plantuml libasound2-dev
-
-      - name: Install mdbook-plantuml
-        run: cargo install mdbook-plantuml
-
-      - name: Generate book from markdown
-        run: |
-            cd book
-            mdbook build
+      - name: Install ALSA
+        run: sudo apt-get install libasound2-dev
 
       - name: Generate rustdoc
         run: |
@@ -39,6 +25,7 @@ jobs:
             cd widgetry
             cargo doc --no-deps --document-private-items --features native-backend
             cd ..
+            mkdir -p book/book
             mv target/doc book/book/rustdoc
 
       - name: Publish HTML
