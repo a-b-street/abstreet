@@ -727,3 +727,9 @@ changes here.
 - the color scheme automatically switches between day/night based on simulation time!
 - significant progress on editing the map without resetting the simulation
 - various bugfixes, new maps, improvements to running the importer, faster updater
+
+0.2.29
+
+- new map, Rainier Valley, is the 3rd ever to finish without gridlock! One of the fixes was collapsing traffic circles into a normal intersecton
+- bugfixes for map importing: cycleways with left-handed driving, matching traffic signals, odd number of lanes, u-turns
+- further fixes after the great button refactor
