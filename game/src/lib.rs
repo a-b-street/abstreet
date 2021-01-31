@@ -5,7 +5,7 @@ extern crate log;
 
 use abstio::MapName;
 use abstutil::{CmdArgs, Timer};
-use geom::{Duration, LonLat, Pt2D, Time};
+use geom::{Duration, LonLat, Pt2D};
 use map_gui::options::Options;
 use map_model::Map;
 use sim::{Sim, SimFlags};
@@ -13,7 +13,7 @@ use widgetry::{EventCtx, State, Transition};
 
 use crate::app::{App, Flags};
 use crate::pregame::TitleScreen;
-use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
+use crate::sandbox::{GameplayMode, SandboxMode};
 
 mod app;
 mod challenges;
@@ -260,14 +260,22 @@ fn finish_app_setup(
     } else {
         // We got here by just passing --dev and a map as flags; we're just looking at an empty
         // map. Start in the daytime.
-        vec![
-            SandboxMode::simple_new(
-                ctx,
-                app,
-                GameplayMode::Freeform(app.primary.map.get_name().clone()),
-            ),
-            TimeWarpScreen::new(ctx, app, Time::START_OF_DAY + Duration::hours(6), None),
-        ]
+        vec![SandboxMode::async_new(
+            ctx,
+            app,
+            GameplayMode::Freeform(app.primary.map.get_name().clone()),
+            Box::new(|ctx, app| {
+                ctx.loading_screen("start in the daytime", |_, mut timer| {
+                    app.primary.sim.timed_step(
+                        &app.primary.map,
+                        Duration::hours(6),
+                        &mut None,
+                        &mut timer,
+                    );
+                });
+                vec![Transition::Keep]
+            }),
+        )]
     };
     if let Some(ss) = savestate {
         // TODO This is weird, we're left in Freeform mode with the wrong UI. Can't instantiate
