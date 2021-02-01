@@ -1,4 +1,5 @@
 use map_gui::tools::{grey_out_map, HeatmapOptions};
+use sim::AgentType;
 use widgetry::{
     DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, StyledButtons, TextExt,
     Widget,
@@ -221,7 +222,11 @@ impl State<App> for PickLayer {
                     )));
                 }
                 "throughput" => {
-                    app.primary.layer = Some(Box::new(traffic::Throughput::new(ctx, app)));
+                    app.primary.layer = Some(Box::new(traffic::Throughput::new(
+                        ctx,
+                        app,
+                        AgentType::all().into_iter().collect(),
+                    )));
                 }
                 "traffic jams" => {
                     app.primary.layer = Some(Box::new(traffic::TrafficJams::new(ctx, app)));

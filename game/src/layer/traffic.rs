@@ -3,12 +3,12 @@ use std::collections::BTreeSet;
 use maplit::btreeset;
 
 use abstutil::{prettyprint_usize, Counter};
-use geom::{Circle, Distance, Duration, Polygon, Pt2D, Time};
+use geom::{Circle, Distance, Duration, Percent, Polygon, Pt2D, Time};
 use map_gui::render::unzoomed_agent_radius;
 use map_gui::tools::{ColorLegend, ColorNetwork, DivergingScale};
 use map_gui::ID;
 use map_model::{IntersectionID, Map, Traversable};
-use sim::VehicleType;
+use sim::{AgentType, VehicleType};
 use widgetry::{
     Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome,
     Panel, Text, TextExt, VerticalAlignment, Widget,
@@ -101,9 +101,9 @@ impl Backpressure {
     }
 }
 
-// TODO Filter by mode
 pub struct Throughput {
     time: Time,
+    agent_types: BTreeSet<AgentType>,
     tooltip: Option<Text>,
     unzoomed: Drawable,
     zoomed: Drawable,
@@ -122,7 +122,7 @@ impl Layer for Throughput {
     ) -> Option<LayerOutcome> {
         let mut recalc_tooltip = false;
         if app.primary.sim.time() != self.time {
-            *self = Throughput::new(ctx, app);
+            *self = Throughput::new(ctx, app, self.agent_types.clone());
             recalc_tooltip = true;
         }
 
@@ -132,7 +132,12 @@ impl Layer for Throughput {
                 self.tooltip = None;
                 match app.mouseover_unzoomed_roads_and_intersections(ctx) {
                     Some(ID::Road(r)) => {
-                        let cnt = app.primary.sim.get_analytics().road_thruput.total_for(r);
+                        let cnt = app
+                            .primary
+                            .sim
+                            .get_analytics()
+                            .road_thruput
+                            .total_for_with_agent_types(r, self.agent_types.clone());
                         if cnt > 0 {
                             self.tooltip = Some(Text::from(Line(prettyprint_usize(cnt))));
                         }
@@ -143,7 +148,7 @@ impl Layer for Throughput {
                             .sim
                             .get_analytics()
                             .intersection_thruput
-                            .total_for(i);
+                            .total_for_with_agent_types(i, self.agent_types.clone());
                         if cnt > 0 {
                             self.tooltip = Some(Text::from(Line(prettyprint_usize(cnt))));
                         }
@@ -164,8 +169,27 @@ impl Layer for Throughput {
                 _ => unreachable!(),
             },
             Outcome::Changed => {
-                return Some(LayerOutcome::Replace(Box::new(CompareThroughput::new(
-                    ctx, app,
+                if self
+                    .panel
+                    .maybe_is_checked("Compare before proposal")
+                    .unwrap_or(false)
+                {
+                    return Some(LayerOutcome::Replace(Box::new(CompareThroughput::new(
+                        ctx, app,
+                    ))));
+                }
+
+                let mut agent_types = BTreeSet::new();
+                for agent_type in AgentType::all() {
+                    if self.panel.is_checked(agent_type.noun()) {
+                        agent_types.insert(agent_type);
+                    }
+                }
+
+                return Some(LayerOutcome::Replace(Box::new(Throughput::new(
+                    ctx,
+                    app,
+                    agent_types,
                 ))));
             }
             _ => {}
@@ -189,10 +213,10 @@ impl Layer for Throughput {
 }
 
 impl Throughput {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Throughput {
+    pub fn new(ctx: &mut EventCtx, app: &App, agent_types: BTreeSet<AgentType>) -> Throughput {
         let stats = &app.primary.sim.get_analytics();
-        let road_counter = stats.road_thruput.all_total_counts();
-        let intersection_counter = stats.intersection_thruput.all_total_counts();
+        let road_counter = stats.road_thruput.all_total_counts(&agent_types);
+        let intersection_counter = stats.intersection_thruput.all_total_counts(&agent_types);
         let panel = Panel::new(Widget::col(vec![
             header(ctx, "Throughput"),
             Text::from(Line("This counts all people crossing since midnight").secondary())
@@ -203,6 +227,20 @@ impl Throughput {
             } else {
                 Widget::nothing()
             },
+            Widget::custom_row(
+                AgentType::all()
+                    .into_iter()
+                    .map(|agent_type| {
+                        Checkbox::checkbox(
+                            ctx,
+                            agent_type.noun(),
+                            None,
+                            agent_types.contains(&agent_type),
+                        )
+                    })
+                    .collect(),
+            )
+            .flex_wrap(ctx, Percent::int(20)),
             ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0", "highest"]),
         ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
@@ -215,6 +253,7 @@ impl Throughput {
 
         Throughput {
             time: app.primary.sim.time(),
+            agent_types,
             tooltip: None,
             unzoomed,
             zoomed,
@@ -253,7 +292,11 @@ impl Layer for CompareThroughput {
                 _ => unreachable!(),
             },
             Outcome::Changed => {
-                return Some(LayerOutcome::Replace(Box::new(Throughput::new(ctx, app))));
+                return Some(LayerOutcome::Replace(Box::new(Throughput::new(
+                    ctx,
+                    app,
+                    AgentType::all().into_iter().collect(),
+                ))));
             }
             _ => {}
         }
