@@ -77,9 +77,12 @@ impl Picker {
                     Widget::row(vec![
                         Widget::draw_batch(
                             ctx,
-                            GeomBatch::from_uncached_svg_contents(include_bytes!(
-                                "../../widgetry/icons/arrow_keys.svg"
-                            )),
+                            GeomBatch::load_svg_bytes(
+                                &ctx.prerender,
+                                widgetry::include_labeled_bytes!(
+                                    "../../widgetry/icons/arrow_keys.svg"
+                                ),
+                            ),
                         ),
                         Text::from_all(vec![
                             Line("arrow keys").fg(ctx.style().hotkey_color),
