@@ -497,10 +497,16 @@ impl Sim {
         self.walking.get_all_draw_peds(self.time, map)
     }
 
+    /// This does not include transit riders. Some callers need those in addition, but the
+    /// rendering ones don't.
     pub fn get_unzoomed_agents(&self, map: &Map) -> Vec<UnzoomedAgent> {
         let mut result = self.driving.get_unzoomed_agents(self.time, map);
         result.extend(self.walking.get_unzoomed_agents(self.time, map));
         result
+    }
+    pub fn get_unzoomed_transit_riders(&self, map: &Map) -> Vec<UnzoomedAgent> {
+        self.transit
+            .get_unzoomed_transit_riders(self.time, &self.driving, map)
     }
 }
 

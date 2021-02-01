@@ -310,6 +310,7 @@ fn handle_command(
             agents: sim
                 .get_unzoomed_agents(map)
                 .into_iter()
+                .chain(sim.get_unzoomed_transit_riders(map))
                 .map(|a| AgentPosition {
                     id: a.id,
                     trip: sim.agent_to_trip(a.id),

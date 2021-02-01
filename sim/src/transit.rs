@@ -8,8 +8,8 @@ use map_model::{BusRoute, BusRouteID, BusStopID, Map, Path, PathRequest, Positio
 
 use crate::sim::Ctx;
 use crate::{
-    CarID, Event, PedestrianID, PersonID, Router, TripID, TripManager, TripPhaseType, VehicleType,
-    WalkingSimState,
+    AgentID, CarID, DrivingSimState, Event, PedestrianID, PersonID, Router, TripID, TripManager,
+    TripPhaseType, UnzoomedAgent, VehicleType, WalkingSimState,
 };
 
 // These index stops along a route, not stops along a single sidewalk.
@@ -419,5 +419,37 @@ impl TransitSimState {
         at: BusStopID,
     ) -> &Vec<(PedestrianID, BusRouteID, Option<BusStopID>, Time)> {
         &self.peds_waiting[&at]
+    }
+
+    pub fn get_unzoomed_transit_riders(
+        &self,
+        now: Time,
+        driving: &DrivingSimState,
+        map: &Map,
+    ) -> Vec<UnzoomedAgent> {
+        let mut results = Vec::new();
+        for (bus_id, bus) in &self.buses {
+            if bus.passengers.is_empty() {
+                continue;
+            }
+            let pos = if let Some(input) = driving.get_single_draw_car(*bus_id, now, map, self) {
+                input.body.last_pt()
+            } else {
+                panic!(
+                    "At {}, bus {} can't be drawn, yet it has passengers {:?}",
+                    now, bus_id, bus.passengers
+                );
+            };
+            for (person, _) in &bus.passengers {
+                let agent = AgentID::BusPassenger(*person, *bus_id);
+                results.push(UnzoomedAgent {
+                    id: agent,
+                    pos,
+                    person: Some(*person),
+                    parking: false,
+                });
+            }
+        }
+        results
     }
 }
