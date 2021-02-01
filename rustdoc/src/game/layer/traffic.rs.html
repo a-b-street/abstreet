@@ -566,18 +566,61 @@
 <span id="563">563</span>
 <span id="564">564</span>
 <span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Percent</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">render</span>::<span class="ident">unzoomed_agent_radius</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">ColorLegend</span>, <span class="ident">ColorNetwork</span>, <span class="ident">DivergingScale</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">Traversable</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">VehicleType</span>;
+<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentType</span>, <span class="ident">VehicleType</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
     <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
@@ -670,9 +713,9 @@
     }
 }
 
-<span class="comment">// TODO Filter by mode</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Throughput</span> {
     <span class="ident">time</span>: <span class="ident">Time</span>,
+    <span class="ident">agent_types</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">AgentType</span><span class="op">&gt;</span>,
     <span class="ident">tooltip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>,
     <span class="ident">unzoomed</span>: <span class="ident">Drawable</span>,
     <span class="ident">zoomed</span>: <span class="ident">Drawable</span>,
@@ -691,7 +734,7 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LayerOutcome</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">recalc_tooltip</span> <span class="op">=</span> <span class="bool-val">false</span>;
         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">time</span> {
-            <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">Throughput</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+            <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">Throughput</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">agent_types</span>.<span class="ident">clone</span>());
             <span class="ident">recalc_tooltip</span> <span class="op">=</span> <span class="bool-val">true</span>;
         }
 
@@ -701,7 +744,12 @@
                 <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                 <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">mouseover_unzoomed_roads_and_intersections</span>(<span class="ident">ctx</span>) {
                     <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Road</span>(<span class="ident">r</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="kw">let</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">road_thruput</span>.<span class="ident">total_for</span>(<span class="ident">r</span>);
+                        <span class="kw">let</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="ident">app</span>
+                            .<span class="ident">primary</span>
+                            .<span class="ident">sim</span>
+                            .<span class="ident">get_analytics</span>()
+                            .<span class="ident">road_thruput</span>
+                            .<span class="ident">total_for_with_agent_types</span>(<span class="ident">r</span>, <span class="self">self</span>.<span class="ident">agent_types</span>.<span class="ident">clone</span>());
                         <span class="kw">if</span> <span class="ident">cnt</span> <span class="op">&gt;</span> <span class="number">0</span> {
                             <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">prettyprint_usize</span>(<span class="ident">cnt</span>))));
                         }
@@ -712,7 +760,7 @@
                             .<span class="ident">sim</span>
                             .<span class="ident">get_analytics</span>()
                             .<span class="ident">intersection_thruput</span>
-                            .<span class="ident">total_for</span>(<span class="ident">i</span>);
+                            .<span class="ident">total_for_with_agent_types</span>(<span class="ident">i</span>, <span class="self">self</span>.<span class="ident">agent_types</span>.<span class="ident">clone</span>());
                         <span class="kw">if</span> <span class="ident">cnt</span> <span class="op">&gt;</span> <span class="number">0</span> {
                             <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">prettyprint_usize</span>(<span class="ident">cnt</span>))));
                         }
@@ -733,8 +781,27 @@
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             },
             <span class="ident">Outcome</span>::<span class="ident">Changed</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">LayerOutcome</span>::<span class="ident">Replace</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">CompareThroughput</span>::<span class="ident">new</span>(
-                    <span class="ident">ctx</span>, <span class="ident">app</span>,
+                <span class="kw">if</span> <span class="self">self</span>
+                    .<span class="ident">panel</span>
+                    .<span class="ident">maybe_is_checked</span>(<span class="string">&quot;Compare before proposal&quot;</span>)
+                    .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
+                {
+                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">LayerOutcome</span>::<span class="ident">Replace</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">CompareThroughput</span>::<span class="ident">new</span>(
+                        <span class="ident">ctx</span>, <span class="ident">app</span>,
+                    ))));
+                }
+
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">agent_types</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
+                <span class="kw">for</span> <span class="ident">agent_type</span> <span class="kw">in</span> <span class="ident">AgentType</span>::<span class="ident">all</span>() {
+                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="ident">agent_type</span>.<span class="ident">noun</span>()) {
+                        <span class="ident">agent_types</span>.<span class="ident">insert</span>(<span class="ident">agent_type</span>);
+                    }
+                }
+
+                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">LayerOutcome</span>::<span class="ident">Replace</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Throughput</span>::<span class="ident">new</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="ident">app</span>,
+                    <span class="ident">agent_types</span>,
                 ))));
             }
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
@@ -758,10 +825,10 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Throughput</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Throughput</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">agent_types</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">AgentType</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Throughput</span> {
         <span class="kw">let</span> <span class="ident">stats</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>();
-        <span class="kw">let</span> <span class="ident">road_counter</span> <span class="op">=</span> <span class="ident">stats</span>.<span class="ident">road_thruput</span>.<span class="ident">all_total_counts</span>();
-        <span class="kw">let</span> <span class="ident">intersection_counter</span> <span class="op">=</span> <span class="ident">stats</span>.<span class="ident">intersection_thruput</span>.<span class="ident">all_total_counts</span>();
+        <span class="kw">let</span> <span class="ident">road_counter</span> <span class="op">=</span> <span class="ident">stats</span>.<span class="ident">road_thruput</span>.<span class="ident">all_total_counts</span>(<span class="kw-2">&amp;</span><span class="ident">agent_types</span>);
+        <span class="kw">let</span> <span class="ident">intersection_counter</span> <span class="op">=</span> <span class="ident">stats</span>.<span class="ident">intersection_thruput</span>.<span class="ident">all_total_counts</span>(<span class="kw-2">&amp;</span><span class="ident">agent_types</span>);
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Throughput&quot;</span>),
             <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;This counts all people crossing since midnight&quot;</span>).<span class="ident">secondary</span>())
@@ -772,6 +839,20 @@
             } <span class="kw">else</span> {
                 <span class="ident">Widget</span>::<span class="ident">nothing</span>()
             },
+            <span class="ident">Widget</span>::<span class="ident">custom_row</span>(
+                <span class="ident">AgentType</span>::<span class="ident">all</span>()
+                    .<span class="ident">into_iter</span>()
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">agent_type</span><span class="op">|</span> {
+                        <span class="ident">Checkbox</span>::<span class="ident">checkbox</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="ident">agent_type</span>.<span class="ident">noun</span>(),
+                            <span class="prelude-val">None</span>,
+                            <span class="ident">agent_types</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">agent_type</span>),
+                        )
+                    })
+                    .<span class="ident">collect</span>(),
+            )
+            .<span class="ident">flex_wrap</span>(<span class="ident">ctx</span>, <span class="ident">Percent</span>::<span class="ident">int</span>(<span class="number">20</span>)),
             <span class="ident">ColorLegend</span>::<span class="ident">gradient</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">good_to_bad_red</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;0&quot;</span>, <span class="string">&quot;highest&quot;</span>]),
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Center</span>)
@@ -784,6 +865,7 @@
 
         <span class="ident">Throughput</span> {
             <span class="ident">time</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(),
+            <span class="ident">agent_types</span>,
             <span class="ident">tooltip</span>: <span class="prelude-val">None</span>,
             <span class="ident">unzoomed</span>,
             <span class="ident">zoomed</span>,
@@ -822,7 +904,11 @@
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             },
             <span class="ident">Outcome</span>::<span class="ident">Changed</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">LayerOutcome</span>::<span class="ident">Replace</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Throughput</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))));
+                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">LayerOutcome</span>::<span class="ident">Replace</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Throughput</span>::<span class="ident">new</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="ident">app</span>,
+                    <span class="ident">AgentType</span>::<span class="ident">all</span>().<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
+                ))));
             }
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }

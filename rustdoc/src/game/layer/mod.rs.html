@@ -270,8 +270,14 @@
 <span id="267">267</span>
 <span id="268">268</span>
 <span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">grey_out_map</span>, <span class="ident">HeatmapOptions</span>};
+<span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">AgentType</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">TextExt</span>,
     <span class="ident">Widget</span>,
@@ -494,7 +500,11 @@
                     )));
                 }
                 <span class="string">&quot;throughput&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">traffic</span>::<span class="ident">Throughput</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">traffic</span>::<span class="ident">Throughput</span>::<span class="ident">new</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="ident">app</span>,
+                        <span class="ident">AgentType</span>::<span class="ident">all</span>().<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
+                    )));
                 }
                 <span class="string">&quot;traffic jams&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">traffic</span>::<span class="ident">TrafficJams</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
