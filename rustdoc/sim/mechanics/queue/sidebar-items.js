@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["dump_cars",""],["validate_positions",""]],"struct":[["Queue","A Queue of vehicles on a single lane or turn. No over-taking or lane-changing. This is where https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html#exact-positions is implemented."]]});
+initSidebarItems({"fn":[["dump_cars",""],["validate_positions",""]],"struct":[["Queue","A Queue of vehicles on a single lane or turn. No over-taking or lane-changing. This is where https://a-b-street.github.io/docs/trafficsim/discrete_event.html#exact-positions is implemented."]]});

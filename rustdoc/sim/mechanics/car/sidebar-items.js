@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["CarState","See https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html for details about the state machine encoded here."]],"struct":[["Car","Represents a single vehicle. Note \"car\" is a misnomer; it could also be a bus or bike."]]});
+initSidebarItems({"enum":[["CarState","See https://a-b-street.github.io/docs/trafficsim/discrete_event.html for details about the state machine encoded here."]],"struct":[["Car","Represents a single vehicle. Note \"car\" is a misnomer; it could also be a bus or bike."]]});

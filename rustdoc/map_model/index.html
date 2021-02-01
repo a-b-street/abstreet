@@ -7,7 +7,7 @@ in <code>convert_osm</code> and here.</p>
 <ul>
 <li>ch = contraction hierarchy, for speeding up pathfinding</li>
 <li>degenerate intersection = only has 2 roads connected, so why is it an intersection at all?</li>
-<li>lc = lane-change (which is modelled very strangely: <a href="https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html#lane-changing">https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html#lane-changing</a>)</li>
+<li>lc = lane-change (which is modelled very strangely: <a href="https://a-b-street.github.io/docs/trafficsim/discrete_event.html#lane-changing">https://a-b-street.github.io/docs/trafficsim/discrete_event.html#lane-changing</a>)</li>
 <li>ltr = left-to-right, the order of lanes for a road</li>
 <li>osm = OpenStreetMap</li>
 </ul>
@@ -28,8 +28,8 @@ in <code>convert_osm</code> and here.</p>
 </div><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
 <table><tr class="module-item"><td><a class="mod" href="city/index.html" title="map_model::city mod">city</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="mod" href="connectivity/index.html" title="map_model::connectivity mod">connectivity</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="mod" href="edits/index.html" title="map_model::edits mod">edits</a></td><td class="docblock-short"><p>Once a Map exists, the player can edit it in the UI (producing <code>MapEdits</code> in-memory), then save
 the changes to a file (as <code>PermanentMapEdits</code>). See
-<a href="https://dabreegster.github.io/abstreet/map/edits.html">https://dabreegster.github.io/abstreet/map/edits.html</a>.</p>
-</td></tr><tr class="module-item"><td><a class="mod" href="make/index.html" title="map_model::make mod">make</a></td><td class="docblock-short"><p>See <a href="https://dabreegster.github.io/abstreet/map/importing/index.html">https://dabreegster.github.io/abstreet/map/importing/index.html</a> for an overview. This module
+<a href="https://a-b-street.github.io/docs/map/edits.html">https://a-b-street.github.io/docs/map/edits.html</a>.</p>
+</td></tr><tr class="module-item"><td><a class="mod" href="make/index.html" title="map_model::make mod">make</a></td><td class="docblock-short"><p>See <a href="https://a-b-street.github.io/docs/map/importing/index.html">https://a-b-street.github.io/docs/map/importing/index.html</a> for an overview. This module
 covers the RawMap-&gt;Map stage.</p>
 </td></tr><tr class="module-item"><td><a class="mod" href="map/index.html" title="map_model::map mod">map</a></td><td class="docblock-short"><p>A bunch of (mostly read-only) queries on a Map.</p>
 </td></tr><tr class="module-item"><td><a class="mod" href="objects/index.html" title="map_model::objects mod">objects</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="mod" href="osm/index.html" title="map_model::osm mod">osm</a></td><td class="docblock-short"><p>Useful utilities for working with OpenStreetMap.</p>

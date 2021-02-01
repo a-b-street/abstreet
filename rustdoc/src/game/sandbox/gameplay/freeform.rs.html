@@ -597,6 +597,8 @@
 <span id="594">594</span>
 <span id="595">595</span>
 <span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">seq</span>::<span class="ident">SliceRandom</span>;
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">Rng</span>;
@@ -838,7 +840,9 @@
         <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;close&quot;</span> {
             <span class="ident">Transition</span>::<span class="ident">Pop</span>
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Import your own data&quot;</span> {
-            <span class="ident">open_browser</span>(<span class="string">&quot;https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html#custom-import&quot;</span>);
+            <span class="ident">open_browser</span>(
+                <span class="string">&quot;https://a-b-street.github.io/docs/trafficsim/travel_demand.html#custom-import&quot;</span>,
+            );
             <span class="ident">Transition</span>::<span class="ident">Keep</span>
         } <span class="kw">else</span> {
             <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[

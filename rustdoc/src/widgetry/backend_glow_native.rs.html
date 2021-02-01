@@ -181,7 +181,7 @@
                 .<span class="ident">with_vsync</span>(<span class="bool-val">true</span>)
                 .<span class="ident">build_windowed</span>(<span class="ident">window</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">event_loop</span>)
         }).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
-        <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Your videocard doesn&#39;t support the OpenGL mode requested. This is a common issue when running inside a virtual machine; please run natively if possible. See https://github.com/dabreegster/abstreet/issues/103 for more info, and feel free to ask for help using that issue.\n\nError: {:?}&quot;</span>, <span class="ident">err</span>);
+        <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Your videocard doesn&#39;t support the OpenGL mode requested. This is a common issue when running inside a virtual machine; please run natively if possible. See https://github.com/a-b-street/abstreet/issues/103 for more info, and feel free to ask for help using that issue.\n\nError: {:?}&quot;</span>, <span class="ident">err</span>);
     });
 
     <span class="kw">let</span> <span class="ident">windowed_context</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">context</span>.<span class="ident">make_current</span>().<span class="ident">unwrap</span>() };
