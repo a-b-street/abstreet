@@ -596,6 +596,7 @@
 <span id="593">593</span>
 <span id="594">594</span>
 <span id="595">595</span>
+<span id="596">596</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This runs a simulation without any graphics and serves a very basic API to control things. See</span>
 <span class="comment">// https://a-b-street.github.io/docs/dev/api.html for documentation. To run this:</span>
@@ -909,6 +910,7 @@
             <span class="ident">agents</span>: <span class="ident">sim</span>
                 .<span class="ident">get_unzoomed_agents</span>(<span class="ident">map</span>)
                 .<span class="ident">into_iter</span>()
+                .<span class="ident">chain</span>(<span class="ident">sim</span>.<span class="ident">get_unzoomed_transit_riders</span>(<span class="ident">map</span>))
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">AgentPosition</span> {
                     <span class="ident">id</span>: <span class="ident">a</span>.<span class="ident">id</span>,
                     <span class="ident">trip</span>: <span class="ident">sim</span>.<span class="ident">agent_to_trip</span>(<span class="ident">a</span>.<span class="ident">id</span>),

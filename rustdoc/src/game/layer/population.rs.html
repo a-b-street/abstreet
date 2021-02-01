@@ -179,6 +179,16 @@
 <span id="176">176</span>
 <span id="177">177</span>
 <span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -253,7 +263,17 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">opts</span>: <span class="ident">Options</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PopulationMap</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="comment">// Faster to grab all agent positions than individually map trips to agent positions.</span>
-        <span class="kw">for</span> <span class="ident">a</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_unzoomed_agents</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>) {
+        <span class="kw">for</span> <span class="ident">a</span> <span class="kw">in</span> <span class="ident">app</span>
+            .<span class="ident">primary</span>
+            .<span class="ident">sim</span>
+            .<span class="ident">get_unzoomed_agents</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">chain</span>(
+                <span class="ident">app</span>.<span class="ident">primary</span>
+                    .<span class="ident">sim</span>
+                    .<span class="ident">get_unzoomed_transit_riders</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>),
+            )
+        {
             <span class="kw">if</span> <span class="ident">a</span>.<span class="ident">person</span>.<span class="ident">is_some</span>() {
                 <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">a</span>.<span class="ident">pos</span>);
             }
