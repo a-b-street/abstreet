@@ -299,6 +299,24 @@
 <span id="296">296</span>
 <span id="297">297</span>
 <span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
@@ -307,7 +325,7 @@
 
 <span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">LonLat</span>, <span class="ident">Pt2D</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">LonLat</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">options</span>::<span class="ident">Options</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">Map</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">Sim</span>, <span class="ident">SimFlags</span>};
@@ -421,10 +439,11 @@
         <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>.<span class="ident">contains</span>(<span class="string">&quot;player/save&quot;</span>)
         <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>.<span class="ident">contains</span>(<span class="string">&quot;/scenarios/&quot;</span>)
         <span class="op">&amp;&amp;</span> <span class="ident">maybe_mode</span>.<span class="ident">is_none</span>();
-    <span class="comment">// If we&#39;re starting directly in sandbox mode, usually time is midnight, so save some effort</span>
-    <span class="comment">// and start with the correct color scheme. If we&#39;re loading a savestate and it&#39;s actually</span>
-    <span class="comment">// daytime, we&#39;ll pay a small penalty to switch colors.</span>
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">title</span> {
+    <span class="comment">// If we&#39;re starting directly in a challenge mode, the tutorial, or by playing a scenario,</span>
+    <span class="comment">// usually time is midnight, so save some effort and start with the correct color scheme. If</span>
+    <span class="comment">// we&#39;re loading a savestate and it&#39;s actually daytime, we&#39;ll pay a small penalty to switch</span>
+    <span class="comment">// colors.</span>
+    <span class="kw">if</span> <span class="ident">maybe_mode</span>.<span class="ident">is_some</span>() {
         <span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">=</span> <span class="ident">map_gui</span>::<span class="ident">colors</span>::<span class="ident">ColorSchemeChoice</span>::<span class="ident">NightMode</span>;
     }
     <span class="kw">let</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">map_gui</span>::<span class="ident">colors</span>::<span class="ident">ColorScheme</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">opts</span>.<span class="ident">color_scheme</span>);
@@ -556,10 +575,27 @@
 
     <span class="kw">let</span> <span class="ident">states</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">title</span> {
         <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">TitleScreen</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))]
-    } <span class="kw">else</span> {
-        <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">maybe_mode</span>
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">GameplayMode</span>::<span class="ident">Freeform</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>()));
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">mode</span>) <span class="op">=</span> <span class="ident">maybe_mode</span> {
         <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">SandboxMode</span>::<span class="ident">simple_new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">mode</span>)]
+    } <span class="kw">else</span> {
+        <span class="comment">// We got here by just passing --dev and a map as flags; we&#39;re just looking at an empty</span>
+        <span class="comment">// map. Start in the daytime.</span>
+        <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">SandboxMode</span>::<span class="ident">async_new</span>(
+            <span class="ident">ctx</span>,
+            <span class="ident">app</span>,
+            <span class="ident">GameplayMode</span>::<span class="ident">Freeform</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>()),
+            <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;start in the daytime&quot;</span>, <span class="op">|</span><span class="kw">_</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">timed_step</span>(
+                        <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>,
+                        <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">6</span>),
+                        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-val">None</span>,
+                        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,
+                    );
+                });
+                <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Transition</span>::<span class="ident">Keep</span>]
+            }),
+        )]
     };
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ss</span>) <span class="op">=</span> <span class="ident">savestate</span> {
         <span class="comment">// TODO This is weird, we&#39;re left in Freeform mode with the wrong UI. Can&#39;t instantiate</span>
