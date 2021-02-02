@@ -190,7 +190,6 @@ pub fn trips(
                 Widget::nothing()
             },
             {
-                // TODO Maybe generalize ImageSource::Bytes beyond just buttons
                 let mut icon = GeomBatch::load_svg_bytes(
                     &ctx.prerender,
                     widgetry::include_labeled_bytes!("../../../widgetry/icons/arrow_drop_down.svg"),
