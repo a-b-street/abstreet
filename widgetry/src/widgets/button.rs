@@ -64,6 +64,10 @@ impl Button {
             dims,
         }
     }
+
+    pub fn is_enabled(&self) -> bool {
+        !self.is_disabled
+    }
 }
 
 impl WidgetImpl for Button {
