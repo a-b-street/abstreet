@@ -289,7 +289,7 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
     for i in 0..10 {
         let mut svg_data = Vec::new();
         svg_face::generate_face(&mut svg_data, &mut rng).unwrap();
-        let face = GeomBatch::from_uncached_svg_contents(&svg_data).autocrop();
+        let face = GeomBatch::load_svg_bytes_uncached(&svg_data).autocrop();
         let dims = face.get_dims();
         batch.append(
             face.scale((200.0 / dims.width).min(200.0 / dims.height))
