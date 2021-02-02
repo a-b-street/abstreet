@@ -290,12 +290,15 @@
 <span id="287">287</span>
 <span id="288">288</span>
 <span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">VecDeque</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Time</span>, <span class="ident">EPSILON_DIST</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Direction</span>, <span class="ident">Map</span>, <span class="ident">Traversable</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -400,13 +403,16 @@
             }
 
             <span class="kw">if</span> <span class="ident">result</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">2</span> {
-                <span class="macro">panic</span><span class="macro">!</span>(
-                    <span class="string">&quot;{} at {} has front at {} of {:?}. Didn&#39;t even wind up with two points&quot;</span>,
-                    <span class="self">self</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>,
-                    <span class="ident">now</span>,
-                    <span class="ident">front</span>,
-                    <span class="self">self</span>.<span class="ident">router</span>.<span class="ident">head</span>()
-                );
+                <span class="comment">// Vehicles spawning at a border start with their front at literally 0 distance.</span>
+                <span class="comment">// Usually by the time we first try to render, they&#39;ve advanced at least a little.</span>
+                <span class="comment">// But sometimes there&#39;s a race when we try to immediately draw them.</span>
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="ident">pl</span>, <span class="kw">_</span>)) <span class="op">=</span>
+                    <span class="self">self</span>.<span class="ident">router</span>
+                        .<span class="ident">head</span>()
+                        .<span class="ident">slice</span>(<span class="ident">Distance</span>::<span class="ident">ZERO</span>, <span class="number">2.0</span> <span class="op">*</span> <span class="ident">EPSILON_DIST</span>, <span class="ident">map</span>)
+                {
+                    <span class="ident">result</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">into_points</span>();
+                }
             }
             <span class="kw">match</span> <span class="ident">PolyLine</span>::<span class="ident">new</span>(<span class="ident">result</span>) {
                 <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">pl</span>,
