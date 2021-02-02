@@ -478,6 +478,20 @@
 <span id="475">475</span>
 <span id="476">476</span>
 <span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 
@@ -486,7 +500,7 @@
     <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">Road</span>,
     <span class="ident">RoadWithStopSign</span>, <span class="ident">Turn</span>, <span class="ident">TurnType</span>, <span class="ident">SIDEWALK_THICKNESS</span>,
 };
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Prerender</span>, <span class="ident">RewriteColor</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Prerender</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">colors</span>::<span class="ident">ColorScheme</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::{
@@ -565,9 +579,23 @@
             <span class="ident">IntersectionType</span>::<span class="ident">StopSign</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">for</span> <span class="ident">ss</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_stop_sign</span>(<span class="ident">i</span>.<span class="ident">id</span>).<span class="ident">roads</span>.<span class="ident">values</span>() {
                     <span class="kw">if</span> <span class="ident">ss</span>.<span class="ident">must_stop</span> {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">octagon</span>, <span class="ident">pole</span>)) <span class="op">=</span> <span class="ident">DrawIntersection</span>::<span class="ident">stop_sign_geom</span>(<span class="ident">ss</span>, <span class="ident">map</span>) {
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">octagon</span>, <span class="ident">pole</span>, <span class="ident">angle</span>)) <span class="op">=</span>
+                            <span class="ident">DrawIntersection</span>::<span class="ident">stop_sign_geom</span>(<span class="ident">ss</span>, <span class="ident">map</span>)
+                        {
+                            <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">octagon</span>.<span class="ident">center</span>();
                             <span class="ident">default_geom</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">stop_sign</span>, <span class="ident">octagon</span>);
                             <span class="ident">default_geom</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">stop_sign_pole</span>, <span class="ident">pole</span>);
+
+                            <span class="comment">// Trial and error to make the scale and angle work. We could also make</span>
+                            <span class="comment">// a fixed SVG asset and just rotate it, but we&#39;d still need to</span>
+                            <span class="comment">// calculate the octagon hitbox for the stop sign editor.</span>
+                            <span class="ident">default_geom</span>.<span class="ident">append</span>(
+                                <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">widgetry</span>::<span class="ident">Line</span>(<span class="string">&quot;STOP&quot;</span>).<span class="ident">small_heading</span>())
+                                    .<span class="ident">render_autocropped</span>(<span class="ident">prerender</span>.<span class="ident">as_ref</span>())
+                                    .<span class="ident">scale</span>(<span class="number">0.02</span>)
+                                    .<span class="ident">centered_on</span>(<span class="ident">center</span>)
+                                    .<span class="ident">rotate</span>(<span class="ident">angle</span>.<span class="ident">opposite</span>().<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">90.0</span>)),
+                            );
                         }
                     }
                 }
@@ -591,8 +619,8 @@
         <span class="ident">default_geom</span>
     }
 
-    <span class="comment">// Returns the (octagon, pole) if there&#39;s room to draw it.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stop_sign_geom</span>(<span class="ident">ss</span>: <span class="kw-2">&amp;</span><span class="ident">RoadWithStopSign</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span> {
+    <span class="comment">// Returns the (octagon, pole, angle of the angle) if there&#39;s room to draw it.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stop_sign_geom</span>(<span class="ident">ss</span>: <span class="kw-2">&amp;</span><span class="ident">RoadWithStopSign</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Polygon</span>, <span class="ident">Angle</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">trim_back</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.1</span>);
         <span class="kw">let</span> <span class="ident">edge_lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">ss</span>.<span class="ident">lane_closest_to_edge</span>);
         <span class="comment">// TODO The dream of trimming f64&#39;s was to isolate epsilon checks like this...</span>
@@ -621,7 +649,7 @@
                 .<span class="ident">project_away</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.9</span>), <span class="ident">last_line</span>.<span class="ident">angle</span>().<span class="ident">opposite</span>()),
         )
         .<span class="ident">make_polygons</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.3</span>));
-        <span class="prelude-val">Some</span>((<span class="ident">octagon</span>, <span class="ident">pole</span>))
+        <span class="prelude-val">Some</span>((<span class="ident">octagon</span>, <span class="ident">pole</span>, <span class="ident">last_line</span>.<span class="ident">angle</span>()))
     }
 }
 
