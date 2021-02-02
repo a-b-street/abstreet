@@ -295,6 +295,20 @@
 <span id="292">292</span>
 <span id="293">293</span>
 <span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
@@ -433,14 +447,28 @@
         <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="ident">bounds</span>.<span class="ident">width</span>(), <span class="ident">bounds</span>.<span class="ident">height</span>())
     }
 
-    <span class="doccomment">/// Returns a batch containing a parsed SVG string.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_uncached_svg_contents</span>(<span class="ident">raw</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
-        <span class="ident">svg</span>::<span class="ident">load_svg_from_bytes_uncached</span>(<span class="ident">raw</span>).<span class="ident">unwrap</span>().<span class="number">0</span>
-    }
-
     <span class="doccomment">/// Returns a batch containing an SVG from a file.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_svg</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Prerender</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">P</span>, <span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
         <span class="ident">svg</span>::<span class="ident">load_svg</span>(<span class="ident">prerender</span>.<span class="ident">as_ref</span>(), <span class="ident">filename</span>).<span class="number">0</span>
+    }
+
+    <span class="doccomment">/// Returns a GeomBatch from the bytes of a utf8 encoded SVG string.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_svg_bytes</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Prerender</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+        <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">P</span>,
+        <span class="ident">labeled_bytes</span>: (<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]),
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
+        <span class="ident">svg</span>::<span class="ident">load_svg_bytes</span>(<span class="ident">prerender</span>.<span class="ident">as_ref</span>(), <span class="ident">labeled_bytes</span>.<span class="number">0</span>, <span class="ident">labeled_bytes</span>.<span class="number">1</span>)
+            .<span class="ident">expect</span>(<span class="string">&quot;invalid svg bytes&quot;</span>)
+            .<span class="number">0</span>
+    }
+
+    <span class="doccomment">/// Returns a GeomBatch from the bytes of a utf8 encoded SVG string.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Prefer to use `load_svg_bytes`, which caches the parsed SVG, unless</span>
+    <span class="doccomment">/// the SVG was dynamically generated, or is otherwise unlikely to be</span>
+    <span class="doccomment">/// reused.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_svg_bytes_uncached</span>(<span class="ident">raw</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
+        <span class="ident">svg</span>::<span class="ident">load_svg_from_bytes_uncached</span>(<span class="ident">raw</span>).<span class="ident">unwrap</span>().<span class="number">0</span>
     }
 
     <span class="doccomment">/// Transforms all colors in a batch.</span>
