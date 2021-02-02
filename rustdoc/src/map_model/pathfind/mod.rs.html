@@ -642,6 +642,27 @@
 <span id="639">639</span>
 <span id="640">640</span>
 <span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Everything related to pathfinding through a map for different types of agents.</span>
 
@@ -1281,6 +1302,27 @@
                     );
                 }
             }
+        }
+    }
+}
+
+<span class="doccomment">/// Tuneable parameters for all types of routing.</span>
+<span class="comment">// These will maybe become part of the PathRequest later, but that&#39;s an extremely invasive and</span>
+<span class="comment">// space-expensive change right now.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RoutingParams</span> {
+    <span class="comment">// For bike routing</span>
+    <span class="kw">pub</span> <span class="ident">bike_lane_penalty</span>: <span class="ident">f64</span>,
+    <span class="kw">pub</span> <span class="ident">bus_lane_penalty</span>: <span class="ident">f64</span>,
+    <span class="kw">pub</span> <span class="ident">driving_lane_penalty</span>: <span class="ident">f64</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">RoutingParams</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RoutingParams</span> {
+        <span class="ident">RoutingParams</span> {
+            <span class="ident">bike_lane_penalty</span>: <span class="number">1.0</span>,
+            <span class="ident">bus_lane_penalty</span>: <span class="number">1.1</span>,
+            <span class="ident">driving_lane_penalty</span>: <span class="number">1.5</span>,
         }
     }
 }

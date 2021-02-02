@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["RoutingProfile",""]],"fn":[["profile_to_controls",""]],"struct":[["RouteExplorer",""]]});
+initSidebarItems({"fn":[["params_to_controls",""]],"struct":[["RouteExplorer",""]]});

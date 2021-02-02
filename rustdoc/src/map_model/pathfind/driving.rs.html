@@ -285,6 +285,26 @@
 <span id="282">282</span>
 <span id="283">283</span>
 <span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Pathfinding for cars, bikes, buses, and trains using contraction hierarchies</span>
 
@@ -298,7 +318,9 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">node_map</span>::{<span class="ident">deserialize_nodemap</span>, <span class="ident">NodeMap</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">uber_turns</span>::{<span class="ident">IntersectionCluster</span>, <span class="ident">UberTurn</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>, <span class="ident">Turn</span>, <span class="ident">TurnID</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>, <span class="ident">RoutingParams</span>, <span class="ident">Turn</span>, <span class="ident">TurnID</span>,
+};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">VehiclePathfinder</span> {
@@ -471,7 +493,13 @@
                     <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(
                         <span class="ident">from</span>,
                         <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">Node</span>::<span class="ident">Lane</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>)),
-                        <span class="ident">round</span>(<span class="ident">driving_cost</span>(<span class="ident">l</span>, <span class="ident">turn</span>, <span class="ident">constraints</span>, <span class="ident">map</span>)),
+                        <span class="ident">round</span>(<span class="ident">driving_cost</span>(
+                            <span class="ident">l</span>,
+                            <span class="ident">turn</span>,
+                            <span class="ident">constraints</span>,
+                            <span class="ident">map</span>.<span class="ident">routing_params</span>(),
+                            <span class="ident">map</span>,
+                        )),
                     );
                 }
             } <span class="kw">else</span> {
@@ -481,7 +509,13 @@
 
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sum_cost</span> <span class="op">=</span> <span class="number">0.0</span>;
                     <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">ut</span>.<span class="ident">path</span> {
-                        <span class="ident">sum_cost</span> <span class="op">+</span><span class="op">=</span> <span class="ident">driving_cost</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">src</span>), <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">t</span>), <span class="ident">constraints</span>, <span class="ident">map</span>);
+                        <span class="ident">sum_cost</span> <span class="op">+</span><span class="op">=</span> <span class="ident">driving_cost</span>(
+                            <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">src</span>),
+                            <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">t</span>),
+                            <span class="ident">constraints</span>,
+                            <span class="ident">map</span>.<span class="ident">routing_params</span>(),
+                            <span class="ident">map</span>,
+                        );
                     }
                     <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(<span class="ident">from</span>, <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">Node</span>::<span class="ident">UberTurn</span>(<span class="kw-2">*</span><span class="ident">idx</span>)), <span class="ident">round</span>(<span class="ident">sum_cost</span>));
                     <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(
@@ -507,7 +541,13 @@
 }
 
 <span class="doccomment">/// Different unit based on constraints.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">driving_cost</span>(<span class="ident">lane</span>: <span class="kw-2">&amp;</span><span class="ident">Lane</span>, <span class="ident">turn</span>: <span class="kw-2">&amp;</span><span class="ident">Turn</span>, <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">driving_cost</span>(
+    <span class="ident">lane</span>: <span class="kw-2">&amp;</span><span class="ident">Lane</span>,
+    <span class="ident">turn</span>: <span class="kw-2">&amp;</span><span class="ident">Turn</span>,
+    <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
+    <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span>,
+    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
     <span class="comment">// TODO Could cost turns differently.</span>
 
     <span class="kw">let</span> <span class="ident">base</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">constraints</span> {
@@ -527,12 +567,12 @@
             <span class="comment">// TODO Prefer bike lanes, then bus lanes, then driving lanes. For now, express that as</span>
             <span class="comment">// an extra cost.</span>
             <span class="kw">let</span> <span class="ident">lt_penalty</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_biking</span>() {
-                <span class="number">1.0</span>
+                <span class="ident">params</span>.<span class="ident">bike_lane_penalty</span>
             } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_bus</span>() {
-                <span class="number">1.1</span>
+                <span class="ident">params</span>.<span class="ident">bus_lane_penalty</span>
             } <span class="kw">else</span> {
                 <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">lane</span>.<span class="ident">is_driving</span>());
-                <span class="number">1.5</span>
+                <span class="ident">params</span>.<span class="ident">driving_lane_penalty</span>
             };
 
             <span class="comment">// 1m resolution is fine</span>

@@ -179,6 +179,12 @@
 <span id="176">176</span>
 <span id="177">177</span>
 <span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Zones and AccessRestrictions are used to model things like:</span>
 <span class="doccomment">//! 1) gated communities, where only trips beginning or ending at a building in the neighborhood may</span>
@@ -268,7 +274,13 @@
             <span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>(),
             <span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span> <span class="op">=</span><span class="op">=</span> <span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">lane</span>(),
             <span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">turn</span>)<span class="op">|</span> {
-                <span class="ident">driving_cost</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">src</span>), <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">turn</span>), <span class="ident">req</span>.<span class="ident">constraints</span>, <span class="ident">map</span>)
+                <span class="ident">driving_cost</span>(
+                    <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">src</span>),
+                    <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">turn</span>),
+                    <span class="ident">req</span>.<span class="ident">constraints</span>,
+                    <span class="ident">map</span>.<span class="ident">routing_params</span>(),
+                    <span class="ident">map</span>,
+                )
             },
             <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="number">0.0</span>,
         )<span class="question-mark">?</span>;

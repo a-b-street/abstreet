@@ -113,6 +113,19 @@
 <span id="110">110</span>
 <span id="111">111</span>
 <span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Pathfinding without needing to build a separate contraction hierarchy.</span>
 
@@ -122,13 +135,13 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">driving</span>::<span class="ident">driving_cost</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">walking</span>::{<span class="ident">walking_cost</span>, <span class="ident">WalkingNode</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>, <span class="ident">TurnID</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>, <span class="ident">RoutingParams</span>, <span class="ident">TurnID</span>};
 
 <span class="comment">// TODO These should maybe keep the DiGraphMaps as state. It&#39;s cheap to recalculate it for edits.</span>
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">simple_pathfind</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">PathRequest</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">simple_pathfind</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">PathRequest</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">graph</span> <span class="op">=</span> <span class="ident">build_graph_for_vehicles</span>(<span class="ident">map</span>, <span class="ident">req</span>.<span class="ident">constraints</span>);
-    <span class="ident">calc_path</span>(<span class="ident">graph</span>, <span class="ident">req</span>, <span class="ident">map</span>)
+    <span class="ident">calc_path</span>(<span class="ident">graph</span>, <span class="ident">req</span>, <span class="ident">params</span>, <span class="ident">map</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_graph_for_vehicles</span>(
@@ -161,15 +174,28 @@
         }
     }
 
-    <span class="ident">calc_path</span>(<span class="ident">graph</span>, <span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>)
+    <span class="ident">calc_path</span>(<span class="ident">graph</span>, <span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>.<span class="ident">routing_params</span>(), <span class="ident">map</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">calc_path</span>(<span class="ident">graph</span>: <span class="ident">DiGraphMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">TurnID</span><span class="op">&gt;</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">PathRequest</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">calc_path</span>(
+    <span class="ident">graph</span>: <span class="ident">DiGraphMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">TurnID</span><span class="op">&gt;</span>,
+    <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">PathRequest</span>,
+    <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span>,
+    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
     <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">path</span>) <span class="op">=</span> <span class="ident">petgraph</span>::<span class="ident">algo</span>::<span class="ident">astar</span>(
         <span class="kw-2">&amp;</span><span class="ident">graph</span>,
         <span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>(),
         <span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span> <span class="op">=</span><span class="op">=</span> <span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">lane</span>(),
-        <span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">turn</span>)<span class="op">|</span> <span class="ident">driving_cost</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">src</span>), <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">turn</span>), <span class="ident">req</span>.<span class="ident">constraints</span>, <span class="ident">map</span>),
+        <span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">turn</span>)<span class="op">|</span> {
+            <span class="ident">driving_cost</span>(
+                <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">src</span>),
+                <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">turn</span>),
+                <span class="ident">req</span>.<span class="ident">constraints</span>,
+                <span class="ident">params</span>,
+                <span class="ident">map</span>,
+            )
+        },
         <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="number">0.0</span>,
     )<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">steps</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
