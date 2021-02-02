@@ -174,6 +174,7 @@ impl UberTurnViewer {
                     map.get_l(t.src),
                     map.get_t(*t),
                     PathConstraints::Car,
+                    map.routing_params(),
                     map,
                 );
             }

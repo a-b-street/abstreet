@@ -86,7 +86,13 @@ impl Zone {
             req.start.lane(),
             |l| l == req.end.lane(),
             |(_, _, turn)| {
-                driving_cost(map.get_l(turn.src), map.get_t(*turn), req.constraints, map)
+                driving_cost(
+                    map.get_l(turn.src),
+                    map.get_t(*turn),
+                    req.constraints,
+                    map.routing_params(),
+                    map,
+                )
             },
             |_| 0.0,
         )?;

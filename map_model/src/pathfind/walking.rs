@@ -385,6 +385,7 @@ fn transit_input_graph(
 }
 
 /// The cost is time in seconds, rounded to a usize
+// TODO Plumb RoutingParams here, but first, need to also plumb in the turn or lane.
 pub fn walking_cost(dist: Distance) -> usize {
     let walking_speed = Speed::meters_per_second(1.34);
     let time = dist / walking_speed;

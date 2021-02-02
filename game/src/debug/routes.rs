@@ -1,5 +1,5 @@
 use map_gui::ID;
-use map_model::NORMAL_LANE_THICKNESS;
+use map_model::{RoutingParams, NORMAL_LANE_THICKNESS};
 use sim::{TripEndpoint, TripMode};
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel,
@@ -26,39 +26,35 @@ impl RouteExplorer {
                     Line("Route explorer").small_heading().draw(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                profile_to_controls(ctx, &RoutingProfile::default_biking()).named("profile"),
+                params_to_controls(ctx, TripMode::Bike, &RoutingParams::default()).named("params"),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
         })
     }
 
-    fn controls_to_profile(&self) -> RoutingProfile {
+    fn controls_to_params(&self) -> (TripMode, RoutingParams) {
+        let mut params = RoutingParams::default();
         if !self.panel.is_button_enabled("cars") {
-            return RoutingProfile::Driving;
+            return (TripMode::Drive, params);
         }
         if !self.panel.is_button_enabled("pedestrians") {
-            return RoutingProfile::Walking;
+            return (TripMode::Walk, params);
         }
-        RoutingProfile::Biking {
-            bike_lane_penalty: self.panel.spinner("bike lane penalty") as f64 / 10.0,
-            bus_lane_penalty: self.panel.spinner("bus lane penalty") as f64 / 10.0,
-            driving_lane_penalty: self.panel.spinner("driving lane penalty") as f64 / 10.0,
-        }
+        params.bike_lane_penalty = self.panel.spinner("bike lane penalty") as f64 / 10.0;
+        params.bus_lane_penalty = self.panel.spinner("bus lane penalty") as f64 / 10.0;
+        params.driving_lane_penalty = self.panel.spinner("driving lane penalty") as f64 / 10.0;
+        (TripMode::Bike, params)
     }
 
     fn recalc_paths(&mut self, ctx: &mut EventCtx, app: &App) {
-        let mode = match self.controls_to_profile() {
-            RoutingProfile::Driving => TripMode::Drive,
-            RoutingProfile::Walking => TripMode::Walk,
-            RoutingProfile::Biking { .. } => TripMode::Bike,
-        };
+        let (mode, params) = self.controls_to_params();
 
         if let Some((ref goal, _, ref mut preview)) = self.goal {
             *preview = Drawable::empty(ctx);
             if let Some(polygon) =
                 TripEndpoint::path_req(self.start.clone(), goal.clone(), mode, &app.primary.map)
-                    .and_then(|req| app.primary.map.pathfind(req).ok())
+                    .and_then(|req| app.primary.map.pathfind_with_params(req, &params).ok())
                     .and_then(|path| path.trace(&app.primary.map))
                     .map(|pl| pl.make_polygons(NORMAL_LANE_THICKNESS))
             {
@@ -78,18 +74,21 @@ impl State<App> for RouteExplorer {
                     return Transition::Pop;
                 }
                 "bikes" => {
-                    let controls = profile_to_controls(ctx, &RoutingProfile::default_biking());
-                    self.panel.replace(ctx, "profile", controls);
+                    let controls =
+                        params_to_controls(ctx, TripMode::Bike, &RoutingParams::default());
+                    self.panel.replace(ctx, "params", controls);
                     self.recalc_paths(ctx, app);
                 }
                 "cars" => {
-                    let controls = profile_to_controls(ctx, &RoutingProfile::Driving);
-                    self.panel.replace(ctx, "profile", controls);
+                    let controls =
+                        params_to_controls(ctx, TripMode::Drive, &RoutingParams::default());
+                    self.panel.replace(ctx, "params", controls);
                     self.recalc_paths(ctx, app);
                 }
                 "pedestrians" => {
-                    let controls = profile_to_controls(ctx, &RoutingProfile::Walking);
-                    self.panel.replace(ctx, "profile", controls);
+                    let controls =
+                        params_to_controls(ctx, TripMode::Walk, &RoutingParams::default());
+                    self.panel.replace(ctx, "params", controls);
                     self.recalc_paths(ctx, app);
                 }
                 _ => unreachable!(),
@@ -178,65 +177,37 @@ impl State<App> for RouteExplorer {
     }
 }
 
-// TODO Move to map_model
-// TODO Not sure an enum makes sense, based on how we're still going to be toggling based on
-// PathConstraints.
-enum RoutingProfile {
-    Driving,
-    Biking {
-        bike_lane_penalty: f64,
-        bus_lane_penalty: f64,
-        driving_lane_penalty: f64,
-    },
-    Walking,
-}
-
-impl RoutingProfile {
-    fn default_biking() -> RoutingProfile {
-        RoutingProfile::Biking {
-            bike_lane_penalty: 1.0,
-            bus_lane_penalty: 1.1,
-            driving_lane_penalty: 1.5,
-        }
-    }
-}
-
-fn profile_to_controls(ctx: &mut EventCtx, profile: &RoutingProfile) -> Widget {
+fn params_to_controls(ctx: &mut EventCtx, mode: TripMode, params: &RoutingParams) -> Widget {
     let mut rows = vec![Widget::custom_row(vec![
         ctx.style()
             .btn_plain_light_icon("system/assets/meters/bike.svg")
-            .disabled(matches!(profile, RoutingProfile::Biking { .. }))
+            .disabled(mode == TripMode::Bike)
             .build_widget(ctx, "bikes"),
         ctx.style()
             .btn_plain_light_icon("system/assets/meters/car.svg")
-            .disabled(matches!(profile, RoutingProfile::Driving))
+            .disabled(mode == TripMode::Drive)
             .build_widget(ctx, "cars"),
         ctx.style()
             .btn_plain_light_icon("system/assets/meters/pedestrian.svg")
-            .disabled(matches!(profile, RoutingProfile::Walking))
+            .disabled(mode == TripMode::Walk)
             .build_widget(ctx, "pedestrians"),
     ])
     .evenly_spaced()];
-    if let RoutingProfile::Biking {
-        bike_lane_penalty,
-        bus_lane_penalty,
-        driving_lane_penalty,
-    } = profile
-    {
+    if mode == TripMode::Bike {
         // TODO Spinners that natively understand a floating point range with a given precision
         rows.push(Widget::row(vec![
             "Bike lane penalty:".draw_text(ctx).margin_right(20),
-            Spinner::new(ctx, (0, 20), (*bike_lane_penalty * 10.0) as isize)
+            Spinner::new(ctx, (0, 20), (params.bike_lane_penalty * 10.0) as isize)
                 .named("bike lane penalty"),
         ]));
         rows.push(Widget::row(vec![
             "Bus lane penalty:".draw_text(ctx).margin_right(20),
-            Spinner::new(ctx, (0, 20), (*bus_lane_penalty * 10.0) as isize)
+            Spinner::new(ctx, (0, 20), (params.bus_lane_penalty * 10.0) as isize)
                 .named("bus lane penalty"),
         ]));
         rows.push(Widget::row(vec![
             "Driving lane penalty:".draw_text(ctx).margin_right(20),
-            Spinner::new(ctx, (0, 20), (*driving_lane_penalty * 10.0) as isize)
+            Spinner::new(ctx, (0, 20), (params.driving_lane_penalty * 10.0) as isize)
                 .named("driving lane penalty"),
         ]));
     }

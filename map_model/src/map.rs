@@ -15,7 +15,8 @@ use crate::{
     osm, Area, AreaID, AreaType, Building, BuildingID, BuildingType, BusRoute, BusRouteID, BusStop,
     BusStopID, ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, Lane, LaneID,
     LaneType, Map, MapEdits, MovementID, OffstreetParking, ParkingLot, ParkingLotID, Path,
-    PathConstraints, PathRequest, Pathfinder, Position, Road, RoadID, Turn, TurnID, TurnType, Zone,
+    PathConstraints, PathRequest, Pathfinder, Position, Road, RoadID, RoutingParams, Turn, TurnID,
+    TurnType, Zone,
 };
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -562,6 +563,12 @@ impl Map {
         assert!(!self.pathfinder_dirty);
         self.pathfinder.pathfind_avoiding_lanes(req, avoid, self)
     }
+    pub fn pathfind_with_params(&self, req: PathRequest, params: &RoutingParams) -> Result<Path> {
+        assert!(!self.pathfinder_dirty);
+        self.pathfinder
+            .pathfind_with_params(req.clone(), params, self)
+            .ok_or_else(|| anyhow!("can't fulfill {}", req))
+    }
 
     pub fn should_use_transit(
         &self,
@@ -703,4 +710,13 @@ impl Map {
                 .collect(),
         )
     }
+
+    /// Returns the routing params baked into the map. Currently just hardcoded defaults.
+    // Depending how this works out, we might require everybody to explicitly plumb routing params,
+    // in which case it should be easy to look for all places calling this.
+    pub fn routing_params(&self) -> &'static RoutingParams {
+        &ROUTING_PARAMS
+    }
 }
+
+static ROUTING_PARAMS: RoutingParams = RoutingParams::default();

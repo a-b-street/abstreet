@@ -9,7 +9,7 @@ use crate::pathfind::walking::{one_step_walking_path, walking_path_to_steps};
 use crate::pathfind::{dijkstra, WalkingNode};
 use crate::{
     BusRouteID, BusStopID, Intersection, LaneID, Map, Path, PathConstraints, PathRequest, Position,
-    TurnID, Zone,
+    RoutingParams, TurnID, Zone,
 };
 
 /// Most of the time, prefer using the faster contraction hierarchies. But sometimes, callers can
@@ -25,6 +25,17 @@ impl Pathfinder {
     /// Finds a path from a start to an end for a certain type of agent. Handles requests that
     /// start or end inside access-restricted zones.
     pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<Path> {
+        self.pathfind_with_params(req, map.routing_params(), map)
+    }
+
+    /// Finds a path from a start to an end for a certain type of agent. Handles requests that
+    /// start or end inside access-restricted zones. May use custom routing parameters.
+    pub fn pathfind_with_params(
+        &self,
+        req: PathRequest,
+        params: &RoutingParams,
+        map: &Map,
+    ) -> Option<Path> {
         if req.start.lane() == req.end.lane() && req.constraints == PathConstraints::Pedestrian {
             return Some(one_step_walking_path(&req, map));
         }
@@ -104,7 +115,7 @@ impl Pathfinder {
             let steps = walking_path_to_steps(self.simple_walking_path(&req, map)?, map);
             return Some(Path::new(map, steps, req, Vec::new()));
         }
-        self.simple_pathfind(&req, map)
+        self.simple_pathfind(&req, params, map)
     }
 
     pub fn pathfind_avoiding_lanes(
@@ -138,9 +149,22 @@ impl Pathfinder {
     }
 
     // Doesn't handle zones or pedestrians
-    fn simple_pathfind(&self, req: &PathRequest, map: &Map) -> Option<Path> {
+    fn simple_pathfind(
+        &self,
+        req: &PathRequest,
+        params: &RoutingParams,
+        map: &Map,
+    ) -> Option<Path> {
+        if params != &RoutingParams::default() {
+            // If the params differ from the defaults, the CHs won't match. This should only be
+            // happening from the debug UI; be very obnoxious if we start calling it from the
+            // simulation or something else.
+            warn!("Pathfinding for {} with custom params", req);
+            return dijkstra::simple_pathfind(req, params, map);
+        }
+
         match self {
-            Pathfinder::Dijkstra => dijkstra::simple_pathfind(req, map),
+            Pathfinder::Dijkstra => dijkstra::simple_pathfind(req, params, map),
             Pathfinder::CH(ref p) => p.simple_pathfind(req, map),
         }
     }
@@ -225,7 +249,7 @@ impl Pathfinder {
         }
 
         let mut interior_path = zone.pathfind(interior_req, map)?;
-        let main_path = self.simple_pathfind(&req, map)?;
+        let main_path = self.simple_pathfind(&req, map.routing_params(), map)?;
         interior_path.append(main_path, map);
         Some(interior_path)
     }
@@ -305,7 +329,7 @@ impl Pathfinder {
         }
 
         let interior_path = zone.pathfind(interior_req, map)?;
-        let mut main_path = self.simple_pathfind(&req, map)?;
+        let mut main_path = self.simple_pathfind(&req, map.routing_params(), map)?;
         main_path.append(interior_path, map);
         main_path.orig_req = orig_req;
         Some(main_path)
