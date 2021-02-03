@@ -1,6 +1,6 @@
 use abstutil::{prettyprint_usize, Counter, Parallelism, Timer};
 use map_gui::colors::ColorSchemeChoice;
-use map_gui::tools::{ColorNetwork, DivergingScale};
+use map_gui::tools::ColorNetwork;
 use map_gui::{AppLike, ID};
 use map_model::{PathRequest, RoadID, RoutingParams, Traversable, NORMAL_LANE_THICKNESS};
 use sim::{TripEndpoint, TripMode};
@@ -330,22 +330,26 @@ impl State<App> for AllRoutesExplorer {
 
                             // Calculate the difference
                             let mut colorer = ColorNetwork::new(app);
-                            // TODO This is hiding interesting patterns; dividing after / before
-                            // isn't a nice scale.
-                            let scale = DivergingScale::new(
-                                Color::hex("#5D9630"),
-                                Color::WHITE,
-                                Color::hex("#A32015"),
-                            )
-                            .range(0.0, 2.0)
-                            .ignore(0.999, 1.001);
-                            for (r, before, after) in self
+                            // TODO If this works well, promote it alongside DivergingScale
+                            let more = &app.cs.good_to_bad_red;
+                            let less = &app.cs.good_to_bad_green;
+                            let comparisons = self
                                 .baseline_counts
                                 .clone()
-                                .compare(self.current_counts.clone())
-                            {
-                                if let Some(c) = scale.eval((after as f64) / (before as f64)) {
-                                    colorer.add_r(r, c);
+                                .compare(self.current_counts.clone());
+                            // Find the biggest gain/loss
+                            let diff = comparisons
+                                .iter()
+                                .map(|(_, after, before)| {
+                                    ((*after as isize) - (*before as isize)).abs() as usize
+                                })
+                                .max()
+                                .unwrap() as f64;
+                            for (r, before, after) in comparisons {
+                                if after < before {
+                                    colorer.add_r(r, less.eval((before - after) as f64 / diff));
+                                } else if before < after {
+                                    colorer.add_r(r, more.eval((after - before) as f64 / diff));
                                 }
                             }
                             let (unzoomed, zoomed) = colorer.build(ctx);
