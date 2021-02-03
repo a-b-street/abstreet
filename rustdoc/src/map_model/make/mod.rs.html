@@ -452,6 +452,7 @@
 <span id="449">449</span>
 <span id="450">450</span>
 <span id="451">451</span>
+<span id="452">452</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! See &lt;https://a-b-street.github.io/docs/map/importing/index.html&gt; for an overview. This module</span>
 <span class="doccomment">//! covers the RawMap-&gt;Map stage.</span>
@@ -467,7 +468,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">connectivity</span>, <span class="ident">osm</span>, <span class="ident">AccessRestrictions</span>, <span class="ident">Area</span>, <span class="ident">AreaID</span>, <span class="ident">AreaType</span>, <span class="ident">ControlStopSign</span>,
     <span class="ident">ControlTrafficSignal</span>, <span class="ident">Direction</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>,
-    <span class="ident">Map</span>, <span class="ident">MapEdits</span>, <span class="ident">Movement</span>, <span class="ident">PathConstraints</span>, <span class="ident">Position</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">Turn</span>, <span class="ident">Zone</span>,
+    <span class="ident">Map</span>, <span class="ident">MapEdits</span>, <span class="ident">Movement</span>, <span class="ident">PathConstraints</span>, <span class="ident">Position</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">RoutingParams</span>, <span class="ident">Turn</span>, <span class="ident">Zone</span>,
 };
 
 <span class="kw">mod</span> <span class="ident">bridges</span>;
@@ -519,6 +520,7 @@
             <span class="ident">config</span>: <span class="ident">raw</span>.<span class="ident">config</span>.<span class="ident">clone</span>(),
             <span class="ident">pathfinder</span>: <span class="ident">Pathfinder</span>::<span class="ident">Dijkstra</span>,
             <span class="ident">pathfinder_dirty</span>: <span class="bool-val">false</span>,
+            <span class="ident">routing_params</span>: <span class="ident">RoutingParams</span>::<span class="ident">default</span>(),
             <span class="ident">name</span>: <span class="ident">raw</span>.<span class="ident">name</span>.<span class="ident">clone</span>(),
             <span class="ident">edits</span>: <span class="ident">MapEdits</span>::<span class="ident">new</span>(),
         };

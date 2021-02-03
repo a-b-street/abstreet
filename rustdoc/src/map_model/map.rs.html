@@ -723,6 +723,15 @@
 <span id="720">720</span>
 <span id="721">721</span>
 <span id="722">722</span>
+<span id="723">723</span>
+<span id="724">724</span>
+<span id="725">725</span>
+<span id="726">726</span>
+<span id="727">727</span>
+<span id="728">728</span>
+<span id="729">729</span>
+<span id="730">730</span>
+<span id="731">731</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.</span>
 
@@ -901,6 +910,7 @@
             },
             <span class="ident">pathfinder</span>: <span class="ident">Pathfinder</span>::<span class="ident">Dijkstra</span>,
             <span class="ident">pathfinder_dirty</span>: <span class="bool-val">false</span>,
+            <span class="ident">routing_params</span>: <span class="ident">RoutingParams</span>::<span class="ident">default</span>(),
             <span class="ident">name</span>: <span class="ident">MapName</span> {
                 <span class="ident">city</span>: <span class="string">&quot;blank city&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">map</span>: <span class="string">&quot;blank&quot;</span>.<span class="ident">to_string</span>(),
@@ -1390,6 +1400,16 @@
         });
     }
 
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hack_override_routing_prams</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">routing_params</span>: <span class="ident">RoutingParams</span>,
+        <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
+    ) {
+        <span class="self">self</span>.<span class="ident">routing_params</span> <span class="op">=</span> <span class="ident">routing_params</span>;
+        <span class="self">self</span>.<span class="ident">pathfinder_dirty</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="self">self</span>.<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="ident">timer</span>);
+    }
+
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_languages</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">languages</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">all_roads</span>() {
@@ -1437,14 +1457,12 @@
         )
     }
 
-    <span class="doccomment">/// Returns the routing params baked into the map. Currently just hardcoded defaults.</span>
+    <span class="doccomment">/// Returns the routing params baked into the map.</span>
     <span class="comment">// Depending how this works out, we might require everybody to explicitly plumb routing params,</span>
     <span class="comment">// in which case it should be easy to look for all places calling this.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">routing_params</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">RoutingParams</span> {
-        <span class="kw-2">&amp;</span><span class="ident">ROUTING_PARAMS</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">routing_params</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">routing_params</span>
     }
 }
-
-<span class="kw">static</span> <span class="ident">ROUTING_PARAMS</span>: <span class="ident">RoutingParams</span> <span class="op">=</span> <span class="ident">RoutingParams</span>::<span class="ident">default</span>();
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "map_model";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

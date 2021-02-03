@@ -1309,7 +1309,7 @@
 <span class="doccomment">/// Tuneable parameters for all types of routing.</span>
 <span class="comment">// These will maybe become part of the PathRequest later, but that&#39;s an extremely invasive and</span>
 <span class="comment">// space-expensive change right now.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RoutingParams</span> {
     <span class="comment">// For bike routing</span>
     <span class="kw">pub</span> <span class="ident">bike_lane_penalty</span>: <span class="ident">f64</span>,
