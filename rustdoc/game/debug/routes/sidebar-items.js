@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["params_to_controls",""]],"struct":[["RouteExplorer",""]]});
+initSidebarItems({"fn":[["calculate_demand",""],["cmp_count",""],["controls_to_params",""],["params_to_controls",""]],"struct":[["AllRoutesExplorer","See how live-tuned routing parameters affect all requests for the current scenario."],["RouteExplorer","See how live-tuned routing parameters affect a single request."]]});
