@@ -232,15 +232,6 @@
 <span id="229">229</span>
 <span id="230">230</span>
 <span id="231">231</span>
-<span id="232">232</span>
-<span id="233">233</span>
-<span id="234">234</span>
-<span id="235">235</span>
-<span id="236">236</span>
-<span id="237">237</span>
-<span id="238">238</span>
-<span id="239">239</span>
-<span id="240">240</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">render</span>::<span class="ident">Renderable</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
@@ -272,50 +263,41 @@
         <span class="ident">mode</span>: <span class="ident">GameplayMode</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="ident">lt</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">lane_type</span>;
-        <span class="kw">for</span> (<span class="ident">icon</span>, <span class="ident">label</span>, <span class="ident">key</span>, <span class="ident">active</span>) <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">current_lt</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">lane_type</span>;
+        <span class="kw">for</span> (<span class="ident">icon</span>, <span class="ident">label</span>, <span class="ident">key</span>, <span class="ident">lt</span>) <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[
             (
                 <span class="string">&quot;driving&quot;</span>,
                 <span class="string">&quot;convert to a driving lane&quot;</span>,
                 <span class="ident">Key</span>::<span class="ident">D</span>,
-                <span class="ident">lt</span> <span class="op">!</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Driving</span>,
+                <span class="ident">LaneType</span>::<span class="ident">Driving</span>,
             ),
             (
                 <span class="string">&quot;bike&quot;</span>,
                 <span class="string">&quot;convert to a protected bike lane&quot;</span>,
                 <span class="ident">Key</span>::<span class="ident">B</span>,
-                <span class="ident">lt</span> <span class="op">!</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Biking</span>,
+                <span class="ident">LaneType</span>::<span class="ident">Biking</span>,
             ),
-            (
-                <span class="string">&quot;bus&quot;</span>,
-                <span class="string">&quot;convert to a bus-only lane&quot;</span>,
-                <span class="ident">Key</span>::<span class="ident">T</span>,
-                <span class="ident">lt</span> <span class="op">!</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Bus</span>,
-            ),
+            (<span class="string">&quot;bus&quot;</span>, <span class="string">&quot;convert to a bus-only lane&quot;</span>, <span class="ident">Key</span>::<span class="ident">T</span>, <span class="ident">LaneType</span>::<span class="ident">Bus</span>),
             (
                 <span class="string">&quot;parking&quot;</span>,
                 <span class="string">&quot;convert to an on-street parking lane&quot;</span>,
                 <span class="ident">Key</span>::<span class="ident">P</span>,
-                <span class="ident">lt</span> <span class="op">!</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Parking</span>,
+                <span class="ident">LaneType</span>::<span class="ident">Parking</span>,
             ),
             (
                 <span class="string">&quot;construction&quot;</span>,
                 <span class="string">&quot;close for construction&quot;</span>,
                 <span class="ident">Key</span>::<span class="ident">C</span>,
-                <span class="ident">lt</span> <span class="op">!</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Construction</span>,
+                <span class="ident">LaneType</span>::<span class="ident">Construction</span>,
             ),
         ] {
-            <span class="ident">row</span>.<span class="ident">push</span>(<span class="kw">if</span> <span class="ident">active</span> {
+            <span class="ident">row</span>.<span class="ident">push</span>(
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_plain_light_icon</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/assets/edit/{}.svg&quot;</span>, <span class="ident">icon</span>))
                     .<span class="ident">hotkey</span>(<span class="ident">key</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="ident">label</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">Widget</span>::<span class="ident">draw_svg</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/assets/edit/{}.svg&quot;</span>, <span class="ident">icon</span>))
-                    .<span class="ident">container</span>()
-                    .<span class="ident">padding</span>(<span class="number">5</span>)
-                    .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>)
-            });
+                    .<span class="ident">disabled</span>(<span class="ident">current_lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">lt</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="ident">label</span>),
+            );
         }
 
         <span class="kw">let</span> <span class="ident">parent</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l</span>);
