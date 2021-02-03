@@ -431,10 +431,14 @@
 <span id="428">428</span>
 <span id="429">429</span>
 <span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>, <span class="ident">Parallelism</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">colors</span>::<span class="ident">ColorSchemeChoice</span>;
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">ColorNetwork</span>, <span class="ident">DivergingScale</span>};
+<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">ColorNetwork</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::{<span class="ident">AppLike</span>, <span class="ident">ID</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">PathRequest</span>, <span class="ident">RoadID</span>, <span class="ident">RoutingParams</span>, <span class="ident">Traversable</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
@@ -764,22 +768,26 @@
 
                             <span class="comment">// Calculate the difference</span>
                             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colorer</span> <span class="op">=</span> <span class="ident">ColorNetwork</span>::<span class="ident">new</span>(<span class="ident">app</span>);
-                            <span class="comment">// TODO This is hiding interesting patterns; dividing after / before</span>
-                            <span class="comment">// isn&#39;t a nice scale.</span>
-                            <span class="kw">let</span> <span class="ident">scale</span> <span class="op">=</span> <span class="ident">DivergingScale</span>::<span class="ident">new</span>(
-                                <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#5D9630&quot;</span>),
-                                <span class="ident">Color</span>::<span class="ident">WHITE</span>,
-                                <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#A32015&quot;</span>),
-                            )
-                            .<span class="ident">range</span>(<span class="number">0.0</span>, <span class="number">2.0</span>)
-                            .<span class="ident">ignore</span>(<span class="number">0.999</span>, <span class="number">1.001</span>);
-                            <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">before</span>, <span class="ident">after</span>) <span class="kw">in</span> <span class="self">self</span>
+                            <span class="comment">// TODO If this works well, promote it alongside DivergingScale</span>
+                            <span class="kw">let</span> <span class="ident">more</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">good_to_bad_red</span>;
+                            <span class="kw">let</span> <span class="ident">less</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">good_to_bad_green</span>;
+                            <span class="kw">let</span> <span class="ident">comparisons</span> <span class="op">=</span> <span class="self">self</span>
                                 .<span class="ident">baseline_counts</span>
                                 .<span class="ident">clone</span>()
-                                .<span class="ident">compare</span>(<span class="self">self</span>.<span class="ident">current_counts</span>.<span class="ident">clone</span>())
-                            {
-                                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">scale</span>.<span class="ident">eval</span>((<span class="ident">after</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">before</span> <span class="kw">as</span> <span class="ident">f64</span>)) {
-                                    <span class="ident">colorer</span>.<span class="ident">add_r</span>(<span class="ident">r</span>, <span class="ident">c</span>);
+                                .<span class="ident">compare</span>(<span class="self">self</span>.<span class="ident">current_counts</span>.<span class="ident">clone</span>());
+                            <span class="comment">// Find the biggest gain/loss</span>
+                            <span class="kw">let</span> <span class="ident">diff</span> <span class="op">=</span> <span class="ident">comparisons</span>
+                                .<span class="ident">iter</span>()
+                                .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">after</span>, <span class="ident">before</span>)<span class="op">|</span> {
+                                    ((<span class="kw-2">*</span><span class="ident">after</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">-</span> (<span class="kw-2">*</span><span class="ident">before</span> <span class="kw">as</span> <span class="ident">isize</span>)).<span class="ident">abs</span>() <span class="kw">as</span> <span class="ident">usize</span>
+                                })
+                                .<span class="ident">max</span>()
+                                .<span class="ident">unwrap</span>() <span class="kw">as</span> <span class="ident">f64</span>;
+                            <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">before</span>, <span class="ident">after</span>) <span class="kw">in</span> <span class="ident">comparisons</span> {
+                                <span class="kw">if</span> <span class="ident">after</span> <span class="op">&lt;</span> <span class="ident">before</span> {
+                                    <span class="ident">colorer</span>.<span class="ident">add_r</span>(<span class="ident">r</span>, <span class="ident">less</span>.<span class="ident">eval</span>((<span class="ident">before</span> <span class="op">-</span> <span class="ident">after</span>) <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="ident">diff</span>));
+                                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">before</span> <span class="op">&lt;</span> <span class="ident">after</span> {
+                                    <span class="ident">colorer</span>.<span class="ident">add_r</span>(<span class="ident">r</span>, <span class="ident">more</span>.<span class="ident">eval</span>((<span class="ident">after</span> <span class="op">-</span> <span class="ident">before</span>) <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="ident">diff</span>));
                                 }
                             }
                             <span class="kw">let</span> (<span class="ident">unzoomed</span>, <span class="ident">zoomed</span>) <span class="op">=</span> <span class="ident">colorer</span>.<span class="ident">build</span>(<span class="ident">ctx</span>);
