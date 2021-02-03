@@ -195,6 +195,21 @@
       "uncompressed_size_bytes": 3555615,
       "compressed_size_bytes": 837116
     },
+    "data/input/montreal/osm/plateau.osm": {
+      "checksum": "3e9fcd785e89531e4c5e207c44030e85",
+      "uncompressed_size_bytes": 16904962,
+      "compressed_size_bytes": 1698090
+    },
+    "data/input/montreal/osm/quebec-latest.osm.pbf": {
+      "checksum": "480f088f612982f268d95ec00239b73a",
+      "uncompressed_size_bytes": 477266282,
+      "compressed_size_bytes": 476801596
+    },
+    "data/input/montreal/raw_maps/plateau.bin": {
+      "checksum": "045be8d0a06ea6f4b0f28588d182956b",
+      "uncompressed_size_bytes": 4840740,
+      "compressed_size_bytes": 1214448
+    },
     "data/input/nyc/osm/lower_manhattan.osm": {
       "checksum": "09bf8cdb40474741b58e74f4c486a69e",
       "uncompressed_size_bytes": 34156510,
@@ -754,6 +769,11 @@
       "checksum": "3b1fd54aa89563ae286b83ae57e530f5",
       "uncompressed_size_bytes": 9111142,
       "compressed_size_bytes": 3037498
+    },
+    "data/system/montreal/maps/plateau.bin": {
+      "checksum": "9c823d45d1471c2bb5a25015aa63f378",
+      "uncompressed_size_bytes": 14781127,
+      "compressed_size_bytes": 4957342
     },
     "data/system/nyc/city.bin": {
       "checksum": "8a458410f6484bfb5ca4b0bdcdbfd92c",
