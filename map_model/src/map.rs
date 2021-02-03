@@ -175,6 +175,7 @@ impl Map {
             },
             pathfinder: Pathfinder::Dijkstra,
             pathfinder_dirty: false,
+            routing_params: RoutingParams::default(),
             name: MapName {
                 city: "blank city".to_string(),
                 map: "blank".to_string(),
@@ -664,6 +665,16 @@ impl Map {
         });
     }
 
+    pub fn hack_override_routing_prams(
+        &mut self,
+        routing_params: RoutingParams,
+        timer: &mut Timer,
+    ) {
+        self.routing_params = routing_params;
+        self.pathfinder_dirty = true;
+        self.recalculate_pathfinding_after_edits(timer);
+    }
+
     pub fn get_languages(&self) -> BTreeSet<&str> {
         let mut languages = BTreeSet::new();
         for r in self.all_roads() {
@@ -711,12 +722,10 @@ impl Map {
         )
     }
 
-    /// Returns the routing params baked into the map. Currently just hardcoded defaults.
+    /// Returns the routing params baked into the map.
     // Depending how this works out, we might require everybody to explicitly plumb routing params,
     // in which case it should be easy to look for all places calling this.
-    pub fn routing_params(&self) -> &'static RoutingParams {
-        &ROUTING_PARAMS
+    pub fn routing_params(&self) -> &RoutingParams {
+        &self.routing_params
     }
 }
-
-static ROUTING_PARAMS: RoutingParams = RoutingParams::default();

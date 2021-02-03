@@ -643,7 +643,7 @@ fn validate_restrictions(map: &Map, steps: &Vec<PathStep>) {
 /// Tuneable parameters for all types of routing.
 // These will maybe become part of the PathRequest later, but that's an extremely invasive and
 // space-expensive change right now.
-#[derive(PartialEq)]
+#[derive(PartialEq, Serialize, Deserialize)]
 pub struct RoutingParams {
     // For bike routing
     pub bike_lane_penalty: f64,

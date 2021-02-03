@@ -12,7 +12,7 @@ use crate::raw::{OriginalRoad, RawMap};
 use crate::{
     connectivity, osm, AccessRestrictions, Area, AreaID, AreaType, ControlStopSign,
     ControlTrafficSignal, Direction, Intersection, IntersectionID, IntersectionType, Lane, LaneID,
-    Map, MapEdits, Movement, PathConstraints, Position, Road, RoadID, Turn, Zone,
+    Map, MapEdits, Movement, PathConstraints, Position, Road, RoadID, RoutingParams, Turn, Zone,
 };
 
 mod bridges;
@@ -64,6 +64,7 @@ impl Map {
             config: raw.config.clone(),
             pathfinder: Pathfinder::Dijkstra,
             pathfinder_dirty: false,
+            routing_params: RoutingParams::default(),
             name: raw.name.clone(),
             edits: MapEdits::new(),
         };

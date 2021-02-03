@@ -109,6 +109,7 @@ pub struct Map {
 
     pathfinder: Pathfinder,
     pathfinder_dirty: bool,
+    routing_params: RoutingParams,
     // Not the source of truth, just cached.
     zones: Vec<Zone>,
 
