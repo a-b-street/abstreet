@@ -1,9 +1,10 @@
 # A/B Street
 
-Ever been stuck in traffic on a bus, wondering why is there legal street parking
-instead of a dedicated bus lane? A/B Street is a game exploring how small
-changes to a city affect the movement of drivers, cyclists, transit users, and
-pedestrians.
+Ever been stuck in traffic on a bus, wondering why is there legal street
+parking instead of a dedicated bus lane? A/B Street is a game exploring how
+small changes to a city affect the movement of drivers, cyclists, transit
+users, and pedestrians. It works anywhere in the world, thanks to
+[OpenStreetMap](https://www.openstreetmap.org/about).
 
 - Play on
   [Windows](https://github.com/a-b-street/abstreet/releases/download/v0.2.29/abstreet_windows_v0_2_29.zip),
