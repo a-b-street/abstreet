@@ -100,6 +100,7 @@ fn regenerate_everything(config: ImporterConfiguration) {
         "krakow",
         "leeds",
         "london",
+        "montreal",
         "nyc",
         "paris",
         "providence",
