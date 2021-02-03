@@ -665,7 +665,7 @@ impl Map {
         });
     }
 
-    pub fn hack_override_routing_prams(
+    pub fn hack_override_routing_params(
         &mut self,
         routing_params: RoutingParams,
         timer: &mut Timer,

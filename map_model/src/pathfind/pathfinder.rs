@@ -155,11 +155,11 @@ impl Pathfinder {
         params: &RoutingParams,
         map: &Map,
     ) -> Option<Path> {
-        if params != &RoutingParams::default() {
-            // If the params differ from the defaults, the CHs won't match. This should only be
-            // happening from the debug UI; be very obnoxious if we start calling it from the
-            // simulation or something else.
-            warn!("Pathfinding for {} with custom params", req);
+        if params != map.routing_params() {
+            // If the params differ from the ones baked into the map, the CHs won't match. This
+            // should only be happening from the debug UI; be very obnoxious if we start calling it
+            // from the simulation or something else.
+            warn!("Pathfinding slowly for {} with custom params", req);
             return dijkstra::simple_pathfind(req, params, map);
         }
 

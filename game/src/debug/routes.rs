@@ -1,14 +1,18 @@
-use map_gui::ID;
-use map_model::{RoutingParams, NORMAL_LANE_THICKNESS};
+use abstutil::{prettyprint_usize, Counter, Parallelism, Timer};
+use map_gui::colors::ColorSchemeChoice;
+use map_gui::tools::{ColorNetwork, DivergingScale};
+use map_gui::{AppLike, ID};
+use map_model::{PathRequest, RoadID, RoutingParams, Traversable, NORMAL_LANE_THICKNESS};
 use sim::{TripEndpoint, TripMode};
 use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel,
-    Spinner, State, StyledButtons, TextExt, VerticalAlignment, Widget,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    Spinner, State, StyledButtons, Text, TextExt, TextSpan, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
 use crate::common::CommonState;
 
+/// See how live-tuned routing parameters affect a single request.
 pub struct RouteExplorer {
     panel: Panel,
     start: TripEndpoint,
@@ -26,6 +30,10 @@ impl RouteExplorer {
                     Line("Route explorer").small_heading().draw(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
+                ctx.style()
+                    .btn_solid_dark_text("All routes")
+                    .hotkey(Key::A)
+                    .build_def(ctx),
                 params_to_controls(ctx, TripMode::Bike, &RoutingParams::default()).named("params"),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
@@ -33,22 +41,8 @@ impl RouteExplorer {
         })
     }
 
-    fn controls_to_params(&self) -> (TripMode, RoutingParams) {
-        let mut params = RoutingParams::default();
-        if !self.panel.is_button_enabled("cars") {
-            return (TripMode::Drive, params);
-        }
-        if !self.panel.is_button_enabled("pedestrians") {
-            return (TripMode::Walk, params);
-        }
-        params.bike_lane_penalty = self.panel.spinner("bike lane penalty") as f64 / 10.0;
-        params.bus_lane_penalty = self.panel.spinner("bus lane penalty") as f64 / 10.0;
-        params.driving_lane_penalty = self.panel.spinner("driving lane penalty") as f64 / 10.0;
-        (TripMode::Bike, params)
-    }
-
     fn recalc_paths(&mut self, ctx: &mut EventCtx, app: &App) {
-        let (mode, params) = self.controls_to_params();
+        let (mode, params) = controls_to_params(&self.panel);
 
         if let Some((ref goal, _, ref mut preview)) = self.goal {
             *preview = Drawable::empty(ctx);
@@ -90,6 +84,9 @@ impl State<App> for RouteExplorer {
                         params_to_controls(ctx, TripMode::Walk, &RoutingParams::default());
                     self.panel.replace(ctx, "params", controls);
                     self.recalc_paths(ctx, app);
+                }
+                "All routes" => {
+                    return Transition::Replace(AllRoutesExplorer::new(ctx, app));
                 }
                 _ => unreachable!(),
             },
@@ -212,4 +209,222 @@ fn params_to_controls(ctx: &mut EventCtx, mode: TripMode, params: &RoutingParams
         ]));
     }
     Widget::col(rows)
+}
+
+fn controls_to_params(panel: &Panel) -> (TripMode, RoutingParams) {
+    let mut params = RoutingParams::default();
+    if !panel.is_button_enabled("cars") {
+        return (TripMode::Drive, params);
+    }
+    if !panel.is_button_enabled("pedestrians") {
+        return (TripMode::Walk, params);
+    }
+    params.bike_lane_penalty = panel.spinner("bike lane penalty") as f64 / 10.0;
+    params.bus_lane_penalty = panel.spinner("bus lane penalty") as f64 / 10.0;
+    params.driving_lane_penalty = panel.spinner("driving lane penalty") as f64 / 10.0;
+    (TripMode::Bike, params)
+}
+
+/// See how live-tuned routing parameters affect all requests for the current scenario.
+struct AllRoutesExplorer {
+    panel: Panel,
+    requests: Vec<PathRequest>,
+    baseline_counts: Counter<RoadID>,
+
+    current_counts: Counter<RoadID>,
+    unzoomed: Drawable,
+    zoomed: Drawable,
+    tooltip: Option<Text>,
+}
+
+impl AllRoutesExplorer {
+    fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
+        // Tuning the differential scale is hard enough; always use day mode.
+        app.change_color_scheme(ctx, ColorSchemeChoice::DayMode);
+
+        let (requests, baseline_counts) =
+            ctx.loading_screen("calculate baseline paths", |_, mut timer| {
+                let map = &app.primary.map;
+                let requests = timer
+                    .parallelize(
+                        "predict route requests",
+                        Parallelism::Fastest,
+                        app.primary.sim.all_trip_info(),
+                        |(_, trip)| TripEndpoint::path_req(trip.start, trip.end, trip.mode, map),
+                    )
+                    .into_iter()
+                    .flatten()
+                    .collect::<Vec<_>>();
+                let baseline_counts = calculate_demand(app, &requests, &mut timer);
+                (requests, baseline_counts)
+            });
+        let current_counts = baseline_counts.clone();
+
+        // Start by showing the original counts, not relative to anything
+        let mut colorer = ColorNetwork::new(app);
+        colorer.ranked_roads(current_counts.clone(), &app.cs.good_to_bad_red);
+        let (unzoomed, zoomed) = colorer.build(ctx);
+
+        Box::new(AllRoutesExplorer {
+            panel: Panel::new(Widget::col(vec![
+                Widget::row(vec![
+                    Line("All routes explorer").small_heading().draw(ctx),
+                    ctx.style().btn_close_widget(ctx),
+                ]),
+                format!("{} total requests", prettyprint_usize(requests.len())).draw_text(ctx),
+                params_to_controls(ctx, TripMode::Bike, &RoutingParams::default()).named("params"),
+                ctx.style()
+                    .btn_solid_dark_text("Calculate differential demand")
+                    .build_def(ctx),
+            ]))
+            .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
+            .build(ctx),
+            requests,
+            baseline_counts,
+            current_counts,
+            unzoomed,
+            zoomed,
+            tooltip: None,
+        })
+    }
+}
+
+impl State<App> for AllRoutesExplorer {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        ctx.canvas_movement();
+
+        match self.panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
+                "close" => {
+                    ctx.loading_screen("revert routing params to defaults", |_, mut timer| {
+                        app.primary
+                            .map
+                            .hack_override_routing_params(RoutingParams::default(), &mut timer);
+                    });
+                    return Transition::Pop;
+                }
+                "bikes" => {
+                    let controls =
+                        params_to_controls(ctx, TripMode::Bike, &RoutingParams::default());
+                    self.panel.replace(ctx, "params", controls);
+                }
+                "cars" => {
+                    let controls =
+                        params_to_controls(ctx, TripMode::Drive, &RoutingParams::default());
+                    self.panel.replace(ctx, "params", controls);
+                }
+                "pedestrians" => {
+                    let controls =
+                        params_to_controls(ctx, TripMode::Walk, &RoutingParams::default());
+                    self.panel.replace(ctx, "params", controls);
+                }
+                "Calculate differential demand" => {
+                    ctx.loading_screen(
+                        "calculate differential demand due to routing params",
+                        |ctx, mut timer| {
+                            let (_, params) = controls_to_params(&self.panel);
+                            app.primary
+                                .map
+                                .hack_override_routing_params(params, &mut timer);
+                            self.current_counts = calculate_demand(app, &self.requests, &mut timer);
+
+                            // Calculate the difference
+                            let mut colorer = ColorNetwork::new(app);
+                            // TODO This is hiding interesting patterns; dividing after / before
+                            // isn't a nice scale.
+                            let scale = DivergingScale::new(
+                                Color::hex("#5D9630"),
+                                Color::WHITE,
+                                Color::hex("#A32015"),
+                            )
+                            .range(0.0, 2.0)
+                            .ignore(0.999, 1.001);
+                            for (r, before, after) in self
+                                .baseline_counts
+                                .clone()
+                                .compare(self.current_counts.clone())
+                            {
+                                if let Some(c) = scale.eval((after as f64) / (before as f64)) {
+                                    colorer.add_r(r, c);
+                                }
+                            }
+                            let (unzoomed, zoomed) = colorer.build(ctx);
+                            self.unzoomed = unzoomed;
+                            self.zoomed = zoomed;
+                        },
+                    );
+                }
+                _ => unreachable!(),
+            },
+            _ => {}
+        }
+
+        if ctx.redo_mouseover() {
+            self.tooltip = None;
+            if let Some(ID::Road(r)) = app.mouseover_unzoomed_roads_and_intersections(ctx) {
+                let baseline = self.baseline_counts.get(r);
+                let current = self.current_counts.get(r);
+                let mut txt = Text::new();
+                txt.append_all(cmp_count(current, baseline));
+                txt.add(Line(format!("{} baseline", prettyprint_usize(baseline))));
+                txt.add(Line(format!("{} now", prettyprint_usize(current))));
+                self.tooltip = Some(txt);
+            }
+        }
+
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        self.panel.draw(g);
+        CommonState::draw_osd(g, app);
+        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+            g.redraw(&self.unzoomed);
+        } else {
+            g.redraw(&self.zoomed);
+        }
+        if let Some(ref txt) = self.tooltip {
+            g.draw_mouse_tooltip(txt.clone());
+        }
+    }
+}
+
+fn calculate_demand(app: &App, requests: &Vec<PathRequest>, timer: &mut Timer) -> Counter<RoadID> {
+    let map = &app.primary.map;
+    let paths = timer
+        .parallelize("pathfind", Parallelism::Fastest, requests.clone(), |req| {
+            map.pathfind(req)
+        })
+        .into_iter()
+        .flatten()
+        .collect::<Vec<_>>();
+    let mut counter = Counter::new();
+    timer.start_iter("compute demand", paths.len());
+    for path in paths {
+        timer.next();
+        for step in path.get_steps() {
+            if let Traversable::Lane(l) = step.as_traversable() {
+                counter.inc(app.primary.map.get_l(l).parent);
+            }
+        }
+    }
+    counter
+}
+
+fn cmp_count(after: usize, before: usize) -> Vec<TextSpan> {
+    if after == before {
+        vec![Line("same")]
+    } else if after < before {
+        vec![
+            Line(prettyprint_usize(before - after)).fg(Color::GREEN),
+            Line(" less"),
+        ]
+    } else if after > before {
+        vec![
+            Line(prettyprint_usize(after - before)).fg(Color::RED),
+            Line(" more"),
+        ]
+    } else {
+        unreachable!()
+    }
 }
