@@ -94,10 +94,10 @@
                 }
                 chunks.push(value);
                 receivedLength += value.length;
-                document.getElementById("progress_text").innerText = prettyPrintBytes(receivedLength) + " / " + prettyPrintBytes(contentLength);
-                document.getElementById("progress_bar").style.width = (100.0 * receivedLength / contentLength) + "%";
+                document.getElementById("progress-text").innerText = prettyPrintBytes(receivedLength) + " / " + prettyPrintBytes(contentLength);
+                document.getElementById("progress-bar").style.width = (100.0 * receivedLength / contentLength) + "%";
             }
-            document.getElementById("progress_text").innerText = "Loaded " + prettyPrintBytes(contentLength) + ", now initializing WASM module";
+            document.getElementById("progress-text").innerText = "Loaded " + prettyPrintBytes(contentLength) + ", now initializing WASM module";
             let blob = new Blob(chunks);
             let buffer = await blob.arrayBuffer();
             const t1 = performance.now();
@@ -121,6 +121,11 @@
             max-width: 500px;
             margin: auto;
         }
+        #progress-bar {
+            /* complementary to #loading:background-color */
+            background-color: #FF5733;
+            margin-bottom: 8px;
+        }
         #loading h1 {
             text-align: center;
         }
@@ -132,15 +137,15 @@
 </head>
 <body>
     <div id="loading" >
-        <h1>A/B<br />Street</h1>
+        <h1>A/B Street</h1>
         <div id="progress" style="display: none">
             <h2>Loading...</h2>
             <div style="width: 100%; background-color: white;">
-                <div style="width: 1%; height: 30px; background-color: red;" id="progress_bar"></div>
+                <div style="width: 1%; height: 30px;" id="progress-bar"></div>
             </div>
-            <div id="progress_text"></div>
+            <div id="progress-text"></div>
             <p>If you think something has broken, check your browser's developer console (Ctrl+Shift+I or similar)</p>
-            <p>(Your browser must support WebGL and WebAssembly)</p>
+            <p>(Your browser must support WebGL 2.0 and WebAssembly)</p>
         </div>
         <div id="unsupported" style="display: none;">
             <h2>😭 Looks like your browser doesn't support WebGL 2.0.</h2> 
