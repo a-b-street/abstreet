@@ -1,36 +1,172 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="UTF-8">
-	<style>
-	/*!
-	 * Load Awesome v1.1.0 (http://github.danielcardoso.net/load-awesome/)
-	 * Copyright 2015 Daniel Cardoso <@DanielCardoso>
-	 * Licensed under MIT
-	 */
-	.la-ball-beat,.la-ball-beat>div{position:relative;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}.la-ball-beat{display:block;font-size:0;color:#fff}.la-ball-beat.la-dark{color:#333}.la-ball-beat>div{display:inline-block;float:none;background-color:currentColor;border:0 solid currentColor}.la-ball-beat{width:54px;height:18px}.la-ball-beat>div{width:10px;height:10px;margin:4px;border-radius:100%;-webkit-animation:ball-beat 0.7s -0.15s infinite linear;-moz-animation:ball-beat 0.7s -0.15s infinite linear;-o-animation:ball-beat 0.7s -0.15s infinite linear;animation:ball-beat 0.7s -0.15s infinite linear}.la-ball-beat>div:nth-child(2n-1){-webkit-animation-delay:-.5s;-moz-animation-delay:-.5s;-o-animation-delay:-.5s;animation-delay:-.5s}.la-ball-beat.la-sm{width:26px;height:8px}.la-ball-beat.la-sm>div{width:4px;height:4px;margin:2px}.la-ball-beat.la-2x{width:108px;height:36px}.la-ball-beat.la-2x>div{width:20px;height:20px;margin:8px}.la-ball-beat.la-3x{width:162px;height:54px}.la-ball-beat.la-3x>div{width:30px;height:30px;margin:12px}@-webkit-keyframes ball-beat{50%{opacity:.2;-webkit-transform:scale(0.75);transform:scale(0.75)}100%{opacity:1;-webkit-transform:scale(1);transform:scale(1)}}@-moz-keyframes ball-beat{50%{opacity:.2;-moz-transform:scale(0.75);transform:scale(0.75)}100%{opacity:1;-moz-transform:scale(1);transform:scale(1)}}@-o-keyframes ball-beat{50%{opacity:.2;-o-transform:scale(0.75);transform:scale(0.75)}100%{opacity:1;-o-transform:scale(1);transform:scale(1)}}@keyframes ball-beat{50%{opacity:.2;-webkit-transform:scale(0.75);-moz-transform:scale(0.75);-o-transform:scale(0.75);transform:scale(0.75)}100%{opacity:1;-webkit-transform:scale(1);-moz-transform:scale(1);-o-transform:scale(1);transform:scale(1)}}
-	</style>
+    <meta charset="UTF-8">
     <script type="module">
         import { default as init } from './widgetry_demo.js';
 
-        async function run() {
-            await init('./widgetry_demo_bg.wasm');
+        function isWebGL2Supported() { 
+            try {
+                var canvas = document.createElement('canvas'); 
+                return !!canvas.getContext('webgl2');
+            } catch(e) {
+                return false;
+            }
+        };
+
+        function prettyPrintBytes(bytes) {
+            if (bytes < 1024 ** 2) {
+                return Math.round(bytes / 1024) + " KB";
+            }
+            return Math.round(bytes / 1024 ** 2) + " MB";
         }
 
-        run();
+        function main() {
+            var isSupported = isWebGL2Supported();
+            console.log("isWebGL2Supported: ", isSupported);
+            if (isSupported) {
+                fetchWithProgress();
+            } else {
+                showUnsupported();
+            }
+        }
+
+        function setElementVisibility(elementId, isVisible) {
+            let el = document.getElementById(elementId);
+            if (!el) {
+                console.error("element missing: ", elementId);
+            }
+            if (isVisible) {
+                el.style.display = "block";
+            } else {
+                el.style.display = "none";
+            }
+        }
+
+        function showUnsupported() {
+            setElementVisibility('progress', false);
+            setElementVisibility('unsupported', true);
+            document.getElementById('unsupported-proceed-btn').onclick = function() {
+                fetchWithProgress();
+            };
+
+            // https://stackoverflow.com/a/9039885
+            function isSafari() {
+                return !!/^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+            }
+
+            function isIOS() {
+                  return [
+                    'iPad Simulator',
+                    'iPhone Simulator',
+                    'iPod Simulator',
+                    'iPad',
+                    'iPhone',
+                    'iPod'
+                  ].includes(navigator.platform)
+                  // iPad on iOS 13 detection
+                  || (navigator.userAgent.includes("Mac") && "ontouchend" in document)
+            }
+
+            let safari = isSafari();
+            let iOS = isIOS();
+            console.log("isSafari: ", safari, "isIOS: ", iOS);
+            if (safari) {
+                setElementVisibility('unsupported-safari-ios', iOS);
+                setElementVisibility('unsupported-safari-mac', !iOS);
+            }
+        }
+
+        async function fetchWithProgress() {
+            setElementVisibility('progress', true);
+            setElementVisibility('unsupported', false);
+            const t0 = performance.now();
+            console.log("Started loading WASM");
+            let response = await fetch('./widgetry_demo_bg.wasm');
+            const contentLength = response.headers.get('Content-Length');
+            const reader = response.body.getReader();
+            let receivedLength = 0;
+            let chunks = [];
+            while (true) {
+                const {done, value} = await reader.read();
+                if (done) {
+                    break;
+                }
+                chunks.push(value);
+                receivedLength += value.length;
+                document.getElementById("progress-text").innerText = prettyPrintBytes(receivedLength) + " / " + prettyPrintBytes(contentLength);
+                document.getElementById("progress-bar").style.width = (100.0 * receivedLength / contentLength) + "%";
+            }
+            document.getElementById("progress-text").innerText = "Loaded " + prettyPrintBytes(contentLength) + ", now initializing WASM module";
+            let blob = new Blob(chunks);
+            let buffer = await blob.arrayBuffer();
+            const t1 = performance.now();
+            console.log(`It took ${t1 - t0} ms to download WASM, now initializing it`);
+            await init(buffer);
+        }
+
+        main();
     </script>
+    <style type="text/css">
+        body {
+            background-color: white;
+        }
+        #loading {
+            background-color: #94C84A;
+            padding: 40px;
+            color: black;
+            font-family: arial;
+            border: solid black 3px;
+            border-radius: 4px;
+            max-width: 500px;
+            margin: auto;
+        }
+        #progress-bar {
+            /* complementary to #loading:background-color */
+            background-color: #FF5733;
+            margin-bottom: 8px;
+        }
+        #loading h1 {
+            text-align: center;
+        }
+        #unsupported-proceed-btn {
+            display: block;
+            margin: auto;
+        }
+    </style>
 </head>
-<body style="background-color:black;">
-	<div id="loading" style="padding-top: 40px; color: white; text-align: center; font-family: arial; font-size: 200%;">
-        <h1>Loading Widgetry Demo...</h1>
-        <div style="margin: auto" class="la-ball-beat la-2x">
-            <div></div>
-            <div></div>
-            <div></div>
+<body>
+    <div id="loading" >
+        <h1>Widgetry Demo</h1>
+        <div id="progress" style="display: none">
+            <h2>Loading...</h2>
+            <div style="width: 100%; background-color: white;">
+                <div style="width: 1%; height: 30px;" id="progress-bar"></div>
+            </div>
+            <div id="progress-text"></div>
+            <p>If you think something has broken, check your browser's developer console (Ctrl+Shift+I or similar)</p>
+            <p>(Your browser must support WebGL 2.0 and WebAssembly)</p>
         </div>
-        <h2>this may take up to 30 seconds</h2>
-		<p>If you think something has broken, check your browser's developer console (Ctrl+Shift+I or similar)</p>
-		<p>(your browser must support WebGL and WebAssembly)</p>
-	</div>
+        <div id="unsupported" style="display: none;">
+            <h2>😭 Looks like your browser doesn't support WebGL 2.0.</h2> 
+            <div id="platform-specific-advice">
+                <div id="unsupported-safari-ios" style="display: none;">
+                    <p>To enable WebGL 2.0 on iOS, open the Settings App and go to <em>Safari</em> → <em>Advanced</em> → <em>Experimental Features</em> → <em>WebGL 2.0</em></p>
+                </div>
+
+                <div id="unsupported-safari-mac" style="display: none;">
+                    <p>To enable WebGL 2.0 support in Safari on macOS
+                        <ol>
+                            <li>In Safari, open <em>Preferences</em> → <em>Advanced</em>. Ensure <em>Show Develop menu in menu bar</em> is enabled.</li>
+                            <li>From the menu bar, choose <em>Develop</em> → <em>Experimental Features</em> and enable <em>WebGL 2.0</em></li>
+                       </ol>
+                    </p>
+                </div>
+            </div>
+            
+            <button id="unsupported-proceed-btn" type="button">Load Anyway</button>
+            <p><strong>This will surely fail unless you enable WebGL 2.0 first.</strong></p>
+        </div>
+    </div>
 </body>
 <html>
