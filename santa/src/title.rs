@@ -23,12 +23,6 @@ impl TitleScreen {
 
         SimpleState::new(
             Panel::new(Widget::col(vec![
-                ctx.style()
-                    .btn_outline_light_icon_text("system/assets/tools/quit.svg", "Quit")
-                    .hotkey(Key::Escape)
-                    .build_widget(ctx, "quit")
-                    .align_right()
-                    .margin_above(4), // not sure why, but top border is partially cropped w/o this
                 Line("15-minute Santa")
                     .display_title()
                     .draw(ctx)
@@ -76,7 +70,6 @@ impl TitleScreen {
 impl SimpleState<App> for TitleScreen {
     fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
         match x {
-            "quit" => Transition::Pop,
             "Credits" => Transition::Push(Credits::new(ctx)),
             x => {
                 for level in &app.session.levels {
