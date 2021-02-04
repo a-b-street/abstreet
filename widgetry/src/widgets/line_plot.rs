@@ -151,7 +151,9 @@ impl<T: Yvalue<T>> LinePlot<T> {
                     (1.0 - percent_y) * height,
                 ));
             }
-            pts.dedup();
+            // Downsample to avoid creating polygons with a huge number of points. 1m is untuned,
+            // and here "meters" is really pixels.
+            pts = Pt2D::approx_dedupe(pts, Distance::meters(1.0));
             if pts.len() >= 2 {
                 closest.add(s.label.clone(), &pts);
                 batch.push(s.color, thick_lineseries(pts, Distance::meters(5.0)));
