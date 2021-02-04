@@ -107,10 +107,32 @@
 
         main();
     </script>
+    <style type="text/css">
+        body {
+            background-color: white;
+        }
+        #loading {
+            background-color: #94C84A;
+            padding: 40px;
+            color: black;
+            font-family: arial;
+            border: solid black 3px;
+            border-radius: 4px;
+            max-width: 500px;
+            margin: auto;
+        }
+        #loading h1 {
+            text-align: center;
+        }
+        #unsupported-proceed-btn {
+            display: block;
+            margin: auto;
+        }
+    </style>
 </head>
-<body style="background-color:black;">
-    <div id="loading" style="padding: 40px; color: white; text-align: center; font-family: arial; font-size: 200%;">
-        <h1>A/B Street</h1>
+<body>
+    <div id="loading" >
+        <h1>A/B<br />Street</h1>
         <div id="progress" style="display: none">
             <h2>Loading...</h2>
             <div style="width: 100%; background-color: white;">
@@ -121,7 +143,7 @@
             <p>(Your browser must support WebGL and WebAssembly)</p>
         </div>
         <div id="unsupported" style="display: none;">
-            <h2>Looks like your browser doesn't support WebGL 2.0.</h2> 
+            <h2>😭 Looks like your browser doesn't support WebGL 2.0.</h2> 
             <div id="platform-specific-advice">
                 <div id="unsupported-safari-ios" style="display: none;">
                     <p>To enable WebGL 2.0 on iOS, open the Settings App and go to <em>Safari</em> → <em>Advanced</em> → <em>Experimental Features</em> → <em>WebGL 2.0</em></p>
