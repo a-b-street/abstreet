@@ -6,16 +6,16 @@ edition = "2018"
 
 [dependencies]
 abstutil = { path = "../abstutil" }
-anyhow = "1.0.37"
+anyhow = "1.0.38"
 flatgeobuf = { version = "0.4" }
-futures = "0.3.8"
+futures = "0.3.12"
 geo = "0.16.0"
 geojson = { version = "0.21.0", features = ["geo-types"] }
 geom = { path = "../geom" }
 geozero-core = { version = "0.5.1" }
-log = "0.4.11"
+log = "0.4.14"
 map_model = { path = "../map_model" }
-rand = "0.8.1"
+rand = "0.8.3"
 rand_xorshift = "0.3.0"
 geo-booleanop = "0.3.2"
 serde_json = "1.0.61"

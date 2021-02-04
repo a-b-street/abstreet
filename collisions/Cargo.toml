@@ -7,5 +7,5 @@ edition = "2018"
 [dependencies]
 geom = { path = "../geom" }
 kml = { path = "../kml" }
-log = "0.4.11"
-serde = "1.0.116"
+log = "0.4.14"
+serde = "1.0.123"

@@ -7,8 +7,8 @@ edition = "2018"
 [dependencies]
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
-anyhow = "1.0.37"
+anyhow = "1.0.38"
 geom = { path = "../geom" }
 map_model = { path = "../map_model" }
-quick-xml = { version = "0.20.0", features=["serialize"] }
-serde = "1.0.116"
+quick-xml = { version = "0.21.0", features=["serialize"] }
+serde = "1.0.123"

@@ -1,7 +1,7 @@
 //! A representation of traffic signal configuration that references OpenStreetMap IDs and is
 //! hopefully robust to minor edits over time.
 
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
