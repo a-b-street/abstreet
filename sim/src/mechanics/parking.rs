@@ -1,6 +1,8 @@
 use std::collections::{BTreeMap, BTreeSet, BinaryHeap, HashMap};
 
 use enum_dispatch::enum_dispatch;
+use rand::{Rng, SeedableRng};
+use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 
 use abstutil::{
@@ -59,8 +61,10 @@ pub trait ParkingSim {
     fn get_all_parking_spots(&self) -> (Vec<ParkingSpot>, Vec<ParkingSpot>);
     /// Unrealistically assumes the driver has knowledge of currently free parking spots, even if
     /// they're far away. Since they don't reserve the spot in advance, somebody else can still beat
-    /// them there, producing some nice, realistic churn if there's too much contention.
-    /// The first PathStep is the turn after start, NOT PathStep::Lane(start).
+    /// them there, producing some nice, realistic churn if there's too much contention. But
+    /// the implementation has some internal jitter between different vehicles, to discourage
+    /// everybody near one spot from all competing for it.
+    /// Note the first PathStep is the turn after start, NOT PathStep::Lane(start).
     fn path_to_free_parking_spot(
         &self,
         start: LaneID,
@@ -548,6 +552,12 @@ impl ParkingSim for NormalParkingSimState {
         let mut queue: BinaryHeap<(Distance, LaneID)> = BinaryHeap::new();
         queue.push((Distance::ZERO, start));
 
+        // We need a source of randomness between different cars, but it needs to be deterministic
+        // across repeated runs of the exact same simulation. This also shouldn't be the same
+        // starting seed for one vehicle across different decisions through the simulation, because
+        // then they might always prefer the first or third turn the most or whatever.
+        let mut rng = XorShiftRng::seed_from_u64((vehicle.id.0 + start.0) as u64);
+
         while !queue.is_empty() {
             let (dist_so_far, current) = queue.pop().unwrap();
             // If the current lane has a spot open, we wouldn't be asking. This can happen if a spot
@@ -579,9 +589,17 @@ impl ParkingSim for NormalParkingSimState {
             for turn in map.get_turns_for(current, PathConstraints::Car) {
                 if !backrefs.contains_key(&turn.id.dst) {
                     let dist_this_step = turn.geom.length() + map.get_l(current).length();
+                    // When vehicles search away from the first lane for a spot, don't all go in
+                    // the same direction! Do this by jittering which turn they explore.
+                    // At worst, they consider a route to be 10% of its true length, so somebody
+                    // might go up to 10x farther than necessary. From some quick tests, these
+                    // worst cases aren't happening -- because it'd be unlikely to roll a higher
+                    // number here many times in a row, and if there are only a few lanes away, it
+                    // doesn't matter that much anyway.
+                    let jitter = rng.gen_range(0.1..0.9);
                     backrefs.insert(turn.id.dst, turn.id);
                     // Remember, keep things negative
-                    queue.push((dist_so_far - dist_this_step, turn.id.dst));
+                    queue.push((dist_so_far - jitter * dist_this_step, turn.id.dst));
                 }
             }
         }
