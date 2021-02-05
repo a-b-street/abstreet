@@ -5,9 +5,9 @@
     <script type="module">
         import { default as init } from './widgetry_demo.js';
 
-        function isWebGL2Supported() { 
+        function isWebGL2Supported() {
             try {
-                var canvas = document.createElement('canvas'); 
+                var canvas = document.createElement('canvas');
                 return !!canvas.getContext('webgl2');
             } catch(e) {
                 return false;
@@ -24,11 +24,7 @@
         function main() {
             var isSupported = isWebGL2Supported();
             console.log("isWebGL2Supported: ", isSupported);
-            if (isSupported) {
-                fetchWithProgress();
-            } else {
-                showUnsupported();
-            }
+            fetchWithProgress();
         }
 
         function setElementVisibility(elementId, isVisible) {
