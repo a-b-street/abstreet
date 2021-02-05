@@ -208,10 +208,10 @@ fn finish_app_setup(
     initialize_tutorial: bool,
     center_camera: Option<String>,
 ) -> Vec<Box<dyn State<App>>> {
-    if let Some((pt, _zoom)) =
-        center_camera.and_then(|cam| parse_center_camera(&app.primary.map, cam))
+    if let Some((pt, zoom)) =
+        center_camera.and_then(|cam| parse_center_camera(ctx, &app.primary.map, cam))
     {
-        // TODO Handle zoom
+        ctx.canvas.cam_zoom = zoom;
         ctx.canvas.center_on_map_pt(pt);
     } else {
         app.primary.init_camera_for_loaded_map(ctx, title);
@@ -290,12 +290,12 @@ fn finish_app_setup(
 /// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks), returning the map point to
 /// center on and the camera zoom.
 // TODO This flag would also be useful in the other tools; lift to map_gui.
-fn parse_center_camera(map: &Map, raw: String) -> Option<(Pt2D, f64)> {
+fn parse_center_camera(ctx: &EventCtx, map: &Map, raw: String) -> Option<(Pt2D, f64)> {
     let parts: Vec<&str> = raw.split("/").collect();
     if parts.len() != 3 {
         return None;
     }
-    let zoom = parts[0].parse::<usize>().ok()?;
+    let zoom_lvl = parts[0].parse::<i32>().ok()?;
     let lat = parts[1].parse::<f64>().ok()?;
     let lon = parts[2].parse::<f64>().ok()?;
     let gps = LonLat::new(lon, lat);
@@ -303,7 +303,19 @@ fn parse_center_camera(map: &Map, raw: String) -> Option<(Pt2D, f64)> {
         return None;
     }
     let pt = gps.to_pt(map.get_gps_bounds());
-    Some((pt, zoom as f64))
+
+    // To figure out zoom, first calculate horizontal meters per pixel, using the formula from
+    // https://wiki.openstreetmap.org/wiki/Zoom_levels.
+    let earth_circumference_equator = 40_075_016.686;
+    let horiz_meters_per_pixel =
+        earth_circumference_equator * gps.y().to_radians().cos() / 2.0_f64.powi(zoom_lvl + 8);
+    // So this is the width in meters that should cover our screen
+    let horiz_meters_per_screen = ctx.canvas.window_width * horiz_meters_per_pixel;
+    // Now we want to make screen_to_map(the top-right corner of the screen) =
+    // horiz_meters_per_screen. Easy algebra:
+    let cam_zoom = ctx.canvas.window_width / horiz_meters_per_screen;
+
+    Some((pt, cam_zoom))
 }
 
 #[cfg(target_arch = "wasm32")]
