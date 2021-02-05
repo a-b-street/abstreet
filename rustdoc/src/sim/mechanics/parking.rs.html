@@ -1014,10 +1014,30 @@
 <span id="1011">1011</span>
 <span id="1012">1012</span>
 <span id="1013">1013</span>
+<span id="1014">1014</span>
+<span id="1015">1015</span>
+<span id="1016">1016</span>
+<span id="1017">1017</span>
+<span id="1018">1018</span>
+<span id="1019">1019</span>
+<span id="1020">1020</span>
+<span id="1021">1021</span>
+<span id="1022">1022</span>
+<span id="1023">1023</span>
+<span id="1024">1024</span>
+<span id="1025">1025</span>
+<span id="1026">1026</span>
+<span id="1027">1027</span>
+<span id="1028">1028</span>
+<span id="1029">1029</span>
+<span id="1030">1030</span>
+<span id="1031">1031</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">BinaryHeap</span>, <span class="ident">HashMap</span>};
 
 <span class="kw">use</span> <span class="ident">enum_dispatch</span>::<span class="ident">enum_dispatch</span>;
+<span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">Rng</span>, <span class="ident">SeedableRng</span>};
+<span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{
@@ -1076,8 +1096,10 @@
     <span class="kw">fn</span> <span class="ident">get_all_parking_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span>);
     <span class="doccomment">/// Unrealistically assumes the driver has knowledge of currently free parking spots, even if</span>
     <span class="doccomment">/// they&#39;re far away. Since they don&#39;t reserve the spot in advance, somebody else can still beat</span>
-    <span class="doccomment">/// them there, producing some nice, realistic churn if there&#39;s too much contention.</span>
-    <span class="doccomment">/// The first PathStep is the turn after start, NOT PathStep::Lane(start).</span>
+    <span class="doccomment">/// them there, producing some nice, realistic churn if there&#39;s too much contention. But</span>
+    <span class="doccomment">/// the implementation has some internal jitter between different vehicles, to discourage</span>
+    <span class="doccomment">/// everybody near one spot from all competing for it.</span>
+    <span class="doccomment">/// Note the first PathStep is the turn after start, NOT PathStep::Lane(start).</span>
     <span class="kw">fn</span> <span class="ident">path_to_free_parking_spot</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">start</span>: <span class="ident">LaneID</span>,
@@ -1565,6 +1587,12 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">queue</span>: <span class="ident">BinaryHeap</span><span class="op">&lt;</span>(<span class="ident">Distance</span>, <span class="ident">LaneID</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BinaryHeap</span>::<span class="ident">new</span>();
         <span class="ident">queue</span>.<span class="ident">push</span>((<span class="ident">Distance</span>::<span class="ident">ZERO</span>, <span class="ident">start</span>));
 
+        <span class="comment">// We need a source of randomness between different cars, but it needs to be deterministic</span>
+        <span class="comment">// across repeated runs of the exact same simulation. This also shouldn&#39;t be the same</span>
+        <span class="comment">// starting seed for one vehicle across different decisions through the simulation, because</span>
+        <span class="comment">// then they might always prefer the first or third turn the most or whatever.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">XorShiftRng</span>::<span class="ident">seed_from_u64</span>((<span class="ident">vehicle</span>.<span class="ident">id</span>.<span class="number">0</span> <span class="op">+</span> <span class="ident">start</span>.<span class="number">0</span>) <span class="kw">as</span> <span class="ident">u64</span>);
+
         <span class="kw">while</span> <span class="op">!</span><span class="ident">queue</span>.<span class="ident">is_empty</span>() {
             <span class="kw">let</span> (<span class="ident">dist_so_far</span>, <span class="ident">current</span>) <span class="op">=</span> <span class="ident">queue</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
             <span class="comment">// If the current lane has a spot open, we wouldn&#39;t be asking. This can happen if a spot</span>
@@ -1596,9 +1624,17 @@
             <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_turns_for</span>(<span class="ident">current</span>, <span class="ident">PathConstraints</span>::<span class="ident">Car</span>) {
                 <span class="kw">if</span> <span class="op">!</span><span class="ident">backrefs</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>) {
                     <span class="kw">let</span> <span class="ident">dist_this_step</span> <span class="op">=</span> <span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">length</span>() <span class="op">+</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">current</span>).<span class="ident">length</span>();
+                    <span class="comment">// When vehicles search away from the first lane for a spot, don&#39;t all go in</span>
+                    <span class="comment">// the same direction! Do this by jittering which turn they explore.</span>
+                    <span class="comment">// At worst, they consider a route to be 10% of its true length, so somebody</span>
+                    <span class="comment">// might go up to 10x farther than necessary. From some quick tests, these</span>
+                    <span class="comment">// worst cases aren&#39;t happening -- because it&#39;d be unlikely to roll a higher</span>
+                    <span class="comment">// number here many times in a row, and if there are only a few lanes away, it</span>
+                    <span class="comment">// doesn&#39;t matter that much anyway.</span>
+                    <span class="kw">let</span> <span class="ident">jitter</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0.1</span>..<span class="number">0.9</span>);
                     <span class="ident">backrefs</span>.<span class="ident">insert</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>, <span class="ident">turn</span>.<span class="ident">id</span>);
                     <span class="comment">// Remember, keep things negative</span>
-                    <span class="ident">queue</span>.<span class="ident">push</span>((<span class="ident">dist_so_far</span> <span class="op">-</span> <span class="ident">dist_this_step</span>, <span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>));
+                    <span class="ident">queue</span>.<span class="ident">push</span>((<span class="ident">dist_so_far</span> <span class="op">-</span> <span class="ident">jitter</span> <span class="op">*</span> <span class="ident">dist_this_step</span>, <span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>));
                 }
             }
         }
