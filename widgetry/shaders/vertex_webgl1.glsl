@@ -1,7 +1,7 @@
 #version 100
 
 precision mediump float;
-// precision mediump sampler2DArray;
+precision mediump sampler2D;
 
 // (x offset, y offset, zoom)
 uniform vec3 transform;
@@ -9,7 +9,7 @@ uniform vec3 transform;
 uniform vec3 window;
 // textures grid
 // uniform sampler2DArray textures;
-#define numTextures 4
+#define numTextures 196
 uniform sampler2D textures[numTextures];
 
 // in

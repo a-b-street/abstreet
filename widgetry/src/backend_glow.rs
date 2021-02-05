@@ -418,180 +418,202 @@ impl PrerenderInnards {
 ///
 /// Implementation is based on the the description of ArrayTextures from:
 /// https://www.khronos.org/opengl/wiki/Array_Texture.
-pub fn load_textures(
-    gl: &glow::Context,
-    image_bytes: Vec<u8>,
-    sprite_length: u32,
-) -> Result<(), Box<dyn std::error::Error>> {
-    let dynamic_img = image::load_from_memory(&image_bytes)?;
-    let img = if let image::DynamicImage::ImageRgba8(img) = dynamic_img {
-        img
-    } else {
-        todo!("support other image formats");
-    };
+/// // OpenGL texture arrays expect each texture's bytes to be contiguous, but it's conventional to
+/// store textures in a grid within a single spritesheet image, where a row and column traverses
+/// multiple sprites.
+///
+/// For example, if we had 6 textures, A-F, the input spritesheet bytes would be like:
+/// [[AAA, BBB, CCC],
+///  [AAA, BBB, CCC]
+///  [AAA, BBB, CCC],
+///  [DDD, EEE, FFF],
+///  [DDD, EEE, FFF],
+///  [DDD, EEE, FFF]]
+///
+/// Which we need to convert to:
+/// [[AAAAAAAAA],
+///  [BBBBBBBBB],
+///  [CCCCCCCCC],
+///  [DDDDDDDDD],
+///  [EEEEEEEEE],
+///  [FFFFFFFFF]]
+pub struct SpriteTexture {
+    texture_bytes: Vec<u8>,
+    sprite_width: u32,
+    sprite_height: u32,
+    sprite_count: u32,
+}
 
-    let format = glow::RGBA;
-    let target = glow::TEXTURE_2D_ARRAY;
-    let mipmap_level = 1;
-    let internal_format = glow::RGBA;
-    let bytes_per_pixel = 4;
+impl SpriteTexture {
+    pub fn new(
+        sprite_bytes: Vec<u8>,
+        sprite_width: u32,
+        sprite_height: u32,
+    ) -> anyhow::Result<Self> {
+        let dynamic_img = image::load_from_memory(&sprite_bytes)?;
 
-    let texture_id = unsafe { gl.create_texture()? };
-    unsafe {
-        gl.bind_texture(target, Some(texture_id));
-    }
+        let img = if let image::DynamicImage::ImageRgba8(img) = dynamic_img {
+            img
+        } else {
+            todo!("support other image formats");
+        };
 
-    let (img_width, img_height) = img.dimensions();
-    let sprite_height = sprite_length;
-    let sprites_per_row = img_width / sprite_length;
-    let sprites_per_column = img_height / sprite_length;
-    let sprite_count = sprites_per_row * sprites_per_column;
+        let bytes_per_pixel = 4;
 
-    assert_eq!(
-        sprites_per_row * sprite_length,
-        img_width,
-        "sprites must align exactly"
-    );
-    assert_eq!(
-        sprites_per_column * sprite_height,
-        img_height,
-        "sprites must align exactly"
-    );
+        let (img_width, img_height) = img.dimensions();
+        let sprites_per_row = img_width / sprite_width;
+        let sprites_per_column = img_height / sprite_height;
+        let sprite_count = sprites_per_row * sprites_per_column;
 
-    info!(
-        "img_size: {}x{}px ({} px), sprite_size: {}x{}px, sprites: {}x{} ({} sprites)",
-        img_width,
-        img_height,
-        img.pixels().len(),
-        sprite_length,
-        sprite_height,
-        sprites_per_row,
-        sprites_per_column,
-        sprite_count
-    );
-
-    // Allocate the storage.
-    unsafe {
-        gl.tex_storage_3d(
-            target,
-            mipmap_level,
-            internal_format,
-            sprite_length as i32,
-            sprite_height as i32,
-            sprite_count as i32,
+        assert_eq!(
+            sprites_per_row * sprite_width,
+            img_width,
+            "sprites must align exactly"
         );
-    }
+        assert_eq!(
+            sprites_per_column * sprite_height,
+            img_height,
+            "sprites must align exactly"
+        );
 
-    // Upload pixel data.
-    //
-    // From: https://www.khronos.org/opengl/wiki/Array_Texture#Creation_and_Management
-    // > The first 0 refers to the mipmap level (level 0, since there's only 1)
-    // > The following 2 zeroes refers to the x and y offsets in case you only want to
-    // > specify a subrectangle.
-    // > The final 0 refers to the layer index offset (we start from index 0 and have 2
-    // > levels).
-    // > Altogether you can specify a 3D box subset of the overall texture, but only one
-    // > mip level at a time.
-    let mut formatted_pixel_bytes: Vec<u8> =
-        Vec::with_capacity(img.pixels().len() * bytes_per_pixel);
+        info!(
+            "img_size: {}x{}px ({} px), sprite_size: {}x{}px, sprites: {}x{} ({} sprites)",
+            img_width,
+            img_height,
+            img.pixels().len(),
+            sprite_width,
+            sprite_height,
+            sprites_per_row,
+            sprites_per_column,
+            sprite_count
+        );
 
-    // In order to avoid branching in our shader logic, all shapes are rendered with a texture.
-    // Even "non-textured" styles like Fill::Color, use a "default" no-op (pure white) texture,
-    // which we generate here.
-    formatted_pixel_bytes.append(&mut vec![
-        255;
-        (sprite_length * sprite_height) as usize
-            * bytes_per_pixel
-    ]);
+        let mut texture_bytes: Vec<u8> = Vec::with_capacity(img.pixels().len() * bytes_per_pixel);
 
-    // OpenGL texture arrays expect each texture's bytes to be contiguous, but it's conventional to
-    // store textures in a grid within a single spritesheet image, where a row and column traverses
-    // multiple sprites.
-    //
-    // For example, if we had 6 textures, A-F, the input spritesheet bytes would be like:
-    // [[AAA, BBB, CCC],
-    //  [AAA, BBB, CCC]
-    //  [AAA, BBB, CCC],
-    //  [DDD, EEE, FFF],
-    //  [DDD, EEE, FFF],
-    //  [DDD, EEE, FFF]]
-    //
-    // Which we need to convert to:
-    // [[AAAAAAAAA],
-    //  [BBBBBBBBB],
-    //  [CCCCCCCCC],
-    //  [DDDDDDDDD],
-    //  [EEEEEEEEE],
-    //  [FFFFFFFFF]]
-    use image::GenericImageView;
-    for y in 0..sprites_per_column {
-        for x in 0..sprites_per_row {
-            let sprite_cell = img.view(
-                x * sprite_length,
-                y * sprite_height,
-                sprite_length,
-                sprite_height,
-            );
-            for p in sprite_cell.pixels() {
-                formatted_pixel_bytes.extend_from_slice(&p.2 .0);
+        // In order to avoid branching in our shader logic, all shapes are rendered with a texture.
+        // Even "non-textured" styles like Fill::Color, use a "default" no-op (pure white) texture,
+        // which we generate here.
+        texture_bytes.append(&mut vec![
+            255;
+            (sprite_width * sprite_height) as usize
+                * bytes_per_pixel
+        ]);
+
+        use image::GenericImageView;
+        for y in 0..sprites_per_column {
+            for x in 0..sprites_per_row {
+                let sprite_cell = img.view(
+                    x * sprite_width,
+                    y * sprite_height,
+                    sprite_width,
+                    sprite_height,
+                );
+                for p in sprite_cell.pixels() {
+                    texture_bytes.extend_from_slice(&p.2 .0);
+                }
             }
         }
+
+        Ok(Self {
+            texture_bytes,
+            sprite_width,
+            sprite_height,
+            sprite_count,
+        })
     }
 
-    // prepare and generate mipmaps
-    unsafe {
-        gl.tex_sub_image_3d(
-            target,
-            0,
-            0,
-            0,
-            0,
-            sprite_length as i32,
-            sprite_height as i32,
-            sprite_count as i32,
-            format,
-            glow::UNSIGNED_BYTE,
-            glow::PixelUnpackData::Slice(&formatted_pixel_bytes),
-        );
+    pub fn upload_gl2(&self, gl: &glow::Context) -> anyhow::Result<()> {
+        let texture_id = unsafe {
+            gl.create_texture()
+                .map_err(|err| anyhow!("error creating texture: {}", err))?
+        };
 
-        gl.tex_image_3d(
-            target,
-            0,
-            format as i32,
-            sprite_length as i32,
-            sprite_height as i32,
-            sprite_count as i32,
-            0,
-            format,
-            glow::UNSIGNED_BYTE,
-            Some(&formatted_pixel_bytes),
-        );
-        gl.tex_image_3d(
-            target,
-            1,
-            format as i32,
-            (sprite_length / 2) as i32,
-            (sprite_height / 2) as i32,
-            sprite_count as i32,
-            0,
-            format,
-            glow::UNSIGNED_BYTE,
-            Some(&formatted_pixel_bytes),
-        );
-        gl.tex_image_3d(
-            target,
-            2,
-            format as i32,
-            (sprite_length / 4) as i32,
-            (sprite_height / 4) as i32,
-            sprite_count as i32,
-            0,
-            format,
-            glow::UNSIGNED_BYTE,
-            Some(&formatted_pixel_bytes),
-        );
-        gl.generate_mipmap(target);
+        let format = glow::RGBA;
+        let target = glow::TEXTURE_2D_ARRAY;
+        let mipmap_level = 1;
+        let internal_format = glow::RGBA;
+
+        unsafe {
+            gl.bind_texture(target, Some(texture_id));
+        }
+
+        // Allocate the storage.
+        unsafe {
+            gl.tex_storage_3d(
+                target,
+                mipmap_level,
+                internal_format,
+                self.sprite_width as i32,
+                self.sprite_height as i32,
+                self.sprite_count as i32,
+            );
+        }
+
+        // Upload pixel data.
+        //
+        // From: https://www.khronos.org/opengl/wiki/Array_Texture#Creation_and_Management
+        // > The first 0 refers to the mipmap level (level 0, since there's only 1)
+        // > The following 2 zeroes refers to the x and y offsets in case you only want to
+        // > specify a subrectangle.
+        // > The final 0 refers to the layer index offset (we start from index 0 and have 2
+        // > levels).
+        // > Altogether you can specify a 3D box subset of the overall texture, but only one
+        // > mip level at a time.
+        // prepare and generate mipmaps
+        unsafe {
+            gl.tex_sub_image_3d(
+                target,
+                0,
+                0,
+                0,
+                0,
+                self.sprite_width as i32,
+                self.sprite_height as i32,
+                self.sprite_count as i32,
+                format,
+                glow::UNSIGNED_BYTE,
+                glow::PixelUnpackData::Slice(&self.texture_bytes),
+            );
+
+            gl.tex_image_3d(
+                target,
+                0,
+                format as i32,
+                self.sprite_width as i32,
+                self.sprite_height as i32,
+                self.sprite_count as i32,
+                0,
+                format,
+                glow::UNSIGNED_BYTE,
+                Some(&self.texture_bytes),
+            );
+            gl.tex_image_3d(
+                target,
+                1,
+                format as i32,
+                (self.sprite_width / 2) as i32,
+                (self.sprite_height / 2) as i32,
+                self.sprite_count as i32,
+                0,
+                format,
+                glow::UNSIGNED_BYTE,
+                Some(&self.texture_bytes),
+            );
+            gl.tex_image_3d(
+                target,
+                2,
+                format as i32,
+                (self.sprite_width / 4) as i32,
+                (self.sprite_height / 4) as i32,
+                self.sprite_count as i32,
+                0,
+                format,
+                glow::UNSIGNED_BYTE,
+                Some(&self.texture_bytes),
+            );
+            gl.generate_mipmap(target);
+        }
+
+        Ok(())
     }
-
-    Ok(())
 }

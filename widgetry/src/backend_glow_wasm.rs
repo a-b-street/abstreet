@@ -5,7 +5,7 @@ use winit::platform::web::WindowExtWebSys;
 
 use abstutil::Timer;
 
-use crate::backend_glow::{GfxCtxInnards, PrerenderInnards};
+use crate::backend_glow::{GfxCtxInnards, PrerenderInnards, SpriteTexture};
 use crate::ScreenDims;
 
 pub fn setup(
@@ -96,6 +96,19 @@ pub fn setup(
             ),
         ];
         let program = unsafe { build_program(&gl, &shader_inputs)? };
+
+        info!("start load textures");
+        let sprite_texture = SpriteTexture::new(
+            include_bytes!("../textures/spritesheet.png").to_vec(),
+            64,
+            64,
+        )
+        .expect("failed to format texture sprite sheet");
+        sprite_texture
+            .upload_gl2(&gl)
+            .expect("failed to upload textures");
+        info!("stop load textures");
+
         Ok((program, gl))
     }
 
@@ -126,6 +139,7 @@ pub fn setup(
         Ok((program, gl))
     }
 
+    // TODO: move this to backend_glow and share w/ native backend?
     /// shaders_input: (shader_type: u32, shader_src: &str)
     unsafe fn build_program(
         gl: &glow::Context,
@@ -176,15 +190,6 @@ pub fn setup(
 
         Ok(program)
     }
-
-    // timer.start("load textures");
-    // crate::backend_glow::load_textures(
-    //     &gl,
-    //     include_bytes!("../textures/spritesheet.png").to_vec(),
-    //     64,
-    // )
-    // .unwrap();
-    // timer.stop("load textures");
 
     (
         PrerenderInnards::new(gl, program, WindowAdapter(winit_window)),

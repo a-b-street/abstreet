@@ -2,7 +2,7 @@ use glow::HasContext;
 
 use abstutil::Timer;
 
-use crate::backend_glow::{GfxCtxInnards, PrerenderInnards};
+use crate::backend_glow::{GfxCtxInnards, PrerenderInnards, SpriteTexture};
 use crate::ScreenDims;
 
 pub fn setup(
@@ -89,12 +89,15 @@ pub fn setup(
     }
 
     timer.start("load textures");
-    crate::backend_glow::load_textures(
-        &gl,
+    let sprite_texture = SpriteTexture::new(
         include_bytes!("../textures/spritesheet.png").to_vec(),
         64,
+        64,
     )
-    .unwrap();
+    .expect("failed to format texture sprite sheet");
+    sprite_texture
+        .upload_gl2(&gl)
+        .expect("failed to upload textures");
     timer.stop("load textures");
 
     (
