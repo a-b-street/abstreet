@@ -7,10 +7,6 @@ precision mediump sampler2D;
 uniform vec3 transform;
 // (window width, window height, z value)
 uniform vec3 window;
-// textures grid
-// uniform sampler2DArray textures;
-#define numTextures 196
-uniform sampler2D textures[numTextures];
 
 // in
 attribute vec3 position;

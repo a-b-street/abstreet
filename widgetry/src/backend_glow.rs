@@ -522,102 +522,15 @@ impl SpriteTexture {
         })
     }
 
-    // Uses older texture API
-    pub fn upload_webgl1(&self, gl: &glow::Context) -> anyhow::Result<()> {
-        let texture_id = unsafe {
-            gl.create_texture()
-                .map_err(|err| anyhow!("error creating texture: {}", err))?
-        };
-
-        let format = glow::RGBA;
-        let target = glow::TEXTURE_2D_ARRAY;
-        let mipmap_level = 1;
-        let internal_format = glow::RGBA;
-
-        unsafe {
-            gl.bind_texture(target, Some(texture_id));
-        }
-
-        // Allocate the storage.
-        unsafe {
-            gl.tex_storage_3d(
-                target,
-                mipmap_level,
-                internal_format,
-                self.sprite_width as i32,
-                self.sprite_height as i32,
-                self.sprite_count as i32,
-            );
-        }
-
-        // Upload pixel data.
-        //
-        // From: https://www.khronos.org/opengl/wiki/Array_Texture#Creation_and_Management
-        // > The first 0 refers to the mipmap level (level 0, since there's only 1)
-        // > The following 2 zeroes refers to the x and y offsets in case you only want to
-        // > specify a subrectangle.
-        // > The final 0 refers to the layer index offset (we start from index 0 and have 2
-        // > levels).
-        // > Altogether you can specify a 3D box subset of the overall texture, but only one
-        // > mip level at a time.
-        // prepare and generate mipmaps
-        unsafe {
-            gl.tex_sub_image_3d(
-                target,
-                0,
-                0,
-                0,
-                0,
-                self.sprite_width as i32,
-                self.sprite_height as i32,
-                self.sprite_count as i32,
-                format,
-                glow::UNSIGNED_BYTE,
-                glow::PixelUnpackData::Slice(&self.texture_bytes),
-            );
-
-            gl.tex_image_3d(
-                target,
-                0,
-                format as i32,
-                self.sprite_width as i32,
-                self.sprite_height as i32,
-                self.sprite_count as i32,
-                0,
-                format,
-                glow::UNSIGNED_BYTE,
-                Some(&self.texture_bytes),
-            );
-            gl.tex_image_3d(
-                target,
-                1,
-                format as i32,
-                (self.sprite_width / 2) as i32,
-                (self.sprite_height / 2) as i32,
-                self.sprite_count as i32,
-                0,
-                format,
-                glow::UNSIGNED_BYTE,
-                Some(&self.texture_bytes),
-            );
-            gl.tex_image_3d(
-                target,
-                2,
-                format as i32,
-                (self.sprite_width / 4) as i32,
-                (self.sprite_height / 4) as i32,
-                self.sprite_count as i32,
-                0,
-                format,
-                glow::UNSIGNED_BYTE,
-                Some(&self.texture_bytes),
-            );
-            gl.generate_mipmap(target);
-        }
-
+    pub fn upload_webgl1(&self, _gl: &glow::Context) -> anyhow::Result<()> {
+        warn!(
+            "texture uploading for WebGL 1.0 is not yet supported. Enable WebGL 2.0 on your \
+             browser."
+        );
         Ok(())
     }
 
+    // Utilizes `tex_storage_3d` which isn't supported by WebGL 1.0.
     pub fn upload_gl2(&self, gl: &glow::Context) -> anyhow::Result<()> {
         let texture_id = unsafe {
             gl.create_texture()

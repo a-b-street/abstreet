@@ -5,6 +5,15 @@
     <script type="module">
         import { default as init } from './widgetry_demo.js';
 
+        function isWebGL1Supported() {
+            try {
+                var canvas = document.createElement('canvas');
+                return !!canvas.getContext('webgl');
+            } catch(e) {
+                return false;
+            }
+        };
+
         function isWebGL2Supported() {
             try {
                 var canvas = document.createElement('canvas');
@@ -22,9 +31,14 @@
         }
 
         function main() {
-            var isSupported = isWebGL2Supported();
-            console.log("isWebGL2Supported: ", isSupported);
-            fetchWithProgress();
+            let webGL1Supported = isWebGL1Supported();
+            let webGL2Supported = isWebGL2Supported();
+            console.log("supports WebGL 1.0: " + webGL1Supported + ", WebGL 2.0: " + webGL2Supported);
+            if (webGL1Supported || webGL2Supported) {
+                fetchWithProgress();
+            } else {
+                showUnsupported();
+            }
         }
 
         function setElementVisibility(elementId, isVisible) {
@@ -45,32 +59,6 @@
             document.getElementById('unsupported-proceed-btn').onclick = function() {
                 fetchWithProgress();
             };
-
-            // https://stackoverflow.com/a/9039885
-            function isSafari() {
-                return !!/^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-            }
-
-            function isIOS() {
-                  return [
-                    'iPad Simulator',
-                    'iPhone Simulator',
-                    'iPod Simulator',
-                    'iPad',
-                    'iPhone',
-                    'iPod'
-                  ].includes(navigator.platform)
-                  // iPad on iOS 13 detection
-                  || (navigator.userAgent.includes("Mac") && "ontouchend" in document)
-            }
-
-            let safari = isSafari();
-            let iOS = isIOS();
-            console.log("isSafari: ", safari, "isIOS: ", iOS);
-            if (safari) {
-                setElementVisibility('unsupported-safari-ios', iOS);
-                setElementVisibility('unsupported-safari-mac', !iOS);
-            }
         }
 
         async function fetchWithProgress() {
@@ -144,22 +132,8 @@
             <p>(Your browser must support WebGL 2.0 and WebAssembly)</p>
         </div>
         <div id="unsupported" style="display: none;">
-            <h2>😭 Looks like your browser doesn't support WebGL 2.0.</h2> 
-            <div id="platform-specific-advice">
-                <div id="unsupported-safari-ios" style="display: none;">
-                    <p>To enable WebGL 2.0 on iOS, open the Settings App and go to <em>Safari</em> → <em>Advanced</em> → <em>Experimental Features</em> → <em>WebGL 2.0</em></p>
-                </div>
+            <h2>😭 Looks like your browser doesn't support WebGL.</h2>
 
-                <div id="unsupported-safari-mac" style="display: none;">
-                    <p>To enable WebGL 2.0 support in Safari on macOS
-                        <ol>
-                            <li>In Safari, open <em>Preferences</em> → <em>Advanced</em>. Ensure <em>Show Develop menu in menu bar</em> is enabled.</li>
-                            <li>From the menu bar, choose <em>Develop</em> → <em>Experimental Features</em> and enable <em>WebGL 2.0</em></li>
-                       </ol>
-                    </p>
-                </div>
-            </div>
-            
             <button id="unsupported-proceed-btn" type="button">Load Anyway</button>
             <p><strong>This will surely fail unless you enable WebGL 2.0 first.</strong></p>
         </div>

@@ -63,13 +63,13 @@ pub fn setup(
     // First try WebGL 2.0 context.
     // WebGL 2.0 isn't supported by default on macOS Safari, or any iOS browser (which are all just
     // Safari wrappers).
-    let (program, gl) = webgl2_program_context(&canvas)
+    let (program, gl) = webgl2_program_context(&canvas, timer)
         .or_else(|err| {
             warn!(
                 "failed to build WebGL 2.0 context with error: \"{}\". Trying WebGL 1.0 instead...",
                 err
             );
-            webgl1_program_context(&canvas)
+            webgl1_program_context(&canvas, timer)
         })
         .unwrap();
 
@@ -77,6 +77,7 @@ pub fn setup(
 
     fn webgl2_program_context(
         canvas: &web_sys::HtmlCanvasElement,
+        timer: &mut Timer,
     ) -> anyhow::Result<(glow::Program, glow::Context)> {
         let maybe_context: Option<_> = canvas
             .get_context("webgl2")
@@ -99,7 +100,7 @@ pub fn setup(
         ];
         let program = unsafe { build_program(&gl, &shader_inputs)? };
 
-        info!("start load textures");
+        timer.start("load textures");
         let sprite_texture = SpriteTexture::new(
             include_bytes!("../textures/spritesheet.png").to_vec(),
             64,
@@ -109,13 +110,14 @@ pub fn setup(
         sprite_texture
             .upload_gl2(&gl)
             .expect("failed to upload textures");
-        info!("stop load textures");
+        timer.stop("load textures");
 
         Ok((program, gl))
     }
 
     fn webgl1_program_context(
         canvas: &web_sys::HtmlCanvasElement,
+        timer: &mut Timer,
     ) -> anyhow::Result<(glow::Program, glow::Context)> {
         let maybe_context: Option<_> = canvas
             .get_context("webgl")
@@ -139,7 +141,7 @@ pub fn setup(
         ];
         let program = unsafe { build_program(&gl, &shader_inputs)? };
 
-        info!("start load textures");
+        timer.start("load textures");
         let sprite_texture = SpriteTexture::new(
             include_bytes!("../textures/spritesheet.png").to_vec(),
             64,
@@ -149,7 +151,7 @@ pub fn setup(
         sprite_texture
             .upload_webgl1(&gl)
             .expect("failed to upload textures");
-        info!("stop load textures");
+        timer.stop("load textures");
 
         Ok((program, gl))
     }
