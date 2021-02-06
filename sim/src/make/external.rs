@@ -33,8 +33,13 @@ impl ExternalPerson {
     /// `PersonSpec` is a way to specify endpoints by a `LonLat`. This is snapped to the nearest
     /// building. If the point is outside of the map boundary, it's snapped to the nearest border
     /// (by Euclidean distance -- the network outside the given map isn't known). Failure happens
-    /// if a point is within the map, but not close enough to any buildings.
-    pub fn import(map: &Map, input: Vec<ExternalPerson>) -> Result<Vec<PersonSpec>> {
+    /// if a point is within the map, but not close enough to any buildings. If `skip_problems` is
+    /// true, then those failures are logged; otherwise this panics at the first problem.
+    pub fn import(
+        map: &Map,
+        input: Vec<ExternalPerson>,
+        skip_problems: bool,
+    ) -> Result<Vec<PersonSpec>> {
         let mut closest: FindClosest<TripEndpoint> = FindClosest::new(map.get_bounds());
         for b in map.all_buildings() {
             closest.add(TripEndpoint::Bldg(b.id), b.polygon.points());
@@ -68,7 +73,17 @@ impl ExternalPerson {
         for person in input {
             let mut spec = PersonSpec {
                 orig_id: None,
-                origin: lookup_pt(person.origin, true, person.trips[0].mode)?,
+                origin: match lookup_pt(person.origin, true, person.trips[0].mode) {
+                    Ok(endpt) => endpt,
+                    Err(err) => {
+                        if skip_problems {
+                            warn!("Skipping person: {}", err);
+                            continue;
+                        } else {
+                            return Err(err);
+                        }
+                    }
+                },
                 trips: Vec::new(),
             };
             for trip in person.trips {
@@ -78,7 +93,17 @@ impl ExternalPerson {
                     TripPurpose::Shopping,
                     // TODO Do we handle somebody going off-map via one one-way bridge, and
                     // re-entering using the other?
-                    lookup_pt(trip.destination, false, trip.mode)?,
+                    match lookup_pt(trip.destination, false, trip.mode) {
+                        Ok(endpt) => endpt,
+                        Err(err) => {
+                            if skip_problems {
+                                warn!("Skipping person: {}", err);
+                                continue;
+                            } else {
+                                return Err(err);
+                            }
+                        }
+                    },
                     trip.mode,
                 ));
             }
