@@ -28,50 +28,41 @@ impl LaneEditor {
         mode: GameplayMode,
     ) -> Box<dyn State<App>> {
         let mut row = Vec::new();
-        let lt = app.primary.map.get_l(l).lane_type;
-        for (icon, label, key, active) in vec![
+        let current_lt = app.primary.map.get_l(l).lane_type;
+        for (icon, label, key, lt) in vec![
             (
                 "driving",
                 "convert to a driving lane",
                 Key::D,
-                lt != LaneType::Driving,
+                LaneType::Driving,
             ),
             (
                 "bike",
                 "convert to a protected bike lane",
                 Key::B,
-                lt != LaneType::Biking,
+                LaneType::Biking,
             ),
-            (
-                "bus",
-                "convert to a bus-only lane",
-                Key::T,
-                lt != LaneType::Bus,
-            ),
+            ("bus", "convert to a bus-only lane", Key::T, LaneType::Bus),
             (
                 "parking",
                 "convert to an on-street parking lane",
                 Key::P,
-                lt != LaneType::Parking,
+                LaneType::Parking,
             ),
             (
                 "construction",
                 "close for construction",
                 Key::C,
-                lt != LaneType::Construction,
+                LaneType::Construction,
             ),
         ] {
-            row.push(if active {
+            row.push(
                 ctx.style()
                     .btn_plain_light_icon(&format!("system/assets/edit/{}.svg", icon))
                     .hotkey(key)
-                    .build_widget(ctx, label)
-            } else {
-                Widget::draw_svg(ctx, &format!("system/assets/edit/{}.svg", icon))
-                    .container()
-                    .padding(5)
-                    .outline(2.0, Color::WHITE)
-            });
+                    .disabled(current_lt == lt)
+                    .build_widget(ctx, label),
+            );
         }
 
         let parent = app.primary.map.get_parent(l);

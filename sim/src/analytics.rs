@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, VecDeque};
+use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
 use serde::{Deserialize, Serialize};
 
@@ -506,7 +506,7 @@ pub struct TripPhase {
     pub phase_type: TripPhaseType,
 }
 
-/// See https://github.com/dabreegster/abstreet/issues/85
+/// See https://github.com/a-b-street/abstreet/issues/85
 #[derive(Clone, Serialize, Deserialize)]
 pub struct TimeSeriesCount<X: Ord + Clone> {
     /// (Road or intersection, type, hour block) -> count for that hour
@@ -540,8 +540,12 @@ impl<X: Ord + Clone> TimeSeriesCount<X> {
     }
 
     pub fn total_for(&self, id: X) -> usize {
+        self.total_for_with_agent_types(id, AgentType::all().into_iter().collect())
+    }
+
+    pub fn total_for_with_agent_types(&self, id: X, agent_types: BTreeSet<AgentType>) -> usize {
         let mut cnt = 0;
-        for agent_type in AgentType::all() {
+        for agent_type in agent_types {
             // TODO Hmm
             for hour in 0..24 {
                 cnt += self
@@ -554,10 +558,12 @@ impl<X: Ord + Clone> TimeSeriesCount<X> {
         cnt
     }
 
-    pub fn all_total_counts(&self) -> Counter<X> {
+    pub fn all_total_counts(&self, agent_types: &BTreeSet<AgentType>) -> Counter<X> {
         let mut cnt = Counter::new();
-        for ((id, _, _), value) in &self.counts {
-            cnt.add(id.clone(), *value);
+        for ((id, agent_type, _), value) in &self.counts {
+            if agent_types.contains(&agent_type) {
+                cnt.add(id.clone(), *value);
+            }
         }
         cnt
     }

@@ -142,7 +142,7 @@ pub fn try_change_lt(
 
     // Don't let players orphan a bus stop.
     // TODO This allows a bus stop switching sides of the road. Really need to re-do bus matching
-    // and make sure nothing's broken (https://github.com/dabreegster/abstreet/issues/93).
+    // and make sure nothing's broken (https://github.com/a-b-street/abstreet/issues/93).
     if !r.all_bus_stops(map).is_empty()
         && !r
             .lanes_ltr()

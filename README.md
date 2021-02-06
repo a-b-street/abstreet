@@ -1,21 +1,23 @@
 # A/B Street
 
-Ever been stuck in traffic on a bus, wondering why is there legal street parking
-instead of a dedicated bus lane? A/B Street is a game exploring how small
-changes to a city affect the movement of drivers, cyclists, transit users, and
-pedestrians.
+Ever been stuck in traffic on a bus, wondering why is there legal street
+parking instead of a dedicated bus lane? A/B Street is a game exploring how
+small changes to a city affect the movement of drivers, cyclists, transit
+users, and pedestrians. It works anywhere in the world, thanks to
+[OpenStreetMap](https://www.openstreetmap.org/about).
 
 - Play on
-  [Windows](https://github.com/dabreegster/abstreet/releases/download/v0.2.28/abstreet_windows_v0_2_28.zip),
-  [Mac](https://github.com/dabreegster/abstreet/releases/download/v0.2.28/abstreet_mac_v0_2_28.zip),
-  [Linux](https://github.com/dabreegster/abstreet/releases/download/v0.2.28/abstreet_linux_v0_2_28.zip),
+  [Windows](https://github.com/a-b-street/abstreet/releases/download/v0.2.29/abstreet_windows_v0_2_29.zip),
+  [Mac](https://github.com/a-b-street/abstreet/releases/download/v0.2.29/abstreet_mac_v0_2_29.zip),
+  [Linux](https://github.com/a-b-street/abstreet/releases/download/v0.2.29/abstreet_linux_v0_2_29.zip),
   [FreeBSD](https://www.freshports.org/games/abstreet/),
-  [your web browser](http://abstreet.s3-website.us-east-2.amazonaws.com/dev/game), or
-  [read all instructions](https://dabreegster.github.io/abstreet/howto/index.html)
+  [your web browser](http://abstreet.s3-website.us-east-2.amazonaws.com/dev/game),
+  or [read all instructions](https://a-b-street.github.io/docs/howto/index.html)
   (new releases every Sunday)
-- [build from source](https://dabreegster.github.io/abstreet/dev/index.html)
-  (new changes daily)
-- Try the Dec 2020 surprise: [15-minute Santa](https://dabreegster.github.io/abstreet/side_projects/santa.html)
+- [build from source](https://a-b-street.github.io/docs/dev/index.html) (new
+  changes daily)
+- Try the Dec 2020 surprise:
+  [15-minute Santa](https://a-b-street.github.io/docs/side_projects/santa.html)
 
 ## Show, don't tell
 
@@ -23,24 +25,24 @@ pedestrians.
 
 Find a problem:
 
-![exploring_traffic](book/exploring_traffic.gif)
+![exploring_traffic](videos/exploring_traffic.gif)
 
 Make some changes:
 
-![editing_map](book/editing_map.gif)
+![editing_map](videos/editing_map.gif)
 
 Measure the effects:
 
-![evaluating_impacts](book/evaluating_impacts.gif)
+![evaluating_impacts](videos/evaluating_impacts.gif)
 
 ## Documentation
 
-- [How A/B Street works](https://dabreegster.github.io/abstreet/how_it_works.html)
+- [How A/B Street works](https://a-b-street.github.io/docs/how_it_works.html)
 - Technical
-  - [Developer guide](https://dabreegster.github.io/abstreet/dev/index.html)
-  - [Map model](https://dabreegster.github.io/abstreet/map/index.html)
-  - [Traffic simulation](https://dabreegster.github.io/abstreet/trafficsim/index.html)
-  - [Running A/B Street in a new city](https://dabreegster.github.io/abstreet/howto/new_city.html)
+  - [Developer guide](https://a-b-street.github.io/docs/dev/index.html)
+  - [Map model](https://a-b-street.github.io/docs/map/index.html)
+  - [Traffic simulation](https://a-b-street.github.io/docs/trafficsim/index.html)
+  - [Running A/B Street in a new city](https://a-b-street.github.io/docs/howto/new_city.html)
   - [UX design](https://yuwen-li.com/work/abstreet)
 - Presentations
   - April 2020 Rust meetup:
@@ -50,15 +52,15 @@ Measure the effects:
   - [Oct 2019 Traffic sim and current challenges](https://docs.google.com/presentation/d/1PJRFoXmJAyenkqHIwo48zxqu1LSH6pc7XKSzhyC1raw/edit?usp=sharing)
   - [Oct 2019 Map construction](https://docs.google.com/presentation/d/1cF7qFtjAzkXL_r62CjxBvgQnLvuQ9I2WTE2iX_5tMCY/edit?usp=sharing)
 - Project
-  - [Roadmap](https://dabreegster.github.io/abstreet/project/roadmap.html)
-  - [Motivations](https://dabreegster.github.io/abstreet/project/motivations.html)
-  - [History](https://dabreegster.github.io/abstreet/project/history/index.html)
+  - [Roadmap](https://a-b-street.github.io/docs/project/roadmap.html)
+  - [Motivations](https://a-b-street.github.io/docs/project/motivations.html)
+  - [History](https://a-b-street.github.io/docs/project/history/index.html)
 
 ## Roadmap and contributing
 
-See the [roadmap](https://dabreegster.github.io/abstreet/project/roadmap.html)
-for current work, including ways to help. If you want to bring this to your city
-or if you're skilled in design, traffic simulation, data visualization, or
+See the [roadmap](https://a-b-street.github.io/docs/project/roadmap.html) for
+current work, including ways to help. If you want to bring this to your city or
+if you're skilled in design, traffic simulation, data visualization, or
 civic/government outreach, please contact Dustin Carlino at
 <dabreegster@gmail.com>. Follow [r/abstreet](https://www.reddit.com/r/abstreet/)
 for weekly updates or [@CarlinoDustin](https://twitter.com/CarlinoDustin) for
@@ -85,7 +87,7 @@ writes:
 
 Existing urban planning software is either proprietary or hard to use. A/B
 Street strives to be highly accessible, by being a fun, engaging game. See
-[here](https://dabreegster.github.io/abstreet/project/motivations.html) for more
+[here](https://a-b-street.github.io/docs/project/motivations.html) for more
 guiding principles.
 
 ## Credits
@@ -98,8 +100,7 @@ Core team:
 
 Others:
 
-- All
-  [contributors](https://github.com/dabreegster/abstreet/graphs/contributors)
+- All [contributors](https://github.com/a-b-street/abstreet/graphs/contributors)
 - Logo by [Ryan Pierson](https://www.ryandpierson.com/)
 - Graphic design advice from [Starcat Games](http://starcatgames.com/),
   [Daniel Huffman](https://somethingaboutmaps.wordpress.com/),

@@ -5,7 +5,7 @@ use map_model::{
     Direction, DrivingSide, Intersection, IntersectionID, IntersectionType, LaneType, Map, Road,
     RoadWithStopSign, Turn, TurnType, SIDEWALK_THICKNESS,
 };
-use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Prerender, RewriteColor};
+use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Prerender, RewriteColor, Text};
 
 use crate::colors::ColorScheme;
 use crate::render::{
@@ -84,9 +84,23 @@ impl DrawIntersection {
             IntersectionType::StopSign => {
                 for ss in map.get_stop_sign(i.id).roads.values() {
                     if ss.must_stop {
-                        if let Some((octagon, pole)) = DrawIntersection::stop_sign_geom(ss, map) {
+                        if let Some((octagon, pole, angle)) =
+                            DrawIntersection::stop_sign_geom(ss, map)
+                        {
+                            let center = octagon.center();
                             default_geom.push(app.cs().stop_sign, octagon);
                             default_geom.push(app.cs().stop_sign_pole, pole);
+
+                            // Trial and error to make the scale and angle work. We could also make
+                            // a fixed SVG asset and just rotate it, but we'd still need to
+                            // calculate the octagon hitbox for the stop sign editor.
+                            default_geom.append(
+                                Text::from(widgetry::Line("STOP").small_heading())
+                                    .render_autocropped(prerender.as_ref())
+                                    .scale(0.02)
+                                    .centered_on(center)
+                                    .rotate(angle.opposite().rotate_degs(-90.0)),
+                            );
                         }
                     }
                 }
@@ -110,8 +124,8 @@ impl DrawIntersection {
         default_geom
     }
 
-    // Returns the (octagon, pole) if there's room to draw it.
-    pub fn stop_sign_geom(ss: &RoadWithStopSign, map: &Map) -> Option<(Polygon, Polygon)> {
+    // Returns the (octagon, pole, angle of the angle) if there's room to draw it.
+    pub fn stop_sign_geom(ss: &RoadWithStopSign, map: &Map) -> Option<(Polygon, Polygon, Angle)> {
         let trim_back = Distance::meters(0.1);
         let edge_lane = map.get_l(ss.lane_closest_to_edge);
         // TODO The dream of trimming f64's was to isolate epsilon checks like this...
@@ -140,7 +154,7 @@ impl DrawIntersection {
                 .project_away(Distance::meters(0.9), last_line.angle().opposite()),
         )
         .make_polygons(Distance::meters(0.3));
-        Some((octagon, pole))
+        Some((octagon, pole, last_line.angle()))
     }
 }
 

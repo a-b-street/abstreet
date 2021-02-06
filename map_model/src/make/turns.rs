@@ -129,7 +129,7 @@ fn ensure_unique(turns: Vec<Turn>) -> Vec<Turn> {
     for t in turns.into_iter() {
         if ids.contains(&t.id) {
             // TODO This was once an assertion, but disabled for
-            // https://github.com/dabreegster/abstreet/issues/84. A crosswalk gets created twice
+            // https://github.com/a-b-street/abstreet/issues/84. A crosswalk gets created twice
             // and deduplicated here. Not sure why it was double-created in the first place.
             warn!("Duplicate turns {}!", t.id);
         } else {

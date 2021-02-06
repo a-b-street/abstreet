@@ -19,7 +19,7 @@ impl ActiveTraffic {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         // TODO Downsampling in the middle of the day and comparing to the downsampled entire day
         // doesn't work. For the same simulation, by end of day, the plots will be identical, but
-        // until then, they'll differ. See https://github.com/dabreegster/abstreet/issues/85 for
+        // until then, they'll differ. See https://github.com/a-b-street/abstreet/issues/85 for
         // more details on the "downsampling subset" problem.
         let mut active_agents = vec![Series {
             label: format!("After \"{}\"", app.primary.map.get_edits().edits_name),

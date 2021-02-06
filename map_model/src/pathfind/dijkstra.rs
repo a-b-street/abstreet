@@ -6,13 +6,13 @@ use petgraph::graphmap::DiGraphMap;
 
 use crate::pathfind::driving::driving_cost;
 use crate::pathfind::walking::{walking_cost, WalkingNode};
-use crate::{LaneID, Map, Path, PathConstraints, PathRequest, PathStep, TurnID};
+use crate::{LaneID, Map, Path, PathConstraints, PathRequest, PathStep, RoutingParams, TurnID};
 
 // TODO These should maybe keep the DiGraphMaps as state. It's cheap to recalculate it for edits.
 
-pub fn simple_pathfind(req: &PathRequest, map: &Map) -> Option<Path> {
+pub fn simple_pathfind(req: &PathRequest, params: &RoutingParams, map: &Map) -> Option<Path> {
     let graph = build_graph_for_vehicles(map, req.constraints);
-    calc_path(graph, req, map)
+    calc_path(graph, req, params, map)
 }
 
 pub fn build_graph_for_vehicles(
@@ -45,15 +45,28 @@ pub fn pathfind_avoiding_lanes(
         }
     }
 
-    calc_path(graph, &req, map)
+    calc_path(graph, &req, map.routing_params(), map)
 }
 
-fn calc_path(graph: DiGraphMap<LaneID, TurnID>, req: &PathRequest, map: &Map) -> Option<Path> {
+fn calc_path(
+    graph: DiGraphMap<LaneID, TurnID>,
+    req: &PathRequest,
+    params: &RoutingParams,
+    map: &Map,
+) -> Option<Path> {
     let (_, path) = petgraph::algo::astar(
         &graph,
         req.start.lane(),
         |l| l == req.end.lane(),
-        |(_, _, turn)| driving_cost(map.get_l(turn.src), map.get_t(*turn), req.constraints, map),
+        |(_, _, turn)| {
+            driving_cost(
+                map.get_l(turn.src),
+                map.get_t(*turn),
+                req.constraints,
+                params,
+                map,
+            )
+        },
         |_| 0.0,
     )?;
     let mut steps = Vec::new();

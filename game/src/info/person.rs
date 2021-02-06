@@ -190,11 +190,13 @@ pub fn trips(
                 Widget::nothing()
             },
             {
-                let mut icon =
-                    GeomBatch::load_svg(ctx.prerender, "../widgetry/icons/arrow_drop_down.svg")
-                        .autocrop()
-                        .color(RewriteColor::ChangeAll(Color::WHITE))
-                        .scale(1.5);
+                let mut icon = GeomBatch::load_svg_bytes(
+                    &ctx.prerender,
+                    widgetry::include_labeled_bytes!("../../../widgetry/icons/arrow_drop_down.svg"),
+                )
+                .autocrop()
+                .color(RewriteColor::ChangeAll(Color::WHITE))
+                .scale(1.5);
 
                 if !open_trips.contains_key(t) {
                     icon = icon.rotate(Angle::degrees(180.0));
@@ -274,7 +276,7 @@ pub fn bio(
 
     let mut svg_data = Vec::new();
     svg_face::generate_face(&mut svg_data, &mut rng).unwrap();
-    let batch = GeomBatch::from_uncached_svg_contents(&svg_data).autocrop();
+    let batch = GeomBatch::load_svg_bytes_uncached(&svg_data).autocrop();
     let dims = batch.get_dims();
     let batch = batch.scale((200.0 / dims.width).min(200.0 / dims.height));
     rows.push(Widget::draw_batch(ctx, batch).centered_horiz());

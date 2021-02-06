@@ -113,7 +113,7 @@ impl MapName {
     pub fn list_all_cities() -> Vec<String> {
         let mut cities = Vec::new();
         for city in list_all_objects(path("system")) {
-            if city == "assets" || city == "proposals" {
+            if city == "assets" || city == "proposals" || city == "study_areas" {
                 continue;
             }
             cities.push(city);

@@ -15,7 +15,8 @@ use crate::{
     osm, Area, AreaID, AreaType, Building, BuildingID, BuildingType, BusRoute, BusRouteID, BusStop,
     BusStopID, ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, Lane, LaneID,
     LaneType, Map, MapEdits, MovementID, OffstreetParking, ParkingLot, ParkingLotID, Path,
-    PathConstraints, PathRequest, Pathfinder, Position, Road, RoadID, Turn, TurnID, TurnType, Zone,
+    PathConstraints, PathRequest, Pathfinder, Position, Road, RoadID, RoutingParams, Turn, TurnID,
+    TurnType, Zone,
 };
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -122,8 +123,8 @@ impl Map {
                         );
                     }
                     error!(
-                        "Check https://dabreegster.github.io/abstreet/dev/index.html and file an \
-                         issue if you have trouble."
+                        "Check https://a-b-street.github.io/docs/dev/index.html and file an issue \
+                         if you have trouble."
                     );
 
                     std::process::exit(1);
@@ -174,6 +175,7 @@ impl Map {
             },
             pathfinder: Pathfinder::Dijkstra,
             pathfinder_dirty: false,
+            routing_params: RoutingParams::default(),
             name: MapName {
                 city: "blank city".to_string(),
                 map: "blank".to_string(),
@@ -562,6 +564,12 @@ impl Map {
         assert!(!self.pathfinder_dirty);
         self.pathfinder.pathfind_avoiding_lanes(req, avoid, self)
     }
+    pub fn pathfind_with_params(&self, req: PathRequest, params: &RoutingParams) -> Result<Path> {
+        assert!(!self.pathfinder_dirty);
+        self.pathfinder
+            .pathfind_with_params(req.clone(), params, self)
+            .ok_or_else(|| anyhow!("can't fulfill {}", req))
+    }
 
     pub fn should_use_transit(
         &self,
@@ -657,6 +665,16 @@ impl Map {
         });
     }
 
+    pub fn hack_override_routing_params(
+        &mut self,
+        routing_params: RoutingParams,
+        timer: &mut Timer,
+    ) {
+        self.routing_params = routing_params;
+        self.pathfinder_dirty = true;
+        self.recalculate_pathfinding_after_edits(timer);
+    }
+
     pub fn get_languages(&self) -> BTreeSet<&str> {
         let mut languages = BTreeSet::new();
         for r in self.all_roads() {
@@ -702,5 +720,12 @@ impl Map {
                 .map(|pair| *graph.edge_weight(pair[0], pair[1]).unwrap())
                 .collect(),
         )
+    }
+
+    /// Returns the routing params baked into the map.
+    // Depending how this works out, we might require everybody to explicitly plumb routing params,
+    // in which case it should be easy to look for all places calling this.
+    pub fn routing_params(&self) -> &RoutingParams {
+        &self.routing_params
     }
 }

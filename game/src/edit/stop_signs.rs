@@ -43,7 +43,7 @@ impl StopSignEditor {
             .roads
             .iter()
             .map(|(r, ss)| {
-                let (octagon, pole) =
+                let (octagon, pole, _) =
                     DrawIntersection::stop_sign_geom(ss, &app.primary.map).unwrap();
                 (*r, (octagon, pole))
             })

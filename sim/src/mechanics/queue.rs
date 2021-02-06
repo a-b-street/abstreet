@@ -10,7 +10,7 @@ use crate::mechanics::car::{Car, CarState};
 use crate::{CarID, VehicleType, FOLLOWING_DISTANCE};
 
 /// A Queue of vehicles on a single lane or turn. No over-taking or lane-changing. This is where
-/// https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html#exact-positions is
+/// https://a-b-street.github.io/docs/trafficsim/discrete_event.html#exact-positions is
 /// implemented.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub(crate) struct Queue {
@@ -97,7 +97,7 @@ impl Queue {
                         let recurse_to = leader.router.head();
                         if recursed_queues.contains(&recurse_to) {
                             // See the picture in
-                            // https://github.com/dabreegster/abstreet/issues/30. We have two
+                            // https://github.com/a-b-street/abstreet/issues/30. We have two
                             // extremes to break the cycle.
                             //
                             // 1) Hope that the last person in this queue isn't bounded by the

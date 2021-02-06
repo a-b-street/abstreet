@@ -1,5 +1,5 @@
 // This runs a simulation without any graphics and serves a very basic API to control things. See
-// https://dabreegster.github.io/abstreet/dev/api.html for documentation. To run this:
+// https://a-b-street.github.io/docs/dev/api.html for documentation. To run this:
 //
 // > cd headless; cargo run -- --port=1234
 // > curl http://localhost:1234/sim/get-time
@@ -310,6 +310,7 @@ fn handle_command(
             agents: sim
                 .get_unzoomed_agents(map)
                 .into_iter()
+                .chain(sim.get_unzoomed_transit_riders(map))
                 .map(|a| AgentPosition {
                     id: a.id,
                     trip: sim.agent_to_trip(a.id),

@@ -30,8 +30,7 @@ esac
 
 mkdir $output
 
-cp book/src/howto/README.md $output/INSTRUCTIONS.txt
-cp release/$runner $output
+cp release/$runner release/INSTRUCTIONS.txt $output
 
 # Put most binaries in the root directory, but hide game to encourage people to
 # use the runner script. It will capture output logs. But if somebody runs the

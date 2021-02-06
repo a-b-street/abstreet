@@ -83,7 +83,13 @@ pub fn all_vehicle_costs_from(
     if let Some(start_lane) = bldg_to_lane.get(&start) {
         let graph = build_graph_for_vehicles(map, constraints);
         let cost_per_lane = petgraph::algo::dijkstra(&graph, *start_lane, None, |(_, _, turn)| {
-            driving_cost(map.get_l(turn.src), map.get_t(*turn), constraints, map)
+            driving_cost(
+                map.get_l(turn.src),
+                map.get_t(*turn),
+                constraints,
+                map.routing_params(),
+                map,
+            )
         });
         for (b, lane) in bldg_to_lane {
             if let Some(meters) = cost_per_lane.get(&lane) {

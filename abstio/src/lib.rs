@@ -1,5 +1,5 @@
 //! A/B Street organizes data files [in a particular
-//! way](https://dabreegster.github.io/abstreet/dev/data.html). This crate implements methods to
+//! way](https://a-b-street.github.io/docs/dev/data.html). This crate implements methods to
 //! find files and (mostly) treat them the same way on native and web.
 
 #[macro_use]

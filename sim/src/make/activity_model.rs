@@ -18,7 +18,7 @@ use crate::{
 };
 
 impl ScenarioGenerator {
-    /// Designed in https://github.com/dabreegster/abstreet/issues/154
+    /// Designed in https://github.com/a-b-street/abstreet/issues/154
     pub fn proletariat_robot(map: &Map, rng: &mut XorShiftRng, timer: &mut Timer) -> Scenario {
         let mut residents: Vec<BuildingID> = Vec::new();
         let mut workers: Vec<BuildingID> = Vec::new();

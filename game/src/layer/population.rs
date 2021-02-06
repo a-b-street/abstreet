@@ -71,7 +71,17 @@ impl PopulationMap {
     pub fn new(ctx: &mut EventCtx, app: &App, opts: Options) -> PopulationMap {
         let mut pts = Vec::new();
         // Faster to grab all agent positions than individually map trips to agent positions.
-        for a in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
+        for a in app
+            .primary
+            .sim
+            .get_unzoomed_agents(&app.primary.map)
+            .into_iter()
+            .chain(
+                app.primary
+                    .sim
+                    .get_unzoomed_transit_riders(&app.primary.map),
+            )
+        {
             if a.person.is_some() {
                 pts.push(a.pos);
             }

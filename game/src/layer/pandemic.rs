@@ -80,6 +80,7 @@ impl Pandemic {
 
         let mut pts = Vec::new();
         // Faster to grab all agent positions than individually map trips to agent positions.
+        // TODO If we ever revive this simulation, need to also grab transit riders here.
         for a in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
             if let Some(p) = a.person {
                 if filter(p) {

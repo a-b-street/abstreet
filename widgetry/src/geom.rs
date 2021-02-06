@@ -135,14 +135,28 @@ impl GeomBatch {
         ScreenDims::new(bounds.width(), bounds.height())
     }
 
-    /// Returns a batch containing a parsed SVG string.
-    pub fn from_uncached_svg_contents(raw: &[u8]) -> GeomBatch {
-        svg::load_svg_from_bytes_uncached(raw).unwrap().0
-    }
-
     /// Returns a batch containing an SVG from a file.
     pub fn load_svg<P: AsRef<Prerender>>(prerender: &P, filename: &str) -> GeomBatch {
         svg::load_svg(prerender.as_ref(), filename).0
+    }
+
+    /// Returns a GeomBatch from the bytes of a utf8 encoded SVG string.
+    pub fn load_svg_bytes<P: AsRef<Prerender>>(
+        prerender: &P,
+        labeled_bytes: (&str, &[u8]),
+    ) -> GeomBatch {
+        svg::load_svg_bytes(prerender.as_ref(), labeled_bytes.0, labeled_bytes.1)
+            .expect("invalid svg bytes")
+            .0
+    }
+
+    /// Returns a GeomBatch from the bytes of a utf8 encoded SVG string.
+    ///
+    /// Prefer to use `load_svg_bytes`, which caches the parsed SVG, unless
+    /// the SVG was dynamically generated, or is otherwise unlikely to be
+    /// reused.
+    pub fn load_svg_bytes_uncached(raw: &[u8]) -> GeomBatch {
+        svg::load_svg_from_bytes_uncached(raw).unwrap().0
     }
 
     /// Transforms all colors in a batch.

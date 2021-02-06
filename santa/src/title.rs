@@ -23,12 +23,6 @@ impl TitleScreen {
 
         SimpleState::new(
             Panel::new(Widget::col(vec![
-                ctx.style()
-                    .btn_outline_light_icon_text("system/assets/tools/quit.svg", "Quit")
-                    .hotkey(Key::Escape)
-                    .build_widget(ctx, "quit")
-                    .align_right()
-                    .margin_above(4), // not sure why, but top border is partially cropped w/o this
                 Line("15-minute Santa")
                     .display_title()
                     .draw(ctx)
@@ -76,7 +70,6 @@ impl TitleScreen {
 impl SimpleState<App> for TitleScreen {
     fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
         match x {
-            "quit" => Transition::Pop,
             "Credits" => Transition::Push(Credits::new(ctx)),
             x => {
                 for level in &app.session.levels {
@@ -177,8 +170,8 @@ impl Credits {
                     "Map data thanks to OpenStreetMap contributors",
                     "https://www.openstreetmap.org/about"),
                 link(ctx, "Land use data from Seattle GeoData", "https://data-seattlecitygis.opendata.arcgis.com/datasets/current-land-use-zoning-detail"),
-                link(ctx, "Music from various sources", "https://github.com/dabreegster/abstreet/tree/master/data/system/assets/music/sources.md"),
-                link(ctx, "Fonts and icons by various sources", "https://dabreegster.github.io/abstreet/howto/#data-source-licensing"),
+                link(ctx, "Music from various sources", "https://github.com/a-b-street/abstreet/tree/master/data/system/assets/music/sources.md"),
+                link(ctx, "Fonts and icons by various sources", "https://a-b-street.github.io/docs/howto/#data-source-licensing"),
                 "Playtesting by Fridgehaus".draw_text(ctx),
                 ctx.style().btn_solid_dark_text("Back").hotkey(Key::Enter).build_def(ctx).centered_horiz(),
             ]))

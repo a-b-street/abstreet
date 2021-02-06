@@ -10,7 +10,7 @@ use map_gui::render::{calculate_corners, DrawMap, DrawOptions};
 use map_gui::tools::{ChooseSomething, PopupMsg, PromptInput};
 use map_gui::{AppLike, ID};
 use map_model::{osm, ControlTrafficSignal, IntersectionID, NORMAL_LANE_THICKNESS};
-use sim::Sim;
+use sim::{Sim, TripEndpoint};
 use widgetry::{
     lctrl, Cached, Checkbox, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Panel, ScreenDims, State, StyledButtons, Text,
@@ -27,6 +27,7 @@ mod floodfill;
 mod objects;
 pub mod path_counter;
 mod polygons;
+mod routes;
 pub mod shared_row;
 pub mod streetmix;
 
@@ -57,7 +58,7 @@ impl DebugMode {
                 Checkbox::switch(ctx, "show lanes", Key::Num3, true),
                 Checkbox::switch(ctx, "show areas", Key::Num4, true),
                 Checkbox::switch(ctx, "show labels", Key::Num5, false),
-                Checkbox::switch(ctx, "show route for all agents", Key::R, false),
+                Checkbox::switch(ctx, "show route for all agents", lctrl(Key::R), false),
                 Widget::col(vec![
                     ctx.style()
                         .btn_outline_light_text("unhide everything")
@@ -525,6 +526,9 @@ impl ContextualActions for Actions {
                 if app.primary.map.get_i(i).roads.len() == 2 {
                     actions.push((Key::C, "collapse degenerate road?".to_string()));
                 }
+                if app.primary.map.get_i(i).is_border() {
+                    actions.push((Key::R, "route from here".to_string()));
+                }
             }
             ID::Car(_) => {
                 actions.push((Key::Backspace, "forcibly delete this car".to_string()));
@@ -538,6 +542,9 @@ impl ContextualActions for Actions {
             }
             ID::BusStop(_) => {
                 actions.push((Key::H, "hide this".to_string()));
+            }
+            ID::Building(_) => {
+                actions.push((Key::R, "route from here".to_string()));
             }
             _ => {}
         }
@@ -612,6 +619,9 @@ impl ContextualActions for Actions {
                     &app.primary.map.get_r(r2).osm_tags,
                 );
                 Transition::Keep
+            }
+            (ID::Intersection(i), "route from here") => {
+                Transition::Push(routes::RouteExplorer::new(ctx, TripEndpoint::Border(i)))
             }
             (ID::Lane(l), "debug lane geometry") => {
                 Transition::Push(polygons::PolygonDebugger::new(
@@ -690,6 +700,9 @@ impl ContextualActions for Actions {
                         .collect(),
                     None,
                 ))
+            }
+            (ID::Building(b), "route from here") => {
+                Transition::Push(routes::RouteExplorer::new(ctx, TripEndpoint::Bldg(b)))
             }
             _ => unreachable!(),
         }

@@ -4,7 +4,7 @@ use std::collections::VecDeque;
 use std::fmt;
 
 use anyhow::Result;
-use enumset::EnumSetType;
+use enumset::{EnumSet, EnumSetType};
 use serde::{Deserialize, Serialize};
 
 use geom::{Distance, Duration, PolyLine, Speed, EPSILON_DIST};
@@ -636,6 +636,27 @@ fn validate_restrictions(map: &Map, steps: &Vec<PathStep>) {
                     );
                 }
             }
+        }
+    }
+}
+
+/// Tuneable parameters for all types of routing.
+// These will maybe become part of the PathRequest later, but that's an extremely invasive and
+// space-expensive change right now.
+#[derive(PartialEq, Serialize, Deserialize)]
+pub struct RoutingParams {
+    // For bike routing
+    pub bike_lane_penalty: f64,
+    pub bus_lane_penalty: f64,
+    pub driving_lane_penalty: f64,
+}
+
+impl RoutingParams {
+    pub const fn default() -> RoutingParams {
+        RoutingParams {
+            bike_lane_penalty: 1.0,
+            bus_lane_penalty: 1.1,
+            driving_lane_penalty: 1.5,
         }
     }
 }

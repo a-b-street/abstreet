@@ -13,7 +13,7 @@ aabb-quadtree = "0.1.0"
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
-log = "0.4.11"
+log = "0.4.14"
 map_gui = { path = "../map_gui" }
 map_model = { path = "../map_model" }
 widgetry = { path = "../widgetry" }

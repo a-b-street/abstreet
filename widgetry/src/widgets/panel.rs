@@ -10,8 +10,8 @@ use geom::{Percent, Polygon};
 use crate::widgets::slider;
 use crate::widgets::Container;
 use crate::{
-    Autocomplete, Checkbox, Color, Dropdown, EventCtx, GfxCtx, HorizontalAlignment, Menu, Outcome,
-    PersistentSplit, ScreenDims, ScreenPt, ScreenRectangle, Slider, Spinner, TextBox,
+    Autocomplete, Button, Checkbox, Color, Dropdown, EventCtx, GfxCtx, HorizontalAlignment, Menu,
+    Outcome, PersistentSplit, ScreenDims, ScreenPt, ScreenRectangle, Slider, Spinner, TextBox,
     VerticalAlignment, Widget, WidgetImpl, WidgetOutput,
 };
 
@@ -401,6 +401,10 @@ impl Panel {
 
     pub fn autocomplete_done<T: 'static + Clone>(&self, name: &str) -> Option<Vec<T>> {
         self.find::<Autocomplete<T>>(name).final_value()
+    }
+
+    pub fn is_button_enabled(&self, name: &str) -> bool {
+        self.find::<Button>(name).is_enabled()
     }
 
     pub fn maybe_find(&self, name: &str) -> Option<&Widget> {

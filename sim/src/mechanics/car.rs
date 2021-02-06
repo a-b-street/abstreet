@@ -2,7 +2,7 @@ use std::collections::VecDeque;
 
 use serde::{Deserialize, Serialize};
 
-use geom::{Distance, Duration, PolyLine, Time};
+use geom::{Distance, Duration, PolyLine, Time, EPSILON_DIST};
 use map_model::{Direction, Map, Traversable};
 
 use crate::{
@@ -107,13 +107,16 @@ impl Car {
             }
 
             if result.len() < 2 {
-                panic!(
-                    "{} at {} has front at {} of {:?}. Didn't even wind up with two points",
-                    self.vehicle.id,
-                    now,
-                    front,
-                    self.router.head()
-                );
+                // Vehicles spawning at a border start with their front at literally 0 distance.
+                // Usually by the time we first try to render, they've advanced at least a little.
+                // But sometimes there's a race when we try to immediately draw them.
+                if let Ok((pl, _)) =
+                    self.router
+                        .head()
+                        .slice(Distance::ZERO, 2.0 * EPSILON_DIST, map)
+                {
+                    result = pl.into_points();
+                }
             }
             match PolyLine::new(result) {
                 Ok(pl) => pl,
@@ -249,7 +252,7 @@ impl Car {
     }
 }
 
-/// See <https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html> for details about the
+/// See <https://a-b-street.github.io/docs/trafficsim/discrete_event.html> for details about the
 /// state machine encoded here.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub(crate) enum CarState {

@@ -238,7 +238,9 @@ impl SimpleState<App> for ChangeScenario {
         if x == "close" {
             Transition::Pop
         } else if x == "Import your own data" {
-            open_browser("https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html#custom-import");
+            open_browser(
+                "https://a-b-street.github.io/docs/trafficsim/travel_demand.html#custom-import",
+            );
             Transition::Keep
         } else {
             Transition::Multi(vec![

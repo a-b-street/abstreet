@@ -49,7 +49,11 @@ impl ObjectDebugger {
                             let mut costs = Vec::new();
                             for turn in map.get_turns_to_lane(l.id) {
                                 costs.push(map_model::connectivity::driving_cost(
-                                    l, turn, constraint, map,
+                                    l,
+                                    turn,
+                                    constraint,
+                                    map.routing_params(),
+                                    map,
                                 ));
                             }
                             println!("Costs for {:?}: {:?}", constraint, costs);

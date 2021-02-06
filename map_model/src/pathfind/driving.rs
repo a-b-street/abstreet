@@ -10,7 +10,9 @@ use abstutil::MultiMap;
 
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::pathfind::uber_turns::{IntersectionCluster, UberTurn};
-use crate::{Lane, LaneID, Map, Path, PathConstraints, PathRequest, PathStep, Turn, TurnID};
+use crate::{
+    Lane, LaneID, Map, Path, PathConstraints, PathRequest, PathStep, RoutingParams, Turn, TurnID,
+};
 
 #[derive(Serialize, Deserialize)]
 pub struct VehiclePathfinder {
@@ -183,7 +185,13 @@ fn make_input_graph(
                     input_graph.add_edge(
                         from,
                         nodes.get(Node::Lane(turn.id.dst)),
-                        round(driving_cost(l, turn, constraints, map)),
+                        round(driving_cost(
+                            l,
+                            turn,
+                            constraints,
+                            map.routing_params(),
+                            map,
+                        )),
                     );
                 }
             } else {
@@ -193,7 +201,13 @@ fn make_input_graph(
 
                     let mut sum_cost = 0.0;
                     for t in &ut.path {
-                        sum_cost += driving_cost(map.get_l(t.src), map.get_t(*t), constraints, map);
+                        sum_cost += driving_cost(
+                            map.get_l(t.src),
+                            map.get_t(*t),
+                            constraints,
+                            map.routing_params(),
+                            map,
+                        );
                     }
                     input_graph.add_edge(from, nodes.get(Node::UberTurn(*idx)), round(sum_cost));
                     input_graph.add_edge(
@@ -219,7 +233,13 @@ fn make_input_graph(
 }
 
 /// Different unit based on constraints.
-pub fn driving_cost(lane: &Lane, turn: &Turn, constraints: PathConstraints, map: &Map) -> f64 {
+pub fn driving_cost(
+    lane: &Lane,
+    turn: &Turn,
+    constraints: PathConstraints,
+    params: &RoutingParams,
+    map: &Map,
+) -> f64 {
     // TODO Could cost turns differently.
 
     let base = match constraints {
@@ -239,12 +259,12 @@ pub fn driving_cost(lane: &Lane, turn: &Turn, constraints: PathConstraints, map:
             // TODO Prefer bike lanes, then bus lanes, then driving lanes. For now, express that as
             // an extra cost.
             let lt_penalty = if lane.is_biking() {
-                1.0
+                params.bike_lane_penalty
             } else if lane.is_bus() {
-                1.1
+                params.bus_lane_penalty
             } else {
                 assert!(lane.is_driving());
-                1.5
+                params.driving_lane_penalty
             };
 
             // 1m resolution is fine

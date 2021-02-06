@@ -4,7 +4,7 @@
 //! Helpful terminology:
 //! - ch = contraction hierarchy, for speeding up pathfinding
 //! - degenerate intersection = only has 2 roads connected, so why is it an intersection at all?
-//! - lc = lane-change (which is modelled very strangely: <https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html#lane-changing>)
+//! - lc = lane-change (which is modelled very strangely: <https://a-b-street.github.io/docs/trafficsim/discrete_event.html#lane-changing>)
 //! - ltr = left-to-right, the order of lanes for a road
 //! - osm = OpenStreetMap
 //!
@@ -56,7 +56,7 @@ pub use crate::objects::turn::{
 pub use crate::objects::zone::{AccessRestrictions, Zone};
 pub use crate::pathfind::uber_turns::{IntersectionCluster, UberTurn, UberTurnGroup};
 use crate::pathfind::Pathfinder;
-pub use crate::pathfind::{Path, PathConstraints, PathRequest, PathStep};
+pub use crate::pathfind::{Path, PathConstraints, PathRequest, PathStep, RoutingParams};
 pub use crate::traversable::{Position, Traversable};
 
 mod city;
@@ -109,6 +109,7 @@ pub struct Map {
 
     pathfinder: Pathfinder,
     pathfinder_dirty: bool,
+    routing_params: RoutingParams,
     // Not the source of truth, just cached.
     zones: Vec<Zone>,
 

@@ -7,19 +7,19 @@ edition = "2018"
 [dependencies]
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
-anyhow = "1.0.37"
+anyhow = "1.0.38"
 ctrlc = { version = "3.1.7", optional = true }
 downcast-rs = "1.2.0"
-enum_dispatch = "0.3.3"
+enum_dispatch = "0.3.5"
 geom = { path = "../geom" }
 instant = "0.1.7"
 libm = "0.2.1"
-log = "0.4.11"
+log = "0.4.14"
 map_model = { path = "../map_model" }
-rand = "0.8.1"
+rand = "0.8.3"
 rand_distr = "0.4.0"
 rand_xorshift = "0.3.0"
-serde = "1.0.116"
+serde = "1.0.123"
 
 [[bin]]
 name = "run_scenario"
