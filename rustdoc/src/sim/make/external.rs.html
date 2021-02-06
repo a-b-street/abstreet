@@ -170,6 +170,31 @@
 <span id="167">167</span>
 <span id="168">168</span>
 <span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Some users of the API (https://a-b-street.github.io/docs/dev/api.html) have their own</span>
 <span class="doccomment">//! simulation input data; import it here.</span>
@@ -206,8 +231,13 @@
     <span class="doccomment">/// `PersonSpec` is a way to specify endpoints by a `LonLat`. This is snapped to the nearest</span>
     <span class="doccomment">/// building. If the point is outside of the map boundary, it&#39;s snapped to the nearest border</span>
     <span class="doccomment">/// (by Euclidean distance -- the network outside the given map isn&#39;t known). Failure happens</span>
-    <span class="doccomment">/// if a point is within the map, but not close enough to any buildings.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">import</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalPerson</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PersonSpec</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// if a point is within the map, but not close enough to any buildings. If `skip_problems` is</span>
+    <span class="doccomment">/// true, then those failures are logged; otherwise this panics at the first problem.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">import</span>(
+        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+        <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalPerson</span><span class="op">&gt;</span>,
+        <span class="ident">skip_problems</span>: <span class="ident">bool</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PersonSpec</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">FindClosest</span>::<span class="ident">new</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>());
         <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
             <span class="ident">closest</span>.<span class="ident">add</span>(<span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>.<span class="ident">id</span>), <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">points</span>());
@@ -241,7 +271,17 @@
         <span class="kw">for</span> <span class="ident">person</span> <span class="kw">in</span> <span class="ident">input</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">spec</span> <span class="op">=</span> <span class="ident">PersonSpec</span> {
                 <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
-                <span class="ident">origin</span>: <span class="ident">lookup_pt</span>(<span class="ident">person</span>.<span class="ident">origin</span>, <span class="bool-val">true</span>, <span class="ident">person</span>.<span class="ident">trips</span>[<span class="number">0</span>].<span class="ident">mode</span>)<span class="question-mark">?</span>,
+                <span class="ident">origin</span>: <span class="kw">match</span> <span class="ident">lookup_pt</span>(<span class="ident">person</span>.<span class="ident">origin</span>, <span class="bool-val">true</span>, <span class="ident">person</span>.<span class="ident">trips</span>[<span class="number">0</span>].<span class="ident">mode</span>) {
+                    <span class="prelude-val">Ok</span>(<span class="ident">endpt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">endpt</span>,
+                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="kw">if</span> <span class="ident">skip_problems</span> {
+                            <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Skipping person: {}&quot;</span>, <span class="ident">err</span>);
+                            <span class="kw">continue</span>;
+                        } <span class="kw">else</span> {
+                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>);
+                        }
+                    }
+                },
                 <span class="ident">trips</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
             };
             <span class="kw">for</span> <span class="ident">trip</span> <span class="kw">in</span> <span class="ident">person</span>.<span class="ident">trips</span> {
@@ -251,7 +291,17 @@
                     <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
                     <span class="comment">// TODO Do we handle somebody going off-map via one one-way bridge, and</span>
                     <span class="comment">// re-entering using the other?</span>
-                    <span class="ident">lookup_pt</span>(<span class="ident">trip</span>.<span class="ident">destination</span>, <span class="bool-val">false</span>, <span class="ident">trip</span>.<span class="ident">mode</span>)<span class="question-mark">?</span>,
+                    <span class="kw">match</span> <span class="ident">lookup_pt</span>(<span class="ident">trip</span>.<span class="ident">destination</span>, <span class="bool-val">false</span>, <span class="ident">trip</span>.<span class="ident">mode</span>) {
+                        <span class="prelude-val">Ok</span>(<span class="ident">endpt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">endpt</span>,
+                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="kw">if</span> <span class="ident">skip_problems</span> {
+                                <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Skipping person: {}&quot;</span>, <span class="ident">err</span>);
+                                <span class="kw">continue</span>;
+                            } <span class="kw">else</span> {
+                                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>);
+                            }
+                        }
+                    },
                     <span class="ident">trip</span>.<span class="ident">mode</span>,
                 ));
             }
