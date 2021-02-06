@@ -130,6 +130,13 @@ impl IntersectionSimState {
         map: &Map,
         handling_live_edits: bool,
     ) {
+        // wake up intersections in the cluster in order to start uber-turns.
+        if let Some(set) = map_model::IntersectionCluster::autodetect(turn.parent, map) {
+            for id in &set {
+                self.wakeup_waiting(now, *id, scheduler, map);
+            }
+        }
+
         let state = self.state.get_mut(&turn.parent).unwrap();
         assert!(state.accepted.remove(&Request { agent, turn }));
         state.reserved.remove(&Request { agent, turn });
