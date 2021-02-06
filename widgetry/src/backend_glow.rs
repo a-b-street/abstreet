@@ -12,6 +12,64 @@ pub use crate::backend_glow_native::setup;
 #[cfg(feature = "wasm-backend")]
 pub use crate::backend_glow_wasm::setup;
 
+pub(crate) unsafe fn build_program(
+    gl: &glow::Context,
+    vertex_shader_src: &str,
+    fragment_shader_src: &str,
+) -> anyhow::Result<glow::Program> {
+    let program = gl.create_program().expect("Cannot create program");
+
+    let shaders = [
+        compile_shader(gl, glow::VERTEX_SHADER, vertex_shader_src)?,
+        compile_shader(gl, glow::FRAGMENT_SHADER, fragment_shader_src)?,
+    ];
+
+    for shader in &shaders {
+        gl.attach_shader(program, *shader);
+    }
+
+    gl.link_program(program);
+    if !gl.get_program_link_status(program) {
+        error!("Linking error: {}", gl.get_program_info_log(program));
+        panic!(gl.get_program_info_log(program));
+    }
+
+    for shader in &shaders {
+        gl.detach_shader(program, *shader);
+        gl.delete_shader(*shader);
+    }
+
+    gl.use_program(Some(program));
+
+    gl.enable(glow::SCISSOR_TEST);
+    gl.enable(glow::DEPTH_TEST);
+    gl.depth_func(glow::LEQUAL);
+    gl.enable(glow::BLEND);
+    gl.blend_func_separate(
+        glow::ONE,
+        glow::ONE_MINUS_SRC_ALPHA,
+        glow::ONE_MINUS_DST_ALPHA,
+        glow::ONE,
+    );
+
+    Ok(program)
+}
+
+unsafe fn compile_shader(
+    gl: &glow::Context,
+    shader_type: u32,
+    shader_source: &str,
+) -> anyhow::Result<glow::Shader> {
+    let shader = gl.create_shader(shader_type).map_err(|e| anyhow!(e))?;
+    gl.shader_source(shader, shader_source);
+    gl.compile_shader(shader);
+    if !gl.get_shader_compile_status(shader) {
+        bail!("error compiling shader: {}", gl.get_shader_info_log(shader));
+    }
+
+    Ok(shader)
+}
+
 // Represents one frame that's gonna be drawn
 pub struct GfxCtxInnards<'a> {
     gl: &'a glow::Context,
@@ -418,7 +476,8 @@ impl PrerenderInnards {
 ///
 /// Implementation is based on the the description of ArrayTextures from:
 /// https://www.khronos.org/opengl/wiki/Array_Texture.
-/// // OpenGL texture arrays expect each texture's bytes to be contiguous, but it's conventional to
+///
+/// OpenGL texture arrays expect each texture's bytes to be contiguous, but it's conventional to
 /// store textures in a grid within a single spritesheet image, where a row and column traverses
 /// multiple sprites.
 ///
@@ -522,6 +581,7 @@ impl SpriteTexture {
         })
     }
 
+    #[allow(unused)]
     pub fn upload_webgl1(&self, _gl: &glow::Context) -> anyhow::Result<()> {
         warn!(
             "texture uploading for WebGL 1.0 is not yet supported. Enable WebGL 2.0 on your \
@@ -531,6 +591,7 @@ impl SpriteTexture {
     }
 
     // Utilizes `tex_storage_3d` which isn't supported by WebGL 1.0.
+    #[allow(unused)]
     pub fn upload_gl2(&self, gl: &glow::Context) -> anyhow::Result<()> {
         let texture_id = unsafe {
             gl.create_texture()
