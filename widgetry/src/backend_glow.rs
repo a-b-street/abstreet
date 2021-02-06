@@ -539,7 +539,7 @@ impl SpriteTexture {
 
         let format = glow::RGBA;
         let target = glow::TEXTURE_2D_ARRAY;
-        let mipmap_level = 1;
+        let mipmap_levels: u32 = 2;
         let internal_format = glow::RGBA;
 
         unsafe {
@@ -550,7 +550,7 @@ impl SpriteTexture {
         unsafe {
             gl.tex_storage_3d(
                 target,
-                mipmap_level,
+                mipmap_levels as i32,
                 internal_format,
                 self.sprite_width as i32,
                 self.sprite_height as i32,
@@ -558,68 +558,24 @@ impl SpriteTexture {
             );
         }
 
-        // Upload pixel data.
-        //
-        // From: https://www.khronos.org/opengl/wiki/Array_Texture#Creation_and_Management
-        // > The first 0 refers to the mipmap level (level 0, since there's only 1)
-        // > The following 2 zeroes refers to the x and y offsets in case you only want to
-        // > specify a subrectangle.
-        // > The final 0 refers to the layer index offset (we start from index 0 and have 2
-        // > levels).
-        // > Altogether you can specify a 3D box subset of the overall texture, but only one
-        // > mip level at a time.
-        // prepare and generate mipmaps
         unsafe {
-            gl.tex_sub_image_3d(
-                target,
-                0,
-                0,
-                0,
-                0,
-                self.sprite_width as i32,
-                self.sprite_height as i32,
-                self.sprite_count as i32,
-                format,
-                glow::UNSIGNED_BYTE,
-                glow::PixelUnpackData::Slice(&self.texture_bytes),
-            );
-
-            gl.tex_image_3d(
-                target,
-                0,
-                format as i32,
-                self.sprite_width as i32,
-                self.sprite_height as i32,
-                self.sprite_count as i32,
-                0,
-                format,
-                glow::UNSIGNED_BYTE,
-                Some(&self.texture_bytes),
-            );
-            gl.tex_image_3d(
-                target,
-                1,
-                format as i32,
-                (self.sprite_width / 2) as i32,
-                (self.sprite_height / 2) as i32,
-                self.sprite_count as i32,
-                0,
-                format,
-                glow::UNSIGNED_BYTE,
-                Some(&self.texture_bytes),
-            );
-            gl.tex_image_3d(
-                target,
-                2,
-                format as i32,
-                (self.sprite_width / 4) as i32,
-                (self.sprite_height / 4) as i32,
-                self.sprite_count as i32,
-                0,
-                format,
-                glow::UNSIGNED_BYTE,
-                Some(&self.texture_bytes),
-            );
+            // Upload pixel data for each mipmap level
+            for mipmap_level in 0..mipmap_levels {
+                let width = self.sprite_width as i32 / 2i32.pow(mipmap_level);
+                let height = self.sprite_height as i32 / 2i32.pow(mipmap_level);
+                gl.tex_image_3d(
+                    target,
+                    mipmap_level as i32,
+                    format as i32,
+                    width,
+                    height,
+                    self.sprite_count as i32,
+                    0,
+                    format,
+                    glow::UNSIGNED_BYTE,
+                    Some(&self.texture_bytes),
+                );
+            }
             gl.generate_mipmap(target);
         }
 
