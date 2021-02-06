@@ -73,6 +73,8 @@ pub fn setup(
         })
         .unwrap();
 
+    debug!("built WebGL context");
+
     fn webgl2_program_context(
         canvas: &web_sys::HtmlCanvasElement,
     ) -> anyhow::Result<(glow::Program, glow::Context)> {
@@ -136,6 +138,19 @@ pub fn setup(
             ),
         ];
         let program = unsafe { build_program(&gl, &shader_inputs)? };
+
+        info!("start load textures");
+        let sprite_texture = SpriteTexture::new(
+            include_bytes!("../textures/spritesheet.png").to_vec(),
+            64,
+            64,
+        )
+        .expect("failed to format texture sprite sheet");
+        sprite_texture
+            .upload_webgl1(&gl)
+            .expect("failed to upload textures");
+        info!("stop load textures");
+
         Ok((program, gl))
     }
 
