@@ -115,7 +115,7 @@ fn generate_scenario(name: &str, input: Vec<ODSummary>, map: &Map) {
     let mut scenario = Scenario::empty(map, name);
     // Include all buses/trains
     scenario.only_seed_buses = None;
-    scenario.people = ExternalPerson::import(map, people).unwrap();
+    scenario.people = ExternalPerson::import(map, people, false).unwrap();
     scenario.save();
 }
 
