@@ -871,6 +871,16 @@
 <span id="868">868</span>
 <span id="869">869</span>
 <span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -897,6 +907,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">GameplayMode</span>;
 
 <span class="kw">mod</span> <span class="ident">blocked_by</span>;
+<span class="kw">mod</span> <span class="ident">building_procgen</span>;
 <span class="kw">mod</span> <span class="ident">floodfill</span>;
 <span class="kw">mod</span> <span class="ident">objects</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">path_counter</span>;
@@ -986,6 +997,10 @@
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_outline_light_text</span>(<span class="string">&quot;render to GeoJSON&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">G</span>)
+                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_outline_light_text</span>(<span class="string">&quot;procedurally generate buildings&quot;</span>)
+                        .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">P</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -1189,6 +1204,11 @@
                         <span class="ident">abstio</span>::<span class="ident">write_json</span>(<span class="string">&quot;rendered_map.json&quot;</span>.<span class="ident">to_string</span>(), <span class="kw-2">&amp;</span><span class="ident">geojson</span>);
                         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;render&quot;</span>);
                     });
+                }
+                <span class="string">&quot;procedurally generate buildings&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(
+                        <span class="ident">building_procgen</span>::<span class="ident">BuildingProceduralGenerator</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+                    );
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             },
