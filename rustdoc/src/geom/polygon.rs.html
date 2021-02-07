@@ -596,6 +596,12 @@
 <span id="593">593</span>
 <span id="594">594</span>
 <span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -604,6 +610,7 @@
 <span class="kw">use</span> <span class="ident">geo</span>::<span class="ident">algorithm</span>::<span class="ident">area</span>::<span class="ident">Area</span>;
 <span class="kw">use</span> <span class="ident">geo</span>::<span class="ident">algorithm</span>::<span class="ident">concave_hull</span>::<span class="ident">ConcaveHull</span>;
 <span class="kw">use</span> <span class="ident">geo</span>::<span class="ident">algorithm</span>::<span class="ident">convex_hull</span>::<span class="ident">ConvexHull</span>;
+<span class="kw">use</span> <span class="ident">geo</span>::<span class="ident">algorithm</span>::<span class="ident">intersects</span>::<span class="ident">Intersects</span>;
 <span class="kw">use</span> <span class="ident">geo_booleanop</span>::<span class="ident">boolean</span>::<span class="ident">BooleanOp</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -941,6 +948,11 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">polylabel</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span> {
         <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">polylabel</span>::<span class="ident">polylabel</span>(<span class="kw-2">&amp;</span><span class="ident">to_geo</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">points</span>()), <span class="kw-2">&amp;</span><span class="number">1.0</span>).<span class="ident">unwrap</span>();
         <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>())
+    }
+
+    <span class="doccomment">/// Do two polygons intersect at all?</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">intersects</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Polygon</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="ident">to_geo</span>(<span class="self">self</span>.<span class="ident">points</span>()).<span class="ident">intersects</span>(<span class="kw-2">&amp;</span><span class="ident">to_geo</span>(<span class="ident">other</span>.<span class="ident">points</span>()))
     }
 
     <span class="doccomment">/// Creates the outline around the polygon, with the thickness half straddling the polygon and</span>
