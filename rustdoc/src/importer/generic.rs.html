@@ -85,6 +85,9 @@
 <span id="82">82</span>
 <span id="83">83</span>
 <span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -118,6 +121,8 @@
     <span class="kw">pub</span> <span class="ident">elevation</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="doccomment">/// OSM railway=rail will be included as light rail if so. Cosmetic only.</span>
     <span class="kw">pub</span> <span class="ident">include_railroads</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// If provided, read polygons from this GeoJSON file and add them to the RawMap as buildings.</span>
+    <span class="kw">pub</span> <span class="ident">extra_buildings</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">GenericCityImporter</span> {
@@ -163,6 +168,7 @@
                 <span class="ident">private_offstreet_parking</span>: <span class="self">self</span>.<span class="ident">private_offstreet_parking</span>.<span class="ident">clone</span>(),
                 <span class="ident">elevation</span>: <span class="self">self</span>.<span class="ident">elevation</span>.<span class="ident">clone</span>(),
                 <span class="ident">include_railroads</span>: <span class="self">self</span>.<span class="ident">include_railroads</span>,
+                <span class="ident">extra_buildings</span>: <span class="self">self</span>.<span class="ident">extra_buildings</span>.<span class="ident">clone</span>(),
             },
             <span class="ident">timer</span>,
         );

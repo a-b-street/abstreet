@@ -316,8 +316,8 @@
             <span class="kw">let</span> <span class="ident">setback</span> <span class="op">=</span> <span class="ident">rand_dist</span>(<span class="ident">rng</span>, <span class="number">10.0</span>, <span class="number">20.0</span>);
             <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">sidewalk_pt</span>.<span class="ident">project_away</span>(<span class="ident">setback</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">90.0</span>));
 
-            <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">4.0</span>..<span class="number">7.0</span>);
-            <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">4.0</span>..<span class="number">7.0</span>);
+            <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">6.0</span>..<span class="number">14.0</span>);
+            <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">6.0</span>..<span class="number">14.0</span>);
             <span class="ident">houses</span>.<span class="ident">push</span>(
                 <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="ident">width</span>, <span class="ident">height</span>)
                     .<span class="ident">rotate</span>(<span class="ident">angle</span>)

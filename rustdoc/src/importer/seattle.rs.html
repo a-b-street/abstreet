@@ -319,6 +319,7 @@
 <span id="316">316</span>
 <span id="317">317</span>
 <span id="318">318</span>
+<span id="319">319</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
@@ -460,6 +461,7 @@
             <span class="ident">elevation</span>: <span class="prelude-val">Some</span>(<span class="ident">abstio</span>::<span class="ident">path</span>(<span class="string">&quot;input/seattle/N47W122.hgt&quot;</span>)),
             <span class="comment">// They mess up 16th and E Marginal badly enough to cause gridlock.</span>
             <span class="ident">include_railroads</span>: <span class="bool-val">false</span>,
+            <span class="ident">extra_buildings</span>: <span class="prelude-val">None</span>,
         },
         <span class="ident">timer</span>,
     );
