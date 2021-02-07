@@ -3,11 +3,12 @@ use std::collections::HashSet;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 
+use abstutil::Timer;
 use geom::{Distance, Polygon};
 use map_model::osm;
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Panel, SimpleState,
-    State, StyledButtons, TextExt, VerticalAlignment, Widget,
+    State, StyledButtons, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -20,9 +21,11 @@ impl BuildingProceduralGenerator {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let mut batch = GeomBatch::new();
         let mut rng = app.primary.current_flags.sim_flags.make_rng();
-        for b in generate_buildings_on_empty_residential_roads(app, &mut rng) {
-            batch.push(Color::RED, b);
-        }
+        ctx.loading_screen("generate buildings", |_, mut timer| {
+            for b in generate_buildings_on_empty_residential_roads(app, &mut rng, &mut timer) {
+                batch.push(Color::RED, b);
+            }
+        });
 
         let panel = Panel::new(Widget::row(vec![
             Line("Procedurally generated buildings")
@@ -59,9 +62,14 @@ impl SimpleState<App> for BuildingProceduralGenerator {
     }
 }
 
-fn generate_buildings_on_empty_residential_roads(app: &App, rng: &mut XorShiftRng) -> Vec<Polygon> {
+fn generate_buildings_on_empty_residential_roads(
+    app: &App,
+    rng: &mut XorShiftRng,
+    timer: &mut Timer,
+) -> Vec<Polygon> {
     let map = &app.primary.map;
 
+    timer.start("initially place buildings");
     let mut lanes_with_buildings = HashSet::new();
     for b in map.all_buildings() {
         lanes_with_buildings.insert(b.sidewalk());
@@ -75,7 +83,6 @@ fn generate_buildings_on_empty_residential_roads(app: &App, rng: &mut XorShiftRn
             && map.get_r(l.parent).osm_tags.is(osm::HIGHWAY, "residential")
         {
             empty_sidewalks.push(l.id);
-            //houses.push(l.lane_center_pts.make_polygons(l.width));
         }
     }
 
@@ -87,7 +94,7 @@ fn generate_buildings_on_empty_residential_roads(app: &App, rng: &mut XorShiftRn
         let mut dist_along = rand_dist(rng, 1.0, 5.0);
         while dist_along < lane.lane_center_pts.length() {
             let (sidewalk_pt, angle) = lane.lane_center_pts.must_dist_along(dist_along);
-            let setback = rand_dist(rng, 13.0, 17.0);
+            let setback = rand_dist(rng, 10.0, 20.0);
             let center = sidewalk_pt.project_away(setback, angle.rotate_degs(-90.0));
 
             let width = rng.gen_range(4.0..7.0);
@@ -101,10 +108,32 @@ fn generate_buildings_on_empty_residential_roads(app: &App, rng: &mut XorShiftRn
             dist_along += Distance::meters(width.max(height)) + rand_dist(rng, 2.0, 4.0);
         }
     }
+    timer.stop("initially place buildings");
 
-    // TODO Remove buildings that hit other ones or parks/water or roads
+    // TODO Remove buildings that hit each other
 
-    houses
+    // Remove buildings that hit existing things on the map -- namely roads and park/water areas.
+    // TODO Can't parallelize here, because draw_map has a bunch of non-Send GPU things.
+    let mut survivors = Vec::new();
+    timer.start_iter("prune buildings overlapping the basemap", houses.len());
+    for poly in houses {
+        timer.next();
+        let possible_hits = app
+            .primary
+            .draw_map
+            .get_renderables_back_to_front(poly.get_bounds(), map);
+        // The outline of renderables is usually a thin polygon around the boundary, so we can't
+        // use it directly to test for overlap. Instead, check every point of our candidate house.
+        if possible_hits.into_iter().all(|renderable| {
+            !poly
+                .points()
+                .into_iter()
+                .any(|pt| renderable.contains_pt(*pt, map))
+        }) {
+            survivors.push(poly);
+        }
+    }
+    survivors
 }
 
 fn rand_dist(rng: &mut XorShiftRng, low: f64, high: f64) -> Distance {
