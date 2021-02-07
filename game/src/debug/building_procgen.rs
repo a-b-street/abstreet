@@ -1,5 +1,7 @@
 use std::collections::HashSet;
 
+use aabb_quadtree::QuadTree;
+use geojson::{Feature, FeatureCollection, GeoJson};
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 
@@ -8,7 +10,7 @@ use geom::{Distance, Polygon};
 use map_model::osm;
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Panel, SimpleState,
-    State, StyledButtons, VerticalAlignment, Widget,
+    State, StyledButtons, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -21,17 +23,42 @@ impl BuildingProceduralGenerator {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let mut batch = GeomBatch::new();
         let mut rng = app.primary.current_flags.sim_flags.make_rng();
-        ctx.loading_screen("generate buildings", |_, mut timer| {
-            for b in generate_buildings_on_empty_residential_roads(app, &mut rng, &mut timer) {
-                batch.push(Color::RED, b);
-            }
+        let houses = ctx.loading_screen("generate buildings", |_, mut timer| {
+            generate_buildings_on_empty_residential_roads(app, &mut rng, &mut timer)
         });
+        let mut features = Vec::new();
+        for poly in houses {
+            features.push(Feature {
+                bbox: None,
+                geometry: Some(poly.to_geojson(Some(app.primary.map.get_gps_bounds()))),
+                id: None,
+                properties: None,
+                foreign_members: None,
+            });
 
-        let panel = Panel::new(Widget::row(vec![
-            Line("Procedurally generated buildings")
-                .small_heading()
-                .draw(ctx),
-            ctx.style().btn_close_widget(ctx),
+            batch.push(Color::RED, poly);
+        }
+        let num_houses = features.len();
+        let geojson = GeoJson::from(FeatureCollection {
+            bbox: None,
+            features,
+            foreign_members: None,
+        });
+        abstio::write_json("procgen_houses.json".to_string(), &geojson);
+
+        let panel = Panel::new(Widget::col(vec![
+            Widget::row(vec![
+                Line("Procedurally generated buildings")
+                    .small_heading()
+                    .draw(ctx),
+                ctx.style().btn_close_widget(ctx),
+            ]),
+            format!(
+                "Generated {} houses",
+                abstutil::prettyprint_usize(num_houses)
+            )
+            .draw_text(ctx),
+            "Wrote results to procgen_houses.json".draw_text(ctx),
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);
@@ -110,13 +137,32 @@ fn generate_buildings_on_empty_residential_roads(
     }
     timer.stop("initially place buildings");
 
-    // TODO Remove buildings that hit each other
+    // Remove buildings that hit each other. Build up the quadtree of finalized houses as we go,
+    // using index as the ID.
+    let mut non_overlapping = Vec::new();
+    let mut quadtree = QuadTree::default(map.get_bounds().as_bbox());
+    timer.start_iter("prune buildings overlapping each other", houses.len());
+    'HOUSE: for poly in houses {
+        timer.next();
+        let mut search = poly.get_bounds();
+        search.add_buffer(Distance::meters(1.0));
+        for (idx, _, _) in quadtree.query(search.as_bbox()) {
+            if poly.intersects(&non_overlapping[*idx]) {
+                continue 'HOUSE;
+            }
+        }
+        quadtree.insert_with_box(non_overlapping.len(), poly.get_bounds().as_bbox());
+        non_overlapping.push(poly);
+    }
 
     // Remove buildings that hit existing things on the map -- namely roads and park/water areas.
     // TODO Can't parallelize here, because draw_map has a bunch of non-Send GPU things.
     let mut survivors = Vec::new();
-    timer.start_iter("prune buildings overlapping the basemap", houses.len());
-    for poly in houses {
+    timer.start_iter(
+        "prune buildings overlapping the basemap",
+        non_overlapping.len(),
+    );
+    for poly in non_overlapping {
         timer.next();
         let possible_hits = app
             .primary
