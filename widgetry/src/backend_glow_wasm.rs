@@ -1,11 +1,10 @@
-use glow::HasContext;
 use std::rc::Rc;
 use wasm_bindgen::JsCast;
 use winit::platform::web::WindowExtWebSys;
 
 use abstutil::Timer;
 
-use crate::backend_glow::{GfxCtxInnards, PrerenderInnards};
+use crate::backend_glow::{build_program, GfxCtxInnards, PrerenderInnards, SpriteTexture};
 use crate::ScreenDims;
 
 pub fn setup(
@@ -60,75 +59,92 @@ pub fn setup(
         closure.forget();
     }
 
-    let webgl2_context = canvas
-        .get_context("webgl2")
-        .unwrap()
-        .unwrap()
-        .dyn_into::<web_sys::WebGl2RenderingContext>()
-        .unwrap();
-    let gl = glow::Context::from_webgl2_context(webgl2_context);
-
-    let program = unsafe { gl.create_program().expect("Cannot create program") };
-
-    unsafe {
-        let shaders = [
-            (
-                glow::VERTEX_SHADER,
-                include_str!("../shaders/vertex_300.glsl"),
-            ),
-            (
-                glow::FRAGMENT_SHADER,
-                include_str!("../shaders/fragment_300.glsl"),
-            ),
-        ]
-        .iter()
-        .map(|(shader_type, source)| {
-            let shader = gl
-                .create_shader(*shader_type)
-                .expect("Cannot create shader");
-            gl.shader_source(shader, source);
-            gl.compile_shader(shader);
-            if !gl.get_shader_compile_status(shader) {
-                error!("Shader error: {}", gl.get_shader_info_log(shader));
-                panic!(gl.get_shader_info_log(shader));
-            }
-            gl.attach_shader(program, shader);
-            shader
+    // First try WebGL 2.0 context.
+    // WebGL 2.0 isn't supported by default on macOS Safari, or any iOS browser (which are all just
+    // Safari wrappers).
+    let (program, gl) = webgl2_program_context(&canvas, timer)
+        .or_else(|err| {
+            warn!(
+                "failed to build WebGL 2.0 context with error: \"{}\". Trying WebGL 1.0 instead...",
+                err
+            );
+            webgl1_program_context(&canvas, timer)
         })
-        .collect::<Vec<_>>();
-        gl.link_program(program);
-        if !gl.get_program_link_status(program) {
-            error!("Linking error: {}", gl.get_program_info_log(program));
-            panic!(gl.get_program_info_log(program));
-        }
-        for shader in shaders {
-            gl.detach_shader(program, shader);
-            gl.delete_shader(shader);
-        }
-        gl.use_program(Some(program));
+        .unwrap();
 
-        gl.enable(glow::SCISSOR_TEST);
+    debug!("built WebGL context");
 
-        gl.enable(glow::DEPTH_TEST);
-        gl.depth_func(glow::LEQUAL);
+    fn webgl2_program_context(
+        canvas: &web_sys::HtmlCanvasElement,
+        timer: &mut Timer,
+    ) -> anyhow::Result<(glow::Program, glow::Context)> {
+        let maybe_context: Option<_> = canvas
+            .get_context("webgl2")
+            .map_err(|err| anyhow!("error getting context for WebGL 2.0: {:?}", err))?;
+        let js_webgl2_context =
+            maybe_context.ok_or(anyhow!("Browser doesn't support WebGL 2.0"))?;
+        let webgl2_context = js_webgl2_context
+            .dyn_into::<web_sys::WebGl2RenderingContext>()
+            .map_err(|err| anyhow!("unable to cast to WebGl2RenderingContext. error: {:?}", err))?;
+        let gl = glow::Context::from_webgl2_context(webgl2_context);
+        let program = unsafe {
+            build_program(
+                &gl,
+                include_str!("../shaders/vertex_300.glsl"),
+                include_str!("../shaders/fragment_300.glsl"),
+            )?
+        };
 
-        gl.enable(glow::BLEND);
-        gl.blend_func_separate(
-            glow::ONE,
-            glow::ONE_MINUS_SRC_ALPHA,
-            glow::ONE_MINUS_DST_ALPHA,
-            glow::ONE,
-        );
+        timer.start("load textures");
+        let sprite_texture = SpriteTexture::new(
+            include_bytes!("../textures/spritesheet.png").to_vec(),
+            64,
+            64,
+        )
+        .expect("failed to format texture sprite sheet");
+        sprite_texture
+            .upload_gl2(&gl)
+            .expect("failed to upload textures");
+        timer.stop("load textures");
+
+        Ok((program, gl))
     }
 
-    timer.start("load textures");
-    crate::backend_glow::load_textures(
-        &gl,
-        include_bytes!("../textures/spritesheet.png").to_vec(),
-        64,
-    )
-    .unwrap();
-    timer.stop("load textures");
+    fn webgl1_program_context(
+        canvas: &web_sys::HtmlCanvasElement,
+        timer: &mut Timer,
+    ) -> anyhow::Result<(glow::Program, glow::Context)> {
+        let maybe_context: Option<_> = canvas
+            .get_context("webgl")
+            .map_err(|err| anyhow!("error getting context for WebGL 1.0: {:?}", err))?;
+        let js_webgl1_context =
+            maybe_context.ok_or(anyhow!("Browser doesn't support WebGL 1.0"))?;
+        let webgl1_context = js_webgl1_context
+            .dyn_into::<web_sys::WebGlRenderingContext>()
+            .map_err(|err| anyhow!("unable to cast to WebGlRenderingContext. error: {:?}", err))?;
+        let gl = glow::Context::from_webgl1_context(webgl1_context);
+        let program = unsafe {
+            build_program(
+                &gl,
+                include_str!("../shaders/vertex_webgl1.glsl"),
+                include_str!("../shaders/fragment_webgl1.glsl"),
+            )?
+        };
+
+        timer.start("load textures");
+        let sprite_texture = SpriteTexture::new(
+            include_bytes!("../textures/spritesheet.png").to_vec(),
+            64,
+            64,
+        )
+        .expect("failed to format texture sprite sheet");
+        sprite_texture
+            .upload_webgl1(&gl)
+            .expect("failed to upload textures");
+        timer.stop("load textures");
+
+        Ok((program, gl))
+    }
 
     (
         PrerenderInnards::new(gl, program, WindowAdapter(winit_window)),
