@@ -598,6 +598,54 @@
 <span id="595">595</span>
 <span id="596">596</span>
 <span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">Cell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">rc</span>::<span class="ident">Rc</span>;
@@ -612,6 +660,64 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm-backend&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">backend_glow_wasm</span>::<span class="ident">setup</span>;
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">build_program</span>(
+    <span class="ident">gl</span>: <span class="kw-2">&amp;</span><span class="ident">glow</span>::<span class="ident">Context</span>,
+    <span class="ident">vertex_shader_src</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+    <span class="ident">fragment_shader_src</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">glow</span>::<span class="ident">Program</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">program</span> <span class="op">=</span> <span class="ident">gl</span>.<span class="ident">create_program</span>().<span class="ident">expect</span>(<span class="string">&quot;Cannot create program&quot;</span>);
+
+    <span class="kw">let</span> <span class="ident">shaders</span> <span class="op">=</span> [
+        <span class="ident">compile_shader</span>(<span class="ident">gl</span>, <span class="ident">glow</span>::<span class="ident">VERTEX_SHADER</span>, <span class="ident">vertex_shader_src</span>)<span class="question-mark">?</span>,
+        <span class="ident">compile_shader</span>(<span class="ident">gl</span>, <span class="ident">glow</span>::<span class="ident">FRAGMENT_SHADER</span>, <span class="ident">fragment_shader_src</span>)<span class="question-mark">?</span>,
+    ];
+
+    <span class="kw">for</span> <span class="ident">shader</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">shaders</span> {
+        <span class="ident">gl</span>.<span class="ident">attach_shader</span>(<span class="ident">program</span>, <span class="kw-2">*</span><span class="ident">shader</span>);
+    }
+
+    <span class="ident">gl</span>.<span class="ident">link_program</span>(<span class="ident">program</span>);
+    <span class="kw">if</span> <span class="op">!</span><span class="ident">gl</span>.<span class="ident">get_program_link_status</span>(<span class="ident">program</span>) {
+        <span class="macro">error</span><span class="macro">!</span>(<span class="string">&quot;Linking error: {}&quot;</span>, <span class="ident">gl</span>.<span class="ident">get_program_info_log</span>(<span class="ident">program</span>));
+        <span class="macro">panic</span><span class="macro">!</span>(<span class="ident">gl</span>.<span class="ident">get_program_info_log</span>(<span class="ident">program</span>));
+    }
+
+    <span class="kw">for</span> <span class="ident">shader</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">shaders</span> {
+        <span class="ident">gl</span>.<span class="ident">detach_shader</span>(<span class="ident">program</span>, <span class="kw-2">*</span><span class="ident">shader</span>);
+        <span class="ident">gl</span>.<span class="ident">delete_shader</span>(<span class="kw-2">*</span><span class="ident">shader</span>);
+    }
+
+    <span class="ident">gl</span>.<span class="ident">use_program</span>(<span class="prelude-val">Some</span>(<span class="ident">program</span>));
+
+    <span class="ident">gl</span>.<span class="ident">enable</span>(<span class="ident">glow</span>::<span class="ident">SCISSOR_TEST</span>);
+    <span class="ident">gl</span>.<span class="ident">enable</span>(<span class="ident">glow</span>::<span class="ident">DEPTH_TEST</span>);
+    <span class="ident">gl</span>.<span class="ident">depth_func</span>(<span class="ident">glow</span>::<span class="ident">LEQUAL</span>);
+    <span class="ident">gl</span>.<span class="ident">enable</span>(<span class="ident">glow</span>::<span class="ident">BLEND</span>);
+    <span class="ident">gl</span>.<span class="ident">blend_func_separate</span>(
+        <span class="ident">glow</span>::<span class="ident">ONE</span>,
+        <span class="ident">glow</span>::<span class="ident">ONE_MINUS_SRC_ALPHA</span>,
+        <span class="ident">glow</span>::<span class="ident">ONE_MINUS_DST_ALPHA</span>,
+        <span class="ident">glow</span>::<span class="ident">ONE</span>,
+    );
+
+    <span class="prelude-val">Ok</span>(<span class="ident">program</span>)
+}
+
+<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">compile_shader</span>(
+    <span class="ident">gl</span>: <span class="kw-2">&amp;</span><span class="ident">glow</span>::<span class="ident">Context</span>,
+    <span class="ident">shader_type</span>: <span class="ident">u32</span>,
+    <span class="ident">shader_source</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">glow</span>::<span class="ident">Shader</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">shader</span> <span class="op">=</span> <span class="ident">gl</span>.<span class="ident">create_shader</span>(<span class="ident">shader_type</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="macro">anyhow</span><span class="macro">!</span>(<span class="ident">e</span>))<span class="question-mark">?</span>;
+    <span class="ident">gl</span>.<span class="ident">shader_source</span>(<span class="ident">shader</span>, <span class="ident">shader_source</span>);
+    <span class="ident">gl</span>.<span class="ident">compile_shader</span>(<span class="ident">shader</span>);
+    <span class="kw">if</span> <span class="op">!</span><span class="ident">gl</span>.<span class="ident">get_shader_compile_status</span>(<span class="ident">shader</span>) {
+        <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;error compiling shader: {}&quot;</span>, <span class="ident">gl</span>.<span class="ident">get_shader_info_log</span>(<span class="ident">shader</span>));
+    }
+
+    <span class="prelude-val">Ok</span>(<span class="ident">shader</span>)
+}
 
 <span class="comment">// Represents one frame that&#39;s gonna be drawn</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GfxCtxInnards</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
@@ -1019,182 +1125,172 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// Implementation is based on the the description of ArrayTextures from:</span>
 <span class="doccomment">/// https://www.khronos.org/opengl/wiki/Array_Texture.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_textures</span>(
-    <span class="ident">gl</span>: <span class="kw-2">&amp;</span><span class="ident">glow</span>::<span class="ident">Context</span>,
-    <span class="ident">image_bytes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-    <span class="ident">sprite_length</span>: <span class="ident">u32</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">dynamic_img</span> <span class="op">=</span> <span class="ident">image</span>::<span class="ident">load_from_memory</span>(<span class="kw-2">&amp;</span><span class="ident">image_bytes</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">img</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">image</span>::<span class="ident">DynamicImage</span>::<span class="ident">ImageRgba8</span>(<span class="ident">img</span>) <span class="op">=</span> <span class="ident">dynamic_img</span> {
-        <span class="ident">img</span>
-    } <span class="kw">else</span> {
-        <span class="macro">todo</span><span class="macro">!</span>(<span class="string">&quot;support other image formats&quot;</span>);
-    };
+<span class="doccomment">///</span>
+<span class="doccomment">/// OpenGL texture arrays expect each texture&#39;s bytes to be contiguous, but it&#39;s conventional to</span>
+<span class="doccomment">/// store textures in a grid within a single spritesheet image, where a row and column traverses</span>
+<span class="doccomment">/// multiple sprites.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// For example, if we had 6 textures, A-F, the input spritesheet bytes would be like:</span>
+<span class="doccomment">/// [[AAA, BBB, CCC],</span>
+<span class="doccomment">///  [AAA, BBB, CCC]</span>
+<span class="doccomment">///  [AAA, BBB, CCC],</span>
+<span class="doccomment">///  [DDD, EEE, FFF],</span>
+<span class="doccomment">///  [DDD, EEE, FFF],</span>
+<span class="doccomment">///  [DDD, EEE, FFF]]</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Which we need to convert to:</span>
+<span class="doccomment">/// [[AAAAAAAAA],</span>
+<span class="doccomment">///  [BBBBBBBBB],</span>
+<span class="doccomment">///  [CCCCCCCCC],</span>
+<span class="doccomment">///  [DDDDDDDDD],</span>
+<span class="doccomment">///  [EEEEEEEEE],</span>
+<span class="doccomment">///  [FFFFFFFFF]]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SpriteTexture</span> {
+    <span class="ident">texture_bytes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
+    <span class="ident">sprite_width</span>: <span class="ident">u32</span>,
+    <span class="ident">sprite_height</span>: <span class="ident">u32</span>,
+    <span class="ident">sprite_count</span>: <span class="ident">u32</span>,
+}
 
-    <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">glow</span>::<span class="ident">RGBA</span>;
-    <span class="kw">let</span> <span class="ident">target</span> <span class="op">=</span> <span class="ident">glow</span>::<span class="ident">TEXTURE_2D_ARRAY</span>;
-    <span class="kw">let</span> <span class="ident">mipmap_level</span> <span class="op">=</span> <span class="number">1</span>;
-    <span class="kw">let</span> <span class="ident">internal_format</span> <span class="op">=</span> <span class="ident">glow</span>::<span class="ident">RGBA</span>;
-    <span class="kw">let</span> <span class="ident">bytes_per_pixel</span> <span class="op">=</span> <span class="number">4</span>;
+<span class="kw">impl</span> <span class="ident">SpriteTexture</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
+        <span class="ident">sprite_bytes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
+        <span class="ident">sprite_width</span>: <span class="ident">u32</span>,
+        <span class="ident">sprite_height</span>: <span class="ident">u32</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">dynamic_img</span> <span class="op">=</span> <span class="ident">image</span>::<span class="ident">load_from_memory</span>(<span class="kw-2">&amp;</span><span class="ident">sprite_bytes</span>)<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">texture_id</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">gl</span>.<span class="ident">create_texture</span>()<span class="question-mark">?</span> };
-    <span class="kw">unsafe</span> {
-        <span class="ident">gl</span>.<span class="ident">bind_texture</span>(<span class="ident">target</span>, <span class="prelude-val">Some</span>(<span class="ident">texture_id</span>));
-    }
+        <span class="kw">let</span> <span class="ident">img</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">image</span>::<span class="ident">DynamicImage</span>::<span class="ident">ImageRgba8</span>(<span class="ident">img</span>) <span class="op">=</span> <span class="ident">dynamic_img</span> {
+            <span class="ident">img</span>
+        } <span class="kw">else</span> {
+            <span class="macro">todo</span><span class="macro">!</span>(<span class="string">&quot;support other image formats&quot;</span>);
+        };
 
-    <span class="kw">let</span> (<span class="ident">img_width</span>, <span class="ident">img_height</span>) <span class="op">=</span> <span class="ident">img</span>.<span class="ident">dimensions</span>();
-    <span class="kw">let</span> <span class="ident">sprite_height</span> <span class="op">=</span> <span class="ident">sprite_length</span>;
-    <span class="kw">let</span> <span class="ident">sprites_per_row</span> <span class="op">=</span> <span class="ident">img_width</span> <span class="op">/</span> <span class="ident">sprite_length</span>;
-    <span class="kw">let</span> <span class="ident">sprites_per_column</span> <span class="op">=</span> <span class="ident">img_height</span> <span class="op">/</span> <span class="ident">sprite_length</span>;
-    <span class="kw">let</span> <span class="ident">sprite_count</span> <span class="op">=</span> <span class="ident">sprites_per_row</span> <span class="op">*</span> <span class="ident">sprites_per_column</span>;
+        <span class="kw">let</span> <span class="ident">bytes_per_pixel</span> <span class="op">=</span> <span class="number">4</span>;
 
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
-        <span class="ident">sprites_per_row</span> <span class="op">*</span> <span class="ident">sprite_length</span>,
-        <span class="ident">img_width</span>,
-        <span class="string">&quot;sprites must align exactly&quot;</span>
-    );
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
-        <span class="ident">sprites_per_column</span> <span class="op">*</span> <span class="ident">sprite_height</span>,
-        <span class="ident">img_height</span>,
-        <span class="string">&quot;sprites must align exactly&quot;</span>
-    );
+        <span class="kw">let</span> (<span class="ident">img_width</span>, <span class="ident">img_height</span>) <span class="op">=</span> <span class="ident">img</span>.<span class="ident">dimensions</span>();
+        <span class="kw">let</span> <span class="ident">sprites_per_row</span> <span class="op">=</span> <span class="ident">img_width</span> <span class="op">/</span> <span class="ident">sprite_width</span>;
+        <span class="kw">let</span> <span class="ident">sprites_per_column</span> <span class="op">=</span> <span class="ident">img_height</span> <span class="op">/</span> <span class="ident">sprite_height</span>;
+        <span class="kw">let</span> <span class="ident">sprite_count</span> <span class="op">=</span> <span class="ident">sprites_per_row</span> <span class="op">*</span> <span class="ident">sprites_per_column</span>;
 
-    <span class="macro">info</span><span class="macro">!</span>(
-        <span class="string">&quot;img_size: {}x{}px ({} px), sprite_size: {}x{}px, sprites: {}x{} ({} sprites)&quot;</span>,
-        <span class="ident">img_width</span>,
-        <span class="ident">img_height</span>,
-        <span class="ident">img</span>.<span class="ident">pixels</span>().<span class="ident">len</span>(),
-        <span class="ident">sprite_length</span>,
-        <span class="ident">sprite_height</span>,
-        <span class="ident">sprites_per_row</span>,
-        <span class="ident">sprites_per_column</span>,
-        <span class="ident">sprite_count</span>
-    );
-
-    <span class="comment">// Allocate the storage.</span>
-    <span class="kw">unsafe</span> {
-        <span class="ident">gl</span>.<span class="ident">tex_storage_3d</span>(
-            <span class="ident">target</span>,
-            <span class="ident">mipmap_level</span>,
-            <span class="ident">internal_format</span>,
-            <span class="ident">sprite_length</span> <span class="kw">as</span> <span class="ident">i32</span>,
-            <span class="ident">sprite_height</span> <span class="kw">as</span> <span class="ident">i32</span>,
-            <span class="ident">sprite_count</span> <span class="kw">as</span> <span class="ident">i32</span>,
+        <span class="macro">assert_eq</span><span class="macro">!</span>(
+            <span class="ident">sprites_per_row</span> <span class="op">*</span> <span class="ident">sprite_width</span>,
+            <span class="ident">img_width</span>,
+            <span class="string">&quot;sprites must align exactly&quot;</span>
         );
-    }
+        <span class="macro">assert_eq</span><span class="macro">!</span>(
+            <span class="ident">sprites_per_column</span> <span class="op">*</span> <span class="ident">sprite_height</span>,
+            <span class="ident">img_height</span>,
+            <span class="string">&quot;sprites must align exactly&quot;</span>
+        );
 
-    <span class="comment">// Upload pixel data.</span>
-    <span class="comment">//</span>
-    <span class="comment">// From: https://www.khronos.org/opengl/wiki/Array_Texture#Creation_and_Management</span>
-    <span class="comment">// &gt; The first 0 refers to the mipmap level (level 0, since there&#39;s only 1)</span>
-    <span class="comment">// &gt; The following 2 zeroes refers to the x and y offsets in case you only want to</span>
-    <span class="comment">// &gt; specify a subrectangle.</span>
-    <span class="comment">// &gt; The final 0 refers to the layer index offset (we start from index 0 and have 2</span>
-    <span class="comment">// &gt; levels).</span>
-    <span class="comment">// &gt; Altogether you can specify a 3D box subset of the overall texture, but only one</span>
-    <span class="comment">// &gt; mip level at a time.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">formatted_pixel_bytes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span>
-        <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">img</span>.<span class="ident">pixels</span>().<span class="ident">len</span>() <span class="op">*</span> <span class="ident">bytes_per_pixel</span>);
+        <span class="macro">info</span><span class="macro">!</span>(
+            <span class="string">&quot;img_size: {}x{}px ({} px), sprite_size: {}x{}px, sprites: {}x{} ({} sprites)&quot;</span>,
+            <span class="ident">img_width</span>,
+            <span class="ident">img_height</span>,
+            <span class="ident">img</span>.<span class="ident">pixels</span>().<span class="ident">len</span>(),
+            <span class="ident">sprite_width</span>,
+            <span class="ident">sprite_height</span>,
+            <span class="ident">sprites_per_row</span>,
+            <span class="ident">sprites_per_column</span>,
+            <span class="ident">sprite_count</span>
+        );
 
-    <span class="comment">// In order to avoid branching in our shader logic, all shapes are rendered with a texture.</span>
-    <span class="comment">// Even &quot;non-textured&quot; styles like Fill::Color, use a &quot;default&quot; no-op (pure white) texture,</span>
-    <span class="comment">// which we generate here.</span>
-    <span class="ident">formatted_pixel_bytes</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="macro">vec</span><span class="macro">!</span>[
-        <span class="number">255</span>;
-        (<span class="ident">sprite_length</span> <span class="op">*</span> <span class="ident">sprite_height</span>) <span class="kw">as</span> <span class="ident">usize</span>
-            <span class="op">*</span> <span class="ident">bytes_per_pixel</span>
-    ]);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">texture_bytes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">img</span>.<span class="ident">pixels</span>().<span class="ident">len</span>() <span class="op">*</span> <span class="ident">bytes_per_pixel</span>);
 
-    <span class="comment">// OpenGL texture arrays expect each texture&#39;s bytes to be contiguous, but it&#39;s conventional to</span>
-    <span class="comment">// store textures in a grid within a single spritesheet image, where a row and column traverses</span>
-    <span class="comment">// multiple sprites.</span>
-    <span class="comment">//</span>
-    <span class="comment">// For example, if we had 6 textures, A-F, the input spritesheet bytes would be like:</span>
-    <span class="comment">// [[AAA, BBB, CCC],</span>
-    <span class="comment">//  [AAA, BBB, CCC]</span>
-    <span class="comment">//  [AAA, BBB, CCC],</span>
-    <span class="comment">//  [DDD, EEE, FFF],</span>
-    <span class="comment">//  [DDD, EEE, FFF],</span>
-    <span class="comment">//  [DDD, EEE, FFF]]</span>
-    <span class="comment">//</span>
-    <span class="comment">// Which we need to convert to:</span>
-    <span class="comment">// [[AAAAAAAAA],</span>
-    <span class="comment">//  [BBBBBBBBB],</span>
-    <span class="comment">//  [CCCCCCCCC],</span>
-    <span class="comment">//  [DDDDDDDDD],</span>
-    <span class="comment">//  [EEEEEEEEE],</span>
-    <span class="comment">//  [FFFFFFFFF]]</span>
-    <span class="kw">use</span> <span class="ident">image</span>::<span class="ident">GenericImageView</span>;
-    <span class="kw">for</span> <span class="ident">y</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">sprites_per_column</span> {
-        <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">sprites_per_row</span> {
-            <span class="kw">let</span> <span class="ident">sprite_cell</span> <span class="op">=</span> <span class="ident">img</span>.<span class="ident">view</span>(
-                <span class="ident">x</span> <span class="op">*</span> <span class="ident">sprite_length</span>,
-                <span class="ident">y</span> <span class="op">*</span> <span class="ident">sprite_height</span>,
-                <span class="ident">sprite_length</span>,
-                <span class="ident">sprite_height</span>,
-            );
-            <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">sprite_cell</span>.<span class="ident">pixels</span>() {
-                <span class="ident">formatted_pixel_bytes</span>.<span class="ident">extend_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">p</span>.<span class="number">2</span> .<span class="number">0</span>);
+        <span class="comment">// In order to avoid branching in our shader logic, all shapes are rendered with a texture.</span>
+        <span class="comment">// Even &quot;non-textured&quot; styles like Fill::Color, use a &quot;default&quot; no-op (pure white) texture,</span>
+        <span class="comment">// which we generate here.</span>
+        <span class="ident">texture_bytes</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="macro">vec</span><span class="macro">!</span>[
+            <span class="number">255</span>;
+            (<span class="ident">sprite_width</span> <span class="op">*</span> <span class="ident">sprite_height</span>) <span class="kw">as</span> <span class="ident">usize</span>
+                <span class="op">*</span> <span class="ident">bytes_per_pixel</span>
+        ]);
+
+        <span class="kw">use</span> <span class="ident">image</span>::<span class="ident">GenericImageView</span>;
+        <span class="kw">for</span> <span class="ident">y</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">sprites_per_column</span> {
+            <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">sprites_per_row</span> {
+                <span class="kw">let</span> <span class="ident">sprite_cell</span> <span class="op">=</span> <span class="ident">img</span>.<span class="ident">view</span>(
+                    <span class="ident">x</span> <span class="op">*</span> <span class="ident">sprite_width</span>,
+                    <span class="ident">y</span> <span class="op">*</span> <span class="ident">sprite_height</span>,
+                    <span class="ident">sprite_width</span>,
+                    <span class="ident">sprite_height</span>,
+                );
+                <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">sprite_cell</span>.<span class="ident">pixels</span>() {
+                    <span class="ident">texture_bytes</span>.<span class="ident">extend_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">p</span>.<span class="number">2</span> .<span class="number">0</span>);
+                }
             }
         }
+
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
+            <span class="ident">texture_bytes</span>,
+            <span class="ident">sprite_width</span>,
+            <span class="ident">sprite_height</span>,
+            <span class="ident">sprite_count</span>,
+        })
     }
 
-    <span class="comment">// prepare and generate mipmaps</span>
-    <span class="kw">unsafe</span> {
-        <span class="ident">gl</span>.<span class="ident">tex_sub_image_3d</span>(
-            <span class="ident">target</span>,
-            <span class="number">0</span>,
-            <span class="number">0</span>,
-            <span class="number">0</span>,
-            <span class="number">0</span>,
-            <span class="ident">sprite_length</span> <span class="kw">as</span> <span class="ident">i32</span>,
-            <span class="ident">sprite_height</span> <span class="kw">as</span> <span class="ident">i32</span>,
-            <span class="ident">sprite_count</span> <span class="kw">as</span> <span class="ident">i32</span>,
-            <span class="ident">format</span>,
-            <span class="ident">glow</span>::<span class="ident">UNSIGNED_BYTE</span>,
-            <span class="ident">glow</span>::<span class="ident">PixelUnpackData</span>::<span class="ident">Slice</span>(<span class="kw-2">&amp;</span><span class="ident">formatted_pixel_bytes</span>),
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">upload_webgl1</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_gl</span>: <span class="kw-2">&amp;</span><span class="ident">glow</span>::<span class="ident">Context</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="macro">warn</span><span class="macro">!</span>(
+            <span class="string">&quot;texture uploading for WebGL 1.0 is not yet supported. Enable WebGL 2.0 on your \
+             browser.&quot;</span>
         );
-
-        <span class="ident">gl</span>.<span class="ident">tex_image_3d</span>(
-            <span class="ident">target</span>,
-            <span class="number">0</span>,
-            <span class="ident">format</span> <span class="kw">as</span> <span class="ident">i32</span>,
-            <span class="ident">sprite_length</span> <span class="kw">as</span> <span class="ident">i32</span>,
-            <span class="ident">sprite_height</span> <span class="kw">as</span> <span class="ident">i32</span>,
-            <span class="ident">sprite_count</span> <span class="kw">as</span> <span class="ident">i32</span>,
-            <span class="number">0</span>,
-            <span class="ident">format</span>,
-            <span class="ident">glow</span>::<span class="ident">UNSIGNED_BYTE</span>,
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">formatted_pixel_bytes</span>),
-        );
-        <span class="ident">gl</span>.<span class="ident">tex_image_3d</span>(
-            <span class="ident">target</span>,
-            <span class="number">1</span>,
-            <span class="ident">format</span> <span class="kw">as</span> <span class="ident">i32</span>,
-            (<span class="ident">sprite_length</span> <span class="op">/</span> <span class="number">2</span>) <span class="kw">as</span> <span class="ident">i32</span>,
-            (<span class="ident">sprite_height</span> <span class="op">/</span> <span class="number">2</span>) <span class="kw">as</span> <span class="ident">i32</span>,
-            <span class="ident">sprite_count</span> <span class="kw">as</span> <span class="ident">i32</span>,
-            <span class="number">0</span>,
-            <span class="ident">format</span>,
-            <span class="ident">glow</span>::<span class="ident">UNSIGNED_BYTE</span>,
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">formatted_pixel_bytes</span>),
-        );
-        <span class="ident">gl</span>.<span class="ident">tex_image_3d</span>(
-            <span class="ident">target</span>,
-            <span class="number">2</span>,
-            <span class="ident">format</span> <span class="kw">as</span> <span class="ident">i32</span>,
-            (<span class="ident">sprite_length</span> <span class="op">/</span> <span class="number">4</span>) <span class="kw">as</span> <span class="ident">i32</span>,
-            (<span class="ident">sprite_height</span> <span class="op">/</span> <span class="number">4</span>) <span class="kw">as</span> <span class="ident">i32</span>,
-            <span class="ident">sprite_count</span> <span class="kw">as</span> <span class="ident">i32</span>,
-            <span class="number">0</span>,
-            <span class="ident">format</span>,
-            <span class="ident">glow</span>::<span class="ident">UNSIGNED_BYTE</span>,
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">formatted_pixel_bytes</span>),
-        );
-        <span class="ident">gl</span>.<span class="ident">generate_mipmap</span>(<span class="ident">target</span>);
+        <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="prelude-val">Ok</span>(())
+    <span class="comment">// Utilizes `tex_storage_3d` which isn&#39;t supported by WebGL 1.0.</span>
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">upload_gl2</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">gl</span>: <span class="kw-2">&amp;</span><span class="ident">glow</span>::<span class="ident">Context</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">texture_id</span> <span class="op">=</span> <span class="kw">unsafe</span> {
+            <span class="ident">gl</span>.<span class="ident">create_texture</span>()
+                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;error creating texture: {}&quot;</span>, <span class="ident">err</span>))<span class="question-mark">?</span>
+        };
+
+        <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">glow</span>::<span class="ident">RGBA</span>;
+        <span class="kw">let</span> <span class="ident">target</span> <span class="op">=</span> <span class="ident">glow</span>::<span class="ident">TEXTURE_2D_ARRAY</span>;
+        <span class="kw">let</span> <span class="ident">mipmap_levels</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">2</span>;
+        <span class="kw">let</span> <span class="ident">internal_format</span> <span class="op">=</span> <span class="ident">glow</span>::<span class="ident">RGBA</span>;
+
+        <span class="kw">unsafe</span> {
+            <span class="ident">gl</span>.<span class="ident">bind_texture</span>(<span class="ident">target</span>, <span class="prelude-val">Some</span>(<span class="ident">texture_id</span>));
+        }
+
+        <span class="comment">// Allocate the storage.</span>
+        <span class="kw">unsafe</span> {
+            <span class="ident">gl</span>.<span class="ident">tex_storage_3d</span>(
+                <span class="ident">target</span>,
+                <span class="ident">mipmap_levels</span> <span class="kw">as</span> <span class="ident">i32</span>,
+                <span class="ident">internal_format</span>,
+                <span class="self">self</span>.<span class="ident">sprite_width</span> <span class="kw">as</span> <span class="ident">i32</span>,
+                <span class="self">self</span>.<span class="ident">sprite_height</span> <span class="kw">as</span> <span class="ident">i32</span>,
+                <span class="self">self</span>.<span class="ident">sprite_count</span> <span class="kw">as</span> <span class="ident">i32</span>,
+            );
+        }
+
+        <span class="kw">unsafe</span> {
+            <span class="comment">// Upload pixel data for each mipmap level</span>
+            <span class="kw">for</span> <span class="ident">mipmap_level</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">mipmap_levels</span> {
+                <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">sprite_width</span> <span class="kw">as</span> <span class="ident">i32</span> <span class="op">/</span> <span class="number">2i32</span>.<span class="ident">pow</span>(<span class="ident">mipmap_level</span>);
+                <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">sprite_height</span> <span class="kw">as</span> <span class="ident">i32</span> <span class="op">/</span> <span class="number">2i32</span>.<span class="ident">pow</span>(<span class="ident">mipmap_level</span>);
+                <span class="ident">gl</span>.<span class="ident">tex_image_3d</span>(
+                    <span class="ident">target</span>,
+                    <span class="ident">mipmap_level</span> <span class="kw">as</span> <span class="ident">i32</span>,
+                    <span class="ident">format</span> <span class="kw">as</span> <span class="ident">i32</span>,
+                    <span class="ident">width</span>,
+                    <span class="ident">height</span>,
+                    <span class="self">self</span>.<span class="ident">sprite_count</span> <span class="kw">as</span> <span class="ident">i32</span>,
+                    <span class="number">0</span>,
+                    <span class="ident">format</span>,
+                    <span class="ident">glow</span>::<span class="ident">UNSIGNED_BYTE</span>,
+                    <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">texture_bytes</span>),
+                );
+            }
+            <span class="ident">gl</span>.<span class="ident">generate_mipmap</span>(<span class="ident">target</span>);
+        }
+
+        <span class="prelude-val">Ok</span>(())
+    }
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "widgetry";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
