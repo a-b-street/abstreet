@@ -3,11 +3,13 @@ extern crate anyhow;
 #[macro_use]
 extern crate log;
 
+use anyhow::Result;
+
 use abstio::MapName;
-use abstutil::Timer;
+use abstutil::{Tags, Timer};
 use geom::{Distance, FindClosest, GPSBounds, LonLat, Pt2D, Ring};
 use map_model::raw::RawMap;
-use map_model::{osm, Amenity, MapConfig};
+use map_model::{osm, raw, Amenity, MapConfig};
 use serde::{Deserialize, Serialize};
 
 mod clip;
@@ -36,6 +38,8 @@ pub struct Options {
     pub elevation: Option<String>,
     /// OSM railway=rail will be included as light rail if so. Cosmetic only.
     pub include_railroads: bool,
+    /// If provided, read polygons from this GeoJSON file and add them to the RawMap as buildings.
+    pub extra_buildings: Option<String>,
 }
 
 /// What roads will have on-street parking lanes? Data from
@@ -112,6 +116,9 @@ pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
     if let Some(ref path) = opts.elevation {
         use_elevation(&mut map, path, timer);
     }
+    if let Some(ref path) = opts.extra_buildings {
+        add_extra_buildings(&mut map, path).unwrap();
+    }
 
     snappy::snap_cycleways(&mut map, timer);
 
@@ -149,4 +156,52 @@ fn use_elevation(map: &mut RawMap, path: &str, timer: &mut Timer) {
         }
     }
     timer.stop("apply elevation data to intersections");
+}
+
+fn add_extra_buildings(map: &mut RawMap, path: &str) -> Result<()> {
+    // TODO Refactor code that just extracts polygons from geojson.
+    let mut polygons = Vec::new();
+
+    let bytes = abstio::slurp_file(path)?;
+    let raw_string = std::str::from_utf8(&bytes)?;
+    let geojson = raw_string.parse::<geojson::GeoJson>()?;
+
+    if let geojson::GeoJson::FeatureCollection(collection) = geojson {
+        for feature in collection.features {
+            if let Some(geom) = feature.geometry {
+                if let geojson::Value::Polygon(raw_pts) = geom.value {
+                    // TODO Handle holes, and also, refactor this!
+                    let gps_pts: Vec<LonLat> = raw_pts[0]
+                        .iter()
+                        .map(|pt| LonLat::new(pt[0], pt[1]))
+                        .collect();
+                    if let Some(pts) = map.gps_bounds.try_convert(&gps_pts) {
+                        if let Ok(ring) = Ring::new(pts) {
+                            polygons.push(ring.to_polygon());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Add these as new buildings, generating a new dummy OSM ID.
+    let mut id = -1;
+    for polygon in polygons {
+        map.buildings.insert(
+            osm::OsmID::Way(osm::WayID(id)),
+            raw::RawBuilding {
+                polygon,
+                osm_tags: Tags::empty(),
+                public_garage_name: None,
+                num_parking_spots: 1,
+                amenities: Vec::new(),
+            },
+        );
+        // We could use new_osm_way_id, but faster to just assume we're the only place introducing
+        // new OSM IDs.
+        id -= -1;
+    }
+
+    Ok(())
 }

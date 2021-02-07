@@ -13,5 +13,6 @@
     "FixedPerBldg": 3
   },
   "elevation": null,
-  "include_railroads": true
+  "include_railroads": true,
+  "extra_buildings": "data/input/cheshire/procgen_houses.json"
 }

@@ -173,7 +173,7 @@ fn handle_command(
             }
 
             let mut scenario = Scenario::empty(map, "one-shot");
-            scenario.people = ExternalPerson::import(map, vec![input])?;
+            scenario.people = ExternalPerson::import(map, vec![input], false)?;
             let mut rng = XorShiftRng::seed_from_u64(load.rng_seed);
             scenario.instantiate(sim, map, &mut rng, &mut Timer::throwaway());
             Ok(format!(

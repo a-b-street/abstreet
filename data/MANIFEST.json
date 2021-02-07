@@ -75,10 +75,15 @@
       "uncompressed_size_bytes": 27365189,
       "compressed_size_bytes": 27335966
     },
+    "data/input/cheshire/procgen_houses.json": {
+      "checksum": "d6d999cc2a5aea11c7b57dda23c415ff",
+      "uncompressed_size_bytes": 11438101,
+      "compressed_size_bytes": 1295537
+    },
     "data/input/cheshire/raw_maps/chapelford.bin": {
-      "checksum": "4dbdebb052dfcfc281ccf534b8c8d6ff",
-      "uncompressed_size_bytes": 9471716,
-      "compressed_size_bytes": 1961946
+      "checksum": "1a689b7ceae191d402cdf073c812e299",
+      "uncompressed_size_bytes": 12026716,
+      "compressed_size_bytes": 2826267
     },
     "data/input/detroit/osm/downtown.osm": {
       "checksum": "5c8dd6ecc94a80879bac965ef624e2e7",
@@ -726,9 +731,9 @@
       "compressed_size_bytes": 19234
     },
     "data/system/cheshire/maps/chapelford.bin": {
-      "checksum": "ac3ec684e7bd83ebc5e6eb1e2b414efd",
-      "uncompressed_size_bytes": 50260801,
-      "compressed_size_bytes": 17077556
+      "checksum": "d9e22283fb9dead8313324210d1a7334",
+      "uncompressed_size_bytes": 55235444,
+      "compressed_size_bytes": 18844115
     },
     "data/system/detroit/maps/downtown.bin": {
       "checksum": "254736ae813951a49d987b60ec2b643e",

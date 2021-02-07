@@ -13,5 +13,6 @@
     "FixedPerBldg": 10
   },
   "elevation": null,
-  "include_railroads": true
+  "include_railroads": true,
+  "extra_buildings": null
 }

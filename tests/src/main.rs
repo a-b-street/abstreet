@@ -64,6 +64,7 @@ fn import_map(path: String) -> Map {
             private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(0),
             elevation: None,
             include_railroads: true,
+            extra_buildings: None,
         },
         &mut timer,
     );

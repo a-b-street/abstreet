@@ -581,6 +581,7 @@ dependencies = [
  "abstutil",
  "anyhow",
  "byteorder",
+ "geojson",
  "geom",
  "kml",
  "log",
