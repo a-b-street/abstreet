@@ -36,9 +36,18 @@ members = [
 opt-level = 3
 
 [patch.crates-io]
-# Some niceties for parsing geojson feature properties.
-# Upstreaming at https://github.com/georust/geojson/pull/155
-geojson = { git = "https://github.com/georust/geojson" }
 # Since we've updated our tokio runtime to 1.0 elsewhere, we need to use a compatible version of flatgeobuf, until this is released:
 # https://github.com/flatgeobuf/flatgeobuf/commit/b21bfc72396505ce564b3195d59e63d22a48454f#diff-73865c8d3c63ba309958fca980e3f4d75ec4aa20df8d58b411479e44880f39ec
 flatgeobuf = { git = "https://github.com/flatgeobuf/flatgeobuf" }
+
+# update to geo-types 0.7 - upstream: https://github.com/21re/rust-geo-booleanop/pull/27
+geo-booleanop = { git = "https://github.com/michaelkirk/rust-geo-booleanop", branch = "mkirk/geo-types-0.7" }
+
+# update to geo-types 0.7 - upstream: https://github.com/georust/geozero/pull/5
+geozero-core = { path = "../../georust/geozero/geozero-core", branch = "mkirk/geo-types-0.7" }
+
+# update to geo-types 0.7 - upstream: https://github.com/mthh/contour-rs/pull/2
+contour = { git = "https://github.com/michaelkirk/contour-rs", branch = "mkirk/geojson-0.22" }
+
+# update to geo-types 0.7 not released yet
+gdal = { git = "https://github.com/georust/gdal" }
