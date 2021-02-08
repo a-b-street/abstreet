@@ -37,6 +37,7 @@ impl CensusArea {
 
         let mut results = vec![];
         while let Some(feature) = fgb.next().await? {
+            use flatgeobuf::FeatureProperties;
             // PERF TODO: how to parse into usize directly? And avoid parsing entire props dict?
             let props = feature.properties()?;
             if !props.contains_key("population") {
