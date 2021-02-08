@@ -5,7 +5,7 @@ set -e
 
 mkdir -p abst_actdev
 cd game
-wasm-pack build --release --target web -- --no-default-features --features wasm,map_gui/wasm_s3
+wasm-pack build --release --target web -- --no-default-features --features wasm
 # Temporarily remove the symlink to the data directory
 rm -f pkg/system
 # Expand symlinks
@@ -22,4 +22,6 @@ done
 cp -Rv data/system/study_areas abst_actdev/system
 gzip `find abst_actdev/ | grep bin | xargs`
 
-echo "Go upload abst_actdev/ somewhere"
+zip -r abst_actdev abst_actdev
+rm -rf abst_actdev
+echo "Go upload abst_actdev.zip to https://github.com/cyipt/actdev/releases"
