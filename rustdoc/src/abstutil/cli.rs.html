@@ -181,7 +181,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">CmdArgs</span> {
-    <span class="doccomment">/// On native, initialize with real flags. On web, always empty.</span>
+    <span class="doccomment">/// On native, initialize with real flags. On web, transform URL query parameters into flags.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Calling this has the side-effect of initializing logging on both native and web. This</span>
     <span class="doccomment">/// should probably be done independently, but for the moment, every app wants both.</span>

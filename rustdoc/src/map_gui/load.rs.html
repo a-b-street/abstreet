@@ -366,6 +366,24 @@
 <span id="363">363</span>
 <span id="364">364</span>
 <span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Loading large resources (like maps, scenarios, and prebaked data) requires different strategies</span>
 <span class="doccomment">//! on native and web. Both cases are wrapped up as a State that runs a callback when done.</span>
@@ -517,21 +535,22 @@
             <span class="ident">path</span>: <span class="ident">String</span>,
             <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="comment">// Note that files are only gzipepd on S3. When running locally, we just symlink the</span>
-            <span class="comment">// data/ directory, where files aren&#39;t compressed.</span>
-            <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="kw">if</span> <span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm_s3&quot;</span>) {
-                <span class="comment">// Anytime data with a new binary format is uploaded, the web client has to be</span>
-                <span class="comment">// re-deployed too</span>
-                <span class="macro">format</span><span class="macro">!</span>(
-                    <span class="string">&quot;http://abstreet.s3-website.us-east-2.amazonaws.com/dev/data/{}.gz&quot;</span>,
-                    <span class="ident">path</span>.<span class="ident">strip_prefix</span>(<span class="kw-2">&amp;</span><span class="ident">abstio</span>::<span class="ident">path</span>(<span class="string">&quot;&quot;</span>)).<span class="ident">unwrap</span>()
-                )
-            } <span class="kw">else</span> {
-                <span class="macro">format</span><span class="macro">!</span>(
-                    <span class="string">&quot;http://0.0.0.0:8000/{}&quot;</span>,
-                    <span class="ident">path</span>.<span class="ident">strip_prefix</span>(<span class="kw-2">&amp;</span><span class="ident">abstio</span>::<span class="ident">path</span>(<span class="string">&quot;&quot;</span>)).<span class="ident">unwrap</span>()
-                )
-            };
+            <span class="comment">// The current URL is of the index.html page. We can find the data directory relative</span>
+            <span class="comment">// to that.</span>
+            <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="ident">get_base_url</span>().<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">file_path</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">strip_prefix</span>(<span class="kw-2">&amp;</span><span class="ident">abstio</span>::<span class="ident">path</span>(<span class="string">&quot;&quot;</span>)).<span class="ident">unwrap</span>();
+            <span class="comment">// Note that files are gzipped on S3 and other deployments. When running locally, we</span>
+            <span class="comment">// just symlink the data/ directory, where files aren&#39;t compressed.</span>
+            <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span>
+                <span class="kw">if</span> <span class="ident">base_url</span>.<span class="ident">contains</span>(<span class="string">&quot;http://0.0.0.0&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">base_url</span>.<span class="ident">contains</span>(<span class="string">&quot;http://localhost&quot;</span>) {
+                    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/{}&quot;</span>, <span class="ident">base_url</span>, <span class="ident">file_path</span>)
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">base_url</span>.<span class="ident">contains</span>(<span class="string">&quot;abstreet.s3-website&quot;</span>) {
+                    <span class="comment">// The directory structure on S3 is a little weird -- the base directory has</span>
+                    <span class="comment">// data/ alongside game/, fifteen_min/, etc.</span>
+                    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/../data/{}.gz&quot;</span>, <span class="ident">base_url</span>, <span class="ident">file_path</span>)
+                } <span class="kw">else</span> {
+                    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/{}.gz&quot;</span>, <span class="ident">base_url</span>, <span class="ident">file_path</span>)
+                };
 
             <span class="comment">// Make the HTTP request nonblockingly. When the response is received, send it through</span>
             <span class="comment">// the channel.</span>
@@ -617,6 +636,23 @@
             <span class="ident">g</span>.<span class="ident">clear</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>);
             <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         }
+    }
+
+    <span class="doccomment">/// Returns the base URL where the game is running, excluding query parameters and the</span>
+    <span class="doccomment">/// implicit index.html that might be there.</span>
+    <span class="kw">fn</span> <span class="ident">get_base_url</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">window</span> <span class="op">=</span> <span class="ident">web_sys</span>::<span class="ident">window</span>().<span class="ident">ok_or</span>(<span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;no window?&quot;</span>))<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">window</span>.<span class="ident">location</span>().<span class="ident">href</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
+            <span class="macro">anyhow</span><span class="macro">!</span>(<span class="ident">err</span>
+                .<span class="ident">as_string</span>()
+                .<span class="ident">unwrap_or</span>(<span class="string">&quot;window.location.href failed&quot;</span>.<span class="ident">to_string</span>()))
+        })<span class="question-mark">?</span>;
+        <span class="comment">// Consider using a proper url parsing crate. This works fine for now, though.</span>
+        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">split</span>(<span class="string">&quot;?&quot;</span>).<span class="ident">next</span>().<span class="ident">ok_or</span>(<span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;empty URL?&quot;</span>))<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="ident">url</span>
+            .<span class="ident">trim_end_matches</span>(<span class="string">&quot;index.html&quot;</span>)
+            .<span class="ident">trim_end_matches</span>(<span class="string">&quot;/&quot;</span>)
+            .<span class="ident">to_string</span>())
     }
 }
 
