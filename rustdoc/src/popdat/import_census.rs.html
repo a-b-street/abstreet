@@ -95,6 +95,7 @@
 <span id="92">92</span>
 <span id="93">93</span>
 <span id="94">94</span>
+<span id="95">95</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">geo</span>::<span class="ident">algorithm</span>::<span class="ident">intersects</span>::<span class="ident">Intersects</span>;
@@ -135,6 +136,7 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
         <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">feature</span>) <span class="op">=</span> <span class="ident">fgb</span>.<span class="ident">next</span>().<span class="ident">await</span><span class="question-mark">?</span> {
+            <span class="kw">use</span> <span class="ident">flatgeobuf</span>::<span class="ident">FeatureProperties</span>;
             <span class="comment">// PERF TODO: how to parse into usize directly? And avoid parsing entire props dict?</span>
             <span class="kw">let</span> <span class="ident">props</span> <span class="op">=</span> <span class="ident">feature</span>.<span class="ident">properties</span>()<span class="question-mark">?</span>;
             <span class="kw">if</span> <span class="op">!</span><span class="ident">props</span>.<span class="ident">contains_key</span>(<span class="string">&quot;population&quot;</span>) {
