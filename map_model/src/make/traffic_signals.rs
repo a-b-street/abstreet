@@ -3,8 +3,8 @@ use std::collections::HashSet;
 use geom::Duration;
 
 use crate::{
-    ControlTrafficSignal, IntersectionCluster, IntersectionID, Map, Movement, MovementID, RoadID,
-    Stage, StageType, TurnPriority, TurnType,
+    ControlTrafficSignal, DrivingSide, IntersectionCluster, IntersectionID, Map, Movement,
+    MovementID, RoadID, Stage, StageType, TurnPriority, TurnType,
 };
 
 /// Applies a bunch of heuristics to a single intersection, returning the valid results in
@@ -145,6 +145,7 @@ fn degenerate(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
     let mut ts = new(i, map);
     make_stages(
         &mut ts,
+        map.config.driving_side,
         vec![vec![(vec![r1, r2], TurnType::Straight, PROTECTED)]],
     );
     Some(ts)
@@ -193,6 +194,7 @@ fn three_way(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
     // Two-stage with no protected lefts, right turn on red, turning cars yield to peds
     make_stages(
         &mut ts,
+        map.config.driving_side,
         vec![
             vec![
                 (vec![north, south], TurnType::Straight, PROTECTED),
@@ -226,6 +228,7 @@ fn four_way_four_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSig
     let mut ts = new(i, map);
     make_stages(
         &mut ts,
+        map.config.driving_side,
         vec![
             vec![
                 (vec![north, south], TurnType::Straight, PROTECTED),
@@ -257,6 +260,7 @@ fn four_way_two_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSign
     let mut ts = new(i, map);
     make_stages(
         &mut ts,
+        map.config.driving_side,
         vec![
             vec![
                 (vec![north, south], TurnType::Straight, PROTECTED),
@@ -341,12 +345,23 @@ const YIELD: bool = false;
 
 fn make_stages(
     ts: &mut ControlTrafficSignal,
+    driving_side: DrivingSide,
     stage_specs: Vec<Vec<(Vec<RoadID>, TurnType, bool)>>,
 ) {
     for specs in stage_specs {
         let mut stage = Stage::new();
 
-        for (roads, turn_type, protected) in specs.into_iter() {
+        for (roads, mut turn_type, protected) in specs.into_iter() {
+            // The heuristics are written assuming right turns are easy and lefts are hard, so
+            // invert in the UK.
+            if driving_side == DrivingSide::Left {
+                if turn_type == TurnType::Right {
+                    turn_type = TurnType::Left;
+                } else if turn_type == TurnType::Left {
+                    turn_type = TurnType::Right;
+                }
+            }
+
             for movement in ts.movements.values() {
                 if !roads.contains(&movement.id.from.id) || turn_type != movement.turn_type {
                     continue;
