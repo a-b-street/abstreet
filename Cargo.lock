@@ -312,6 +312,12 @@ checksum = "ae44d1a3d5a19df61dd0c8beb138458ac2a53a7ac09eba97d55592540004306b"
 
 [[package]]
 name = "bytes"
+version = "0.5.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0e4cec68f03f32e44924783795810fa50a7035d8c8ebe78580ad7e6c703fba38"
+
+[[package]]
+name = "bytes"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b700ce4376041dcd0a327fd0097c41095743c4c8af8887265942faf1100bd040"
@@ -530,7 +536,7 @@ version = "4.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cc4369b5e4c0cddf64ad8981c0111e7df4f7078f4d6ba98fb31f2e17c4c57b7e"
 dependencies = [
- "bytes",
+ "bytes 1.0.1",
  "memchr",
 ]
 
@@ -1048,7 +1054,7 @@ source = "git+https://github.com/flatgeobuf/flatgeobuf#694eadc5b950655e27f2ec577
 dependencies = [
  "async-trait",
  "byteorder",
- "bytes",
+ "bytes 1.0.1",
  "fallible-streaming-iterator",
  "flatbuffers",
  "geozero",
@@ -1400,8 +1406,9 @@ dependencies = [
 [[package]]
 name = "geozero-core"
 version = "0.6.1"
+source = "git+https://github.com/michaelkirk/geozero?branch=mkirk/geo-types-0.7#f3dd735d488d68067d046b8f2639cdd0ec6667a9"
 dependencies = [
- "bytes",
+ "bytes 0.5.6",
  "geo-types",
  "geojson",
  "geozero",
@@ -1534,7 +1541,7 @@ version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6b67e66362108efccd8ac053abafc8b7a8d86a37e6e48fc4f6f7485eb5e9e6a5"
 dependencies = [
- "bytes",
+ "bytes 1.0.1",
  "fnv",
  "futures-core",
  "futures-sink",
@@ -1627,7 +1634,7 @@ version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7245cd7449cc792608c3c8a9eaf69bd4eabbabf802713748fd739c98b82f0747"
 dependencies = [
- "bytes",
+ "bytes 1.0.1",
  "fnv",
  "itoa",
 ]
@@ -1638,7 +1645,7 @@ version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2861bd27ee074e5ee891e8b539837a9430012e249d7f0ca2d795650f579c1994"
 dependencies = [
- "bytes",
+ "bytes 1.0.1",
  "http",
 ]
 
@@ -1666,7 +1673,7 @@ version = "0.14.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e8e946c2b1349055e0b72ae281b238baf1a3ea7307c7e9f9d64673bdd9c26ac7"
 dependencies = [
- "bytes",
+ "bytes 1.0.1",
  "futures-channel",
  "futures-core",
  "futures-util",
@@ -1705,7 +1712,7 @@ version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d6183ddfa99b85da61a140bea0efc93fdf56ceaa041b37d553518030827f9905"
 dependencies = [
- "bytes",
+ "bytes 1.0.1",
  "hyper",
  "native-tls",
  "tokio",
@@ -3093,7 +3100,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fd281b1030aa675fb90aa994d07187645bb3c8fc756ca766e7c3070b439de9de"
 dependencies = [
  "base64",
- "bytes",
+ "bytes 1.0.1",
  "encoding_rs",
  "futures-core",
  "futures-util",
@@ -3870,7 +3877,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e8190d04c665ea9e6b6a0dc45523ade572c088d2e6566244c1122671dbf4ae3a"
 dependencies = [
  "autocfg",
- "bytes",
+ "bytes 1.0.1",
  "libc",
  "memchr",
  "mio 0.7.7",
@@ -3921,7 +3928,7 @@ version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ebb7cb2f00c5ae8df755b252306272cd1790d39728363936e01827e11f0b017b"
 dependencies = [
- "bytes",
+ "bytes 1.0.1",
  "futures-core",
  "futures-sink",
  "log",

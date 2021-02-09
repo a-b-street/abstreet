@@ -44,7 +44,7 @@ flatgeobuf = { git = "https://github.com/flatgeobuf/flatgeobuf" }
 geo-booleanop = { git = "https://github.com/michaelkirk/rust-geo-booleanop", branch = "mkirk/geo-types-0.7" }
 
 # update to geo-types 0.7 - upstream: https://github.com/georust/geozero/pull/5
-geozero-core = { path = "../../georust/geozero/geozero-core", branch = "mkirk/geo-types-0.7" }
+geozero-core = { git = "https://github.com/michaelkirk/geozero", branch = "mkirk/geo-types-0.7" }
 
 # update to geo-types 0.7 - upstream: https://github.com/mthh/contour-rs/pull/2
 contour = { git = "https://github.com/michaelkirk/contour-rs", branch = "mkirk/geojson-0.22" }
