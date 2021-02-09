@@ -153,6 +153,10 @@
 <span id="150">150</span>
 <span id="151">151</span>
 <span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">path</span>::<span class="ident">Path</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">process</span>::<span class="ident">Command</span>;
@@ -268,6 +272,10 @@
         <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;- {} already exists&quot;</span>, <span class="ident">output</span>);
         <span class="kw">return</span>;
     }
+    <span class="comment">// Create the output directory if needed</span>
+    <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">create_dir_all</span>(<span class="ident">Path</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">output</span>).<span class="ident">parent</span>().<span class="ident">unwrap</span>())
+        .<span class="ident">expect</span>(<span class="string">&quot;Creating parent dir failed&quot;</span>);
+
     <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;- Clipping {} to {}&quot;</span>, <span class="ident">input</span>, <span class="ident">clipping_polygon</span>);
 
     <span class="ident">must_run_cmd</span>(
