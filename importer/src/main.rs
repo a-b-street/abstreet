@@ -126,7 +126,7 @@ fn regenerate_everything(config: ImporterConfiguration) {
         if city == "seattle" || city == "cambridge" {
             job.scenario = true;
         }
-        if city == "nyc" || city == "paris" || city == "salzburg" {
+        if city == "leeds" || city == "nyc" || city == "paris" || city == "salzburg" {
             job.city_overview = true;
         }
 

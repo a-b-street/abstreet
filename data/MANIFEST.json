@@ -91,9 +91,9 @@
       "compressed_size_bytes": 1295537
     },
     "data/input/cheshire/raw_maps/chapelford.bin": {
-      "checksum": "1a689b7ceae191d402cdf073c812e299",
-      "uncompressed_size_bytes": 12026716,
-      "compressed_size_bytes": 2826267
+      "checksum": "f276b2c239b10a883ea8f5cfd0146bff",
+      "uncompressed_size_bytes": 8404864,
+      "compressed_size_bytes": 2003345
     },
     "data/input/dartford/osm/ebbsfleet.osm": {
       "checksum": "0c56c9cde936177364d9ccfa601fe7b8",
@@ -195,6 +195,11 @@
       "uncompressed_size_bytes": 130969890,
       "compressed_size_bytes": 12269621
     },
+    "data/input/leeds/osm/lcid.osm": {
+      "checksum": "cabdd4a350493e3be5ba6d22906a219a",
+      "uncompressed_size_bytes": 49133308,
+      "compressed_size_bytes": 4821193
+    },
     "data/input/leeds/osm/north.osm": {
       "checksum": "a5551114b5d8fc3b0bb1478f8b0fa565",
       "uncompressed_size_bytes": 58094888,
@@ -219,6 +224,11 @@
       "checksum": "eb87f7f5c257aa54af8ea104644653e3",
       "uncompressed_size_bytes": 42154885,
       "compressed_size_bytes": 10022020
+    },
+    "data/input/leeds/raw_maps/lcid.bin": {
+      "checksum": "cfaea751caf2c8ab1432d1ff2924244a",
+      "uncompressed_size_bytes": 16633776,
+      "compressed_size_bytes": 3688476
     },
     "data/input/leeds/raw_maps/north.bin": {
       "checksum": "04056b64cdccf44ea09365cb9d803bb4",
@@ -821,9 +831,9 @@
       "compressed_size_bytes": 19234
     },
     "data/system/cheshire/maps/chapelford.bin": {
-      "checksum": "1ea548d695deaad1fa045d9050e89329",
-      "uncompressed_size_bytes": 55232315,
-      "compressed_size_bytes": 18838545
+      "checksum": "470681e01da999f2c2c37f0d97106666",
+      "uncompressed_size_bytes": 35681334,
+      "compressed_size_bytes": 12133314
     },
     "data/system/dartford/maps/ebbsfleet.bin": {
       "checksum": "5fa9a96203935b146ac4808a31ae2e29",
@@ -851,9 +861,9 @@
       "compressed_size_bytes": 7582705
     },
     "data/system/leeds/city.bin": {
-      "checksum": "8bf1c59a25c84771714fc01c40aed907",
-      "uncompressed_size_bytes": 1571764,
-      "compressed_size_bytes": 794704
+      "checksum": "2ef31d106d879203c124ee84ed659e8d",
+      "uncompressed_size_bytes": 1574516,
+      "compressed_size_bytes": 796125
     },
     "data/system/leeds/maps/central.bin": {
       "checksum": "5d6db225bdc7eee535b99f9d8e9b0f2b",
@@ -864,6 +874,11 @@
       "checksum": "62b091779feabf743092259cc7ca35db",
       "uncompressed_size_bytes": 119926264,
       "compressed_size_bytes": 41216621
+    },
+    "data/system/leeds/maps/lcid.bin": {
+      "checksum": "4b582a028d6630f0a1470e971f1a7473",
+      "uncompressed_size_bytes": 52882912,
+      "compressed_size_bytes": 17819168
     },
     "data/system/leeds/maps/north.bin": {
       "checksum": "a91dbfa2a170575f0987f6409b3f3cf1",
