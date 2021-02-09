@@ -4,7 +4,7 @@ use std::collections::VecDeque;
 use std::fmt;
 
 use anyhow::Result;
-use enumset::{EnumSet, EnumSetType};
+use enumset::EnumSetType;
 use serde::{Deserialize, Serialize};
 
 use geom::{Distance, Duration, PolyLine, Speed, EPSILON_DIST};
