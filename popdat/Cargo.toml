@@ -9,8 +9,8 @@ abstutil = { path = "../abstutil" }
 anyhow = "1.0.38"
 flatgeobuf = { version = "0.4" }
 futures = "0.3.12"
-geo = "0.16.0"
-geojson = { version = "0.21.0", features = ["geo-types"] }
+geo = "0.17.0"
+geojson = { version = "0.22.0", features = ["geo-types"] }
 geom = { path = "../geom" }
 geozero-core = { version = "0.6" }
 log = "0.4.14"
