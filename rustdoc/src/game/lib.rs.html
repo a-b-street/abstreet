@@ -317,6 +317,18 @@
 <span id="314">314</span>
 <span id="315">315</span>
 <span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
@@ -528,10 +540,10 @@
     <span class="ident">initialize_tutorial</span>: <span class="ident">bool</span>,
     <span class="ident">center_camera</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">pt</span>, <span class="ident">_zoom</span>)) <span class="op">=</span>
-        <span class="ident">center_camera</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">cam</span><span class="op">|</span> <span class="ident">parse_center_camera</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">cam</span>))
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">pt</span>, <span class="ident">zoom</span>)) <span class="op">=</span>
+        <span class="ident">center_camera</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">cam</span><span class="op">|</span> <span class="ident">parse_center_camera</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">cam</span>))
     {
-        <span class="comment">// TODO Handle zoom</span>
+        <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">=</span> <span class="ident">zoom</span>;
         <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_on_map_pt</span>(<span class="ident">pt</span>);
     } <span class="kw">else</span> {
         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">init_camera_for_loaded_map</span>(<span class="ident">ctx</span>, <span class="ident">title</span>);
@@ -610,12 +622,12 @@
 <span class="doccomment">/// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks), returning the map point to</span>
 <span class="doccomment">/// center on and the camera zoom.</span>
 <span class="comment">// TODO This flag would also be useful in the other tools; lift to map_gui.</span>
-<span class="kw">fn</span> <span class="ident">parse_center_camera</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">raw</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">f64</span>)<span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">parse_center_camera</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">raw</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">f64</span>)<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">parts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">raw</span>.<span class="ident">split</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">collect</span>();
     <span class="kw">if</span> <span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">3</span> {
         <span class="kw">return</span> <span class="prelude-val">None</span>;
     }
-    <span class="kw">let</span> <span class="ident">zoom</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="number">0</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">ok</span>()<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">zoom_lvl</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="number">0</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">ok</span>()<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">lat</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="number">1</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>().<span class="ident">ok</span>()<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">lon</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="number">2</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>().<span class="ident">ok</span>()<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">gps</span> <span class="op">=</span> <span class="ident">LonLat</span>::<span class="ident">new</span>(<span class="ident">lon</span>, <span class="ident">lat</span>);
@@ -623,7 +635,19 @@
         <span class="kw">return</span> <span class="prelude-val">None</span>;
     }
     <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">gps</span>.<span class="ident">to_pt</span>(<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>());
-    <span class="prelude-val">Some</span>((<span class="ident">pt</span>, <span class="ident">zoom</span> <span class="kw">as</span> <span class="ident">f64</span>))
+
+    <span class="comment">// To figure out zoom, first calculate horizontal meters per pixel, using the formula from</span>
+    <span class="comment">// https://wiki.openstreetmap.org/wiki/Zoom_levels.</span>
+    <span class="kw">let</span> <span class="ident">earth_circumference_equator</span> <span class="op">=</span> <span class="number">40_075_016.686</span>;
+    <span class="kw">let</span> <span class="ident">horiz_meters_per_pixel</span> <span class="op">=</span>
+        <span class="ident">earth_circumference_equator</span> <span class="op">*</span> <span class="ident">gps</span>.<span class="ident">y</span>().<span class="ident">to_radians</span>().<span class="ident">cos</span>() <span class="op">/</span> <span class="number">2.0_f64</span>.<span class="ident">powi</span>(<span class="ident">zoom_lvl</span> <span class="op">+</span> <span class="number">8</span>);
+    <span class="comment">// So this is the width in meters that should cover our screen</span>
+    <span class="kw">let</span> <span class="ident">horiz_meters_per_screen</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span> <span class="op">*</span> <span class="ident">horiz_meters_per_pixel</span>;
+    <span class="comment">// Now we want to make screen_to_map(the top-right corner of the screen) =</span>
+    <span class="comment">// horiz_meters_per_screen. Easy algebra:</span>
+    <span class="kw">let</span> <span class="ident">cam_zoom</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span> <span class="op">/</span> <span class="ident">horiz_meters_per_screen</span>;
+
+    <span class="prelude-val">Some</span>((<span class="ident">pt</span>, <span class="ident">cam_zoom</span>))
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
