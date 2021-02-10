@@ -356,7 +356,6 @@
 <span id="353">353</span>
 <span id="354">354</span>
 <span id="355">355</span>
-<span id="356">356</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
@@ -651,15 +650,14 @@
         <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">TitleScreen</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))]
     } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">mode</span>) <span class="op">=</span> <span class="ident">maybe_mode</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">GameplayMode</span>::<span class="ident">Blog</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">mode</span> {
-            <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">SandboxMode</span>::<span class="ident">async_new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">mode</span>, <span class="ident">start_daytime</span>)]
+            <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">SandboxMode</span>::<span class="ident">async_new</span>(<span class="ident">app</span>, <span class="ident">mode</span>, <span class="ident">start_daytime</span>)]
         } <span class="kw">else</span> {
-            <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">SandboxMode</span>::<span class="ident">simple_new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">mode</span>)]
+            <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">SandboxMode</span>::<span class="ident">simple_new</span>(<span class="ident">app</span>, <span class="ident">mode</span>)]
         }
     } <span class="kw">else</span> {
         <span class="comment">// We got here by just passing --dev and a map as flags; we&#39;re just looking at an empty</span>
         <span class="comment">// map. Start in the daytime.</span>
         <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">SandboxMode</span>::<span class="ident">async_new</span>(
-            <span class="ident">ctx</span>,
             <span class="ident">app</span>,
             <span class="ident">GameplayMode</span>::<span class="ident">Freeform</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>()),
             <span class="ident">start_daytime</span>,

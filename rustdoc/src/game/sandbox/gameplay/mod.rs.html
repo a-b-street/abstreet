@@ -690,7 +690,7 @@
                 <span class="string">&quot;Try again&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">Transition</span>::<span class="ident">Pop</span>,
-                        <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">SandboxMode</span>::<span class="ident">simple_new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">retry</span>.<span class="ident">clone</span>())),
+                        <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">SandboxMode</span>::<span class="ident">simple_new</span>(<span class="ident">app</span>, <span class="self">self</span>.<span class="ident">retry</span>.<span class="ident">clone</span>())),
                     ]);
                 }
                 <span class="string">&quot;Next challenge&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -732,7 +732,7 @@
             <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Clear</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">MainMenu</span>::<span class="ident">new</span>(<span class="ident">ctx</span>),
                 <span class="comment">// Constructing the cutscene doesn&#39;t require the map/scenario to be loaded.</span>
-                <span class="ident">SandboxMode</span>::<span class="ident">simple_new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">next_mode</span>.<span class="ident">clone</span>().<span class="ident">unwrap</span>()),
+                <span class="ident">SandboxMode</span>::<span class="ident">simple_new</span>(<span class="ident">app</span>, <span class="self">self</span>.<span class="ident">next_mode</span>.<span class="ident">clone</span>().<span class="ident">unwrap</span>()),
                 (<span class="ident">Challenge</span>::<span class="ident">find</span>(<span class="self">self</span>.<span class="ident">next_mode</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>())
                     .<span class="number">0</span>
                     .<span class="ident">cutscene</span>
