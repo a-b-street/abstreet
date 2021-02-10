@@ -460,7 +460,7 @@
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Unknown --actdev site name {}&quot;</span>, <span class="ident">site</span>),
         };
         <span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">path</span>();
-        <span class="comment">// TODO Also add --study_area automatically</span>
+        <span class="ident">flags</span>.<span class="ident">study_area</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">site</span>);
     }
 
     <span class="ident">args</span>.<span class="ident">done</span>();
