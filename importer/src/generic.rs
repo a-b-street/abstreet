@@ -30,6 +30,8 @@ pub struct GenericCityImporter {
     pub elevation: Option<String>,
     /// OSM railway=rail will be included as light rail if so. Cosmetic only.
     pub include_railroads: bool,
+    /// If provided, read polygons from this GeoJSON file and add them to the RawMap as buildings.
+    pub extra_buildings: Option<String>,
 }
 
 impl GenericCityImporter {
@@ -75,6 +77,7 @@ impl GenericCityImporter {
                 private_offstreet_parking: self.private_offstreet_parking.clone(),
                 elevation: self.elevation.clone(),
                 include_railroads: self.include_railroads,
+                extra_buildings: self.extra_buildings.clone(),
             },
             timer,
         );

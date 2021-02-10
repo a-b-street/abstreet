@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-use abstutil::{CmdArgs, Timer};
+use abstutil::{prettyprint_usize, CmdArgs, Timer};
 use map_model::Map;
 use sim::{ExternalPerson, Scenario};
 
@@ -8,6 +8,7 @@ fn main() {
     let mut args = CmdArgs::new();
     let map = args.required("--map");
     let input = args.required("--input");
+    let skip_problems = args.enabled("--skip_problems");
     args.done();
 
     let mut timer = Timer::new("import traffic demand data");
@@ -17,7 +18,13 @@ fn main() {
     let mut s = Scenario::empty(&map, &input.scenario_name);
     // Include all buses/trains
     s.only_seed_buses = None;
-    s.people = ExternalPerson::import(&map, input.people).unwrap();
+    let orig_num = input.people.len();
+    s.people = ExternalPerson::import(&map, input.people, skip_problems).unwrap();
+    println!(
+        "Imported {}/{} people",
+        prettyprint_usize(s.people.len()),
+        prettyprint_usize(orig_num)
+    );
     s.save();
 }
 

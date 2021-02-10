@@ -112,6 +112,10 @@ pub fn osmconvert(
         println!("- {} already exists", output);
         return;
     }
+    // Create the output directory if needed
+    std::fs::create_dir_all(Path::new(&output).parent().unwrap())
+        .expect("Creating parent dir failed");
+
     println!("- Clipping {} to {}", input, clipping_polygon);
 
     must_run_cmd(

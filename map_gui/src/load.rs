@@ -148,21 +148,22 @@ mod wasm_loader {
             path: String,
             on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, &mut Timer, Result<T>) -> Transition<A>>,
         ) -> Box<dyn State<A>> {
-            // Note that files are only gzipepd on S3. When running locally, we just symlink the
-            // data/ directory, where files aren't compressed.
-            let url = if cfg!(feature = "wasm_s3") {
-                // Anytime data with a new binary format is uploaded, the web client has to be
-                // re-deployed too
-                format!(
-                    "http://abstreet.s3-website.us-east-2.amazonaws.com/dev/data/{}.gz",
-                    path.strip_prefix(&abstio::path("")).unwrap()
-                )
-            } else {
-                format!(
-                    "http://0.0.0.0:8000/{}",
-                    path.strip_prefix(&abstio::path("")).unwrap()
-                )
-            };
+            // The current URL is of the index.html page. We can find the data directory relative
+            // to that.
+            let base_url = get_base_url().unwrap();
+            let file_path = path.strip_prefix(&abstio::path("")).unwrap();
+            // Note that files are gzipped on S3 and other deployments. When running locally, we
+            // just symlink the data/ directory, where files aren't compressed.
+            let url =
+                if base_url.contains("http://0.0.0.0") || base_url.contains("http://localhost") {
+                    format!("{}/{}", base_url, file_path)
+                } else if base_url.contains("abstreet.s3-website") {
+                    // The directory structure on S3 is a little weird -- the base directory has
+                    // data/ alongside game/, fifteen_min/, etc.
+                    format!("{}/../data/{}.gz", base_url, file_path)
+                } else {
+                    format!("{}/{}.gz", base_url, file_path)
+                };
 
             // Make the HTTP request nonblockingly. When the response is received, send it through
             // the channel.
@@ -248,6 +249,23 @@ mod wasm_loader {
             g.clear(Color::BLACK);
             self.panel.draw(g);
         }
+    }
+
+    /// Returns the base URL where the game is running, excluding query parameters and the
+    /// implicit index.html that might be there.
+    fn get_base_url() -> Result<String> {
+        let window = web_sys::window().ok_or(anyhow!("no window?"))?;
+        let url = window.location().href().map_err(|err| {
+            anyhow!(err
+                .as_string()
+                .unwrap_or("window.location.href failed".to_string()))
+        })?;
+        // Consider using a proper url parsing crate. This works fine for now, though.
+        let url = url.split("?").next().ok_or(anyhow!("empty URL?"))?;
+        Ok(url
+            .trim_end_matches("index.html")
+            .trim_end_matches("/")
+            .to_string())
     }
 }
 

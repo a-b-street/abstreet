@@ -26,7 +26,7 @@ colorous = "1.0.3"
 contour = "0.3.0"
 downcast-rs = "1.2.0"
 enumset = "1.0.3"
-geojson = "0.21.0"
+geojson = "0.22"
 geom = { path = "../geom" }
 getrandom = { version = "0.2.2", optional = true }
 instant = "0.1.7"

@@ -10,7 +10,7 @@ pub struct CmdArgs {
 }
 
 impl CmdArgs {
-    /// On native, initialize with real flags. On web, always empty.
+    /// On native, initialize with real flags. On web, transform URL query parameters into flags.
     ///
     /// Calling this has the side-effect of initializing logging on both native and web. This
     /// should probably be done independently, but for the moment, every app wants both.

@@ -7,7 +7,7 @@ set -e
 # The parking mapper doesn't work on WASM yet, so don't include it
 for tool in game santa fifteen_min osm_viewer; do
 	cd $tool
-	wasm-pack build --release --target web -- --no-default-features --features wasm,map_gui/wasm_s3
+	wasm-pack build --release --target web -- --no-default-features --features wasm
 	cd pkg
 	# Temporarily remove the symlink to the data directory; it's uploaded separately by the updater tool
 	rm -f system

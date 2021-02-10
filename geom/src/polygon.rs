@@ -5,6 +5,7 @@ use anyhow::Result;
 use geo::algorithm::area::Area;
 use geo::algorithm::concave_hull::ConcaveHull;
 use geo::algorithm::convex_hull::ConvexHull;
+use geo::algorithm::intersects::Intersects;
 use geo_booleanop::boolean::BooleanOp;
 use serde::{Deserialize, Serialize};
 
@@ -342,6 +343,11 @@ impl Polygon {
     pub fn polylabel(&self) -> Pt2D {
         let pt = polylabel::polylabel(&to_geo(&self.points()), &1.0).unwrap();
         Pt2D::new(pt.x(), pt.y())
+    }
+
+    /// Do two polygons intersect at all?
+    pub fn intersects(&self, other: &Polygon) -> bool {
+        to_geo(self.points()).intersects(&to_geo(other.points()))
     }
 
     /// Creates the outline around the polygon, with the thickness half straddling the polygon and

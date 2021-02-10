@@ -89,7 +89,11 @@ pub fn make_walking_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
         if let Some(l1) = get_sidewalk(lanes, roads[idx1].incoming_lanes(i.id)) {
             // Make the crosswalk to the other side
             if let Some(l2) = get_sidewalk(lanes, roads[idx1].outgoing_lanes(i.id)) {
-                result.extend(make_crosswalks(i.id, l1, l2).into_iter().flatten());
+                result.extend(
+                    make_crosswalks(i.id, l1, l2, driving_side)
+                        .into_iter()
+                        .flatten(),
+                );
             }
 
             // Find the shared corner
@@ -118,7 +122,11 @@ pub fn make_walking_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
             ) {
                 // Adjacent road is missing a sidewalk on the near side, but has one on the far
                 // side
-                result.extend(make_crosswalks(i.id, l1, l2).into_iter().flatten());
+                result.extend(
+                    make_crosswalks(i.id, l1, l2, driving_side)
+                        .into_iter()
+                        .flatten(),
+                );
             } else {
                 // We may need to add a crosswalk over this intermediate road that has no
                 // sidewalks at all. There might be a few in the way -- think highway onramps.
@@ -127,19 +135,31 @@ pub fn make_walking_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
                     lanes,
                     wraparound_get(&roads, (idx1 as isize) + 2 * idx_offset).outgoing_lanes(i.id),
                 ) {
-                    result.extend(make_crosswalks(i.id, l1, l2).into_iter().flatten());
+                    result.extend(
+                        make_crosswalks(i.id, l1, l2, driving_side)
+                            .into_iter()
+                            .flatten(),
+                    );
                 } else if let Some(l2) = get_sidewalk(
                     lanes,
                     wraparound_get(&roads, (idx1 as isize) + 2 * idx_offset).incoming_lanes(i.id),
                 ) {
-                    result.extend(make_crosswalks(i.id, l1, l2).into_iter().flatten());
+                    result.extend(
+                        make_crosswalks(i.id, l1, l2, driving_side)
+                            .into_iter()
+                            .flatten(),
+                    );
                 } else if roads.len() > 3 {
                     if let Some(l2) = get_sidewalk(
                         lanes,
                         wraparound_get(&roads, (idx1 as isize) + 3 * idx_offset)
                             .outgoing_lanes(i.id),
                     ) {
-                        result.extend(make_crosswalks(i.id, l1, l2).into_iter().flatten());
+                        result.extend(
+                            make_crosswalks(i.id, l1, l2, driving_side)
+                                .into_iter()
+                                .flatten(),
+                        );
                     }
                 }
             }
@@ -259,7 +279,11 @@ pub fn _make_walking_turns_v2(map: &Map, i: &Intersection) -> Vec<Turn> {
         // adj stays true
         } else {
             // TODO Just one for degenerate intersections
-            result.extend(make_crosswalks(i.id, l1, l2).into_iter().flatten());
+            result.extend(
+                make_crosswalks(i.id, l1, l2, driving_side)
+                    .into_iter()
+                    .flatten(),
+            );
             from = Some(l2);
             adj = true;
         }
@@ -312,15 +336,24 @@ fn make_footway_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
     results
 }
 
-fn make_crosswalks(i: IntersectionID, l1: &Lane, l2: &Lane) -> Option<Vec<Turn>> {
+fn make_crosswalks(
+    i: IntersectionID,
+    l1: &Lane,
+    l2: &Lane,
+    driving_side: DrivingSide,
+) -> Option<Vec<Turn>> {
     let l1_pt = l1.endpoint(i);
     let l2_pt = l2.endpoint(i);
-    // TODO Not sure this is always right.
-    let direction = if (l1.dst_i == i) == (l2.dst_i == i) {
+    // This is one of those uncomfortably "trial-and-error" kind of things.
+    let mut direction = if (l1.dst_i == i) == (l2.dst_i == i) {
         -1.0
     } else {
         1.0
     };
+    if driving_side == DrivingSide::Left {
+        direction *= -1.0;
+    }
+
     // Jut out a bit into the intersection, cross over, then jut back in. Assumes sidewalks are the
     // same width.
     let line = Line::new(l1_pt, l2_pt)?.shift_either_direction(direction * l1.width / 2.0);

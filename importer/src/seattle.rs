@@ -138,6 +138,7 @@ pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration)
             elevation: Some(abstio::path("input/seattle/N47W122.hgt")),
             // They mess up 16th and E Marginal badly enough to cause gridlock.
             include_railroads: false,
+            extra_buildings: None,
         },
         timer,
     );

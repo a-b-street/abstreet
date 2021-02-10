@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use aabb_quadtree::geom::{Point, Rect};
 
-use crate::{LonLat, Polygon, Pt2D, Ring};
+use crate::{Distance, LonLat, Polygon, Pt2D, Ring};
 
 /// Represents a rectangular boundary of `Pt2D` points.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -54,6 +54,14 @@ impl Bounds {
     pub fn union(&mut self, other: Bounds) {
         self.update(Pt2D::new(other.min_x, other.min_y));
         self.update(Pt2D::new(other.max_x, other.max_y));
+    }
+
+    /// Expand the existing boundary by some distance evenly on all sides.
+    pub fn add_buffer(&mut self, sides: Distance) {
+        self.min_x -= sides.inner_meters();
+        self.max_x += sides.inner_meters();
+        self.min_y -= sides.inner_meters();
+        self.max_y += sides.inner_meters();
     }
 
     /// True if the point is within the boundary.

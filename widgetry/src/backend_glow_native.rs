@@ -1,8 +1,6 @@
-use glow::HasContext;
-
 use abstutil::Timer;
 
-use crate::backend_glow::{GfxCtxInnards, PrerenderInnards};
+use crate::backend_glow::{build_program, GfxCtxInnards, PrerenderInnards, SpriteTexture};
 use crate::ScreenDims;
 
 pub fn setup(
@@ -37,64 +35,39 @@ pub fn setup(
     let gl = unsafe {
         glow::Context::from_loader_function(|s| windowed_context.get_proc_address(s) as *const _)
     };
-    let program = unsafe { gl.create_program().expect("Cannot create program") };
 
-    unsafe {
-        let shaders = compile_shaders(
+    let program = unsafe {
+        build_program(
             &gl,
             include_str!("../shaders/vertex_140.glsl"),
             include_str!("../shaders/fragment_140.glsl"),
         )
         .or_else(|err| {
             warn!(
-                "unable to compile default shaderrs, falling back to v300. error: {:?}",
+                "unable to build program with default shaderrs, falling back to v300. error: {:?}",
                 err
             );
-            compile_shaders(
+            build_program(
                 &gl,
                 include_str!("../shaders/vertex_300.glsl"),
                 include_str!("../shaders/fragment_300.glsl"),
             )
         })
         .unwrap_or_else(|err| {
-            panic!("error building shader: {:?}", err);
-        });
-
-        for shader in &shaders {
-            gl.attach_shader(program, *shader);
-        }
-
-        gl.link_program(program);
-        if !gl.get_program_link_status(program) {
-            panic!(gl.get_program_info_log(program));
-        }
-        for shader in &shaders {
-            gl.detach_shader(program, *shader);
-            gl.delete_shader(*shader);
-        }
-        gl.use_program(Some(program));
-
-        gl.enable(glow::SCISSOR_TEST);
-
-        gl.enable(glow::DEPTH_TEST);
-        gl.depth_func(glow::LEQUAL);
-
-        gl.enable(glow::BLEND);
-        gl.blend_func_separate(
-            glow::ONE,
-            glow::ONE_MINUS_SRC_ALPHA,
-            glow::ONE_MINUS_DST_ALPHA,
-            glow::ONE,
-        );
-    }
+            panic!("error building program: {:?}", err);
+        })
+    };
 
     timer.start("load textures");
-    crate::backend_glow::load_textures(
-        &gl,
+    let sprite_texture = SpriteTexture::new(
         include_bytes!("../textures/spritesheet.png").to_vec(),
         64,
+        64,
     )
-    .unwrap();
+    .expect("failed to format texture sprite sheet");
+    sprite_texture
+        .upload_gl2(&gl)
+        .expect("failed to upload textures");
     timer.stop("load textures");
 
     (
@@ -118,30 +91,4 @@ impl WindowAdapter {
     pub fn draw_finished(&self, _gfc_ctx_innards: GfxCtxInnards) {
         self.0.swap_buffers().unwrap();
     }
-}
-
-unsafe fn compile_shaders(
-    gl: &glow::Context,
-    vertex_source: &str,
-    fragment_source: &str,
-) -> Result<[u32; 2], Box<dyn std::error::Error>> {
-    unsafe fn compile_shader(
-        gl: &glow::Context,
-        shader_type: u32,
-        shader_source: &str,
-    ) -> Result<u32, Box<dyn std::error::Error>> {
-        let shader = gl.create_shader(shader_type)?;
-        gl.shader_source(shader, shader_source);
-        gl.compile_shader(shader);
-        if gl.get_shader_compile_status(shader) {
-            Ok(shader)
-        } else {
-            Err(format!("error compiling shader: {}", gl.get_shader_info_log(shader)).into())
-        }
-    };
-
-    Ok([
-        compile_shader(gl, glow::VERTEX_SHADER, vertex_source)?,
-        compile_shader(gl, glow::FRAGMENT_SHADER, fragment_source)?,
-    ])
 }

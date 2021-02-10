@@ -24,6 +24,7 @@ use crate::pregame::MainMenu;
 use crate::sandbox::{Actions, SandboxControls, SandboxMode};
 
 // TODO pub so challenges can grab cutscenes and SandboxMode can dispatch to actions. Weird?
+mod blog;
 pub mod commute;
 pub mod fix_traffic_signals;
 pub mod freeform;
@@ -38,6 +39,7 @@ pub enum GameplayMode {
     PlayScenario(MapName, String, Vec<ScenarioModifier>),
     FixTrafficSignals,
     OptimizeCommute(OrigPersonID, Duration),
+    Blog(MapName),
 
     // current
     Tutorial(TutorialPointer),
@@ -102,13 +104,15 @@ impl GameplayMode {
             GameplayMode::FixTrafficSignals => MapName::seattle("downtown"),
             GameplayMode::OptimizeCommute(_, _) => MapName::seattle("montlake"),
             GameplayMode::Tutorial(_) => MapName::seattle("montlake"),
+            GameplayMode::Blog(ref name) => name.clone(),
         }
     }
 
     pub fn scenario(&self, app: &App, mut rng: XorShiftRng, timer: &mut Timer) -> LoadScenario {
         let map = &app.primary.map;
         let name = match self {
-            GameplayMode::Freeform(_) => {
+            // TODO Start with a scenario in blog mode, once all the actdev scenarios are imported.
+            GameplayMode::Freeform(_) | GameplayMode::Blog(_) => {
                 let mut s = Scenario::empty(map, "empty");
                 s.only_seed_buses = None;
                 return LoadScenario::Scenario(s);
@@ -214,6 +218,7 @@ impl GameplayMode {
                 commute::OptimizeCommute::new(ctx, app, *p, *goal)
             }
             GameplayMode::Tutorial(current) => Tutorial::make_gameplay(ctx, app, *current),
+            GameplayMode::Blog(_) => blog::Blog::new(ctx),
         }
     }
 }

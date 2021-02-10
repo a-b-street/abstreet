@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "site",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "site_name": "long-marston", "dwellings_when_complete": 3500.0, "weightedJobsPTt": 75.234599848214287, "weightedJobsCyct": 81.915859241071431, "weightedJobsCart": 29.598191026785717, "PSPTt": 13.5, "PSCyct": 11.0, "PSCart": 8.0, "SSPTt": 35.9760835, "SSCyct": 38.740308, "SSCart": 18.0246235, "FEPTt": 36.3253225, "FECyct": 38.740308, "FECart": 18.089628, "GPPTt": 23.430189, "GPCyct": 19.7588355, "GPCart": 10.6171045, "HospPTt": 39.943359, "HospCyct": 39.7680685, "HospCart": 18.0125465, "FoodPTt": 10.0712105, "FoodCyct": 9.37981, "FoodCart": 7.034217, "TownPTt": 31.9276215, "TownCyct": 36.978396, "TownCart": 16.634026 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -1.763391, 52.135437 ], [ -1.747341, 52.132118 ], [ -1.74262, 52.136491 ], [ -1.744595, 52.137018 ], [ -1.745024, 52.141917 ], [ -1.743393, 52.142128 ], [ -1.745281, 52.145973 ], [ -1.748285, 52.14592 ], [ -1.751719, 52.144972 ], [ -1.755323, 52.144972 ], [ -1.75807, 52.142233 ], [ -1.763048, 52.142812 ], [ -1.76631, 52.137229 ], [ -1.763391, 52.135437 ] ] ] } }
+]
+}

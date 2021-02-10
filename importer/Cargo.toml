@@ -16,8 +16,8 @@ anyhow = "1.0.38"
 collisions = { path = "../collisions" }
 convert_osm = { path = "../convert_osm" }
 csv = "1.1.4"
-geo = "0.16.0"
-geojson = "0.21.0"
+geo = "0.17.0"
+geojson = "0.22"
 geom = { path = "../geom" }
 gdal = { version = "0.7.2", optional = true }
 kml = { path = "../kml" }
@@ -26,6 +26,7 @@ map_model = { path = "../map_model" }
 popdat = { path = "../popdat" }
 rand  = "0.8.3"
 rand_xorshift = "0.3.0"
+reqwest = { version = "0.11.0", default-features=false, features=["blocking"] }
 serde = "1.0.123"
 serde_json = "1.0.61"
 sim = { path = "../sim" }

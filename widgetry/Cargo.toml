@@ -13,7 +13,7 @@ abstutil = { path = "../abstutil" }
 anyhow = "1.0.38"
 # backtrace = "0.3.40"
 downcast-rs = "1.2.0"
-geojson = "0.21.0"
+geojson = "0.22"
 geom = { path = "../geom" }
 glow = { version = "0.7.2", optional = true, default-features=false }
 glutin = { version = "0.26.0", optional = true }
