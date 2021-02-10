@@ -109,6 +109,7 @@ pub fn main() {
         };
         flags.sim_flags.load = name.path();
         flags.study_area = Some(site);
+        mode = Some(sandbox::GameplayMode::Blog(name));
     }
 
     args.done();
@@ -143,7 +144,11 @@ fn setup_app(
     // usually time is midnight, so save some effort and start with the correct color scheme. If
     // we're loading a savestate and it's actually daytime, we'll pay a small penalty to switch
     // colors.
-    if maybe_mode.is_some() {
+    if let Some(GameplayMode::PlayScenario(_, _, _))
+    | Some(GameplayMode::FixTrafficSignals)
+    | Some(GameplayMode::OptimizeCommute(_, _))
+    | Some(GameplayMode::Tutorial(_)) = maybe_mode
+    {
         opts.color_scheme = map_gui::colors::ColorSchemeChoice::NightMode;
     }
     let cs = map_gui::colors::ColorScheme::new(ctx, opts.color_scheme);
@@ -273,10 +278,23 @@ fn finish_app_setup(
         crate::sandbox::gameplay::Tutorial::initialize(ctx, app);
     }
 
+    let start_daytime = Box::new(|ctx: &mut EventCtx, app: &mut App| {
+        ctx.loading_screen("start in the daytime", |_, mut timer| {
+            app.primary
+                .sim
+                .timed_step(&app.primary.map, Duration::hours(6), &mut None, &mut timer);
+        });
+        vec![Transition::Keep]
+    });
+
     let states: Vec<Box<dyn State<App>>> = if title {
         vec![Box::new(TitleScreen::new(ctx, app))]
     } else if let Some(mode) = maybe_mode {
-        vec![SandboxMode::simple_new(ctx, app, mode)]
+        if let GameplayMode::Blog(_) = mode {
+            vec![SandboxMode::async_new(ctx, app, mode, start_daytime)]
+        } else {
+            vec![SandboxMode::simple_new(ctx, app, mode)]
+        }
     } else {
         // We got here by just passing --dev and a map as flags; we're just looking at an empty
         // map. Start in the daytime.
@@ -284,17 +302,7 @@ fn finish_app_setup(
             ctx,
             app,
             GameplayMode::Freeform(app.primary.map.get_name().clone()),
-            Box::new(|ctx, app| {
-                ctx.loading_screen("start in the daytime", |_, mut timer| {
-                    app.primary.sim.timed_step(
-                        &app.primary.map,
-                        Duration::hours(6),
-                        &mut None,
-                        &mut timer,
-                    );
-                });
-                vec![Transition::Keep]
-            }),
+            start_daytime,
         )]
     };
     if let Some(ss) = savestate {
