@@ -315,7 +315,7 @@ fn parse_center_camera(ctx: &EventCtx, map: &Map, raw: String) -> Option<(Pt2D, 
     if parts.len() != 3 {
         return None;
     }
-    let zoom_lvl = parts[0].parse::<i32>().ok()?;
+    let zoom_lvl = parts[0].parse::<f64>().ok()?;
     let lat = parts[1].parse::<f64>().ok()?;
     let lon = parts[2].parse::<f64>().ok()?;
     let gps = LonLat::new(lon, lat);
@@ -328,7 +328,7 @@ fn parse_center_camera(ctx: &EventCtx, map: &Map, raw: String) -> Option<(Pt2D, 
     // https://wiki.openstreetmap.org/wiki/Zoom_levels.
     let earth_circumference_equator = 40_075_016.686;
     let horiz_meters_per_pixel =
-        earth_circumference_equator * gps.y().to_radians().cos() / 2.0_f64.powi(zoom_lvl + 8);
+        earth_circumference_equator * gps.y().to_radians().cos() / 2.0_f64.powf(zoom_lvl + 8.0);
     // So this is the width in meters that should cover our screen
     let horiz_meters_per_screen = ctx.canvas.window_width * horiz_meters_per_pixel;
     // Now we want to make screen_to_map(the top-right corner of the screen) =
