@@ -108,7 +108,7 @@ pub fn main() {
             _ => panic!("Unknown --actdev site name {}", site),
         };
         flags.sim_flags.load = name.path();
-        // TODO Also add --study_area automatically
+        flags.study_area = Some(site);
     }
 
     args.done();

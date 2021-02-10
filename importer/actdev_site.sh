@@ -31,6 +31,8 @@ rm -fv small-study-area.geojson
 mv boundary0.poly importer/config/$CITY/$MAP.poly
 perl -pi -e "s/cambridgeshire/$GEOFABRIK/g" importer/config/$CITY/cfg.json
 
+wget https://raw.githubusercontent.com/cyipt/actdev/main/data-small/$SITE/site.geojson -O data/system/study_areas/$SITE.geojson
+
 #./import.sh --raw --map --city=$CITY
 
 echo "You have to manually update .gitignore, importer/src/main.rs, map_gui/src/tools/mod.rs"
