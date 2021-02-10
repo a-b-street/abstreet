@@ -656,6 +656,7 @@ fn lagging_green(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> 
         // Three-stage with protected lefts, right turn on red
         make_stages(
             &mut ts,
+            map.config.driving_side,
             vec![
                 vec![
                     (vec![north, south], TurnType::Straight, PROTECTED),
@@ -693,6 +694,7 @@ fn lagging_green(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> 
         let mut ts = new(i, map);
         make_stages(
             &mut ts,
+            map.config.driving_side,
             vec![
                 vec![
                     (vec![north, south], TurnType::Straight, PROTECTED),
@@ -819,10 +821,11 @@ fn make_stages(
     stage_specs: Vec<Vec<(Vec<RoadID>, TurnType, bool)>>,
 ) {
     // Don't filter unprotected only stages
-    make_stages_filtered(ts, stage_specs, false);
+    make_stages_filtered(ts, driving_side, stage_specs, false);
 }
 fn make_stages_filtered(
     ts: &mut ControlTrafficSignal,
+    driving_side: DrivingSide,
     stage_specs: Vec<Vec<(Vec<RoadID>, TurnType, bool)>>,
     filter_unprotected: bool,
 ) {
