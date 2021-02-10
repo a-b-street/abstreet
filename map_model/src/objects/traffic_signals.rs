@@ -408,14 +408,27 @@ impl Stage {
         }
     }
 
-    // trivial function that returns true if the stage is just crosswalks
-    pub fn contains_only_crosswalks(&self) -> bool {
+    // A trivial function that returns max crosswalk time if the stage is just crosswalks.
+    pub fn contains_only_crosswalks(
+        &self,
+        movements: &BTreeMap<MovementID, Movement>,
+    ) -> Option<Duration> {
+        let mut max_distance = Distance::const_meters(0.0);
         for m in &self.protected_movements {
-            if !m.crosswalk {
-                return false;
+            if m.crosswalk {
+                max_distance = max_distance.max(movements.get(&m).unwrap().geom.length());
+            } else {
+                return None;
             }
         }
-        self.yield_movements.is_empty()
+        return if max_distance > Distance::const_meters(0.0) {
+            let time = max_distance / CROSSWALK_PACE;
+            assert!(time >= Duration::ZERO);
+            // Round up because it is converted to a usize elsewhere
+            Some(Duration::seconds(time.inner_seconds().ceil()))
+        } else {
+            None
+        };
     }
 }
 

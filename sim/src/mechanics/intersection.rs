@@ -276,7 +276,9 @@ impl IntersectionSimState {
             let stage = &signal.stages[signal_state.current_stage];
             // only skip for variable all-walk crosswalk
             if let StageType::Variable(_, _, _) = stage.stage_type {
-                if allow_crosswalk_skip && stage.contains_only_crosswalks() {
+                if allow_crosswalk_skip
+                    && stage.contains_only_crosswalks(&signal.movements).is_some()
+                {
                     // we can skip this stage, as its all walk and we're allowed to skip (no
                     // pedestrian waiting).
                     signal_state.current_stage =
@@ -302,7 +304,7 @@ impl IntersectionSimState {
         let old_stage = &signal.stages[signal_state.current_stage];
         match old_stage.stage_type {
             StageType::Fixed(_) => {
-                duration = advance(signal_state, signal, false);
+                duration = advance(signal_state, signal, !ped_waiting);
             }
             StageType::Variable(min, delay, additional) => {
                 // test if anyone is waiting in current stage, and if so, extend the signal cycle.
