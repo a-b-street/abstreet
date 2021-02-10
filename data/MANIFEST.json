@@ -5,10 +5,15 @@
       "uncompressed_size_bytes": 11998246,
       "compressed_size_bytes": 1242807
     },
+    "data/input/allerton_bywater/procgen_houses.json": {
+      "checksum": "fcfdf348d81063e1e2d5972f45159c64",
+      "uncompressed_size_bytes": 2290814,
+      "compressed_size_bytes": 263465
+    },
     "data/input/allerton_bywater/raw_maps/center.bin": {
-      "checksum": "fedd22b1ba80037874a2ee45be8cac76",
-      "uncompressed_size_bytes": 3204225,
-      "compressed_size_bytes": 816834
+      "checksum": "be7c7f41ba34290c359eb91b64c3707d",
+      "uncompressed_size_bytes": 3714933,
+      "compressed_size_bytes": 991086
     },
     "data/input/bellevue/osm/huge.osm": {
       "checksum": "ef54ab4ff049b29f92331e8c1202372a",
@@ -86,14 +91,14 @@
       "compressed_size_bytes": 27335966
     },
     "data/input/cheshire/procgen_houses.json": {
-      "checksum": "d6d999cc2a5aea11c7b57dda23c415ff",
-      "uncompressed_size_bytes": 11438101,
-      "compressed_size_bytes": 1295537
+      "checksum": "b9db3e761db99f2c703047d4929a34d0",
+      "uncompressed_size_bytes": 5436393,
+      "compressed_size_bytes": 617125
     },
     "data/input/cheshire/raw_maps/chapelford.bin": {
-      "checksum": "f276b2c239b10a883ea8f5cfd0146bff",
-      "uncompressed_size_bytes": 8404864,
-      "compressed_size_bytes": 2003345
+      "checksum": "3c5634d84402bc752b874d15f19ec6f6",
+      "uncompressed_size_bytes": 8037236,
+      "compressed_size_bytes": 1881927
     },
     "data/input/dartford/osm/ebbsfleet.osm": {
       "checksum": "0c56c9cde936177364d9ccfa601fe7b8",
@@ -105,10 +110,15 @@
       "uncompressed_size_bytes": 34239870,
       "compressed_size_bytes": 34212646
     },
+    "data/input/dartford/procgen_houses.json": {
+      "checksum": "3fd5e9574af71a694d1343e2b9d863c8",
+      "uncompressed_size_bytes": 4091365,
+      "compressed_size_bytes": 479287
+    },
     "data/input/dartford/raw_maps/ebbsfleet.bin": {
-      "checksum": "b80dd6579600c83fc31e43ad9722d67c",
-      "uncompressed_size_bytes": 2326277,
-      "compressed_size_bytes": 572632
+      "checksum": "d9b85de745fb16eb177439d8d7c63aac",
+      "uncompressed_size_bytes": 3238923,
+      "compressed_size_bytes": 880385
     },
     "data/input/detroit/osm/downtown.osm": {
       "checksum": "5c8dd6ecc94a80879bac965ef624e2e7",
@@ -135,10 +145,15 @@
       "uncompressed_size_bytes": 14877052,
       "compressed_size_bytes": 14866546
     },
+    "data/input/harwell/procgen_houses.json": {
+      "checksum": "2fd08f6003cdabdf892fbabf2f075c46",
+      "uncompressed_size_bytes": 3212531,
+      "compressed_size_bytes": 368456
+    },
     "data/input/harwell/raw_maps/didcot.bin": {
-      "checksum": "724eb821d0d5c3f8ff714c711d995f26",
-      "uncompressed_size_bytes": 2662069,
-      "compressed_size_bytes": 600110
+      "checksum": "58316e35aba538f3753a34c1d75cd60b",
+      "uncompressed_size_bytes": 3378345,
+      "compressed_size_bytes": 843992
     },
     "data/input/krakow/osm/center.osm": {
       "checksum": "e64103d37a7009d96f7d8a653db02deb",
@@ -170,10 +185,15 @@
       "uncompressed_size_bytes": 29378707,
       "compressed_size_bytes": 29355398
     },
+    "data/input/lancaster/procgen_houses.json": {
+      "checksum": "090b7c8c978c72f854b7ba4815cfb139",
+      "uncompressed_size_bytes": 863457,
+      "compressed_size_bytes": 98961
+    },
     "data/input/lancaster/raw_maps/bailrigg.bin": {
-      "checksum": "949a90af579dcdca60c0a728d28bd441",
-      "uncompressed_size_bytes": 9576947,
-      "compressed_size_bytes": 1998513
+      "checksum": "5167e4ecbccd7e723ee35cc62a80b9af",
+      "uncompressed_size_bytes": 9769375,
+      "compressed_size_bytes": 2062315
     },
     "data/input/leeds/Road Safety Data - Accidents 2019.csv": {
       "checksum": "ce30e6f7743be7b451e298583c65f99a",
@@ -370,10 +390,15 @@
       "uncompressed_size_bytes": 4308425,
       "compressed_size_bytes": 446078
     },
+    "data/input/poynton/procgen_houses.json": {
+      "checksum": "6706910948eb1e3c5ab09593b6dcd2be",
+      "uncompressed_size_bytes": 3364772,
+      "compressed_size_bytes": 380993
+    },
     "data/input/poynton/raw_maps/handforth.bin": {
-      "checksum": "dd14dd599d81928c6f40de9118268940",
-      "uncompressed_size_bytes": 1011400,
-      "compressed_size_bytes": 258277
+      "checksum": "05ee9ab4e1b70fcb3bb55c1e1c93c28f",
+      "uncompressed_size_bytes": 1762570,
+      "compressed_size_bytes": 510722
     },
     "data/input/providence/osm/downtown.osm": {
       "checksum": "463b986adc83ae4d1174496a4ce744d1",
@@ -801,9 +826,9 @@
       "compressed_size_bytes": 7199770
     },
     "data/system/allerton_bywater/maps/center.bin": {
-      "checksum": "8086ddb659070d5841f346bee7c31d17",
-      "uncompressed_size_bytes": 12354220,
-      "compressed_size_bytes": 4278984
+      "checksum": "9280a63ad6664d064c04130dd7d24da0",
+      "uncompressed_size_bytes": 13345123,
+      "compressed_size_bytes": 4629219
     },
     "data/system/bellevue/maps/huge.bin": {
       "checksum": "dc9178641992b3cc44b474ab9463cdfd",
@@ -831,14 +856,14 @@
       "compressed_size_bytes": 19234
     },
     "data/system/cheshire/maps/chapelford.bin": {
-      "checksum": "470681e01da999f2c2c37f0d97106666",
-      "uncompressed_size_bytes": 35681334,
-      "compressed_size_bytes": 12133314
+      "checksum": "8c4fc4ef20b8401bd35f266495d943cf",
+      "uncompressed_size_bytes": 34982371,
+      "compressed_size_bytes": 11899022
     },
     "data/system/dartford/maps/ebbsfleet.bin": {
-      "checksum": "5fa9a96203935b146ac4808a31ae2e29",
-      "uncompressed_size_bytes": 12092064,
-      "compressed_size_bytes": 4200941
+      "checksum": "67fc4c0dd8ba2fc517ef347192c33b90",
+      "uncompressed_size_bytes": 13862700,
+      "compressed_size_bytes": 4814014
     },
     "data/system/detroit/maps/downtown.bin": {
       "checksum": "254736ae813951a49d987b60ec2b643e",
@@ -846,9 +871,9 @@
       "compressed_size_bytes": 21974224
     },
     "data/system/harwell/maps/didcot.bin": {
-      "checksum": "0123de25548eb3eeb58c61c6f4396f05",
-      "uncompressed_size_bytes": 12688599,
-      "compressed_size_bytes": 4331693
+      "checksum": "1aed88504378daf92269dc3896292f08",
+      "uncompressed_size_bytes": 14075623,
+      "compressed_size_bytes": 4819598
     },
     "data/system/krakow/maps/center.bin": {
       "checksum": "b1d60ca157cffbc6e6e6c7554edd0c8b",
@@ -856,9 +881,9 @@
       "compressed_size_bytes": 12391920
     },
     "data/system/lancaster/maps/bailrigg.bin": {
-      "checksum": "556dc9ace803111b0afc1c388c44dbaf",
-      "uncompressed_size_bytes": 21908740,
-      "compressed_size_bytes": 7582705
+      "checksum": "79070fc7be96d6630ed7c8d2c5ad3c17",
+      "uncompressed_size_bytes": 22282642,
+      "compressed_size_bytes": 7698631
     },
     "data/system/leeds/city.bin": {
       "checksum": "2ef31d106d879203c124ee84ed659e8d",
@@ -946,9 +971,9 @@
       "compressed_size_bytes": 16935157
     },
     "data/system/poynton/maps/handforth.bin": {
-      "checksum": "564f89697e31be0b651e9231d8600f1e",
-      "uncompressed_size_bytes": 5316823,
-      "compressed_size_bytes": 1851767
+      "checksum": "b3249ab02b81ec6d9da0ee4459df6086",
+      "uncompressed_size_bytes": 6774256,
+      "compressed_size_bytes": 2353198
     },
     "data/system/providence/maps/downtown.bin": {
       "checksum": "604fd09de7f8d2f1627b05b35d1a530d",

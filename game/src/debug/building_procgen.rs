@@ -121,11 +121,14 @@ fn generate_buildings_on_empty_residential_roads(
         let mut dist_along = rand_dist(rng, 1.0, 5.0);
         while dist_along < lane.lane_center_pts.length() {
             let (sidewalk_pt, angle) = lane.lane_center_pts.must_dist_along(dist_along);
-            let setback = rand_dist(rng, 10.0, 20.0);
-            let center = sidewalk_pt.project_away(setback, angle.rotate_degs(-90.0));
-
             let width = rng.gen_range(6.0..14.0);
             let height = rng.gen_range(6.0..14.0);
+
+            // Make it so that the front of the house is always set back a fixed amount. So account
+            // for the chosen "height".
+            let setback = Distance::meters(10.0) + Distance::meters(height / 2.0);
+            let center = sidewalk_pt.project_away(setback, angle.rotate_degs(-90.0));
+
             houses.push(
                 Polygon::rectangle(width, height)
                     .rotate(angle)
