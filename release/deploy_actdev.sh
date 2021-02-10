@@ -16,7 +16,7 @@ cd ..
 
 # Copy just what's needed from data
 mkdir abst_actdev/system
-for dir in cambridge cheshire; do
+for dir in allerton_bywater cambridge cheshire dartford harwell lancaster leeds poynton stratford_upon_avon; do
 	cp -Rv data/system/$dir abst_actdev/system
 done
 cp -Rv data/system/study_areas abst_actdev/system
