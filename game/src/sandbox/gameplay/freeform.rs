@@ -2,7 +2,7 @@ use rand::seq::SliceRandom;
 use rand::Rng;
 
 use abstutil::Timer;
-use geom::{Distance, Polygon};
+use geom::{Distance, Duration, Polygon};
 use map_gui::tools::{
     grey_out_map, nice_map_name, open_browser, CityPicker, PopupMsg, PromptInput,
 };
@@ -47,13 +47,29 @@ impl GameplayState for Freeform {
                     ctx,
                     app,
                     Box::new(|_, app| {
-                        Transition::Multi(vec![
-                            Transition::Pop,
-                            Transition::Replace(SandboxMode::simple_new(
+                        let sandbox = if app.opts.dev {
+                            SandboxMode::async_new(
                                 app,
                                 GameplayMode::Freeform(app.primary.map.get_name().clone()),
-                            )),
-                        ])
+                                Box::new(|ctx, app| {
+                                    ctx.loading_screen("start in the daytime", |_, mut timer| {
+                                        app.primary.sim.timed_step(
+                                            &app.primary.map,
+                                            Duration::hours(6),
+                                            &mut None,
+                                            &mut timer,
+                                        );
+                                    });
+                                    vec![Transition::Keep]
+                                }),
+                            )
+                        } else {
+                            SandboxMode::simple_new(
+                                app,
+                                GameplayMode::Freeform(app.primary.map.get_name().clone()),
+                            )
+                        };
+                        Transition::Multi(vec![Transition::Pop, Transition::Replace(sandbox)])
                     }),
                 ))),
                 "change scenario" => Some(Transition::Push(ChangeScenario::new(ctx, app, "none"))),
