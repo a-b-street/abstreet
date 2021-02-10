@@ -189,6 +189,9 @@
 <span id="186">186</span>
 <span id="187">187</span>
 <span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -313,11 +316,14 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist_along</span> <span class="op">=</span> <span class="ident">rand_dist</span>(<span class="ident">rng</span>, <span class="number">1.0</span>, <span class="number">5.0</span>);
         <span class="kw">while</span> <span class="ident">dist_along</span> <span class="op">&lt;</span> <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>.<span class="ident">length</span>() {
             <span class="kw">let</span> (<span class="ident">sidewalk_pt</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>.<span class="ident">must_dist_along</span>(<span class="ident">dist_along</span>);
-            <span class="kw">let</span> <span class="ident">setback</span> <span class="op">=</span> <span class="ident">rand_dist</span>(<span class="ident">rng</span>, <span class="number">10.0</span>, <span class="number">20.0</span>);
-            <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">sidewalk_pt</span>.<span class="ident">project_away</span>(<span class="ident">setback</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">90.0</span>));
-
             <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">6.0</span>..<span class="number">14.0</span>);
             <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">6.0</span>..<span class="number">14.0</span>);
+
+            <span class="comment">// Make it so that the front of the house is always set back a fixed amount. So account</span>
+            <span class="comment">// for the chosen &quot;height&quot;.</span>
+            <span class="kw">let</span> <span class="ident">setback</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">10.0</span>) <span class="op">+</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="ident">height</span> <span class="op">/</span> <span class="number">2.0</span>);
+            <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">sidewalk_pt</span>.<span class="ident">project_away</span>(<span class="ident">setback</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">90.0</span>));
+
             <span class="ident">houses</span>.<span class="ident">push</span>(
                 <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="ident">width</span>, <span class="ident">height</span>)
                     .<span class="ident">rotate</span>(<span class="ident">angle</span>)
