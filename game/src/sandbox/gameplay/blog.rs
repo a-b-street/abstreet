@@ -1,7 +1,7 @@
-use map_gui::tools::nice_map_name;
+use map_gui::tools::{grey_out_map, nice_map_name, open_browser};
 use widgetry::{
-    lctrl, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, StyledButtons,
-    VerticalAlignment, Widget,
+    lctrl, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, SimpleState,
+    StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -39,6 +39,31 @@ impl GameplayState for Blog {
                     app,
                     GameplayMode::Freeform(app.primary.map.get_name().clone()),
                 ))),
+                "about A/B Street" => {
+                    let panel = Panel::new(Widget::col(vec![
+                        Widget::row(vec![
+                            Line("About A/B Street").small_heading().draw(ctx),
+                            ctx.style().btn_close_widget(ctx),
+                        ]),
+                        Line("Created by Dustin Carlino, Yuwen Li, & Michael Kirk")
+                            .small()
+                            .draw(ctx),
+                        Text::from(Line(
+                            "A/B Street is a traffic simulation game based on OpenStreetMap. You \
+                             can modify roads and intersections, measure the effects on different \
+                             groups, and advocate for your proposal.",
+                        ))
+                        .wrap_to_pct(ctx, 50)
+                        .draw(ctx),
+                        "This is a simplified version. Check out the full version below."
+                            .draw_text(ctx),
+                        ctx.style()
+                            .btn_outline_light_text("abstreet.org")
+                            .build_def(ctx),
+                    ]))
+                    .build(ctx);
+                    Some(Transition::Push(SimpleState::new(panel, Box::new(About))))
+                }
                 _ => unreachable!(),
             },
             _ => None,
@@ -51,6 +76,12 @@ impl GameplayState for Blog {
 
     fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
         let row = Widget::row(vec![
+            ctx.style()
+                .btn_plain_light()
+                .image_path("system/assets/pregame/logo.svg")
+                .image_dims(50.0)
+                .build_widget(ctx, "about A/B Street")
+                .centered_vert(),
             Line(nice_map_name(app.primary.map.get_name()))
                 .small_heading()
                 .draw(ctx),
@@ -74,5 +105,22 @@ impl GameplayState for Blog {
     fn has_tool_panel(&self) -> bool {
         // Get rid of the home button, which would allow escaping to the title screen
         false
+    }
+}
+
+struct About;
+
+impl SimpleState<App> for About {
+    fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, _: &Panel) -> Transition {
+        if x == "close" {
+            return Transition::Pop;
+        } else if x == "abstreet.org" {
+            open_browser("https://abstreet.org");
+        }
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        grey_out_map(g, app);
     }
 }
