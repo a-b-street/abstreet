@@ -106,10 +106,31 @@ impl LonLat {
         writeln!(f, "END")?;
         Ok(())
     }
+
+    /// Finds the average of a set of coordinates.
+    pub fn center(pts: &Vec<LonLat>) -> LonLat {
+        if pts.is_empty() {
+            panic!("Can't find center of 0 points");
+        }
+        let mut x = 0.0;
+        let mut y = 0.0;
+        for pt in pts {
+            x += pt.x();
+            y += pt.y();
+        }
+        let len = pts.len() as f64;
+        LonLat::new(x / len, y / len)
+    }
 }
 
 impl fmt::Display for LonLat {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "LonLat({0}, {1})", self.x(), self.y())
+    }
+}
+
+impl From<LonLat> for geo::Point<f64> {
+    fn from(pt: LonLat) -> Self {
+        geo::Point::new(pt.x(), pt.y())
     }
 }
