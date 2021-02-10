@@ -46,11 +46,10 @@ impl GameplayState for Freeform {
                 "change map" => Some(Transition::Push(CityPicker::new(
                     ctx,
                     app,
-                    Box::new(|ctx, app| {
+                    Box::new(|_, app| {
                         Transition::Multi(vec![
                             Transition::Pop,
                             Transition::Replace(SandboxMode::simple_new(
-                                ctx,
                                 app,
                                 GameplayMode::Freeform(app.primary.map.get_name().clone()),
                             )),
@@ -234,7 +233,7 @@ impl ChangeScenario {
 }
 
 impl SimpleState<App> for ChangeScenario {
-    fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
+    fn on_click(&mut self, _: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
         if x == "close" {
             Transition::Pop
         } else if x == "Import your own data" {
@@ -246,7 +245,6 @@ impl SimpleState<App> for ChangeScenario {
             Transition::Multi(vec![
                 Transition::Pop,
                 Transition::Replace(SandboxMode::simple_new(
-                    ctx,
                     app,
                     if x == "none" {
                         GameplayMode::Freeform(app.primary.map.get_name().clone())

@@ -205,7 +205,6 @@ impl State<App> for MainMenu {
                         "home_to_work"
                     };
                     return Transition::Push(SandboxMode::simple_new(
-                        ctx,
                         app,
                         GameplayMode::PlayScenario(
                             app.primary.map.get_name().clone(),
@@ -465,7 +464,6 @@ impl State<App> for Proposals {
                                 app.primary.layer =
                                     Some(Box::new(crate::layer::map::Static::edits(ctx, app)));
                                 Transition::Replace(SandboxMode::simple_new(
-                                    ctx,
                                     app,
                                     GameplayMode::PlayScenario(
                                         app.primary.map.get_name().clone(),

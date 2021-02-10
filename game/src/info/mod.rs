@@ -552,7 +552,6 @@ impl InfoPanel {
                     (
                         false,
                         Some(Transition::Replace(SandboxMode::async_new(
-                            ctx,
                             app,
                             ctx_actions.gameplay_mode(),
                             Box::new(move |_, _| vec![jump_to_time]),

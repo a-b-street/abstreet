@@ -291,15 +291,14 @@ fn finish_app_setup(
         vec![Box::new(TitleScreen::new(ctx, app))]
     } else if let Some(mode) = maybe_mode {
         if let GameplayMode::Blog(_) = mode {
-            vec![SandboxMode::async_new(ctx, app, mode, start_daytime)]
+            vec![SandboxMode::async_new(app, mode, start_daytime)]
         } else {
-            vec![SandboxMode::simple_new(ctx, app, mode)]
+            vec![SandboxMode::simple_new(app, mode)]
         }
     } else {
         // We got here by just passing --dev and a map as flags; we're just looking at an empty
         // map. Start in the daytime.
         vec![SandboxMode::async_new(
-            ctx,
             app,
             GameplayMode::Freeform(app.primary.map.get_name().clone()),
             start_daytime,
