@@ -371,6 +371,11 @@
 <span id="368">368</span>
 <span id="369">369</span>
 <span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">future</span>::<span class="ident">Future</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">pin</span>::<span class="ident">Pin</span>;
@@ -398,6 +403,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::{<span class="ident">Actions</span>, <span class="ident">SandboxControls</span>, <span class="ident">SandboxMode</span>};
 
 <span class="comment">// TODO pub so challenges can grab cutscenes and SandboxMode can dispatch to actions. Weird?</span>
+<span class="kw">mod</span> <span class="ident">blog</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">commute</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">fix_traffic_signals</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">freeform</span>;
@@ -412,6 +418,7 @@
     <span class="ident">PlayScenario</span>(<span class="ident">MapName</span>, <span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ScenarioModifier</span><span class="op">&gt;</span>),
     <span class="ident">FixTrafficSignals</span>,
     <span class="ident">OptimizeCommute</span>(<span class="ident">OrigPersonID</span>, <span class="ident">Duration</span>),
+    <span class="ident">Blog</span>(<span class="ident">MapName</span>),
 
     <span class="comment">// current</span>
     <span class="ident">Tutorial</span>(<span class="ident">TutorialPointer</span>),
@@ -476,13 +483,15 @@
             <span class="ident">GameplayMode</span>::<span class="ident">FixTrafficSignals</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;downtown&quot;</span>),
             <span class="ident">GameplayMode</span>::<span class="ident">OptimizeCommute</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;montlake&quot;</span>),
             <span class="ident">GameplayMode</span>::<span class="ident">Tutorial</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;montlake&quot;</span>),
+            <span class="ident">GameplayMode</span>::<span class="ident">Blog</span>(<span class="kw-2">ref</span> <span class="ident">name</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">name</span>.<span class="ident">clone</span>(),
         }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scenario</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="kw-2">mut</span> <span class="ident">rng</span>: <span class="ident">XorShiftRng</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LoadScenario</span> {
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">GameplayMode</span>::<span class="ident">Freeform</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="comment">// TODO Start with a scenario in blog mode, once all the actdev scenarios are imported.</span>
+            <span class="ident">GameplayMode</span>::<span class="ident">Freeform</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">GameplayMode</span>::<span class="ident">Blog</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Scenario</span>::<span class="ident">empty</span>(<span class="ident">map</span>, <span class="string">&quot;empty&quot;</span>);
                 <span class="ident">s</span>.<span class="ident">only_seed_buses</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                 <span class="kw">return</span> <span class="ident">LoadScenario</span>::<span class="ident">Scenario</span>(<span class="ident">s</span>);
@@ -588,6 +597,7 @@
                 <span class="ident">commute</span>::<span class="ident">OptimizeCommute</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">*</span><span class="ident">p</span>, <span class="kw-2">*</span><span class="ident">goal</span>)
             }
             <span class="ident">GameplayMode</span>::<span class="ident">Tutorial</span>(<span class="ident">current</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Tutorial</span>::<span class="ident">make_gameplay</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">*</span><span class="ident">current</span>),
+            <span class="ident">GameplayMode</span>::<span class="ident">Blog</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">blog</span>::<span class="ident">Blog</span>::<span class="ident">new</span>(<span class="ident">ctx</span>),
         }
     }
 }
