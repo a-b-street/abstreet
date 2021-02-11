@@ -26,7 +26,7 @@ perl -pi -e "s#\"osm_url\": \".*\"#\"osm_url\": \"$GEOFABRIK\"#" importer/config
 
 wget https://raw.githubusercontent.com/cyipt/actdev/main/data-small/$SITE/site.geojson -O data/system/study_areas/$SITE.geojson
 
-#./import.sh --raw --map --city=$CITY
+./import.sh --raw --map --city=$CITY
 
 echo "You have to manually update .gitignore, importer/src/main.rs, map_gui/src/tools/mod.rs, data/player/data.json, release/deploy_actdev.sh"
 echo "You might need to procedurally generate houses."
