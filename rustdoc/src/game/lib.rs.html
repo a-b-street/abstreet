@@ -343,19 +343,6 @@
 <span id="340">340</span>
 <span id="341">341</span>
 <span id="342">342</span>
-<span id="343">343</span>
-<span id="344">344</span>
-<span id="345">345</span>
-<span id="346">346</span>
-<span id="347">347</span>
-<span id="348">348</span>
-<span id="349">349</span>
-<span id="350">350</span>
-<span id="351">351</span>
-<span id="352">352</span>
-<span id="353">353</span>
-<span id="354">354</span>
-<span id="355">355</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
@@ -451,21 +438,8 @@
     <span class="kw">let</span> <span class="ident">center_camera</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--cam&quot;</span>);
 
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">site</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--actdev&quot;</span>) {
-        <span class="comment">// For integration with https://github.com/cyipt/actdev, the web version just takes the</span>
-        <span class="comment">// site as input. A/B Street&#39;s mapping of sites to MapName is a little convoluted and in</span>
-        <span class="comment">// flux, so just do the mapping here.</span>
-        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">site</span>.<span class="ident">as_ref</span>() {
-            <span class="string">&quot;allerton-bywater&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MapName</span>::<span class="ident">new</span>(<span class="string">&quot;allerton_bywater&quot;</span>, <span class="string">&quot;center&quot;</span>),
-            <span class="string">&quot;bailrigg&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MapName</span>::<span class="ident">new</span>(<span class="string">&quot;lancaster&quot;</span>, <span class="string">&quot;bailrigg&quot;</span>),
-            <span class="string">&quot;chapelford&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MapName</span>::<span class="ident">new</span>(<span class="string">&quot;cheshire&quot;</span>, <span class="string">&quot;chapelford&quot;</span>),
-            <span class="string">&quot;didcot&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MapName</span>::<span class="ident">new</span>(<span class="string">&quot;harwell&quot;</span>, <span class="string">&quot;didcot&quot;</span>),
-            <span class="string">&quot;ebbsfleet&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MapName</span>::<span class="ident">new</span>(<span class="string">&quot;dartford&quot;</span>, <span class="string">&quot;ebbsfleet&quot;</span>),
-            <span class="string">&quot;great-kneighton&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MapName</span>::<span class="ident">new</span>(<span class="string">&quot;cambridge&quot;</span>, <span class="string">&quot;great_kneighton&quot;</span>),
-            <span class="string">&quot;handforth&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MapName</span>::<span class="ident">new</span>(<span class="string">&quot;poynton&quot;</span>, <span class="string">&quot;handforth&quot;</span>),
-            <span class="string">&quot;lcid&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MapName</span>::<span class="ident">new</span>(<span class="string">&quot;leeds&quot;</span>, <span class="string">&quot;lcid&quot;</span>),
-            <span class="string">&quot;long-marston&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MapName</span>::<span class="ident">new</span>(<span class="string">&quot;stratford_upon_avon&quot;</span>, <span class="string">&quot;long_marston&quot;</span>),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Unknown --actdev site name {}&quot;</span>, <span class="ident">site</span>),
-        };
+        <span class="kw">let</span> <span class="ident">city</span> <span class="op">=</span> <span class="ident">site</span>.<span class="ident">replace</span>(<span class="string">&quot;-&quot;</span>, <span class="string">&quot;_&quot;</span>);
+        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">MapName</span>::<span class="ident">new</span>(<span class="ident">city</span>, <span class="string">&quot;center&quot;</span>);
         <span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">path</span>();
         <span class="ident">flags</span>.<span class="ident">study_area</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">site</span>);
         <span class="ident">mode</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">sandbox</span>::<span class="ident">GameplayMode</span>::<span class="ident">Blog</span>(<span class="ident">name</span>));
