@@ -167,11 +167,13 @@ impl ControlTrafficSignal {
         Ok(())
     }
 
-    /// Returns true if this did anything
+    /// Move crosswalks from stages, adding them to an all-walk as last stage. This may promote
+    /// yields to protected. True is returned if any stages were added or modified.
     pub fn convert_to_ped_scramble(&mut self) -> bool {
         self.internal_convert_to_ped_scramble(true)
     }
-    /// Returns true if this did anything
+    /// Move crosswalks from stages, adding them to an all-walk as last stage. This does not promote
+    /// yields to protected. True is returned if any stages were added or modified.
     pub fn convert_to_ped_scramble_without_promotion(&mut self) -> bool {
         self.internal_convert_to_ped_scramble(false)
     }
@@ -409,7 +411,7 @@ impl Stage {
     }
 
     // A trivial function that returns max crosswalk time if the stage is just crosswalks.
-    pub fn contains_only_crosswalks(
+    pub fn max_crosswalk_time(
         &self,
         movements: &BTreeMap<MovementID, Movement>,
     ) -> Option<Duration> {
