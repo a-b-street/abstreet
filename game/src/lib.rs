@@ -92,21 +92,8 @@ pub fn main() {
     let center_camera = args.optional("--cam");
 
     if let Some(site) = args.optional("--actdev") {
-        // For integration with https://github.com/cyipt/actdev, the web version just takes the
-        // site as input. A/B Street's mapping of sites to MapName is a little convoluted and in
-        // flux, so just do the mapping here.
-        let name = match site.as_ref() {
-            "allerton-bywater" => MapName::new("allerton_bywater", "center"),
-            "bailrigg" => MapName::new("lancaster", "bailrigg"),
-            "chapelford" => MapName::new("cheshire", "chapelford"),
-            "didcot" => MapName::new("harwell", "didcot"),
-            "ebbsfleet" => MapName::new("dartford", "ebbsfleet"),
-            "great-kneighton" => MapName::new("cambridge", "great_kneighton"),
-            "handforth" => MapName::new("poynton", "handforth"),
-            "lcid" => MapName::new("leeds", "lcid"),
-            "long-marston" => MapName::new("stratford_upon_avon", "long_marston"),
-            _ => panic!("Unknown --actdev site name {}", site),
-        };
+        let city = site.replace("-", "_");
+        let name = MapName::new(city, "center");
         flags.sim_flags.load = name.path();
         flags.study_area = Some(site);
         mode = Some(sandbox::GameplayMode::Blog(name));
