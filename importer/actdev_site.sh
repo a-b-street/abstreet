@@ -28,5 +28,5 @@ wget https://raw.githubusercontent.com/cyipt/actdev/main/data-small/$SITE/site.g
 
 ./import.sh --raw --map --city=$CITY
 
-echo "You have to manually update .gitignore, importer/src/main.rs, map_gui/src/tools/mod.rs, data/player/data.json, release/deploy_actdev.sh"
+echo "You have to manually update .gitignore, importer/src/main.rs, map_gui/src/tools/mod.rs, release/deploy_actdev.sh"
 echo "You might need to procedurally generate houses."
