@@ -565,6 +565,25 @@
 <span id="562">562</span>
 <span id="563">563</span>
 <span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
@@ -625,13 +644,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">simple_duration</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="ident">d</span>,
-            <span class="ident">StageType</span>::<span class="ident">Variable</span>(<span class="ident">duration</span>, <span class="ident">delay</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">duration</span> <span class="op">&gt;</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span> {
-                    <span class="kw-2">*</span><span class="ident">duration</span>
-                } <span class="kw">else</span> {
-                    <span class="kw-2">*</span><span class="ident">delay</span>
-                }
-            }
+            <span class="ident">StageType</span>::<span class="ident">Variable</span>(<span class="ident">duration</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="ident">duration</span>,
         }
     }
 }
@@ -741,8 +754,18 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Returns true if this did anything</span>
+    <span class="doccomment">/// Move crosswalks from stages, adding them to an all-walk as last stage. This may promote</span>
+    <span class="doccomment">/// yields to protected. True is returned if any stages were added or modified.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">convert_to_ped_scramble</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">internal_convert_to_ped_scramble</span>(<span class="bool-val">true</span>)
+    }
+    <span class="doccomment">/// Move crosswalks from stages, adding them to an all-walk as last stage. This does not promote</span>
+    <span class="doccomment">/// yields to protected. True is returned if any stages were added or modified.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">convert_to_ped_scramble_without_promotion</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">internal_convert_to_ped_scramble</span>(<span class="bool-val">false</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">internal_convert_to_ped_scramble</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">promote_yield_to_protected</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">orig</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clone</span>();
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_walk_stage</span> <span class="op">=</span> <span class="ident">Stage</span>::<span class="ident">new</span>();
@@ -765,17 +788,19 @@
             <span class="ident">retain_btreeset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">stage</span>.<span class="ident">protected_movements</span>, <span class="op">|</span><span class="ident">m</span><span class="op">|</span> {
                 <span class="self">self</span>.<span class="ident">movements</span>[<span class="ident">m</span>].<span class="ident">turn_type</span> <span class="op">!</span><span class="op">=</span> <span class="ident">TurnType</span>::<span class="ident">Crosswalk</span>
             });
-
-            <span class="comment">// Blindly try to promote yield movements to protected, now that crosswalks are gone.</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">promoted</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-            <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">stage</span>.<span class="ident">yield_movements</span> {
-                <span class="kw">if</span> <span class="ident">stage</span>.<span class="ident">could_be_protected</span>(<span class="kw-2">*</span><span class="ident">m</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">movements</span>) {
-                    <span class="ident">stage</span>.<span class="ident">protected_movements</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">m</span>);
-                    <span class="ident">promoted</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">m</span>);
+            <span class="kw">if</span> <span class="ident">promote_yield_to_protected</span> {
+                <span class="comment">// Blindly try to promote yield movements to protected, now that crosswalks are</span>
+                <span class="comment">// gone.</span>
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">promoted</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+                <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">stage</span>.<span class="ident">yield_movements</span> {
+                    <span class="kw">if</span> <span class="ident">stage</span>.<span class="ident">could_be_protected</span>(<span class="kw-2">*</span><span class="ident">m</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">movements</span>) {
+                        <span class="ident">stage</span>.<span class="ident">protected_movements</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">m</span>);
+                        <span class="ident">promoted</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">m</span>);
+                    }
                 }
-            }
-            <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="ident">promoted</span> {
-                <span class="ident">stage</span>.<span class="ident">yield_movements</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">m</span>);
+                <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="ident">promoted</span> {
+                    <span class="ident">stage</span>.<span class="ident">yield_movements</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">m</span>);
+                }
             }
         }
         <span class="self">self</span>.<span class="ident">stages</span> <span class="op">=</span> <span class="ident">replaced</span>;
@@ -972,14 +997,27 @@
         }
     }
 
-    <span class="comment">// trivial function that returns true if the stage is just crosswalks</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains_only_crosswalks</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="comment">// A trivial function that returns max crosswalk time if the stage is just crosswalks.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_crosswalk_time</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">movements</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">MovementID</span>, <span class="ident">Movement</span><span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_distance</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">const_meters</span>(<span class="number">0.0</span>);
         <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">protected_movements</span> {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">m</span>.<span class="ident">crosswalk</span> {
-                <span class="kw">return</span> <span class="bool-val">false</span>;
+            <span class="kw">if</span> <span class="ident">m</span>.<span class="ident">crosswalk</span> {
+                <span class="ident">max_distance</span> <span class="op">=</span> <span class="ident">max_distance</span>.<span class="ident">max</span>(<span class="ident">movements</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">m</span>).<span class="ident">unwrap</span>().<span class="ident">geom</span>.<span class="ident">length</span>());
+            } <span class="kw">else</span> {
+                <span class="kw">return</span> <span class="prelude-val">None</span>;
             }
         }
-        <span class="self">self</span>.<span class="ident">yield_movements</span>.<span class="ident">is_empty</span>()
+        <span class="kw">return</span> <span class="kw">if</span> <span class="ident">max_distance</span> <span class="op">&gt;</span> <span class="ident">Distance</span>::<span class="ident">const_meters</span>(<span class="number">0.0</span>) {
+            <span class="kw">let</span> <span class="ident">time</span> <span class="op">=</span> <span class="ident">max_distance</span> <span class="op">/</span> <span class="ident">CROSSWALK_PACE</span>;
+            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">time</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>);
+            <span class="comment">// Round up because it is converted to a usize elsewhere</span>
+            <span class="prelude-val">Some</span>(<span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="ident">time</span>.<span class="ident">inner_seconds</span>().<span class="ident">ceil</span>()))
+        } <span class="kw">else</span> {
+            <span class="prelude-val">None</span>
+        };
     }
 }
 
