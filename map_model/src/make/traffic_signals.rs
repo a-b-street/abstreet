@@ -336,10 +336,10 @@ fn stage_per_road(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
 /// Create a traffic signal which has a stage that is: protected straight, protected right,
 /// unprotected left, unprotected right on red. Followed by a variable stage that has protected
 /// left, unprotected right on red. With a last stage that is all-walk and variable.
-/// In some degenerate cases, usually with one or more one-way, this can reduce to stage per road
+/// In some degenerate cases, usually with one or more one-way, this can reduce to stage per road.
+/// In some rare cases, usually with an alleyway, oncoming lanes can't both be protected left turns.
+/// In such cases the stage is split into two stages with each having a protected and yeild turn.
 fn lagging_green(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> {
-    const MIN_CROSSWALK_TIME: Duration = Duration::const_seconds(15.0);
-
     let mut ts = new(id, map);
     if let Some(other) = three_way_three_stage(map, id) {
         println!("using built-in 3-way");
@@ -358,40 +358,47 @@ fn lagging_green(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> 
         }
     }
     if let Err(err) = ts.validate() {
+        // when all else fails, use stage per road and all-walk stage at the end
         println!("multi-way validation_error={} ts={:#?}", err, ts);
         ts = stage_per_road(map, id);
         ts.convert_to_ped_scramble();
     }
+    // Now, we can optimize the stages, as we're guaranteed to have a valid and complete set of stages.
+
     // remove stages which don't contain a protected route
     ts.stages.retain(|s| !s.protected_movements.is_empty());
-    // determine if any stages can be merged
+    // determine if any stages can be merged. We could merge turns, but if we end up not reducing the
+    // stage as a result, its probably not worth doing, or can be easily added by the user.
     while let Some(merged_ts) = merge_stages(&ts) {
         ts = merged_ts;
     }
     make_lagging_green_variable(&mut ts);
-    println!("ts={:#?}", ts);
-    // convert walk to variable with a min duration not less than 15 seconds
-    for mut s in ts.stages.iter_mut() {
-        if let Some(mut duration) = s.contains_only_crosswalks(&ts.movements) {
-            println!("converting walk stage to variable walk={:#?}", s);
+    make_crosswalk_variable(&mut ts);
+    return Some(ts);
 
-            match s.stage_type {
-                StageType::Fixed(_) => {
-                    // get the minimum duration, but never less than 15 seconds
-                    if duration < MIN_CROSSWALK_TIME {
-                        duration = MIN_CROSSWALK_TIME;
+    // @todo: move all of these internal fn out when refactoring to lagging_green.rs
+    // convert walk to variable with a min duration not less than 15 seconds
+    fn make_crosswalk_variable(ts: &mut ControlTrafficSignal) {
+        const MIN_CROSSWALK_TIME: Duration = Duration::const_seconds(15.0);
+        for mut s in ts.stages.iter_mut() {
+            if let Some(mut duration) = s.contains_only_crosswalks(&ts.movements) {
+                match s.stage_type {
+                    StageType::Fixed(_) => {
+                        // get the minimum duration, but never less than 15 seconds
+                        if duration < MIN_CROSSWALK_TIME {
+                            duration = MIN_CROSSWALK_TIME;
+                        }
+                        s.stage_type = StageType::Variable(
+                            duration,
+                            Duration::const_seconds(1.0),
+                            Duration::const_seconds(1.0),
+                        )
                     }
-                    s.stage_type = StageType::Variable(
-                        duration,
-                        Duration::const_seconds(1.0),
-                        Duration::const_seconds(1.0),
-                    )
+                    _ => (),
                 }
-                _ => (),
             }
         }
     }
-    return Some(ts);
 
     fn merge_stages(ts: &ControlTrafficSignal) -> Option<ControlTrafficSignal> {
         for s_src in &ts.stages {
@@ -422,51 +429,35 @@ fn lagging_green(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> 
         }
         None
     }
-
-    fn multi_way_stages(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> {
-        // sometimes protected oncoming left turns aren't possible.
-        fn is_conflict(
-            ts: &ControlTrafficSignal,
-            stage: &Stage,
-        ) -> Option<(MovementID, MovementID)> {
-            for m1 in stage.protected_movements.iter().map(|m| &ts.movements[m]) {
-                for m2 in stage.protected_movements.iter().map(|m| &ts.movements[m]) {
-                    if m1.conflicts_with(m2) {
-                        return Some((m1.id, m2.id));
-                    }
+        
+    // sometimes protected oncoming left turns aren't possible.
+    fn is_conflict(
+        ts: &ControlTrafficSignal,
+        stage: &Stage,
+    ) -> Option<(MovementID, MovementID)> {
+        for m1 in stage.protected_movements.iter().map(|m| &ts.movements[m]) {
+            for m2 in stage.protected_movements.iter().map(|m| &ts.movements[m]) {
+                if m1.conflicts_with(m2) {
+                    return Some((m1.id, m2.id));
                 }
             }
-            return None;
         }
+        return None;
+    }
+
+    fn protected_yield_stage(p: MovementID, y: MovementID) -> Stage {
+        let mut stage = Stage::new();
+        stage.protected_movements.insert(p);
+        stage.yield_movements.insert(y);
+        stage
+    }
+
+    fn multi_way_stages(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> {
 
         let mut ts = new(id, map);
         let (mut right, mut left, straight, mut roads) = movements(&ts);
-        println!("right turns");
-        for id in &right {
-            println!("from={} to={}", id.from.id.0, id.to.id.0);
-        }
-        println!("left turns");
-        for id in &left {
-            println!("from={} to={}", id.from.id.0, id.to.id.0);
-        }
-        println!("straight turns");
-        for id in &straight {
-            println!("from={} to={}", id.from.id.0, id.to.id.0);
-        }
         let (one_way, two_way) = straight_types(&straight);
         for m in &one_way {
-            println!("stage");
-            println!("straight from={} to={}", m.from.id.0, m.to.id.0);
-            println!(
-                "right from={} to={:#?}",
-                m.from.id.0,
-                turns(&m.from.id, &right)
-            );
-            println!(
-                "left from={} to={:#?}",
-                m.from.id.0,
-                turns(&m.from.id, &left)
-            );
             let mut stage = Stage::new();
             stage.protected_movements.insert(m.clone());
             for t in turns(&m.from.id, &right) {
@@ -479,26 +470,6 @@ fn lagging_green(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> 
             roads.remove(&m.from.id);
         }
         for (m1, m2) in &two_way {
-            println!("stage");
-            println!("straight from={} to={}", m1.from.id.0, m1.to.id.0);
-            println!("straight from={} to={}", m1.to.id.0, m1.from.id.0);
-            println!(
-                "right from={} to={:#?}",
-                m1.from.id.0,
-                turns(&m1.from.id, &right)
-            );
-            println!(
-                "left from={} to={:#?}",
-                m1.from.id.0,
-                turns(&m1.from.id, &left)
-            );
-            println!(
-                "right from={} to={:#?}",
-                m1.to.id.0,
-                turns(&m1.to.id, &right)
-            );
-            println!("left from={} to={:#?}", m1.to.id.0, turns(&m1.to.id, &left));
-
             let mut stage1 = Stage::new();
             let mut stage2 = Stage::new();
             stage1.protected_movements.insert(m1.clone());
@@ -522,15 +493,9 @@ fn lagging_green(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> 
             }
             if !stage2.protected_movements.is_empty() {
                 if let Some((m1, m2)) = is_conflict(&ts, &stage2) {
-                    println!("Dual Left turn conflict");
-                    let mut stage = Stage::new();
-                    stage.protected_movements.insert(m1);
-                    stage.yield_movements.insert(m2);
-                    add_stage(&mut ts, stage);
-                    stage = Stage::new();
-                    stage.protected_movements.insert(m2);
-                    stage.yield_movements.insert(m1);
-                    add_stage(&mut ts, stage);
+                    // We've hit the case where oncoming left turns can't both be protected.
+                    add_stage(&mut ts, protected_yield_stage(m1, m2));
+                    add_stage(&mut ts, protected_yield_stage(m2, m1));
                 } else {
                     add_stage(&mut ts, stage2);
                 }
@@ -538,14 +503,10 @@ fn lagging_green(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> 
             roads.remove(&m1.from.id);
             roads.remove(&m2.from.id);
         }
-
-        // At this point, we may be done
-        if !roads.is_empty() {
-            println!("roads={:#?}", roads);
-        }
+        // We may be done assigning, or we may have some roads we haven't dealt with yet.
         let mut vec: Vec<_> = roads.into_iter().collect();
-        // we're going to treat the roads as if thery are straight. Otherwise,
-        // we'd end up with overlapping protected left turns
+        // We're going to treat the roads as if thery are straight. Otherwise,
+        // we'd end up with overlapping protected left turns.
         while let Some(r1) = vec.pop() {
             let mut stage1 = Stage::new();
             let mut stage2 = Stage::new();
@@ -555,25 +516,28 @@ fn lagging_green(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> 
                 } else if let Some(m) = remove_movement(&r1, &r2, &mut left) {
                     stage1.protected_movements.insert(m.clone());
                 }
+
                 if let Some(m) = remove_movement(&r2, &r1, &mut right) {
                     stage1.protected_movements.insert(m.clone());
                 } else if let Some(m) = remove_movement(&r2, &r1, &mut left) {
                     stage1.protected_movements.insert(m.clone());
                 }
-                for t in turns(&r1, &right) {
-                    stage1.protected_movements.insert(t.clone());
-                }
-                for t in turns(&r2, &right) {
-                    stage1.protected_movements.insert(t.clone());
-                }
-                for t in turns(&r1, &left) {
-                    stage1.yield_movements.insert(t.clone());
-                    stage2.protected_movements.insert(t.clone());
-                }
-                for t in turns(&r2, &left) {
-                    stage1.yield_movements.insert(t.clone());
-                    stage2.protected_movements.insert(t.clone());
-                }
+
+                // add right turns
+                turns(&r1, &right).iter().for_each(|t| {stage1.protected_movements.insert(*t);});
+                turns(&r2, &right).iter().for_each(|t| {stage1.protected_movements.insert(*t);});
+
+                // add left turns
+                turns(&r1, &left).iter().for_each(|t| {
+                    stage1.yield_movements.insert(*t);
+                    stage2.protected_movements.insert(*t);
+                });
+                turns(&r2, &left).iter().for_each(|t| {
+                    stage1.yield_movements.insert(*t);
+                    stage2.protected_movements.insert(*t);
+                });
+
+                // add stages if they have protected turns
                 if !stage1.protected_movements.is_empty() {
                     add_stage(&mut ts, stage1);
                 }
@@ -581,12 +545,8 @@ fn lagging_green(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> 
                     add_stage(&mut ts, stage2);
                 }
             } else {
-                for t in turns(&r1, &right) {
-                    stage1.protected_movements.insert(t.clone());
-                }
-                for t in turns(&r1, &left) {
-                    stage1.protected_movements.insert(t.clone());
-                }
+                turns(&r1, &right).iter().for_each(|t| {stage1.protected_movements.insert(*t);});
+                turns(&r1, &left).iter().for_each(|t| {stage1.protected_movements.insert(*t);});
                 add_stage(&mut ts, stage1);
             }
         }
@@ -594,12 +554,8 @@ fn lagging_green(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> 
     }
 
     fn add_stage(ts: &mut ControlTrafficSignal, stage: Stage) {
-        for s in &ts.stages {
-            if *s == stage {
-                return;
-            }
-        }
-        ts.stages.push(stage)
+        // ensure a duplicate isn't added
+        if ts.stages.iter().all(|s| *s != stage) { ts.stages.push(stage) }
     }
 
     fn turns(from: &RoadID, turns: &Vec<MovementID>) -> Vec<MovementID> {
@@ -682,7 +638,6 @@ fn lagging_green(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> 
     fn four_way_four_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
         let roads = get_sorted_incoming_roads(i, map);
         if roads.len() != 4 {
-            println!("four_way_four_stage called with roads={}", roads.len());
             return None;
         }
 
@@ -735,16 +690,15 @@ fn lagging_green(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> 
         let mut set: BTreeSet<RoadID> = BTreeSet::new();
 
         for (id, m) in &ts.movements {
-            if id.crosswalk {
-                continue;
+            if !id.crosswalk {
+                match m.turn_type {
+                    TurnType::Right => right.push(id.clone()),
+                    TurnType::Left => left.push(id.clone()),
+                    TurnType::Straight => straight.push(id.clone()),
+                    _ => (),
+                }
+                set.insert(id.from.id);
             }
-            match m.turn_type {
-                TurnType::Right => right.push(id.clone()),
-                TurnType::Left => left.push(id.clone()),
-                TurnType::Straight => straight.push(id.clone()),
-                _ => (),
-            }
-            set.insert(id.from.id);
         }
         (right, left, straight, set)
     }
@@ -766,38 +720,28 @@ fn lagging_green(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> 
         }
         (one_way, two_way)
     }
-}
 
-fn make_lagging_green_variable(ts: &mut ControlTrafficSignal) {
-    let mut prev_stage: Option<&mut Stage> = None;
-    for (idx, stage) in ts.stages.iter_mut().enumerate() {
-        // Lagging green: if this stage's protected is in the prev as unprotected, make this stage
-        // optional.
-        if let Some(prev) = prev_stage {
-            let mut make_variable = true;
-            for m in &stage.protected_movements {
-                println!(
-                    "protected: stage={} from={} to={} previous_contains={}",
-                    idx,
-                    m.from.id.0,
-                    m.to.id.0,
-                    prev.yield_movements.contains(m)
-                );
-                if !prev.yield_movements.contains(m) {
-                    make_variable = false;
+    fn make_lagging_green_variable(ts: &mut ControlTrafficSignal) {
+        const EXTENT_DURATION: Duration = Duration::const_seconds(10.0);
+        const MAX_DURATION: Duration = Duration::const_seconds(20.0);
+        let mut prev_stage: Option<&mut Stage> = None;
+        for stage in ts.stages.iter_mut() {
+            // Lagging green: if this stage's protected movements were yield movements in the
+            // previous stage, make this stage optional.
+            if let Some(prev) = prev_stage {
+                if stage
+                    .protected_movements
+                    .iter()
+                    .all(|m| prev.yield_movements.contains(m))
+                {
+                    if let StageType::Fixed(_) = stage.stage_type {
+                        stage.stage_type =
+                            StageType::Variable(Duration::ZERO, EXTENT_DURATION, MAX_DURATION);
+                    }
                 }
             }
-            if make_variable {
-                if let StageType::Fixed(_) = stage.stage_type {
-                    stage.stage_type = StageType::Variable(
-                        Duration::ZERO,
-                        Duration::const_seconds(10.0),
-                        Duration::const_seconds(20.0),
-                    );
-                }
-            }
+            prev_stage = Some(stage);
         }
-        prev_stage = Some(stage);
     }
 }
 
