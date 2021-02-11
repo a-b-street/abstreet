@@ -60,21 +60,14 @@ pub struct SandboxControls {
 impl SandboxMode {
     /// If you don't need to chain any transitions after the SandboxMode that rely on its resources
     /// being loaded, use this. Otherwise, see `async_new`.
-    pub fn simple_new(
-        ctx: &mut EventCtx,
-        app: &mut App,
-        mode: GameplayMode,
-    ) -> Box<dyn State<App>> {
-        SandboxMode::async_new(ctx, app, mode, Box::new(|_, _| Vec::new()))
+    pub fn simple_new(app: &mut App, mode: GameplayMode) -> Box<dyn State<App>> {
+        SandboxMode::async_new(app, mode, Box::new(|_, _| Vec::new()))
     }
 
     /// This does not immediately initialize anything (like loading the correct map, instantiating
     /// the scenario, etc). That means if you're chaining this call with other transitions, you
     /// probably need to defer running them using `finalize`.
-    // TODO Remove the unused ctx param? It affects lots of downstream callers; maybe better to
-    // leave it here in case this monstrosity is refactored again.
     pub fn async_new(
-        _: &mut EventCtx,
         app: &mut App,
         mode: GameplayMode,
         finalize: Box<dyn FnOnce(&mut EventCtx, &mut App) -> Vec<Transition>>,

@@ -1,5 +1,5 @@
 {
-  "osm_url": "http://download.geofabrik.de/europe/great-britain/england/cambridgeshire-latest.osm.pbf",
+  "osm_url": "https://download.geofabrik.de/europe/great-britain/england/cheshire-latest.osm.pbf",
   "map_config": {
     "driving_side": "Left",
     "bikes_can_use_bus_lanes": false,

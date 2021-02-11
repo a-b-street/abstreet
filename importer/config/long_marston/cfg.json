@@ -1,5 +1,5 @@
 {
-  "osm_url": "http://download.geofabrik.de/europe/great-britain/england/greater-manchester-latest.osm.pbf",
+  "osm_url": "https://download.geofabrik.de/europe/great-britain/england/warwickshire-latest.osm.pbf",
   "map_config": {
     "driving_side": "Left",
     "bikes_can_use_bus_lanes": false,
@@ -14,5 +14,5 @@
   },
   "elevation": null,
   "include_railroads": true,
-  "extra_buildings": "data/input/poynton/procgen_houses.json"
+  "extra_buildings": null
 }

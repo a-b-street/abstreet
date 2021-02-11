@@ -186,7 +186,6 @@ impl SpeedControls {
                 "reset to midnight" => {
                     if let Some(mode) = maybe_mode {
                         return Some(Transition::Replace(SandboxMode::simple_new(
-                            ctx,
                             app,
                             mode.clone(),
                         )));

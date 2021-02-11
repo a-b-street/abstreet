@@ -97,7 +97,6 @@ impl State<App> for JumpToTime {
                         if let Some(mode) = self.maybe_mode.take() {
                             let target_time = self.target;
                             return Transition::Replace(SandboxMode::async_new(
-                                ctx,
                                 app,
                                 mode,
                                 Box::new(move |ctx, app| {

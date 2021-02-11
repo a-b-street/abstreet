@@ -8,25 +8,26 @@ importer.json
 
 data/input
 
-data/system/allerton_bywater/
+data/system/allerton_bywater
+data/system/bailrigg
 data/system/bellevue
 data/system/berlin
-data/system/cambridge
-data/system/cheshire
-data/system/dartford/
+data/system/chapelford
+data/system/didcot
 data/system/detroit
-data/system/harwell/
+data/system/ebbsfleet
+data/system/great_kneighton
+data/system/handforth
 data/system/krakow
-data/system/lancaster/
+data/system/lcid
 data/system/leeds
 data/system/london
+data/system/long_marston
 data/system/montreal
 data/system/nyc
 data/system/paris
-data/system/poynton/
 data/system/providence
 data/system/salzburg
 data/system/seattle
-data/system/stratford_upon_avon/
 data/system/tel_aviv
 data/system/warsaw

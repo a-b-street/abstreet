@@ -121,7 +121,6 @@ impl EditMode {
                 Transition::Multi(vec![
                     Transition::Pop,
                     Transition::Replace(SandboxMode::async_new(
-                        ctx,
                         app,
                         self.mode.clone(),
                         Box::new(move |ctx, app| {

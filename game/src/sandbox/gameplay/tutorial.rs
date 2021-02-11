@@ -57,7 +57,6 @@ impl Tutorial {
         Transition::Multi(vec![
             // Constructing the intro_story cutscene doesn't require the map/scenario to be loaded.
             Transition::Push(SandboxMode::simple_new(
-                ctx,
                 app,
                 GameplayMode::Tutorial(
                     app.session
@@ -124,15 +123,15 @@ impl Tutorial {
                 }
                 "previous tutorial" => {
                     tut.current = TutorialPointer::new(tut.current.stage - 1, 0);
-                    return Some(transition(ctx, app, tut));
+                    return Some(transition(app, tut));
                 }
                 "next tutorial" => {
                     tut.current = TutorialPointer::new(tut.current.stage + 1, 0);
-                    return Some(transition(ctx, app, tut));
+                    return Some(transition(app, tut));
                 }
                 "instructions" => {
                     tut.current = TutorialPointer::new(tut.current.stage, 0);
-                    return Some(transition(ctx, app, tut));
+                    return Some(transition(app, tut));
                 }
                 "edit map" => {
                     // TODO Ideally this would be an inactive button in message states
@@ -151,11 +150,11 @@ impl Tutorial {
                 Outcome::Clicked(x) => match x.as_ref() {
                     "previous message" => {
                         tut.prev();
-                        return Some(transition(ctx, app, tut));
+                        return Some(transition(app, tut));
                     }
                     "next message" | "Try it" => {
                         tut.next();
-                        return Some(transition(ctx, app, tut));
+                        return Some(transition(app, tut));
                     }
                     _ => unreachable!(),
                 },
@@ -172,7 +171,7 @@ impl Tutorial {
                 && app.per_obj.left_click(ctx, "put out the... fire?")
             {
                 tut.next();
-                return Some(transition(ctx, app, tut));
+                return Some(transition(app, tut));
             }
         } else if tut.interaction() == Task::InspectObjects {
             // TODO Have to wiggle the mouse or something after opening the panel, because of the
@@ -209,12 +208,12 @@ impl Tutorial {
                 && tut.inspected_border
             {
                 tut.next();
-                return Some(transition(ctx, app, tut));
+                return Some(transition(app, tut));
             }
         } else if tut.interaction() == Task::TimeControls {
             if app.primary.sim.time() >= Time::START_OF_DAY + Duration::hours(17) {
                 tut.next();
-                return Some(transition(ctx, app, tut));
+                return Some(transition(app, tut));
             }
         } else if tut.interaction() == Task::PauseResume {
             let is_paused = controls.speed.as_ref().unwrap().is_paused();
@@ -228,7 +227,7 @@ impl Tutorial {
             }
             if tut.num_pauses == 3 {
                 tut.next();
-                return Some(transition(ctx, app, tut));
+                return Some(transition(app, tut));
             }
         } else if tut.interaction() == Task::Escort {
             let following_car =
@@ -252,17 +251,17 @@ impl Tutorial {
 
             if tut.prank_done {
                 tut.next();
-                return Some(transition(ctx, app, tut));
+                return Some(transition(app, tut));
             }
         } else if tut.interaction() == Task::LowParking {
             if tut.parking_found {
                 tut.next();
-                return Some(transition(ctx, app, tut));
+                return Some(transition(app, tut));
             }
         } else if tut.interaction() == Task::WatchBikes {
             if app.primary.sim.time() >= Time::START_OF_DAY + Duration::minutes(3) {
                 tut.next();
-                return Some(transition(ctx, app, tut));
+                return Some(transition(app, tut));
             }
         } else if tut.interaction() == Task::FixBikes {
             if app.primary.sim.is_done() {
@@ -331,7 +330,7 @@ impl Tutorial {
                 if before - after >= CAR_BIKE_CONTENTION_GOAL {
                     tut.next();
                 }
-                return Some(transition(ctx, app, tut));
+                return Some(transition(app, tut));
             }
         } else if tut.interaction() == Task::Done {
             // If the player chooses to stay here, at least go back to the message panel.
@@ -657,10 +656,10 @@ fn make_bike_lane_scenario(map: &Map) -> ScenarioGenerator {
     s
 }
 
-fn transition(ctx: &mut EventCtx, app: &mut App, tut: &mut TutorialState) -> Transition {
+fn transition(app: &mut App, tut: &mut TutorialState) -> Transition {
     tut.reset_state();
     let mode = GameplayMode::Tutorial(tut.current);
-    Transition::Replace(SandboxMode::simple_new(ctx, app, mode))
+    Transition::Replace(SandboxMode::simple_new(app, mode))
 }
 
 impl TutorialState {

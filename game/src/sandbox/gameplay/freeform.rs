@@ -2,7 +2,7 @@ use rand::seq::SliceRandom;
 use rand::Rng;
 
 use abstutil::Timer;
-use geom::{Distance, Polygon};
+use geom::{Distance, Duration, Polygon};
 use map_gui::tools::{
     grey_out_map, nice_map_name, open_browser, CityPicker, PopupMsg, PromptInput,
 };
@@ -46,15 +46,30 @@ impl GameplayState for Freeform {
                 "change map" => Some(Transition::Push(CityPicker::new(
                     ctx,
                     app,
-                    Box::new(|ctx, app| {
-                        Transition::Multi(vec![
-                            Transition::Pop,
-                            Transition::Replace(SandboxMode::simple_new(
-                                ctx,
+                    Box::new(|_, app| {
+                        let sandbox = if app.opts.dev {
+                            SandboxMode::async_new(
                                 app,
                                 GameplayMode::Freeform(app.primary.map.get_name().clone()),
-                            )),
-                        ])
+                                Box::new(|ctx, app| {
+                                    ctx.loading_screen("start in the daytime", |_, mut timer| {
+                                        app.primary.sim.timed_step(
+                                            &app.primary.map,
+                                            Duration::hours(6),
+                                            &mut None,
+                                            &mut timer,
+                                        );
+                                    });
+                                    vec![Transition::Keep]
+                                }),
+                            )
+                        } else {
+                            SandboxMode::simple_new(
+                                app,
+                                GameplayMode::Freeform(app.primary.map.get_name().clone()),
+                            )
+                        };
+                        Transition::Multi(vec![Transition::Pop, Transition::Replace(sandbox)])
                     }),
                 ))),
                 "change scenario" => Some(Transition::Push(ChangeScenario::new(ctx, app, "none"))),
@@ -234,7 +249,7 @@ impl ChangeScenario {
 }
 
 impl SimpleState<App> for ChangeScenario {
-    fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
+    fn on_click(&mut self, _: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
         if x == "close" {
             Transition::Pop
         } else if x == "Import your own data" {
@@ -246,7 +261,6 @@ impl SimpleState<App> for ChangeScenario {
             Transition::Multi(vec![
                 Transition::Pop,
                 Transition::Replace(SandboxMode::simple_new(
-                    ctx,
                     app,
                     if x == "none" {
                         GameplayMode::Freeform(app.primary.map.get_name().clone())

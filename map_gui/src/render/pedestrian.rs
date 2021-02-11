@@ -1,4 +1,4 @@
-use geom::{ArrowCap, Circle, Distance, PolyLine, Polygon};
+use geom::{ArrowCap, Circle, Distance, PolyLine, Polygon, Pt2D};
 use map_model::{DrivingSide, Map, SIDEWALK_THICKNESS};
 use sim::{DrawPedCrowdInput, DrawPedestrianInput, PedCrowdLocation, PedestrianID};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
@@ -177,8 +177,13 @@ impl Renderable for DrawPedestrian {
     }
 
     fn get_outline(&self, _: &Map) -> Polygon {
-        // TODO thin ring
-        self.body_circle.to_polygon()
+        Circle::new(self.body_circle.center, Distance::meters(2.0))
+            .to_outline(OUTLINE_THICKNESS)
+            .unwrap()
+    }
+
+    fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {
+        Circle::new(self.body_circle.center, Distance::meters(2.0)).contains_pt(pt)
     }
 
     fn get_zorder(&self) -> isize {

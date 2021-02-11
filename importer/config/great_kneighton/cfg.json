@@ -1,5 +1,5 @@
 {
-  "osm_url": "http://download.geofabrik.de/europe/great-britain/england/oxfordshire-latest.osm.pbf",
+  "osm_url": "https://download.geofabrik.de/europe/great-britain/england/cambridgeshire-latest.osm.pbf",
   "map_config": {
     "driving_side": "Left",
     "bikes_can_use_bus_lanes": false,
@@ -14,5 +14,5 @@
   },
   "elevation": null,
   "include_railroads": true,
-  "extra_buildings": "data/input/harwell/procgen_houses.json"
+  "extra_buildings": null
 }

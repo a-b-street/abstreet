@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "site",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "site_name": "lcid", "dwellings_when_complete": 520.0, "weightedJobsPTt": 12.874708160714288, "weightedJobsCyct": 9.3204475, "weightedJobsCart": 9.3412685803571449, "PSPTt": 9.5, "PSCyct": 9.0, "PSCart": 8.5, "SSPTt": 7.583842, "SSCyct": 7.9362135, "SSCart": 8.2141015, "FEPTt": 12.4741135, "FECyct": 9.0919605, "FECart": 8.2822665, "GPPTt": 10.1036065, "GPCyct": 8.4294045, "GPCart": 8.1955585, "HospPTt": 21.407397, "HospCyct": 14.126367, "HospCart": 13.4382505, "FoodPTt": 7.5694985, "FoodCyct": 8.3372985, "FoodCart": 7.7624955, "TownPTt": 19.254511, "TownCyct": 13.748886, "TownCart": 13.6927795 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -1.525297, 53.787076 ], [ -1.524675, 53.787241 ], [ -1.52416, 53.787748 ], [ -1.52401, 53.788116 ], [ -1.524203, 53.78861 ], [ -1.524997, 53.789535 ], [ -1.525941, 53.790131 ], [ -1.527679, 53.790816 ], [ -1.528258, 53.790651 ], [ -1.527143, 53.789396 ], [ -1.528773, 53.788978 ], [ -1.527808, 53.787697 ], [ -1.526155, 53.78809 ], [ -1.525297, 53.787076 ] ] ] } }
+]
+}

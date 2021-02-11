@@ -55,7 +55,7 @@ impl GameplayState for PlayScenario {
                     Some(Transition::Push(CityPicker::new(
                         ctx,
                         app,
-                        Box::new(move |ctx, app| {
+                        Box::new(move |_, app| {
                             // Try to load a scenario with the same name if it exists
                             let mode = if abstio::file_exists(abstio::path_scenario(
                                 app.primary.map.get_name(),
@@ -71,7 +71,7 @@ impl GameplayState for PlayScenario {
                             };
                             Transition::Multi(vec![
                                 Transition::Pop,
-                                Transition::Replace(SandboxMode::simple_new(ctx, app, mode)),
+                                Transition::Replace(SandboxMode::simple_new(app, mode)),
                             ])
                         }),
                     )))
@@ -253,7 +253,6 @@ impl State<App> for EditScenarioModifiers {
                     return Transition::Multi(vec![
                         Transition::Pop,
                         Transition::Replace(SandboxMode::simple_new(
-                            ctx,
                             app,
                             GameplayMode::PlayScenario(
                                 app.primary.map.get_name().clone(),

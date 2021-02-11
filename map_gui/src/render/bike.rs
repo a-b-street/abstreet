@@ -1,10 +1,10 @@
-use geom::{ArrowCap, Circle, Distance, Line, PolyLine, Polygon};
+use geom::{ArrowCap, Circle, Distance, Line, PolyLine, Polygon, Pt2D};
 use map_model::{Map, SIDEWALK_THICKNESS};
 use sim::{CarID, DrawCarInput};
 use widgetry::{Drawable, GeomBatch, GfxCtx, Prerender};
 
 use crate::colors::ColorScheme;
-use crate::render::{DrawOptions, Renderable};
+use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use crate::{AppLike, ID};
 
 pub struct DrawBike {
@@ -120,8 +120,13 @@ impl Renderable for DrawBike {
     }
 
     fn get_outline(&self, _: &Map) -> Polygon {
-        // TODO ideally a thin ring
-        self.body_circle.to_polygon()
+        Circle::new(self.body_circle.center, Distance::meters(2.0))
+            .to_outline(OUTLINE_THICKNESS)
+            .unwrap()
+    }
+
+    fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {
+        Circle::new(self.body_circle.center, Distance::meters(2.0)).contains_pt(pt)
     }
 
     fn get_zorder(&self) -> isize {

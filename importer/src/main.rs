@@ -93,24 +93,25 @@ fn regenerate_everything(config: ImporterConfiguration) {
     for city in vec![
         "seattle",
         "allerton_bywater",
+        "bailrigg",
         "bellevue",
         "berlin",
-        "cambridge",
-        "cheshire",
-        "dartford",
+        "chapelford",
         "detroit",
+        "didcot",
+        "ebbsfleet",
+        "great_kneighton",
+        "handforth",
         "krakow",
-        "harwell",
-        "lancaster",
+        "lcid",
         "leeds",
         "london",
+        "long_marston",
         "montreal",
         "nyc",
         "paris",
         "providence",
-        "poynton",
         "salzburg",
-        "straford_upon_avon",
         "tel_aviv",
         "warsaw",
     ] {
@@ -123,7 +124,7 @@ fn regenerate_everything(config: ImporterConfiguration) {
             only_map: None,
         };
         // Only some maps run extra tasks
-        if city == "seattle" || city == "cambridge" {
+        if city == "seattle" || city == "great_kneighton" {
             job.scenario = true;
         }
         if city == "leeds" || city == "nyc" || city == "paris" || city == "salzburg" {
@@ -169,7 +170,7 @@ impl Job {
 
         let (maybe_popdat, maybe_huge_map) = if self.scenario {
             // TODO This is getting messy!
-            if self.city == "cambridge" {
+            if self.city == "great_kneighton" {
                 (None, None)
             } else {
                 assert_eq!(self.city, "seattle");
@@ -275,7 +276,7 @@ impl Job {
                     timer.stop("match parcels to buildings");
                 }
 
-                if self.city == "cambridge" {
+                if self.city == "great_kneighton" {
                     actdev::import_scenarios(maybe_map.as_ref().unwrap(), config).unwrap();
                 }
             }
