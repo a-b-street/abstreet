@@ -15,7 +15,7 @@ use map_gui::tools::CameraState;
 use map_gui::ID;
 use map_model::AreaType;
 use map_model::{IntersectionID, LaneID, Map, Traversable};
-use sim::{AgentID, Analytics, Scenario, Sim, SimCallback, SimFlags};
+use sim::{AgentID, Analytics, Scenario, Sim, SimCallback, SimFlags, VehicleType};
 use widgetry::{Canvas, EventCtx, GfxCtx, Prerender, SharedAppState, State};
 
 use crate::challenges::HighScore;
@@ -259,10 +259,10 @@ impl App {
         unzoomed_roads_and_intersections: bool,
         unzoomed_buildings: bool,
     ) -> Option<ID> {
+        let unzoomed = ctx.canvas.cam_zoom < self.opts.min_zoom_for_detail;
+
         // Unzoomed mode. Ignore when debugging areas.
-        if ctx.canvas.cam_zoom < self.opts.min_zoom_for_detail
-            && !(debug_mode || unzoomed_roads_and_intersections || unzoomed_buildings)
-        {
+        if unzoomed && !(debug_mode || unzoomed_roads_and_intersections || unzoomed_buildings) {
             return None;
         }
 
@@ -277,43 +277,75 @@ impl App {
         );
         objects.reverse();
 
+        let mut small_agents: Vec<(ID, Pt2D)> = Vec::new();
+
+        // In most cases, this loop is greedy -- as soon as we find the first object containing the
+        // cursor, return it. But if we happen to match a pedestrian or bike while zoomed in, there
+        // might be several overlapping hitboxes. Collect them all in small_agents, then pick the
+        // closest to the cursor.
         for obj in objects {
-            match obj.get_id() {
+            let id = obj.get_id();
+            match id {
                 ID::Area(_) => {
                     if !debug_mode {
                         continue;
                     }
                 }
                 ID::Road(_) => {
-                    if !unzoomed_roads_and_intersections
-                        || ctx.canvas.cam_zoom >= self.opts.min_zoom_for_detail
-                    {
+                    if !unzoomed_roads_and_intersections || !unzoomed {
                         continue;
                     }
                 }
                 ID::Intersection(_) => {
-                    if ctx.canvas.cam_zoom < self.opts.min_zoom_for_detail
-                        && !unzoomed_roads_and_intersections
-                    {
+                    if unzoomed && !unzoomed_roads_and_intersections {
                         continue;
                     }
                 }
                 ID::Building(_) => {
-                    if ctx.canvas.cam_zoom < self.opts.min_zoom_for_detail && !unzoomed_buildings {
+                    if unzoomed && !unzoomed_buildings {
                         continue;
                     }
                 }
                 _ => {
-                    if ctx.canvas.cam_zoom < self.opts.min_zoom_for_detail {
+                    if unzoomed {
                         continue;
                     }
                 }
             }
             if obj.contains_pt(pt, &self.primary.map) {
-                return Some(obj.get_id());
+                if unzoomed {
+                    // If we're selecting agents unzoomed, they're all tiny circles, and we really
+                    // don't care about picking the one closest to the cursor.
+                    return Some(id);
+                }
+
+                match id {
+                    ID::Pedestrian(_) => {}
+                    ID::Car(c) => {
+                        if c.1 != VehicleType::Bike {
+                            return Some(id);
+                        }
+                    }
+                    _ => {
+                        // Once we match at least one small agent, keep scanning through all
+                        // possible hits. Ignore lanes and intersections and other thngs; they have
+                        // a lower z-order.
+                        if small_agents.is_empty() {
+                            return Some(id);
+                        } else {
+                            continue;
+                        }
+                    }
+                }
+
+                small_agents.push((id, obj.get_outline(&self.primary.map).center()));
             }
         }
-        None
+
+        let (id, _) = small_agents
+            .into_iter()
+            .min_by_key(|(_, center)| center.fast_dist(pt))?;
+        Some(id)
     }
 
     // TODO This could probably belong to DrawMap again, but it's annoying to plumb things that
