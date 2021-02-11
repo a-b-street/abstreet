@@ -363,12 +363,13 @@ fn lagging_green(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> 
         ts = stage_per_road(map, id);
         ts.convert_to_ped_scramble();
     }
-    // Now, we can optimize the stages, as we're guaranteed to have a valid and complete set of stages.
+    // Now, we can optimize the stages, as we're guaranteed to have a valid and complete set of
+    // stages.
 
     // remove stages which don't contain a protected route
     ts.stages.retain(|s| !s.protected_movements.is_empty());
-    // determine if any stages can be merged. We could merge turns, but if we end up not reducing the
-    // stage as a result, its probably not worth doing, or can be easily added by the user.
+    // determine if any stages can be merged. We could merge turns, but if we end up not reducing
+    // the stage as a result, its probably not worth doing, or can be easily added by the user.
     while let Some(merged_ts) = merge_stages(&ts) {
         ts = merged_ts;
     }
@@ -429,12 +430,9 @@ fn lagging_green(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> 
         }
         None
     }
-        
+
     // sometimes protected oncoming left turns aren't possible.
-    fn is_conflict(
-        ts: &ControlTrafficSignal,
-        stage: &Stage,
-    ) -> Option<(MovementID, MovementID)> {
+    fn is_conflict(ts: &ControlTrafficSignal, stage: &Stage) -> Option<(MovementID, MovementID)> {
         for m1 in stage.protected_movements.iter().map(|m| &ts.movements[m]) {
             for m2 in stage.protected_movements.iter().map(|m| &ts.movements[m]) {
                 if m1.conflicts_with(m2) {
@@ -453,7 +451,6 @@ fn lagging_green(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> 
     }
 
     fn multi_way_stages(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> {
-
         let mut ts = new(id, map);
         let (mut right, mut left, straight, mut roads) = movements(&ts);
         let (one_way, two_way) = straight_types(&straight);
@@ -524,8 +521,12 @@ fn lagging_green(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> 
                 }
 
                 // add right turns
-                turns(&r1, &right).iter().for_each(|t| {stage1.protected_movements.insert(*t);});
-                turns(&r2, &right).iter().for_each(|t| {stage1.protected_movements.insert(*t);});
+                turns(&r1, &right).iter().for_each(|t| {
+                    stage1.protected_movements.insert(*t);
+                });
+                turns(&r2, &right).iter().for_each(|t| {
+                    stage1.protected_movements.insert(*t);
+                });
 
                 // add left turns
                 turns(&r1, &left).iter().for_each(|t| {
@@ -545,8 +546,12 @@ fn lagging_green(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> 
                     add_stage(&mut ts, stage2);
                 }
             } else {
-                turns(&r1, &right).iter().for_each(|t| {stage1.protected_movements.insert(*t);});
-                turns(&r1, &left).iter().for_each(|t| {stage1.protected_movements.insert(*t);});
+                turns(&r1, &right).iter().for_each(|t| {
+                    stage1.protected_movements.insert(*t);
+                });
+                turns(&r1, &left).iter().for_each(|t| {
+                    stage1.protected_movements.insert(*t);
+                });
                 add_stage(&mut ts, stage1);
             }
         }
@@ -555,7 +560,9 @@ fn lagging_green(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> 
 
     fn add_stage(ts: &mut ControlTrafficSignal, stage: Stage) {
         // ensure a duplicate isn't added
-        if ts.stages.iter().all(|s| *s != stage) { ts.stages.push(stage) }
+        if ts.stages.iter().all(|s| *s != stage) {
+            ts.stages.push(stage)
+        }
     }
 
     fn turns(from: &RoadID, turns: &Vec<MovementID>) -> Vec<MovementID> {
