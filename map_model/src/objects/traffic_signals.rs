@@ -57,13 +57,7 @@ impl StageType {
     pub fn simple_duration(&self) -> Duration {
         match self {
             StageType::Fixed(d) => *d,
-            StageType::Variable(duration, delay, _) => {
-                if *duration > Duration::ZERO {
-                    *duration
-                } else {
-                    *delay
-                }
-            }
+            StageType::Variable(duration, _, _) => *duration,
         }
     }
 }
@@ -173,8 +167,18 @@ impl ControlTrafficSignal {
         Ok(())
     }
 
-    /// Returns true if this did anything
+    /// Move crosswalks from stages, adding them to an all-walk as last stage. This may promote
+    /// yields to protected. True is returned if any stages were added or modified.
     pub fn convert_to_ped_scramble(&mut self) -> bool {
+        self.internal_convert_to_ped_scramble(true)
+    }
+    /// Move crosswalks from stages, adding them to an all-walk as last stage. This does not promote
+    /// yields to protected. True is returned if any stages were added or modified.
+    pub fn convert_to_ped_scramble_without_promotion(&mut self) -> bool {
+        self.internal_convert_to_ped_scramble(false)
+    }
+
+    fn internal_convert_to_ped_scramble(&mut self, promote_yield_to_protected: bool) -> bool {
         let orig = self.clone();
 
         let mut all_walk_stage = Stage::new();
@@ -197,17 +201,19 @@ impl ControlTrafficSignal {
             retain_btreeset(&mut stage.protected_movements, |m| {
                 self.movements[m].turn_type != TurnType::Crosswalk
             });
-
-            // Blindly try to promote yield movements to protected, now that crosswalks are gone.
-            let mut promoted = Vec::new();
-            for m in &stage.yield_movements {
-                if stage.could_be_protected(*m, &self.movements) {
-                    stage.protected_movements.insert(*m);
-                    promoted.push(*m);
+            if promote_yield_to_protected {
+                // Blindly try to promote yield movements to protected, now that crosswalks are
+                // gone.
+                let mut promoted = Vec::new();
+                for m in &stage.yield_movements {
+                    if stage.could_be_protected(*m, &self.movements) {
+                        stage.protected_movements.insert(*m);
+                        promoted.push(*m);
+                    }
                 }
-            }
-            for m in promoted {
-                stage.yield_movements.remove(&m);
+                for m in promoted {
+                    stage.yield_movements.remove(&m);
+                }
             }
         }
         self.stages = replaced;
@@ -404,14 +410,27 @@ impl Stage {
         }
     }
 
-    // trivial function that returns true if the stage is just crosswalks
-    pub fn contains_only_crosswalks(&self) -> bool {
+    // A trivial function that returns max crosswalk time if the stage is just crosswalks.
+    pub fn max_crosswalk_time(
+        &self,
+        movements: &BTreeMap<MovementID, Movement>,
+    ) -> Option<Duration> {
+        let mut max_distance = Distance::const_meters(0.0);
         for m in &self.protected_movements {
-            if !m.crosswalk {
-                return false;
+            if m.crosswalk {
+                max_distance = max_distance.max(movements.get(&m).unwrap().geom.length());
+            } else {
+                return None;
             }
         }
-        self.yield_movements.is_empty()
+        return if max_distance > Distance::const_meters(0.0) {
+            let time = max_distance / CROSSWALK_PACE;
+            assert!(time >= Duration::ZERO);
+            // Round up because it is converted to a usize elsewhere
+            Some(Duration::seconds(time.inner_seconds().ceil()))
+        } else {
+            None
+        };
     }
 }
 
