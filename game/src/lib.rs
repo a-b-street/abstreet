@@ -93,7 +93,7 @@ pub fn main() {
 
     if let Some(site) = args.optional("--actdev") {
         let city = site.replace("-", "_");
-        let name = MapName::new(city, "center");
+        let name = MapName::new(&city, "center");
         flags.sim_flags.load = name.path();
         flags.study_area = Some(site);
         mode = Some(sandbox::GameplayMode::Blog(name));
