@@ -5,15 +5,15 @@
 
 set -e
 
+# This should be a directory name from https://github.com/cyipt/actdev/tree/main/data-small
 SITE=$1
-CITY=$2
-MAP=$3
-if [ "$SITE" == "" ] || [ "$CITY" == "" ] || [ "$MAP" == "" ]; then
+if [ "$SITE" == "" ]; then
 	echo Missing args;
 	exit 1;
 fi
+CITY=${SITE/-/_}
 
-cp -Rv importer/config/great_kneighton importer/config/$CITY
+cp -Rv importer/config/leeds importer/config/$CITY
 rm -fv importer/config/$CITY/*.poly
 wget https://raw.githubusercontent.com/cyipt/actdev/main/data-small/$SITE/small-study-area.geojson
 cargo run --bin geojson_to_osmosis < small-study-area.geojson
