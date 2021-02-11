@@ -221,7 +221,7 @@ impl Panel {
                 self.slider_mut("horiz scrollbar").set_percent(ctx, 0.0);
             } else {
                 self.slider_mut("horiz scrollbar")
-                    .set_percent(ctx, abstutil::clamp(offset.0, 0.0, max) / max);
+                    .set_percent(ctx, offset.0.clamp(0.0, max) / max);
             }
         }
         if self.scrollable_y {
@@ -231,7 +231,7 @@ impl Panel {
                 self.slider_mut("vert scrollbar").set_percent(ctx, 0.0);
             } else {
                 self.slider_mut("vert scrollbar")
-                    .set_percent(ctx, abstutil::clamp(offset.1, 0.0, max) / max);
+                    .set_percent(ctx, offset.1.clamp(0.0, max) / max);
             }
         }
         changed

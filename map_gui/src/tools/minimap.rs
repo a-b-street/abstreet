@@ -1,6 +1,5 @@
 use std::marker::PhantomData;
 
-use abstutil::clamp;
 use geom::{Distance, Polygon, Pt2D, Ring};
 use widgetry::{
     ControlState, Drawable, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Line,
@@ -236,8 +235,8 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
         let bounds = app.map().get_bounds();
         // TODO For boundaries without rectangular shapes, it'd be even nicer to clamp to the
         // boundary.
-        self.offset_x = off_x.max(0.0).min(bounds.max_x * self.zoom - rect.width());
-        self.offset_y = off_y.max(0.0).min(bounds.max_y * self.zoom - rect.height());
+        self.offset_x = off_x.clamp(0.0, bounds.max_x * self.zoom - rect.width());
+        self.offset_y = off_y.clamp(0.0, bounds.max_y * self.zoom - rect.height());
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Option<Transition<A>> {
@@ -355,8 +354,8 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
                     self.dragging = false;
                 }
                 // Don't drag out of inner_rect
-                pt.x = clamp(pt.x, inner_rect.x1, inner_rect.x2);
-                pt.y = clamp(pt.y, inner_rect.y1, inner_rect.y2);
+                pt.x = pt.x.clamp(inner_rect.x1, inner_rect.x2);
+                pt.y = pt.y.clamp(inner_rect.y1, inner_rect.y2);
             } else if inner_rect.contains(pt) && ctx.input.left_mouse_button_pressed() {
                 self.dragging = true;
             } else {

@@ -1,16 +1,6 @@
 use std::collections::BTreeSet;
 use std::fmt::Write;
 
-pub fn clamp(x: f64, min: f64, max: f64) -> f64 {
-    if x < min {
-        min
-    } else if x > max {
-        max
-    } else {
-        x
-    }
-}
-
 pub fn plain_list_names(names: BTreeSet<String>) -> String {
     let mut s = String::new();
     let len = names.len();
