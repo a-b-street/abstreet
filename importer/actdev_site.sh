@@ -30,3 +30,4 @@ wget https://raw.githubusercontent.com/cyipt/actdev/main/data-small/$SITE/site.g
 
 echo "You have to manually update .gitignore, map_gui/src/tools/mod.rs, release/deploy_actdev.sh"
 echo "You might need to procedurally generate houses."
+echo "And after uploading, probably want to: cargo run --bin updater -- --opt-into-all > data/player/data.json"

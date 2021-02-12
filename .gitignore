@@ -9,15 +9,22 @@ importer.json
 data/input
 
 data/system/allerton_bywater
+data/system/ashton_park
+data/system/aylesbury
 data/system/bailrigg
+data/system/bath_riverside
 data/system/bellevue
 data/system/berlin
+data/system/bicester
+data/system/castlemead
 data/system/chapelford
+data/system/clackers_brook
 data/system/didcot
 data/system/detroit
 data/system/ebbsfleet
 data/system/great_kneighton
 data/system/handforth
+data/system/kidbrooke_village
 data/system/krakow
 data/system/lcid
 data/system/leeds

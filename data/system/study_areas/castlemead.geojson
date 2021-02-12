@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "site",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "site_name": "castlemead", "dwellings_when_complete": 650.0, "weightedJobsPTt": 24.688985428571428, "weightedJobsCyct": 15.139856142857143, "weightedJobsCart": 10.887878705357142, "PSPTt": 10.0, "PSCyct": 9.0, "PSCart": 8.0, "SSPTt": 29.056302, "SSCyct": 17.030903, "SSCart": 12.469596, "FEPTt": 29.056302, "FECyct": 17.030903, "FECart": 12.469596, "GPPTt": 16.7377355, "GPCyct": 11.5938705, "GPCart": 9.7496265, "HospPTt": 93.010433, "HospCyct": 85.3914295, "HospCart": 43.740574, "FoodPTt": 6.3337, "FoodCyct": 7.6896635, "FoodCart": 7.06629, "TownPTt": 17.680633, "TownCyct": 13.2413295, "TownCart": 10.224596 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -2.185421, 51.315821 ], [ -2.182674, 51.315673 ], [ -2.17967, 51.315888 ], [ -2.176473, 51.315298 ], [ -2.175679, 51.316197 ], [ -2.175508, 51.317216 ], [ -2.177353, 51.31743 ], [ -2.17746, 51.320166 ], [ -2.188404, 51.319053 ], [ -2.188017, 51.317699 ], [ -2.185163, 51.317028 ], [ -2.185421, 51.315821 ] ] ] } }
+]
+}

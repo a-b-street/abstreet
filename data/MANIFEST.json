@@ -15,6 +15,36 @@
       "uncompressed_size_bytes": 23050045,
       "compressed_size_bytes": 5574081
     },
+    "data/input/ashton_park/osm/center.osm": {
+      "checksum": "f0bc18ddf4f20a33b2289c2459e9f316",
+      "uncompressed_size_bytes": 7619184,
+      "compressed_size_bytes": 832497
+    },
+    "data/input/ashton_park/osm/wiltshire-latest.osm.pbf": {
+      "checksum": "f51226fb1ccad4f4952e12f5aaffe788",
+      "uncompressed_size_bytes": 14083826,
+      "compressed_size_bytes": 14073190
+    },
+    "data/input/ashton_park/raw_maps/center.bin": {
+      "checksum": "42e3f8085b0e3c3fdd9e2f5dfa2a8a01",
+      "uncompressed_size_bytes": 2007765,
+      "compressed_size_bytes": 468090
+    },
+    "data/input/aylesbury/osm/buckinghamshire-latest.osm.pbf": {
+      "checksum": "0f960465cb62221f21dc26b578ed4dcd",
+      "uncompressed_size_bytes": 12358693,
+      "compressed_size_bytes": 12350368
+    },
+    "data/input/aylesbury/osm/center.osm": {
+      "checksum": "3e805cb8175a7f0efb8dc16745fa713f",
+      "uncompressed_size_bytes": 10360831,
+      "compressed_size_bytes": 1122194
+    },
+    "data/input/aylesbury/raw_maps/center.bin": {
+      "checksum": "f93859ca882bd2695ebe467009027be1",
+      "uncompressed_size_bytes": 3264642,
+      "compressed_size_bytes": 717931
+    },
     "data/input/bailrigg/osm/center.osm": {
       "checksum": "76eeaae1600b70f6d833ffa9242a4d10",
       "uncompressed_size_bytes": 31499428,
@@ -29,6 +59,21 @@
       "checksum": "81a7e8ebb6987657f3878f33545fd158",
       "uncompressed_size_bytes": 9558552,
       "compressed_size_bytes": 1985974
+    },
+    "data/input/bath_riverside/osm/center.osm": {
+      "checksum": "27a14f402d0e728efd5c2efde36bd53c",
+      "uncompressed_size_bytes": 31199843,
+      "compressed_size_bytes": 3238696
+    },
+    "data/input/bath_riverside/osm/somerset-latest.osm.pbf": {
+      "checksum": "66c3d8072aecff31119b663785659ae6",
+      "uncompressed_size_bytes": 38837055,
+      "compressed_size_bytes": 38802838
+    },
+    "data/input/bath_riverside/raw_maps/center.bin": {
+      "checksum": "b8728e02db8ed181e167e3a0df6845a3",
+      "uncompressed_size_bytes": 9415544,
+      "compressed_size_bytes": 2268383
     },
     "data/input/bellevue/osm/huge.osm": {
       "checksum": "ef54ab4ff049b29f92331e8c1202372a",
@@ -70,6 +115,36 @@
       "uncompressed_size_bytes": 10168523,
       "compressed_size_bytes": 2891880
     },
+    "data/input/bicester/osm/center.osm": {
+      "checksum": "a10db73a33c1b74248fefd5fc006cfca",
+      "uncompressed_size_bytes": 43018627,
+      "compressed_size_bytes": 4715332
+    },
+    "data/input/bicester/osm/oxfordshire-latest.osm.pbf": {
+      "checksum": "a0c6fd93865564c7d3d83910f2562301",
+      "uncompressed_size_bytes": 14891146,
+      "compressed_size_bytes": 14880744
+    },
+    "data/input/bicester/raw_maps/center.bin": {
+      "checksum": "9290a8cf2e4ea30c626da90755a1bdf5",
+      "uncompressed_size_bytes": 10569683,
+      "compressed_size_bytes": 2768606
+    },
+    "data/input/castlemead/osm/center.osm": {
+      "checksum": "c31876a64151061d07bc97c940ed5d55",
+      "uncompressed_size_bytes": 7575433,
+      "compressed_size_bytes": 828990
+    },
+    "data/input/castlemead/osm/wiltshire-latest.osm.pbf": {
+      "checksum": "f51226fb1ccad4f4952e12f5aaffe788",
+      "uncompressed_size_bytes": 14083826,
+      "compressed_size_bytes": 14073190
+    },
+    "data/input/castlemead/raw_maps/center.bin": {
+      "checksum": "c7fac2fcb7d5a48570c63c9c0f981bf2",
+      "uncompressed_size_bytes": 2004311,
+      "compressed_size_bytes": 467488
+    },
     "data/input/chapelford/osm/center.osm": {
       "checksum": "b6e58784729a98bacd69067b3e14add1",
       "uncompressed_size_bytes": 28140187,
@@ -84,6 +159,21 @@
       "checksum": "9d011a646c2ca42bd59911b44f40f039",
       "uncompressed_size_bytes": 9981807,
       "compressed_size_bytes": 2069595
+    },
+    "data/input/clackers_brook/osm/center.osm": {
+      "checksum": "0f56e17e5d83f4eb0d57ab73b5f2ff3c",
+      "uncompressed_size_bytes": 17051552,
+      "compressed_size_bytes": 1867643
+    },
+    "data/input/clackers_brook/osm/wiltshire-latest.osm.pbf": {
+      "checksum": "f51226fb1ccad4f4952e12f5aaffe788",
+      "uncompressed_size_bytes": 14083826,
+      "compressed_size_bytes": 14073190
+    },
+    "data/input/clackers_brook/raw_maps/center.bin": {
+      "checksum": "302fcd2d4eae8fa1796f84cdebdff2af",
+      "uncompressed_size_bytes": 4139287,
+      "compressed_size_bytes": 1039246
     },
     "data/input/detroit/osm/downtown.osm": {
       "checksum": "5c8dd6ecc94a80879bac965ef624e2e7",
@@ -169,6 +259,21 @@
       "checksum": "24e00c7c9b512b182c3e3ffaae1fe379",
       "uncompressed_size_bytes": 3781246,
       "compressed_size_bytes": 1045076
+    },
+    "data/input/kidbrooke_village/osm/center.osm": {
+      "checksum": "2e1bd2c501cb115a1b99b3ce4a5019ef",
+      "uncompressed_size_bytes": 16726974,
+      "compressed_size_bytes": 1708522
+    },
+    "data/input/kidbrooke_village/osm/greater-london-latest.osm.pbf": {
+      "checksum": "cb5a333e5cbf6050216c2c48445a3d5a",
+      "uncompressed_size_bytes": 67695253,
+      "compressed_size_bytes": 67642374
+    },
+    "data/input/kidbrooke_village/raw_maps/center.bin": {
+      "checksum": "021627d50ca6a1aa81ed8fc0379895f5",
+      "uncompressed_size_bytes": 4506136,
+      "compressed_size_bytes": 1055799
     },
     "data/input/krakow/osm/center.osm": {
       "checksum": "e64103d37a7009d96f7d8a653db02deb",
@@ -820,10 +925,25 @@
       "uncompressed_size_bytes": 72392323,
       "compressed_size_bytes": 24699011
     },
+    "data/system/ashton_park/maps/center.bin": {
+      "checksum": "249c6f7419cad4d68d4db4cabc375427",
+      "uncompressed_size_bytes": 12772361,
+      "compressed_size_bytes": 4430453
+    },
+    "data/system/aylesbury/maps/center.bin": {
+      "checksum": "33e72e703bfedd4d22948403a8c386aa",
+      "uncompressed_size_bytes": 19520151,
+      "compressed_size_bytes": 6605100
+    },
     "data/system/bailrigg/maps/center.bin": {
       "checksum": "336a9a56c79db635cb7dbe4115eb21ef",
       "uncompressed_size_bytes": 21735005,
       "compressed_size_bytes": 7500908
+    },
+    "data/system/bath_riverside/maps/center.bin": {
+      "checksum": "e21b5b769b003ec9ba1b5db2455bfb94",
+      "uncompressed_size_bytes": 23214493,
+      "compressed_size_bytes": 8016480
     },
     "data/system/bellevue/maps/huge.bin": {
       "checksum": "dc9178641992b3cc44b474ab9463cdfd",
@@ -835,10 +955,25 @@
       "uncompressed_size_bytes": 33143197,
       "compressed_size_bytes": 8958635
     },
+    "data/system/bicester/maps/center.bin": {
+      "checksum": "705831e95b82feabeb74f2700e94151c",
+      "uncompressed_size_bytes": 38293116,
+      "compressed_size_bytes": 13356021
+    },
+    "data/system/castlemead/maps/center.bin": {
+      "checksum": "ee2b03f7745fd58e0ff27b712b72e62b",
+      "uncompressed_size_bytes": 12750145,
+      "compressed_size_bytes": 4418003
+    },
     "data/system/chapelford/maps/center.bin": {
       "checksum": "23dfaba6dcd35759fffcad493a101611",
       "uncompressed_size_bytes": 52453242,
       "compressed_size_bytes": 17828407
+    },
+    "data/system/clackers_brook/maps/center.bin": {
+      "checksum": "d5e756cf64f252fd81e7b0be71eb79f2",
+      "uncompressed_size_bytes": 23521293,
+      "compressed_size_bytes": 8212656
     },
     "data/system/detroit/maps/downtown.bin": {
       "checksum": "254736ae813951a49d987b60ec2b643e",
@@ -874,6 +1009,11 @@
       "checksum": "a21f096aa4b75c9b5c46994c18a849d8",
       "uncompressed_size_bytes": 14038727,
       "compressed_size_bytes": 5021092
+    },
+    "data/system/kidbrooke_village/maps/center.bin": {
+      "checksum": "72844fa6232ddf4b7e2b6dc9b7b1e5ab",
+      "uncompressed_size_bytes": 16261229,
+      "compressed_size_bytes": 5559755
     },
     "data/system/krakow/maps/center.bin": {
       "checksum": "b1d60ca157cffbc6e6e6c7554edd0c8b",
