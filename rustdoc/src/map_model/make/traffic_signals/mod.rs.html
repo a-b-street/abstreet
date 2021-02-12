@@ -553,8 +553,14 @@
 <span id="550">550</span>
 <span id="551">551</span>
 <span id="552">552</span>
-<span id="553">553</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="doccomment">//! The various traffic signal generators live in the traffic signal module. Eventually, we</span>
+<span class="doccomment">//! might want to move to a trait. For now, there&#39;s a single make_traffic_signal static method</span>
+<span class="doccomment">//! in each generator file, which is called to generate a traffic signal of a particular flavor.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! For example, lagging_green.rs contains a one public fn:</span>
+<span class="doccomment">//!     pub fn make_traffic_signal(map: &amp;Map, i: IntersectionID)-&gt;Option&lt;ControlTrafficSignal&gt;</span>
+
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -563,15 +569,8 @@
 };
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
 
-<span class="doccomment">/// The various traffic signal generators live in the traffic signal module. Eventually, we</span>
-<span class="doccomment">/// might want to move to a trait. For now, there&#39;s a single make_traffic_signal static method</span>
-<span class="doccomment">/// in each generator file, which is called to generate a traffic signal of a particular flavor.</span>
-<span class="doccomment">/// </span>
-<span class="doccomment">/// For example, lagging_green.rs contains a one public fn:</span>
-<span class="doccomment">///     pub fn make_traffic_signal(map: &amp;Map, i: IntersectionID)-&gt;Option&lt;ControlTrafficSignal&gt;</span>
-<span class="doccomment">/// </span>
-<span class="kw">mod</span> <span class="ident">lagging_green</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">brute_force</span>;
+<span class="kw">mod</span> <span class="ident">lagging_green</span>;
 
 <span class="doccomment">/// Applies a bunch of heuristics to a single intersection, returning the valid results in</span>
 <span class="doccomment">/// best-first order. The signal configuration is only based on the roads connected to the</span>
@@ -1002,7 +1001,6 @@
         }
     }
 }
-
 
 <span class="comment">// Technically, a set of sets; order doesn&#39;t matter</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>

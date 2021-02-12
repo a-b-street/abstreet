@@ -900,6 +900,9 @@
 <span id="897">897</span>
 <span id="898">898</span>
 <span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -1509,6 +1512,9 @@
                         }) {
                             <span class="prelude-val">Ok</span>(<span class="ident">edits</span>) <span class="op">=</span><span class="op">&gt;</span> {
                                 <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
+                                <span class="ident">app</span>.<span class="ident">primary</span>
+                                    .<span class="ident">sim</span>
+                                    .<span class="ident">handle_live_edited_traffic_signals</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>);
                                 <span class="ident">Transition</span>::<span class="ident">Pop</span>
                             }
                             <span class="comment">// TODO Hack. Have to replace ourselves, because the Menu might be</span>

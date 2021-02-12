@@ -429,7 +429,6 @@
 <span id="426">426</span>
 <span id="427">427</span>
 <span id="428">428</span>
-<span id="429">429</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
@@ -449,7 +448,6 @@
 }
 
 <span class="kw">fn</span> <span class="ident">make_signal</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ControlTrafficSignal</span><span class="op">&gt;</span> {
-
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">new</span>(<span class="ident">id</span>, <span class="ident">map</span>);
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">other</span>) <span class="op">=</span> <span class="ident">three_way_three_stage</span>(<span class="ident">map</span>, <span class="ident">id</span>) {
         <span class="ident">ts</span>.<span class="ident">stages</span> <span class="op">=</span> <span class="ident">other</span>.<span class="ident">stages</span>;
