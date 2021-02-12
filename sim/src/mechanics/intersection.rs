@@ -839,16 +839,10 @@ impl IntersectionSimState {
         // it wrong, that's fine -- block the box a bit.
         let time_to_cross = turn.geom.length() / speed;
         if time_to_cross > remaining_stage_time {
-            // Actually, we might have bigger problems...
-            if time_to_cross > full_stage_duration {
-                self.events.push(Event::Alert(
-                    AlertLocation::Intersection(req.turn.parent),
-                    format!(
-                        "{:?} is impossible to fit into stage duration of {}",
-                        req, full_stage_duration
-                    ),
-                ));
-            } else {
+            // Signals enforce a minimum crosswalk time, but some pedestrians are configured to
+            // walk very slowly. In that case, allow them to go anyway and wind up in the crosswalk
+            // during a red. This matches reality reasonably.
+            if time_to_cross <= full_stage_duration {
                 return false;
             }
         }
