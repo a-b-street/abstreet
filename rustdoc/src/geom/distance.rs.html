@@ -206,24 +206,6 @@
 <span id="203">203</span>
 <span id="204">204</span>
 <span id="205">205</span>
-<span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
-<span id="216">216</span>
-<span id="217">217</span>
-<span id="218">218</span>
-<span id="219">219</span>
-<span id="220">220</span>
-<span id="221">221</span>
-<span id="222">222</span>
-<span id="223">223</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">cmp</span>, <span class="ident">f64</span>, <span class="ident">fmt</span>, <span class="ident">ops</span>};
 
@@ -317,24 +299,6 @@
             } <span class="kw">else</span> {
                 <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} ft&quot;</span>, <span class="ident">feet</span>.<span class="ident">round</span>())
             }
-        }
-    }
-
-    <span class="doccomment">/// Returns the largest of the two inputs.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
-        <span class="kw">if</span> <span class="self">self</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">other</span> {
-            <span class="self">self</span>
-        } <span class="kw">else</span> {
-            <span class="ident">other</span>
-        }
-    }
-
-    <span class="doccomment">/// Returns the smallest of the two inputs.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">min</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
-        <span class="kw">if</span> <span class="self">self</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">other</span> {
-            <span class="self">self</span>
-        } <span class="kw">else</span> {
-            <span class="ident">other</span>
         }
     }
 }
