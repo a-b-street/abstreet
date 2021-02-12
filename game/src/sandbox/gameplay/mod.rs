@@ -207,9 +207,9 @@ impl GameplayMode {
     /// after this, so each constructor doesn't need to.
     pub fn initialize(&self, ctx: &mut EventCtx, app: &mut App) -> Box<dyn GameplayState> {
         match self {
-            GameplayMode::Freeform(_) => freeform::Freeform::new(ctx),
+            GameplayMode::Freeform(_) => freeform::Freeform::new(ctx, app),
             GameplayMode::PlayScenario(_, ref scenario, ref modifiers) => {
-                play_scenario::PlayScenario::new(ctx, scenario, modifiers.clone())
+                play_scenario::PlayScenario::new(ctx, app, scenario, modifiers.clone())
             }
             GameplayMode::FixTrafficSignals => {
                 fix_traffic_signals::FixTrafficSignals::new(ctx, app)
