@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "site",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "site_name": "aylesbury", "dwellings_when_complete": 3000.0, "weightedJobsPTt": 32.025427785714285, "weightedJobsCyct": 27.06011898214286, "weightedJobsCart": 14.02501224107143, "PSPTt": 16.5, "PSCyct": 11.0, "PSCart": 8.5, "SSPTt": 28.583596, "SSCyct": 16.060031, "SSCart": 11.037638, "FEPTt": 28.502879, "FECyct": 16.060031, "FECart": 11.037638, "GPPTt": 21.4347095, "GPCyct": 12.2393155, "GPCart": 8.4299775, "HospPTt": 52.5238445, "HospCyct": 38.84318, "HospCart": 21.7602085, "FoodPTt": 20.959502, "FoodCyct": 11.8099615, "FoodCart": 8.066171, "TownPTt": 37.5586915, "TownCyct": 28.889643, "TownCart": 15.3303665 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -0.853586, 51.828034 ], [ -0.846548, 51.831587 ], [ -0.845346, 51.833656 ], [ -0.845089, 51.837422 ], [ -0.847321, 51.841505 ], [ -0.849209, 51.845058 ], [ -0.859938, 51.84299 ], [ -0.86792, 51.839013 ], [ -0.863028, 51.83355 ], [ -0.856848, 51.829307 ], [ -0.853586, 51.828034 ] ] ] } }
+]
+}

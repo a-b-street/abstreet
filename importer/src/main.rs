@@ -89,34 +89,19 @@ fn main() {
 }
 
 fn regenerate_everything(config: ImporterConfiguration) {
+    // Discover all cities by looking at config. But always operate on Seattle first. Special
+    // treatment ;)
+    let mut all_cities: Vec<String> = abstio::list_dir("importer/config".to_string())
+        .into_iter()
+        .map(basename)
+        .collect();
+    all_cities.retain(|x| x != "seattle");
+    all_cities.insert(0, "seattle".to_string());
+
     let mut timer = Timer::new("regenerate all maps");
-    for city in vec![
-        "seattle",
-        "allerton_bywater",
-        "bailrigg",
-        "bellevue",
-        "berlin",
-        "chapelford",
-        "detroit",
-        "didcot",
-        "ebbsfleet",
-        "great_kneighton",
-        "handforth",
-        "krakow",
-        "lcid",
-        "leeds",
-        "london",
-        "long_marston",
-        "montreal",
-        "nyc",
-        "paris",
-        "providence",
-        "salzburg",
-        "tel_aviv",
-        "warsaw",
-    ] {
+    for city in all_cities {
         let mut job = Job {
-            city: city.to_string(),
+            city: city.clone(),
             osm_to_raw: true,
             raw_to_map: true,
             scenario: false,

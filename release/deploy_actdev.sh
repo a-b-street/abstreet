@@ -17,7 +17,7 @@ cd ..
 # Copy just what's needed from data
 mkdir abst_actdev/system
 # TODO This'll be easier once we further organize by country code
-for dir in allerton_bywater bailrigg chapelford didcot ebbsfleet great_kneighton handforth lcid long_marston; do
+for dir in allerton_bywater ashton_park aylesbury bailrigg bath_riverside bicester castlemead chapelford clackers_brook didcot ebbsfleet great_kneighton handforth kidbrooke_village lcid long_marston; do
 	cp -Rv data/system/$dir abst_actdev/system
 done
 cp -Rv data/system/study_areas abst_actdev/system

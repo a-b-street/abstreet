@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "site",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "site_name": "kidbrooke-village", "dwellings_when_complete": 4763.0, "weightedJobsPTt": 27.514436071428573, "weightedJobsCyct": 18.037263214285716, "weightedJobsCart": 13.813855803571427, "PSPTt": 3.0, "PSCyct": 6.0, "PSCart": 6.0, "SSPTt": 10.905163, "SSCyct": 9.567743, "SSCart": 9.053577, "FEPTt": 10.905163, "FECyct": 9.567743, "FECart": 9.053577, "GPPTt": 7.100857, "GPCyct": 7.6483, "GPCart": 7.100151, "HospPTt": 30.169318, "HospCyct": 22.198614, "HospCart": 19.033466, "FoodPTt": 5.704911, "FoodCyct": 7.282625, "FoodCart": 7.046351, "TownPTt": 14.6648, "TownCyct": 11.934582, "TownCart": 10.671665 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 0.034461, 51.453098 ], [ 0.033946, 51.455638 ], [ 0.032959, 51.455825 ], [ 0.032315, 51.459034 ], [ 0.033088, 51.459516 ], [ 0.033345, 51.459917 ], [ 0.030127, 51.461066 ], [ 0.029011, 51.462671 ], [ 0.027208, 51.462991 ], [ 0.026608, 51.46251 ], [ 0.021629, 51.464302 ], [ 0.020943, 51.462483 ], [ 0.022745, 51.459088 ], [ 0.026264, 51.459328 ], [ 0.026693, 51.456708 ], [ 0.030985, 51.456761 ], [ 0.031886, 51.453044 ], [ 0.034461, 51.453098 ] ] ] } }
+]
+}

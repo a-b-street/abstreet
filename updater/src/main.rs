@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::fs::File;
 use std::io::{BufReader, Read, Write};
 use std::process::Command;
@@ -36,6 +36,9 @@ async fn main() {
         } else {
             just_compare();
         }
+    } else if args.enabled("--opt-into-all") {
+        args.done();
+        opt_into_all();
     } else {
         let quiet = args.enabled("--quiet");
         args.done();
@@ -166,6 +169,29 @@ fn upload(version: String) {
             .arg(format!("{}/MANIFEST.json", remote_base))
             .arg(format!("s3://abstreet/{}/MANIFEST.json", version)),
     );
+}
+
+fn opt_into_all() {
+    let mut data_packs = DataPacks {
+        runtime: BTreeSet::new(),
+        input: BTreeSet::new(),
+    };
+    for path in Manifest::load().entries.keys() {
+        // TODO Some hardcoded weird exceptions
+        if path == "data/system/seattle/maps/huge_seattle.bin"
+            || path == "data/system/seattle/scenarios/huge_seattle/weekday.bin"
+        {
+            data_packs.runtime.insert("huge_seattle".to_string());
+            continue;
+        }
+        let parts = path.split("/").collect::<Vec<_>>();
+        if parts[1] == "input" {
+            data_packs.input.insert(parts[2].to_string());
+        } else if parts[1] == "system" {
+            data_packs.runtime.insert(parts[2].to_string());
+        }
+    }
+    println!("{}", abstutil::to_json(&data_packs));
 }
 
 fn generate_manifest() -> Manifest {
