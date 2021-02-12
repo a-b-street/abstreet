@@ -45,6 +45,21 @@
       "uncompressed_size_bytes": 3264642,
       "compressed_size_bytes": 717931
     },
+    "data/input/aylesham/osm/center.osm": {
+      "checksum": "39f60a4a35991d3fd8b92681c935f3c6",
+      "uncompressed_size_bytes": 21809141,
+      "compressed_size_bytes": 2224125
+    },
+    "data/input/aylesham/osm/kent-latest.osm.pbf": {
+      "checksum": "9de7820c89c5715bd66bc4b5f253f324",
+      "uncompressed_size_bytes": 34299729,
+      "compressed_size_bytes": 34272498
+    },
+    "data/input/aylesham/raw_maps/center.bin": {
+      "checksum": "48d297817f03f646ab684d28106703f3",
+      "uncompressed_size_bytes": 7096522,
+      "compressed_size_bytes": 1526929
+    },
     "data/input/bailrigg/osm/center.osm": {
       "checksum": "76eeaae1600b70f6d833ffa9242a4d10",
       "uncompressed_size_bytes": 31499428,
@@ -175,6 +190,21 @@
       "uncompressed_size_bytes": 4139287,
       "compressed_size_bytes": 1039246
     },
+    "data/input/culm/osm/center.osm": {
+      "checksum": "744d5f43fb357316a039bd49adc93f96",
+      "uncompressed_size_bytes": 98756676,
+      "compressed_size_bytes": 9917079
+    },
+    "data/input/culm/osm/devon-latest.osm.pbf": {
+      "checksum": "f45268d81d91d79ae785bceb39e55403",
+      "uncompressed_size_bytes": 40465778,
+      "compressed_size_bytes": 40427498
+    },
+    "data/input/culm/raw_maps/center.bin": {
+      "checksum": "9280f42032d999fb7552a6dabb2b9196",
+      "uncompressed_size_bytes": 23752166,
+      "compressed_size_bytes": 6190654
+    },
     "data/input/detroit/osm/downtown.osm": {
       "checksum": "5c8dd6ecc94a80879bac965ef624e2e7",
       "uncompressed_size_bytes": 40741899,
@@ -190,6 +220,21 @@
       "uncompressed_size_bytes": 10865116,
       "compressed_size_bytes": 2621266
     },
+    "data/input/dickens_heath/osm/center.osm": {
+      "checksum": "ee0f02fd05bae34e7fe8c56494cc002e",
+      "uncompressed_size_bytes": 67026672,
+      "compressed_size_bytes": 6240097
+    },
+    "data/input/dickens_heath/osm/west-midlands-latest.osm.pbf": {
+      "checksum": "f05d18cb8e402fbe32f2b5a6aa8d96a3",
+      "uncompressed_size_bytes": 45550928,
+      "compressed_size_bytes": 45514449
+    },
+    "data/input/dickens_heath/raw_maps/center.bin": {
+      "checksum": "e8c3e31e8b87f5d441c15f5b0f941b5b",
+      "uncompressed_size_bytes": 21327827,
+      "compressed_size_bytes": 4569790
+    },
     "data/input/didcot/osm/center.osm": {
       "checksum": "bcc8a2a2e4af2b24c300463ac5ffaf9b",
       "uncompressed_size_bytes": 8753735,
@@ -204,6 +249,21 @@
       "checksum": "4e195dd4a474a00cb636936789c7fdf4",
       "uncompressed_size_bytes": 2662068,
       "compressed_size_bytes": 600110
+    },
+    "data/input/dunton_hills/osm/center.osm": {
+      "checksum": "dc4a1861d7e8fd7a2128d10e653129b0",
+      "uncompressed_size_bytes": 38733501,
+      "compressed_size_bytes": 3842246
+    },
+    "data/input/dunton_hills/osm/essex-latest.osm.pbf": {
+      "checksum": "496d2220c8456122f0205771f8277c20",
+      "uncompressed_size_bytes": 39345299,
+      "compressed_size_bytes": 39309725
+    },
+    "data/input/dunton_hills/raw_maps/center.bin": {
+      "checksum": "79c6bd4c363178ddc3c913751e8d34eb",
+      "uncompressed_size_bytes": 8874194,
+      "compressed_size_bytes": 2416262
     },
     "data/input/ebbsfleet/osm/center.osm": {
       "checksum": "e30b891681f4725c272b8ae761767cc2",
@@ -244,6 +304,21 @@
       "checksum": "7229f726e04ea27885157c3c85a8d5be",
       "uncompressed_size_bytes": 36534403,
       "compressed_size_bytes": 36518044
+    },
+    "data/input/hampton/osm/cambridgeshire-latest.osm.pbf": {
+      "checksum": "c4ec8f81dc604526443750f695886ebf",
+      "uncompressed_size_bytes": 22722189,
+      "compressed_size_bytes": 22703825
+    },
+    "data/input/hampton/osm/center.osm": {
+      "checksum": "90f4b14f638765fbddad3126aab2bac9",
+      "uncompressed_size_bytes": 32295731,
+      "compressed_size_bytes": 3231860
+    },
+    "data/input/hampton/raw_maps/center.bin": {
+      "checksum": "2f483bb31985f6ed8aa2b69c7cb76a6e",
+      "uncompressed_size_bytes": 9557862,
+      "compressed_size_bytes": 2278718
     },
     "data/input/handforth/osm/center.osm": {
       "checksum": "749c231697ed985991d0addaeee3d269",
@@ -415,6 +490,21 @@
       "uncompressed_size_bytes": 6952197,
       "compressed_size_bytes": 1873328
     },
+    "data/input/micklefield/osm/center.osm": {
+      "checksum": "5842bd67b1e222e96bee0818a893d11d",
+      "uncompressed_size_bytes": 67560344,
+      "compressed_size_bytes": 6592474
+    },
+    "data/input/micklefield/osm/west-yorkshire-latest.osm.pbf": {
+      "checksum": "aa31a8613231e08a01128c7ae9f81bea",
+      "uncompressed_size_bytes": 35218633,
+      "compressed_size_bytes": 35176889
+    },
+    "data/input/micklefield/raw_maps/center.bin": {
+      "checksum": "3a041a67fdfb7d347732813e4030dd2a",
+      "uncompressed_size_bytes": 20843129,
+      "compressed_size_bytes": 4892091
+    },
     "data/input/montreal/osm/plateau.osm": {
       "checksum": "3e9fcd785e89531e4c5e207c44030e85",
       "uncompressed_size_bytes": 16904962,
@@ -429,6 +519,21 @@
       "checksum": "045be8d0a06ea6f4b0f28588d182956b",
       "uncompressed_size_bytes": 4840740,
       "compressed_size_bytes": 1214448
+    },
+    "data/input/newcastle_great_park/osm/center.osm": {
+      "checksum": "c7763a1360b2bccf210ae3464eafcf61",
+      "uncompressed_size_bytes": 44162743,
+      "compressed_size_bytes": 4293768
+    },
+    "data/input/newcastle_great_park/osm/tyne-and-wear-latest.osm.pbf": {
+      "checksum": "d7b0a59cc6f14d0ddd6e6c613f6a7435",
+      "uncompressed_size_bytes": 17075842,
+      "compressed_size_bytes": 17044376
+    },
+    "data/input/newcastle_great_park/raw_maps/center.bin": {
+      "checksum": "d4db2c0766bbf9efbbe24114d9a253e6",
+      "uncompressed_size_bytes": 13843700,
+      "compressed_size_bytes": 3216897
     },
     "data/input/nyc/osm/lower_manhattan.osm": {
       "checksum": "09bf8cdb40474741b58e74f4c486a69e",
@@ -935,6 +1040,11 @@
       "uncompressed_size_bytes": 19520151,
       "compressed_size_bytes": 6605100
     },
+    "data/system/aylesham/maps/center.bin": {
+      "checksum": "2a0f076e2ce179e9c746ab3f87ea8560",
+      "uncompressed_size_bytes": 18519925,
+      "compressed_size_bytes": 6371669
+    },
     "data/system/bailrigg/maps/center.bin": {
       "checksum": "336a9a56c79db635cb7dbe4115eb21ef",
       "uncompressed_size_bytes": 21735005,
@@ -975,15 +1085,30 @@
       "uncompressed_size_bytes": 23521293,
       "compressed_size_bytes": 8212656
     },
+    "data/system/culm/maps/center.bin": {
+      "checksum": "41582ffee7e7cdb7ce58816d65edf463",
+      "uncompressed_size_bytes": 69529480,
+      "compressed_size_bytes": 24660179
+    },
     "data/system/detroit/maps/downtown.bin": {
       "checksum": "254736ae813951a49d987b60ec2b643e",
       "uncompressed_size_bytes": 65552554,
       "compressed_size_bytes": 21974224
     },
+    "data/system/dickens_heath/maps/center.bin": {
+      "checksum": "c15d146bb8993ca30032d69d7b5e63ae",
+      "uncompressed_size_bytes": 47132204,
+      "compressed_size_bytes": 16458121
+    },
     "data/system/didcot/maps/center.bin": {
       "checksum": "b90ccb80317166baff0327da36a8a762",
       "uncompressed_size_bytes": 12688711,
       "compressed_size_bytes": 4331434
+    },
+    "data/system/dunton_hills/maps/center.bin": {
+      "checksum": "f57ea3a3fb9348b5b17adff902f27eaf",
+      "uncompressed_size_bytes": 43850382,
+      "compressed_size_bytes": 15320386
     },
     "data/system/ebbsfleet/maps/center.bin": {
       "checksum": "178e30b28894fcb7b468b81e874bc758",
@@ -1004,6 +1129,11 @@
       "checksum": "a2daccfbd8ff036a2f58bb78e7fdc47b",
       "uncompressed_size_bytes": 71753,
       "compressed_size_bytes": 19227
+    },
+    "data/system/hampton/maps/center.bin": {
+      "checksum": "d4a7224d0bc002d26e43ec2a8d9582c3",
+      "uncompressed_size_bytes": 42625956,
+      "compressed_size_bytes": 14642940
     },
     "data/system/handforth/maps/center.bin": {
       "checksum": "a21f096aa4b75c9b5c46994c18a849d8",
@@ -1060,10 +1190,20 @@
       "uncompressed_size_bytes": 17319113,
       "compressed_size_bytes": 6217379
     },
+    "data/system/micklefield/maps/center.bin": {
+      "checksum": "8ff151e9553073a19f9dbb46177c02e4",
+      "uncompressed_size_bytes": 64826345,
+      "compressed_size_bytes": 21933062
+    },
     "data/system/montreal/maps/plateau.bin": {
       "checksum": "c4421dd74cf45f4277e108720b460895",
       "uncompressed_size_bytes": 14781151,
       "compressed_size_bytes": 4957355
+    },
+    "data/system/newcastle_great_park/maps/center.bin": {
+      "checksum": "52746ce8aff7e542e7fd6f5c6165c1b6",
+      "uncompressed_size_bytes": 49961043,
+      "compressed_size_bytes": 17287425
     },
     "data/system/nyc/city.bin": {
       "checksum": "8a458410f6484bfb5ca4b0bdcdbfd92c",

@@ -11,7 +11,7 @@ if [ "$SITE" == "" ]; then
 	echo Missing args;
 	exit 1;
 fi
-CITY=${SITE/-/_}
+CITY=`echo $SITE | sed -r 's/-/_/g'`
 
 cp -Rv importer/config/leeds importer/config/$CITY
 perl -pi -e "s#\"separate_cycleways\": false#\"separate_cycleways\": true#" importer/config/$CITY/cfg.json
