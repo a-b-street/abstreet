@@ -606,6 +606,9 @@ impl State<App> for LoadEdits {
                         }) {
                             Ok(edits) => {
                                 apply_map_edits(ctx, app, edits);
+                                app.primary
+                                    .sim
+                                    .handle_live_edited_traffic_signals(&app.primary.map);
                                 Transition::Pop
                             }
                             // TODO Hack. Have to replace ourselves, because the Menu might be

@@ -1,3 +1,10 @@
+//! The various traffic signal generators live in the traffic signal module. Eventually, we
+//! might want to move to a trait. For now, there's a single make_traffic_signal static method
+//! in each generator file, which is called to generate a traffic signal of a particular flavor.
+//!
+//! For example, lagging_green.rs contains a one public fn:
+//!     pub fn make_traffic_signal(map: &Map, i: IntersectionID)->Option<ControlTrafficSignal>
+
 use std::collections::{BTreeSet, HashSet};
 
 use crate::{
@@ -6,15 +13,8 @@ use crate::{
 };
 use geom::Duration;
 
-/// The various traffic signal generators live in the traffic signal module. Eventually, we
-/// might want to move to a trait. For now, there's a single make_traffic_signal static method
-/// in each generator file, which is called to generate a traffic signal of a particular flavor.
-/// 
-/// For example, lagging_green.rs contains a one public fn:
-///     pub fn make_traffic_signal(map: &Map, i: IntersectionID)->Option<ControlTrafficSignal>
-/// 
-mod lagging_green;
 pub mod brute_force;
+mod lagging_green;
 
 /// Applies a bunch of heuristics to a single intersection, returning the valid results in
 /// best-first order. The signal configuration is only based on the roads connected to the
@@ -445,7 +445,6 @@ fn make_stages_filtered(
         }
     }
 }
-
 
 // Technically, a set of sets; order doesn't matter
 #[derive(Clone)]

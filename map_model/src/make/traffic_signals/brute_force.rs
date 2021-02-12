@@ -23,7 +23,6 @@ pub fn make_traffic_signal(map: &Map, i: IntersectionID) {
     unreachable!()
 }
 
-
 fn okay_partition(movements: Vec<&Movement>, partition: Partition) -> bool {
     for stage in partition.0 {
         let mut protected: Vec<&Movement> = Vec::new();

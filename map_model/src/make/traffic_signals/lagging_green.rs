@@ -16,7 +16,6 @@ pub fn make_traffic_signal(map: &Map, id: IntersectionID) -> Option<ControlTraff
 }
 
 fn make_signal(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> {
-
     let mut ts = new(id, map);
     if let Some(other) = three_way_three_stage(map, id) {
         ts.stages = other.stages;
