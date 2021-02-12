@@ -1,6 +1,5 @@
 use super::*;
 
-///
 /// Create a traffic signal which has a stage that is: protected straight, protected right,
 /// unprotected left, unprotected right on red. Followed by a variable stage that has protected
 /// left, unprotected right on red. With a last stage that is all-walk and variable.
@@ -57,15 +56,11 @@ fn optimize(mut ts: ControlTrafficSignal) -> Option<ControlTrafficSignal> {
 fn make_crosswalk_variable(ts: &mut ControlTrafficSignal) {
     const MIN_CROSSWALK_TIME: Duration = Duration::const_seconds(15.0);
     for mut s in ts.stages.iter_mut() {
-        if let Some(mut duration) = s.max_crosswalk_time(&ts.movements) {
+        if let Some(duration) = s.max_crosswalk_time(&ts.movements) {
             match s.stage_type {
                 StageType::Fixed(_) => {
-                    // get the minimum duration, but never less than 15 seconds
-                    if duration < MIN_CROSSWALK_TIME {
-                        duration = MIN_CROSSWALK_TIME;
-                    }
                     s.stage_type = StageType::Variable(
-                        duration,
+                        duration.max(MIN_CROSSWALK_TIME),
                         Duration::const_seconds(1.0),
                         Duration::const_seconds(1.0),
                     )
@@ -157,20 +152,20 @@ fn multi_way_stages(map: &Map, id: IntersectionID) -> Option<ControlTrafficSigna
         // Insert the straight movements, followed by the right and then the left.
         stage1.protected_movements.insert(m1.clone());
         stage1.protected_movements.insert(m2.clone());
-        turns(&m1.from.id, &right).iter().for_each(|t| {
-            stage1.protected_movements.insert(*t);
-        });
-        turns(&m2.from.id, &right).iter().for_each(|t| {
-            stage1.protected_movements.insert(*t);
-        });
-        turns(&m1.from.id, &left).iter().for_each(|t| {
-            stage1.yield_movements.insert(*t);
-            stage2.protected_movements.insert(*t);
-        });
-        turns(&m2.from.id, &left).iter().for_each(|t| {
-            stage1.yield_movements.insert(*t);
-            stage2.protected_movements.insert(*t);
-        });
+        stage1
+            .protected_movements
+            .extend(turns(&m1.from.id, &right));
+        stage1
+            .protected_movements
+            .extend(turns(&m2.from.id, &right));
+        for t in turns(&m1.from.id, &left) {
+            stage1.yield_movements.insert(t);
+            stage2.protected_movements.insert(t);
+        }
+        for t in turns(&m2.from.id, &left) {
+            stage1.yield_movements.insert(t);
+            stage2.protected_movements.insert(t);
+        }
         add_stage(&mut ts, stage1);
         if let Some((m1, m2)) = is_conflict(&ts, &stage2) {
             // We've hit the case where oncoming left turns can't both be protected.
@@ -203,33 +198,25 @@ fn multi_way_stages(map: &Map, id: IntersectionID) -> Option<ControlTrafficSigna
             }
 
             // add right turns
-            turns(&r1, &right).iter().for_each(|t| {
-                stage1.protected_movements.insert(*t);
-            });
-            turns(&r2, &right).iter().for_each(|t| {
-                stage1.protected_movements.insert(*t);
-            });
+            stage1.protected_movements.extend(turns(&r1, &right));
+            stage1.protected_movements.extend(turns(&r2, &right));
 
             // add left turns
-            turns(&r1, &left).iter().for_each(|t| {
-                stage1.yield_movements.insert(*t);
-                stage2.protected_movements.insert(*t);
-            });
-            turns(&r2, &left).iter().for_each(|t| {
-                stage1.yield_movements.insert(*t);
-                stage2.protected_movements.insert(*t);
-            });
+            for t in turns(&r1, &left) {
+                stage1.yield_movements.insert(t);
+                stage2.protected_movements.insert(t);
+            }
+            for t in turns(&r2, &left) {
+                stage1.yield_movements.insert(t);
+                stage2.protected_movements.insert(t);
+            }
             // add the stages
             add_stage(&mut ts, stage1);
             add_stage(&mut ts, stage2);
         } else {
             // single stage without lagging left turns
-            turns(&r1, &right).iter().for_each(|t| {
-                stage1.protected_movements.insert(*t);
-            });
-            turns(&r1, &left).iter().for_each(|t| {
-                stage1.protected_movements.insert(*t);
-            });
+            stage1.protected_movements.extend(turns(&r1, &right));
+            stage1.protected_movements.extend(turns(&r1, &left));
             add_stage(&mut ts, stage1);
         }
     }

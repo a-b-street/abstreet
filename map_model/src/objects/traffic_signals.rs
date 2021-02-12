@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap};
 use geom::{Distance, Duration, Speed};
 
-use crate::make::traffic_signals::{brute_force, get_possible_policies};
+use crate::make::traffic_signals::get_possible_policies;
 use crate::raw::OriginalRoad;
 use crate::{
     osm, CompressedMovementID, DirectedRoadID, Direction, IntersectionID, Map, Movement,
@@ -88,10 +88,6 @@ impl ControlTrafficSignal {
         // This method is called publicly while editing the map, so don't enforce valid baked-in
         // signal config.
         get_possible_policies(map, id, false)
-    }
-    // TODO tmp
-    pub fn brute_force(map: &Map, id: IntersectionID) {
-        brute_force::make_traffic_signal(map, id)
     }
 
     pub fn get_min_crossing_time(&self, idx: usize) -> Duration {
