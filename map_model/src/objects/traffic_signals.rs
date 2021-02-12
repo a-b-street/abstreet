@@ -91,7 +91,7 @@ impl ControlTrafficSignal {
     }
     // TODO tmp
     pub fn brute_force(map: &Map, id: IntersectionID) {
-        brute_force(map, id)
+        brute_force::make_traffic_signal(map, id)
     }
 
     pub fn get_min_crossing_time(&self, idx: usize) -> Duration {
