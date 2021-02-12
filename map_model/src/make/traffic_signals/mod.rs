@@ -447,21 +447,6 @@ fn make_stages_filtered(
 }
 
 
-fn okay_partition(movements: Vec<&Movement>, partition: Partition) -> bool {
-    for stage in partition.0 {
-        let mut protected: Vec<&Movement> = Vec::new();
-        for idx in stage {
-            let m = movements[idx];
-            if protected.iter().any(|other| m.conflicts_with(other)) {
-                return false;
-            }
-            protected.push(m);
-        }
-    }
-    println!("found one that works! :O");
-    true
-}
-
 // Technically, a set of sets; order doesn't matter
 #[derive(Clone)]
 struct Partition(Vec<Vec<usize>>);
