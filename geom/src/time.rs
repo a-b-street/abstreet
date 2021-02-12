@@ -120,23 +120,6 @@ impl Time {
         }
     }
 
-    // TODO Why isn't this free given Ord?
-    pub fn min(self, other: Time) -> Time {
-        if self <= other {
-            self
-        } else {
-            other
-        }
-    }
-
-    pub fn max(self, other: Time) -> Time {
-        if self >= other {
-            self
-        } else {
-            other
-        }
-    }
-
     // TODO These are a little weird, so don't operator overload yet
     pub fn percent_of(self, p: f64) -> Time {
         if p < 0.0 || p > 1.0 {

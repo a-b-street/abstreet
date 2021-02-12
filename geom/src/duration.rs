@@ -222,24 +222,6 @@ impl Duration {
         }
         s
     }
-
-    /// Returns the largest of the two inputs.
-    pub fn max(self, other: Duration) -> Duration {
-        if self >= other {
-            self
-        } else {
-            other
-        }
-    }
-
-    /// Returns the smallest of the two inputs.
-    pub fn min(self, other: Duration) -> Duration {
-        if self <= other {
-            self
-        } else {
-            other
-        }
-    }
 }
 
 impl std::fmt::Display for Duration {
