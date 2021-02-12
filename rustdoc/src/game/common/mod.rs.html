@@ -410,8 +410,112 @@
 <span id="407">407</span>
 <span id="408">408</span>
 <span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
+
+<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Polygon</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
@@ -819,6 +923,106 @@
         );
     }
     <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">filters</span>)
+}
+
+<span class="doccomment">/// This does nothing on native. On web, it modifies the current URL to change the first free</span>
+<span class="doccomment">/// parameter in the HTTP GET params to the specified value, adding it if needed.</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_url</span>(<span class="ident">free_param</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
+    {
+        <span class="kw">let</span> <span class="ident">window</span> <span class="op">=</span> <span class="ident">web_sys</span>::<span class="ident">window</span>().<span class="ident">ok_or</span>(<span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;no window?&quot;</span>))<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">window</span>.<span class="ident">location</span>().<span class="ident">href</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
+            <span class="macro">anyhow</span><span class="macro">!</span>(<span class="ident">err</span>
+                .<span class="ident">as_string</span>()
+                .<span class="ident">unwrap_or</span>(<span class="string">&quot;window.location.href failed&quot;</span>.<span class="ident">to_string</span>()))
+        })<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">new_url</span> <span class="op">=</span> <span class="ident">change_url_free_query_param</span>(<span class="ident">url</span>, <span class="ident">free_param</span>);
+
+        <span class="comment">// Setting window.location.href may seem like the obvious thing to do, but that actually</span>
+        <span class="comment">// refreshes the page. This method just changes the URL and doesn&#39;t mess up history. See</span>
+        <span class="comment">// https://developer.mozilla.org/en-US/docs/Web/API/History_API/Working_with_the_History_API.</span>
+        <span class="kw">let</span> <span class="ident">history</span> <span class="op">=</span> <span class="ident">window</span>.<span class="ident">history</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
+            <span class="macro">anyhow</span><span class="macro">!</span>(<span class="ident">err</span>
+                .<span class="ident">as_string</span>()
+                .<span class="ident">unwrap_or</span>(<span class="string">&quot;window.history failed&quot;</span>.<span class="ident">to_string</span>()))
+        })<span class="question-mark">?</span>;
+        <span class="ident">history</span>
+            .<span class="ident">replace_state_with_url</span>(<span class="kw-2">&amp;</span><span class="ident">wasm_bindgen</span>::<span class="ident">JsValue</span>::<span class="ident">NULL</span>, <span class="string">&quot;&quot;</span>, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">new_url</span>))
+            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
+                <span class="macro">anyhow</span><span class="macro">!</span>(<span class="ident">err</span>
+                    .<span class="ident">as_string</span>()
+                    .<span class="ident">unwrap_or</span>(<span class="string">&quot;window.history.replace_state failed&quot;</span>.<span class="ident">to_string</span>()))
+            })<span class="question-mark">?</span>;
+    }
+    <span class="prelude-val">Ok</span>(())
+}
+
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused</span>)]</span>
+<span class="kw">fn</span> <span class="ident">change_url_free_query_param</span>(<span class="ident">url</span>: <span class="ident">String</span>, <span class="ident">free_param</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="comment">// The URL parsing crates I checked had lots of dependencies and didn&#39;t even expose such a nice</span>
+    <span class="comment">// API for doing this anyway.</span>
+    <span class="kw">let</span> <span class="ident">url_parts</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">split</span>(<span class="string">&quot;?&quot;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+    <span class="kw">if</span> <span class="ident">url_parts</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
+        <span class="kw">return</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}?{}&quot;</span>, <span class="ident">url</span>, <span class="ident">free_param</span>);
+    }
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">query_params</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">found_free</span> <span class="op">=</span> <span class="bool-val">false</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">first</span> <span class="op">=</span> <span class="bool-val">true</span>;
+    <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">url_parts</span>[<span class="number">1</span>].<span class="ident">split</span>(<span class="string">&quot;&amp;&quot;</span>) {
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">first</span> {
+            <span class="ident">query_params</span>.<span class="ident">push</span>(<span class="string">&#39;&amp;&#39;</span>);
+        }
+        <span class="ident">first</span> <span class="op">=</span> <span class="bool-val">false</span>;
+
+        <span class="kw">if</span> <span class="ident">x</span>.<span class="ident">starts_with</span>(<span class="string">&quot;--&quot;</span>) {
+            <span class="ident">query_params</span>.<span class="ident">push_str</span>(<span class="ident">x</span>);
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">found_free</span> {
+            <span class="comment">// Replace the first free parameter</span>
+            <span class="ident">query_params</span>.<span class="ident">push_str</span>(<span class="ident">free_param</span>);
+            <span class="ident">found_free</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        } <span class="kw">else</span> {
+            <span class="ident">query_params</span>.<span class="ident">push_str</span>(<span class="ident">x</span>);
+        }
+    }
+    <span class="kw">if</span> <span class="op">!</span><span class="ident">found_free</span> {
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">first</span> {
+            <span class="ident">query_params</span>.<span class="ident">push</span>(<span class="string">&#39;&amp;&#39;</span>);
+        }
+        <span class="ident">query_params</span>.<span class="ident">push_str</span>(<span class="ident">free_param</span>);
+    }
+
+    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}?{}&quot;</span>, <span class="ident">url_parts</span>[<span class="number">0</span>], <span class="ident">query_params</span>)
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_change_url</span>() {
+        <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">change_url_free_query_param</span>;
+
+        <span class="macro">assert_eq</span><span class="macro">!</span>(
+            <span class="string">&quot;http://0.0.0.0:8000/?--dev&amp;seattle/maps/montlake.bin&quot;</span>,
+            <span class="ident">change_url_free_query_param</span>(
+                <span class="string">&quot;http://0.0.0.0:8000/?--dev&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="string">&quot;seattle/maps/montlake.bin&quot;</span>
+            )
+        );
+        <span class="macro">assert_eq</span><span class="macro">!</span>(
+            <span class="string">&quot;http://0.0.0.0:8000/?--dev&amp;seattle/maps/qa.bin&quot;</span>,
+            <span class="ident">change_url_free_query_param</span>(
+                <span class="string">&quot;http://0.0.0.0:8000/?--dev&amp;seattle/maps/montlake.bin&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="string">&quot;seattle/maps/qa.bin&quot;</span>
+            )
+        );
+        <span class="macro">assert_eq</span><span class="macro">!</span>(
+            <span class="string">&quot;http://0.0.0.0:8000?seattle/maps/montlake.bin&quot;</span>,
+            <span class="ident">change_url_free_query_param</span>(
+                <span class="string">&quot;http://0.0.0.0:8000&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="string">&quot;seattle/maps/montlake.bin&quot;</span>
+            )
+        );
+    }
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "game";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>
