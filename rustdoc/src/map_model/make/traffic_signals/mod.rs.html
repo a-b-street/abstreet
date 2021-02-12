@@ -517,42 +517,6 @@
 <span id="514">514</span>
 <span id="515">515</span>
 <span id="516">516</span>
-<span id="517">517</span>
-<span id="518">518</span>
-<span id="519">519</span>
-<span id="520">520</span>
-<span id="521">521</span>
-<span id="522">522</span>
-<span id="523">523</span>
-<span id="524">524</span>
-<span id="525">525</span>
-<span id="526">526</span>
-<span id="527">527</span>
-<span id="528">528</span>
-<span id="529">529</span>
-<span id="530">530</span>
-<span id="531">531</span>
-<span id="532">532</span>
-<span id="533">533</span>
-<span id="534">534</span>
-<span id="535">535</span>
-<span id="536">536</span>
-<span id="537">537</span>
-<span id="538">538</span>
-<span id="539">539</span>
-<span id="540">540</span>
-<span id="541">541</span>
-<span id="542">542</span>
-<span id="543">543</span>
-<span id="544">544</span>
-<span id="545">545</span>
-<span id="546">546</span>
-<span id="547">547</span>
-<span id="548">548</span>
-<span id="549">549</span>
-<span id="550">550</span>
-<span id="551">551</span>
-<span id="552">552</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The various traffic signal generators live in the traffic signal module. Eventually, we</span>
 <span class="doccomment">//! might want to move to a trait. For now, there&#39;s a single make_traffic_signal static method</span>
@@ -569,7 +533,6 @@
 };
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">brute_force</span>;
 <span class="kw">mod</span> <span class="ident">lagging_green</span>;
 
 <span class="doccomment">/// Applies a bunch of heuristics to a single intersection, returning the valid results in</span>
@@ -1000,41 +963,6 @@
             <span class="ident">ts</span>.<span class="ident">stages</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span> <span class="op">!</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">smallest</span>);
         }
     }
-}
-
-<span class="comment">// Technically, a set of sets; order doesn&#39;t matter</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Partition</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span>);
-
-<span class="comment">// Extremely hasty port of https://stackoverflow.com/a/30903689</span>
-<span class="kw">fn</span> <span class="ident">helper</span>(<span class="ident">items</span>: <span class="kw-2">&amp;</span>[<span class="ident">usize</span>], <span class="ident">max_size</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Partition</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">items</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">max_size</span> <span class="op">|</span><span class="op">|</span> <span class="ident">max_size</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-        <span class="kw">return</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    }
-
-    <span class="kw">if</span> <span class="ident">max_size</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
-        <span class="kw">return</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Partition</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">items</span>.<span class="ident">to_vec</span>()])];
-    }
-
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="ident">prev1</span> <span class="op">=</span> <span class="ident">helper</span>(<span class="kw-2">&amp;</span><span class="ident">items</span>[<span class="number">0</span>..<span class="ident">items</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>], <span class="ident">max_size</span>);
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">prev1</span>.<span class="ident">len</span>() {
-        <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">prev1</span>[<span class="ident">i</span>].<span class="number">0</span>.<span class="ident">len</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">partition</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-            <span class="kw">for</span> <span class="ident">inner</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">prev1</span>[<span class="ident">i</span>].<span class="number">0</span> {
-                <span class="ident">partition</span>.<span class="ident">push</span>(<span class="ident">inner</span>.<span class="ident">clone</span>());
-            }
-            <span class="ident">partition</span>[<span class="ident">j</span>].<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">items</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>());
-            <span class="ident">results</span>.<span class="ident">push</span>(<span class="ident">Partition</span>(<span class="ident">partition</span>));
-        }
-    }
-
-    <span class="kw">let</span> <span class="ident">set</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="kw-2">*</span><span class="ident">items</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>()];
-    <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">partition</span> <span class="kw">in</span> <span class="ident">helper</span>(<span class="kw-2">&amp;</span><span class="ident">items</span>[<span class="number">0</span>..<span class="ident">items</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>], <span class="ident">max_size</span> <span class="op">-</span> <span class="number">1</span>) {
-        <span class="ident">partition</span>.<span class="number">0</span>.<span class="ident">push</span>(<span class="ident">set</span>.<span class="ident">clone</span>());
-        <span class="ident">results</span>.<span class="ident">push</span>(<span class="ident">partition</span>);
-    }
-    <span class="ident">results</span>
 }
 
 <span class="doccomment">/// Simple second-pass after generating all signals. Find pairs of traffic signals very close to</span>

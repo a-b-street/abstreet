@@ -880,7 +880,6 @@
 <span id="877">877</span>
 <span id="878">878</span>
 <span id="879">879</span>
-<span id="880">880</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -1613,13 +1612,12 @@
 }
 
 <span class="kw">fn</span> <span class="ident">find_bad_signals</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-    <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Bad traffic signals:&quot;</span>);
+    <span class="macro">error</span><span class="macro">!</span>(<span class="string">&quot;Bad traffic signals:&quot;</span>);
     <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_intersections</span>() {
         <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_traffic_signal</span>() {
             <span class="kw">let</span> <span class="ident">first</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">ControlTrafficSignal</span>::<span class="ident">get_possible_policies</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">i</span>.<span class="ident">id</span>)[<span class="number">0</span>].<span class="number">0</span>;
             <span class="kw">if</span> <span class="ident">first</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;stage per road&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">first</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;arbitrary assignment&quot;</span> {
-                <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;- {}&quot;</span>, <span class="ident">i</span>.<span class="ident">id</span>);
-                <span class="ident">ControlTrafficSignal</span>::<span class="ident">brute_force</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">i</span>.<span class="ident">id</span>);
+                <span class="macro">error</span><span class="macro">!</span>(<span class="string">&quot;- {}&quot;</span>, <span class="ident">i</span>.<span class="ident">id</span>);
             }
         }
     }

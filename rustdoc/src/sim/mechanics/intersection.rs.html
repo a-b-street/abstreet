@@ -1010,12 +1010,6 @@
 <span id="1007">1007</span>
 <span id="1008">1008</span>
 <span id="1009">1009</span>
-<span id="1010">1010</span>
-<span id="1011">1011</span>
-<span id="1012">1012</span>
-<span id="1013">1013</span>
-<span id="1014">1014</span>
-<span id="1015">1015</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -1858,16 +1852,10 @@
         <span class="comment">// it wrong, that&#39;s fine -- block the box a bit.</span>
         <span class="kw">let</span> <span class="ident">time_to_cross</span> <span class="op">=</span> <span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="ident">speed</span>;
         <span class="kw">if</span> <span class="ident">time_to_cross</span> <span class="op">&gt;</span> <span class="ident">remaining_stage_time</span> {
-            <span class="comment">// Actually, we might have bigger problems...</span>
-            <span class="kw">if</span> <span class="ident">time_to_cross</span> <span class="op">&gt;</span> <span class="ident">full_stage_duration</span> {
-                <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">Alert</span>(
-                    <span class="ident">AlertLocation</span>::<span class="ident">Intersection</span>(<span class="ident">req</span>.<span class="ident">turn</span>.<span class="ident">parent</span>),
-                    <span class="macro">format</span><span class="macro">!</span>(
-                        <span class="string">&quot;{:?} is impossible to fit into stage duration of {}&quot;</span>,
-                        <span class="ident">req</span>, <span class="ident">full_stage_duration</span>
-                    ),
-                ));
-            } <span class="kw">else</span> {
+            <span class="comment">// Signals enforce a minimum crosswalk time, but some pedestrians are configured to</span>
+            <span class="comment">// walk very slowly. In that case, allow them to go anyway and wind up in the crosswalk</span>
+            <span class="comment">// during a red. This matches reality reasonably.</span>
+            <span class="kw">if</span> <span class="ident">time_to_cross</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">full_stage_duration</span> {
                 <span class="kw">return</span> <span class="bool-val">false</span>;
             }
         }
