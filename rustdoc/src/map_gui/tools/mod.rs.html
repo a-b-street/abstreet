@@ -119,6 +119,13 @@
 <span id="116">116</span>
 <span id="117">117</span>
 <span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Assorted tools and UI states that&#39;re useful for applications built to display maps.</span>
 
@@ -195,6 +202,7 @@
         (<span class="string">&quot;allerton_bywater&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Allerton Bywater&quot;</span>,
         (<span class="string">&quot;ashton_park&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Ashton Park&quot;</span>,
         (<span class="string">&quot;aylesbury&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Aylesbury&quot;</span>,
+        (<span class="string">&quot;aylesham&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Aylesham&quot;</span>,
         (<span class="string">&quot;bailrigg&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Bailrigg (Lancaster)&quot;</span>,
         (<span class="string">&quot;bath_riverside&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Bath Riverside&quot;</span>,
         (<span class="string">&quot;bellevue&quot;</span>, <span class="string">&quot;huge&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Bellevue&quot;</span>,
@@ -203,10 +211,14 @@
         (<span class="string">&quot;castlemead&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Castlemead&quot;</span>,
         (<span class="string">&quot;chapelford&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Chapelford (Cheshire)&quot;</span>,
         (<span class="string">&quot;clackers_brook&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Clackers Brook&quot;</span>,
+        (<span class="string">&quot;culm&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Culm&quot;</span>,
         (<span class="string">&quot;detroit&quot;</span>, <span class="string">&quot;downtown&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Detroit&quot;</span>,
+        (<span class="string">&quot;dickens_heath&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Dickens Heath&quot;</span>,
         (<span class="string">&quot;didcot&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Didcot (Harwell)&quot;</span>,
+        (<span class="string">&quot;dunton_hills&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Dunton Hills&quot;</span>,
         (<span class="string">&quot;ebbsfleet&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Ebbsfleet (Dartford)&quot;</span>,
         (<span class="string">&quot;great_kneighton&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Great Kneighton (Cambridge)&quot;</span>,
+        (<span class="string">&quot;hampton&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Hampton&quot;</span>,
         (<span class="string">&quot;kidbrooke_village&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Kidbrooke Village&quot;</span>,
         (<span class="string">&quot;krakow&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Kraków (city center)&quot;</span>,
         (<span class="string">&quot;leeds&quot;</span>, <span class="string">&quot;central&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Leeds (city center)&quot;</span>,
@@ -215,7 +227,9 @@
         (<span class="string">&quot;leeds&quot;</span>, <span class="string">&quot;west&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;West Leeds&quot;</span>,
         (<span class="string">&quot;london&quot;</span>, <span class="string">&quot;southbank&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;London (Southbank)&quot;</span>,
         (<span class="string">&quot;long_marston&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Long Marston (Stratford)&quot;</span>,
+        (<span class="string">&quot;micklefield&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Micklefield&quot;</span>,
         (<span class="string">&quot;montreal&quot;</span>, <span class="string">&quot;plateau&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Montréal (Plateau)&quot;</span>,
+        (<span class="string">&quot;newcastle_great_park&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Newcastle Great Park&quot;</span>,
         (<span class="string">&quot;nyc&quot;</span>, <span class="string">&quot;lower_manhattan&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Lower Manhattan&quot;</span>,
         (<span class="string">&quot;nyc&quot;</span>, <span class="string">&quot;midtown_manhattan&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Midtown Manhattan&quot;</span>,
         (<span class="string">&quot;paris&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Paris (city center)&quot;</span>,
