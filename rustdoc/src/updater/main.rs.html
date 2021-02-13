@@ -313,6 +313,7 @@
 <span id="310">310</span>
 <span id="311">311</span>
 <span id="312">312</span>
+<span id="313">313</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
@@ -494,17 +495,18 @@
     };
     <span class="kw">for</span> <span class="ident">path</span> <span class="kw">in</span> <span class="ident">Manifest</span>::<span class="ident">load</span>().<span class="ident">entries</span>.<span class="ident">keys</span>() {
         <span class="comment">// TODO Some hardcoded weird exceptions</span>
-        <span class="kw">if</span> <span class="ident">path</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;data/system/seattle/maps/huge_seattle.bin&quot;</span>
-            <span class="op">|</span><span class="op">|</span> <span class="ident">path</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;data/system/seattle/scenarios/huge_seattle/weekday.bin&quot;</span>
+        <span class="kw">if</span> <span class="ident">path</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;data/system/us/seattle/maps/huge_seattle.bin&quot;</span>
+            <span class="op">|</span><span class="op">|</span> <span class="ident">path</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;data/system/us/seattle/scenarios/huge_seattle/weekday.bin&quot;</span>
         {
-            <span class="ident">data_packs</span>.<span class="ident">runtime</span>.<span class="ident">insert</span>(<span class="string">&quot;huge_seattle&quot;</span>.<span class="ident">to_string</span>());
+            <span class="ident">data_packs</span>.<span class="ident">runtime</span>.<span class="ident">insert</span>(<span class="string">&quot;us/huge_seattle&quot;</span>.<span class="ident">to_string</span>());
             <span class="kw">continue</span>;
         }
         <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">split</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+        <span class="kw">let</span> <span class="ident">city</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/{}&quot;</span>, <span class="ident">parts</span>[<span class="number">2</span>], <span class="ident">parts</span>[<span class="number">3</span>]);
         <span class="kw">if</span> <span class="ident">parts</span>[<span class="number">1</span>] <span class="op">=</span><span class="op">=</span> <span class="string">&quot;input&quot;</span> {
-            <span class="ident">data_packs</span>.<span class="ident">input</span>.<span class="ident">insert</span>(<span class="ident">parts</span>[<span class="number">2</span>].<span class="ident">to_string</span>());
+            <span class="ident">data_packs</span>.<span class="ident">input</span>.<span class="ident">insert</span>(<span class="ident">city</span>);
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">parts</span>[<span class="number">1</span>] <span class="op">=</span><span class="op">=</span> <span class="string">&quot;system&quot;</span> {
-            <span class="ident">data_packs</span>.<span class="ident">runtime</span>.<span class="ident">insert</span>(<span class="ident">parts</span>[<span class="number">2</span>].<span class="ident">to_string</span>());
+            <span class="ident">data_packs</span>.<span class="ident">runtime</span>.<span class="ident">insert</span>(<span class="ident">city</span>);
         }
     }
     <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="kw-2">&amp;</span><span class="ident">data_packs</span>));

@@ -1,5 +1,5 @@
 (function() {var implementors = {};
-implementors["abstio"] = [{"text":"impl Clone for MapName","synthetic":false,"types":[]}];
+implementors["abstio"] = [{"text":"impl Clone for CityName","synthetic":false,"types":[]},{"text":"impl Clone for MapName","synthetic":false,"types":[]}];
 implementors["abstutil"] = [{"text":"impl&lt;K:&nbsp;Clone, V:&nbsp;Clone&gt; Clone for MultiMap&lt;K, V&gt; <span class=\"where fmt-newline\">where<br>&nbsp;&nbsp;&nbsp;&nbsp;K: Ord + PartialEq + Clone,<br>&nbsp;&nbsp;&nbsp;&nbsp;V: Ord + PartialEq + Clone,&nbsp;</span>","synthetic":false,"types":[]},{"text":"impl&lt;T:&nbsp;Clone + Ord + PartialEq&gt; Clone for Counter&lt;T&gt;","synthetic":false,"types":[]},{"text":"impl Clone for Tags","synthetic":false,"types":[]},{"text":"impl&lt;K:&nbsp;Clone + IndexableKey, V:&nbsp;Clone&gt; Clone for FixedMap&lt;K, V&gt;","synthetic":false,"types":[]}];
 implementors["collisions"] = [{"text":"impl Clone for Severity","synthetic":false,"types":[]}];
 implementors["convert_osm"] = [{"text":"impl Clone for OnstreetParking","synthetic":false,"types":[]},{"text":"impl Clone for PublicOffstreetParking","synthetic":false,"types":[]},{"text":"impl Clone for PrivateOffstreetParking","synthetic":false,"types":[]}];

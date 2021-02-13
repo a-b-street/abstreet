@@ -1,5 +1,5 @@
 (function() {var implementors = {};
-implementors["abstio"] = [{"text":"impl StructuralEq for MapName","synthetic":false,"types":[]}];
+implementors["abstio"] = [{"text":"impl StructuralEq for CityName","synthetic":false,"types":[]},{"text":"impl StructuralEq for MapName","synthetic":false,"types":[]}];
 implementors["collisions"] = [{"text":"impl StructuralEq for Severity","synthetic":false,"types":[]}];
 implementors["game"] = [{"text":"impl StructuralEq for Loc","synthetic":false,"types":[]},{"text":"impl StructuralEq for TutorialPointer","synthetic":false,"types":[]},{"text":"impl StructuralEq for GameplayMode","synthetic":false,"types":[]}];
 implementors["geom"] = [{"text":"impl StructuralEq for LonLat","synthetic":false,"types":[]},{"text":"impl StructuralEq for HashablePt2D","synthetic":false,"types":[]},{"text":"impl StructuralEq for Statistic","synthetic":false,"types":[]}];

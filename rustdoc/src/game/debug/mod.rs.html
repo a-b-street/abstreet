@@ -870,6 +870,12 @@
 <span id="867">867</span>
 <span id="868">868</span>
 <span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -1146,10 +1152,10 @@
                         <span class="ident">app</span>,
                         <span class="macro">vec</span><span class="macro">!</span>[
                             <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;downtown&quot;</span>),
-                            <span class="ident">MapName</span>::<span class="ident">new</span>(<span class="string">&quot;krakow&quot;</span>, <span class="string">&quot;center&quot;</span>),
+                            <span class="ident">MapName</span>::<span class="ident">new</span>(<span class="string">&quot;pl&quot;</span>, <span class="string">&quot;krakow&quot;</span>, <span class="string">&quot;center&quot;</span>),
                             <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;lakeslice&quot;</span>),
                             <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;montlake&quot;</span>),
-                            <span class="ident">MapName</span>::<span class="ident">new</span>(<span class="string">&quot;great_kneighton&quot;</span>, <span class="string">&quot;center&quot;</span>),
+                            <span class="ident">MapName</span>::<span class="ident">new</span>(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;great_kneighton&quot;</span>, <span class="string">&quot;center&quot;</span>),
                             <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;udistrict&quot;</span>),
                         ],
                     ));
@@ -1710,7 +1716,10 @@
             <span class="self">self</span>.<span class="ident">screenshot_done</span> <span class="op">=</span> <span class="bool-val">true</span>;
             <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>();
             <span class="ident">ctx</span>.<span class="ident">request_update</span>(<span class="ident">UpdateType</span>::<span class="ident">ScreenCaptureEverything</span> {
-                <span class="ident">dir</span>: <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;screenshots/{}/{}&quot;</span>, <span class="ident">name</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>),
+                <span class="ident">dir</span>: <span class="macro">format</span><span class="macro">!</span>(
+                    <span class="string">&quot;screenshots/{}/{}/{}&quot;</span>,
+                    <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span>, <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>
+                ),
                 <span class="ident">zoom</span>: <span class="number">3.0</span>,
                 <span class="ident">dims</span>: <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_window_dims</span>(),
                 <span class="ident">leaflet_naming</span>: <span class="bool-val">false</span>,
@@ -1733,7 +1742,10 @@
         <span class="comment">// How do we fit the entire map_length into this many tiles?</span>
         <span class="kw">let</span> <span class="ident">zoom</span> <span class="op">=</span> <span class="number">256.0</span> <span class="op">*</span> (<span class="ident">num_tiles</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="ident">map_length</span>;
         <span class="ident">ctx</span>.<span class="ident">request_update</span>(<span class="ident">UpdateType</span>::<span class="ident">ScreenCaptureEverything</span> {
-            <span class="ident">dir</span>: <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;screenshots/{}/{}/{}&quot;</span>, <span class="ident">name</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>, <span class="ident">zoom_level</span>),
+            <span class="ident">dir</span>: <span class="macro">format</span><span class="macro">!</span>(
+                <span class="string">&quot;screenshots/{}/{}/{}/{}&quot;</span>,
+                <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span>, <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>, <span class="ident">zoom_level</span>
+            ),
             <span class="ident">zoom</span>,
             <span class="ident">dims</span>: <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="number">256.0</span>, <span class="number">256.0</span>),
             <span class="ident">leaflet_naming</span>: <span class="bool-val">true</span>,

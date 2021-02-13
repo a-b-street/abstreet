@@ -597,11 +597,14 @@
 <span id="594">594</span>
 <span id="595">595</span>
 <span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Write</span>;
 
-<span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">MapName</span>;
+<span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Tags</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{
     <span class="ident">Bounds</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">GPSBounds</span>, <span class="ident">HashablePt2D</span>, <span class="ident">LonLat</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>,
@@ -631,7 +634,10 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">blank</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Model</span> {
         <span class="ident">Model</span> {
             <span class="ident">map</span>: <span class="ident">RawMap</span>::<span class="ident">blank</span>(<span class="ident">MapName</span> {
-                <span class="ident">city</span>: <span class="ident">String</span>::<span class="ident">new</span>(),
+                <span class="ident">city</span>: <span class="ident">CityName</span> {
+                    <span class="ident">country</span>: <span class="ident">String</span>::<span class="ident">new</span>(),
+                    <span class="ident">city</span>: <span class="ident">String</span>::<span class="ident">new</span>(),
+                },
                 <span class="ident">map</span>: <span class="ident">String</span>::<span class="ident">new</span>(),
             }),
             <span class="ident">showing_pts</span>: <span class="prelude-val">None</span>,

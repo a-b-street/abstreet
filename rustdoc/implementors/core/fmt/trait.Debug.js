@@ -1,5 +1,5 @@
 (function() {var implementors = {};
-implementors["abstio"] = [{"text":"impl Debug for MapName","synthetic":false,"types":[]}];
+implementors["abstio"] = [{"text":"impl Debug for CityName","synthetic":false,"types":[]},{"text":"impl Debug for MapName","synthetic":false,"types":[]}];
 implementors["abstutil"] = [{"text":"impl Debug for Tags","synthetic":false,"types":[]},{"text":"impl Debug for Progress","synthetic":false,"types":[]}];
 implementors["collisions"] = [{"text":"impl Debug for Severity","synthetic":false,"types":[]}];
 implementors["game"] = [{"text":"impl Debug for SEIR","synthetic":false,"types":[]},{"text":"impl Debug for DashTab","synthetic":false,"types":[]}];

@@ -416,6 +416,7 @@
 <span id="413">413</span>
 <span id="414">414</span>
 <span id="415">415</span>
+<span id="416">416</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// TODO Rename -- this is for KML, CSV, GeoJSON</span>
 
@@ -566,8 +567,9 @@
                         <span class="string">&quot;Load file&quot;</span>,
                         <span class="ident">Choice</span>::<span class="ident">strings</span>(
                             <span class="ident">abstio</span>::<span class="ident">list_dir</span>(<span class="ident">abstio</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
-                                <span class="string">&quot;input/{}/&quot;</span>,
-                                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_city_name</span>()
+                                <span class="string">&quot;input/{}/{}/&quot;</span>,
+                                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_city_name</span>().<span class="ident">country</span>,
+                                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_city_name</span>().<span class="ident">city</span>
                             )))
                             .<span class="ident">into_iter</span>()
                             .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> {

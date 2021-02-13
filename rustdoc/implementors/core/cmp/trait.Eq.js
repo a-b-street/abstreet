@@ -1,5 +1,5 @@
 (function() {var implementors = {};
-implementors["abstio"] = [{"text":"impl Eq for MapName","synthetic":false,"types":[]}];
+implementors["abstio"] = [{"text":"impl Eq for CityName","synthetic":false,"types":[]},{"text":"impl Eq for MapName","synthetic":false,"types":[]}];
 implementors["collisions"] = [{"text":"impl Eq for Severity","synthetic":false,"types":[]}];
 implementors["game"] = [{"text":"impl Eq for Loc","synthetic":false,"types":[]},{"text":"impl Eq for TutorialPointer","synthetic":false,"types":[]},{"text":"impl Eq for GameplayMode","synthetic":false,"types":[]}];
 implementors["geom"] = [{"text":"impl Eq for Distance","synthetic":false,"types":[]},{"text":"impl Eq for Duration","synthetic":false,"types":[]},{"text":"impl Eq for LonLat","synthetic":false,"types":[]},{"text":"impl Eq for HashablePt2D","synthetic":false,"types":[]},{"text":"impl Eq for Speed","synthetic":false,"types":[]},{"text":"impl Eq for Statistic","synthetic":false,"types":[]},{"text":"impl Eq for Time","synthetic":false,"types":[]}];
