@@ -14,5 +14,5 @@
   },
   "elevation": null,
   "include_railroads": true,
-  "extra_buildings": null
+  "extra_buildings": "data/input/newcastle_great_park/procgen_houses.json"
 }
