@@ -1,92 +1,48 @@
+//! Procedurally generates houses along empty residential roads of a map. Writes a GeoJSON file
+//! with the results if the number of houses is at least `--num_required`. This can be used to
+//! autodetect if a map probably already has houses filled out in OSM.
+
 use std::collections::HashSet;
 
 use aabb_quadtree::QuadTree;
 use geojson::{Feature, FeatureCollection, GeoJson};
-use rand::Rng;
+use rand::{SeedableRng, Rng};
 use rand_xorshift::XorShiftRng;
 
-use abstutil::Timer;
+use abstutil::{CmdArgs, Timer};
 use geom::{Distance, Polygon};
 use map_model::{osm, Map};
-use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Panel, SimpleState,
-    State, StyledButtons, TextExt, VerticalAlignment, Widget,
-};
 
-use crate::app::{App, Transition};
+fn main() {
+    let mut timer = Timer::new("generate houses");
+    let mut args = CmdArgs::new();
+    let map = Map::new(args.required("--map"), &mut timer);
+    let num_required = args.required("--num_required").parse::<usize>().unwrap();
+    let out = args.required("--out");
+    let mut rng = XorShiftRng::seed_from_u64(args.required("--rng_seed").parse::<u64>().unwrap());
+    args.done();
 
-pub struct BuildingProceduralGenerator {
-    houses: Drawable,
-}
+    let houses = generate_buildings_on_empty_residential_roads(&map, &mut rng, &mut timer);
+    if houses.len() <= num_required {
+        panic!("Only generated {} houses, but wanted at least {}", houses.len(), num_required);
+    }
 
-impl BuildingProceduralGenerator {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
-        let mut batch = GeomBatch::new();
-        let mut rng = app.primary.current_flags.sim_flags.make_rng();
-        let houses = ctx.loading_screen("generate buildings", |_, mut timer| {
-            generate_buildings_on_empty_residential_roads(&app.primary.map, &mut rng, &mut timer)
-        });
-        let mut features = Vec::new();
-        for poly in houses {
-            features.push(Feature {
-                bbox: None,
-                geometry: Some(poly.to_geojson(Some(app.primary.map.get_gps_bounds()))),
-                id: None,
-                properties: None,
-                foreign_members: None,
-            });
-
-            batch.push(Color::RED, poly);
-        }
-        let num_houses = features.len();
-        let geojson = GeoJson::from(FeatureCollection {
+    let mut features = Vec::new();
+    for poly in houses {
+        features.push(Feature {
             bbox: None,
-            features,
+            geometry: Some(poly.to_geojson(Some(map.get_gps_bounds()))),
+            id: None,
+            properties: None,
             foreign_members: None,
         });
-        abstio::write_json("procgen_houses.json".to_string(), &geojson);
-
-        let panel = Panel::new(Widget::col(vec![
-            Widget::row(vec![
-                Line("Procedurally generated buildings")
-                    .small_heading()
-                    .draw(ctx),
-                ctx.style().btn_close_widget(ctx),
-            ]),
-            format!(
-                "Generated {} houses",
-                abstutil::prettyprint_usize(num_houses)
-            )
-            .draw_text(ctx),
-            "Wrote results to procgen_houses.json".draw_text(ctx),
-        ]))
-        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-        .build(ctx);
-        SimpleState::new(
-            panel,
-            Box::new(BuildingProceduralGenerator {
-                houses: ctx.upload(batch),
-            }),
-        )
     }
-}
-
-impl SimpleState<App> for BuildingProceduralGenerator {
-    fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, _: &Panel) -> Transition {
-        match x {
-            "close" => Transition::Pop,
-            _ => unreachable!(),
-        }
-    }
-
-    fn other_event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
-        ctx.canvas_movement();
-        Transition::Keep
-    }
-
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
-        g.redraw(&self.houses);
-    }
+    let geojson = GeoJson::from(FeatureCollection {
+        bbox: None,
+        features,
+        foreign_members: None,
+    });
+    abstio::write_json(out, &geojson);
 }
 
 fn generate_buildings_on_empty_residential_roads(
