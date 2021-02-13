@@ -6,7 +6,7 @@ extern crate anyhow;
 #[macro_use]
 extern crate log;
 
-use abstio::MapName;
+use abstio::{CityName, MapName};
 use abstutil::{basename, Timer};
 use geom::Distance;
 
@@ -59,7 +59,10 @@ fn main() {
 
     // Otherwise, we're just operating on a single city.
     let job = Job {
-        city: args.optional("--city").unwrap_or("seattle".to_string()),
+        city: match args.optional("--city") {
+            Some(x) => CityName::parse(&x).unwrap(),
+            None => CityName::new("us", "seattle"),
+        },
         // Download all raw input files, then convert OSM to the intermediate RawMap.
         osm_to_raw: args.enabled("--raw"),
         // Convert the RawMap to the final Map format.
@@ -91,12 +94,9 @@ fn main() {
 fn regenerate_everything(config: ImporterConfiguration) {
     // Discover all cities by looking at config. But always operate on Seattle first. Special
     // treatment ;)
-    let mut all_cities: Vec<String> = abstio::list_dir("importer/config".to_string())
-        .into_iter()
-        .map(basename)
-        .collect();
-    all_cities.retain(|x| x != "seattle");
-    all_cities.insert(0, "seattle".to_string());
+    let mut all_cities = CityName::list_all_cities_from_importer_config();
+    all_cities.retain(|x| x != &CityName::new("us", "seattle"));
+    all_cities.insert(0, CityName::new("us", "seattle"));
 
     let mut timer = Timer::new("regenerate all maps");
     for city in all_cities {
@@ -109,10 +109,16 @@ fn regenerate_everything(config: ImporterConfiguration) {
             only_map: None,
         };
         // Only some maps run extra tasks
-        if city == "seattle" || city == "great_kneighton" {
+        if city == CityName::new("us", "seattle") || city == CityName::new("gb", "great_kneighton")
+        {
             job.scenario = true;
         }
-        if city == "leeds" || city == "nyc" || city == "paris" || city == "salzburg" {
+        // TODO Autodetect this based on number of maps per city?
+        if city == CityName::new("gb", "leeds")
+            || city == CityName::new("us", "nyc")
+            || city == CityName::new("fr", "paris")
+            || city == CityName::new("at", "salzburg")
+        {
             job.city_overview = true;
         }
 
@@ -123,7 +129,7 @@ fn regenerate_everything(config: ImporterConfiguration) {
 }
 
 struct Job {
-    city: String,
+    city: CityName,
     osm_to_raw: bool,
     raw_to_map: bool,
     scenario: bool,
@@ -140,25 +146,28 @@ impl Job {
         keep_bldg_tags: bool,
         timer: &mut Timer,
     ) {
-        timer.start(format!("import {}", self.city));
+        timer.start(format!("import {}", self.city.describe()));
         let names = if let Some(n) = self.only_map {
             println!("- Just working on {}", n);
             vec![n]
         } else {
-            println!("- Working on all {} maps", self.city);
-            abstio::list_dir(format!("importer/config/{}", self.city))
-                .into_iter()
-                .filter(|path| path.ends_with(".poly"))
-                .map(basename)
-                .collect()
+            println!("- Working on all {} maps", self.city.describe());
+            abstio::list_dir(format!(
+                "importer/config/{}/{}",
+                self.city.country, self.city.city
+            ))
+            .into_iter()
+            .filter(|path| path.ends_with(".poly"))
+            .map(basename)
+            .collect()
         };
 
         let (maybe_popdat, maybe_huge_map) = if self.scenario {
             // TODO This is getting messy!
-            if self.city == "great_kneighton" {
+            if self.city == CityName::new("gb", "great_kneighton") {
                 (None, None)
             } else {
-                assert_eq!(self.city, "seattle");
+                assert_eq!(self.city, CityName::new("us", "seattle"));
 
                 #[cfg(feature = "scenarios")]
                 {
@@ -180,40 +189,42 @@ impl Job {
         for name in names {
             if self.osm_to_raw {
                 // Still special-cased
-                if self.city == "seattle" {
+                if self.city == CityName::new("us", "seattle") {
                     seattle::osm_to_raw(&name, timer, config);
                 } else {
                     let raw = match abstio::maybe_read_json::<generic::GenericCityImporter>(
-                        format!("importer/config/{}/cfg.json", self.city),
+                        format!(
+                            "importer/config/{}/{}/cfg.json",
+                            self.city.country, self.city.city
+                        ),
                         timer,
                     ) {
-                        Ok(city_cfg) => {
-                            city_cfg.osm_to_raw(MapName::new(&self.city, &name), timer, config)
-                        }
+                        Ok(city_cfg) => city_cfg.osm_to_raw(
+                            MapName::from_city(&self.city, &name),
+                            timer,
+                            config,
+                        ),
                         Err(err) => {
-                            panic!("Can't import city {}: {}", self.city, err);
+                            panic!("Can't import city {}: {}", self.city.describe(), err);
                         }
                     };
 
-                    match self.city.as_ref() {
-                        "berlin" => berlin::import_extra_data(&raw, config, timer),
-                        "leeds" => {
-                            if name == "huge" {
-                                leeds::import_extra_data(&raw, config, timer);
-                            }
-                        }
-                        "london" => london::import_extra_data(&raw, config, timer),
-                        _ => {}
+                    if self.city == CityName::new("de", "berlin") {
+                        berlin::import_extra_data(&raw, config, timer);
+                    } else if self.city == CityName::new("gb", "leeds") && name == "huge" {
+                        leeds::import_extra_data(&raw, config, timer);
+                    } else if self.city == CityName::new("gb", "london") {
+                        london::import_extra_data(&raw, config, timer);
                     }
                 }
             }
-            let name = MapName::new(&self.city, &name);
+            let name = MapName::from_city(&self.city, &name);
 
             let mut maybe_map = if self.raw_to_map {
                 let mut map = utils::raw_to_map(&name, !skip_ch, keep_bldg_tags, timer);
 
                 // Another strange step in the pipeline.
-                if name == MapName::new("berlin", "center") {
+                if name == MapName::new("de", "berlin", "center") {
                     timer.start(format!(
                         "distribute residents from planning areas for {}",
                         name.describe()
@@ -223,7 +234,7 @@ impl Job {
                         "distribute residents from planning areas for {}",
                         name.describe()
                     ));
-                } else if name.city == "seattle" {
+                } else if name.city == CityName::new("us", "seattle") {
                     timer.start(format!("add GTFS schedules for {}", name.describe()));
                     seattle::add_gtfs_schedules(&mut map);
                     timer.stop(format!("add GTFS schedules for {}", name.describe()));
@@ -238,7 +249,7 @@ impl Job {
 
             if self.scenario {
                 #[cfg(feature = "scenarios")]
-                if self.city == "seattle" {
+                if self.city == CityName::new("us", "seattle") {
                     timer.start(format!("scenario for {}", name.describe()));
                     let scenario = soundcast::make_weekday_scenario(
                         maybe_map.as_ref().unwrap(),
@@ -261,22 +272,31 @@ impl Job {
                     timer.stop("match parcels to buildings");
                 }
 
-                if self.city == "great_kneighton" {
+                if self.city == CityName::new("gb", "great_kneighton") {
                     actdev::import_scenarios(maybe_map.as_ref().unwrap(), config).unwrap();
                 }
             }
         }
 
         if self.city_overview {
-            timer.start(format!("generate city overview for {}", self.city));
+            timer.start(format!(
+                "generate city overview for {}",
+                self.city.describe()
+            ));
             abstio::write_binary(
-                abstio::path(format!("system/{}/city.bin", self.city)),
+                abstio::path(format!(
+                    "system/{}/{}/city.bin",
+                    self.city.country, self.city.city
+                )),
                 &map_model::City::from_individual_maps(&self.city, timer),
             );
-            timer.stop(format!("generate city overview for {}", self.city));
+            timer.stop(format!(
+                "generate city overview for {}",
+                self.city.describe()
+            ));
         }
 
-        timer.stop(format!("import {}", self.city));
+        timer.stop(format!("import {}", self.city.describe()));
     }
 }
 
@@ -293,7 +313,7 @@ fn oneshot(
     let raw = convert_osm::convert(
         convert_osm::Options {
             osm_input: osm_path,
-            name: MapName::new("oneshot", &name),
+            name: MapName::new("zz", "oneshot", &name),
 
             clip,
             map_config: map_model::MapConfig {

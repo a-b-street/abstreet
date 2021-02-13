@@ -1,12 +1,13 @@
 #!/bin/bash
 
-city=$1;
-map=$2;
+country=$1
+city=$2;
+map=$3;
 
-rm -rf ../data/input/${city}/screenshots/${map}.zip diff screens_before;
-cd screenshots/${city}/${map};
+rm -rf ../data/input/${country}/${city}/screenshots/${map}.zip diff screens_before;
+cd screenshots/${country}/${city}/${map};
 zip ${map}.zip *;
-mkdir -p ../../../../data/input/${city}/screenshots/;
-mv ${map}.zip ../../../../data/input/${city}/screenshots/;
+mkdir -p ../../../../data/input/${country}/${city}/screenshots/;
+mv ${map}.zip ../../../../data/input/${country}/${city}/screenshots/;
 cd ../../../;
-rm -rf screenshots/${city}/${map};
+rm -rf screenshots/${country}/${city}/${map};

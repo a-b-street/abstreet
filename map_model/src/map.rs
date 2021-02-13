@@ -6,7 +6,7 @@ use anyhow::Result;
 use petgraph::graphmap::UnGraphMap;
 use serde::{Deserialize, Serialize};
 
-use abstio::MapName;
+use abstio::{CityName, MapName};
 use abstutil::{Tags, Timer};
 use geom::{Bounds, Distance, GPSBounds, Polygon, Pt2D, Ring, Time};
 
@@ -176,10 +176,7 @@ impl Map {
             pathfinder: Pathfinder::Dijkstra,
             pathfinder_dirty: false,
             routing_params: RoutingParams::default(),
-            name: MapName {
-                city: "blank city".to_string(),
-                map: "blank".to_string(),
-            },
+            name: MapName::new("zz", "blank city", "blank"),
             edits: MapEdits::new(),
         }
     }
@@ -419,7 +416,7 @@ impl Map {
         &self.bounds
     }
 
-    pub fn get_city_name(&self) -> &String {
+    pub fn get_city_name(&self) -> &CityName {
         &self.name.city
     }
 

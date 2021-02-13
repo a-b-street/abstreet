@@ -17,27 +17,27 @@ use crate::utils::{download, download_kml, osmconvert};
 fn input(config: &ImporterConfiguration, timer: &mut Timer) {
     download(
         config,
-        "input/seattle/N47W122.hgt",
+        "input/us/seattle/N47W122.hgt",
         "https://dds.cr.usgs.gov/srtm/version2_1/SRTM1/Region_01/N47W122.hgt.zip",
     );
     download(
         config,
-        "input/seattle/osm/washington-latest.osm.pbf",
+        "input/us/seattle/osm/washington-latest.osm.pbf",
         "http://download.geofabrik.de/north-america/us/washington-latest.osm.pbf",
     );
     // Soundcast data comes from https://github.com/psrc/soundcast/releases
     download(
         config,
-        "input/seattle/parcels_urbansim.txt",
+        "input/us/seattle/parcels_urbansim.txt",
         "https://www.dropbox.com/s/t9oug9lwhdwfc04/psrc_2014.zip?dl=0",
     );
 
     let bounds = geom::GPSBounds::from(
-        geom::LonLat::read_osmosis_polygon("importer/config/seattle/huge_seattle.poly").unwrap(),
+        geom::LonLat::read_osmosis_polygon("importer/config/us/seattle/huge_seattle.poly").unwrap(),
     );
     // From http://data-seattlecitygis.opendata.arcgis.com/datasets/blockface
     download_kml(
-        "input/seattle/blockface.bin",
+        "input/us/seattle/blockface.bin",
         "https://opendata.arcgis.com/datasets/a1458ad1abca41869b81f7c0db0cd777_0.kml",
         &bounds,
         true,
@@ -45,7 +45,7 @@ fn input(config: &ImporterConfiguration, timer: &mut Timer) {
     );
     // From https://data-seattlecitygis.opendata.arcgis.com/datasets/public-garages-or-parking-lots
     download_kml(
-        "input/seattle/offstreet_parking.bin",
+        "input/us/seattle/offstreet_parking.bin",
         "http://data-seattlecitygis.opendata.arcgis.com/datasets/8e52dfde6d5d45948f7a90654c8d50cd_0.kml",
         &bounds,
         true,
@@ -54,7 +54,7 @@ fn input(config: &ImporterConfiguration, timer: &mut Timer) {
 
     download(
         config,
-        "input/seattle/google_transit/",
+        "input/us/seattle/google_transit/",
         "http://metro.kingcounty.gov/gtfs/google_transit.zip",
     );
 
@@ -62,22 +62,27 @@ fn input(config: &ImporterConfiguration, timer: &mut Timer) {
     // https://data-seattlecitygis.opendata.arcgis.com/datasets/5b5c745e0f1f48e7a53acec63a0022ab_0
     download(
         config,
-        "input/seattle/collisions.kml",
+        "input/us/seattle/collisions.kml",
         "https://opendata.arcgis.com/datasets/5b5c745e0f1f48e7a53acec63a0022ab_0.kml",
     );
 
-    // This is a little expensive, so delete data/input/seattle/collisions.bin to regenerate this.
-    if !abstio::file_exists("data/input/seattle/collisions.bin") {
-        let shapes = kml::load("data/input/seattle/collisions.kml", &bounds, true, timer).unwrap();
+    // This is a little expensive, so delete data/input/us/seattle/collisions.bin to regenerate
+    // this.
+    if !abstio::file_exists("data/input/us/seattle/collisions.bin") {
+        let shapes =
+            kml::load("data/input/us/seattle/collisions.kml", &bounds, true, timer).unwrap();
         let collisions = collisions::import_seattle(
             shapes,
             "https://data-seattlecitygis.opendata.arcgis.com/datasets/5b5c745e0f1f48e7a53acec63a0022ab_0");
-        abstio::write_binary("data/input/seattle/collisions.bin".to_string(), &collisions);
+        abstio::write_binary(
+            "data/input/us/seattle/collisions.bin".to_string(),
+            &collisions,
+        );
     }
 
     // From https://data-seattlecitygis.opendata.arcgis.com/datasets/parcels-1
     download_kml(
-        "input/seattle/zoning_parcels.bin",
+        "input/us/seattle/zoning_parcels.bin",
         "https://opendata.arcgis.com/datasets/42863f1debdc47488a1c2b9edd38053e_2.kml",
         &bounds,
         true,
@@ -87,7 +92,7 @@ fn input(config: &ImporterConfiguration, timer: &mut Timer) {
     // From
     // https://data-seattlecitygis.opendata.arcgis.com/datasets/current-land-use-zoning-detail
     download_kml(
-        "input/seattle/land_use.bin",
+        "input/us/seattle/land_use.bin",
         "https://opendata.arcgis.com/datasets/dd29065b5d01420e9686570c2b77502b_0.kml",
         &bounds,
         false,
@@ -98,18 +103,18 @@ fn input(config: &ImporterConfiguration, timer: &mut Timer) {
 pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration) {
     input(config, timer);
     osmconvert(
-        "input/seattle/osm/washington-latest.osm.pbf",
-        format!("importer/config/seattle/{}.poly", name),
-        format!("input/seattle/osm/{}.osm", name),
+        "input/us/seattle/osm/washington-latest.osm.pbf",
+        format!("importer/config/us/seattle/{}.poly", name),
+        format!("input/us/seattle/osm/{}.osm", name),
         config,
     );
 
     let map = convert_osm::convert(
         convert_osm::Options {
-            osm_input: abstio::path(format!("input/seattle/osm/{}.osm", name)),
+            osm_input: abstio::path(format!("input/us/seattle/osm/{}.osm", name)),
             name: MapName::seattle(name),
 
-            clip: Some(format!("importer/config/seattle/{}.poly", name)),
+            clip: Some(format!("importer/config/us/seattle/{}.poly", name)),
             map_config: map_model::MapConfig {
                 driving_side: map_model::DrivingSide::Right,
                 bikes_can_use_bus_lanes: true,
@@ -119,10 +124,10 @@ pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration)
             },
 
             onstreet_parking: convert_osm::OnstreetParking::Blockface(abstio::path(
-                "input/seattle/blockface.bin",
+                "input/us/seattle/blockface.bin",
             )),
             public_offstreet_parking: convert_osm::PublicOffstreetParking::GIS(abstio::path(
-                "input/seattle/offstreet_parking.bin",
+                "input/us/seattle/offstreet_parking.bin",
             )),
             private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(
                 // TODO Utter guesses
@@ -135,7 +140,7 @@ pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration)
                     _ => 1,
                 },
             ),
-            elevation: Some(abstio::path("input/seattle/N47W122.hgt")),
+            elevation: Some(abstio::path("input/us/seattle/N47W122.hgt")),
             // They mess up 16th and E Marginal badly enough to cause gridlock.
             include_railroads: false,
             extra_buildings: None,
@@ -197,9 +202,10 @@ pub fn add_gtfs_schedules(map: &mut Map) {
 
     // Each route has a bunch of trips throughout the day
     let mut trip_marker_to_trips: MultiMap<String, String> = MultiMap::new();
-    for rec in
-        csv::Reader::from_reader(File::open("data/input/seattle/google_transit/trips.txt").unwrap())
-            .deserialize()
+    for rec in csv::Reader::from_reader(
+        File::open("data/input/us/seattle/google_transit/trips.txt").unwrap(),
+    )
+    .deserialize()
     {
         let rec: TripRecord = rec.unwrap();
         if trip_marker_to_route.contains_key(&rec.shape_id) {
@@ -210,7 +216,7 @@ pub fn add_gtfs_schedules(map: &mut Map) {
     // For every trip, find the earliest arrival time. That should be the spawn time.
     let mut trip_to_earliest_time: BTreeMap<String, Time> = BTreeMap::new();
     for rec in csv::Reader::from_reader(
-        File::open("data/input/seattle/google_transit/stop_times.txt").unwrap(),
+        File::open("data/input/us/seattle/google_transit/stop_times.txt").unwrap(),
     )
     .deserialize()
     {
@@ -259,8 +265,10 @@ struct StopTimeRecord {
 /// Match OSM buildings to parcels, scraping the number of housing units.
 // TODO It's expensive to load the huge zoning_parcels.bin file for every map.
 pub fn match_parcels_to_buildings(map: &mut Map, timer: &mut Timer) {
-    let shapes: ExtraShapes =
-        abstio::read_binary("data/input/seattle/zoning_parcels.bin".to_string(), timer);
+    let shapes: ExtraShapes = abstio::read_binary(
+        "data/input/us/seattle/zoning_parcels.bin".to_string(),
+        timer,
+    );
     let mut parcels_with_housing: Vec<(Polygon, usize)> = Vec::new();
     // TODO We should refactor something like FindClosest, but for polygon containment
     // The quadtree's ID is just an index into parcels_with_housing.

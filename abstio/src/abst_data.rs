@@ -42,21 +42,22 @@ impl Manifest {
         let mut remove = Vec::new();
         for path in self.entries.keys() {
             // TODO Some hardcoded weird exceptions
-            if !data_packs.runtime.contains("huge_seattle")
-                && (path == "data/system/seattle/maps/huge_seattle.bin"
-                    || path == "data/system/seattle/scenarios/huge_seattle/weekday.bin")
+            if !data_packs.runtime.contains("us/huge_seattle")
+                && (path == "data/system/us/seattle/maps/huge_seattle.bin"
+                    || path == "data/system/us/seattle/scenarios/huge_seattle/weekday.bin")
             {
                 remove.push(path.clone());
                 continue;
             }
 
             let parts = path.split("/").collect::<Vec<_>>();
+            let city = format!("{}/{}", parts[2], parts[3]);
             if parts[1] == "input" {
-                if data_packs.input.contains(parts[2]) {
+                if data_packs.input.contains(&city) {
                     continue;
                 }
             } else if parts[1] == "system" {
-                if data_packs.runtime.contains(parts[2]) {
+                if data_packs.runtime.contains(&city) {
                     continue;
                 }
             } else {
@@ -74,7 +75,8 @@ impl Manifest {
 /// Player-chosen groups of files to opt into downloading
 #[derive(Serialize, Deserialize)]
 pub struct DataPacks {
-    /// A list of cities to download for using in A/B Street.
+    /// A list of cities to download for using in A/B Street. Expressed the same as
+    /// `CityName::to_path`, like "gb/london".
     pub runtime: BTreeSet<String>,
     /// A list of cities to download for running the map importer.
     pub input: BTreeSet<String>,
@@ -88,7 +90,7 @@ impl DataPacks {
         match crate::maybe_read_json::<DataPacks>(path.clone(), &mut abstutil::Timer::throwaway()) {
             Ok(mut cfg) => {
                 // The game breaks without this required data pack.
-                cfg.runtime.insert("seattle".to_string());
+                cfg.runtime.insert("us/seattle".to_string());
                 cfg
             }
             Err(err) => {
@@ -97,7 +99,7 @@ impl DataPacks {
                     runtime: BTreeSet::new(),
                     input: BTreeSet::new(),
                 };
-                cfg.runtime.insert("seattle".to_string());
+                cfg.runtime.insert("us/seattle".to_string());
                 crate::write_json(path, &cfg);
                 cfg
             }

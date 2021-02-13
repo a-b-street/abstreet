@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use abstio::MapName;
+use abstio::{CityName, MapName};
 use abstutil::Timer;
 use geom::{GPSBounds, LonLat, Polygon, Ring};
 
@@ -10,7 +10,7 @@ use crate::{AreaType, Map};
 /// ballard, downtown, etc). The load map screen uses this struct to display the entire city.
 #[derive(Serialize, Deserialize)]
 pub struct City {
-    pub name: String,
+    pub name: CityName,
     pub boundary: Polygon,
     pub areas: Vec<(AreaType, Polygon)>,
     /// The individual maps
@@ -22,17 +22,20 @@ impl City {
     /// If there's a single map covering all the smaller maps, use this.
     pub fn from_huge_map(huge_map: &Map) -> City {
         let city_name = huge_map.get_city_name().clone();
-        let mut regions = abstio::list_dir(format!("importer/config/{}", city_name))
-            .into_iter()
-            .filter(|path| path.ends_with(".poly"))
-            .map(|path| {
-                let pts = LonLat::read_osmosis_polygon(&path).unwrap();
-                (
-                    MapName::new(&city_name, &abstutil::basename(path)),
-                    Ring::must_new(huge_map.get_gps_bounds().convert(&pts)).to_polygon(),
-                )
-            })
-            .collect::<Vec<_>>();
+        let mut regions = abstio::list_dir(format!(
+            "importer/config/{}/{}",
+            city_name.country, city_name.city
+        ))
+        .into_iter()
+        .filter(|path| path.ends_with(".poly"))
+        .map(|path| {
+            let pts = LonLat::read_osmosis_polygon(&path).unwrap();
+            (
+                MapName::from_city(&city_name, &abstutil::basename(path)),
+                Ring::must_new(huge_map.get_gps_bounds().convert(&pts)).to_polygon(),
+            )
+        })
+        .collect::<Vec<_>>();
         // Just a sort of z-ordering hack so that the largest encompassing region isn't first
         // later in the UI picker.
         regions.sort_by_key(|(_, poly)| poly.get_bounds().width() as usize);
@@ -51,18 +54,20 @@ impl City {
 
     /// Generate a city from a bunch of smaller, individual maps. The boundaries of those maps
     /// may overlap and may have gaps between them.
-    pub fn from_individual_maps(city_name: &str, timer: &mut Timer) -> City {
-        let boundary_per_region: Vec<(MapName, Vec<LonLat>)> =
-            abstio::list_dir(format!("importer/config/{}", city_name))
-                .into_iter()
-                .filter(|path| path.ends_with(".poly"))
-                .map(|path| {
-                    (
-                        MapName::new(&city_name, &abstutil::basename(&path)),
-                        LonLat::read_osmosis_polygon(&path).unwrap(),
-                    )
-                })
-                .collect();
+    pub fn from_individual_maps(city_name: &CityName, timer: &mut Timer) -> City {
+        let boundary_per_region: Vec<(MapName, Vec<LonLat>)> = abstio::list_dir(format!(
+            "importer/config/{}/{}",
+            city_name.country, city_name.city
+        ))
+        .into_iter()
+        .filter(|path| path.ends_with(".poly"))
+        .map(|path| {
+            (
+                MapName::from_city(&city_name, &abstutil::basename(&path)),
+                LonLat::read_osmosis_polygon(&path).unwrap(),
+            )
+        })
+        .collect();
         // Figure out the total bounds for all the maps
         let mut gps_bounds = GPSBounds::new();
         for (_, pts) in &boundary_per_region {
@@ -79,7 +84,10 @@ impl City {
 
         // Add areas from every map. It's fine if they partly overlap.
         let mut areas = Vec::new();
-        for path in abstio::list_dir(abstio::path(format!("system/{}/maps", city_name))) {
+        for path in abstio::list_dir(abstio::path(format!(
+            "system/{}/{}/maps",
+            city_name.country, city_name.city
+        ))) {
             let map = Map::new(path, timer);
             for area in map.all_areas() {
                 let pts = map.gps_bounds.convert_back(area.polygon.points());
@@ -91,7 +99,7 @@ impl City {
         }
 
         City {
-            name: city_name.to_string(),
+            name: city_name.clone(),
             boundary,
             areas,
             regions,

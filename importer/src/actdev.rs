@@ -16,12 +16,12 @@ pub fn import_scenarios(map: &Map, config: &ImporterConfiguration) -> Result<()>
     // TODO This hardcodes for one city right now; generalize.
     download(
         config,
-        "input/great_kneighton/desire_lines_disag.geojson",
+        "input/gb/great_kneighton/desire_lines_disag.geojson",
         "https://raw.githubusercontent.com/cyipt/actdev/main/data-small/great-kneighton/desire_lines_disag.geojson",
     );
 
     let bytes = abstio::slurp_file(abstio::path(
-        "input/great_kneighton/desire_lines_disag.geojson",
+        "input/gb/great_kneighton/desire_lines_disag.geojson",
     ))?;
     let raw_string = std::str::from_utf8(&bytes)?;
     let geojson = raw_string.parse::<GeoJson>()?;

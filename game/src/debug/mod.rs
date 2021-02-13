@@ -273,10 +273,10 @@ impl State<App> for DebugMode {
                         app,
                         vec![
                             MapName::seattle("downtown"),
-                            MapName::new("krakow", "center"),
+                            MapName::new("pl", "krakow", "center"),
                             MapName::seattle("lakeslice"),
                             MapName::seattle("montlake"),
-                            MapName::new("great_kneighton", "center"),
+                            MapName::new("gb", "great_kneighton", "center"),
                             MapName::seattle("udistrict"),
                         ],
                     ));
@@ -837,7 +837,10 @@ impl State<App> for ScreenshotTest {
             self.screenshot_done = true;
             let name = app.primary.map.get_name();
             ctx.request_update(UpdateType::ScreenCaptureEverything {
-                dir: format!("screenshots/{}/{}", name.city, name.map),
+                dir: format!(
+                    "screenshots/{}/{}/{}",
+                    name.city.country, name.city.city, name.map
+                ),
                 zoom: 3.0,
                 dims: ctx.canvas.get_window_dims(),
                 leaflet_naming: false,
@@ -860,7 +863,10 @@ fn export_for_leaflet(ctx: &mut EventCtx, app: &App) {
         // How do we fit the entire map_length into this many tiles?
         let zoom = 256.0 * (num_tiles as f64) / map_length;
         ctx.request_update(UpdateType::ScreenCaptureEverything {
-            dir: format!("screenshots/{}/{}/{}", name.city, name.map, zoom_level),
+            dir: format!(
+                "screenshots/{}/{}/{}/{}",
+                name.city.country, name.city.city, name.map, zoom_level
+            ),
             zoom,
             dims: ScreenDims::new(256.0, 256.0),
             leaflet_naming: true,

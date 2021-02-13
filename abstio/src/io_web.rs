@@ -3,7 +3,7 @@
 
 use std::collections::BTreeSet;
 
-use anyhow::{anyhow, bail, Result};
+use anyhow::Result;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 

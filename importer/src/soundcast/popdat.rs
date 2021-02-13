@@ -27,7 +27,7 @@ fn import_trips(huge_map: &Map, timer: &mut Timer) -> Vec<OrigTrip> {
 
     let mut trips = Vec::new();
     let (reader, done) =
-        FileWithProgress::new(&abstio::path("input/seattle/trips_2014.csv")).unwrap();
+        FileWithProgress::new(&abstio::path("input/us/seattle/trips_2014.csv")).unwrap();
     let mut total_records = 0;
     let mut people: HashSet<OrigPersonID> = HashSet::new();
     let mut trips_from_parcel: Counter<usize> = Counter::new();
@@ -104,7 +104,7 @@ fn import_trips(huge_map: &Map, timer: &mut Timer) -> Vec<OrigTrip> {
     }
     let shapes: Vec<ExtraShape> = keyed_shapes.into_iter().map(|(_, v)| v).collect();
     abstio::write_binary(
-        abstio::path("input/seattle/parcels.bin"),
+        abstio::path("input/us/seattle/parcels.bin"),
         &ExtraShapes { shapes },
     );
 
@@ -132,7 +132,7 @@ fn import_parcels(
     let mut parcel_metadata = Vec::new();
 
     let (reader, done) =
-        FileWithProgress::new(&abstio::path("input/seattle/parcels_urbansim.txt")).unwrap();
+        FileWithProgress::new(&abstio::path("input/us/seattle/parcels_urbansim.txt")).unwrap();
     for rec in csv::ReaderBuilder::new()
         .delimiter(b' ')
         .from_reader(reader)

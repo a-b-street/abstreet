@@ -26,7 +26,7 @@ const (
 )
 
 var (
-	cityName        = flag.String("city", "seattle", "city of the map to simulate")
+	cityName        = flag.String("city", "us/seattle", "city of the map to simulate")
 	mapName         = flag.String("map", "montlake", "map name to simulate")
 	hoursToSimulate = flag.Int("hours", 24, "number of hours to simulate")
 	comparePct1     = flag.Int64("cmp1", -1, "the baseline percentage for indvidual comparison")

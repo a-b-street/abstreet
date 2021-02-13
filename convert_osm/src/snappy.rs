@@ -19,7 +19,10 @@ pub fn snap_cycleways(map: &RawMap, timer: &mut Timer) {
 
     let mut cycleways = BTreeMap::new();
     for shape in abstio::read_binary::<ExtraShapes>(
-        abstio::path(format!("input/{}/footways.bin", map.name.city)),
+        abstio::path(format!(
+            "input/{}/{}/footways.bin",
+            map.name.city.country, map.name.city.city
+        )),
         timer,
     )
     .shapes
@@ -89,15 +92,15 @@ fn dump_output(
 
     abstio::write_binary(
         abstio::path(format!(
-            "input/{}/{}_separate_cycleways.bin",
-            map.name.city, map.name.map
+            "input/{}/{}/{}_separate_cycleways.bin",
+            map.name.city.country, map.name.city.city, map.name.map
         )),
         &separate_cycleways,
     );
     abstio::write_binary(
         abstio::path(format!(
-            "input/{}/{}_snapped_cycleways.bin",
-            map.name.city, map.name.map
+            "input/{}/{}/{}_snapped_cycleways.bin",
+            map.name.city.country, map.name.city.city, map.name.map
         )),
         &snapped_cycleways,
     );

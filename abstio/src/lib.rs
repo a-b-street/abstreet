@@ -3,6 +3,8 @@
 //! find files and (mostly) treat them the same way on native and web.
 
 #[macro_use]
+extern crate anyhow;
+#[macro_use]
 extern crate log;
 
 #[cfg(not(target_arch = "wasm32"))]

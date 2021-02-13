@@ -22,7 +22,11 @@ impl CollisionsViewer {
         let map = &app.primary.map;
         let data = ctx.loading_screen("load collision data", |_, mut timer| {
             let mut all: CollisionDataset = abstio::read_binary(
-                abstio::path(format!("input/{}/collisions.bin", map.get_city_name())),
+                abstio::path(format!(
+                    "input/{}/{}/collisions.bin",
+                    map.get_city_name().country,
+                    map.get_city_name().city
+                )),
                 &mut timer,
             );
             all.collisions.retain(|c| {

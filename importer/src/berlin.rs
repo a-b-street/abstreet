@@ -16,7 +16,7 @@ use crate::utils::{download, download_kml};
 pub fn import_extra_data(map: &RawMap, config: &ImporterConfiguration, timer: &mut Timer) {
     // From https://data.technologiestiftung-berlin.de/dataset/lor_planungsgraeume/en
     download_kml(
-        "input/berlin/planning_areas.bin",
+        "input/de/berlin/planning_areas.bin",
         "https://tsb-opendata.s3.eu-central-1.amazonaws.com/lor_planungsgraeume/lor_planungsraeume.kml",
         &map.gps_bounds,
         // Keep partly out-of-bounds polygons
@@ -28,14 +28,14 @@ pub fn import_extra_data(map: &RawMap, config: &ImporterConfiguration, timer: &m
     // https://daten.berlin.de/datensaetze/einwohnerinnen-und-einwohner-berlin-lor-planungsr%C3%A4umen-am-31122018
     download(
         config,
-        "input/berlin/EWR201812E_Matrix.csv",
+        "input/de/berlin/EWR201812E_Matrix.csv",
         "https://www.statistik-berlin-brandenburg.de/opendata/EWR201812E_Matrix.csv",
     );
 
     // Always do this, it's idempotent and fast
     correlate_population(
-        "data/input/berlin/planning_areas.bin",
-        "data/input/berlin/EWR201812E_Matrix.csv",
+        "data/input/de/berlin/planning_areas.bin",
+        "data/input/de/berlin/EWR201812E_Matrix.csv",
         timer,
     );
 }
@@ -73,7 +73,7 @@ struct Record {
 
 pub fn distribute_residents(map: &mut map_model::Map, timer: &mut Timer) {
     for shape in abstio::read_binary::<ExtraShapes>(
-        "data/input/berlin/planning_areas.bin".to_string(),
+        "data/input/de/berlin/planning_areas.bin".to_string(),
         timer,
     )
     .shapes

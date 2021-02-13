@@ -29,7 +29,10 @@ impl Favorites {
 
     fn path(app: &App) -> String {
         let name = app.primary.map.get_name();
-        abstio::path_player(format!("favorites/{}/{}.json", name.city, name.map))
+        abstio::path_player(format!(
+            "favorites/{}/{}/{}.json",
+            name.city.country, name.city.city, name.map
+        ))
     }
 
     pub fn contains(app: &App, b: BuildingID) -> bool {

@@ -1,4 +1,4 @@
-use abstio::MapName;
+use abstio::{CityName, MapName};
 use geom::{Distance, Percent, Polygon, Pt2D};
 use map_model::City;
 use widgetry::{
@@ -34,11 +34,14 @@ impl<A: AppLike + 'static> CityPicker<A> {
     fn new_in_city(
         ctx: &mut EventCtx,
         on_load: Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>,
-        city_name: String,
+        city_name: CityName,
     ) -> Box<dyn State<A>> {
         FileLoader::<A, City>::new(
             ctx,
-            abstio::path(format!("system/{}/city.bin", city_name)),
+            abstio::path(format!(
+                "system/{}/{}/city.bin",
+                city_name.country, city_name.city
+            )),
             Box::new(move |ctx, app, _, maybe_city| {
                 let mut batch = GeomBatch::new();
                 let mut regions = Vec::new();
@@ -78,16 +81,20 @@ impl<A: AppLike + 'static> CityPicker<A> {
                     }
                     batch = batch.scale(zoom);
 
-                    this_city.insert(0, format!("More regions in {}", city_name).draw_text(ctx));
+                    this_city.insert(
+                        0,
+                        format!("More regions in {}", city_name.describe()).draw_text(ctx),
+                    );
                 }
 
                 let mut other_cities = vec![Line("Other cities").draw(ctx)];
-                for city in MapName::list_all_cities() {
+                for city in CityName::list_all_cities_from_system_data() {
                     if city == city_name {
                         continue;
                     }
                     // If there's only one map in the city, make the button directly load it.
-                    let button = ctx.style().btn_outline_light_text(&city);
+                    let city_path = city.to_path();
+                    let button = ctx.style().btn_outline_light_text(&city_path);
                     let maps = MapName::list_all_maps_in_city(&city);
                     if maps.len() == 1 {
                         other_cities.push(button.build_widget(ctx, &maps[0].path()));
@@ -186,7 +193,7 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
                     return Transition::Replace(CityPicker::new_in_city(
                         ctx,
                         self.on_load.take().unwrap(),
-                        x.to_string(),
+                        CityName::parse(x).unwrap(),
                     ));
                 }
             },

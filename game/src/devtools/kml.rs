@@ -147,8 +147,9 @@ impl State<App> for ViewKML {
                         "Load file",
                         Choice::strings(
                             abstio::list_dir(abstio::path(format!(
-                                "input/{}/",
-                                app.primary.map.get_city_name()
+                                "input/{}/{}/",
+                                app.primary.map.get_city_name().country,
+                                app.primary.map.get_city_name().city
                             )))
                             .into_iter()
                             .filter(|x| {
