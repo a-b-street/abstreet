@@ -92,24 +92,6 @@ impl Distance {
             }
         }
     }
-
-    /// Returns the largest of the two inputs.
-    pub fn max(self, other: Distance) -> Distance {
-        if self >= other {
-            self
-        } else {
-            other
-        }
-    }
-
-    /// Returns the smallest of the two inputs.
-    pub fn min(self, other: Distance) -> Distance {
-        if self <= other {
-            self
-        } else {
-            other
-        }
-    }
 }
 
 impl fmt::Display for Distance {

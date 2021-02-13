@@ -1,5 +1,7 @@
 use std::collections::BTreeSet;
 
+use anyhow::Result;
+
 use geom::{Duration, Polygon};
 use map_gui::ID;
 use map_model::{IntersectionID, Map, RoadID};
@@ -406,4 +408,104 @@ pub fn checkbox_per_mode(
         );
     }
     Widget::custom_row(filters)
+}
+
+/// This does nothing on native. On web, it modifies the current URL to change the first free
+/// parameter in the HTTP GET params to the specified value, adding it if needed.
+#[allow(unused_variables)]
+pub fn update_url(free_param: &str) -> Result<()> {
+    #[cfg(target_arch = "wasm32")]
+    {
+        let window = web_sys::window().ok_or(anyhow!("no window?"))?;
+        let url = window.location().href().map_err(|err| {
+            anyhow!(err
+                .as_string()
+                .unwrap_or("window.location.href failed".to_string()))
+        })?;
+        let new_url = change_url_free_query_param(url, free_param);
+
+        // Setting window.location.href may seem like the obvious thing to do, but that actually
+        // refreshes the page. This method just changes the URL and doesn't mess up history. See
+        // https://developer.mozilla.org/en-US/docs/Web/API/History_API/Working_with_the_History_API.
+        let history = window.history().map_err(|err| {
+            anyhow!(err
+                .as_string()
+                .unwrap_or("window.history failed".to_string()))
+        })?;
+        history
+            .replace_state_with_url(&wasm_bindgen::JsValue::NULL, "", Some(&new_url))
+            .map_err(|err| {
+                anyhow!(err
+                    .as_string()
+                    .unwrap_or("window.history.replace_state failed".to_string()))
+            })?;
+    }
+    Ok(())
+}
+
+#[allow(unused)]
+fn change_url_free_query_param(url: String, free_param: &str) -> String {
+    // The URL parsing crates I checked had lots of dependencies and didn't even expose such a nice
+    // API for doing this anyway.
+    let url_parts = url.split("?").collect::<Vec<_>>();
+    if url_parts.len() == 1 {
+        return format!("{}?{}", url, free_param);
+    }
+    let mut query_params = String::new();
+    let mut found_free = false;
+    let mut first = true;
+    for x in url_parts[1].split("&") {
+        if !first {
+            query_params.push('&');
+        }
+        first = false;
+
+        if x.starts_with("--") {
+            query_params.push_str(x);
+        } else if !found_free {
+            // Replace the first free parameter
+            query_params.push_str(free_param);
+            found_free = true;
+        } else {
+            query_params.push_str(x);
+        }
+    }
+    if !found_free {
+        if !first {
+            query_params.push('&');
+        }
+        query_params.push_str(free_param);
+    }
+
+    format!("{}?{}", url_parts[0], query_params)
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn test_change_url() {
+        use super::change_url_free_query_param;
+
+        assert_eq!(
+            "http://0.0.0.0:8000/?--dev&seattle/maps/montlake.bin",
+            change_url_free_query_param(
+                "http://0.0.0.0:8000/?--dev".to_string(),
+                "seattle/maps/montlake.bin"
+            )
+        );
+        assert_eq!(
+            "http://0.0.0.0:8000/?--dev&seattle/maps/qa.bin",
+            change_url_free_query_param(
+                "http://0.0.0.0:8000/?--dev&seattle/maps/montlake.bin".to_string(),
+                "seattle/maps/qa.bin"
+            )
+        );
+        assert_eq!(
+            "http://0.0.0.0:8000?seattle/maps/montlake.bin",
+            change_url_free_query_param(
+                "http://0.0.0.0:8000".to_string(),
+                "seattle/maps/montlake.bin"
+            )
+        );
+    }
 }

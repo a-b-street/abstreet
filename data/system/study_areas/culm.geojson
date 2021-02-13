@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "site",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "site_name": "culm", "dwellings_when_complete": 1750.0, "pwalk": 0.1, "pcycle": 0.02, "pdrive": 0.73, "pbus": 0.05, "prail": 0.01, "pother": 0.08, "weightedJobsPTt": 66.728266160714284, "weightedJobsCyct": 72.961735294642864, "weightedJobsCart": 23.414440669642858, "PSPTt": 15.5, "PSCyct": 11.0, "PSCart": 8.5, "SSPTt": 20.7509285, "SSCyct": 16.9662135, "SSCart": 11.606181, "FEPTt": 45.7471815, "FECyct": 56.7694955, "FECart": 21.6745125, "GPPTt": 15.7575105, "GPCyct": 13.9197225, "GPCart": 9.4787015, "HospPTt": 60.626019, "HospCyct": 51.2944765, "HospCart": 23.2242, "FoodPTt": 17.032958, "FoodCyct": 13.1407975, "FoodCart": 9.12445, "TownPTt": 18.895037, "TownCyct": 14.7602965, "TownCart": 9.9968645 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -3.381343, 50.855647 ], [ -3.381214, 50.854103 ], [ -3.375678, 50.85478 ], [ -3.365808, 50.853994 ], [ -3.363147, 50.856053 ], [ -3.36216, 50.864261 ], [ -3.366365, 50.86483 ], [ -3.369455, 50.865778 ], [ -3.371773, 50.866266 ], [ -3.373017, 50.864261 ], [ -3.37379, 50.863855 ], [ -3.373318, 50.861552 ], [ -3.376322, 50.85841 ], [ -3.374391, 50.857516 ], [ -3.375249, 50.856433 ], [ -3.381343, 50.855647 ] ] ] } }
+]
+}

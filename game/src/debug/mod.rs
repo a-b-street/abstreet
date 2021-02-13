@@ -23,7 +23,6 @@ use crate::info::ContextualActions;
 use crate::sandbox::GameplayMode;
 
 mod blocked_by;
-mod building_procgen;
 mod floodfill;
 mod objects;
 pub mod path_counter;
@@ -113,10 +112,6 @@ impl DebugMode {
                     ctx.style()
                         .btn_outline_light_text("render to GeoJSON")
                         .hotkey(Key::G)
-                        .build_def(ctx),
-                    ctx.style()
-                        .btn_outline_light_text("procedurally generate buildings")
-                        .hotkey(Key::P)
                         .build_def(ctx),
                 ]),
                 Text::from_all(vec![
@@ -320,11 +315,6 @@ impl State<App> for DebugMode {
                         abstio::write_json("rendered_map.json".to_string(), &geojson);
                         timer.stop("render");
                     });
-                }
-                "procedurally generate buildings" => {
-                    return Transition::Replace(
-                        building_procgen::BuildingProceduralGenerator::new(ctx, app),
-                    );
                 }
                 _ => unreachable!(),
             },
@@ -729,13 +719,12 @@ impl ContextualActions for Actions {
 }
 
 fn find_bad_signals(app: &App) {
-    println!("Bad traffic signals:");
+    error!("Bad traffic signals:");
     for i in app.primary.map.all_intersections() {
         if i.is_traffic_signal() {
             let first = &ControlTrafficSignal::get_possible_policies(&app.primary.map, i.id)[0].0;
             if first == "stage per road" || first == "arbitrary assignment" {
-                println!("- {}", i.id);
-                ControlTrafficSignal::brute_force(&app.primary.map, i.id);
+                error!("- {}", i.id);
             }
         }
     }

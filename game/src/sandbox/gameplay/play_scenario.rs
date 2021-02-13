@@ -10,7 +10,7 @@ use widgetry::{
 };
 
 use crate::app::{App, Transition};
-use crate::common::checkbox_per_mode;
+use crate::common::{checkbox_per_mode, update_url};
 use crate::edit::EditMode;
 use crate::sandbox::gameplay::freeform::ChangeScenario;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
@@ -25,9 +25,21 @@ pub struct PlayScenario {
 impl PlayScenario {
     pub fn new(
         ctx: &mut EventCtx,
+        app: &App,
         name: &String,
         modifiers: Vec<ScenarioModifier>,
     ) -> Box<dyn GameplayState> {
+        if let Err(err) = update_url(
+            // For dynamiclly generated scenarios like "random" and "home_to_work", this winds up
+            // making up a filename that doesn't actually exist. But if you pass that in, it winds
+            // up working, because we call abstio::parse_scenario_path() on the other side.
+            abstio::path_scenario(app.primary.map.get_name(), name)
+                .strip_prefix(&abstio::path(""))
+                .unwrap(),
+        ) {
+            warn!("Couldn't update URL: {}", err);
+        }
+
         Box::new(PlayScenario {
             top_center: Panel::empty(ctx),
             scenario_name: name.to_string(),

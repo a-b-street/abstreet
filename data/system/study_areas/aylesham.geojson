@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "site",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "site_name": "aylesham", "dwellings_when_complete": 1200.0, "pwalk": 0.1, "pcycle": 0.02, "pdrive": 0.7, "pbus": 0.03, "prail": 0.05, "pother": 0.1, "weightedJobsPTt": 32.744475383928574, "weightedJobsCyct": 49.122372964285717, "weightedJobsCart": 21.119364776785712, "PSPTt": 7.0, "PSCyct": 7.5, "PSCart": 7.5, "SSPTt": 33.0550415, "SSCyct": 46.4644995, "SSCart": 18.158513, "FEPTt": 33.0550415, "FECyct": 46.4644995, "FECart": 18.158513, "GPPTt": 7.692563, "GPCyct": 7.460785, "GPCart": 7.215455, "HospPTt": 45.640521, "HospCyct": 51.1745, "HospCart": 21.7648075, "FoodPTt": 6.2110845, "FoodCyct": 7.2782515, "FoodCart": 7.042434, "TownPTt": 38.126728, "TownCyct": 52.7134325, "TownCart": 22.575841 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 1.204376, 51.231008 ], [ 1.201651, 51.23254 ], [ 1.199698, 51.233104 ], [ 1.194763, 51.231129 ], [ 1.194077, 51.230511 ], [ 1.193368, 51.22914 ], [ 1.192939, 51.226762 ], [ 1.197789, 51.228509 ], [ 1.19972, 51.229046 ], [ 1.202316, 51.23039 ], [ 1.204376, 51.231008 ] ] ] } }
+]
+}

@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "site",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "site_name": "dunton-hills", "dwellings_when_complete": 4000.0, "pwalk": 0.05, "pcycle": 0.01, "pdrive": 0.64, "pbus": 0.02, "prail": 0.2, "pother": 0.07, "weightedJobsPTt": 22.323352392857142, "weightedJobsCyct": 20.681474178571428, "weightedJobsCart": 11.610511875, "PSPTt": 11.5, "PSCyct": 10.5, "PSCart": 8.0, "SSPTt": 21.471472, "SSCyct": 23.3288255, "SSCart": 12.487188, "FEPTt": 25.259268, "FECyct": 25.7107145, "FECart": 13.669603, "GPPTt": 18.786563, "GPCyct": 20.3365615, "GPCart": 11.0767095, "HospPTt": 38.817178, "HospCyct": 31.846015, "HospCart": 15.0456035, "FoodPTt": 8.062551, "FoodCyct": 8.873727, "FoodCart": 7.1673945, "TownPTt": 23.9973595, "TownCyct": 29.1730895, "TownCart": 15.1163635 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 0.363235, 51.579523 ], [ 0.357914, 51.574616 ], [ 0.358601, 51.566934 ], [ 0.38332, 51.566187 ], [ 0.382977, 51.581763 ], [ 0.363235, 51.579523 ] ] ] } }
+]
+}

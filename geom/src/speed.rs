@@ -1,4 +1,4 @@
-use std::ops;
+use std::{cmp, ops};
 
 use serde::{Deserialize, Serialize};
 
@@ -7,6 +7,14 @@ use crate::{trim_f64, Distance, Duration, UnitFmt};
 /// In meters per second. Can be negative.
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Speed(f64);
+
+// By construction, Speed is a finite f64 with trimmed precision.
+impl Eq for Speed {}
+impl Ord for Speed {
+    fn cmp(&self, other: &Speed) -> cmp::Ordering {
+        self.partial_cmp(other).unwrap()
+    }
+}
 
 impl Speed {
     pub const ZERO: Speed = Speed::const_meters_per_second(0.0);
@@ -38,22 +46,6 @@ impl Speed {
     // TODO Remove if possible.
     pub fn inner_meters_per_second(self) -> f64 {
         self.0
-    }
-
-    pub fn max(self, other: Speed) -> Speed {
-        if self >= other {
-            self
-        } else {
-            other
-        }
-    }
-
-    pub fn min(self, other: Speed) -> Speed {
-        if self <= other {
-            self
-        } else {
-            other
-        }
     }
 
     /// Describes the speed according to formatting rules.

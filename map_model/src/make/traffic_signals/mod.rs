@@ -1,3 +1,10 @@
+//! The various traffic signal generators live in the traffic signal module. Eventually, we
+//! might want to move to a trait. For now, there's a single make_traffic_signal static method
+//! in each generator file, which is called to generate a traffic signal of a particular flavor.
+//!
+//! For example, lagging_green.rs contains a one public fn:
+//!     pub fn make_traffic_signal(map: &Map, i: IntersectionID)->Option<ControlTrafficSignal>
+
 use std::collections::{BTreeSet, HashSet};
 
 use crate::{
@@ -6,15 +13,7 @@ use crate::{
 };
 use geom::Duration;
 
-/// The various traffic signal generators live in the traffic signal module. Eventually, we
-/// might want to move to a trait. For now, there's a single make_traffic_signal static method
-/// in each generator file, which is called to generate a traffic signal of a particular flavor.
-/// 
-/// For example, lagging_green.rs contains a one public fn:
-///     pub fn make_traffic_signal(map: &Map, i: IntersectionID)->Option<ControlTrafficSignal>
-/// 
 mod lagging_green;
-pub mod brute_force;
 
 /// Applies a bunch of heuristics to a single intersection, returning the valid results in
 /// best-first order. The signal configuration is only based on the roads connected to the
@@ -444,42 +443,6 @@ fn make_stages_filtered(
             ts.stages.retain(|p| p != &smallest);
         }
     }
-}
-
-
-// Technically, a set of sets; order doesn't matter
-#[derive(Clone)]
-struct Partition(Vec<Vec<usize>>);
-
-// Extremely hasty port of https://stackoverflow.com/a/30903689
-fn helper(items: &[usize], max_size: usize) -> Vec<Partition> {
-    if items.len() < max_size || max_size == 0 {
-        return Vec::new();
-    }
-
-    if max_size == 1 {
-        return vec![Partition(vec![items.to_vec()])];
-    }
-
-    let mut results = Vec::new();
-    let prev1 = helper(&items[0..items.len() - 1], max_size);
-    for i in 0..prev1.len() {
-        for j in 0..prev1[i].0.len() {
-            let mut partition: Vec<Vec<usize>> = Vec::new();
-            for inner in &prev1[i].0 {
-                partition.push(inner.clone());
-            }
-            partition[j].push(*items.last().unwrap());
-            results.push(Partition(partition));
-        }
-    }
-
-    let set = vec![*items.last().unwrap()];
-    for mut partition in helper(&items[0..items.len() - 1], max_size - 1) {
-        partition.0.push(set.clone());
-        results.push(partition);
-    }
-    results
 }
 
 /// Simple second-pass after generating all signals. Find pairs of traffic signals very close to
