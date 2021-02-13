@@ -64,6 +64,9 @@ struct State {
     // complete the entire sequence. This is especially necessary since groups of traffic signals
     // are not yet configured as one.
     reserved: BTreeSet<Request>,
+    // In some cases, a turn completing at one intersection may affect agents waiting to start an
+    // uber-turn at nearby intersections.
+    uber_turn_neighbors: Vec<IntersectionID>,
 
     signal: Option<SignalState>,
 }
@@ -111,10 +114,15 @@ impl IntersectionSimState {
                 accepted: BTreeSet::new(),
                 waiting: BTreeMap::new(),
                 reserved: BTreeSet::new(),
+                uber_turn_neighbors: Vec::new(),
                 signal: None,
             };
             if i.is_traffic_signal() {
                 state.signal = Some(SignalState::new(i.id, Time::START_OF_DAY, map, scheduler));
+            }
+            if let Some(mut set) = map_model::IntersectionCluster::autodetect(i.id, map) {
+                set.remove(&i.id);
+                state.uber_turn_neighbors.extend(set);
             }
             sim.state.insert(i.id, state);
         }
@@ -130,13 +138,6 @@ impl IntersectionSimState {
         map: &Map,
         handling_live_edits: bool,
     ) {
-        // wake up intersections in the cluster in order to start uber-turns.
-        if let Some(set) = map_model::IntersectionCluster::autodetect(turn.parent, map) {
-            for id in &set {
-                self.wakeup_waiting(now, *id, scheduler, map);
-            }
-        }
-
         let state = self.state.get_mut(&turn.parent).unwrap();
         assert!(state.accepted.remove(&Request { agent, turn }));
         state.reserved.remove(&Request { agent, turn });
@@ -145,10 +146,18 @@ impl IntersectionSimState {
         }
         if self.break_turn_conflict_cycles {
             if let AgentID::Car(car) = agent {
-                // todo: when drain_filter() is no longer experimental, use it instead of
-                // retian_btreeset()
+                // TODO when drain_filter() is no longer experimental, use it instead of
+                // retain_btreeset()
                 retain_btreeset(&mut self.blocked_by, |(_, c)| *c != car);
             }
+        }
+
+        // If this intersection has uber-turns going through it, then we may need to wake up agents
+        // with a reserved uber-turn that're waiting at nearby intersections. They may have
+        // reserved their sequence of turns but then gotten stuck by somebody filling up a queue a
+        // few steps away.
+        for id in &self.state[&turn.parent].uber_turn_neighbors {
+            self.wakeup_waiting(now, *id, scheduler, map);
         }
     }
 
@@ -560,6 +569,14 @@ impl IntersectionSimState {
                     scheduler.cancel(Command::UpdateIntersection(state.id));
                 }
                 (None, None) => {}
+            }
+
+            // It's unlikely, but the player might create/destroy traffic signals close together and
+            // change the uber-turns that exist. To be safe, recalculate everywhere.
+            state.uber_turn_neighbors.clear();
+            if let Some(mut set) = map_model::IntersectionCluster::autodetect(state.id, map) {
+                set.remove(&state.id);
+                state.uber_turn_neighbors.extend(set);
             }
         }
     }
