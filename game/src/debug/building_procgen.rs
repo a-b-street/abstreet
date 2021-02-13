@@ -7,7 +7,7 @@ use rand_xorshift::XorShiftRng;
 
 use abstutil::Timer;
 use geom::{Distance, Polygon};
-use map_model::osm;
+use map_model::{osm, Map};
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Panel, SimpleState,
     State, StyledButtons, TextExt, VerticalAlignment, Widget,
@@ -24,7 +24,7 @@ impl BuildingProceduralGenerator {
         let mut batch = GeomBatch::new();
         let mut rng = app.primary.current_flags.sim_flags.make_rng();
         let houses = ctx.loading_screen("generate buildings", |_, mut timer| {
-            generate_buildings_on_empty_residential_roads(app, &mut rng, &mut timer)
+            generate_buildings_on_empty_residential_roads(&app.primary.map, &mut rng, &mut timer)
         });
         let mut features = Vec::new();
         for poly in houses {
@@ -90,12 +90,10 @@ impl SimpleState<App> for BuildingProceduralGenerator {
 }
 
 fn generate_buildings_on_empty_residential_roads(
-    app: &App,
+    map: &Map,
     rng: &mut XorShiftRng,
     timer: &mut Timer,
 ) -> Vec<Polygon> {
-    let map = &app.primary.map;
-
     timer.start("initially place buildings");
     let mut lanes_with_buildings = HashSet::new();
     for b in map.all_buildings() {
@@ -158,29 +156,45 @@ fn generate_buildings_on_empty_residential_roads(
         non_overlapping.push(poly);
     }
 
-    // Remove buildings that hit existing things on the map -- namely roads and park/water areas.
-    // TODO Can't parallelize here, because draw_map has a bunch of non-Send GPU things.
+    // Create a different quadtree, just containing static things in the map that we don't want
+    // new buildings to hit. The index is just into a list of polygons.
+    quadtree = QuadTree::default(map.get_bounds().as_bbox());
+    let mut static_polygons = Vec::new();
+    for r in map.all_roads() {
+        let poly = r.get_thick_polygon(map);
+        quadtree.insert_with_box(static_polygons.len(), poly.get_bounds().as_bbox());
+        static_polygons.push(poly);
+    }
+    for i in map.all_intersections() {
+        quadtree.insert_with_box(static_polygons.len(), i.polygon.get_bounds().as_bbox());
+        static_polygons.push(i.polygon.clone());
+    }
+    for b in map.all_buildings() {
+        quadtree.insert_with_box(static_polygons.len(), b.polygon.get_bounds().as_bbox());
+        static_polygons.push(b.polygon.clone());
+    }
+    for pl in map.all_parking_lots() {
+        quadtree.insert_with_box(static_polygons.len(), pl.polygon.get_bounds().as_bbox());
+        static_polygons.push(pl.polygon.clone());
+    }
+    for a in map.all_areas() {
+        quadtree.insert_with_box(static_polygons.len(), a.polygon.get_bounds().as_bbox());
+        static_polygons.push(a.polygon.clone());
+    }
+
     let mut survivors = Vec::new();
     timer.start_iter(
         "prune buildings overlapping the basemap",
         non_overlapping.len(),
     );
-    for poly in non_overlapping {
+    'NON_OVERLAP: for poly in non_overlapping {
         timer.next();
-        let possible_hits = app
-            .primary
-            .draw_map
-            .get_renderables_back_to_front(poly.get_bounds(), map);
-        // The outline of renderables is usually a thin polygon around the boundary, so we can't
-        // use it directly to test for overlap. Instead, check every point of our candidate house.
-        if possible_hits.into_iter().all(|renderable| {
-            !poly
-                .points()
-                .into_iter()
-                .any(|pt| renderable.contains_pt(*pt, map))
-        }) {
-            survivors.push(poly);
+        for (idx, _, _) in quadtree.query(poly.get_bounds().as_bbox()) {
+            if poly.intersects(&static_polygons[*idx]) {
+                continue 'NON_OVERLAP;
+            }
         }
+        survivors.push(poly);
     }
     survivors
 }
