@@ -6,7 +6,7 @@ use std::collections::HashSet;
 
 use aabb_quadtree::QuadTree;
 use geojson::{Feature, FeatureCollection, GeoJson};
-use rand::{SeedableRng, Rng};
+use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 
 use abstutil::{CmdArgs, Timer};
@@ -24,7 +24,11 @@ fn main() {
 
     let houses = generate_buildings_on_empty_residential_roads(&map, &mut rng, &mut timer);
     if houses.len() <= num_required {
-        panic!("Only generated {} houses, but wanted at least {}", houses.len(), num_required);
+        panic!(
+            "Only generated {} houses, but wanted at least {}",
+            houses.len(),
+            num_required
+        );
     }
 
     let mut features = Vec::new();

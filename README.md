@@ -121,6 +121,7 @@ Others:
 - Lots of help with rendering SVG and fonts from
   [RazrFalcon](https://github.com/RazrFalcon) and
   [nical](https://github.com/nical)
+- Lots of traffic signal and uber-turn work from [Bruce](https://github.com/BruceBrown)
 
 Data:
 
