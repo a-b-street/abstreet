@@ -1,3 +1,5 @@
+use std::collections::BTreeMap;
+
 use abstio::{CityName, MapName};
 use geom::{Distance, Percent, Polygon, Pt2D};
 use map_model::City;
@@ -87,22 +89,15 @@ impl<A: AppLike + 'static> CityPicker<A> {
                     );
                 }
 
-                let mut other_cities = vec![Line("Other cities").draw(ctx)];
-                for city in CityName::list_all_cities_from_system_data() {
-                    if city == city_name {
-                        continue;
-                    }
-                    // If there's only one map in the city, make the button directly load it.
-                    let city_path = city.to_path();
-                    let button = ctx.style().btn_outline_light_text(&city_path);
-                    let maps = MapName::list_all_maps_in_city(&city);
-                    if maps.len() == 1 {
-                        other_cities.push(button.build_widget(ctx, &maps[0].path()));
-                    } else {
-                        other_cities.push(button.no_tooltip().build_def(ctx));
-                    }
+                let mut other_places = vec![Line("Other places").draw(ctx)];
+                for (country, cities) in cities_per_country() {
+                    other_places.push(
+                        ctx.style()
+                            .btn_outline_light_text(&format!("{} in {}", cities.len(), country))
+                            .build_widget(ctx, &country),
+                    );
                 }
-                other_cities.push(
+                other_places.push(
                     ctx.style()
                         .btn_solid_dark_text("Search all maps")
                         .hotkey(Key::Tab)
@@ -119,7 +114,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                             ctx.style().btn_close_widget(ctx),
                         ]),
                         Widget::row(vec![
-                            Widget::col(other_cities).centered_vert(),
+                            Widget::col(other_places).centered_vert(),
                             Widget::draw_batch(ctx, batch).named("picker"),
                             Widget::col(this_city).centered_vert(),
                         ]),
@@ -189,11 +184,12 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
                             self.on_load.take().unwrap(),
                         ));
                     }
-                    // Browse maps for another city without loading any map there
-                    return Transition::Replace(CityPicker::new_in_city(
+                    // Browse cities for another country
+                    return Transition::Replace(CitiesInCountryPicker::new(
                         ctx,
+                        app,
                         self.on_load.take().unwrap(),
-                        CityName::parse(x).unwrap(),
+                        x,
                     ));
                 }
             },
@@ -347,4 +343,105 @@ impl<A: AppLike + 'static> State<A> for AllCityPicker<A> {
         grey_out_map(g, app);
         self.panel.draw(g);
     }
+}
+
+struct CitiesInCountryPicker<A: AppLike> {
+    panel: Panel,
+    // Wrapped in an Option just to make calling from event() work.
+    on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>>,
+}
+
+impl<A: AppLike + 'static> CitiesInCountryPicker<A> {
+    fn new(
+        ctx: &mut EventCtx,
+        app: &A,
+        on_load: Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>,
+        country: &str,
+    ) -> Box<dyn State<A>> {
+        let mut buttons = Vec::new();
+        for city in cities_per_country().remove(country).unwrap() {
+            if &city == app.map().get_city_name() {
+                continue;
+            }
+            buttons.push(
+                ctx.style()
+                    .btn_outline_light_text(&city.city)
+                    .build_widget(ctx, &city.to_path())
+                    .margin_right(10)
+                    .margin_below(10),
+            );
+        }
+
+        Box::new(CitiesInCountryPicker {
+            on_load: Some(on_load),
+            panel: Panel::new(Widget::col(vec![
+                Widget::row(vec![
+                    Line(format!("Select a city in {}", country))
+                        .small_heading()
+                        .draw(ctx),
+                    ctx.style().btn_close_widget(ctx),
+                ]),
+                Widget::custom_row(buttons).flex_wrap(ctx, Percent::int(70)),
+            ]))
+            .exact_size_percent(80, 80)
+            .build(ctx),
+        })
+    }
+}
+
+impl<A: AppLike + 'static> State<A> for CitiesInCountryPicker<A> {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
+        match self.panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
+                "close" => {
+                    // Go back to the screen that lets you choose all countries.
+                    return Transition::Replace(CityPicker::new(
+                        ctx,
+                        app,
+                        self.on_load.take().unwrap(),
+                    ));
+                }
+                path => {
+                    let city = CityName::parse(path).unwrap();
+                    let mut maps = MapName::list_all_maps_in_city(&city);
+                    if maps.len() == 1 {
+                        return Transition::Replace(MapLoader::new(
+                            ctx,
+                            app,
+                            maps.pop().unwrap(),
+                            self.on_load.take().unwrap(),
+                        ));
+                    }
+                    return Transition::Replace(CityPicker::new_in_city(
+                        ctx,
+                        self.on_load.take().unwrap(),
+                        city,
+                    ));
+                }
+            },
+            _ => {}
+        }
+
+        Transition::Keep
+    }
+
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::PreviousState
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &A) {
+        grey_out_map(g, app);
+        self.panel.draw(g);
+    }
+}
+
+fn cities_per_country() -> BTreeMap<String, Vec<CityName>> {
+    let mut per_country = BTreeMap::new();
+    for city in CityName::list_all_cities_from_system_data() {
+        per_country
+            .entry(city.country.clone())
+            .or_insert_with(Vec::new)
+            .push(city);
+    }
+    per_country
 }
