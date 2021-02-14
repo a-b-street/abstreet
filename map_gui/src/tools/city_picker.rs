@@ -15,7 +15,7 @@ use crate::AppLike;
 pub struct CityPicker<A: AppLike> {
     panel: Panel,
     // In untranslated screen-space
-    regions: Vec<(MapName, Color, Polygon)>,
+    districts: Vec<(MapName, Color, Polygon)>,
     selected: Option<usize>,
     // Wrapped in an Option just to make calling from event() work.
     on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>>,
@@ -44,7 +44,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
             )),
             Box::new(move |ctx, app, _, maybe_city| {
                 let mut batch = GeomBatch::new();
-                let mut regions = Vec::new();
+                let mut districts = Vec::new();
                 let mut this_city = vec![];
 
                 // If this city overview doesn't exist, we assume this map is the only one in the
@@ -61,7 +61,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                     }
 
                     for (name, polygon) in city.regions {
-                        let color = app.cs().rotating_color_agents(regions.len());
+                        let color = app.cs().rotating_color_agents(districts.len());
 
                         let btn = ctx
                             .style()
@@ -76,14 +76,14 @@ impl<A: AppLike + 'static> CityPicker<A> {
                         } else {
                             this_city.push(btn.build_widget(ctx, &action));
                             batch.push(color, polygon.to_outline(Distance::meters(200.0)).unwrap());
-                            regions.push((name, color, polygon.scale(zoom)));
+                            districts.push((name, color, polygon.scale(zoom)));
                         }
                     }
                     batch = batch.scale(zoom);
 
                     this_city.insert(
                         0,
-                        format!("More regions in {}", city_name.describe()).draw_text(ctx),
+                        format!("More districts in {}", city_name.describe()).draw_text(ctx),
                     );
                 }
 
@@ -110,12 +110,12 @@ impl<A: AppLike + 'static> CityPicker<A> {
                 );
 
                 Transition::Replace(Box::new(CityPicker {
-                    regions,
+                    districts,
                     selected: None,
                     on_load: Some(on_load),
                     panel: Panel::new(Widget::col(vec![
                         Widget::row(vec![
-                            Line("Select a region").small_heading().draw(ctx),
+                            Line("Select a district").small_heading().draw(ctx),
                             ctx.style().btn_close_widget(ctx),
                         ]),
                         Widget::row(vec![
@@ -206,14 +206,14 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
                 let rect = self.panel.rect_of("picker");
                 if rect.contains(cursor) {
                     let pt = Pt2D::new(cursor.x - rect.x1, cursor.y - rect.y1);
-                    for (idx, (_, _, poly)) in self.regions.iter().enumerate() {
+                    for (idx, (_, _, poly)) in self.districts.iter().enumerate() {
                         if poly.contains_pt(pt) {
                             self.selected = Some(idx);
                             break;
                         }
                     }
                 } else if let Some(btn) = self.panel.currently_hovering() {
-                    for (idx, (name, _, _)) in self.regions.iter().enumerate() {
+                    for (idx, (name, _, _)) in self.districts.iter().enumerate() {
                         if &name.map == btn {
                             self.selected = Some(idx);
                             break;
@@ -223,7 +223,7 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
             }
         }
         if let Some(idx) = self.selected {
-            let name = &self.regions[idx].0;
+            let name = &self.districts[idx].0;
             if ctx.normal_left_click() {
                 return Transition::Replace(MapLoader::new(
                     ctx,
@@ -246,7 +246,7 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
         self.panel.draw(g);
 
         if let Some(idx) = self.selected {
-            let (name, color, poly) = &self.regions[idx];
+            let (name, color, poly) = &self.districts[idx];
             let rect = self.panel.rect_of("picker");
             g.fork(
                 Pt2D::new(0.0, 0.0),
@@ -291,7 +291,7 @@ impl<A: AppLike + 'static> AllCityPicker<A> {
             on_load: Some(on_load),
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
-                    Line("Select a region").small_heading().draw(ctx),
+                    Line("Select a district").small_heading().draw(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 Widget::row(vec![

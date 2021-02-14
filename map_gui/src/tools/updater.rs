@@ -68,7 +68,7 @@ impl<A: AppLike + 'static> State<A> for Picker<A> {
                     // First update the DataPacks file
                     let mut data_packs = DataPacks::load_or_create();
                     data_packs.runtime.clear();
-                    data_packs.runtime.insert("seattle".to_string());
+                    data_packs.runtime.insert("us/seattle".to_string());
                     for (city, _) in size_per_city(&Manifest::load()) {
                         if self.panel.is_checked(&city) {
                             data_packs.runtime.insert(city);
@@ -106,10 +106,10 @@ fn size_per_city(manifest: &Manifest) -> BTreeMap<String, usize> {
         let parts = path.split("/").collect::<Vec<_>>();
         if parts[1] == "system" {
             // The map and scenario for huge_seattle should count as a separate data pack.
-            let city = if parts.get(4) == Some(&"huge_seattle") {
-                "huge_seattle".to_string()
+            let city = if parts.get(5) == Some(&"huge_seattle") {
+                "us/huge_seattle".to_string()
             } else {
-                parts[2].to_string()
+                format!("{}/{}", parts[2], parts[3])
             };
             *per_city.entry(city).or_insert(0) += entry.compressed_size_bytes;
         }
