@@ -181,8 +181,6 @@
 <span id="178">178</span>
 <span id="179">179</span>
 <span id="180">180</span>
-<span id="181">181</span>
-<span id="182">182</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! This directory contains extra/experimental tools not directly related to A/B Street the game.</span>
 <span class="doccomment">//! Eventually some might be split into separate crates.</span>
@@ -248,11 +246,9 @@
                         .<span class="ident">btn_outline_light_text</span>(<span class="string">&quot;story maps&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">S</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                    <span class="kw">if</span> <span class="ident">abstio</span>::<span class="ident">file_exists</span>(<span class="ident">abstio</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
-                        <span class="string">&quot;input/{}/{}/collisions.bin&quot;</span>,
-                        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_city_name</span>().<span class="ident">country</span>,
-                        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_city_name</span>().<span class="ident">city</span>
-                    ))) {
+                    <span class="kw">if</span> <span class="ident">abstio</span>::<span class="ident">file_exists</span>(
+                        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_city_name</span>().<span class="ident">input_path</span>(<span class="string">&quot;collisions.bin&quot;</span>),
+                    ) {
                         <span class="ident">ctx</span>.<span class="ident">style</span>()
                             .<span class="ident">btn_outline_light_text</span>(<span class="string">&quot;collisions&quot;</span>)
                             .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">C</span>)
