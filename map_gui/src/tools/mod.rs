@@ -145,6 +145,8 @@ pub fn nice_map_name(name: &MapName) -> &str {
 }
 
 pub fn nice_country_name(code: &str) -> &str {
+    // If you add something here, please also add the flag to data/system/assets/flags.
+    // https://github.com/hampusborgos/country-flags/tree/master/svg
     match code {
         "at" => "Austria",
         "ca" => "Canada",

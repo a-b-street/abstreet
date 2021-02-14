@@ -45,3 +45,4 @@ Other binary data bundled in:
 - Music from
   [various sources](https://github.com/a-b-street/abstreet/tree/master/data/system/assets/music/sources.md)
   with Creative Commons licenses
+- Country flags (<https://github.com/hampusborgos/country-flags>, public domain)

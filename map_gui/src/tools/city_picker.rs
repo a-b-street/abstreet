@@ -5,7 +5,8 @@ use geom::{Distance, Percent, Polygon, Pt2D};
 use map_model::City;
 use widgetry::{
     Autocomplete, Color, ControlState, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line,
-    Outcome, Panel, ScreenPt, State, StyledButtons, Text, TextExt, Transition, Widget,
+    Outcome, Panel, RewriteColor, ScreenPt, State, StyledButtons, Text, TextExt, Transition,
+    Widget,
 };
 
 use crate::load::{FileLoader, MapLoader};
@@ -93,11 +94,12 @@ impl<A: AppLike + 'static> CityPicker<A> {
                 for (country, cities) in cities_per_country() {
                     other_places.push(
                         ctx.style()
-                            .btn_outline_light_text(&format!(
-                                "{} in {}",
-                                cities.len(),
-                                nice_country_name(&country)
-                            ))
+                            .btn_outline_light_icon_text(
+                                &format!("system/assets/flags/{}.svg", country),
+                                &format!("{} in {}", cities.len(), nice_country_name(&country)),
+                            )
+                            .image_color(RewriteColor::NoOp, ControlState::Default)
+                            .image_dims(30.0)
                             .build_widget(ctx, &country),
                     );
                 }
@@ -376,10 +378,14 @@ impl<A: AppLike + 'static> CitiesInCountryPicker<A> {
             );
         }
 
+        let flag = GeomBatch::load_svg(ctx, &format!("system/assets/flags/{}.svg", country));
+        let y_factor = 30.0 / flag.get_dims().height;
+
         Box::new(CitiesInCountryPicker {
             on_load: Some(on_load),
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
+                    Widget::draw_batch(ctx, flag.scale(y_factor)),
                     Line(format!("Select a city in {}", nice_country_name(country)))
                         .small_heading()
                         .draw(ctx),
