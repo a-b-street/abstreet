@@ -351,7 +351,106 @@
 <span id="348">348</span>
 <span id="349">349</span>
 <span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
+
 <span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Percent</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">City</span>;
@@ -441,22 +540,15 @@
                     );
                 }
 
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">other_cities</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Line</span>(<span class="string">&quot;Other cities&quot;</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>)];
-                <span class="kw">for</span> <span class="ident">city</span> <span class="kw">in</span> <span class="ident">CityName</span>::<span class="ident">list_all_cities_from_system_data</span>() {
-                    <span class="kw">if</span> <span class="ident">city</span> <span class="op">=</span><span class="op">=</span> <span class="ident">city_name</span> {
-                        <span class="kw">continue</span>;
-                    }
-                    <span class="comment">// If there&#39;s only one map in the city, make the button directly load it.</span>
-                    <span class="kw">let</span> <span class="ident">city_path</span> <span class="op">=</span> <span class="ident">city</span>.<span class="ident">to_path</span>();
-                    <span class="kw">let</span> <span class="ident">button</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline_light_text</span>(<span class="kw-2">&amp;</span><span class="ident">city_path</span>);
-                    <span class="kw">let</span> <span class="ident">maps</span> <span class="op">=</span> <span class="ident">MapName</span>::<span class="ident">list_all_maps_in_city</span>(<span class="kw-2">&amp;</span><span class="ident">city</span>);
-                    <span class="kw">if</span> <span class="ident">maps</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
-                        <span class="ident">other_cities</span>.<span class="ident">push</span>(<span class="ident">button</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">maps</span>[<span class="number">0</span>].<span class="ident">path</span>()));
-                    } <span class="kw">else</span> {
-                        <span class="ident">other_cities</span>.<span class="ident">push</span>(<span class="ident">button</span>.<span class="ident">no_tooltip</span>().<span class="ident">build_def</span>(<span class="ident">ctx</span>));
-                    }
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">other_places</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Line</span>(<span class="string">&quot;Other places&quot;</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>)];
+                <span class="kw">for</span> (<span class="ident">country</span>, <span class="ident">cities</span>) <span class="kw">in</span> <span class="ident">cities_per_country</span>() {
+                    <span class="ident">other_places</span>.<span class="ident">push</span>(
+                        <span class="ident">ctx</span>.<span class="ident">style</span>()
+                            .<span class="ident">btn_outline_light_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} in {}&quot;</span>, <span class="ident">cities</span>.<span class="ident">len</span>(), <span class="ident">country</span>))
+                            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">country</span>),
+                    );
                 }
-                <span class="ident">other_cities</span>.<span class="ident">push</span>(
+                <span class="ident">other_places</span>.<span class="ident">push</span>(
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_solid_dark_text</span>(<span class="string">&quot;Search all maps&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Tab</span>)
@@ -473,7 +565,7 @@
                             <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                         ]),
                         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                            <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">other_cities</span>).<span class="ident">centered_vert</span>(),
+                            <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">other_places</span>).<span class="ident">centered_vert</span>(),
                             <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>).<span class="ident">named</span>(<span class="string">&quot;picker&quot;</span>),
                             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">this_city</span>).<span class="ident">centered_vert</span>(),
                         ]),
@@ -543,11 +635,12 @@
                             <span class="self">self</span>.<span class="ident">on_load</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>(),
                         ));
                     }
-                    <span class="comment">// Browse maps for another city without loading any map there</span>
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">CityPicker</span>::<span class="ident">new_in_city</span>(
+                    <span class="comment">// Browse cities for another country</span>
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">CitiesInCountryPicker</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,
+                        <span class="ident">app</span>,
                         <span class="self">self</span>.<span class="ident">on_load</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>(),
-                        <span class="ident">CityName</span>::<span class="ident">parse</span>(<span class="ident">x</span>).<span class="ident">unwrap</span>(),
+                        <span class="ident">x</span>,
                     ));
                 }
             },
@@ -701,6 +794,107 @@
         <span class="ident">grey_out_map</span>(<span class="ident">g</span>, <span class="ident">app</span>);
         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
     }
+}
+
+<span class="kw">struct</span> <span class="ident">CitiesInCountryPicker</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span><span class="op">&gt;</span> {
+    <span class="ident">panel</span>: <span class="ident">Panel</span>,
+    <span class="comment">// Wrapped in an Option just to make calling from event() work.</span>
+    <span class="ident">on_load</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">CitiesInCountryPicker</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
+        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>,
+        <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">country</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buttons</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">for</span> <span class="ident">city</span> <span class="kw">in</span> <span class="ident">cities_per_country</span>().<span class="ident">remove</span>(<span class="ident">country</span>).<span class="ident">unwrap</span>() {
+            <span class="kw">if</span> <span class="kw-2">&amp;</span><span class="ident">city</span> <span class="op">=</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_city_name</span>() {
+                <span class="kw">continue</span>;
+            }
+            <span class="ident">buttons</span>.<span class="ident">push</span>(
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_outline_light_text</span>(<span class="kw-2">&amp;</span><span class="ident">city</span>.<span class="ident">city</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">city</span>.<span class="ident">to_path</span>())
+                    .<span class="ident">margin_right</span>(<span class="number">10</span>)
+                    .<span class="ident">margin_below</span>(<span class="number">10</span>),
+            );
+        }
+
+        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">CitiesInCountryPicker</span> {
+            <span class="ident">on_load</span>: <span class="prelude-val">Some</span>(<span class="ident">on_load</span>),
+            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Select a city in {}&quot;</span>, <span class="ident">country</span>))
+                        .<span class="ident">small_heading</span>()
+                        .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+                ]),
+                <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">buttons</span>).<span class="ident">flex_wrap</span>(<span class="ident">ctx</span>, <span class="ident">Percent</span>::<span class="ident">int</span>(<span class="number">70</span>)),
+            ]))
+            .<span class="ident">exact_size_percent</span>(<span class="number">80</span>, <span class="number">80</span>)
+            .<span class="ident">build</span>(<span class="ident">ctx</span>),
+        })
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CitiesInCountryPicker</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+                <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="comment">// Go back to the screen that lets you choose all countries.</span>
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">CityPicker</span>::<span class="ident">new</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="ident">app</span>,
+                        <span class="self">self</span>.<span class="ident">on_load</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>(),
+                    ));
+                }
+                <span class="ident">path</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">let</span> <span class="ident">city</span> <span class="op">=</span> <span class="ident">CityName</span>::<span class="ident">parse</span>(<span class="ident">path</span>).<span class="ident">unwrap</span>();
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">maps</span> <span class="op">=</span> <span class="ident">MapName</span>::<span class="ident">list_all_maps_in_city</span>(<span class="kw-2">&amp;</span><span class="ident">city</span>);
+                    <span class="kw">if</span> <span class="ident">maps</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
+                        <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">MapLoader</span>::<span class="ident">new</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="ident">app</span>,
+                            <span class="ident">maps</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>(),
+                            <span class="self">self</span>.<span class="ident">on_load</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>(),
+                        ));
+                    }
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">CityPicker</span>::<span class="ident">new_in_city</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="self">self</span>.<span class="ident">on_load</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>(),
+                        <span class="ident">city</span>,
+                    ));
+                }
+            },
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+        }
+
+        <span class="ident">Transition</span>::<span class="ident">Keep</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">draw_baselayer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DrawBaselayer</span> {
+        <span class="ident">DrawBaselayer</span>::<span class="ident">PreviousState</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) {
+        <span class="ident">grey_out_map</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    }
+}
+
+<span class="kw">fn</span> <span class="ident">cities_per_country</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CityName</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">per_country</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
+    <span class="kw">for</span> <span class="ident">city</span> <span class="kw">in</span> <span class="ident">CityName</span>::<span class="ident">list_all_cities_from_system_data</span>() {
+        <span class="ident">per_country</span>
+            .<span class="ident">entry</span>(<span class="ident">city</span>.<span class="ident">country</span>.<span class="ident">clone</span>())
+            .<span class="ident">or_insert_with</span>(<span class="ident">Vec</span>::<span class="ident">new</span>)
+            .<span class="ident">push</span>(<span class="ident">city</span>);
+    }
+    <span class="ident">per_country</span>
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "map_gui";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>
