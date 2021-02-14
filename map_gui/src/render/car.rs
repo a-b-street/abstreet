@@ -62,15 +62,17 @@ impl DrawCar {
             let (corner_pt, corner_angle) = input.body.must_dist_along(front_corner);
             let tip_pt = input.body.last_pt();
             let tip_angle = input.body.last_line().angle();
-            let front = Ring::must_new(vec![
+            // If this fails for any reason, just fallback to the simple shape
+            match Ring::new(vec![
                 corner_pt.project_away(CAR_WIDTH / 2.0, corner_angle.rotate_degs(90.0)),
                 corner_pt.project_away(CAR_WIDTH / 2.0, corner_angle.rotate_degs(-90.0)),
                 tip_pt.project_away(CAR_WIDTH / 4.0, tip_angle.rotate_degs(-90.0)),
                 tip_pt.project_away(CAR_WIDTH / 4.0, tip_angle.rotate_degs(90.0)),
                 corner_pt.project_away(CAR_WIDTH / 2.0, corner_angle.rotate_degs(90.0)),
-            ])
-            .to_polygon();
-            front.union(thick_line)
+            ]) {
+                Ok(front) => front.to_polygon().union(thick_line),
+                Err(_) => thick_line,
+            }
         };
 
         draw_default.push(zoomed_color_car(&input, cs), body_polygon.clone());
