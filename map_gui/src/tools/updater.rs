@@ -14,7 +14,7 @@ use crate::tools::PopupMsg;
 use crate::AppLike;
 
 // Update this ___before___ pushing the commit with "[rebuild] [release]".
-const NEXT_RELEASE: &str = "0.2.31";
+const NEXT_RELEASE: &str = "0.2.32";
 
 pub struct Picker<A: AppLike> {
     panel: Panel,
