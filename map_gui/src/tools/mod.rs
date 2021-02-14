@@ -144,6 +144,20 @@ pub fn nice_map_name(name: &MapName) -> &str {
     }
 }
 
+pub fn nice_country_name(code: &str) -> &str {
+    match code {
+        "at" => "Austria",
+        "ca" => "Canada",
+        "de" => "Germany",
+        "fr" => "France",
+        "gb" => "Great Britain",
+        "il" => "Israel",
+        "pl" => "Poland",
+        "us" => "United States of America",
+        _ => code,
+    }
+}
+
 pub fn open_browser<I: Into<String>>(url: I) {
     let _ = webbrowser::open(&url.into());
 }

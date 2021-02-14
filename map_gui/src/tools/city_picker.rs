@@ -10,7 +10,7 @@ use widgetry::{
 
 use crate::load::{FileLoader, MapLoader};
 use crate::render::DrawArea;
-use crate::tools::{grey_out_map, nice_map_name, open_browser};
+use crate::tools::{grey_out_map, nice_country_name, nice_map_name, open_browser};
 use crate::AppLike;
 
 /// Lets the player switch maps.
@@ -93,7 +93,11 @@ impl<A: AppLike + 'static> CityPicker<A> {
                 for (country, cities) in cities_per_country() {
                     other_places.push(
                         ctx.style()
-                            .btn_outline_light_text(&format!("{} in {}", cities.len(), country))
+                            .btn_outline_light_text(&format!(
+                                "{} in {}",
+                                cities.len(),
+                                nice_country_name(&country)
+                            ))
                             .build_widget(ctx, &country),
                     );
                 }
@@ -376,7 +380,7 @@ impl<A: AppLike + 'static> CitiesInCountryPicker<A> {
             on_load: Some(on_load),
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
-                    Line(format!("Select a city in {}", country))
+                    Line(format!("Select a city in {}", nice_country_name(country)))
                         .small_heading()
                         .draw(ctx),
                     ctx.style().btn_close_widget(ctx),
