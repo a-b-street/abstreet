@@ -456,6 +456,11 @@
 <span id="453">453</span>
 <span id="454">454</span>
 <span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>;
 
@@ -694,8 +699,13 @@
         <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_bounds</span>();
         <span class="comment">// TODO For boundaries without rectangular shapes, it&#39;d be even nicer to clamp to the</span>
         <span class="comment">// boundary.</span>
-        <span class="self">self</span>.<span class="ident">offset_x</span> <span class="op">=</span> <span class="ident">off_x</span>.<span class="ident">clamp</span>(<span class="number">0.0</span>, <span class="ident">bounds</span>.<span class="ident">max_x</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">zoom</span> <span class="op">-</span> <span class="ident">rect</span>.<span class="ident">width</span>());
-        <span class="self">self</span>.<span class="ident">offset_y</span> <span class="op">=</span> <span class="ident">off_y</span>.<span class="ident">clamp</span>(<span class="number">0.0</span>, <span class="ident">bounds</span>.<span class="ident">max_y</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">zoom</span> <span class="op">-</span> <span class="ident">rect</span>.<span class="ident">height</span>());
+        <span class="comment">// clamp crashes if min &gt; max; if that happens, just don&#39;t do anything.</span>
+        <span class="kw">let</span> <span class="ident">max_x</span> <span class="op">=</span> <span class="ident">bounds</span>.<span class="ident">max_x</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">zoom</span> <span class="op">-</span> <span class="ident">rect</span>.<span class="ident">width</span>();
+        <span class="kw">let</span> <span class="ident">max_y</span> <span class="op">=</span> <span class="ident">bounds</span>.<span class="ident">max_y</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">zoom</span> <span class="op">-</span> <span class="ident">rect</span>.<span class="ident">height</span>();
+        <span class="kw">if</span> <span class="ident">max_x</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0.0</span> <span class="op">&amp;&amp;</span> <span class="ident">max_y</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0.0</span> {
+            <span class="self">self</span>.<span class="ident">offset_x</span> <span class="op">=</span> <span class="ident">off_x</span>.<span class="ident">clamp</span>(<span class="number">0.0</span>, <span class="ident">max_x</span>);
+            <span class="self">self</span>.<span class="ident">offset_y</span> <span class="op">=</span> <span class="ident">off_y</span>.<span class="ident">clamp</span>(<span class="number">0.0</span>, <span class="ident">max_y</span>);
+        }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
