@@ -235,8 +235,13 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
         let bounds = app.map().get_bounds();
         // TODO For boundaries without rectangular shapes, it'd be even nicer to clamp to the
         // boundary.
-        self.offset_x = off_x.clamp(0.0, bounds.max_x * self.zoom - rect.width());
-        self.offset_y = off_y.clamp(0.0, bounds.max_y * self.zoom - rect.height());
+        // clamp crashes if min > max; if that happens, just don't do anything.
+        let max_x = bounds.max_x * self.zoom - rect.width();
+        let max_y = bounds.max_y * self.zoom - rect.height();
+        if max_x >= 0.0 && max_y >= 0.0 {
+            self.offset_x = off_x.clamp(0.0, max_x);
+            self.offset_y = off_y.clamp(0.0, max_y);
+        }
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Option<Transition<A>> {
