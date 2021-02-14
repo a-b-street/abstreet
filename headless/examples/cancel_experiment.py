@@ -20,6 +20,7 @@ import time
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--api', default='http://localhost:1234')
+    parser.add_argument('--country_code', default='us')
     parser.add_argument('--city_name', default='seattle')
     parser.add_argument('--map_name', default='montlake')
     parser.add_argument('--hours', type=int, default=24)
@@ -29,8 +30,8 @@ def main():
     if args.cmp1 and args.cmp2 and args.cmp1 > args.cmp2:
         sys.exit(
             '--cmp1={} --cmp2={} invalid, --cmp1 is the baseline'.format(args.cmp1, args.cmp2))
-    print('Simulating {} hours of data/system/{}/scenarios/{}/weekday.bin'.format(
-        args.hours, args.city_name, args.map_name))
+    print('Simulating {} hours of data/system/{}/{}/scenarios/{}/weekday.bin'.format(
+        args.hours, args.country_code, args.city_name, args.map_name))
     print('')
 
     num_succeeded_last = 0

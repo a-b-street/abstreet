@@ -4,7 +4,7 @@ use anyhow::Result;
 use serde::Deserialize;
 use serde_json::Value;
 
-use abstio::MapName;
+use abstio::{CityName, MapName};
 use geom::Speed;
 
 use crate::raw::OriginalRoad;
@@ -81,6 +81,13 @@ pub fn upgrade(mut value: Value, map: &Map) -> Result<PermanentMapEdits> {
             .as_object_mut()
             .unwrap()
             .insert("version".to_string(), Value::Number(7.into()));
+    }
+    if value["version"] == Value::Number(7.into()) {
+        fix_city_name(&mut value);
+        value
+            .as_object_mut()
+            .unwrap()
+            .insert("version".to_string(), Value::Number(8.into()));
     }
 
     abstutil::from_json(&value.to_string().into_bytes())
@@ -309,6 +316,30 @@ fn fix_plans(value: &mut Value) {
             false
         }
     })
+}
+
+// 39f5d50fcd981d62792562429003ce9725c17277 split city name into a dedicated struct
+fn fix_city_name(value: &mut Value) {
+    let root = value.as_object_mut().unwrap();
+    let map_name = root["map_name"].as_object_mut().unwrap();
+    if let Value::String(ref name) = map_name["city"].clone() {
+        // At the time of this change, there are only a few maps that somebody likely had edits
+        // for.
+        let country = match name.as_ref() {
+            "salzburg" => "at",
+            "montreal" => "ca",
+            "berlin" => "de",
+            "paris" => "fr",
+            "leeds" | "london" => "gb",
+            "tel_aviv" => "il",
+            "krakow" | "warsaw" => "pl",
+            _ => "us",
+        };
+        map_name.insert(
+            "city".to_string(),
+            serde_json::to_value(CityName::new(&country, &name)).unwrap(),
+        );
+    }
 }
 
 // These're old structs used in fix_old_lane_cmds.

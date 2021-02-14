@@ -19,7 +19,7 @@ def post(args, cmd, **kwargs):
 # Returns Results
 def run_sim(args, modifiers=[], edits=None):
     post(args, '/sim/load', json={
-        'scenario': 'data/system/{}/scenarios/{}/weekday.bin'.format(args.city_name, args.map_name),
+        'scenario': 'data/system/{}/{}/scenarios/{}/weekday.bin'.format(args.country_code, args.city_name, args.map_name),
         'modifiers': modifiers,
         'edits': edits,
     })

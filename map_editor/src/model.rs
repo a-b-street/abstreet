@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::io::Write;
 
-use abstio::MapName;
+use abstio::{CityName, MapName};
 use abstutil::{Tags, Timer};
 use geom::{
     Bounds, Circle, Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D,
@@ -31,7 +31,10 @@ impl Model {
     pub fn blank() -> Model {
         Model {
             map: RawMap::blank(MapName {
-                city: String::new(),
+                city: CityName {
+                    country: String::new(),
+                    city: String::new(),
+                },
                 map: String::new(),
             }),
             showing_pts: None,

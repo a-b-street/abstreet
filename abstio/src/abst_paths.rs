@@ -1,5 +1,6 @@
 //! Generate paths for different A/B Street files
 
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 use abstutil::basename;
@@ -56,84 +57,160 @@ pub fn path<I: Into<String>>(p: I) -> String {
     }
 }
 
-/// A single map is identified using this. Using a struct makes refactoring later easier, to
-/// organize cities hierarchially.
+/// A single city is identified using this.
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub struct CityName {
+    /// A two letter lowercase country code, from https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2.
+    /// To represent imaginary/test cities, use the code `zz`.
+    pub country: String,
+    /// The name of the city, in filename-friendly form -- for example, "tel_aviv".
+    pub city: String,
+}
+
+impl CityName {
+    /// Create a CityName from a country code and city.
+    pub fn new(country: &str, city: &str) -> CityName {
+        assert_eq!(country.len(), 2);
+        CityName {
+            country: country.to_string(),
+            city: city.to_string(),
+        }
+    }
+
+    /// Returns all city names based on system data.
+    pub fn list_all_cities_from_system_data() -> Vec<CityName> {
+        let mut cities = Vec::new();
+        for country in list_all_objects(path("system")) {
+            if country == "assets" || country == "proposals" || country == "study_areas" {
+                continue;
+            }
+            for city in list_all_objects(path(format!("system/{}", country))) {
+                cities.push(CityName::new(&country, &city));
+            }
+        }
+        cities
+    }
+
+    /// Returns all city names based on importer config.
+    pub fn list_all_cities_from_importer_config() -> Vec<CityName> {
+        let mut cities = Vec::new();
+        for country in list_all_objects("importer/config".to_string()) {
+            for city in list_all_objects(format!("importer/config/{}", country)) {
+                cities.push(CityName::new(&country, &city));
+            }
+        }
+        cities
+    }
+
+    /// Parses a CityName from something like "gb/london"; the inverse of `to_path`.
+    pub fn parse(x: &str) -> Result<CityName> {
+        let parts = x.split("/").collect::<Vec<_>>();
+        if parts.len() != 2 || parts[0].len() != 2 {
+            bail!("Bad CityName {}", x);
+        }
+        Ok(CityName::new(parts[0], parts[1]))
+    }
+
+    /// Expresses the city as a path, like "gb/london"; the inverse of `parse`.
+    pub fn to_path(&self) -> String {
+        format!("{}/{}", self.country, self.city)
+    }
+
+    /// Stringify the city name for debug messages. Don't implement `std::fmt::Display`, to force
+    /// callers to explicitly opt into this description, which could change.
+    pub fn describe(&self) -> String {
+        format!("{} ({})", self.city, self.country)
+    }
+
+    /// Constructs the path to some city-scoped data/input.
+    pub fn input_path<I: Into<String>>(&self, file: I) -> String {
+        path(format!(
+            "input/{}/{}/{}",
+            self.country,
+            self.city,
+            file.into()
+        ))
+    }
+}
+
+/// A single map is identified using this.
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct MapName {
-    /// The name of the city, in filename-friendly form -- for example, "tel_aviv". In the future,
-    /// this field may change to express more geographic hierarchy.
-    pub city: String,
+    pub city: CityName,
     /// The name of the map within the city, in filename-friendly form -- for example, "downtown"
     pub map: String,
 }
 
 impl MapName {
-    /// Create a MapName from a simple city and map name.
-    pub fn new(city: &str, map: &str) -> MapName {
+    /// Create a MapName from a country code, city, and map name.
+    pub fn new(country: &str, city: &str, map: &str) -> MapName {
         MapName {
-            city: city.to_string(),
+            city: CityName::new(country, city),
             map: map.to_string(),
         }
     }
 
+    /// Create a MapName from a city and map within that city.
+    pub fn from_city(city: &CityName, map: &str) -> MapName {
+        MapName::new(&city.country, &city.city, map)
+    }
+
     /// Convenient constructor for the main city of the game.
     pub fn seattle(map: &str) -> MapName {
-        MapName::new("seattle", map)
+        MapName::new("us", "seattle", map)
     }
 
     /// Stringify the map name for debug messages. Don't implement `std::fmt::Display`, to force
     /// callers to explicitly opt into this description, which could change.
     pub fn describe(&self) -> String {
-        format!("{} (in {})", self.map, self.city)
+        format!(
+            "{} (in {} ({}))",
+            self.map, self.city.city, self.city.country
+        )
     }
 
     /// Stringify the map name for filenames.
     pub fn as_filename(&self) -> String {
-        format!("{}_{}", self.city, self.map)
+        format!("{}_{}_{}", self.city.country, self.city.city, self.map)
     }
 
     /// Transforms a path to a map back to a MapName. Returns `None` if the input is strange.
     pub fn from_path(path: &str) -> Option<MapName> {
         // TODO regex
         let parts = path.split("/").collect::<Vec<_>>();
-        if parts.len() < 3 {
+        if parts.len() < 4 {
             return None;
         }
+        let country = parts[parts.len() - 4];
         let city = parts[parts.len() - 3];
         let map = basename(parts[parts.len() - 1]);
-        Some(MapName::new(city, &map))
+        Some(MapName::new(country, city, &map))
     }
 
     /// Returns the filesystem path to this map.
     pub fn path(&self) -> String {
-        path(format!("system/{}/maps/{}.bin", self.city, self.map))
-    }
-
-    /// Returns all city names.
-    pub fn list_all_cities() -> Vec<String> {
-        let mut cities = Vec::new();
-        for city in list_all_objects(path("system")) {
-            if city == "assets" || city == "proposals" || city == "study_areas" {
-                continue;
-            }
-            cities.push(city);
-        }
-        cities
+        path(format!(
+            "system/{}/{}/maps/{}.bin",
+            self.city.country, self.city.city, self.map
+        ))
     }
 
     /// Returns all maps from one city.
-    pub fn list_all_maps_in_city(city: &str) -> Vec<MapName> {
+    pub fn list_all_maps_in_city(city: &CityName) -> Vec<MapName> {
         let mut names = Vec::new();
-        for map in list_all_objects(path(format!("system/{}/maps", city))) {
-            names.push(MapName::new(&city, &map));
+        for map in list_all_objects(path(format!("system/{}/{}/maps", city.country, city.city))) {
+            names.push(MapName {
+                city: city.clone(),
+                map,
+            });
         }
         names
     }
 
-    /// Returns all maps from all cities.
+    /// Returns all maps from all cities, using system data.
     pub fn list_all_maps() -> Vec<MapName> {
         let mut names = Vec::new();
-        for city in MapName::list_all_cities() {
+        for city in CityName::list_all_cities_from_system_data() {
             names.extend(MapName::list_all_maps_in_city(&city));
         }
         names
@@ -144,8 +221,8 @@ impl MapName {
 
 pub fn path_prebaked_results(name: &MapName, scenario_name: &str) -> String {
     path(format!(
-        "system/{}/prebaked_results/{}/{}.bin",
-        name.city, name.map, scenario_name
+        "system/{}/{}/prebaked_results/{}/{}.bin",
+        name.city.country, name.city.city, name.map, scenario_name
     ))
 }
 
@@ -153,12 +230,12 @@ pub fn path_scenario(name: &MapName, scenario_name: &str) -> String {
     // TODO Getting complicated. Sometimes we're trying to load, so we should look for .bin, then
     // .json. But when we're writing a custom scenario, we actually want to write a .bin.
     let bin = path(format!(
-        "system/{}/scenarios/{}/{}.bin",
-        name.city, name.map, scenario_name
+        "system/{}/{}/scenarios/{}/{}.bin",
+        name.city.country, name.city.city, name.map, scenario_name
     ));
     let json = path(format!(
-        "system/{}/scenarios/{}/{}.json",
-        name.city, name.map, scenario_name
+        "system/{}/{}/scenarios/{}/{}.json",
+        name.city.country, name.city.city, name.map, scenario_name
     ));
     if file_exists(&bin) {
         return bin;
@@ -169,17 +246,21 @@ pub fn path_scenario(name: &MapName, scenario_name: &str) -> String {
     bin
 }
 pub fn path_all_scenarios(name: &MapName) -> String {
-    path(format!("system/{}/scenarios/{}", name.city, name.map))
+    path(format!(
+        "system/{}/{}/scenarios/{}",
+        name.city.country, name.city.city, name.map
+    ))
 }
 
 /// Extract the map and scenario name from a path. Crashes if the input is strange.
 pub fn parse_scenario_path(path: &str) -> (MapName, String) {
     // TODO regex
     let parts = path.split("/").collect::<Vec<_>>();
+    let country = parts[parts.len() - 5];
     let city = parts[parts.len() - 4];
     let map = parts[parts.len() - 2];
     let scenario = basename(parts[parts.len() - 1]);
-    let map_name = MapName::new(city, map);
+    let map_name = MapName::new(country, city, map);
     (map_name, scenario)
 }
 
@@ -191,40 +272,46 @@ pub fn path_player<I: Into<String>>(p: I) -> String {
 
 pub fn path_camera_state(name: &MapName) -> String {
     path(format!(
-        "player/camera_state/{}/{}.json",
-        name.city, name.map
+        "player/camera_state/{}/{}/{}.json",
+        name.city.country, name.city.city, name.map
     ))
 }
 
 pub fn path_edits(name: &MapName, edits_name: &str) -> String {
     path(format!(
-        "player/edits/{}/{}/{}.json",
-        name.city, name.map, edits_name
+        "player/edits/{}/{}/{}/{}.json",
+        name.city.country, name.city.city, name.map, edits_name
     ))
 }
 pub fn path_all_edits(name: &MapName) -> String {
-    path(format!("player/edits/{}/{}", name.city, name.map))
+    path(format!(
+        "player/edits/{}/{}/{}",
+        name.city.country, name.city.city, name.map
+    ))
 }
 
 pub fn path_save(name: &MapName, edits_name: &str, run_name: &str, time: String) -> String {
     path(format!(
-        "player/saves/{}/{}/{}_{}/{}.bin",
-        name.city, name.map, edits_name, run_name, time
+        "player/saves/{}/{}/{}/{}_{}/{}.bin",
+        name.city.country, name.city.city, name.map, edits_name, run_name, time
     ))
 }
 pub fn path_all_saves(name: &MapName, edits_name: &str, run_name: &str) -> String {
     path(format!(
-        "player/saves/{}/{}/{}_{}",
-        name.city, name.map, edits_name, run_name
+        "player/saves/{}/{}/{}/{}_{}",
+        name.city.country, name.city.city, name.map, edits_name, run_name
     ))
 }
 
 // Input data (For developers to build maps, not needed at runtime)
 
 pub fn path_popdat() -> String {
-    path("input/seattle/popdat.bin")
+    path("input/us/seattle/popdat.bin")
 }
 
 pub fn path_raw_map(name: &MapName) -> String {
-    path(format!("input/{}/raw_maps/{}.bin", name.city, name.map))
+    path(format!(
+        "input/{}/{}/raw_maps/{}.bin",
+        name.city.country, name.city.city, name.map
+    ))
 }

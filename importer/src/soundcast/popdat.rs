@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 
 use serde::{Deserialize, Serialize};
 
-use abstio::FileWithProgress;
+use abstio::{CityName, FileWithProgress};
 use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::{Distance, Duration, FindClosest, LonLat, Time};
 use kml::{ExtraShape, ExtraShapes};
@@ -27,7 +27,8 @@ fn import_trips(huge_map: &Map, timer: &mut Timer) -> Vec<OrigTrip> {
 
     let mut trips = Vec::new();
     let (reader, done) =
-        FileWithProgress::new(&abstio::path("input/seattle/trips_2014.csv")).unwrap();
+        FileWithProgress::new(&CityName::new("us", "seattle").input_path("trips_2014.csv"))
+            .unwrap();
     let mut total_records = 0;
     let mut people: HashSet<OrigPersonID> = HashSet::new();
     let mut trips_from_parcel: Counter<usize> = Counter::new();
@@ -104,7 +105,7 @@ fn import_trips(huge_map: &Map, timer: &mut Timer) -> Vec<OrigTrip> {
     }
     let shapes: Vec<ExtraShape> = keyed_shapes.into_iter().map(|(_, v)| v).collect();
     abstio::write_binary(
-        abstio::path("input/seattle/parcels.bin"),
+        CityName::new("us", "seattle").input_path("parcels.bin"),
         &ExtraShapes { shapes },
     );
 
@@ -132,7 +133,8 @@ fn import_parcels(
     let mut parcel_metadata = Vec::new();
 
     let (reader, done) =
-        FileWithProgress::new(&abstio::path("input/seattle/parcels_urbansim.txt")).unwrap();
+        FileWithProgress::new(&CityName::new("us", "seattle").input_path("parcels_urbansim.csv"))
+            .unwrap();
     for rec in csv::ReaderBuilder::new()
         .delimiter(b' ')
         .from_reader(reader)

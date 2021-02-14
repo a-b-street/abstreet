@@ -193,7 +193,11 @@ fn convert(orig_path: &str, network: Network) -> Result<Map> {
 
     Ok(Map::import_minimal(
         // Double basename because "foo.net.xml" just becomes "foo.net"
-        MapName::new("sumo", &abstutil::basename(abstutil::basename(orig_path))),
+        MapName::new(
+            "zz",
+            "sumo",
+            &abstutil::basename(abstutil::basename(orig_path)),
+        ),
         network.location.converted_boundary,
         network.location.orig_boundary,
         intersections,

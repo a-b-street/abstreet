@@ -62,10 +62,9 @@ impl DevToolsMode {
                         .btn_outline_light_text("story maps")
                         .hotkey(Key::S)
                         .build_def(ctx),
-                    if abstio::file_exists(abstio::path(format!(
-                        "input/{}/collisions.bin",
-                        app.primary.map.get_city_name()
-                    ))) {
+                    if abstio::file_exists(
+                        app.primary.map.get_city_name().input_path("collisions.bin"),
+                    ) {
                         ctx.style()
                             .btn_outline_light_text("collisions")
                             .hotkey(Key::C)
@@ -97,8 +96,9 @@ impl State<App> for DevToolsMode {
                         // people building from source. Also, abstio::path is abused to find the
                         // importer/ directory.
                         abstio::list_dir(abstio::path(format!(
-                            "../importer/config/{}",
-                            app.primary.map.get_city_name()
+                            "../importer/config/{}/{}",
+                            app.primary.map.get_city_name().country,
+                            app.primary.map.get_city_name().city
                         )))
                         .into_iter()
                         .filter(|path| path.ends_with(".poly"))

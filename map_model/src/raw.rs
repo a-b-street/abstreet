@@ -10,7 +10,7 @@ use anyhow::Result;
 use petgraph::graphmap::DiGraphMap;
 use serde::{Deserialize, Serialize};
 
-use abstio::MapName;
+use abstio::{CityName, MapName};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Tags};
 use geom::{Circle, Distance, GPSBounds, PolyLine, Polygon, Pt2D};
 
@@ -220,6 +220,10 @@ impl RawMap {
 
     pub fn save(&self) {
         abstio::write_binary(abstio::path_raw_map(&self.name), self)
+    }
+
+    pub fn get_city_name(&self) -> &CityName {
+        &self.name.city
     }
 }
 

@@ -1,6 +1,9 @@
 {
   "map_name": {
-    "city": "seattle",
+    "city": {
+	    "country": "us",
+	    "city": "seattle"
+    },
     "map": "west_seattle"
   },
   "edits_name": "repair west seattle bridge",

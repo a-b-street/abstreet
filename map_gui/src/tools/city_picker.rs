@@ -1,4 +1,6 @@
-use abstio::MapName;
+use std::collections::BTreeMap;
+
+use abstio::{CityName, MapName};
 use geom::{Distance, Percent, Polygon, Pt2D};
 use map_model::City;
 use widgetry::{
@@ -8,14 +10,14 @@ use widgetry::{
 
 use crate::load::{FileLoader, MapLoader};
 use crate::render::DrawArea;
-use crate::tools::{grey_out_map, nice_map_name, open_browser};
+use crate::tools::{grey_out_map, nice_country_name, nice_map_name, open_browser};
 use crate::AppLike;
 
 /// Lets the player switch maps.
 pub struct CityPicker<A: AppLike> {
     panel: Panel,
     // In untranslated screen-space
-    regions: Vec<(MapName, Color, Polygon)>,
+    districts: Vec<(MapName, Color, Polygon)>,
     selected: Option<usize>,
     // Wrapped in an Option just to make calling from event() work.
     on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>>,
@@ -34,14 +36,17 @@ impl<A: AppLike + 'static> CityPicker<A> {
     fn new_in_city(
         ctx: &mut EventCtx,
         on_load: Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>,
-        city_name: String,
+        city_name: CityName,
     ) -> Box<dyn State<A>> {
         FileLoader::<A, City>::new(
             ctx,
-            abstio::path(format!("system/{}/city.bin", city_name)),
+            abstio::path(format!(
+                "system/{}/{}/city.bin",
+                city_name.country, city_name.city
+            )),
             Box::new(move |ctx, app, _, maybe_city| {
                 let mut batch = GeomBatch::new();
-                let mut regions = Vec::new();
+                let mut districts = Vec::new();
                 let mut this_city = vec![];
 
                 // If this city overview doesn't exist, we assume this map is the only one in the
@@ -58,7 +63,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                     }
 
                     for (name, polygon) in city.regions {
-                        let color = app.cs().rotating_color_agents(regions.len());
+                        let color = app.cs().rotating_color_agents(districts.len());
 
                         let btn = ctx
                             .style()
@@ -73,29 +78,30 @@ impl<A: AppLike + 'static> CityPicker<A> {
                         } else {
                             this_city.push(btn.build_widget(ctx, &action));
                             batch.push(color, polygon.to_outline(Distance::meters(200.0)).unwrap());
-                            regions.push((name, color, polygon.scale(zoom)));
+                            districts.push((name, color, polygon.scale(zoom)));
                         }
                     }
                     batch = batch.scale(zoom);
 
-                    this_city.insert(0, format!("More regions in {}", city_name).draw_text(ctx));
+                    this_city.insert(
+                        0,
+                        format!("More districts in {}", city_name.describe()).draw_text(ctx),
+                    );
                 }
 
-                let mut other_cities = vec![Line("Other cities").draw(ctx)];
-                for city in MapName::list_all_cities() {
-                    if city == city_name {
-                        continue;
-                    }
-                    // If there's only one map in the city, make the button directly load it.
-                    let button = ctx.style().btn_outline_light_text(&city);
-                    let maps = MapName::list_all_maps_in_city(&city);
-                    if maps.len() == 1 {
-                        other_cities.push(button.build_widget(ctx, &maps[0].path()));
-                    } else {
-                        other_cities.push(button.no_tooltip().build_def(ctx));
-                    }
+                let mut other_places = vec![Line("Other places").draw(ctx)];
+                for (country, cities) in cities_per_country() {
+                    other_places.push(
+                        ctx.style()
+                            .btn_outline_light_text(&format!(
+                                "{} in {}",
+                                cities.len(),
+                                nice_country_name(&country)
+                            ))
+                            .build_widget(ctx, &country),
+                    );
                 }
-                other_cities.push(
+                other_places.push(
                     ctx.style()
                         .btn_solid_dark_text("Search all maps")
                         .hotkey(Key::Tab)
@@ -103,16 +109,16 @@ impl<A: AppLike + 'static> CityPicker<A> {
                 );
 
                 Transition::Replace(Box::new(CityPicker {
-                    regions,
+                    districts,
                     selected: None,
                     on_load: Some(on_load),
                     panel: Panel::new(Widget::col(vec![
                         Widget::row(vec![
-                            Line("Select a region").small_heading().draw(ctx),
+                            Line("Select a district").small_heading().draw(ctx),
                             ctx.style().btn_close_widget(ctx),
                         ]),
                         Widget::row(vec![
-                            Widget::col(other_cities).centered_vert(),
+                            Widget::col(other_places).centered_vert(),
                             Widget::draw_batch(ctx, batch).named("picker"),
                             Widget::col(this_city).centered_vert(),
                         ]),
@@ -182,11 +188,12 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
                             self.on_load.take().unwrap(),
                         ));
                     }
-                    // Browse maps for another city without loading any map there
-                    return Transition::Replace(CityPicker::new_in_city(
+                    // Browse cities for another country
+                    return Transition::Replace(CitiesInCountryPicker::new(
                         ctx,
+                        app,
                         self.on_load.take().unwrap(),
-                        x.to_string(),
+                        x,
                     ));
                 }
             },
@@ -199,14 +206,14 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
                 let rect = self.panel.rect_of("picker");
                 if rect.contains(cursor) {
                     let pt = Pt2D::new(cursor.x - rect.x1, cursor.y - rect.y1);
-                    for (idx, (_, _, poly)) in self.regions.iter().enumerate() {
+                    for (idx, (_, _, poly)) in self.districts.iter().enumerate() {
                         if poly.contains_pt(pt) {
                             self.selected = Some(idx);
                             break;
                         }
                     }
                 } else if let Some(btn) = self.panel.currently_hovering() {
-                    for (idx, (name, _, _)) in self.regions.iter().enumerate() {
+                    for (idx, (name, _, _)) in self.districts.iter().enumerate() {
                         if &name.map == btn {
                             self.selected = Some(idx);
                             break;
@@ -216,7 +223,7 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
             }
         }
         if let Some(idx) = self.selected {
-            let name = &self.regions[idx].0;
+            let name = &self.districts[idx].0;
             if ctx.normal_left_click() {
                 return Transition::Replace(MapLoader::new(
                     ctx,
@@ -239,7 +246,7 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
         self.panel.draw(g);
 
         if let Some(idx) = self.selected {
-            let (name, color, poly) = &self.regions[idx];
+            let (name, color, poly) = &self.districts[idx];
             let rect = self.panel.rect_of("picker");
             g.fork(
                 Pt2D::new(0.0, 0.0),
@@ -284,7 +291,7 @@ impl<A: AppLike + 'static> AllCityPicker<A> {
             on_load: Some(on_load),
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
-                    Line("Select a region").small_heading().draw(ctx),
+                    Line("Select a district").small_heading().draw(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 Widget::row(vec![
@@ -340,4 +347,105 @@ impl<A: AppLike + 'static> State<A> for AllCityPicker<A> {
         grey_out_map(g, app);
         self.panel.draw(g);
     }
+}
+
+struct CitiesInCountryPicker<A: AppLike> {
+    panel: Panel,
+    // Wrapped in an Option just to make calling from event() work.
+    on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>>,
+}
+
+impl<A: AppLike + 'static> CitiesInCountryPicker<A> {
+    fn new(
+        ctx: &mut EventCtx,
+        app: &A,
+        on_load: Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>,
+        country: &str,
+    ) -> Box<dyn State<A>> {
+        let mut buttons = Vec::new();
+        for city in cities_per_country().remove(country).unwrap() {
+            if &city == app.map().get_city_name() {
+                continue;
+            }
+            buttons.push(
+                ctx.style()
+                    .btn_outline_light_text(&city.city)
+                    .build_widget(ctx, &city.to_path())
+                    .margin_right(10)
+                    .margin_below(10),
+            );
+        }
+
+        Box::new(CitiesInCountryPicker {
+            on_load: Some(on_load),
+            panel: Panel::new(Widget::col(vec![
+                Widget::row(vec![
+                    Line(format!("Select a city in {}", nice_country_name(country)))
+                        .small_heading()
+                        .draw(ctx),
+                    ctx.style().btn_close_widget(ctx),
+                ]),
+                Widget::custom_row(buttons).flex_wrap(ctx, Percent::int(70)),
+            ]))
+            .exact_size_percent(80, 80)
+            .build(ctx),
+        })
+    }
+}
+
+impl<A: AppLike + 'static> State<A> for CitiesInCountryPicker<A> {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
+        match self.panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
+                "close" => {
+                    // Go back to the screen that lets you choose all countries.
+                    return Transition::Replace(CityPicker::new(
+                        ctx,
+                        app,
+                        self.on_load.take().unwrap(),
+                    ));
+                }
+                path => {
+                    let city = CityName::parse(path).unwrap();
+                    let mut maps = MapName::list_all_maps_in_city(&city);
+                    if maps.len() == 1 {
+                        return Transition::Replace(MapLoader::new(
+                            ctx,
+                            app,
+                            maps.pop().unwrap(),
+                            self.on_load.take().unwrap(),
+                        ));
+                    }
+                    return Transition::Replace(CityPicker::new_in_city(
+                        ctx,
+                        self.on_load.take().unwrap(),
+                        city,
+                    ));
+                }
+            },
+            _ => {}
+        }
+
+        Transition::Keep
+    }
+
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::PreviousState
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &A) {
+        grey_out_map(g, app);
+        self.panel.draw(g);
+    }
+}
+
+fn cities_per_country() -> BTreeMap<String, Vec<CityName>> {
+    let mut per_country = BTreeMap::new();
+    for city in CityName::list_all_cities_from_system_data() {
+        per_country
+            .entry(city.country.clone())
+            .or_insert_with(Vec::new)
+            .push(city);
+    }
+    per_country
 }

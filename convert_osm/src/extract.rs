@@ -175,12 +175,9 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
     // in Seattle. In the future, this should only happen for the largest or canonical map per
     // city, but there's no way to express that right now.
     if map.name == MapName::seattle("huge_seattle") {
+        abstio::write_binary(map.name.city.input_path("footways.bin"), &extra_footways);
         abstio::write_binary(
-            abstio::path(format!("input/{}/footways.bin", map.name.city)),
-            &extra_footways,
-        );
-        abstio::write_binary(
-            abstio::path(format!("input/{}/service_roads.bin", map.name.city)),
+            map.name.city.input_path("service_roads.bin"),
             &extra_service_roads,
         );
     }

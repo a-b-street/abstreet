@@ -16,7 +16,7 @@ pub struct GenericCityImporter {
     /// The URL to a .osm or .osm.pbf file containing the entire city.
     /// http://download.geofabrik.de/ is recommended.
     ///
-    /// You can also put a path like `input/seattle/osm/washington-latest.osm.pbf` in here,
+    /// You can also put a path like `input/us/seattle/osm/washington-latest.osm.pbf` in here,
     /// and instead that file will be used. This is kind of a hack, because it'll assume the cities
     /// are imported in the proper order, but it prevents having to download duplicate large files.
     pub osm_url: String,
@@ -42,35 +42,40 @@ impl GenericCityImporter {
         config: &ImporterConfiguration,
     ) -> RawMap {
         let local_osm_file = if self.osm_url.starts_with("http") {
-            let file = format!(
-                "input/{}/osm/{}",
-                name.city,
+            let file = name.city.input_path(format!(
+                "osm/{}",
                 std::path::Path::new(&self.osm_url)
                     .file_name()
                     .unwrap()
                     .to_os_string()
                     .into_string()
                     .unwrap()
-            );
-            download(config, &file, &self.osm_url);
+            ));
+            download(config, file.clone(), &self.osm_url);
             file
         } else {
             self.osm_url.clone()
         };
 
         osmconvert(
-            &local_osm_file,
-            format!("importer/config/{}/{}.poly", name.city, name.map),
-            format!("input/{}/osm/{}.osm", name.city, name.map),
+            local_osm_file,
+            format!(
+                "importer/config/{}/{}/{}.poly",
+                name.city.country, name.city.city, name.map
+            ),
+            name.city.input_path(format!("osm/{}.osm", name.map)),
             config,
         );
 
         let map = convert_osm::convert(
             convert_osm::Options {
-                osm_input: abstio::path(format!("input/{}/osm/{}.osm", name.city, name.map)),
+                osm_input: name.city.input_path(format!("osm/{}.osm", name.map)),
                 name: name.clone(),
 
-                clip: Some(format!("importer/config/{}/{}.poly", name.city, name.map)),
+                clip: Some(format!(
+                    "importer/config/{}/{}/{}.poly",
+                    name.city.country, name.city.city, name.map
+                )),
                 map_config: self.map_config.clone(),
                 onstreet_parking: self.onstreet_parking.clone(),
                 public_offstreet_parking: self.public_offstreet_parking.clone(),

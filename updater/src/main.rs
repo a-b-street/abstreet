@@ -178,17 +178,18 @@ fn opt_into_all() {
     };
     for path in Manifest::load().entries.keys() {
         // TODO Some hardcoded weird exceptions
-        if path == "data/system/seattle/maps/huge_seattle.bin"
-            || path == "data/system/seattle/scenarios/huge_seattle/weekday.bin"
+        if path == "data/system/us/seattle/maps/huge_seattle.bin"
+            || path == "data/system/us/seattle/scenarios/huge_seattle/weekday.bin"
         {
-            data_packs.runtime.insert("huge_seattle".to_string());
+            data_packs.runtime.insert("us/huge_seattle".to_string());
             continue;
         }
         let parts = path.split("/").collect::<Vec<_>>();
+        let city = format!("{}/{}", parts[2], parts[3]);
         if parts[1] == "input" {
-            data_packs.input.insert(parts[2].to_string());
+            data_packs.input.insert(city);
         } else if parts[1] == "system" {
-            data_packs.runtime.insert(parts[2].to_string());
+            data_packs.runtime.insert(city);
         }
     }
     println!("{}", abstutil::to_json(&data_packs));

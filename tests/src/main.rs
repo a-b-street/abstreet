@@ -6,7 +6,7 @@ use std::io::Write;
 use anyhow::Result;
 use rand::seq::SliceRandom;
 
-use abstio::MapName;
+use abstio::{CityName, MapName};
 use abstutil::Timer;
 use geom::{Distance, Duration, Time};
 use map_model::{IntersectionID, Map};
@@ -49,7 +49,7 @@ fn import_map(path: String) -> Map {
     let mut timer = Timer::new("convert synthetic map");
     let raw = convert_osm::convert(
         convert_osm::Options {
-            name: MapName::new("oneshot", &abstutil::basename(&path)),
+            name: MapName::new("zz", "oneshot", &abstutil::basename(&path)),
             osm_input: path,
             clip: None,
             map_config: map_model::MapConfig {
@@ -87,7 +87,7 @@ fn smoke_test() -> Result<()> {
     let mut timer = Timer::new("run a smoke-test for all maps");
     for name in MapName::list_all_maps() {
         let map = map_model::Map::new(name.path(), &mut timer);
-        let scenario = if map.get_city_name() == "seattle" {
+        let scenario = if map.get_city_name() == &CityName::new("us", "seattle") {
             abstio::read_binary(abstio::path_scenario(&name, "weekday"), &mut timer)
         } else {
             let mut rng = sim::SimFlags::for_test("smoke_test").make_rng();
@@ -102,9 +102,9 @@ fn smoke_test() -> Result<()> {
         scenario.instantiate(&mut sim, &map, &mut rng, &mut timer);
         sim.timed_step(&map, Duration::hours(1), &mut None, &mut timer);
 
-        if (name.city == "seattle"
+        if (name.city == CityName::new("us", "seattle")
             && vec!["downtown", "lakeslice", "montlake", "udistrict"].contains(&name.map.as_str()))
-            || name == MapName::new("krakow", "center")
+            || name == MapName::new("pl", "krakow", "center")
         {
             dump_route_goldenfile(&map)?;
         }
