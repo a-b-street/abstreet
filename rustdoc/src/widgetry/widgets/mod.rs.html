@@ -836,6 +836,8 @@
 <span id="833">833</span>
 <span id="834">834</span>
 <span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -1481,10 +1483,12 @@
 
     <span class="kw">fn</span> <span class="ident">get_all_click_actions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">actions</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">btn</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">widget</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">Button</span><span class="op">&gt;</span>() {
-            <span class="kw">if</span> <span class="ident">actions</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">btn</span>.<span class="ident">action</span>) {
-                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Two buttons in one Panel both use action {}&quot;</span>, <span class="ident">btn</span>.<span class="ident">action</span>);
+            <span class="kw">if</span> <span class="ident">btn</span>.<span class="ident">is_enabled</span>() {
+                <span class="kw">if</span> <span class="ident">actions</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">btn</span>.<span class="ident">action</span>) {
+                    <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Two buttons in one Panel both use action {}&quot;</span>, <span class="ident">btn</span>.<span class="ident">action</span>);
+                }
+                <span class="ident">actions</span>.<span class="ident">insert</span>(<span class="ident">btn</span>.<span class="ident">action</span>.<span class="ident">clone</span>());
             }
-            <span class="ident">actions</span>.<span class="ident">insert</span>(<span class="ident">btn</span>.<span class="ident">action</span>.<span class="ident">clone</span>());
         } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">container</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">widget</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">Container</span><span class="op">&gt;</span>() {
             <span class="kw">for</span> <span class="ident">w</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">container</span>.<span class="ident">members</span> {
                 <span class="ident">w</span>.<span class="ident">get_all_click_actions</span>(<span class="ident">actions</span>);

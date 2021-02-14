@@ -417,6 +417,7 @@
 <span id="414">414</span>
 <span id="415">415</span>
 <span id="416">416</span>
+<span id="417">417</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// TODO Rename -- this is for KML, CSV, GeoJSON</span>
 
@@ -575,6 +576,7 @@
                             .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> {
                                 (<span class="ident">x</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.bin&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.kml&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.csv&quot;</span>))
                                     <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">x</span>.<span class="ident">ends_with</span>(<span class="string">&quot;popdat.bin&quot;</span>)
+                                    <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">x</span>.<span class="ident">ends_with</span>(<span class="string">&quot;collisions.bin&quot;</span>)
                             })
                             .<span class="ident">collect</span>(),
                         ),
