@@ -155,6 +155,7 @@ impl State<App> for ViewKML {
                             .filter(|x| {
                                 (x.ends_with(".bin") || x.ends_with(".kml") || x.ends_with(".csv"))
                                     && !x.ends_with("popdat.bin")
+                                    && !x.ends_with("collisions.bin")
                             })
                             .collect(),
                         ),

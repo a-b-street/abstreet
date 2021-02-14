@@ -642,10 +642,12 @@ impl Widget {
 
     fn get_all_click_actions(&self, actions: &mut HashSet<String>) {
         if let Some(btn) = self.widget.downcast_ref::<Button>() {
-            if actions.contains(&btn.action) {
-                panic!("Two buttons in one Panel both use action {}", btn.action);
+            if btn.is_enabled() {
+                if actions.contains(&btn.action) {
+                    panic!("Two buttons in one Panel both use action {}", btn.action);
+                }
+                actions.insert(btn.action.clone());
             }
-            actions.insert(btn.action.clone());
         } else if let Some(container) = self.widget.downcast_ref::<Container>() {
             for w in &container.members {
                 w.get_all_click_actions(actions);
