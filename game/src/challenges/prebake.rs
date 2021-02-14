@@ -28,7 +28,7 @@ pub fn prebake_all() {
     }
 
     for name in vec![
-        //MapName::seattle("lakeslice"),   TODO Temporarily broken
+        MapName::seattle("lakeslice"),
         MapName::seattle("rainier_valley"),
     ] {
         let map = map_model::Map::new(name.path(), &mut timer);
