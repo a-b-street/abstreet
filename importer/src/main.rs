@@ -18,11 +18,10 @@ mod berlin;
 mod configuration;
 mod dependencies;
 mod generic;
-mod leeds;
-mod london;
 mod seattle;
 #[cfg(feature = "scenarios")]
 mod soundcast;
+mod uk;
 mod utils;
 
 // TODO Might be cleaner to express as a dependency graph?
@@ -212,9 +211,9 @@ impl Job {
                     if self.city == CityName::new("de", "berlin") {
                         berlin::import_extra_data(&raw, config, timer);
                     } else if self.city == CityName::new("gb", "leeds") && name == "huge" {
-                        leeds::import_extra_data(&raw, config, timer);
+                        uk::import_extra_data(&raw, config, timer);
                     } else if self.city == CityName::new("gb", "london") {
-                        london::import_extra_data(&raw, config, timer);
+                        uk::import_extra_data(&raw, config, timer);
                     }
                 }
             }
