@@ -1,7 +1,10 @@
 {
   "map_name": {
-	  "city": "seattle",
-	  "map": "udistrict"
+    "city": {
+	    "country": "us",
+	    "city": "seattle"
+    },
+    "map": "udistrict"
   },
   "edits_name": "simplify where Corliss, Pacific, and the Burke cross",
   "version": 3,
