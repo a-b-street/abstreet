@@ -146,18 +146,16 @@ impl State<App> for ViewKML {
                         ctx,
                         "Load file",
                         Choice::strings(
-                            abstio::list_dir(abstio::path(format!(
-                                "input/{}/{}/",
-                                app.primary.map.get_city_name().country,
-                                app.primary.map.get_city_name().city
-                            )))
-                            .into_iter()
-                            .filter(|x| {
-                                (x.ends_with(".bin") || x.ends_with(".kml") || x.ends_with(".csv"))
-                                    && !x.ends_with("popdat.bin")
-                                    && !x.ends_with("collisions.bin")
-                            })
-                            .collect(),
+                            abstio::list_dir(app.primary.map.get_city_name().input_path(""))
+                                .into_iter()
+                                .filter(|x| {
+                                    (x.ends_with(".bin")
+                                        || x.ends_with(".kml")
+                                        || x.ends_with(".csv"))
+                                        && !x.ends_with("popdat.bin")
+                                        && !x.ends_with("collisions.bin")
+                                })
+                                .collect(),
                         ),
                         Box::new(|path, ctx, app| {
                             Transition::Multi(vec![
@@ -223,14 +221,14 @@ fn load_objects(
 
     let raw_shapes = if let Some(ref path) = path {
         if path.ends_with(".kml") {
-            let shapes = kml::load(&path, bounds, true, timer).unwrap();
+            let shapes = kml::load(path.clone(), bounds, true, timer).unwrap();
             // Assuming this is some huge file, conveniently convert the extract to .bin.
             // The new file will show up as untracked in git, so it'll be obvious this
             // happened.
             abstio::write_binary(path.replace(".kml", ".bin"), &shapes);
             shapes
         } else if path.ends_with(".csv") {
-            let shapes = ExtraShapes::load_csv(&path, bounds, timer).unwrap();
+            let shapes = ExtraShapes::load_csv(path.clone(), bounds, timer).unwrap();
             // Assuming this is some huge file, conveniently convert the extract to .bin.
             // The new file will show up as untracked in git, so it'll be obvious this
             // happened.

@@ -121,6 +121,16 @@ impl CityName {
     pub fn describe(&self) -> String {
         format!("{} ({})", self.city, self.country)
     }
+
+    /// Constructs the path to some city-scoped data/input.
+    pub fn input_path<I: Into<String>>(&self, file: I) -> String {
+        path(format!(
+            "input/{}/{}/{}",
+            self.country,
+            self.city,
+            file.into()
+        ))
+    }
 }
 
 /// A single map is identified using this.

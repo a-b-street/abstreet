@@ -62,11 +62,9 @@ impl DevToolsMode {
                         .btn_outline_light_text("story maps")
                         .hotkey(Key::S)
                         .build_def(ctx),
-                    if abstio::file_exists(abstio::path(format!(
-                        "input/{}/{}/collisions.bin",
-                        app.primary.map.get_city_name().country,
-                        app.primary.map.get_city_name().city
-                    ))) {
+                    if abstio::file_exists(
+                        app.primary.map.get_city_name().input_path("collisions.bin"),
+                    ) {
                         ctx.style()
                             .btn_outline_light_text("collisions")
                             .hotkey(Key::C)

@@ -4,7 +4,7 @@ use std::fs::File;
 use aabb_quadtree::QuadTree;
 use serde::Deserialize;
 
-use abstio::MapName;
+use abstio::{CityName, MapName};
 use abstutil::{MultiMap, Timer};
 use geom::{Distance, Duration, Polygon, Ring, Time};
 use kml::ExtraShapes;
@@ -15,20 +15,22 @@ use crate::configuration::ImporterConfiguration;
 use crate::utils::{download, download_kml, osmconvert};
 
 fn input(config: &ImporterConfiguration, timer: &mut Timer) {
+    let city = CityName::new("us", "seattle");
+
     download(
         config,
-        "input/us/seattle/N47W122.hgt",
+        city.input_path("N47W122.hgt"),
         "https://dds.cr.usgs.gov/srtm/version2_1/SRTM1/Region_01/N47W122.hgt.zip",
     );
     download(
         config,
-        "input/us/seattle/osm/washington-latest.osm.pbf",
+        city.input_path("osm/washington-latest.osm.pbf"),
         "http://download.geofabrik.de/north-america/us/washington-latest.osm.pbf",
     );
     // Soundcast data comes from https://github.com/psrc/soundcast/releases
     download(
         config,
-        "input/us/seattle/parcels_urbansim.txt",
+        city.input_path("parcels_urbansim.txt"),
         "https://www.dropbox.com/s/t9oug9lwhdwfc04/psrc_2014.zip?dl=0",
     );
 
@@ -37,7 +39,7 @@ fn input(config: &ImporterConfiguration, timer: &mut Timer) {
     );
     // From http://data-seattlecitygis.opendata.arcgis.com/datasets/blockface
     download_kml(
-        "input/us/seattle/blockface.bin",
+        city.input_path("blockface.bin"),
         "https://opendata.arcgis.com/datasets/a1458ad1abca41869b81f7c0db0cd777_0.kml",
         &bounds,
         true,
@@ -45,7 +47,7 @@ fn input(config: &ImporterConfiguration, timer: &mut Timer) {
     );
     // From https://data-seattlecitygis.opendata.arcgis.com/datasets/public-garages-or-parking-lots
     download_kml(
-        "input/us/seattle/offstreet_parking.bin",
+        city.input_path("offstreet_parking.bin"),
         "http://data-seattlecitygis.opendata.arcgis.com/datasets/8e52dfde6d5d45948f7a90654c8d50cd_0.kml",
         &bounds,
         true,
@@ -54,7 +56,7 @@ fn input(config: &ImporterConfiguration, timer: &mut Timer) {
 
     download(
         config,
-        "input/us/seattle/google_transit/",
+        city.input_path("google_transit/"),
         "http://metro.kingcounty.gov/gtfs/google_transit.zip",
     );
 
@@ -62,27 +64,23 @@ fn input(config: &ImporterConfiguration, timer: &mut Timer) {
     // https://data-seattlecitygis.opendata.arcgis.com/datasets/5b5c745e0f1f48e7a53acec63a0022ab_0
     download(
         config,
-        "input/us/seattle/collisions.kml",
+        city.input_path("collisions.kml"),
         "https://opendata.arcgis.com/datasets/5b5c745e0f1f48e7a53acec63a0022ab_0.kml",
     );
 
     // This is a little expensive, so delete data/input/us/seattle/collisions.bin to regenerate
     // this.
-    if !abstio::file_exists("data/input/us/seattle/collisions.bin") {
-        let shapes =
-            kml::load("data/input/us/seattle/collisions.kml", &bounds, true, timer).unwrap();
+    if !abstio::file_exists(city.input_path("collisions.bin")) {
+        let shapes = kml::load(city.input_path("collisions.kml"), &bounds, true, timer).unwrap();
         let collisions = collisions::import_seattle(
             shapes,
             "https://data-seattlecitygis.opendata.arcgis.com/datasets/5b5c745e0f1f48e7a53acec63a0022ab_0");
-        abstio::write_binary(
-            "data/input/us/seattle/collisions.bin".to_string(),
-            &collisions,
-        );
+        abstio::write_binary(city.input_path("collisions.bin"), &collisions);
     }
 
     // From https://data-seattlecitygis.opendata.arcgis.com/datasets/parcels-1
     download_kml(
-        "input/us/seattle/zoning_parcels.bin",
+        city.input_path("zoning_parcels.bin"),
         "https://opendata.arcgis.com/datasets/42863f1debdc47488a1c2b9edd38053e_2.kml",
         &bounds,
         true,
@@ -92,7 +90,7 @@ fn input(config: &ImporterConfiguration, timer: &mut Timer) {
     // From
     // https://data-seattlecitygis.opendata.arcgis.com/datasets/current-land-use-zoning-detail
     download_kml(
-        "input/us/seattle/land_use.bin",
+        city.input_path("land_use.bin"),
         "https://opendata.arcgis.com/datasets/dd29065b5d01420e9686570c2b77502b_0.kml",
         &bounds,
         false,
@@ -101,17 +99,19 @@ fn input(config: &ImporterConfiguration, timer: &mut Timer) {
 }
 
 pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration) {
+    let city = CityName::new("us", "seattle");
+
     input(config, timer);
     osmconvert(
-        "input/us/seattle/osm/washington-latest.osm.pbf",
+        city.input_path("osm/washington-latest.osm.pbf"),
         format!("importer/config/us/seattle/{}.poly", name),
-        format!("input/us/seattle/osm/{}.osm", name),
+        city.input_path(format!("osm/{}.osm", name)),
         config,
     );
 
     let map = convert_osm::convert(
         convert_osm::Options {
-            osm_input: abstio::path(format!("input/us/seattle/osm/{}.osm", name)),
+            osm_input: city.input_path(format!("osm/{}.osm", name)),
             name: MapName::seattle(name),
 
             clip: Some(format!("importer/config/us/seattle/{}.poly", name)),
@@ -123,12 +123,12 @@ pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration)
                 street_parking_spot_length: Distance::meters(8.0),
             },
 
-            onstreet_parking: convert_osm::OnstreetParking::Blockface(abstio::path(
-                "input/us/seattle/blockface.bin",
-            )),
-            public_offstreet_parking: convert_osm::PublicOffstreetParking::GIS(abstio::path(
-                "input/us/seattle/offstreet_parking.bin",
-            )),
+            onstreet_parking: convert_osm::OnstreetParking::Blockface(
+                city.input_path("blockface.bin"),
+            ),
+            public_offstreet_parking: convert_osm::PublicOffstreetParking::GIS(
+                city.input_path("offstreet_parking.bin"),
+            ),
             private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(
                 // TODO Utter guesses
                 match name {
@@ -140,7 +140,7 @@ pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration)
                     _ => 1,
                 },
             ),
-            elevation: Some(abstio::path("input/us/seattle/N47W122.hgt")),
+            elevation: Some(city.input_path("N47W122.hgt")),
             // They mess up 16th and E Marginal badly enough to cause gridlock.
             include_railroads: false,
             extra_buildings: None,
@@ -189,6 +189,7 @@ pub fn adjust_private_parking(map: &mut Map, scenario: &Scenario) {
 /// - is specific to Seattle, whose files don't seem to match https://developers.google.com/transit/gtfs/reference
 /// - is probably wrong
 pub fn add_gtfs_schedules(map: &mut Map) {
+    let city = CityName::new("us", "seattle");
     // https://www.openstreetmap.org/relation/8616968 as an example, mapping to
     // https://kingcounty.gov/depts/transportation/metro/schedules-maps/route/048.aspx
 
@@ -202,10 +203,9 @@ pub fn add_gtfs_schedules(map: &mut Map) {
 
     // Each route has a bunch of trips throughout the day
     let mut trip_marker_to_trips: MultiMap<String, String> = MultiMap::new();
-    for rec in csv::Reader::from_reader(
-        File::open("data/input/us/seattle/google_transit/trips.txt").unwrap(),
-    )
-    .deserialize()
+    for rec in
+        csv::Reader::from_reader(File::open(city.input_path("google_transit/trips.txt")).unwrap())
+            .deserialize()
     {
         let rec: TripRecord = rec.unwrap();
         if trip_marker_to_route.contains_key(&rec.shape_id) {
@@ -216,7 +216,7 @@ pub fn add_gtfs_schedules(map: &mut Map) {
     // For every trip, find the earliest arrival time. That should be the spawn time.
     let mut trip_to_earliest_time: BTreeMap<String, Time> = BTreeMap::new();
     for rec in csv::Reader::from_reader(
-        File::open("data/input/us/seattle/google_transit/stop_times.txt").unwrap(),
+        File::open(city.input_path("google_transit/stop_times.txt")).unwrap(),
     )
     .deserialize()
     {
@@ -266,7 +266,7 @@ struct StopTimeRecord {
 // TODO It's expensive to load the huge zoning_parcels.bin file for every map.
 pub fn match_parcels_to_buildings(map: &mut Map, timer: &mut Timer) {
     let shapes: ExtraShapes = abstio::read_binary(
-        "data/input/us/seattle/zoning_parcels.bin".to_string(),
+        CityName::new("us", "seattle").input_path("zoning_parcels.bin"),
         timer,
     );
     let mut parcels_with_housing: Vec<(Polygon, usize)> = Vec::new();

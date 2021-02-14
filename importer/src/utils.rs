@@ -6,10 +6,9 @@ use abstutil::{must_run_cmd, Timer};
 
 use crate::configuration::ImporterConfiguration;
 
-// If the output file doesn't already exist, downloads the URL into that location. Automatically
-// uncompresses .zip and .gz files.
-pub fn download(config: &ImporterConfiguration, output: &str, url: &str) {
-    let output = abstio::path(output);
+/// If the output file doesn't already exist, downloads the URL into that location. Automatically
+/// uncompresses .zip and .gz files. Assumes a proper path is passed in (including data/).
+pub fn download(config: &ImporterConfiguration, output: String, url: &str) {
     if Path::new(&output).exists() {
         println!("- {} already exists", output);
         return;
@@ -53,17 +52,16 @@ pub fn download(config: &ImporterConfiguration, output: &str, url: &str) {
     }
 }
 
-// If the output file doesn't already exist, downloads the URL into that location. Clips .kml
-// files and converts to a .bin.
+/// If the output file doesn't already exist, downloads the URL into that location. Clips .kml
+/// files and converts to a .bin.
 pub fn download_kml(
-    output: &str,
+    output: String,
     url: &str,
     bounds: &geom::GPSBounds,
     require_all_pts_in_bounds: bool,
     timer: &mut Timer,
 ) {
     assert!(url.ends_with(".kml"));
-    let output = abstio::path(output);
     if Path::new(&output).exists() {
         println!("- {} already exists", output);
         return;
@@ -89,24 +87,22 @@ pub fn download_kml(
 
     println!("- Extracting KML data");
 
-    let shapes = kml::load(tmp, bounds, require_all_pts_in_bounds, timer).unwrap();
+    let shapes = kml::load(tmp.to_string(), bounds, require_all_pts_in_bounds, timer).unwrap();
     abstio::write_binary(output.clone(), &shapes);
     // Keep the intermediate file; otherwise we inadvertently grab new upstream data when
     // changing some binary formats
     std::fs::rename(tmp, output.replace(".bin", ".kml")).unwrap();
 }
 
-// Uses osmconvert to clip the input .osm (or .pbf) against a polygon and produce some output.
-// Skips if the output exists.
+/// Uses osmconvert to clip the input .osm (or .pbf) against a polygon and produce some output.
+/// Skips if the output exists.
 pub fn osmconvert(
-    input: &str,
+    input: String,
     clipping_polygon: String,
     output: String,
     config: &ImporterConfiguration,
 ) {
-    let input = abstio::path(input);
     let clipping_polygon = clipping_polygon;
-    let output = abstio::path(output);
 
     if Path::new(&output).exists() {
         println!("- {} already exists", output);
@@ -127,7 +123,7 @@ pub fn osmconvert(
     );
 }
 
-// Converts a RawMap to a Map.
+/// Converts a RawMap to a Map.
 pub fn raw_to_map(
     name: &MapName,
     build_ch: bool,

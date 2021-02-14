@@ -1,5 +1,5 @@
 {
-  "osm_url": "input/seattle/osm/washington-latest.osm.pbf",
+  "osm_url": "data/input/us/seattle/osm/washington-latest.osm.pbf",
   "map_config": {
     "driving_side": "Right",
     "bikes_can_use_bus_lanes": true,

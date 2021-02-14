@@ -16,7 +16,7 @@ use crate::utils::{download, download_kml};
 pub fn import_extra_data(map: &RawMap, config: &ImporterConfiguration, timer: &mut Timer) {
     // From https://data.technologiestiftung-berlin.de/dataset/lor_planungsgraeume/en
     download_kml(
-        "input/de/berlin/planning_areas.bin",
+        map.get_city_name().input_path("planning_areas.bin"),
         "https://tsb-opendata.s3.eu-central-1.amazonaws.com/lor_planungsgraeume/lor_planungsraeume.kml",
         &map.gps_bounds,
         // Keep partly out-of-bounds polygons
@@ -28,21 +28,21 @@ pub fn import_extra_data(map: &RawMap, config: &ImporterConfiguration, timer: &m
     // https://daten.berlin.de/datensaetze/einwohnerinnen-und-einwohner-berlin-lor-planungsr%C3%A4umen-am-31122018
     download(
         config,
-        "input/de/berlin/EWR201812E_Matrix.csv",
+        map.get_city_name().input_path("EWR201812E_Matrix.csv"),
         "https://www.statistik-berlin-brandenburg.de/opendata/EWR201812E_Matrix.csv",
     );
 
     // Always do this, it's idempotent and fast
     correlate_population(
-        "data/input/de/berlin/planning_areas.bin",
-        "data/input/de/berlin/EWR201812E_Matrix.csv",
+        map.get_city_name().input_path("planning_areas.bin"),
+        map.get_city_name().input_path("EWR201812E_Matrix.csv"),
         timer,
     );
 }
 
 // Modify the filtered KML of planning areas with the number of residents from a different dataset.
-fn correlate_population(kml_path: &str, csv_path: &str, timer: &mut Timer) {
-    let mut shapes = abstio::read_binary::<ExtraShapes>(kml_path.to_string(), timer);
+fn correlate_population(kml_path: String, csv_path: String, timer: &mut Timer) {
+    let mut shapes = abstio::read_binary::<ExtraShapes>(kml_path.clone(), timer);
     for rec in csv::ReaderBuilder::new()
         .delimiter(b';')
         .from_reader(File::open(csv_path).unwrap())
@@ -58,7 +58,7 @@ fn correlate_population(kml_path: &str, csv_path: &str, timer: &mut Timer) {
             }
         }
     }
-    abstio::write_binary(kml_path.to_string(), &shapes);
+    abstio::write_binary(kml_path, &shapes);
 }
 
 #[derive(Debug, Deserialize)]

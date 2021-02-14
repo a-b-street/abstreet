@@ -42,42 +42,34 @@ impl GenericCityImporter {
         config: &ImporterConfiguration,
     ) -> RawMap {
         let local_osm_file = if self.osm_url.starts_with("http") {
-            let file = format!(
-                "input/{}/{}/osm/{}",
-                name.city.country,
-                name.city.city,
+            let file = name.city.input_path(format!(
+                "osm/{}",
                 std::path::Path::new(&self.osm_url)
                     .file_name()
                     .unwrap()
                     .to_os_string()
                     .into_string()
                     .unwrap()
-            );
-            download(config, &file, &self.osm_url);
+            ));
+            download(config, file.clone(), &self.osm_url);
             file
         } else {
             self.osm_url.clone()
         };
 
         osmconvert(
-            &local_osm_file,
+            local_osm_file,
             format!(
                 "importer/config/{}/{}/{}.poly",
                 name.city.country, name.city.city, name.map
             ),
-            format!(
-                "input/{}/{}/osm/{}.osm",
-                name.city.country, name.city.city, name.map
-            ),
+            name.city.input_path(format!("osm/{}.osm", name.map)),
             config,
         );
 
         let map = convert_osm::convert(
             convert_osm::Options {
-                osm_input: abstio::path(format!(
-                    "input/{}/{}/osm/{}.osm",
-                    name.city.country, name.city.city, name.map
-                )),
+                osm_input: name.city.input_path(format!("osm/{}.osm", name.map)),
                 name: name.clone(),
 
                 clip: Some(format!(

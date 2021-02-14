@@ -35,13 +35,13 @@ pub struct ExtraShape {
 /// Parses a .kml file and returns ExtraShapes. Objects will be clipped to the given gps_bounds. If
 /// require_all_pts_in_bounds is true, objects that're partly out-of-bounds will be skipped.
 pub fn load(
-    path: &str,
+    path: String,
     gps_bounds: &GPSBounds,
     require_all_pts_in_bounds: bool,
     timer: &mut Timer,
 ) -> Result<ExtraShapes> {
     timer.start(format!("read {}", path));
-    let bytes = abstio::slurp_file(path)?;
+    let bytes = abstio::slurp_file(&path)?;
     let raw_string = std::str::from_utf8(&bytes)?;
     let tree = roxmltree::Document::parse(raw_string)?;
     timer.stop(format!("read {}", path));
@@ -144,10 +144,14 @@ impl ExtraShapes {
     /// Parses a .csv file and returns ExtraShapes. Each record must have a column called
     /// 'Longitude' and 'Latitude', representing a single point; all other columns will just be
     /// attributes. Objects will be clipped to the given gps_bounds.
-    pub fn load_csv(path: &str, gps_bounds: &GPSBounds, timer: &mut Timer) -> Result<ExtraShapes> {
+    pub fn load_csv(
+        path: String,
+        gps_bounds: &GPSBounds,
+        timer: &mut Timer,
+    ) -> Result<ExtraShapes> {
         timer.start(format!("read {}", path));
         let mut shapes = Vec::new();
-        for rec in csv::Reader::from_path(path)?.deserialize() {
+        for rec in csv::Reader::from_path(&path)?.deserialize() {
             let mut rec: BTreeMap<String, String> = rec?;
             match (rec.remove("Longitude"), rec.remove("Latitude")) {
                 (Some(lon), Some(lat)) => {
