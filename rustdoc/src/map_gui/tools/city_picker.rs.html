@@ -462,6 +462,7 @@
 <span id="459">459</span>
 <span id="460">460</span>
 <span id="461">461</span>
+<span id="462">462</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -528,13 +529,14 @@
                         <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">DrawArea</span>::<span class="ident">fill</span>(<span class="ident">area_type</span>, <span class="ident">app</span>.<span class="ident">cs</span>()), <span class="ident">polygon</span>);
                     }
 
-                    <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">polygon</span>) <span class="kw">in</span> <span class="ident">city</span>.<span class="ident">regions</span> {
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">regions</span> <span class="op">=</span> <span class="ident">city</span>.<span class="ident">regions</span>;
+                    <span class="ident">regions</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span>(<span class="ident">name</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">name</span>.<span class="ident">clone</span>());
+                    <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">polygon</span>) <span class="kw">in</span> <span class="ident">regions</span> {
                         <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">rotating_color_agents</span>(<span class="ident">districts</span>.<span class="ident">len</span>());
 
                         <span class="kw">let</span> <span class="ident">btn</span> <span class="op">=</span> <span class="ident">ctx</span>
                             .<span class="ident">style</span>()
                             .<span class="ident">btn_outline_light_text</span>(<span class="ident">nice_map_name</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>))
-                            .<span class="ident">label_color</span>(<span class="ident">color</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
                             .<span class="ident">no_tooltip</span>();
 
                         <span class="kw">let</span> <span class="ident">action</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">path</span>();
@@ -685,7 +687,7 @@
                     }
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">btn</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">currently_hovering</span>() {
                     <span class="kw">for</span> (<span class="ident">idx</span>, (<span class="ident">name</span>, <span class="kw">_</span>, <span class="kw">_</span>)) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">districts</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-                        <span class="kw">if</span> <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span> <span class="op">=</span><span class="op">=</span> <span class="ident">btn</span> {
+                        <span class="kw">if</span> <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">path</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">btn</span> {
                             <span class="self">self</span>.<span class="ident">selected</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>);
                             <span class="kw">break</span>;
                         }

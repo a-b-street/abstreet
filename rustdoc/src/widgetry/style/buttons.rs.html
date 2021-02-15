@@ -334,58 +334,12 @@
 <span id="331">331</span>
 <span id="332">332</span>
 <span id="333">333</span>
-<span id="334">334</span>
-<span id="335">335</span>
-<span id="336">336</span>
-<span id="337">337</span>
-<span id="338">338</span>
-<span id="339">339</span>
-<span id="340">340</span>
-<span id="341">341</span>
-<span id="342">342</span>
-<span id="343">343</span>
-<span id="344">344</span>
-<span id="345">345</span>
-<span id="346">346</span>
-<span id="347">347</span>
-<span id="348">348</span>
-<span id="349">349</span>
-<span id="350">350</span>
-<span id="351">351</span>
-<span id="352">352</span>
-<span id="353">353</span>
-<span id="354">354</span>
-<span id="355">355</span>
-<span id="356">356</span>
-<span id="357">357</span>
-<span id="358">358</span>
-<span id="359">359</span>
-<span id="360">360</span>
-<span id="361">361</span>
-<span id="362">362</span>
-<span id="363">363</span>
-<span id="364">364</span>
-<span id="365">365</span>
-<span id="366">366</span>
-<span id="367">367</span>
-<span id="368">368</span>
-<span id="369">369</span>
-<span id="370">370</span>
-<span id="371">371</span>
-<span id="372">372</span>
-<span id="373">373</span>
-<span id="374">374</span>
-<span id="375">375</span>
-<span id="376">376</span>
-<span id="377">377</span>
-<span id="378">378</span>
-<span id="379">379</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">CornerRadii</span>;
 
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">ButtonStyle</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">include_labeled_bytes</span>, <span class="ident">ButtonBuilder</span>, <span class="ident">ControlState</span>, <span class="ident">EventCtx</span>, <span class="ident">ScreenDims</span>, <span class="ident">Style</span>, <span class="ident">Widget</span>,
+    <span class="ident">include_labeled_bytes</span>, <span class="ident">ButtonBuilder</span>, <span class="ident">ControlState</span>, <span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">ScreenDims</span>, <span class="ident">Style</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">StyledButtons</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
@@ -580,15 +534,7 @@
     <span class="kw">fn</span> <span class="ident">btn_close_widget</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="self">self</span>.<span class="ident">btn_close</span>().<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>).<span class="ident">align_right</span>()
     }
-
-    <span class="doccomment">/// A button which renders its hotkey for discoverability along with its label.</span>
-    <span class="kw">fn</span> <span class="ident">btn_solid_light_hotkey</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
-
-    <span class="doccomment">/// A button which renders its hotkey for discoverability along with its label.</span>
-    <span class="kw">fn</span> <span class="ident">btn_solid_dark_hotkey</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
 }
-
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Text</span>};
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">StyledButtons</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Style</span> {
     <span class="kw">fn</span> <span class="ident">btn_solid_dark</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
@@ -626,14 +572,6 @@
     <span class="kw">fn</span> <span class="ident">btn_outline_destructive</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">btn_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">btn_solid_destructive</span>)
     }
-
-    <span class="kw">fn</span> <span class="ident">btn_solid_light_hotkey</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_hotkey</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">btn_solid_light</span>, <span class="ident">label</span>, <span class="ident">key</span>)
-    }
-
-    <span class="kw">fn</span> <span class="ident">btn_solid_dark_hotkey</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_hotkey</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">btn_solid_dark</span>, <span class="ident">label</span>, <span class="ident">key</span>)
-    }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Style</span> {
@@ -662,36 +600,6 @@
             <span class="ident">button_style</span>.<span class="ident">outline</span>,
             <span class="ident">ControlState</span>::<span class="ident">Default</span>,
         )
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">btn_hotkey</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">button_style</span>: <span class="kw-2">&amp;</span><span class="ident">ButtonStyle</span>,
-        <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">key</span>: <span class="ident">Key</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">default</span> <span class="op">=</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
-            <span class="kw">let</span> <span class="ident">key_txt</span> <span class="op">=</span> <span class="ident">Line</span>(<span class="ident">key</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">button_style</span>.<span class="ident">fg_hotkey</span>);
-            <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">key_txt</span>);
-            <span class="kw">let</span> <span class="ident">label_text</span> <span class="op">=</span> <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot; - {}&quot;</span>, <span class="ident">label</span>)).<span class="ident">fg</span>(<span class="ident">button_style</span>.<span class="ident">fg</span>);
-            <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">label_text</span>);
-            <span class="ident">txt</span>
-        };
-
-        <span class="kw">let</span> <span class="ident">disabled</span> <span class="op">=</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
-            <span class="kw">let</span> <span class="ident">key_txt</span> <span class="op">=</span> <span class="ident">Line</span>(<span class="ident">key</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">button_style</span>.<span class="ident">fg_hotkey</span>.<span class="ident">alpha</span>(<span class="number">0.3</span>));
-            <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">key_txt</span>);
-            <span class="kw">let</span> <span class="ident">label_text</span> <span class="op">=</span> <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot; - {}&quot;</span>, <span class="ident">label</span>)).<span class="ident">fg</span>(<span class="ident">button_style</span>.<span class="ident">fg_disabled</span>);
-            <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">label_text</span>);
-            <span class="ident">txt</span>
-        };
-
-        <span class="self">self</span>.<span class="ident">btn_solid</span>(<span class="ident">button_style</span>)
-            .<span class="ident">label_styled_text</span>(<span class="ident">default</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
-            .<span class="ident">label_styled_text</span>(<span class="ident">disabled</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
-            .<span class="ident">hotkey</span>(<span class="ident">key</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">btn_light_popup_icon_text</span>(
