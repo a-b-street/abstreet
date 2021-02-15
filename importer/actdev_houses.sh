@@ -14,7 +14,7 @@ fi
 if cargo run --release --bin generate_houses -- --map=data/system/gb/$CITY/maps/center.bin --num_required=1000 --rng_seed=42 --out=data/input/gb/$CITY/procgen_houses.json; then
 	# Update the importer config, and import again
 	perl -pi -e "s#\"extra_buildings\": null#\"extra_buildings\": \"data/input/gb/$CITY/procgen_houses.json\"#" importer/config/gb/$CITY/cfg.json
-	./import.sh --raw --map --city=$CITY
+	./import.sh --raw --map --city=gb/$CITY
 else
 	echo "$CITY already had enough houses"
 fi

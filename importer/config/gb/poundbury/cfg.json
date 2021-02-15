@@ -14,5 +14,5 @@
   },
   "elevation": null,
   "include_railroads": true,
-  "extra_buildings": null
+  "extra_buildings": "data/input/gb/poundbury/procgen_houses.json"
 }
