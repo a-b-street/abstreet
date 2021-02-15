@@ -63,13 +63,14 @@ impl<A: AppLike + 'static> CityPicker<A> {
                         batch.push(DrawArea::fill(area_type, app.cs()), polygon);
                     }
 
-                    for (name, polygon) in city.regions {
+                    let mut regions = city.regions;
+                    regions.sort_by_key(|(name, _)| name.clone());
+                    for (name, polygon) in regions {
                         let color = app.cs().rotating_color_agents(districts.len());
 
                         let btn = ctx
                             .style()
                             .btn_outline_light_text(nice_map_name(&name))
-                            .label_color(color, ControlState::Default)
                             .no_tooltip();
 
                         let action = name.path();
@@ -220,7 +221,7 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
                     }
                 } else if let Some(btn) = self.panel.currently_hovering() {
                     for (idx, (name, _, _)) in self.districts.iter().enumerate() {
-                        if &name.map == btn {
+                        if &name.path() == btn {
                             self.selected = Some(idx);
                             break;
                         }
