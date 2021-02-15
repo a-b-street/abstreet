@@ -11,9 +11,10 @@ if [ "$SITE" == "" ]; then
 fi
 CITY=`echo $SITE | sed -r 's/-/_/g'`
 
+rm -fv *.json
 wget https://raw.githubusercontent.com/cyipt/actdev/main/data-small/$SITE/scenario-base.json
 wget https://raw.githubusercontent.com/cyipt/actdev/main/data-small/$SITE/scenario-godutch.json
 
 cargo run --release --bin import_traffic -- --map=data/system/gb/$CITY/maps/center.bin --input=scenario-base.json --skip_problems
 cargo run --release --bin import_traffic -- --map=data/system/gb/$CITY/maps/center.bin --input=scenario-godutch.json --skip_problems
-rm -fv scenario-base.json scenario-godutch.json
+rm -fv *.json

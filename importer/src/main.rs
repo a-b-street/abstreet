@@ -13,7 +13,6 @@ use geom::Distance;
 use configuration::{load_configuration, ImporterConfiguration};
 use dependencies::are_dependencies_callable;
 
-mod actdev;
 mod berlin;
 mod configuration;
 mod dependencies;
@@ -108,8 +107,7 @@ fn regenerate_everything(config: ImporterConfiguration) {
             only_map: None,
         };
         // Only some maps run extra tasks
-        if city == CityName::new("us", "seattle") || city == CityName::new("gb", "great_kneighton")
-        {
+        if city == CityName::new("us", "seattle") {
             job.scenario = true;
         }
         // TODO Autodetect this based on number of maps per city?
@@ -162,24 +160,19 @@ impl Job {
         };
 
         let (maybe_popdat, maybe_huge_map) = if self.scenario {
-            // TODO This is getting messy!
-            if self.city == CityName::new("gb", "great_kneighton") {
-                (None, None)
-            } else {
-                assert_eq!(self.city, CityName::new("us", "seattle"));
+            assert_eq!(self.city, CityName::new("us", "seattle"));
 
-                #[cfg(feature = "scenarios")]
-                {
-                    let (popdat, huge_map) = seattle::ensure_popdat_exists(timer, config);
-                    (Some(popdat), Some(huge_map))
-                }
+            #[cfg(feature = "scenarios")]
+            {
+                let (popdat, huge_map) = seattle::ensure_popdat_exists(timer, config);
+                (Some(popdat), Some(huge_map))
+            }
 
-                #[cfg(not(feature = "scenarios"))]
-                {
-                    panic!("Can't do --scenario without the scenarios feature compiled in");
-                    // Nonsense to make the type-checker work
-                    (Some(true), Some(true))
-                }
+            #[cfg(not(feature = "scenarios"))]
+            {
+                panic!("Can't do --scenario without the scenarios feature compiled in");
+                // Nonsense to make the type-checker work
+                (Some(true), Some(true))
             }
         } else {
             (None, None)
@@ -269,10 +262,6 @@ impl Job {
                     timer.start("match parcels to buildings");
                     seattle::match_parcels_to_buildings(maybe_map.as_mut().unwrap(), timer);
                     timer.stop("match parcels to buildings");
-                }
-
-                if self.city == CityName::new("gb", "great_kneighton") {
-                    actdev::import_scenarios(maybe_map.as_ref().unwrap(), config).unwrap();
                 }
             }
         }

@@ -20,6 +20,8 @@ fn main() {
     s.only_seed_buses = None;
     let orig_num = input.people.len();
     s.people = ExternalPerson::import(&map, input.people, skip_problems).unwrap();
+    // Always clean up people with no-op trips (going between the same buildings)
+    s = s.remove_weird_schedules();
     println!(
         "Imported {}/{} people",
         prettyprint_usize(s.people.len()),
