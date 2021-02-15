@@ -336,17 +336,6 @@
 <span id="333">333</span>
 <span id="334">334</span>
 <span id="335">335</span>
-<span id="336">336</span>
-<span id="337">337</span>
-<span id="338">338</span>
-<span id="339">339</span>
-<span id="340">340</span>
-<span id="341">341</span>
-<span id="342">342</span>
-<span id="343">343</span>
-<span id="344">344</span>
-<span id="345">345</span>
-<span id="346">346</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! It&#39;s assumed that the importer is run with the current directory as the project repository; aka</span>
 <span class="doccomment">//! `./data/` and `./importer/config` must exist.</span>
@@ -363,7 +352,6 @@
 <span class="kw">use</span> <span class="ident">configuration</span>::{<span class="ident">load_configuration</span>, <span class="ident">ImporterConfiguration</span>};
 <span class="kw">use</span> <span class="ident">dependencies</span>::<span class="ident">are_dependencies_callable</span>;
 
-<span class="kw">mod</span> <span class="ident">actdev</span>;
 <span class="kw">mod</span> <span class="ident">berlin</span>;
 <span class="kw">mod</span> <span class="ident">configuration</span>;
 <span class="kw">mod</span> <span class="ident">dependencies</span>;
@@ -458,8 +446,7 @@
             <span class="ident">only_map</span>: <span class="prelude-val">None</span>,
         };
         <span class="comment">// Only some maps run extra tasks</span>
-        <span class="kw">if</span> <span class="ident">city</span> <span class="op">=</span><span class="op">=</span> <span class="ident">CityName</span>::<span class="ident">new</span>(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;seattle&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">city</span> <span class="op">=</span><span class="op">=</span> <span class="ident">CityName</span>::<span class="ident">new</span>(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;great_kneighton&quot;</span>)
-        {
+        <span class="kw">if</span> <span class="ident">city</span> <span class="op">=</span><span class="op">=</span> <span class="ident">CityName</span>::<span class="ident">new</span>(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;seattle&quot;</span>) {
             <span class="ident">job</span>.<span class="ident">scenario</span> <span class="op">=</span> <span class="bool-val">true</span>;
         }
         <span class="comment">// TODO Autodetect this based on number of maps per city?</span>
@@ -512,24 +499,19 @@
         };
 
         <span class="kw">let</span> (<span class="ident">maybe_popdat</span>, <span class="ident">maybe_huge_map</span>) <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scenario</span> {
-            <span class="comment">// TODO This is getting messy!</span>
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">city</span> <span class="op">=</span><span class="op">=</span> <span class="ident">CityName</span>::<span class="ident">new</span>(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;great_kneighton&quot;</span>) {
-                (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>)
-            } <span class="kw">else</span> {
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">city</span>, <span class="ident">CityName</span>::<span class="ident">new</span>(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;seattle&quot;</span>));
+            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">city</span>, <span class="ident">CityName</span>::<span class="ident">new</span>(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;seattle&quot;</span>));
 
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;scenarios&quot;</span>)]</span>
-                {
-                    <span class="kw">let</span> (<span class="ident">popdat</span>, <span class="ident">huge_map</span>) <span class="op">=</span> <span class="ident">seattle</span>::<span class="ident">ensure_popdat_exists</span>(<span class="ident">timer</span>, <span class="ident">config</span>);
-                    (<span class="prelude-val">Some</span>(<span class="ident">popdat</span>), <span class="prelude-val">Some</span>(<span class="ident">huge_map</span>))
-                }
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;scenarios&quot;</span>)]</span>
+            {
+                <span class="kw">let</span> (<span class="ident">popdat</span>, <span class="ident">huge_map</span>) <span class="op">=</span> <span class="ident">seattle</span>::<span class="ident">ensure_popdat_exists</span>(<span class="ident">timer</span>, <span class="ident">config</span>);
+                (<span class="prelude-val">Some</span>(<span class="ident">popdat</span>), <span class="prelude-val">Some</span>(<span class="ident">huge_map</span>))
+            }
 
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;scenarios&quot;</span>))]</span>
-                {
-                    <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t do --scenario without the scenarios feature compiled in&quot;</span>);
-                    <span class="comment">// Nonsense to make the type-checker work</span>
-                    (<span class="prelude-val">Some</span>(<span class="bool-val">true</span>), <span class="prelude-val">Some</span>(<span class="bool-val">true</span>))
-                }
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;scenarios&quot;</span>))]</span>
+            {
+                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t do --scenario without the scenarios feature compiled in&quot;</span>);
+                <span class="comment">// Nonsense to make the type-checker work</span>
+                (<span class="prelude-val">Some</span>(<span class="bool-val">true</span>), <span class="prelude-val">Some</span>(<span class="bool-val">true</span>))
             }
         } <span class="kw">else</span> {
             (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>)
@@ -619,10 +601,6 @@
                     <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;match parcels to buildings&quot;</span>);
                     <span class="ident">seattle</span>::<span class="ident">match_parcels_to_buildings</span>(<span class="ident">maybe_map</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>(), <span class="ident">timer</span>);
                     <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;match parcels to buildings&quot;</span>);
-                }
-
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">city</span> <span class="op">=</span><span class="op">=</span> <span class="ident">CityName</span>::<span class="ident">new</span>(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;great_kneighton&quot;</span>) {
-                    <span class="ident">actdev</span>::<span class="ident">import_scenarios</span>(<span class="ident">maybe_map</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>(), <span class="ident">config</span>).<span class="ident">unwrap</span>();
                 }
             }
         }
