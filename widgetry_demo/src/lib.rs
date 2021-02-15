@@ -504,14 +504,6 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 ),
                 Widget::col(
                     (0..row_height)
-                        .map(|_| {
-                            btn.btn_solid_dark_hotkey("Jump", Key::J)
-                                .build_widget(ctx, &next_id())
-                        })
-                        .collect::<Vec<_>>(),
-                ),
-                Widget::col(
-                    (0..row_height)
                         .map(|_| widgetry::Spinner::new(ctx, (0, 11), 1))
                         .collect::<Vec<_>>(),
                 ),

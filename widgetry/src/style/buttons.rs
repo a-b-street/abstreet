@@ -2,7 +2,7 @@ use geom::CornerRadii;
 
 use super::ButtonStyle;
 use crate::{
-    include_labeled_bytes, ButtonBuilder, ControlState, EventCtx, ScreenDims, Style, Widget,
+    include_labeled_bytes, ButtonBuilder, ControlState, EventCtx, Key, ScreenDims, Style, Widget,
 };
 
 pub trait StyledButtons<'a> {
@@ -197,15 +197,7 @@ pub trait StyledButtons<'a> {
     fn btn_close_widget(&self, ctx: &EventCtx) -> Widget {
         self.btn_close().build_widget(ctx, "close").align_right()
     }
-
-    /// A button which renders its hotkey for discoverability along with its label.
-    fn btn_solid_light_hotkey(&self, label: &str, key: Key) -> ButtonBuilder<'a>;
-
-    /// A button which renders its hotkey for discoverability along with its label.
-    fn btn_solid_dark_hotkey(&self, label: &str, key: Key) -> ButtonBuilder<'a>;
 }
-
-use crate::{Key, Line, Text};
 
 impl<'a> StyledButtons<'a> for Style {
     fn btn_solid_dark(&self) -> ButtonBuilder<'a> {
@@ -243,14 +235,6 @@ impl<'a> StyledButtons<'a> for Style {
     fn btn_outline_destructive(&self) -> ButtonBuilder<'a> {
         self.btn_outline(&self.btn_solid_destructive)
     }
-
-    fn btn_solid_light_hotkey(&self, label: &str, key: Key) -> ButtonBuilder<'a> {
-        self.btn_hotkey(&self.btn_solid_light, label, key)
-    }
-
-    fn btn_solid_dark_hotkey(&self, label: &str, key: Key) -> ButtonBuilder<'a> {
-        self.btn_hotkey(&self.btn_solid_dark, label, key)
-    }
 }
 
 impl<'a> Style {
@@ -279,36 +263,6 @@ impl<'a> Style {
             button_style.outline,
             ControlState::Default,
         )
-    }
-
-    pub fn btn_hotkey(
-        &self,
-        button_style: &ButtonStyle,
-        label: &str,
-        key: Key,
-    ) -> ButtonBuilder<'a> {
-        let default = {
-            let mut txt = Text::new();
-            let key_txt = Line(key.describe()).fg(button_style.fg_hotkey);
-            txt.append(key_txt);
-            let label_text = Line(format!(" - {}", label)).fg(button_style.fg);
-            txt.append(label_text);
-            txt
-        };
-
-        let disabled = {
-            let mut txt = Text::new();
-            let key_txt = Line(key.describe()).fg(button_style.fg_hotkey.alpha(0.3));
-            txt.append(key_txt);
-            let label_text = Line(format!(" - {}", label)).fg(button_style.fg_disabled);
-            txt.append(label_text);
-            txt
-        };
-
-        self.btn_solid(button_style)
-            .label_styled_text(default, ControlState::Default)
-            .label_styled_text(disabled, ControlState::Disabled)
-            .hotkey(key)
     }
 
     pub fn btn_light_popup_icon_text(

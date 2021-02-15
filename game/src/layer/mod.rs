@@ -94,7 +94,8 @@ impl PickLayer {
         };
         let btn = |name: &str, key| {
             ctx.style()
-                .btn_solid_dark_hotkey(name, key)
+                .btn_solid_dark_text(name)
+                .hotkey(key)
                 .disabled(name == current)
                 .build_widget(ctx, name)
         };
