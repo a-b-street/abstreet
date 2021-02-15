@@ -92,6 +92,10 @@ impl<A: AppLike + 'static> CityPicker<A> {
 
                 let mut other_places = vec![Line("Other places").draw(ctx)];
                 for (country, cities) in cities_per_country() {
+                    // If there's only one city and we're already there, skip it.
+                    if cities.len() == 1 && cities[0] == city_name {
+                        continue;
+                    }
                     other_places.push(
                         ctx.style()
                             .btn_outline_light_icon_text(
