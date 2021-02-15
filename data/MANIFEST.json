@@ -740,6 +740,21 @@
       "uncompressed_size_bytes": 32102977,
       "compressed_size_bytes": 7199756
     },
+    "data/input/us/anchorage/osm/alaska-latest.osm.pbf": {
+      "checksum": "e27bab279362bc0be399abd141474683",
+      "uncompressed_size_bytes": 112507133,
+      "compressed_size_bytes": 112197527
+    },
+    "data/input/us/anchorage/osm/downtown.osm": {
+      "checksum": "8d12a0758324445d32b73b45d94fc38d",
+      "uncompressed_size_bytes": 60654664,
+      "compressed_size_bytes": 5074304
+    },
+    "data/input/us/anchorage/raw_maps/downtown.bin": {
+      "checksum": "2ef5417af8e47236f885f7aca8a2055b",
+      "uncompressed_size_bytes": 17728717,
+      "compressed_size_bytes": 4092962
+    },
     "data/input/us/bellevue/osm/huge.osm": {
       "checksum": "ef54ab4ff049b29f92331e8c1202372a",
       "uncompressed_size_bytes": 48442449,
@@ -1359,6 +1374,11 @@
       "checksum": "12237495fc9809ff9b6dc0cb0b640316",
       "uncompressed_size_bytes": 91892002,
       "compressed_size_bytes": 29602482
+    },
+    "data/system/us/anchorage/maps/downtown.bin": {
+      "checksum": "bf54400f7d7c253b84d58133697713c0",
+      "uncompressed_size_bytes": 64145564,
+      "compressed_size_bytes": 21978297
     },
     "data/system/us/bellevue/maps/huge.bin": {
       "checksum": "d2688c59275e6339200966e7c8fc31c3",
