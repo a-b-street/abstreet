@@ -95,6 +95,21 @@
       "uncompressed_size_bytes": 10168533,
       "compressed_size_bytes": 2891885
     },
+    "data/input/de/rostock/osm/center.osm": {
+      "checksum": "abba2d14c1883e1622a882cc508bbb5d",
+      "uncompressed_size_bytes": 34978312,
+      "compressed_size_bytes": 3857726
+    },
+    "data/input/de/rostock/osm/mecklenburg-vorpommern-latest.osm.pbf": {
+      "checksum": "671d68b35e06a687a9c89a6463fd84f0",
+      "uncompressed_size_bytes": 100002988,
+      "compressed_size_bytes": 99907924
+    },
+    "data/input/de/rostock/raw_maps/center.bin": {
+      "checksum": "72babcff596d71ad03c0f902a9f61e3b",
+      "uncompressed_size_bytes": 9251311,
+      "compressed_size_bytes": 2019689
+    },
     "data/input/fr/paris/osm/center.osm": {
       "checksum": "224841aa32fafd0212b0b2e3cc200e9a",
       "uncompressed_size_bytes": 107158714,
@@ -1359,6 +1374,11 @@
       "checksum": "27cf735c8b4d10945f0db7abb4d35475",
       "uncompressed_size_bytes": 33145278,
       "compressed_size_bytes": 8958881
+    },
+    "data/system/de/rostock/maps/center.bin": {
+      "checksum": "7c371c9f1170a180812fdfdac93810d9",
+      "uncompressed_size_bytes": 16923990,
+      "compressed_size_bytes": 5737196
     },
     "data/system/fr/paris/city.bin": {
       "checksum": "f9e23c4fdf13d83185f4c939fec15465",

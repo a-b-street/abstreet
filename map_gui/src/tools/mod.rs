@@ -68,6 +68,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
         },
         "de" => match (name.city.city.as_ref(), name.map.as_ref()) {
             ("berlin", "center") => "Berlin (city center)",
+            ("rostock", "center") => "Rostock",
             _ => &name.map,
         },
         "fr" => match (name.city.city.as_ref(), name.map.as_ref()) {
