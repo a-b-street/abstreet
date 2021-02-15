@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "site",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "site_name": "trumpington-meadows", "dwellings_when_complete": 1200.0, "pwalk": 0.1, "pcycle": 0.22, "pdrive": 0.5, "pbus": 0.06, "prail": 0.07, "pother": 0.04, "weightedJobsPTt": 26.400745419642853, "weightedJobsCyct": 26.480556321428573, "weightedJobsCart": 15.50842738392857, "PSPTt": 7.5, "PSCyct": 8.0, "PSCart": 7.5, "SSPTt": 23.695451, "SSCyct": 22.043688, "SSCart": 12.7750185, "FEPTt": 31.292563, "FECyct": 23.941419, "FECart": 14.217322, "GPPTt": 17.3939785, "GPCyct": 14.869691, "GPCart": 11.071603, "HospPTt": 32.7577855, "HospCyct": 28.6984125, "HospCart": 18.4226365, "FoodPTt": 15.264788, "FoodCyct": 12.9634055, "FoodCart": 9.7366265, "TownPTt": 32.3613825, "TownCyct": 31.0653825, "TownCart": 19.216424 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 0.112031, 52.170852 ], [ 0.108168, 52.171695 ], [ 0.108297, 52.172761 ], [ 0.105593, 52.173129 ], [ 0.104091, 52.171905 ], [ 0.100079, 52.168747 ], [ 0.102503, 52.166154 ], [ 0.104649, 52.166628 ], [ 0.105314, 52.167773 ], [ 0.106602, 52.169062 ], [ 0.107589, 52.170589 ], [ 0.108726, 52.170326 ], [ 0.10834, 52.169049 ], [ 0.110164, 52.168655 ], [ 0.112031, 52.170852 ] ] ] } }
+]
+}

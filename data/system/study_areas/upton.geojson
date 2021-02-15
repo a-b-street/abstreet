@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "site",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "site_name": "upton", "dwellings_when_complete": 1382.0, "pwalk": 0.03, "pcycle": 0.02, "pdrive": 0.83, "pbus": 0.03, "prail": 0.03, "pother": 0.06, "weightedJobsPTt": 26.408310892857145, "weightedJobsCyct": 19.496480374999997, "weightedJobsCart": 13.351281910714285, "PSPTt": 9.5, "PSCyct": 8.5, "PSCart": 7.5, "SSPTt": 25.187127, "SSCyct": 18.9663945, "SSCart": 11.3878355, "FEPTt": 25.187127, "FECyct": 18.9663945, "FECart": 11.3878355, "GPPTt": 27.021832, "GPCyct": 14.9587565, "GPCart": 11.5223915, "HospPTt": 40.0966125, "HospCyct": 26.7972025, "HospCart": 19.668621, "FoodPTt": 11.010398, "FoodCyct": 8.8346725, "FoodCart": 7.908737, "TownPTt": 31.8129385, "TownCyct": 24.5228745, "TownCart": 17.211628 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -0.936971, 52.232846 ], [ -0.939707, 52.232176 ], [ -0.940125, 52.233043 ], [ -0.939857, 52.234325 ], [ -0.939835, 52.234509 ], [ -0.941262, 52.236946 ], [ -0.942088, 52.236959 ], [ -0.948118, 52.235796 ], [ -0.947549, 52.234226 ], [ -0.947109, 52.232669 ], [ -0.946594, 52.230868 ], [ -0.946294, 52.229955 ], [ -0.940801, 52.230467 ], [ -0.937561, 52.230106 ], [ -0.936724, 52.231302 ], [ -0.936745, 52.232229 ], [ -0.936971, 52.232846 ] ] ] } }
+]
+}

@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "site",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "site_name": "tyersal-lane", "dwellings_when_complete": 270.0, "pwalk": 0.13, "pcycle": 0.01, "pdrive": 0.59, "pbus": 0.15, "prail": 0.02, "pother": 0.1, "weightedJobsPTt": 28.963097785714282, "weightedJobsCyct": 20.297646928571428, "weightedJobsCart": 15.317797142857144, "PSPTt": 6.0, "PSCyct": 7.0, "PSCart": 7.0, "SSPTt": 20.825948, "SSCyct": 12.464785, "SSCart": 10.452061, "FEPTt": 21.382048, "FECyct": 12.464785, "FECart": 10.452061, "GPPTt": 21.277573, "GPCyct": 14.07658, "GPCart": 12.078477, "HospPTt": 38.980803, "HospCyct": 23.722503, "HospCart": 17.868477, "FoodPTt": 22.095891, "FoodCyct": 13.675423, "FoodCart": 11.072061, "TownPTt": 28.180803, "TownCyct": 20.756485, "TownCart": 15.906757 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -1.711807, 53.783285 ], [ -1.710992, 53.78288 ], [ -1.70758, 53.783108 ], [ -1.706421, 53.783095 ], [ -1.703761, 53.784287 ], [ -1.702216, 53.78506 ], [ -1.703825, 53.785973 ], [ -1.707301, 53.7861 ], [ -1.710134, 53.784756 ], [ -1.711807, 53.783285 ] ] ] } }
+]
+}

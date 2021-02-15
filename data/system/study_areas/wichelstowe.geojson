@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "site",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "site_name": "wichelstowe", "dwellings_when_complete": 4500.0, "pwalk": 0.15, "pcycle": 0.04, "pdrive": 0.67, "pbus": 0.06, "prail": 0.02, "pother": 0.07, "weightedJobsPTt": 33.836760839285716, "weightedJobsCyct": 21.265952741071427, "weightedJobsCart": 15.523562964285714, "PSPTt": 11.25, "PSCyct": 9.5, "PSCart": 8.25, "SSPTt": 15.59222825, "SSCyct": 10.90731525, "SSCart": 8.97729225, "FEPTt": 15.581442, "FECyct": 10.948887, "FECart": 8.98967325, "GPPTt": 12.39205825, "GPCyct": 9.99091925, "GPCart": 8.1820015, "HospPTt": 38.8654285, "HospCyct": 28.450304, "HospCart": 18.195682, "FoodPTt": 9.89523425, "FoodCyct": 8.787712, "FoodCart": 7.5125525, "TownPTt": 16.871219, "TownCyct": 12.564199, "TownCart": 9.96872075 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -1.785021, 51.539849 ], [ -1.78369, 51.541905 ], [ -1.787167, 51.543479 ], [ -1.795406, 51.545107 ], [ -1.798239, 51.546522 ], [ -1.803088, 51.54895 ], [ -1.808968, 51.550979 ], [ -1.811156, 51.552766 ], [ -1.821413, 51.547643 ], [ -1.835661, 51.542572 ], [ -1.830168, 51.541371 ], [ -1.820083, 51.540383 ], [ -1.808195, 51.54089 ], [ -1.799955, 51.541131 ], [ -1.790557, 51.539743 ], [ -1.785021, 51.539849 ] ] ] } }
+]
+}

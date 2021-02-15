@@ -690,6 +690,156 @@
       "uncompressed_size_bytes": 14112350,
       "compressed_size_bytes": 3310105
     },
+    "data/input/gb/poundbury/osm/center.osm": {
+      "checksum": "6427a7065d2c4c355337e593682c9932",
+      "uncompressed_size_bytes": 8989647,
+      "compressed_size_bytes": 910831
+    },
+    "data/input/gb/poundbury/osm/dorset-latest.osm.pbf": {
+      "checksum": "caebd3ee29281f90c0d5a61eda5a0177",
+      "uncompressed_size_bytes": 25375829,
+      "compressed_size_bytes": 25349514
+    },
+    "data/input/gb/poundbury/raw_maps/center.bin": {
+      "checksum": "08e4305fdc58b4a348a8f4a87facfa27",
+      "uncompressed_size_bytes": 2191765,
+      "compressed_size_bytes": 572319
+    },
+    "data/input/gb/priors_hall/osm/center.osm": {
+      "checksum": "2f5c7a0881a378b4cc5bbb75bc555342",
+      "uncompressed_size_bytes": 18652122,
+      "compressed_size_bytes": 1920910
+    },
+    "data/input/gb/priors_hall/osm/northamptonshire-latest.osm.pbf": {
+      "checksum": "c14cb1fdc0a303750bcddbc570f41f7c",
+      "uncompressed_size_bytes": 12444852,
+      "compressed_size_bytes": 12433542
+    },
+    "data/input/gb/priors_hall/raw_maps/center.bin": {
+      "checksum": "8b7ebf8f9d1555c832f2e4e0b2c5301d",
+      "uncompressed_size_bytes": 4830533,
+      "compressed_size_bytes": 1262012
+    },
+    "data/input/gb/taunton_firepool/osm/center.osm": {
+      "checksum": "6deb55c6a06fe7f33d5cff84e51de0ed",
+      "uncompressed_size_bytes": 82661136,
+      "compressed_size_bytes": 7293774
+    },
+    "data/input/gb/taunton_firepool/osm/somerset-latest.osm.pbf": {
+      "checksum": "29c64aec4156ef588ed093303b2d2035",
+      "uncompressed_size_bytes": 38870010,
+      "compressed_size_bytes": 38835936
+    },
+    "data/input/gb/taunton_firepool/raw_maps/center.bin": {
+      "checksum": "7372b898bf5a4820cedd0209fbfb55c6",
+      "uncompressed_size_bytes": 21925893,
+      "compressed_size_bytes": 4812123
+    },
+    "data/input/gb/taunton_garden/osm/center.osm": {
+      "checksum": "8c5cbbe8cc6a5d437be1308d894eacd6",
+      "uncompressed_size_bytes": 90998784,
+      "compressed_size_bytes": 7989694
+    },
+    "data/input/gb/taunton_garden/osm/somerset-latest.osm.pbf": {
+      "checksum": "29c64aec4156ef588ed093303b2d2035",
+      "uncompressed_size_bytes": 38870010,
+      "compressed_size_bytes": 38835936
+    },
+    "data/input/gb/taunton_garden/raw_maps/center.bin": {
+      "checksum": "bf5dd9e729d2f36c3087771c67d13a00",
+      "uncompressed_size_bytes": 24109950,
+      "compressed_size_bytes": 5300839
+    },
+    "data/input/gb/tresham/osm/center.osm": {
+      "checksum": "4e3696da7694daf60d890e222b0985ab",
+      "uncompressed_size_bytes": 31213712,
+      "compressed_size_bytes": 3205413
+    },
+    "data/input/gb/tresham/osm/northamptonshire-latest.osm.pbf": {
+      "checksum": "c14cb1fdc0a303750bcddbc570f41f7c",
+      "uncompressed_size_bytes": 12444852,
+      "compressed_size_bytes": 12433542
+    },
+    "data/input/gb/tresham/raw_maps/center.bin": {
+      "checksum": "bd171b36688ffe8354cbbb9c937565a3",
+      "uncompressed_size_bytes": 8608630,
+      "compressed_size_bytes": 2143610
+    },
+    "data/input/gb/trumpington_meadows/osm/cambridgeshire-latest.osm.pbf": {
+      "checksum": "6885c8677a7e089d06a048b142b96ba7",
+      "uncompressed_size_bytes": 22741471,
+      "compressed_size_bytes": 22723095
+    },
+    "data/input/gb/trumpington_meadows/osm/center.osm": {
+      "checksum": "b37976ebccc328d96440997757c44ee8",
+      "uncompressed_size_bytes": 44563733,
+      "compressed_size_bytes": 4509200
+    },
+    "data/input/gb/trumpington_meadows/raw_maps/center.bin": {
+      "checksum": "6939ff19279ba96dd01168be51aa64ae",
+      "uncompressed_size_bytes": 12606218,
+      "compressed_size_bytes": 2942567
+    },
+    "data/input/gb/tyersal_lane/osm/center.osm": {
+      "checksum": "9552a861d42f27d8a2b5ab603653bb0a",
+      "uncompressed_size_bytes": 11908093,
+      "compressed_size_bytes": 1279372
+    },
+    "data/input/gb/tyersal_lane/osm/west-yorkshire-latest.osm.pbf": {
+      "checksum": "53f0e150c93949e7f2620e94b8a98acd",
+      "uncompressed_size_bytes": 35262776,
+      "compressed_size_bytes": 35221852
+    },
+    "data/input/gb/tyersal_lane/raw_maps/center.bin": {
+      "checksum": "2e9cc9eb0adaab086bd2774aafa50ecc",
+      "uncompressed_size_bytes": 4103642,
+      "compressed_size_bytes": 875038
+    },
+    "data/input/gb/upton/osm/center.osm": {
+      "checksum": "bcc035281bb501bdf1f38e2afc883562",
+      "uncompressed_size_bytes": 21336329,
+      "compressed_size_bytes": 2321265
+    },
+    "data/input/gb/upton/osm/northamptonshire-latest.osm.pbf": {
+      "checksum": "c14cb1fdc0a303750bcddbc570f41f7c",
+      "uncompressed_size_bytes": 12444852,
+      "compressed_size_bytes": 12433542
+    },
+    "data/input/gb/upton/raw_maps/center.bin": {
+      "checksum": "5d796597d7941f4350785fb0862ad287",
+      "uncompressed_size_bytes": 7101729,
+      "compressed_size_bytes": 1655148
+    },
+    "data/input/gb/wichelstowe/osm/center.osm": {
+      "checksum": "13422e881e822690cbc34d6896823be2",
+      "uncompressed_size_bytes": 23095647,
+      "compressed_size_bytes": 2442867
+    },
+    "data/input/gb/wichelstowe/osm/wiltshire-latest.osm.pbf": {
+      "checksum": "49a071f9679bd3dac77c0ba16793382a",
+      "uncompressed_size_bytes": 14149749,
+      "compressed_size_bytes": 14139163
+    },
+    "data/input/gb/wichelstowe/raw_maps/center.bin": {
+      "checksum": "8c9131007baeb9792224a193907c8751",
+      "uncompressed_size_bytes": 6277240,
+      "compressed_size_bytes": 1530613
+    },
+    "data/input/gb/wixams/osm/bedfordshire-latest.osm.pbf": {
+      "checksum": "c3cc31aa660554d2307bb7700ff03768",
+      "uncompressed_size_bytes": 7374650,
+      "compressed_size_bytes": 7369028
+    },
+    "data/input/gb/wixams/osm/center.osm": {
+      "checksum": "3e290025b9dfa552ee87bc5da5ceee37",
+      "uncompressed_size_bytes": 16178801,
+      "compressed_size_bytes": 1805186
+    },
+    "data/input/gb/wixams/raw_maps/center.bin": {
+      "checksum": "07fcdb0b357798bc5f10ba76ad3de499",
+      "uncompressed_size_bytes": 5107345,
+      "compressed_size_bytes": 1246295
+    },
     "data/input/il/tel_aviv/osm/center.osm": {
       "checksum": "eeb7f3813a33f754eceed13766a3c236",
       "uncompressed_size_bytes": 43912053,
@@ -1359,6 +1509,56 @@
       "checksum": "cbfef748f5827fb0e63e5ba0e195f081",
       "uncompressed_size_bytes": 50480957,
       "compressed_size_bytes": 17472834
+    },
+    "data/system/gb/poundbury/maps/center.bin": {
+      "checksum": "4d09c7f8fd1da76e802f97f04ec97c24",
+      "uncompressed_size_bytes": 8561927,
+      "compressed_size_bytes": 3000003
+    },
+    "data/system/gb/priors_hall/maps/center.bin": {
+      "checksum": "de3366460355cad84567997831ce462b",
+      "uncompressed_size_bytes": 18668481,
+      "compressed_size_bytes": 6526066
+    },
+    "data/system/gb/taunton_firepool/maps/center.bin": {
+      "checksum": "2229a19d04c8e2223b23632b4120a28d",
+      "uncompressed_size_bytes": 41166138,
+      "compressed_size_bytes": 14478074
+    },
+    "data/system/gb/taunton_garden/maps/center.bin": {
+      "checksum": "8e7d26b8df5c268a2f03d3a8280b77f3",
+      "uncompressed_size_bytes": 45035545,
+      "compressed_size_bytes": 15836565
+    },
+    "data/system/gb/tresham/maps/center.bin": {
+      "checksum": "9e609428d80fd9e3384b9014ecf39aac",
+      "uncompressed_size_bytes": 37407324,
+      "compressed_size_bytes": 13078204
+    },
+    "data/system/gb/trumpington_meadows/maps/center.bin": {
+      "checksum": "71c2640b86c8cf03cc85668d76dc9a58",
+      "uncompressed_size_bytes": 26184145,
+      "compressed_size_bytes": 9261454
+    },
+    "data/system/gb/tyersal_lane/maps/center.bin": {
+      "checksum": "8dedb4f0e7d927b1fd1403244ace0c8c",
+      "uncompressed_size_bytes": 26092264,
+      "compressed_size_bytes": 8776580
+    },
+    "data/system/gb/upton/maps/center.bin": {
+      "checksum": "ae46983c95db605521767541dc6a68e2",
+      "uncompressed_size_bytes": 38560365,
+      "compressed_size_bytes": 13361816
+    },
+    "data/system/gb/wichelstowe/maps/center.bin": {
+      "checksum": "582eb95fedc16aedcbe66f274643c8f4",
+      "uncompressed_size_bytes": 35775419,
+      "compressed_size_bytes": 12467562
+    },
+    "data/system/gb/wixams/maps/center.bin": {
+      "checksum": "bcaa18bc54a7faba67c0ca06bc4cfaad",
+      "uncompressed_size_bytes": 24197354,
+      "compressed_size_bytes": 8359215
     },
     "data/system/il/tel_aviv/maps/center.bin": {
       "checksum": "b000fe4d6d897eb728d7a8a2bfe7bd8c",
