@@ -15,13 +15,13 @@ git checkout pkg/system
 cd ..
 
 # Copy just what's needed from data
-mkdir -p abst_actdev/data/system/gb
+mkdir -p abst_actdev/system/gb
 # We could just copy all of system/gb and remove leeds and london, but
 # actually, having this list in a script somewhere is kind of convenient.
 for dir in allerton_bywater ashton_park aylesbury aylesham bailrigg bath_riverside bicester castlemead chapelford clackers_brook culm dickens_heath didcot dunton_hills ebbsfleet great_kneighton hampton handforth kidbrooke_village lcid long_marston micklefield newcastle_great_park poundbury priors_hall taunton_firepool taunton_garden tresham trumpington_meadows tyersal_lane upton wichelstowe wixams; do
-	cp -Rv data/system/gb/$dir abst_actdev/data/system/gb
+	cp -Rv data/system/gb/$dir abst_actdev/system/gb
 done
-cp -Rv data/system/study_areas abst_actdev/data/system
+cp -Rv data/system/study_areas abst_actdev/system
 gzip `find abst_actdev/ | grep bin | xargs`
 
 zip -r abst_actdev abst_actdev
