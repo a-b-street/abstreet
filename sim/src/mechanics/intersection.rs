@@ -456,10 +456,10 @@ impl IntersectionSimState {
                 {
                     for t in &ut.path {
                         self.state
-                        .get_mut(&t.parent)
-                        .unwrap()
-                        .reserved
-                        .remove(&Request { agent, turn: *t });
+                            .get_mut(&t.parent)
+                            .unwrap()
+                            .reserved
+                            .remove(&Request { agent, turn: *t });
                     }
                 }
             }

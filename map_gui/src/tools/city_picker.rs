@@ -63,9 +63,8 @@ impl<A: AppLike + 'static> CityPicker<A> {
                         batch.push(DrawArea::fill(area_type, app.cs()), polygon);
                     }
 
-                    let mut regions = city.regions;
-                    regions.sort_by_key(|(name, _)| name.clone());
-                    for (name, polygon) in regions {
+                    let mut buttons = Vec::new();
+                    for (name, polygon) in city.regions {
                         let color = app.cs().rotating_color_agents(districts.len());
 
                         let btn = ctx
@@ -76,19 +75,23 @@ impl<A: AppLike + 'static> CityPicker<A> {
                         let action = name.path();
                         if &name == app.map().get_name() {
                             let btn = btn.disabled(true);
-                            this_city.push(btn.build_widget(ctx, &action));
+                            buttons.push((name.clone(), btn.build_widget(ctx, &action)));
                         } else {
-                            this_city.push(btn.build_widget(ctx, &action));
+                            buttons.push((name.clone(), btn.build_widget(ctx, &action)));
                             batch.push(color, polygon.to_outline(Distance::meters(200.0)).unwrap());
                             districts.push((name, color, polygon.scale(zoom)));
                         }
                     }
                     batch = batch.scale(zoom);
 
-                    this_city.insert(
-                        0,
-                        format!("More districts in {}", city_name.describe()).draw_text(ctx),
-                    );
+                    this_city
+                        .push(format!("More districts in {}", city_name.describe()).draw_text(ctx));
+                    // city.regions are sorted in an order necessary for z-ordering (larger regions
+                    // last), but we want the buttons listed on the side to be alphabetical.
+                    buttons.sort_by_key(|(name, _)| name.clone());
+                    for (_, btn) in buttons {
+                        this_city.push(btn);
+                    }
                 }
 
                 let mut other_places = vec![Line("Other places").draw(ctx)];
