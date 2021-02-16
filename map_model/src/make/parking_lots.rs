@@ -69,14 +69,13 @@ pub fn make_all_parking_lots(
                         .buffer_dist(driveway_buffer, map)
                 })
             {
-                driveway = Some((
-                    PolyLine::must_new(vec![
-                        sidewalk_line.pt1(),
-                        sidewalk_line.pt2(),
-                        driving_pos.pt(map),
-                    ]),
-                    driving_pos,
-                ));
+                if let Ok(pl) = PolyLine::new(vec![
+                    sidewalk_line.pt1(),
+                    sidewalk_line.pt2(),
+                    driving_pos.pt(map),
+                ]) {
+                    driveway = Some((pl, driving_pos));
+                }
             }
             if let Some((driveway_line, driving_pos)) = driveway {
                 let id = ParkingLotID(results.len());

@@ -110,6 +110,61 @@
       "uncompressed_size_bytes": 9251311,
       "compressed_size_bytes": 2019689
     },
+    "data/input/fr/charleville_mezieres/osm/champagne-ardenne-latest.osm.pbf": {
+      "checksum": "f1c9149c597c01b6bfb6de42bd1523d0",
+      "uncompressed_size_bytes": 87454590,
+      "compressed_size_bytes": 87369392
+    },
+    "data/input/fr/charleville_mezieres/osm/secteur1.osm": {
+      "checksum": "bf0ad4aa76108eb9d4ae1d94e05a61d4",
+      "uncompressed_size_bytes": 3162598,
+      "compressed_size_bytes": 337230
+    },
+    "data/input/fr/charleville_mezieres/osm/secteur2.osm": {
+      "checksum": "4577fdea37a134f4877b535dda8e1b5b",
+      "uncompressed_size_bytes": 8463497,
+      "compressed_size_bytes": 868510
+    },
+    "data/input/fr/charleville_mezieres/osm/secteur3.osm": {
+      "checksum": "f821b25108f40a193a4f94e456478051",
+      "uncompressed_size_bytes": 6104083,
+      "compressed_size_bytes": 656975
+    },
+    "data/input/fr/charleville_mezieres/osm/secteur4.osm": {
+      "checksum": "22cd1fa1ff4cf1c07072d4c66d714019",
+      "uncompressed_size_bytes": 11306571,
+      "compressed_size_bytes": 1177149
+    },
+    "data/input/fr/charleville_mezieres/osm/secteur5.osm": {
+      "checksum": "4df6ed5c913c22222b1caaa66c7c0fa0",
+      "uncompressed_size_bytes": 8535274,
+      "compressed_size_bytes": 889604
+    },
+    "data/input/fr/charleville_mezieres/raw_maps/secteur1.bin": {
+      "checksum": "79e961ce45c9ece57dd66a05631436f2",
+      "uncompressed_size_bytes": 877351,
+      "compressed_size_bytes": 216454
+    },
+    "data/input/fr/charleville_mezieres/raw_maps/secteur2.bin": {
+      "checksum": "a6d312fbecfd05e095a590bebc8d86d6",
+      "uncompressed_size_bytes": 2546047,
+      "compressed_size_bytes": 607240
+    },
+    "data/input/fr/charleville_mezieres/raw_maps/secteur3.bin": {
+      "checksum": "a8994f9fc73f1649565bd1076966ba09",
+      "uncompressed_size_bytes": 1886350,
+      "compressed_size_bytes": 437759
+    },
+    "data/input/fr/charleville_mezieres/raw_maps/secteur4.bin": {
+      "checksum": "eb64a44fbcd860bd14423d10c2231669",
+      "uncompressed_size_bytes": 3433386,
+      "compressed_size_bytes": 849217
+    },
+    "data/input/fr/charleville_mezieres/raw_maps/secteur5.bin": {
+      "checksum": "48b9cc6cac36f20a3d459c8d32a8efb1",
+      "uncompressed_size_bytes": 2714829,
+      "compressed_size_bytes": 644209
+    },
     "data/input/fr/paris/osm/center.osm": {
       "checksum": "224841aa32fafd0212b0b2e3cc200e9a",
       "uncompressed_size_bytes": 107158714,
@@ -1379,6 +1434,36 @@
       "checksum": "7c371c9f1170a180812fdfdac93810d9",
       "uncompressed_size_bytes": 16923990,
       "compressed_size_bytes": 5737196
+    },
+    "data/system/fr/charleville_mezieres/city.bin": {
+      "checksum": "95fd9a4dcff29e38ec583e430d096bd1",
+      "uncompressed_size_bytes": 292296,
+      "compressed_size_bytes": 148289
+    },
+    "data/system/fr/charleville_mezieres/maps/secteur1.bin": {
+      "checksum": "24d57f69a9ca1c3e345b2286804d023a",
+      "uncompressed_size_bytes": 1473565,
+      "compressed_size_bytes": 521332
+    },
+    "data/system/fr/charleville_mezieres/maps/secteur2.bin": {
+      "checksum": "d437dfc94209918606b088fdd606f860",
+      "uncompressed_size_bytes": 4334895,
+      "compressed_size_bytes": 1598143
+    },
+    "data/system/fr/charleville_mezieres/maps/secteur3.bin": {
+      "checksum": "e4cfbb1bc1aae4f2e73d2bc557511277",
+      "uncompressed_size_bytes": 3383714,
+      "compressed_size_bytes": 1176333
+    },
+    "data/system/fr/charleville_mezieres/maps/secteur4.bin": {
+      "checksum": "4cd94efb131231279473938239f0d404",
+      "uncompressed_size_bytes": 5299482,
+      "compressed_size_bytes": 1890334
+    },
+    "data/system/fr/charleville_mezieres/maps/secteur5.bin": {
+      "checksum": "ecd34858f871d93fb8d0bdba22b73172",
+      "uncompressed_size_bytes": 4955392,
+      "compressed_size_bytes": 1779281
     },
     "data/system/fr/paris/city.bin": {
       "checksum": "f9e23c4fdf13d83185f4c939fec15465",

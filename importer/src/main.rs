@@ -113,6 +113,7 @@ fn regenerate_everything(config: ImporterConfiguration) {
         // TODO Autodetect this based on number of maps per city?
         if city == CityName::new("gb", "leeds")
             || city == CityName::new("us", "nyc")
+            || city == CityName::new("fr", "charleville_mezieres")
             || city == CityName::new("fr", "paris")
             || city == CityName::new("at", "salzburg")
         {

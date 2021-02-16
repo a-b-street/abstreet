@@ -72,6 +72,11 @@ pub fn nice_map_name(name: &MapName) -> &str {
             _ => &name.map,
         },
         "fr" => match (name.city.city.as_ref(), name.map.as_ref()) {
+            ("charleville_mezieres", "secteur1") => "Charleville-Mézières (secteur 1)",
+            ("charleville_mezieres", "secteur2") => "Charleville-Mézières (secteur 2)",
+            ("charleville_mezieres", "secteur3") => "Charleville-Mézières (secteur 3)",
+            ("charleville_mezieres", "secteur4") => "Charleville-Mézières (secteur 4)",
+            ("charleville_mezieres", "secteur5") => "Charleville-Mézières (secteur 5)",
             ("paris", "center") => "Paris (city center)",
             ("paris", "north") => "Paris (north)",
             ("paris", "south") => "Paris (south)",

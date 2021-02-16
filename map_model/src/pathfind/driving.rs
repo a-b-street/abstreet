@@ -6,7 +6,7 @@ use fast_paths::{deserialize_32, serialize_32, FastGraph, InputGraph, PathCalcul
 use serde::{Deserialize, Serialize};
 use thread_local::ThreadLocal;
 
-use abstutil::MultiMap;
+use abstutil::{prettyprint_usize, MultiMap};
 
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::pathfind::uber_turns::{IntersectionCluster, UberTurn};
@@ -62,7 +62,18 @@ impl VehiclePathfinder {
         // built, seed from the node ordering.
         let graph = if let Some(seed) = seed {
             let node_ordering = seed.graph.get_node_ordering();
-            fast_paths::prepare_with_order(&input_graph, &node_ordering).unwrap()
+            // TODO This shouldn't happen, but it is for buses reusing the car graph. Figure out
+            // what's actually breaking instead of papering over the problem.
+            if input_graph.get_num_nodes() != node_ordering.len() {
+                error!(
+                    "Can't reuse node ordering; {} vs {}",
+                    prettyprint_usize(input_graph.get_num_nodes()),
+                    prettyprint_usize(node_ordering.len())
+                );
+                fast_paths::prepare(&input_graph)
+            } else {
+                fast_paths::prepare_with_order(&input_graph, &node_ordering).unwrap()
+            }
         } else {
             fast_paths::prepare(&input_graph)
         };
