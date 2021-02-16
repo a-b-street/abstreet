@@ -140,6 +140,7 @@ impl IntersectionSimState {
     ) {
         let state = self.state.get_mut(&turn.parent).unwrap();
         assert!(state.accepted.remove(&Request { agent, turn }));
+
         state.reserved.remove(&Request { agent, turn });
         if !handling_live_edits && map.get_t(turn).turn_type != TurnType::SharedSidewalkCorner {
             self.wakeup_waiting(now, turn.parent, scheduler, map);
@@ -219,7 +220,9 @@ impl IntersectionSimState {
                 protected.push(req);
             }
         } else if let Some(ref signal) = map.maybe_get_traffic_signal(i) {
-            let stage = &signal.stages[self.state[&i].signal.as_ref().unwrap().current_stage];
+            let current_stage = self.state[&i].signal.as_ref().unwrap().current_stage;
+            let stage = &signal.stages[current_stage];
+            let reserved = &self.state[&i].reserved;
             for (req, _) in all {
                 match stage.get_priority_of_turn(req.turn, signal) {
                     TurnPriority::Protected => {
@@ -228,8 +231,12 @@ impl IntersectionSimState {
                     TurnPriority::Yield => {
                         yielding.push(req);
                     }
-                    // No need to wake up
-                    TurnPriority::Banned => {}
+                    // No need to wake up unless it has reserved
+                    TurnPriority::Banned => {
+                        if reserved.contains(&req) {
+                            protected.push(req);
+                        }
+                    }
                 }
             }
         } else if let Some(ref sign) = map.maybe_get_stop_sign(i) {
@@ -441,6 +448,21 @@ impl IntersectionSimState {
             if repeat_request {
                 self.not_allowed_requests += 1;
             }
+            // remove the reservation if we're about to start a UT and can't move
+            if self.handle_uber_turns {
+                if let Some(ut) = maybe_cars_and_queues
+                    .as_ref()
+                    .and_then(|(car, _, _)| car.router.get_path().about_to_start_ut())
+                {
+                    for t in &ut.path {
+                        self.state
+                        .get_mut(&t.parent)
+                        .unwrap()
+                        .reserved
+                        .remove(&Request { agent, turn: *t });
+                    }
+                }
+            }
             return false;
         }
 
@@ -531,7 +553,6 @@ impl IntersectionSimState {
                 retain_btreeset(&mut self.blocked_by, |(c, _)| *c != car);
             }
         }
-
         true
     }
 
