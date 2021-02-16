@@ -2126,9 +2126,9 @@
       "compressed_size_bytes": 2935540
     },
     "data/system/us/seattle/prebaked_results/rainier_valley/weekday.bin": {
-      "checksum": "71c02f04787a3eb1f2aac43f3363a150",
-      "uncompressed_size_bytes": 13299880,
-      "compressed_size_bytes": 4791197
+      "checksum": "929af75ab7885ed56c21df826046f903",
+      "uncompressed_size_bytes": 13299101,
+      "compressed_size_bytes": 4789712
     },
     "data/system/us/seattle/scenarios/ballard/weekday.bin": {
       "checksum": "0577027ea447825b3339bfefbb331822",
