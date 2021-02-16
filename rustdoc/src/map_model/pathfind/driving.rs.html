@@ -305,6 +305,17 @@
 <span id="302">302</span>
 <span id="303">303</span>
 <span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Pathfinding for cars, bikes, buses, and trains using contraction hierarchies</span>
 
@@ -314,7 +325,7 @@
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">thread_local</span>::<span class="ident">ThreadLocal</span>;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">MultiMap</span>;
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">MultiMap</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">node_map</span>::{<span class="ident">deserialize_nodemap</span>, <span class="ident">NodeMap</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">uber_turns</span>::{<span class="ident">IntersectionCluster</span>, <span class="ident">UberTurn</span>};
@@ -370,7 +381,18 @@
         <span class="comment">// built, seed from the node ordering.</span>
         <span class="kw">let</span> <span class="ident">graph</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">seed</span>) <span class="op">=</span> <span class="ident">seed</span> {
             <span class="kw">let</span> <span class="ident">node_ordering</span> <span class="op">=</span> <span class="ident">seed</span>.<span class="ident">graph</span>.<span class="ident">get_node_ordering</span>();
-            <span class="ident">fast_paths</span>::<span class="ident">prepare_with_order</span>(<span class="kw-2">&amp;</span><span class="ident">input_graph</span>, <span class="kw-2">&amp;</span><span class="ident">node_ordering</span>).<span class="ident">unwrap</span>()
+            <span class="comment">// TODO This shouldn&#39;t happen, but it is for buses reusing the car graph. Figure out</span>
+            <span class="comment">// what&#39;s actually breaking instead of papering over the problem.</span>
+            <span class="kw">if</span> <span class="ident">input_graph</span>.<span class="ident">get_num_nodes</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">node_ordering</span>.<span class="ident">len</span>() {
+                <span class="macro">error</span><span class="macro">!</span>(
+                    <span class="string">&quot;Can&#39;t reuse node ordering; {} vs {}&quot;</span>,
+                    <span class="ident">prettyprint_usize</span>(<span class="ident">input_graph</span>.<span class="ident">get_num_nodes</span>()),
+                    <span class="ident">prettyprint_usize</span>(<span class="ident">node_ordering</span>.<span class="ident">len</span>())
+                );
+                <span class="ident">fast_paths</span>::<span class="ident">prepare</span>(<span class="kw-2">&amp;</span><span class="ident">input_graph</span>)
+            } <span class="kw">else</span> {
+                <span class="ident">fast_paths</span>::<span class="ident">prepare_with_order</span>(<span class="kw-2">&amp;</span><span class="ident">input_graph</span>, <span class="kw-2">&amp;</span><span class="ident">node_ordering</span>).<span class="ident">unwrap</span>()
+            }
         } <span class="kw">else</span> {
             <span class="ident">fast_paths</span>::<span class="ident">prepare</span>(<span class="kw-2">&amp;</span><span class="ident">input_graph</span>)
         };

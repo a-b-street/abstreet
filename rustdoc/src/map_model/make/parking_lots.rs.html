@@ -263,7 +263,6 @@
 <span id="260">260</span>
 <span id="261">261</span>
 <span id="262">262</span>
-<span id="263">263</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -336,14 +335,13 @@
                         .<span class="ident">buffer_dist</span>(<span class="ident">driveway_buffer</span>, <span class="ident">map</span>)
                 })
             {
-                <span class="ident">driveway</span> <span class="op">=</span> <span class="prelude-val">Some</span>((
-                    <span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="ident">sidewalk_line</span>.<span class="ident">pt1</span>(),
-                        <span class="ident">sidewalk_line</span>.<span class="ident">pt2</span>(),
-                        <span class="ident">driving_pos</span>.<span class="ident">pt</span>(<span class="ident">map</span>),
-                    ]),
-                    <span class="ident">driving_pos</span>,
-                ));
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">PolyLine</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">sidewalk_line</span>.<span class="ident">pt1</span>(),
+                    <span class="ident">sidewalk_line</span>.<span class="ident">pt2</span>(),
+                    <span class="ident">driving_pos</span>.<span class="ident">pt</span>(<span class="ident">map</span>),
+                ]) {
+                    <span class="ident">driveway</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">pl</span>, <span class="ident">driving_pos</span>));
+                }
             }
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">driveway_line</span>, <span class="ident">driving_pos</span>)) <span class="op">=</span> <span class="ident">driveway</span> {
                 <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">ParkingLotID</span>(<span class="ident">results</span>.<span class="ident">len</span>());
