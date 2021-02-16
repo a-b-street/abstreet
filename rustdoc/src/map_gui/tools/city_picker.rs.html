@@ -463,6 +463,9 @@
 <span id="460">460</span>
 <span id="461">461</span>
 <span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -529,9 +532,8 @@
                         <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">DrawArea</span>::<span class="ident">fill</span>(<span class="ident">area_type</span>, <span class="ident">app</span>.<span class="ident">cs</span>()), <span class="ident">polygon</span>);
                     }
 
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">regions</span> <span class="op">=</span> <span class="ident">city</span>.<span class="ident">regions</span>;
-                    <span class="ident">regions</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span>(<span class="ident">name</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">name</span>.<span class="ident">clone</span>());
-                    <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">polygon</span>) <span class="kw">in</span> <span class="ident">regions</span> {
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buttons</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+                    <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">polygon</span>) <span class="kw">in</span> <span class="ident">city</span>.<span class="ident">regions</span> {
                         <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">rotating_color_agents</span>(<span class="ident">districts</span>.<span class="ident">len</span>());
 
                         <span class="kw">let</span> <span class="ident">btn</span> <span class="op">=</span> <span class="ident">ctx</span>
@@ -542,19 +544,23 @@
                         <span class="kw">let</span> <span class="ident">action</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">path</span>();
                         <span class="kw">if</span> <span class="kw-2">&amp;</span><span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_name</span>() {
                             <span class="kw">let</span> <span class="ident">btn</span> <span class="op">=</span> <span class="ident">btn</span>.<span class="ident">disabled</span>(<span class="bool-val">true</span>);
-                            <span class="ident">this_city</span>.<span class="ident">push</span>(<span class="ident">btn</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">action</span>));
+                            <span class="ident">buttons</span>.<span class="ident">push</span>((<span class="ident">name</span>.<span class="ident">clone</span>(), <span class="ident">btn</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">action</span>)));
                         } <span class="kw">else</span> {
-                            <span class="ident">this_city</span>.<span class="ident">push</span>(<span class="ident">btn</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">action</span>));
+                            <span class="ident">buttons</span>.<span class="ident">push</span>((<span class="ident">name</span>.<span class="ident">clone</span>(), <span class="ident">btn</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">action</span>)));
                             <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">polygon</span>.<span class="ident">to_outline</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">200.0</span>)).<span class="ident">unwrap</span>());
                             <span class="ident">districts</span>.<span class="ident">push</span>((<span class="ident">name</span>, <span class="ident">color</span>, <span class="ident">polygon</span>.<span class="ident">scale</span>(<span class="ident">zoom</span>)));
                         }
                     }
                     <span class="ident">batch</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">scale</span>(<span class="ident">zoom</span>);
 
-                    <span class="ident">this_city</span>.<span class="ident">insert</span>(
-                        <span class="number">0</span>,
-                        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;More districts in {}&quot;</span>, <span class="ident">city_name</span>.<span class="ident">describe</span>()).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                    );
+                    <span class="ident">this_city</span>
+                        .<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;More districts in {}&quot;</span>, <span class="ident">city_name</span>.<span class="ident">describe</span>()).<span class="ident">draw_text</span>(<span class="ident">ctx</span>));
+                    <span class="comment">// city.regions are sorted in an order necessary for z-ordering (larger regions</span>
+                    <span class="comment">// last), but we want the buttons listed on the side to be alphabetical.</span>
+                    <span class="ident">buttons</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span>(<span class="ident">name</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">name</span>.<span class="ident">clone</span>());
+                    <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">btn</span>) <span class="kw">in</span> <span class="ident">buttons</span> {
+                        <span class="ident">this_city</span>.<span class="ident">push</span>(<span class="ident">btn</span>);
+                    }
                 }
 
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">other_places</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Line</span>(<span class="string">&quot;Other places&quot;</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>)];
