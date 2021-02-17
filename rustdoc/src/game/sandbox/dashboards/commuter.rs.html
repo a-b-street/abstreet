@@ -705,7 +705,6 @@
 <span id="702">702</span>
 <span id="703">703</span>
 <span id="704">704</span>
-<span id="705">705</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -1317,10 +1316,9 @@
                     <span class="kw">break</span> <span class="bool-val">true</span>;
                 }
             } <span class="kw">else</span> {
-                <span class="macro">panic</span><span class="macro">!</span>(
-                    <span class="string">&quot;Too many SharedSidewalkCorners from ({}, {})&quot;</span>,
-                    <span class="ident">current_l</span>, <span class="ident">current_i</span>
-                );
+                <span class="comment">// Around pedestrian-only roads, there&#39;ll be many SharedSidewalkCorners. Just give</span>
+                <span class="comment">// up.</span>
+                <span class="kw">break</span> <span class="bool-val">false</span>;
             };
         };
 
