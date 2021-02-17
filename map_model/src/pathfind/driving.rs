@@ -6,7 +6,7 @@ use fast_paths::{deserialize_32, serialize_32, FastGraph, InputGraph, PathCalcul
 use serde::{Deserialize, Serialize};
 use thread_local::ThreadLocal;
 
-use abstutil::{prettyprint_usize, MultiMap};
+use abstutil::MultiMap;
 
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::pathfind::uber_turns::{IntersectionCluster, UberTurn};
@@ -62,18 +62,7 @@ impl VehiclePathfinder {
         // built, seed from the node ordering.
         let graph = if let Some(seed) = seed {
             let node_ordering = seed.graph.get_node_ordering();
-            // TODO This shouldn't happen, but it is for buses reusing the car graph. Figure out
-            // what's actually breaking instead of papering over the problem.
-            if input_graph.get_num_nodes() != node_ordering.len() {
-                error!(
-                    "Can't reuse node ordering; {} vs {}",
-                    prettyprint_usize(input_graph.get_num_nodes()),
-                    prettyprint_usize(node_ordering.len())
-                );
-                fast_paths::prepare(&input_graph)
-            } else {
-                fast_paths::prepare_with_order(&input_graph, &node_ordering).unwrap()
-            }
+            fast_paths::prepare_with_order(&input_graph, &node_ordering).unwrap()
         } else {
             fast_paths::prepare(&input_graph)
         };
@@ -156,6 +145,9 @@ fn make_input_graph(
     // From some lanes, instead of adding edges to turns, add edges to these (indexed) uber-turns.
     let mut uber_turn_entrances: MultiMap<LaneID, usize> = MultiMap::new();
     for (idx, ut) in uber_turns.iter().enumerate() {
+        // Force the nodes to always match up in the graph for different vehicle types.
+        nodes.get(Node::UberTurn(idx));
+
         // But actually, make sure this uber-turn only contains lanes that can be used by this
         // vehicle.
         // TODO Need to test editing lanes inside an IntersectionCluster very carefully. See Mercer
@@ -166,19 +158,11 @@ fn make_input_graph(
             .all(|t| constraints.can_use(map.get_l(t.dst), map))
         {
             uber_turn_entrances.insert(ut.entry(), idx);
-        } else {
-            // Similar to the hack below for unused lanes
-            if idx == uber_turns.len() - 1 {
-                input_graph.add_edge(
-                    nodes.get(Node::UberTurn(idx)),
-                    nodes.get(Node::UberTurn(0)),
-                    1,
-                );
-            }
         }
     }
 
     let num_lanes = map.all_lanes().len();
+    let mut used_last_uber_turn = false;
     for l in map.all_lanes() {
         let from = nodes.get(Node::Lane(l.id));
         let mut any = false;
@@ -227,18 +211,31 @@ fn make_input_graph(
                         // The cost is already captured for entering the uber-turn
                         1,
                     );
+                    if *idx == uber_turns.len() - 1 {
+                        used_last_uber_turn = true;
+                    }
                 }
             }
         }
-        // The nodes in the graph MUST exactly be all of the lanes, so we can reuse node
-        // ordering later. If the last lane doesn't have any edges, then this won't work. So
-        // pretend like it points to some arbitrary other node. Since no paths will start from
-        // this unused node, this won't affect results.
+        // The nodes in the graph MUST exactly be all of the lanes, so we can reuse node ordering
+        // later. If the last lane doesn't have any edges, then this won't work -- fast_paths trims
+        // out unused nodes at the end. So pretend like it points to some arbitrary other node.
+        // Since no paths will start from this unused node, this won't affect results.
         // TODO Upstream a method in InputGraph to do this more clearly.
         if !any && l.id.0 == num_lanes - 1 {
             input_graph.add_edge(from, nodes.get(Node::Lane(LaneID(0))), 1);
         }
     }
+
+    // Same as the hack above for unused lanes
+    if !used_last_uber_turn && !uber_turns.is_empty() {
+        input_graph.add_edge(
+            nodes.get(Node::UberTurn(uber_turns.len() - 1)),
+            nodes.get(Node::UberTurn(0)),
+            1,
+        );
+    }
+
     input_graph.freeze();
     input_graph
 }

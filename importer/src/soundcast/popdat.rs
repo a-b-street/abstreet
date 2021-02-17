@@ -133,7 +133,7 @@ fn import_parcels(
     let mut parcel_metadata = Vec::new();
 
     let (reader, done) =
-        FileWithProgress::new(&CityName::new("us", "seattle").input_path("parcels_urbansim.csv"))
+        FileWithProgress::new(&CityName::new("us", "seattle").input_path("parcels_urbansim.txt"))
             .unwrap();
     for rec in csv::ReaderBuilder::new()
         .delimiter(b' ')
