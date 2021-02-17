@@ -170,10 +170,17 @@
 <span id="167">167</span>
 <span id="168">168</span>
 <span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
-
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">grey_out_map</span>, <span class="ident">nice_map_name</span>, <span class="ident">open_browser</span>, <span class="ident">PopupMsg</span>};
+<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">PersonID</span>, <span class="ident">TripID</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">SimpleState</span>,
     <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
@@ -181,19 +188,21 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">EditMode</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">info</span>::<span class="ident">Tab</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">info</span>::{<span class="ident">OpenTrip</span>, <span class="ident">Tab</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">gameplay</span>::<span class="ident">freeform</span>::<span class="ident">ChangeScenario</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">gameplay</span>::{<span class="ident">GameplayMode</span>, <span class="ident">GameplayState</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::{<span class="ident">Actions</span>, <span class="ident">SandboxControls</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Blog</span> {
     <span class="ident">top_center</span>: <span class="ident">Panel</span>,
+    <span class="ident">scenario_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Blog</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">GameplayState</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">scenario_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">GameplayState</span><span class="op">&gt;</span> {
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Blog</span> {
             <span class="ident">top_center</span>: <span class="ident">Panel</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>),
+            <span class="ident">scenario_name</span>,
         })
     }
 }
@@ -241,19 +250,12 @@
                     <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">SimpleState</span>::<span class="ident">new</span>(<span class="ident">panel</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">About</span>))))
                 }
                 <span class="string">&quot;follow someone&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="comment">// Just find the first active non-bus person</span>
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">person</span>) <span class="op">=</span> <span class="ident">app</span>
-                        .<span class="ident">primary</span>
-                        .<span class="ident">sim</span>
-                        .<span class="ident">active_agents</span>()
-                        .<span class="ident">into_iter</span>()
-                        .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">agent_to_person</span>(<span class="ident">a</span>))
-                        .<span class="ident">next</span>()
-                    {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">person</span>, <span class="ident">trip</span>)) <span class="op">=</span> <span class="ident">find_active_trip</span>(<span class="ident">app</span>) {
+                        <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">=</span> <span class="number">40.0</span>;
                         <span class="ident">controls</span>.<span class="ident">common</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">launch_info_panel</span>(
                             <span class="ident">ctx</span>,
                             <span class="ident">app</span>,
-                            <span class="ident">Tab</span>::<span class="ident">PersonTrips</span>(<span class="ident">person</span>, <span class="ident">BTreeMap</span>::<span class="ident">new</span>()),
+                            <span class="ident">Tab</span>::<span class="ident">PersonTrips</span>(<span class="ident">person</span>, <span class="ident">OpenTrip</span>::<span class="ident">single</span>(<span class="ident">trip</span>)),
                             <span class="ident">actions</span>,
                         );
                         <span class="prelude-val">None</span>
@@ -294,7 +296,10 @@
                     .<span class="ident">draw</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">vert_separator</span>(<span class="ident">ctx</span>, <span class="number">50.0</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_light_popup_icon_text</span>(<span class="string">&quot;system/assets/tools/calendar.svg&quot;</span>, <span class="string">&quot;none&quot;</span>)
+                    .<span class="ident">btn_light_popup_icon_text</span>(
+                        <span class="string">&quot;system/assets/tools/calendar.svg&quot;</span>,
+                        <span class="self">self</span>.<span class="ident">scenario_name</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="string">&quot;none&quot;</span>.<span class="ident">to_string</span>()),
+                    )
                     .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">S</span>)
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change scenario&quot;</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
@@ -339,6 +344,17 @@
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="ident">grey_out_map</span>(<span class="ident">g</span>, <span class="ident">app</span>);
     }
+}
+
+<span class="kw">fn</span> <span class="ident">find_active_trip</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">PersonID</span>, <span class="ident">TripID</span>)<span class="op">&gt;</span> {
+    <span class="kw">for</span> <span class="ident">agent</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">active_agents</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">trip</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">agent_to_trip</span>(<span class="ident">agent</span>) {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">person</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trip_to_person</span>(<span class="ident">trip</span>) {
+                <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">person</span>, <span class="ident">trip</span>));
+            }
+        }
+    }
+    <span class="prelude-val">None</span>
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../../";window.currentCrate = "game";</script><script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script><script defer src="../../../../search-index.js"></script></body></html>

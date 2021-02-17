@@ -343,6 +343,12 @@
 <span id="340">340</span>
 <span id="341">341</span>
 <span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
@@ -442,7 +448,13 @@
         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">MapName</span>::<span class="ident">new</span>(<span class="string">&quot;gb&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">city</span>, <span class="string">&quot;center&quot;</span>);
         <span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">path</span>();
         <span class="ident">flags</span>.<span class="ident">study_area</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">site</span>);
-        <span class="ident">mode</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">sandbox</span>::<span class="ident">GameplayMode</span>::<span class="ident">Blog</span>(<span class="ident">name</span>));
+        <span class="comment">// Start with the baseline scenario if it exists.</span>
+        <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">abstio</span>::<span class="ident">file_exists</span>(<span class="ident">abstio</span>::<span class="ident">path_scenario</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>, <span class="string">&quot;base&quot;</span>)) {
+            <span class="prelude-val">Some</span>(<span class="string">&quot;base&quot;</span>.<span class="ident">to_string</span>())
+        } <span class="kw">else</span> {
+            <span class="prelude-val">None</span>
+        };
+        <span class="ident">mode</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">sandbox</span>::<span class="ident">GameplayMode</span>::<span class="ident">Blog</span>(<span class="ident">name</span>, <span class="ident">scenario</span>));
     }
 
     <span class="ident">args</span>.<span class="ident">done</span>();
@@ -623,7 +635,7 @@
     <span class="kw">let</span> <span class="ident">states</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">title</span> {
         <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">TitleScreen</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))]
     } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">mode</span>) <span class="op">=</span> <span class="ident">maybe_mode</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">GameplayMode</span>::<span class="ident">Blog</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">mode</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">GameplayMode</span>::<span class="ident">Blog</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">mode</span> {
             <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">SandboxMode</span>::<span class="ident">async_new</span>(<span class="ident">app</span>, <span class="ident">mode</span>, <span class="ident">start_daytime</span>)]
         } <span class="kw">else</span> {
             <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">SandboxMode</span>::<span class="ident">simple_new</span>(<span class="ident">app</span>, <span class="ident">mode</span>)]
