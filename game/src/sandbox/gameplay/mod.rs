@@ -39,7 +39,8 @@ pub enum GameplayMode {
     PlayScenario(MapName, String, Vec<ScenarioModifier>),
     FixTrafficSignals,
     OptimizeCommute(OrigPersonID, Duration),
-    Blog(MapName),
+    // Map name, scenario name
+    Blog(MapName, Option<String>),
 
     // current
     Tutorial(TutorialPointer),
@@ -104,15 +105,14 @@ impl GameplayMode {
             GameplayMode::FixTrafficSignals => MapName::seattle("downtown"),
             GameplayMode::OptimizeCommute(_, _) => MapName::seattle("montlake"),
             GameplayMode::Tutorial(_) => MapName::seattle("montlake"),
-            GameplayMode::Blog(ref name) => name.clone(),
+            GameplayMode::Blog(ref name, _) => name.clone(),
         }
     }
 
     pub fn scenario(&self, app: &App, mut rng: XorShiftRng, timer: &mut Timer) -> LoadScenario {
         let map = &app.primary.map;
         let name = match self {
-            // TODO Start with a scenario in blog mode, once all the actdev scenarios are imported.
-            GameplayMode::Freeform(_) | GameplayMode::Blog(_) => {
+            GameplayMode::Freeform(_) => {
                 let mut s = Scenario::empty(map, "empty");
                 s.only_seed_buses = None;
                 return LoadScenario::Scenario(s);
@@ -126,7 +126,18 @@ impl GameplayMode {
                     None => LoadScenario::Nothing,
                 };
             }
-            _ => "weekday".to_string(),
+            GameplayMode::Blog(_, ref maybe_scenario) => {
+                if let Some(s) = maybe_scenario {
+                    s.to_string()
+                } else {
+                    let mut s = Scenario::empty(map, "empty");
+                    s.only_seed_buses = None;
+                    return LoadScenario::Scenario(s);
+                }
+            }
+            GameplayMode::FixTrafficSignals | GameplayMode::OptimizeCommute(_, _) => {
+                "weekday".to_string()
+            }
         };
         if name == "random" {
             LoadScenario::Scenario(ScenarioGenerator::small_run(map).generate(map, &mut rng, timer))
@@ -218,7 +229,9 @@ impl GameplayMode {
                 commute::OptimizeCommute::new(ctx, app, *p, *goal)
             }
             GameplayMode::Tutorial(current) => Tutorial::make_gameplay(ctx, app, *current),
-            GameplayMode::Blog(_) => blog::Blog::new(ctx),
+            GameplayMode::Blog(_, ref maybe_scenario) => {
+                blog::Blog::new(ctx, maybe_scenario.clone())
+            }
         }
     }
 }

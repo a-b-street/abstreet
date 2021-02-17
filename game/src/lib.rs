@@ -96,7 +96,13 @@ pub fn main() {
         let name = MapName::new("gb", &city, "center");
         flags.sim_flags.load = name.path();
         flags.study_area = Some(site);
-        mode = Some(sandbox::GameplayMode::Blog(name));
+        // Start with the baseline scenario if it exists.
+        let scenario = if abstio::file_exists(abstio::path_scenario(&name, "base")) {
+            Some("base".to_string())
+        } else {
+            None
+        };
+        mode = Some(sandbox::GameplayMode::Blog(name, scenario));
     }
 
     args.done();
@@ -277,7 +283,7 @@ fn finish_app_setup(
     let states: Vec<Box<dyn State<App>>> = if title {
         vec![Box::new(TitleScreen::new(ctx, app))]
     } else if let Some(mode) = maybe_mode {
-        if let GameplayMode::Blog(_) = mode {
+        if let GameplayMode::Blog(_, _) = mode {
             vec![SandboxMode::async_new(app, mode, start_daytime)]
         } else {
             vec![SandboxMode::simple_new(app, mode)]

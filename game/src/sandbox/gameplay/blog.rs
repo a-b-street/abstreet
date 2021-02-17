@@ -1,6 +1,5 @@
-use std::collections::BTreeMap;
-
 use map_gui::tools::{grey_out_map, nice_map_name, open_browser, PopupMsg};
+use sim::{PersonID, TripID};
 use widgetry::{
     lctrl, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, SimpleState,
     StyledButtons, Text, TextExt, VerticalAlignment, Widget,
@@ -8,19 +7,21 @@ use widgetry::{
 
 use crate::app::{App, Transition};
 use crate::edit::EditMode;
-use crate::info::Tab;
+use crate::info::{OpenTrip, Tab};
 use crate::sandbox::gameplay::freeform::ChangeScenario;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{Actions, SandboxControls};
 
 pub struct Blog {
     top_center: Panel,
+    scenario_name: Option<String>,
 }
 
 impl Blog {
-    pub fn new(ctx: &mut EventCtx) -> Box<dyn GameplayState> {
+    pub fn new(ctx: &mut EventCtx, scenario_name: Option<String>) -> Box<dyn GameplayState> {
         Box::new(Blog {
             top_center: Panel::empty(ctx),
+            scenario_name,
         })
     }
 }
@@ -68,19 +69,12 @@ impl GameplayState for Blog {
                     Some(Transition::Push(SimpleState::new(panel, Box::new(About))))
                 }
                 "follow someone" => {
-                    // Just find the first active non-bus person
-                    if let Some(person) = app
-                        .primary
-                        .sim
-                        .active_agents()
-                        .into_iter()
-                        .filter_map(|a| app.primary.sim.agent_to_person(a))
-                        .next()
-                    {
+                    if let Some((person, trip)) = find_active_trip(app) {
+                        ctx.canvas.cam_zoom = 40.0;
                         controls.common.as_mut().unwrap().launch_info_panel(
                             ctx,
                             app,
-                            Tab::PersonTrips(person, BTreeMap::new()),
+                            Tab::PersonTrips(person, OpenTrip::single(trip)),
                             actions,
                         );
                         None
@@ -121,7 +115,10 @@ impl GameplayState for Blog {
                     .draw(ctx),
                 Widget::vert_separator(ctx, 50.0),
                 ctx.style()
-                    .btn_light_popup_icon_text("system/assets/tools/calendar.svg", "none")
+                    .btn_light_popup_icon_text(
+                        "system/assets/tools/calendar.svg",
+                        self.scenario_name.as_ref().unwrap_or(&"none".to_string()),
+                    )
                     .hotkey(Key::S)
                     .build_widget(ctx, "change scenario"),
                 ctx.style()
@@ -166,4 +163,15 @@ impl SimpleState<App> for About {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         grey_out_map(g, app);
     }
+}
+
+fn find_active_trip(app: &App) -> Option<(PersonID, TripID)> {
+    for agent in app.primary.sim.active_agents() {
+        if let Some(trip) = app.primary.sim.agent_to_trip(agent) {
+            if let Some(person) = app.primary.sim.trip_to_person(trip) {
+                return Some((person, trip));
+            }
+        }
+    }
+    None
 }
