@@ -1,4 +1,6 @@
-use map_gui::tools::{grey_out_map, nice_map_name, open_browser};
+use std::collections::BTreeMap;
+
+use map_gui::tools::{grey_out_map, nice_map_name, open_browser, PopupMsg};
 use widgetry::{
     lctrl, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, SimpleState,
     StyledButtons, Text, TextExt, VerticalAlignment, Widget,
@@ -6,6 +8,7 @@ use widgetry::{
 
 use crate::app::{App, Transition};
 use crate::edit::EditMode;
+use crate::info::Tab;
 use crate::sandbox::gameplay::freeform::ChangeScenario;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{Actions, SandboxControls};
@@ -27,8 +30,8 @@ impl GameplayState for Blog {
         &mut self,
         ctx: &mut EventCtx,
         app: &mut App,
-        _: &mut SandboxControls,
-        _: &mut Actions,
+        controls: &mut SandboxControls,
+        actions: &mut Actions,
     ) -> Option<Transition> {
         match self.top_center.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -64,6 +67,36 @@ impl GameplayState for Blog {
                     .build(ctx);
                     Some(Transition::Push(SimpleState::new(panel, Box::new(About))))
                 }
+                "follow someone" => {
+                    // Just find the first active non-bus person
+                    if let Some(person) = app
+                        .primary
+                        .sim
+                        .active_agents()
+                        .into_iter()
+                        .filter_map(|a| app.primary.sim.agent_to_person(a))
+                        .next()
+                    {
+                        controls.common.as_mut().unwrap().launch_info_panel(
+                            ctx,
+                            app,
+                            Tab::PersonTrips(person, BTreeMap::new()),
+                            actions,
+                        );
+                        None
+                    } else {
+                        return Some(Transition::Push(PopupMsg::new(
+                            ctx,
+                            "Nobody's around...",
+                            vec!["There are no active trips right now"],
+                        )));
+                    }
+                }
+                "bike network" => {
+                    app.primary.layer =
+                        Some(Box::new(crate::layer::map::BikeNetwork::new(ctx, app)));
+                    None
+                }
                 _ => unreachable!(),
             },
             _ => None,
@@ -75,29 +108,39 @@ impl GameplayState for Blog {
     }
 
     fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
-        let row = Widget::row(vec![
-            ctx.style()
-                .btn_plain_light()
-                .image_path("system/assets/pregame/logo.svg")
-                .image_dims(50.0)
-                .build_widget(ctx, "about A/B Street")
-                .centered_vert(),
-            Line(nice_map_name(app.primary.map.get_name()))
-                .small_heading()
-                .draw(ctx),
-            Widget::vert_separator(ctx, 50.0),
-            ctx.style()
-                .btn_light_popup_icon_text("system/assets/tools/calendar.svg", "none")
-                .hotkey(Key::S)
-                .build_widget(ctx, "change scenario"),
-            ctx.style()
-                .btn_outline_light_icon_text("system/assets/tools/pencil.svg", "Edit map")
-                .hotkey(lctrl(Key::E))
-                .build_widget(ctx, "edit map"),
-        ])
-        .centered();
+        let col = Widget::col(vec![
+            Widget::row(vec![
+                ctx.style()
+                    .btn_plain_light()
+                    .image_path("system/assets/pregame/logo.svg")
+                    .image_dims(50.0)
+                    .build_widget(ctx, "about A/B Street")
+                    .centered_vert(),
+                Line(nice_map_name(app.primary.map.get_name()))
+                    .small_heading()
+                    .draw(ctx),
+                Widget::vert_separator(ctx, 50.0),
+                ctx.style()
+                    .btn_light_popup_icon_text("system/assets/tools/calendar.svg", "none")
+                    .hotkey(Key::S)
+                    .build_widget(ctx, "change scenario"),
+                ctx.style()
+                    .btn_outline_light_icon_text("system/assets/tools/pencil.svg", "Edit map")
+                    .hotkey(lctrl(Key::E))
+                    .build_widget(ctx, "edit map"),
+            ])
+            .centered(),
+            Widget::row(vec![
+                ctx.style()
+                    .btn_plain_light_icon_text("system/assets/tools/location.svg", "Follow someone")
+                    .build_widget(ctx, "follow someone"),
+                ctx.style()
+                    .btn_plain_light_icon_text("system/assets/meters/bike.svg", "Bike network")
+                    .build_widget(ctx, "bike network"),
+            ]),
+        ]);
 
-        self.top_center = Panel::new(row)
+        self.top_center = Panel::new(col)
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx);
     }
