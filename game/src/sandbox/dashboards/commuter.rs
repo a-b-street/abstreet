@@ -608,10 +608,9 @@ fn partition_sidewalk_loops(app: &App) -> Vec<Loop> {
                     break true;
                 }
             } else {
-                panic!(
-                    "Too many SharedSidewalkCorners from ({}, {})",
-                    current_l, current_i
-                );
+                // Around pedestrian-only roads, there'll be many SharedSidewalkCorners. Just give
+                // up.
+                break false;
             };
         };
 
