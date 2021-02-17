@@ -121,6 +121,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("upton", "center") => "Upton",
             ("wichelstowe", "center") => "Wichelstowe",
             ("wixams", "center") => "Wixams",
+            ("wynyard", "center") => "Wynyard",
             _ => &name.map,
         },
         "il" => match (name.city.city.as_ref(), name.map.as_ref()) {

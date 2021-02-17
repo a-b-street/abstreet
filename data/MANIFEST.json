@@ -945,6 +945,26 @@
       "uncompressed_size_bytes": 6846205,
       "compressed_size_bytes": 1836127
     },
+    "data/input/gb/wynyard/osm/center.osm": {
+      "checksum": "f11cf28f3a98e53949b52e8ebcb15a24",
+      "uncompressed_size_bytes": 29434137,
+      "compressed_size_bytes": 3196835
+    },
+    "data/input/gb/wynyard/osm/durham-latest.osm.pbf": {
+      "checksum": "16bfab98fb476fa595bae9a3c786b404",
+      "uncompressed_size_bytes": 19289045,
+      "compressed_size_bytes": 19271054
+    },
+    "data/input/gb/wynyard/procgen_houses.json": {
+      "checksum": "6ed2ec9f60fdfd0f2ea03a0aa790a46a",
+      "uncompressed_size_bytes": 24795876,
+      "compressed_size_bytes": 2830334
+    },
+    "data/input/gb/wynyard/raw_maps/center.bin": {
+      "checksum": "0484577b02501ba9f1fdcc49fdf714d8",
+      "uncompressed_size_bytes": 15786785,
+      "compressed_size_bytes": 3978259
+    },
     "data/input/il/tel_aviv/osm/center.osm": {
       "checksum": "eeb7f3813a33f754eceed13766a3c236",
       "uncompressed_size_bytes": 43912053,
@@ -1979,6 +1999,21 @@
       "checksum": "80c36d5be0cf5947b5d26015fe5cc9ea",
       "uncompressed_size_bytes": 122481,
       "compressed_size_bytes": 18591
+    },
+    "data/system/gb/wynyard/maps/center.bin": {
+      "checksum": "102a1d59c6c95c67ababe9d3bf0a17eb",
+      "uncompressed_size_bytes": 75090831,
+      "compressed_size_bytes": 25622228
+    },
+    "data/system/gb/wynyard/scenarios/center/base.bin": {
+      "checksum": "7f0466b3ea862b3ffa8c591949e3bd62",
+      "uncompressed_size_bytes": 98156,
+      "compressed_size_bytes": 15159
+    },
+    "data/system/gb/wynyard/scenarios/center/dutch.bin": {
+      "checksum": "dc72451b19e46a94f398ab03dc14c270",
+      "uncompressed_size_bytes": 99844,
+      "compressed_size_bytes": 15667
     },
     "data/system/il/tel_aviv/maps/center.bin": {
       "checksum": "b000fe4d6d897eb728d7a8a2bfe7bd8c",
