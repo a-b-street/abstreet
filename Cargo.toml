@@ -36,9 +36,8 @@ members = [
 opt-level = 3
 
 [patch.crates-io]
-# Since we've updated our tokio runtime to 1.0 elsewhere, we need to use a compatible version of flatgeobuf, until this is released:
-# https://github.com/flatgeobuf/flatgeobuf/commit/b21bfc72396505ce564b3195d59e63d22a48454f#diff-73865c8d3c63ba309958fca980e3f4d75ec4aa20df8d58b411479e44880f39ec
-flatgeobuf = { git = "https://github.com/flatgeobuf/flatgeobuf" }
+# Use upstream after https://github.com/flatgeobuf/flatgeobuf/pull/107 is merged and there's a new version
+flatgeobuf = { git = "https://github.com/dabreegster/flatgeobuf", branch = "reqwest" }
 
 # update to geo-types 0.7 - upstream: https://github.com/21re/rust-geo-booleanop/pull/27
 geo-booleanop = { git = "https://github.com/michaelkirk/rust-geo-booleanop", branch = "mkirk/geo-types-0.7" }
