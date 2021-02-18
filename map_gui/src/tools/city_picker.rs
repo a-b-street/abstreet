@@ -100,16 +100,29 @@ impl<A: AppLike + 'static> CityPicker<A> {
                     if cities.len() == 1 && cities[0] == city_name {
                         continue;
                     }
-                    other_places.push(
-                        ctx.style()
-                            .btn_outline_light_icon_text(
-                                &format!("system/assets/flags/{}.svg", country),
-                                &format!("{} in {}", cities.len(), nice_country_name(&country)),
-                            )
-                            .image_color(RewriteColor::NoOp, ControlState::Default)
-                            .image_dims(30.0)
-                            .build_widget(ctx, &country),
-                    );
+                    let flag_path = format!("system/assets/flags/{}.svg", country);
+                    if abstio::file_exists(abstio::path(&flag_path)) {
+                        other_places.push(
+                            ctx.style()
+                                .btn_outline_light_icon_text(
+                                    &flag_path,
+                                    &format!("{} in {}", cities.len(), nice_country_name(&country)),
+                                )
+                                .image_color(RewriteColor::NoOp, ControlState::Default)
+                                .image_dims(30.0)
+                                .build_widget(ctx, &country),
+                        );
+                    } else {
+                        other_places.push(
+                            ctx.style()
+                                .btn_outline_light_text(&format!(
+                                    "{} in {}",
+                                    cities.len(),
+                                    nice_country_name(&country)
+                                ))
+                                .build_widget(ctx, &country),
+                        );
+                    }
                 }
                 other_places.push(
                     ctx.style()
@@ -386,14 +399,20 @@ impl<A: AppLike + 'static> CitiesInCountryPicker<A> {
             );
         }
 
-        let flag = GeomBatch::load_svg(ctx, &format!("system/assets/flags/{}.svg", country));
-        let y_factor = 30.0 / flag.get_dims().height;
+        let flag_path = format!("system/assets/flags/{}.svg", country);
+        let draw_flag = if abstio::file_exists(abstio::path(&flag_path)) {
+            let flag = GeomBatch::load_svg(ctx, &format!("system/assets/flags/{}.svg", country));
+            let y_factor = 30.0 / flag.get_dims().height;
+            Widget::draw_batch(ctx, flag.scale(y_factor))
+        } else {
+            Widget::nothing()
+        };
 
         Box::new(CitiesInCountryPicker {
             on_load: Some(on_load),
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
-                    Widget::draw_batch(ctx, flag.scale(y_factor)),
+                    draw_flag,
                     Line(format!("Select a city in {}", nice_country_name(country)))
                         .small_heading()
                         .draw(ctx),
