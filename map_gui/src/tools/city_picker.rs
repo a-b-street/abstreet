@@ -48,10 +48,9 @@ impl<A: AppLike + 'static> CityPicker<A> {
             Box::new(move |ctx, app, _, maybe_city| {
                 let mut batch = GeomBatch::new();
                 let mut districts = Vec::new();
-                let mut this_city = vec![];
+                let mut this_city =
+                    vec![format!("More districts in {}", city_name.describe()).draw_text(ctx)];
 
-                // If this city overview doesn't exist, we assume this map is the only one in the
-                // city.
                 if let Ok(city) = maybe_city {
                     let bounds = city.boundary.get_bounds();
 
@@ -84,13 +83,22 @@ impl<A: AppLike + 'static> CityPicker<A> {
                     }
                     batch = batch.scale(zoom);
 
-                    this_city
-                        .push(format!("More districts in {}", city_name.describe()).draw_text(ctx));
                     // city.regions are sorted in an order necessary for z-ordering (larger regions
                     // last), but we want the buttons listed on the side to be alphabetical.
                     buttons.sort_by_key(|(name, _)| name.clone());
                     for (_, btn) in buttons {
                         this_city.push(btn);
+                    }
+                } else {
+                    // If this city overview doesn't exist, just list files.
+                    for name in MapName::list_all_maps_in_city(&city_name) {
+                        this_city.push(
+                            ctx.style()
+                                .btn_outline_light_text(nice_map_name(&name))
+                                .no_tooltip()
+                                .disabled(&name == app.map().get_name())
+                                .build_widget(ctx, &name.path()),
+                        );
                     }
                 }
 
