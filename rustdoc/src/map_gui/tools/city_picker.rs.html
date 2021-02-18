@@ -485,6 +485,14 @@
 <span id="482">482</span>
 <span id="483">483</span>
 <span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -536,10 +544,9 @@
             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw">_</span>, <span class="ident">maybe_city</span><span class="op">|</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">districts</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this_city</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this_city</span> <span class="op">=</span>
+                    <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;More districts in {}&quot;</span>, <span class="ident">city_name</span>.<span class="ident">describe</span>()).<span class="ident">draw_text</span>(<span class="ident">ctx</span>)];
 
-                <span class="comment">// If this city overview doesn&#39;t exist, we assume this map is the only one in the</span>
-                <span class="comment">// city.</span>
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">city</span>) <span class="op">=</span> <span class="ident">maybe_city</span> {
                     <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">city</span>.<span class="ident">boundary</span>.<span class="ident">get_bounds</span>();
 
@@ -572,13 +579,22 @@
                     }
                     <span class="ident">batch</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">scale</span>(<span class="ident">zoom</span>);
 
-                    <span class="ident">this_city</span>
-                        .<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;More districts in {}&quot;</span>, <span class="ident">city_name</span>.<span class="ident">describe</span>()).<span class="ident">draw_text</span>(<span class="ident">ctx</span>));
                     <span class="comment">// city.regions are sorted in an order necessary for z-ordering (larger regions</span>
                     <span class="comment">// last), but we want the buttons listed on the side to be alphabetical.</span>
                     <span class="ident">buttons</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span>(<span class="ident">name</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">name</span>.<span class="ident">clone</span>());
                     <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">btn</span>) <span class="kw">in</span> <span class="ident">buttons</span> {
                         <span class="ident">this_city</span>.<span class="ident">push</span>(<span class="ident">btn</span>);
+                    }
+                } <span class="kw">else</span> {
+                    <span class="comment">// If this city overview doesn&#39;t exist, just list files.</span>
+                    <span class="kw">for</span> <span class="ident">name</span> <span class="kw">in</span> <span class="ident">MapName</span>::<span class="ident">list_all_maps_in_city</span>(<span class="kw-2">&amp;</span><span class="ident">city_name</span>) {
+                        <span class="ident">this_city</span>.<span class="ident">push</span>(
+                            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                                .<span class="ident">btn_outline_light_text</span>(<span class="ident">nice_map_name</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>))
+                                .<span class="ident">no_tooltip</span>()
+                                .<span class="ident">disabled</span>(<span class="kw-2">&amp;</span><span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_name</span>())
+                                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">path</span>()),
+                        );
                     }
                 }
 
