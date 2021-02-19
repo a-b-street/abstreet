@@ -1414,11 +1414,23 @@
 <span id="1411">1411</span>
 <span id="1412">1412</span>
 <span id="1413">1413</span>
+<span id="1414">1414</span>
+<span id="1415">1415</span>
+<span id="1416">1416</span>
+<span id="1417">1417</span>
+<span id="1418">1418</span>
+<span id="1419">1419</span>
+<span id="1420">1420</span>
+<span id="1421">1421</span>
+<span id="1422">1422</span>
+<span id="1423">1423</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
+<span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">load</span>::<span class="ident">MapLoader</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">grey_out_map</span>, <span class="ident">Minimap</span>, <span class="ident">PopupMsg</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">raw</span>::<span class="ident">OriginalRoad</span>;
@@ -1469,25 +1481,33 @@
 <span class="kw">impl</span> <span class="ident">Tutorial</span> {
     <span class="doccomment">/// Launches the tutorial gameplay along with its cutscene</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
-        <span class="ident">Tutorial</span>::<span class="ident">initialize</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">MapLoader</span>::<span class="ident">new</span>(
+            <span class="ident">ctx</span>,
+            <span class="ident">app</span>,
+            <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;montlake&quot;</span>),
+            <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                <span class="ident">Tutorial</span>::<span class="ident">initialize</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
 
-        <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="comment">// Constructing the intro_story cutscene doesn&#39;t require the map/scenario to be loaded.</span>
-            <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">SandboxMode</span>::<span class="ident">simple_new</span>(
-                <span class="ident">app</span>,
-                <span class="ident">GameplayMode</span>::<span class="ident">Tutorial</span>(
-                    <span class="ident">app</span>.<span class="ident">session</span>
-                        .<span class="ident">tutorial</span>
-                        .<span class="ident">as_ref</span>()
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">tut</span><span class="op">|</span> <span class="ident">tut</span>.<span class="ident">current</span>)
-                        .<span class="ident">unwrap_or</span>(<span class="ident">TutorialPointer</span>::<span class="ident">new</span>(<span class="number">0</span>, <span class="number">0</span>)),
-                ),
-            )),
-            <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">intro_story</span>(<span class="ident">ctx</span>)),
-        ])
+                <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Transition</span>::<span class="ident">Pop</span>,
+                    <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">SandboxMode</span>::<span class="ident">simple_new</span>(
+                        <span class="ident">app</span>,
+                        <span class="ident">GameplayMode</span>::<span class="ident">Tutorial</span>(
+                            <span class="ident">app</span>.<span class="ident">session</span>
+                                .<span class="ident">tutorial</span>
+                                .<span class="ident">as_ref</span>()
+                                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">tut</span><span class="op">|</span> <span class="ident">tut</span>.<span class="ident">current</span>)
+                                .<span class="ident">unwrap_or</span>(<span class="ident">TutorialPointer</span>::<span class="ident">new</span>(<span class="number">0</span>, <span class="number">0</span>)),
+                        ),
+                    )),
+                    <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">intro_story</span>(<span class="ident">ctx</span>)),
+                ])
+            }),
+        ))
     }
 
-    <span class="doccomment">/// Idempotent. This must be called before `make_gameplay` or `scenario`.</span>
+    <span class="doccomment">/// Idempotent. This must be called before `make_gameplay` or `scenario`. The current map must</span>
+    <span class="doccomment">/// be montlake.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">initialize</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) {
         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">tutorial</span>.<span class="ident">is_none</span>() {
             <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">tutorial</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">TutorialState</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
@@ -2682,7 +2702,7 @@
         <span class="comment">// TODO Multi-modal trips -- including parking. (Cars per bldg, ownership)</span>
         <span class="comment">// TODO Explain the finished trip data</span>
         <span class="comment">// The city is in total crisis. You&#39;ve only got 10 days to do something before all hell</span>
-        <span class="comment">// breaks loose and people start kayaking / ziplining / crab-walking / cartwheeling / to</span>
+        <span class="comment">// breaks loose and people start kayaking / ziplining / crab-walking / cartwheeling to</span>
         <span class="comment">// work.</span>
     }
 
