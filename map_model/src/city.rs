@@ -14,7 +14,7 @@ pub struct City {
     pub boundary: Polygon,
     pub areas: Vec<(AreaType, Polygon)>,
     /// The individual maps
-    pub regions: Vec<(MapName, Polygon)>,
+    pub districts: Vec<(MapName, Polygon)>,
     // TODO Move nice_map_name from game into here?
 }
 
@@ -22,7 +22,7 @@ impl City {
     /// If there's a single map covering all the smaller maps, use this.
     pub fn from_huge_map(huge_map: &Map) -> City {
         let city_name = huge_map.get_city_name().clone();
-        let mut regions = abstio::list_dir(format!(
+        let mut districts = abstio::list_dir(format!(
             "importer/config/{}/{}",
             city_name.country, city_name.city
         ))
@@ -36,9 +36,9 @@ impl City {
             )
         })
         .collect::<Vec<_>>();
-        // Just a sort of z-ordering hack so that the largest encompassing region isn't first
+        // Just a sort of z-ordering hack so that the largest encompassing district isn't first
         // later in the UI picker.
-        regions.sort_by_key(|(_, poly)| poly.get_bounds().width() as usize);
+        districts.sort_by_key(|(_, poly)| poly.get_bounds().width() as usize);
 
         City {
             name: city_name,
@@ -48,14 +48,14 @@ impl City {
                 .iter()
                 .map(|a| (a.area_type, a.polygon.clone()))
                 .collect(),
-            regions,
+            districts,
         }
     }
 
     /// Generate a city from a bunch of smaller, individual maps. The boundaries of those maps
     /// may overlap and may have gaps between them.
     pub fn from_individual_maps(city_name: &CityName, timer: &mut Timer) -> City {
-        let boundary_per_region: Vec<(MapName, Vec<LonLat>)> = abstio::list_dir(format!(
+        let boundary_per_district: Vec<(MapName, Vec<LonLat>)> = abstio::list_dir(format!(
             "importer/config/{}/{}",
             city_name.country, city_name.city
         ))
@@ -70,17 +70,20 @@ impl City {
         .collect();
         // Figure out the total bounds for all the maps
         let mut gps_bounds = GPSBounds::new();
-        for (_, pts) in &boundary_per_region {
+        for (_, pts) in &boundary_per_district {
             for pt in pts {
                 gps_bounds.update(*pt);
             }
         }
         let boundary = gps_bounds.to_bounds().get_rectangle();
 
-        let mut regions = Vec::new();
-        for (name, pts) in boundary_per_region {
-            regions.push((name, Ring::must_new(gps_bounds.convert(&pts)).to_polygon()));
+        let mut districts = Vec::new();
+        for (name, pts) in boundary_per_district {
+            districts.push((name, Ring::must_new(gps_bounds.convert(&pts)).to_polygon()));
         }
+        // Just a sort of z-ordering hack so that the largest encompassing district isn't first
+        // later in the UI picker.
+        districts.sort_by_key(|(_, poly)| poly.get_bounds().width() as usize);
 
         // Add areas from every map. It's fine if they partly overlap.
         let mut areas = Vec::new();
@@ -102,7 +105,7 @@ impl City {
             name: city_name.clone(),
             boundary,
             areas,
-            regions,
+            districts,
         }
     }
 }

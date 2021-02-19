@@ -63,7 +63,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                     }
 
                     let mut buttons = Vec::new();
-                    for (name, polygon) in city.regions {
+                    for (name, polygon) in city.districts {
                         let color = app.cs().rotating_color_agents(districts.len());
 
                         let btn = ctx
@@ -83,8 +83,9 @@ impl<A: AppLike + 'static> CityPicker<A> {
                     }
                     batch = batch.scale(zoom);
 
-                    // city.regions are sorted in an order necessary for z-ordering (larger regions
-                    // last), but we want the buttons listed on the side to be alphabetical.
+                    // city.districts are sorted in an order necessary for z-ordering (larger
+                    // districts last), but we want the buttons listed on the side to be
+                    // alphabetical.
                     buttons.sort_by_key(|(name, _)| name.clone());
                     for (_, btn) in buttons {
                         this_city.push(btn);

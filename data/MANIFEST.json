@@ -1456,9 +1456,9 @@
       "compressed_size_bytes": 5737196
     },
     "data/system/fr/charleville_mezieres/city.bin": {
-      "checksum": "95fd9a4dcff29e38ec583e430d096bd1",
+      "checksum": "a283fcc74ca4d6d2b471204440a7a20f",
       "uncompressed_size_bytes": 292296,
-      "compressed_size_bytes": 148289
+      "compressed_size_bytes": 148278
     },
     "data/system/fr/charleville_mezieres/maps/secteur1.bin": {
       "checksum": "24d57f69a9ca1c3e345b2286804d023a",
@@ -1486,7 +1486,7 @@
       "compressed_size_bytes": 1779281
     },
     "data/system/fr/paris/city.bin": {
-      "checksum": "f9e23c4fdf13d83185f4c939fec15465",
+      "checksum": "74463320da4fc79d9bbdba4c84127dfe",
       "uncompressed_size_bytes": 3566644,
       "compressed_size_bytes": 1765551
     },
@@ -1786,9 +1786,9 @@
       "compressed_size_bytes": 3313
     },
     "data/system/gb/leeds/city.bin": {
-      "checksum": "81ec4908f06b67bff81c12af7914eefe",
+      "checksum": "75592c57694d8b0eb505e75fc212e158",
       "uncompressed_size_bytes": 2905328,
-      "compressed_size_bytes": 1468720
+      "compressed_size_bytes": 1468722
     },
     "data/system/gb/leeds/maps/central.bin": {
       "checksum": "a407cedd190b4ad355a3f284ed3fa2ce",
