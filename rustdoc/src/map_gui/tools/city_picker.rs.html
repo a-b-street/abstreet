@@ -493,6 +493,7 @@
 <span id="490">490</span>
 <span id="491">491</span>
 <span id="492">492</span>
+<span id="493">493</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -559,7 +560,7 @@
                     }
 
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buttons</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-                    <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">polygon</span>) <span class="kw">in</span> <span class="ident">city</span>.<span class="ident">regions</span> {
+                    <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">polygon</span>) <span class="kw">in</span> <span class="ident">city</span>.<span class="ident">districts</span> {
                         <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">rotating_color_agents</span>(<span class="ident">districts</span>.<span class="ident">len</span>());
 
                         <span class="kw">let</span> <span class="ident">btn</span> <span class="op">=</span> <span class="ident">ctx</span>
@@ -579,8 +580,9 @@
                     }
                     <span class="ident">batch</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">scale</span>(<span class="ident">zoom</span>);
 
-                    <span class="comment">// city.regions are sorted in an order necessary for z-ordering (larger regions</span>
-                    <span class="comment">// last), but we want the buttons listed on the side to be alphabetical.</span>
+                    <span class="comment">// city.districts are sorted in an order necessary for z-ordering (larger</span>
+                    <span class="comment">// districts last), but we want the buttons listed on the side to be</span>
+                    <span class="comment">// alphabetical.</span>
                     <span class="ident">buttons</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span>(<span class="ident">name</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">name</span>.<span class="ident">clone</span>());
                     <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">btn</span>) <span class="kw">in</span> <span class="ident">buttons</span> {
                         <span class="ident">this_city</span>.<span class="ident">push</span>(<span class="ident">btn</span>);
