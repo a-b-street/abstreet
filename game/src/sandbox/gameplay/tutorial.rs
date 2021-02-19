@@ -1,7 +1,9 @@
 use std::collections::BTreeSet;
 
+use abstio::MapName;
 use abstutil::Timer;
 use geom::{ArrowCap, Distance, Duration, PolyLine, Pt2D, Time};
+use map_gui::load::MapLoader;
 use map_gui::tools::{grey_out_map, Minimap, PopupMsg};
 use map_gui::ID;
 use map_model::raw::OriginalRoad;
@@ -52,25 +54,33 @@ impl TutorialPointer {
 impl Tutorial {
     /// Launches the tutorial gameplay along with its cutscene
     pub fn start(ctx: &mut EventCtx, app: &mut App) -> Transition {
-        Tutorial::initialize(ctx, app);
+        Transition::Push(MapLoader::new(
+            ctx,
+            app,
+            MapName::seattle("montlake"),
+            Box::new(|ctx, app| {
+                Tutorial::initialize(ctx, app);
 
-        Transition::Multi(vec![
-            // Constructing the intro_story cutscene doesn't require the map/scenario to be loaded.
-            Transition::Push(SandboxMode::simple_new(
-                app,
-                GameplayMode::Tutorial(
-                    app.session
-                        .tutorial
-                        .as_ref()
-                        .map(|tut| tut.current)
-                        .unwrap_or(TutorialPointer::new(0, 0)),
-                ),
-            )),
-            Transition::Push(intro_story(ctx)),
-        ])
+                Transition::Multi(vec![
+                    Transition::Pop,
+                    Transition::Push(SandboxMode::simple_new(
+                        app,
+                        GameplayMode::Tutorial(
+                            app.session
+                                .tutorial
+                                .as_ref()
+                                .map(|tut| tut.current)
+                                .unwrap_or(TutorialPointer::new(0, 0)),
+                        ),
+                    )),
+                    Transition::Push(intro_story(ctx)),
+                ])
+            }),
+        ))
     }
 
-    /// Idempotent. This must be called before `make_gameplay` or `scenario`.
+    /// Idempotent. This must be called before `make_gameplay` or `scenario`. The current map must
+    /// be montlake.
     pub fn initialize(ctx: &mut EventCtx, app: &mut App) {
         if app.session.tutorial.is_none() {
             app.session.tutorial = Some(TutorialState::new(ctx, app));
@@ -1265,7 +1275,7 @@ impl TutorialState {
         // TODO Multi-modal trips -- including parking. (Cars per bldg, ownership)
         // TODO Explain the finished trip data
         // The city is in total crisis. You've only got 10 days to do something before all hell
-        // breaks loose and people start kayaking / ziplining / crab-walking / cartwheeling / to
+        // breaks loose and people start kayaking / ziplining / crab-walking / cartwheeling to
         // work.
     }
 
