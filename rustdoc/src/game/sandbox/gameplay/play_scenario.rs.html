@@ -474,6 +474,7 @@
 <span id="471">471</span>
 <span id="472">472</span>
 <span id="473">473</span>
+<span id="474">474</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -487,7 +488,7 @@
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">checkbox_per_mode</span>, <span class="ident">update_url</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">checkbox_per_mode</span>, <span class="ident">update_url_free_param</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">EditMode</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">gameplay</span>::<span class="ident">freeform</span>::<span class="ident">ChangeScenario</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">gameplay</span>::{<span class="ident">GameplayMode</span>, <span class="ident">GameplayState</span>};
@@ -506,13 +507,14 @@
         <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">String</span>,
         <span class="ident">modifiers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ScenarioModifier</span><span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">GameplayState</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">update_url</span>(
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">update_url_free_param</span>(
             <span class="comment">// For dynamiclly generated scenarios like &quot;random&quot; and &quot;home_to_work&quot;, this winds up</span>
             <span class="comment">// making up a filename that doesn&#39;t actually exist. But if you pass that in, it winds</span>
             <span class="comment">// up working, because we call abstio::parse_scenario_path() on the other side.</span>
             <span class="ident">abstio</span>::<span class="ident">path_scenario</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="ident">name</span>)
                 .<span class="ident">strip_prefix</span>(<span class="kw-2">&amp;</span><span class="ident">abstio</span>::<span class="ident">path</span>(<span class="string">&quot;&quot;</span>))
-                .<span class="ident">unwrap</span>(),
+                .<span class="ident">unwrap</span>()
+                .<span class="ident">to_string</span>(),
         ) {
             <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Couldn&#39;t update URL: {}&quot;</span>, <span class="ident">err</span>);
         }

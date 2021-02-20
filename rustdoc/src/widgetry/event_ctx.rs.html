@@ -270,6 +270,11 @@
 <span id="267">267</span>
 <span id="268">268</span>
 <span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">VecDeque</span>;
 
@@ -331,9 +336,14 @@
         <span class="self">self</span>.<span class="ident">updates_requested</span>.<span class="ident">push</span>(<span class="ident">update_type</span>);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">canvas_movement</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="doccomment">/// Allow panning and zooming on the canvas. Exactly which controls are active (click-and-drag,</span>
+    <span class="doccomment">/// auto-pan at the edge of the screen, using arrow keys, etc) depend on options set. Returns</span>
+    <span class="doccomment">/// true if the canvas moved at all.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">canvas_movement</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">let</span> <span class="ident">prev</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">cam_x</span>, <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">cam_y</span>, <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>);
         <span class="self">self</span>.<span class="ident">updates_requested</span>
             .<span class="ident">extend</span>(<span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">handle_event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">input</span>));
+        <span class="ident">prev</span> <span class="op">!</span><span class="op">=</span> (<span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">cam_x</span>, <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">cam_y</span>, <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>)
     }
 
     <span class="comment">// Use to immediately plumb through an (empty) event to something</span>
