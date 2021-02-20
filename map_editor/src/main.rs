@@ -1,3 +1,7 @@
+//! The map_editor renders and lets you edit RawMaps, which are a format in between OSM and the
+//! full Map. It's useful for debugging maps imported from OSM, and for drawing synthetic maps for
+//! testing.
+
 #[macro_use]
 extern crate log;
 
@@ -10,9 +14,10 @@ use map_model::osm;
 use map_model::raw::OriginalRoad;
 use widgetry::{
     Canvas, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, ScreenPt, SharedAppState, StyledButtons, Text, Transition, VerticalAlignment, Widget,
+    Panel, SharedAppState, State, StyledButtons, Text, Transition, VerticalAlignment, Widget,
 };
 
+mod edit;
 mod model;
 mod world;
 
@@ -35,14 +40,13 @@ impl SharedAppState for App {
 }
 
 struct MainState {
-    state: State,
+    mode: Mode,
     panel: Panel,
-    popup: Option<Drawable>,
 
     last_id: Option<ID>,
 }
 
-enum State {
+enum Mode {
     Viewing,
     MovingIntersection(osm::NodeID),
     MovingBuilding(osm::OsmID),
@@ -69,30 +73,52 @@ impl MainState {
         }
         let bounds = model.map.gps_bounds.to_bounds();
         ctx.canvas.map_dims = (bounds.width(), bounds.height());
+
+        // TODO Make these dynamic!
+        let mut instructions = Text::new();
+        instructions.add_appended(vec![
+            Line("Press "),
+            Key::I.txt(ctx),
+            Line(" to create a new intersection"),
+        ]);
+        instructions.add(Line("Hover on an intersection, then..."));
+        instructions.add_appended(vec![
+            Line("- Press "),
+            Key::R.txt(ctx),
+            Line(" to start/end a new road"),
+        ]);
+        instructions.add_appended(vec![
+            Line("- Hold "),
+            Key::LeftControl.txt(ctx),
+            Line(" to move it"),
+        ]);
+        instructions.add_appended(vec![
+            Line("Press "),
+            Key::Backspace.txt(ctx),
+            Line(" to delete something"),
+        ]);
+
         (
             App { model },
             MainState {
-                state: State::Viewing,
+                mode: Mode::Viewing,
                 panel: Panel::new(Widget::col(vec![
-                    Line("Map Editor").small_heading().draw(ctx),
-                    Text::new().draw(ctx).named("current info"),
+                    Widget::row(vec![
+                        Line("Map Editor").small_heading().draw(ctx),
+                        ctx.style().btn_close_widget(ctx),
+                    ]),
+                    instructions.draw(ctx),
                     Widget::col(vec![
                         ctx.style()
-                            .btn_outline_light_text("quit")
-                            .hotkey(Key::Escape)
-                            .build_def(ctx),
-                        ctx.style()
-                            .btn_outline_light_text("export to OSM")
+                            .btn_solid_dark_text("export to OSM")
                             .build_def(ctx),
                         ctx.style()
                             .btn_outline_light_text("preview all intersections")
-                            .hotkey(Key::G)
                             .build_def(ctx),
                     ]),
                 ]))
                 .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
                 .build(ctx),
-                popup: None,
 
                 last_id: None,
             },
@@ -100,7 +126,7 @@ impl MainState {
     }
 }
 
-impl widgetry::State<App> for MainState {
+impl State<App> for MainState {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition<App> {
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
@@ -117,8 +143,8 @@ impl widgetry::State<App> for MainState {
             }
         }
 
-        match self.state {
-            State::Viewing => {
+        match self.mode {
+            Mode::Viewing => {
                 {
                     let before = match self.last_id {
                         Some(ID::Road(r)) | Some(ID::RoadPoint(r, _)) => Some(r),
@@ -142,20 +168,20 @@ impl widgetry::State<App> for MainState {
                 match app.model.world.get_selection() {
                     Some(ID::Intersection(i)) => {
                         if ctx.input.pressed(Key::LeftControl) {
-                            self.state = State::MovingIntersection(i);
+                            self.mode = Mode::MovingIntersection(i);
                         } else if ctx.input.pressed(Key::R) {
-                            self.state = State::CreatingRoad(i);
+                            self.mode = Mode::CreatingRoad(i);
                         } else if ctx.input.pressed(Key::Backspace) {
                             app.model.delete_i(i);
                             app.model.world.handle_mouseover(ctx);
                         } else if !app.model.intersection_geom && ctx.input.pressed(Key::P) {
                             let draw = preview_intersection(i, &app.model, ctx);
-                            self.state = State::PreviewIntersection(draw);
+                            self.mode = Mode::PreviewIntersection(draw);
                         }
                     }
                     Some(ID::Building(b)) => {
                         if ctx.input.pressed(Key::LeftControl) {
-                            self.state = State::MovingBuilding(b);
+                            self.mode = Mode::MovingBuilding(b);
                         } else if ctx.input.pressed(Key::Backspace) {
                             app.model.delete_b(b);
                             app.model.world.handle_mouseover(ctx);
@@ -174,11 +200,13 @@ impl widgetry::State<App> for MainState {
                         } else if ctx.input.pressed(Key::M) {
                             app.model.merge_r(r, ctx);
                             app.model.world.handle_mouseover(ctx);
+                        } else if ctx.normal_left_click() {
+                            return Transition::Push(edit::EditRoad::new(ctx, app, r));
                         }
                     }
                     Some(ID::RoadPoint(r, idx)) => {
                         if ctx.input.pressed(Key::LeftControl) {
-                            self.state = State::MovingRoadPoint(r, idx);
+                            self.mode = Mode::MovingRoadPoint(r, idx);
                         } else if ctx.input.pressed(Key::Backspace) {
                             app.model.delete_r_pt(r, idx, ctx);
                             app.model.world.handle_mouseover(ctx);
@@ -187,17 +215,16 @@ impl widgetry::State<App> for MainState {
                     None => {
                         match self.panel.event(ctx) {
                             Outcome::Clicked(x) => match x.as_ref() {
-                                "quit" => {
+                                "close" => {
                                     return Transition::Pop;
                                 }
                                 "export to OSM" => {
-                                    // TODO Only do this for synthetic maps
                                     app.model.export_to_osm();
                                 }
                                 "preview all intersections" => {
                                     if !app.model.intersection_geom {
                                         let draw = preview_all_intersections(&app.model, ctx);
-                                        self.state = State::PreviewIntersection(draw);
+                                        self.mode = Mode::PreviewIntersection(draw);
                                     }
                                 }
                                 _ => unreachable!(),
@@ -222,56 +249,47 @@ impl widgetry::State<App> for MainState {
                     }
                 }
             }
-            State::MovingIntersection(id) => {
+            Mode::MovingIntersection(id) => {
                 if let Some(pt) = cursor {
                     app.model.move_i(id, pt, ctx);
                     if ctx.input.key_released(Key::LeftControl) {
-                        self.state = State::Viewing;
+                        self.mode = Mode::Viewing;
                     }
                 }
             }
-            State::MovingBuilding(id) => {
+            Mode::MovingBuilding(id) => {
                 if let Some(pt) = cursor {
                     app.model.move_b(id, pt, ctx);
                     if ctx.input.key_released(Key::LeftControl) {
-                        self.state = State::Viewing;
+                        self.mode = Mode::Viewing;
                     }
                 }
             }
-            State::MovingRoadPoint(r, idx) => {
+            Mode::MovingRoadPoint(r, idx) => {
                 if let Some(pt) = cursor {
                     app.model.move_r_pt(r, idx, pt, ctx);
                     if ctx.input.key_released(Key::LeftControl) {
-                        self.state = State::Viewing;
+                        self.mode = Mode::Viewing;
                     }
                 }
             }
-            State::CreatingRoad(i1) => {
+            Mode::CreatingRoad(i1) => {
                 if ctx.input.pressed(Key::Escape) {
-                    self.state = State::Viewing;
+                    self.mode = Mode::Viewing;
                     app.model.world.handle_mouseover(ctx);
                 } else if let Some(ID::Intersection(i2)) = app.model.world.get_selection() {
                     if i1 != i2 && ctx.input.pressed(Key::R) {
                         app.model.create_r(i1, i2, ctx);
-                        self.state = State::Viewing;
+                        self.mode = Mode::Viewing;
                         app.model.world.handle_mouseover(ctx);
                     }
                 }
             }
-            State::PreviewIntersection(_) => {
+            Mode::PreviewIntersection(_) => {
                 if ctx.input.pressed(Key::P) {
-                    self.state = State::Viewing;
+                    self.mode = Mode::Viewing;
                     app.model.world.handle_mouseover(ctx);
                 }
-            }
-        }
-
-        self.popup = None;
-        if ctx.is_key_down(Key::LeftAlt) {
-            if let Some(id) = app.model.world.get_selection() {
-                let txt = app.model.describe_obj(id);
-                // TODO We used to display actions and hotkeys here
-                self.popup = Some(ctx.upload(txt.render_autocropped(ctx)));
             }
         }
 
@@ -291,27 +309,27 @@ impl widgetry::State<App> for MainState {
             Color::rgb(242, 239, 233),
             app.model.map.boundary_polygon.clone(),
         );
-        match self.state {
-            State::PreviewIntersection(_) => app.model.world.draw(g, |id| match id {
+        match self.mode {
+            Mode::PreviewIntersection(_) => app.model.world.draw(g, |id| match id {
                 ID::Intersection(_) => false,
                 _ => true,
             }),
             _ => app.model.world.draw(g, |_| true),
         }
 
-        match self.state {
-            State::CreatingRoad(i1) => {
+        match self.mode {
+            Mode::CreatingRoad(i1) => {
                 if let Some(cursor) = g.get_cursor_in_map_space() {
                     if let Some(l) = Line::new(app.model.map.intersections[&i1].point, cursor) {
                         g.draw_polygon(Color::GREEN, l.make_polygons(Distance::meters(5.0)));
                     }
                 }
             }
-            State::Viewing
-            | State::MovingIntersection(_)
-            | State::MovingBuilding(_)
-            | State::MovingRoadPoint(_, _) => {}
-            State::PreviewIntersection(ref draw) => {
+            Mode::Viewing
+            | Mode::MovingIntersection(_)
+            | Mode::MovingBuilding(_)
+            | Mode::MovingRoadPoint(_, _) => {}
+            Mode::PreviewIntersection(ref draw) => {
                 g.redraw(draw);
 
                 if g.is_key_down(Key::RightAlt) {
@@ -324,9 +342,6 @@ impl widgetry::State<App> for MainState {
         };
 
         self.panel.draw(g);
-        if let Some(ref popup) = self.popup {
-            g.redraw_at(ScreenPt::new(0.0, 0.0), popup);
-        }
     }
 }
 

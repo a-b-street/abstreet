@@ -3,12 +3,10 @@ use std::io::Write;
 
 use abstio::{CityName, MapName};
 use abstutil::{Tags, Timer};
-use geom::{
-    Bounds, Circle, Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D,
-};
+use geom::{Bounds, Circle, Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, Polygon, Pt2D};
 use map_model::raw::{OriginalRoad, RawBuilding, RawIntersection, RawMap, RawRoad};
 use map_model::{osm, IntersectionType};
-use widgetry::{Color, EventCtx, Line, Text};
+use widgetry::{Color, EventCtx};
 
 use crate::world::{Object, ObjectID, World};
 
@@ -135,61 +133,6 @@ impl Model {
         }
         bounds
     }
-
-    pub fn describe_obj(&self, id: ID) -> Text {
-        let mut txt = Text::new().with_bg();
-        match id {
-            ID::Building(b) => {
-                txt.add_highlighted(Line(b.to_string()), Color::BLUE);
-                for (k, v) in self.map.buildings[&b].osm_tags.inner() {
-                    txt.add_appended(vec![
-                        Line(k).fg(Color::RED),
-                        Line(" = "),
-                        Line(v).fg(Color::CYAN),
-                    ]);
-                }
-            }
-            ID::Intersection(i) => {
-                txt.add_highlighted(Line(i.to_string()), Color::BLUE);
-                for r in self.map.roads_per_intersection(i) {
-                    txt.add(Line(format!("- {}", r)));
-                }
-            }
-            ID::Road(r) => {
-                txt.add_highlighted(Line(r.to_string()), Color::BLUE);
-                let road = &self.map.roads[&r];
-
-                if let Some(name) = road.osm_tags.get(osm::NAME) {
-                    txt.add(Line(name));
-                } else if let Some(name) = road.osm_tags.get("ref") {
-                    txt.add(Line(name));
-                } else {
-                    txt.add(Line("some road"));
-                }
-
-                for (k, v) in road.osm_tags.inner() {
-                    txt.add_appended(vec![
-                        Line(k).fg(Color::RED),
-                        Line(" = "),
-                        Line(v).fg(Color::CYAN),
-                    ]);
-                }
-
-                // (MAX_CAR_LENGTH + sim::FOLLOWING_DISTANCE) from sim, but without the dependency
-                txt.add(Line(format!(
-                    "Can fit ~{} cars",
-                    (PolyLine::must_new(road.center_points.clone()).length()
-                        / (Distance::meters(6.5 + 1.0)))
-                    .floor() as usize
-                )));
-            }
-            ID::RoadPoint(r, idx) => {
-                txt.add_highlighted(Line(format!("Point {}", idx)), Color::BLUE);
-                txt.add(Line(format!("of {}", r)));
-            }
-        }
-        txt
-    }
 }
 
 // Intersections
@@ -250,11 +193,11 @@ impl Model {
 
 // Roads
 impl Model {
-    fn road_added(&mut self, id: OriginalRoad, ctx: &EventCtx) {
+    pub fn road_added(&mut self, id: OriginalRoad, ctx: &EventCtx) {
         self.world.add(ctx, self.road_object(id));
     }
 
-    fn road_deleted(&mut self, id: OriginalRoad) {
+    pub fn road_deleted(&mut self, id: OriginalRoad) {
         self.world.delete(ID::Road(id));
     }
 
