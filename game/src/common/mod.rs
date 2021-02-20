@@ -410,10 +410,8 @@ pub fn checkbox_per_mode(
     Widget::custom_row(filters)
 }
 
-/// This does nothing on native. On web, it modifies the current URL to change the first free
-/// parameter in the HTTP GET params to the specified value, adding it if needed.
 #[allow(unused_variables)]
-pub fn update_url(free_param: &str) -> Result<()> {
+fn update_url(transform: Box<dyn Fn(String) -> String>) -> Result<()> {
     #[cfg(target_arch = "wasm32")]
     {
         let window = web_sys::window().ok_or(anyhow!("no window?"))?;
@@ -422,7 +420,7 @@ pub fn update_url(free_param: &str) -> Result<()> {
                 .as_string()
                 .unwrap_or("window.location.href failed".to_string()))
         })?;
-        let new_url = change_url_free_query_param(url, free_param);
+        let new_url = (transform)(url);
 
         // Setting window.location.href may seem like the obvious thing to do, but that actually
         // refreshes the page. This method just changes the URL and doesn't mess up history. See
@@ -443,8 +441,19 @@ pub fn update_url(free_param: &str) -> Result<()> {
     Ok(())
 }
 
-#[allow(unused)]
-fn change_url_free_query_param(url: String, free_param: &str) -> String {
+/// This does nothing on native. On web, it modifies the current URL to change the first free
+/// parameter in the HTTP GET params to the specified value, adding it if needed.
+pub fn update_url_free_param(free_param: String) -> Result<()> {
+    update_url(Box::new(move |url| change_url_free_param(url, &free_param)))
+}
+
+/// This does nothing on native. On web, it modifies the current URL to set --cam to the specified
+/// value.
+pub fn update_url_cam(cam: String) -> Result<()> {
+    update_url(Box::new(move |url| change_url_cam(url, &cam)))
+}
+
+fn change_url_free_param(url: String, free_param: &str) -> String {
     // The URL parsing crates I checked had lots of dependencies and didn't even expose such a nice
     // API for doing this anyway.
     let url_parts = url.split("?").collect::<Vec<_>>();
@@ -480,32 +489,82 @@ fn change_url_free_query_param(url: String, free_param: &str) -> String {
     format!("{}?{}", url_parts[0], query_params)
 }
 
+fn change_url_cam(url: String, cam: &str) -> String {
+    // The URL parsing crates I checked had lots of dependencies and didn't even expose such a nice
+    // API for doing this anyway.
+    let url_parts = url.split("?").collect::<Vec<_>>();
+    if url_parts.len() == 1 {
+        return format!("{}?--cam={}", url, cam);
+    }
+    let mut query_params = String::new();
+    let mut found_cam = false;
+    let mut first = true;
+    for x in url_parts[1].split("&") {
+        if !first {
+            query_params.push('&');
+        }
+        first = false;
+
+        if x.starts_with("--cam=") {
+            query_params.push_str(&format!("--cam={}", cam));
+            found_cam = true;
+        } else {
+            query_params.push_str(x);
+        }
+    }
+    if !found_cam {
+        if !first {
+            query_params.push('&');
+        }
+        query_params.push_str(&format!("--cam={}", cam));
+    }
+
+    format!("{}?{}", url_parts[0], query_params)
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
-    fn test_change_url() {
-        use super::change_url_free_query_param;
+    fn test_change_url_free_param() {
+        use super::change_url_free_param;
 
         assert_eq!(
             "http://0.0.0.0:8000/?--dev&seattle/maps/montlake.bin",
-            change_url_free_query_param(
+            change_url_free_param(
                 "http://0.0.0.0:8000/?--dev".to_string(),
                 "seattle/maps/montlake.bin"
             )
         );
         assert_eq!(
             "http://0.0.0.0:8000/?--dev&seattle/maps/qa.bin",
-            change_url_free_query_param(
+            change_url_free_param(
                 "http://0.0.0.0:8000/?--dev&seattle/maps/montlake.bin".to_string(),
                 "seattle/maps/qa.bin"
             )
         );
         assert_eq!(
             "http://0.0.0.0:8000?seattle/maps/montlake.bin",
-            change_url_free_query_param(
+            change_url_free_param(
                 "http://0.0.0.0:8000".to_string(),
                 "seattle/maps/montlake.bin"
             )
+        );
+    }
+
+    #[test]
+    fn test_change_url_cam() {
+        use super::change_url_cam;
+
+        assert_eq!(
+            "http://0.0.0.0:8000/?--dev&seattle/maps/montlake.bin&--cam=16.6/53.78449/-1.70701",
+            change_url_cam(
+                "http://0.0.0.0:8000/?--dev&seattle/maps/montlake.bin".to_string(),
+                "16.6/53.78449/-1.70701"
+            )
+        );
+        assert_eq!(
+            "http://0.0.0.0:8000?--cam=16.6/53.78449/-1.70701",
+            change_url_cam("http://0.0.0.0:8000".to_string(), "16.6/53.78449/-1.70701")
         );
     }
 }

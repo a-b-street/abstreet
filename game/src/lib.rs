@@ -227,7 +227,7 @@ fn finish_app_setup(
     center_camera: Option<String>,
 ) -> Vec<Box<dyn State<App>>> {
     if let Some((pt, zoom)) =
-        center_camera.and_then(|cam| parse_center_camera(ctx, &app.primary.map, cam))
+        center_camera.and_then(|cam| parse_center_camera(&app.primary.map, cam))
     {
         ctx.canvas.cam_zoom = zoom;
         ctx.canvas.center_on_map_pt(pt);
@@ -310,7 +310,7 @@ fn finish_app_setup(
 /// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks), returning the map point to
 /// center on and the camera zoom.
 // TODO This flag would also be useful in the other tools; lift to map_gui.
-fn parse_center_camera(ctx: &EventCtx, map: &Map, raw: String) -> Option<(Pt2D, f64)> {
+fn parse_center_camera(map: &Map, raw: String) -> Option<(Pt2D, f64)> {
     let parts: Vec<&str> = raw.split("/").collect();
     if parts.len() != 3 {
         return None;
@@ -329,11 +329,15 @@ fn parse_center_camera(ctx: &EventCtx, map: &Map, raw: String) -> Option<(Pt2D, 
     let earth_circumference_equator = 40_075_016.686;
     let horiz_meters_per_pixel =
         earth_circumference_equator * gps.y().to_radians().cos() / 2.0_f64.powf(zoom_lvl + 8.0);
+
     // So this is the width in meters that should cover our screen
-    let horiz_meters_per_screen = ctx.canvas.window_width * horiz_meters_per_pixel;
+    // let horiz_meters_per_screen = ctx.canvas.window_width * horiz_meters_per_pixel;
     // Now we want to make screen_to_map(the top-right corner of the screen) =
     // horiz_meters_per_screen. Easy algebra:
-    let cam_zoom = ctx.canvas.window_width / horiz_meters_per_screen;
+    // let cam_zoom = ctx.canvas.window_width / horiz_meters_per_screen;
+
+    // But actually, the algebra shows we don't even need window_width. Easy!
+    let cam_zoom = 1.0 / horiz_meters_per_pixel;
 
     Some((pt, cam_zoom))
 }

@@ -58,9 +58,14 @@ impl<'a> EventCtx<'a> {
         self.updates_requested.push(update_type);
     }
 
-    pub fn canvas_movement(&mut self) {
+    /// Allow panning and zooming on the canvas. Exactly which controls are active (click-and-drag,
+    /// auto-pan at the edge of the screen, using arrow keys, etc) depend on options set. Returns
+    /// true if the canvas moved at all.
+    pub fn canvas_movement(&mut self) -> bool {
+        let prev = (self.canvas.cam_x, self.canvas.cam_y, self.canvas.cam_zoom);
         self.updates_requested
             .extend(self.canvas.handle_event(&mut self.input));
+        prev != (self.canvas.cam_x, self.canvas.cam_y, self.canvas.cam_zoom)
     }
 
     // Use to immediately plumb through an (empty) event to something

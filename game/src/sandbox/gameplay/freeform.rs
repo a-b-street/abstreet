@@ -15,7 +15,7 @@ use widgetry::{
 };
 
 use crate::app::{App, Transition};
-use crate::common::{update_url, CommonState};
+use crate::common::{update_url_free_param, CommonState};
 use crate::edit::EditMode;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{Actions, SandboxControls, SandboxMode};
@@ -27,13 +27,14 @@ pub struct Freeform {
 
 impl Freeform {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn GameplayState> {
-        if let Err(err) = update_url(
+        if let Err(err) = update_url_free_param(
             app.primary
                 .map
                 .get_name()
                 .path()
                 .strip_prefix(&abstio::path(""))
-                .unwrap(),
+                .unwrap()
+                .to_string(),
         ) {
             warn!("Couldn't update URL: {}", err);
         }

@@ -20,7 +20,7 @@ use self::misc_tools::{RoutePreview, TrafficRecorder};
 pub use self::speed::{SpeedControls, TimePanel};
 pub use self::time_warp::TimeWarpScreen;
 use crate::app::{App, Transition};
-use crate::common::{tool_panel, CommonState, MinimapController};
+use crate::common::{tool_panel, update_url_cam, CommonState, MinimapController};
 use crate::debug::DebugMode;
 use crate::edit::{
     can_edit_lane, EditMode, LaneEditor, SaveEdits, StopSignEditor, TrafficSignalEditor,
@@ -113,7 +113,11 @@ impl State<App> for SandboxMode {
 
         // Do this before gameplay
         if self.gameplay.can_move_canvas() {
-            ctx.canvas_movement();
+            if ctx.canvas_movement() {
+                if let Err(err) = update_url_cam(calculate_camera_center(ctx, app)) {
+                    warn!("Couldn't update URL: {}", err);
+                }
+            }
         }
 
         let mut actions = self.contextual_actions();
@@ -935,4 +939,22 @@ impl SandboxControls {
             minimap.recreate_panel(ctx, app);
         }
     }
+}
+
+/// Calculates an OSM-style `zoom/lat/lon` string
+/// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks) based on the current viewport.
+// TODO Lift to map_gui along with parse_center_camera.
+fn calculate_camera_center(ctx: &EventCtx, app: &App) -> String {
+    let center = ctx
+        .canvas
+        .center_to_map_pt()
+        .to_gps(app.primary.map.get_gps_bounds());
+
+    // To calculate zoom, just solve for the inverse of the code in parse_center_camera.
+    let earth_circumference_equator = 40_075_016.686;
+    let log_arg = earth_circumference_equator * center.y().to_radians().cos() * ctx.canvas.cam_zoom;
+    let zoom_lvl = log_arg.log2() - 8.0;
+
+    // Trim precision
+    format!("{:.2}/{:.5}/{:.5}", zoom_lvl, center.y(), center.x())
 }
