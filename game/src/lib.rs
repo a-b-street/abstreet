@@ -102,7 +102,7 @@ pub fn main() {
         } else {
             None
         };
-        mode = Some(sandbox::GameplayMode::Blog(name, scenario));
+        mode = Some(sandbox::GameplayMode::Actdev(name, scenario));
     }
 
     args.done();
@@ -283,7 +283,7 @@ fn finish_app_setup(
     let states: Vec<Box<dyn State<App>>> = if title {
         vec![Box::new(TitleScreen::new(ctx, app))]
     } else if let Some(mode) = maybe_mode {
-        if let GameplayMode::Blog(_, _) = mode {
+        if let GameplayMode::Actdev(_, _) = mode {
             vec![SandboxMode::async_new(app, mode, start_daytime)]
         } else {
             vec![SandboxMode::simple_new(app, mode)]

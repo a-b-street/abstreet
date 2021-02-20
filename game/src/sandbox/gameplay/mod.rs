@@ -24,7 +24,7 @@ use crate::pregame::MainMenu;
 use crate::sandbox::{Actions, SandboxControls, SandboxMode};
 
 // TODO pub so challenges can grab cutscenes and SandboxMode can dispatch to actions. Weird?
-mod blog;
+mod actdev;
 pub mod commute;
 pub mod fix_traffic_signals;
 pub mod freeform;
@@ -40,7 +40,7 @@ pub enum GameplayMode {
     FixTrafficSignals,
     OptimizeCommute(OrigPersonID, Duration),
     // Map name, scenario name
-    Blog(MapName, Option<String>),
+    Actdev(MapName, Option<String>),
 
     // current
     Tutorial(TutorialPointer),
@@ -105,7 +105,7 @@ impl GameplayMode {
             GameplayMode::FixTrafficSignals => MapName::seattle("downtown"),
             GameplayMode::OptimizeCommute(_, _) => MapName::seattle("montlake"),
             GameplayMode::Tutorial(_) => MapName::seattle("montlake"),
-            GameplayMode::Blog(ref name, _) => name.clone(),
+            GameplayMode::Actdev(ref name, _) => name.clone(),
         }
     }
 
@@ -126,7 +126,7 @@ impl GameplayMode {
                     None => LoadScenario::Nothing,
                 };
             }
-            GameplayMode::Blog(_, ref maybe_scenario) => {
+            GameplayMode::Actdev(_, ref maybe_scenario) => {
                 if let Some(s) = maybe_scenario {
                     s.to_string()
                 } else {
@@ -229,8 +229,8 @@ impl GameplayMode {
                 commute::OptimizeCommute::new(ctx, app, *p, *goal)
             }
             GameplayMode::Tutorial(current) => Tutorial::make_gameplay(ctx, app, *current),
-            GameplayMode::Blog(_, ref maybe_scenario) => {
-                blog::Blog::new(ctx, maybe_scenario.clone())
+            GameplayMode::Actdev(_, ref maybe_scenario) => {
+                actdev::Actdev::new(ctx, maybe_scenario.clone())
             }
         }
     }

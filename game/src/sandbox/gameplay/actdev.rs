@@ -12,21 +12,23 @@ use crate::sandbox::gameplay::freeform::ChangeScenario;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{Actions, SandboxControls};
 
-pub struct Blog {
+/// A gameplay mode with specific controls for integration with
+/// https://cyipt.github.io/acton/articles/the-actdev-project.html.
+pub struct Actdev {
     top_center: Panel,
     scenario_name: Option<String>,
 }
 
-impl Blog {
+impl Actdev {
     pub fn new(ctx: &mut EventCtx, scenario_name: Option<String>) -> Box<dyn GameplayState> {
-        Box::new(Blog {
+        Box::new(Actdev {
             top_center: Panel::empty(ctx),
             scenario_name,
         })
     }
 }
 
-impl GameplayState for Blog {
+impl GameplayState for Actdev {
     fn event(
         &mut self,
         ctx: &mut EventCtx,
