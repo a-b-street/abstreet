@@ -97,6 +97,9 @@ pub fn main() {
         let name = MapName::new("gb", &city, "center");
         flags.sim_flags.load = name.path();
         flags.study_area = Some(site);
+        // Parking data in the actdev maps is nonexistent, so many people have convoluted walking
+        // routes just to fetch their car. Just disable parking entirely.
+        flags.sim_flags.opts.infinite_parking = true;
         // Start with the baseline scenario if it exists.
         let scenario = if abstio::file_exists(abstio::path_scenario(&name, "base")) {
             Some("base".to_string())
