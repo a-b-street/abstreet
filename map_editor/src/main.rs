@@ -107,7 +107,7 @@ impl MainState {
                         Line("Map Editor").small_heading().draw(ctx),
                         ctx.style().btn_close_widget(ctx),
                     ]),
-                    instructions.draw(ctx),
+                    Text::new().draw(ctx).named("instructions"),
                     Widget::col(vec![
                         ctx.style()
                             .btn_solid_dark_text("export to OSM")
@@ -178,6 +178,30 @@ impl State<App> for MainState {
                             let draw = preview_intersection(i, &app.model, ctx);
                             self.mode = Mode::PreviewIntersection(draw);
                         }
+
+                        let mut txt = Text::new();
+                        txt.add_appended(vec![
+                            Line("- Press "),
+                            Key::R.txt(ctx),
+                            Line(" to start a road here"),
+                        ]);
+                        txt.add_appended(vec![
+                            Line("- Press "),
+                            Key::Backspace.txt(ctx),
+                            Line(" to delete"),
+                        ]);
+                        txt.add_appended(vec![
+                            Line("- Hold "),
+                            Key::LeftControl.txt(ctx),
+                            Line(" to move"),
+                        ]);
+                        txt.add_appended(vec![
+                            Line("- Press "),
+                            Key::P.txt(ctx),
+                            Line(" to preview geometry"),
+                        ]);
+                        let instructions = txt.draw(ctx);
+                        self.panel.replace(ctx, "instructions", instructions);
                     }
                     Some(ID::Building(b)) => {
                         if ctx.input.pressed(Key::LeftControl) {
@@ -186,6 +210,20 @@ impl State<App> for MainState {
                             app.model.delete_b(b);
                             app.model.world.handle_mouseover(ctx);
                         }
+
+                        let mut txt = Text::new();
+                        txt.add_appended(vec![
+                            Line("- Press "),
+                            Key::Backspace.txt(ctx),
+                            Line(" to delete"),
+                        ]);
+                        txt.add_appended(vec![
+                            Line("- Hold "),
+                            Key::LeftControl.txt(ctx),
+                            Line(" to move"),
+                        ]);
+                        let instructions = txt.draw(ctx);
+                        self.panel.replace(ctx, "instructions", instructions);
                     }
                     Some(ID::Road(r)) => {
                         if ctx.input.pressed(Key::Backspace) {
@@ -203,6 +241,34 @@ impl State<App> for MainState {
                         } else if ctx.normal_left_click() {
                             return Transition::Push(edit::EditRoad::new(ctx, app, r));
                         }
+
+                        let mut txt = Text::new();
+                        txt.add_appended(vec![
+                            Line("Click").fg(ctx.style().hotkey_color),
+                            Line(" to edit lanes"),
+                        ]);
+                        txt.add_appended(vec![
+                            Line("- Press "),
+                            Key::Backspace.txt(ctx),
+                            Line(" to delete"),
+                        ]);
+                        txt.add_appended(vec![
+                            Line("- Press "),
+                            Key::P.txt(ctx),
+                            Line(" to insert a new point here"),
+                        ]);
+                        txt.add_appended(vec![
+                            Line("- Press "),
+                            Key::X.txt(ctx),
+                            Line(" to remove interior points"),
+                        ]);
+                        txt.add_appended(vec![
+                            Line("- Press "),
+                            Key::M.txt(ctx),
+                            Line(" to merge"),
+                        ]);
+                        let instructions = txt.draw(ctx);
+                        self.panel.replace(ctx, "instructions", instructions);
                     }
                     Some(ID::RoadPoint(r, idx)) => {
                         if ctx.input.pressed(Key::LeftControl) {
@@ -211,6 +277,20 @@ impl State<App> for MainState {
                             app.model.delete_r_pt(r, idx, ctx);
                             app.model.world.handle_mouseover(ctx);
                         }
+
+                        let mut txt = Text::new();
+                        txt.add_appended(vec![
+                            Line("- Press "),
+                            Key::Backspace.txt(ctx),
+                            Line(" to delete"),
+                        ]);
+                        txt.add_appended(vec![
+                            Line("- Hold "),
+                            Key::LeftControl.txt(ctx),
+                            Line(" to move"),
+                        ]);
+                        let instructions = txt.draw(ctx);
+                        self.panel.replace(ctx, "instructions", instructions);
                     }
                     None => {
                         match self.panel.event(ctx) {
@@ -244,6 +324,20 @@ impl State<App> for MainState {
                                         app.model.world.force_set_selection(id);
                                     }
                                 }
+
+                                let mut txt = Text::new();
+                                txt.add_appended(vec![
+                                    Line("- Press "),
+                                    Key::I.txt(ctx),
+                                    Line(" to create an intersection"),
+                                ]);
+                                txt.add_appended(vec![
+                                    Line("- Press "),
+                                    Key::B.txt(ctx),
+                                    Line(" to create a building"),
+                                ]);
+                                let instructions = txt.draw(ctx);
+                                self.panel.replace(ctx, "instructions", instructions);
                             }
                         }
                     }
