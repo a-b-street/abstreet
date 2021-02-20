@@ -80,40 +80,48 @@ impl Model {
 
 // General
 impl Model {
-    // TODO Only for truly synthetic maps...
     pub fn export_to_osm(&mut self) {
-        // Shift the map to start at (0, 0)
-        let bounds = self.compute_bounds();
-        if bounds.min_x != 0.0 || bounds.min_y != 0.0 {
-            for b in self.map.buildings.values_mut() {
-                b.polygon = b.polygon.translate(-bounds.min_x, -bounds.min_y);
-            }
-            for i in self.map.intersections.values_mut() {
-                i.point = i.point.offset(-bounds.min_x, -bounds.min_y);
-            }
-            for r in self.map.roads.values_mut() {
-                for pt in &mut r.center_points {
-                    *pt = pt.offset(-bounds.min_x, -bounds.min_y);
-                }
+        dump_to_osm(&self.map).unwrap();
+    }
+
+    pub fn set_boundary(&mut self, ctx: &EventCtx, top_left: Pt2D, bottom_right: Pt2D) {
+        // Shift the map to treat top_left as (0, 0)
+        for b in self.map.buildings.values_mut() {
+            b.polygon = b.polygon.translate(-top_left.x(), -top_left.y());
+        }
+        for i in self.map.intersections.values_mut() {
+            i.point = i.point.offset(-top_left.x(), -top_left.y());
+        }
+        for r in self.map.roads.values_mut() {
+            for pt in &mut r.center_points {
+                *pt = pt.offset(-top_left.x(), -top_left.y());
             }
         }
+        let pt1 = Pt2D::new(0.0, 0.0);
+        let pt2 = bottom_right.offset(-top_left.x(), -top_left.y());
 
-        let bounds = self.compute_bounds();
-        self.map.boundary_polygon = bounds.get_rectangle();
+        self.map.boundary_polygon = Polygon::rectangle_two_corners(pt1, pt2).unwrap();
+
         // Make gps_bounds sane
-        self.map.gps_bounds = GPSBounds::new();
         let mut seattle_bounds = GPSBounds::new();
         seattle_bounds.update(LonLat::new(-122.453224, 47.723277));
         seattle_bounds.update(LonLat::new(-122.240505, 47.495342));
 
-        self.map
-            .gps_bounds
-            .update(Pt2D::new(bounds.min_x, bounds.min_y).to_gps(&seattle_bounds));
-        self.map
-            .gps_bounds
-            .update(Pt2D::new(bounds.max_x, bounds.max_y).to_gps(&seattle_bounds));
+        self.map.gps_bounds = GPSBounds::new();
+        self.map.gps_bounds.update(pt1.to_gps(&seattle_bounds));
+        self.map.gps_bounds.update(pt2.to_gps(&seattle_bounds));
 
-        dump_to_osm(&self.map).unwrap();
+        // Re-add everything to the world, since we just shifted coordinates around
+        self.world = World::new();
+        for id in self.map.buildings.keys().cloned().collect::<Vec<_>>() {
+            self.bldg_added(id, ctx);
+        }
+        for id in self.map.intersections.keys().cloned().collect::<Vec<_>>() {
+            self.intersection_added(id, ctx);
+        }
+        for id in self.map.roads.keys().cloned().collect::<Vec<_>>() {
+            self.road_added(id, ctx);
+        }
     }
 
     fn compute_bounds(&self) -> Bounds {

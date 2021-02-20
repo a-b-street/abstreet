@@ -8,7 +8,7 @@ extern crate log;
 use model::{Model, ID};
 
 use abstutil::{CmdArgs, Timer};
-use geom::{Distance, Line, Polygon};
+use geom::{Distance, Line, Polygon, Pt2D};
 use map_gui::tools::CameraState;
 use map_model::osm;
 use map_model::raw::OriginalRoad;
@@ -53,6 +53,8 @@ enum Mode {
     MovingRoadPoint(OriginalRoad, usize),
     CreatingRoad(osm::NodeID),
     PreviewIntersection(Drawable),
+    SetBoundaryPt1,
+    SetBoundaryPt2(Pt2D),
 }
 
 impl MainState {
@@ -109,6 +111,9 @@ impl MainState {
                     ]),
                     Text::new().draw(ctx).named("instructions"),
                     Widget::col(vec![
+                        ctx.style()
+                            .btn_outline_light_text("adjust boundary")
+                            .build_def(ctx),
                         ctx.style()
                             .btn_solid_dark_text("export to OSM")
                             .build_def(ctx),
@@ -305,6 +310,9 @@ impl State<App> for MainState {
                                 "close" => {
                                     return Transition::Pop;
                                 }
+                                "adjust boundary" => {
+                                    self.mode = Mode::SetBoundaryPt1;
+                                }
                                 "export to OSM" => {
                                     app.model.export_to_osm();
                                 }
@@ -392,6 +400,37 @@ impl State<App> for MainState {
                     app.model.world.handle_mouseover(ctx);
                 }
             }
+            Mode::SetBoundaryPt1 => {
+                let mut txt = Text::new();
+                txt.add_appended(vec![
+                    Line("Click").fg(ctx.style().hotkey_color),
+                    Line(" the top-left corner of this map"),
+                ]);
+                let instructions = txt.draw(ctx);
+                self.panel.replace(ctx, "instructions", instructions);
+
+                if let Some(pt) = cursor {
+                    if ctx.normal_left_click() {
+                        self.mode = Mode::SetBoundaryPt2(pt);
+                    }
+                }
+            }
+            Mode::SetBoundaryPt2(pt1) => {
+                let mut txt = Text::new();
+                txt.add_appended(vec![
+                    Line("Click").fg(ctx.style().hotkey_color),
+                    Line(" the bottom-right corner of this map"),
+                ]);
+                let instructions = txt.draw(ctx);
+                self.panel.replace(ctx, "instructions", instructions);
+
+                if let Some(pt2) = cursor {
+                    if ctx.normal_left_click() {
+                        app.model.set_boundary(ctx, pt1, pt2);
+                        self.mode = Mode::Viewing;
+                    }
+                }
+            }
         }
 
         self.last_id = app.model.world.get_selection();
@@ -437,6 +476,14 @@ impl State<App> for MainState {
                     // TODO Argh, covers up mouseover tooltip.
                     if let Some(cursor) = g.canvas.get_cursor_in_map_space() {
                         g.draw_mouse_tooltip(Text::from(Line(cursor.to_string())));
+                    }
+                }
+            }
+            Mode::SetBoundaryPt1 => {}
+            Mode::SetBoundaryPt2(pt1) => {
+                if let Some(pt2) = g.canvas.get_cursor_in_map_space() {
+                    if let Some(rect) = Polygon::rectangle_two_corners(pt1, pt2) {
+                        g.draw_polygon(Color::YELLOW.alpha(0.5), rect);
                     }
                 }
             }
