@@ -1,16 +1,15 @@
 use map_gui::tools::{grey_out_map, nice_map_name, open_browser, PopupMsg};
 use sim::{PersonID, TripID};
 use widgetry::{
-    lctrl, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, SimpleState,
-    StyledButtons, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, ControlState, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    SimpleState, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
 use crate::edit::EditMode;
 use crate::info::{OpenTrip, Tab};
-use crate::sandbox::gameplay::freeform::ChangeScenario;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
-use crate::sandbox::{Actions, SandboxControls};
+use crate::sandbox::{Actions, SandboxControls, SandboxMode};
 
 /// A gameplay mode with specific controls for integration with
 /// https://cyipt.github.io/acton/articles/the-actdev-project.html.
@@ -38,8 +37,21 @@ impl GameplayState for Actdev {
     ) -> Option<Transition> {
         match self.top_center.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                // TODO This'll bring us out of this GameplayMode.
-                "change scenario" => Some(Transition::Push(ChangeScenario::new(ctx, app, "none"))),
+                "change scenario" => {
+                    let scenario = if self.scenario_name.as_ref().unwrap() == "base" {
+                        "dutch"
+                    } else {
+                        "base"
+                    };
+                    // TODO Start in the daytime
+                    return Some(Transition::Replace(SandboxMode::simple_new(
+                        app,
+                        GameplayMode::Actdev(
+                            app.primary.map.get_name().clone(),
+                            Some(scenario.to_string()),
+                        ),
+                    )));
+                }
                 "edit map" => Some(Transition::Push(EditMode::new(
                     ctx,
                     app,
@@ -117,11 +129,25 @@ impl GameplayState for Actdev {
                     .draw(ctx),
                 Widget::vert_separator(ctx, 50.0),
                 ctx.style()
-                    .btn_light_popup_icon_text(
-                        "system/assets/tools/calendar.svg",
-                        self.scenario_name.as_ref().unwrap_or(&"none".to_string()),
+                    .btn_light_popup_icon_text("system/assets/tools/calendar.svg", "scenario")
+                    .label_styled_text(
+                        match &self.scenario_name {
+                            Some(x) => match x.as_ref() {
+                                "base" => Text::from_all(vec![
+                                    Line("Baseline / "),
+                                    Line("Go Active").secondary(),
+                                ]),
+                                "dutch" => Text::from_all(vec![
+                                    Line("Baseline").secondary(),
+                                    Line(" / Go Active"),
+                                ]),
+                                _ => unreachable!(),
+                            },
+                            None => Text::from(Line("no scenario data").secondary()),
+                        },
+                        ControlState::Default,
                     )
-                    .hotkey(Key::S)
+                    .disabled(self.scenario_name.is_none())
                     .build_widget(ctx, "change scenario"),
                 ctx.style()
                     .btn_outline_light_icon_text("system/assets/tools/pencil.svg", "Edit map")
