@@ -178,7 +178,7 @@ impl SimpleState<App> for EditRoad {
                     _ => unreachable!(),
                 }
 
-                app.model.road_added(self.r, ctx);
+                app.model.road_added(ctx, self.r);
                 Transition::Pop
             }
             _ => unreachable!(),

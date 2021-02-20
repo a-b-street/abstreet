@@ -43,7 +43,7 @@ impl Model {
         }
     }
 
-    pub fn import(path: String, include_bldgs: bool, ctx: &EventCtx) -> Model {
+    pub fn import(ctx: &EventCtx, path: String, include_bldgs: bool) -> Model {
         let mut timer = Timer::new("import map");
         let mut model = Model::blank();
         model.include_bldgs = include_bldgs;
@@ -78,7 +78,7 @@ impl Model {
 
         if model.include_bldgs {
             for id in model.map.buildings.keys().cloned().collect::<Vec<_>>() {
-                model.bldg_added(id, ctx);
+                model.bldg_added(ctx, id);
             }
         }
         timer.start_iter(
@@ -87,12 +87,12 @@ impl Model {
         );
         for id in model.map.intersections.keys().cloned().collect::<Vec<_>>() {
             timer.next();
-            model.intersection_added(id, ctx);
+            model.intersection_added(ctx, id);
         }
         timer.start_iter("fill out world with roads", model.map.roads.len());
         for id in model.map.roads.keys().cloned().collect::<Vec<_>>() {
             timer.next();
-            model.road_added(id, ctx);
+            model.road_added(ctx, id);
         }
 
         model
@@ -135,13 +135,13 @@ impl Model {
         // Re-add everything to the world, since we just shifted coordinates around
         self.world = World::new();
         for id in self.map.buildings.keys().cloned().collect::<Vec<_>>() {
-            self.bldg_added(id, ctx);
+            self.bldg_added(ctx, id);
         }
         for id in self.map.intersections.keys().cloned().collect::<Vec<_>>() {
-            self.intersection_added(id, ctx);
+            self.intersection_added(ctx, id);
         }
         for id in self.map.roads.keys().cloned().collect::<Vec<_>>() {
-            self.road_added(id, ctx);
+            self.road_added(ctx, id);
         }
     }
 
@@ -166,7 +166,7 @@ impl Model {
 
 // Intersections
 impl Model {
-    fn intersection_added(&mut self, id: osm::NodeID, ctx: &EventCtx) {
+    fn intersection_added(&mut self, ctx: &EventCtx, id: osm::NodeID) {
         let i = &self.map.intersections[&id];
         let color = match i.intersection_type {
             IntersectionType::TrafficSignal => Color::GREEN,
@@ -186,7 +186,7 @@ impl Model {
             .add(ctx, Object::new(ID::Intersection(id), color, poly));
     }
 
-    pub fn create_i(&mut self, point: Pt2D, ctx: &EventCtx) {
+    pub fn create_i(&mut self, ctx: &EventCtx, point: Pt2D) {
         let id = self.map.new_osm_node_id(time_to_id());
         self.map.intersections.insert(
             id,
@@ -198,16 +198,16 @@ impl Model {
                 elevation: Distance::ZERO,
             },
         );
-        self.intersection_added(id, ctx);
+        self.intersection_added(ctx, id);
     }
 
-    pub fn move_i(&mut self, id: osm::NodeID, point: Pt2D, ctx: &EventCtx) {
+    pub fn move_i(&mut self, ctx: &EventCtx, id: osm::NodeID, point: Pt2D) {
         self.world.delete(ID::Intersection(id));
         for r in self.map.move_intersection(id, point).unwrap() {
             self.road_deleted(r);
-            self.road_added(r, ctx);
+            self.road_added(ctx, r);
         }
-        self.intersection_added(id, ctx);
+        self.intersection_added(ctx, id);
     }
 
     pub fn delete_i(&mut self, id: osm::NodeID) {
@@ -229,7 +229,7 @@ impl Model {
             i.intersection_type = IntersectionType::TrafficSignal;
         }
 
-        self.intersection_added(id, ctx);
+        self.intersection_added(ctx, id);
     }
 
     pub fn show_intersection_geometry(&mut self, ctx: &EventCtx, show: bool) {
@@ -237,14 +237,14 @@ impl Model {
 
         for id in self.map.intersections.keys().cloned().collect::<Vec<_>>() {
             self.world.delete(ID::Intersection(id));
-            self.intersection_added(id, ctx);
+            self.intersection_added(ctx, id);
         }
     }
 }
 
 // Roads
 impl Model {
-    pub fn road_added(&mut self, id: OriginalRoad, ctx: &EventCtx) {
+    pub fn road_added(&mut self, ctx: &EventCtx, id: OriginalRoad) {
         self.world.add(ctx, self.road_object(id));
     }
 
@@ -252,7 +252,7 @@ impl Model {
         self.world.delete(ID::Road(id));
     }
 
-    pub fn create_r(&mut self, i1: osm::NodeID, i2: osm::NodeID, ctx: &EventCtx) {
+    pub fn create_r(&mut self, ctx: &EventCtx, i1: osm::NodeID, i2: osm::NodeID) {
         // Ban cul-de-sacs, since they get stripped out later anyway.
         if self
             .map
@@ -293,7 +293,7 @@ impl Model {
                 complicated_turn_restrictions: Vec::new(),
             },
         );
-        self.road_added(id, ctx);
+        self.road_added(ctx, id);
     }
 
     pub fn delete_r(&mut self, id: OriginalRoad) {
@@ -313,7 +313,7 @@ impl Model {
         )
     }
 
-    pub fn show_r_points(&mut self, id: OriginalRoad, ctx: &EventCtx) {
+    pub fn show_r_points(&mut self, ctx: &EventCtx, id: OriginalRoad) {
         if self.showing_pts == Some(id) {
             return;
         }
@@ -349,7 +349,7 @@ impl Model {
         }
     }
 
-    pub fn move_r_pt(&mut self, id: OriginalRoad, idx: usize, point: Pt2D, ctx: &EventCtx) {
+    pub fn move_r_pt(&mut self, ctx: &EventCtx, id: OriginalRoad, idx: usize, point: Pt2D) {
         assert_eq!(self.showing_pts, Some(id));
 
         self.stop_showing_pts(id);
@@ -360,13 +360,13 @@ impl Model {
         let pts = &mut self.map.roads.get_mut(&id).unwrap().center_points;
         pts[idx] = point;
 
-        self.road_added(id, ctx);
-        self.intersection_added(id.i1, ctx);
-        self.intersection_added(id.i2, ctx);
-        self.show_r_points(id, ctx);
+        self.road_added(ctx, id);
+        self.intersection_added(ctx, id.i1);
+        self.intersection_added(ctx, id.i2);
+        self.show_r_points(ctx, id);
     }
 
-    pub fn delete_r_pt(&mut self, id: OriginalRoad, idx: usize, ctx: &EventCtx) {
+    pub fn delete_r_pt(&mut self, ctx: &EventCtx, id: OriginalRoad, idx: usize) {
         assert_eq!(self.showing_pts, Some(id));
 
         self.stop_showing_pts(id);
@@ -377,13 +377,13 @@ impl Model {
         let pts = &mut self.map.roads.get_mut(&id).unwrap().center_points;
         pts.remove(idx);
 
-        self.road_added(id, ctx);
-        self.intersection_added(id.i1, ctx);
-        self.intersection_added(id.i2, ctx);
-        self.show_r_points(id, ctx);
+        self.road_added(ctx, id);
+        self.intersection_added(ctx, id.i1);
+        self.intersection_added(ctx, id.i2);
+        self.show_r_points(ctx, id);
     }
 
-    pub fn insert_r_pt(&mut self, id: OriginalRoad, pt: Pt2D, ctx: &EventCtx) -> Option<ID> {
+    pub fn insert_r_pt(&mut self, ctx: &EventCtx, id: OriginalRoad, pt: Pt2D) -> Option<ID> {
         assert_eq!(self.showing_pts, Some(id));
 
         self.stop_showing_pts(id);
@@ -404,15 +404,15 @@ impl Model {
             None
         };
 
-        self.road_added(id, ctx);
-        self.intersection_added(id.i1, ctx);
-        self.intersection_added(id.i2, ctx);
-        self.show_r_points(id, ctx);
+        self.road_added(ctx, id);
+        self.intersection_added(ctx, id.i1);
+        self.intersection_added(ctx, id.i2);
+        self.show_r_points(ctx, id);
 
         new_id
     }
 
-    pub fn clear_r_pts(&mut self, id: OriginalRoad, ctx: &EventCtx) {
+    pub fn clear_r_pts(&mut self, ctx: &EventCtx, id: OriginalRoad) {
         assert_eq!(self.showing_pts, Some(id));
 
         self.stop_showing_pts(id);
@@ -423,14 +423,14 @@ impl Model {
         let r = &mut self.map.roads.get_mut(&id).unwrap();
         r.center_points = vec![r.center_points[0], *r.center_points.last().unwrap()];
 
-        self.road_added(id, ctx);
-        self.intersection_added(id.i1, ctx);
-        self.intersection_added(id.i2, ctx);
-        self.show_r_points(id, ctx);
+        self.road_added(ctx, id);
+        self.intersection_added(ctx, id.i1);
+        self.intersection_added(ctx, id.i2);
+        self.show_r_points(ctx, id);
     }
 
     // TODO Need to show_r_points of the thing we wind up selecting after this.
-    pub fn merge_r(&mut self, id: OriginalRoad, ctx: &EventCtx) {
+    pub fn merge_r(&mut self, ctx: &EventCtx, id: OriginalRoad) {
         self.stop_showing_pts(id);
 
         let (retained_i, deleted_i, deleted_roads, created_roads) =
@@ -440,13 +440,13 @@ impl Model {
                 }
                 Err(err) => {
                     warn!("Can't merge this road: {}", err);
-                    self.show_r_points(id, ctx);
+                    self.show_r_points(ctx, id);
                     return;
                 }
             };
 
         self.world.delete(ID::Intersection(retained_i));
-        self.intersection_added(retained_i, ctx);
+        self.intersection_added(ctx, retained_i);
 
         self.world.delete(ID::Intersection(deleted_i));
 
@@ -454,7 +454,7 @@ impl Model {
             self.world.delete(ID::Road(r));
         }
         for r in created_roads {
-            self.road_added(r, ctx);
+            self.road_added(ctx, r);
         }
 
         info!("Merged {}", id.to_string_code());
@@ -463,7 +463,7 @@ impl Model {
 
 // Buildings
 impl Model {
-    fn bldg_added(&mut self, id: osm::OsmID, ctx: &EventCtx) {
+    fn bldg_added(&mut self, ctx: &EventCtx, id: osm::OsmID) {
         let b = &self.map.buildings[&id];
         self.world.add(
             ctx,
@@ -471,7 +471,7 @@ impl Model {
         );
     }
 
-    pub fn create_b(&mut self, center: Pt2D, ctx: &EventCtx) -> ID {
+    pub fn create_b(&mut self, ctx: &EventCtx, center: Pt2D) -> ID {
         let id = osm::OsmID::Way(self.map.new_osm_way_id(time_to_id()));
         self.map.buildings.insert(
             id,
@@ -483,11 +483,11 @@ impl Model {
                 amenities: Vec::new(),
             },
         );
-        self.bldg_added(id, ctx);
+        self.bldg_added(ctx, id);
         ID::Building(id)
     }
 
-    pub fn move_b(&mut self, id: osm::OsmID, new_center: Pt2D, ctx: &EventCtx) {
+    pub fn move_b(&mut self, ctx: &EventCtx, id: osm::OsmID, new_center: Pt2D) {
         self.world.delete(ID::Building(id));
 
         let b = self.map.buildings.get_mut(&id).unwrap();
@@ -497,7 +497,7 @@ impl Model {
             new_center.y() - old_center.y(),
         );
 
-        self.bldg_added(id, ctx);
+        self.bldg_added(ctx, id);
     }
 
     pub fn delete_b(&mut self, id: osm::OsmID) {

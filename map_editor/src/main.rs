@@ -64,7 +64,7 @@ impl MainState {
         args.done();
 
         let model = if let Some(path) = load {
-            Model::import(path, include_bldgs, ctx)
+            Model::import(ctx, path, include_bldgs)
         } else {
             Model::blank()
         };
@@ -160,7 +160,7 @@ impl State<App> for MainState {
                             app.model.stop_showing_pts(id);
                         }
                         if let Some(r) = after {
-                            app.model.show_r_points(r, ctx);
+                            app.model.show_r_points(ctx, r);
                             app.model.world.handle_mouseover(ctx);
                         }
                     }
@@ -230,13 +230,13 @@ impl State<App> for MainState {
                             app.model.delete_r(r);
                             app.model.world.handle_mouseover(ctx);
                         } else if cursor.is_some() && ctx.input.pressed(Key::P) {
-                            if let Some(id) = app.model.insert_r_pt(r, cursor.unwrap(), ctx) {
+                            if let Some(id) = app.model.insert_r_pt(ctx, r, cursor.unwrap()) {
                                 app.model.world.force_set_selection(id);
                             }
                         } else if ctx.input.pressed(Key::X) {
-                            app.model.clear_r_pts(r, ctx);
+                            app.model.clear_r_pts(ctx, r);
                         } else if ctx.input.pressed(Key::M) {
-                            app.model.merge_r(r, ctx);
+                            app.model.merge_r(ctx, r);
                             app.model.world.handle_mouseover(ctx);
                         } else if ctx.normal_left_click() {
                             return Transition::Push(edit::EditRoad::new(ctx, app, r));
@@ -274,7 +274,7 @@ impl State<App> for MainState {
                         if ctx.input.pressed(Key::LeftControl) {
                             self.mode = Mode::MovingRoadPoint(r, idx);
                         } else if ctx.input.pressed(Key::Backspace) {
-                            app.model.delete_r_pt(r, idx, ctx);
+                            app.model.delete_r_pt(ctx, r, idx);
                             app.model.world.handle_mouseover(ctx);
                         }
 
@@ -315,7 +315,7 @@ impl State<App> for MainState {
                             _ => {
                                 if ctx.input.pressed(Key::I) {
                                     if let Some(pt) = cursor {
-                                        app.model.create_i(pt, ctx);
+                                        app.model.create_i(ctx, pt);
                                         app.model.world.handle_mouseover(ctx);
                                     }
                                 // TODO Silly bug: Mouseover doesn't actually work! I think the
@@ -323,7 +323,7 @@ impl State<App> for MainState {
                                 // up the precomputed triangles.
                                 } else if ctx.input.pressed(Key::B) {
                                     if let Some(pt) = cursor {
-                                        let id = app.model.create_b(pt, ctx);
+                                        let id = app.model.create_b(ctx, pt);
                                         app.model.world.force_set_selection(id);
                                     }
                                 }
@@ -348,7 +348,7 @@ impl State<App> for MainState {
             }
             Mode::MovingIntersection(id) => {
                 if let Some(pt) = cursor {
-                    app.model.move_i(id, pt, ctx);
+                    app.model.move_i(ctx, id, pt);
                     if ctx.input.key_released(Key::LeftControl) {
                         self.mode = Mode::Viewing;
                     }
@@ -356,7 +356,7 @@ impl State<App> for MainState {
             }
             Mode::MovingBuilding(id) => {
                 if let Some(pt) = cursor {
-                    app.model.move_b(id, pt, ctx);
+                    app.model.move_b(ctx, id, pt);
                     if ctx.input.key_released(Key::LeftControl) {
                         self.mode = Mode::Viewing;
                     }
@@ -364,7 +364,7 @@ impl State<App> for MainState {
             }
             Mode::MovingRoadPoint(r, idx) => {
                 if let Some(pt) = cursor {
-                    app.model.move_r_pt(r, idx, pt, ctx);
+                    app.model.move_r_pt(ctx, r, idx, pt);
                     if ctx.input.key_released(Key::LeftControl) {
                         self.mode = Mode::Viewing;
                     }
@@ -376,7 +376,7 @@ impl State<App> for MainState {
                     app.model.world.handle_mouseover(ctx);
                 } else if let Some(ID::Intersection(i2)) = app.model.world.get_selection() {
                     if i1 != i2 && ctx.input.pressed(Key::R) {
-                        app.model.create_r(i1, i2, ctx);
+                        app.model.create_r(ctx, i1, i2);
                         self.mode = Mode::Viewing;
                         app.model.world.handle_mouseover(ctx);
                     }
