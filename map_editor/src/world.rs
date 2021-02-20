@@ -136,6 +136,11 @@ impl<ID: ObjectID> World<ID> {
 
     pub fn delete(&mut self, id: ID) {
         let obj = self.objects.remove(&id).unwrap();
-        self.quadtree.remove(obj.quadtree_id).unwrap();
+        if self.quadtree.remove(obj.quadtree_id).is_none() {
+            // TODO This happens for nodes that're totally off-map. They're retained because we
+            // defer running the remove_disconnected code, so map_editor can actually debug more
+            // stuff.
+            error!("{:?} wasn't in the quadtree", id);
+        }
     }
 }

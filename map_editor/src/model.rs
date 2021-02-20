@@ -21,7 +21,7 @@ pub struct Model {
     pub world: World<ID>,
 
     include_bldgs: bool,
-    pub intersection_geom: bool,
+    intersection_geom: bool,
 }
 
 // Construction
@@ -43,16 +43,10 @@ impl Model {
         }
     }
 
-    pub fn import(
-        path: String,
-        include_bldgs: bool,
-        intersection_geom: bool,
-        ctx: &EventCtx,
-    ) -> Model {
+    pub fn import(path: String, include_bldgs: bool, ctx: &EventCtx) -> Model {
         let mut timer = Timer::new("import map");
         let mut model = Model::blank();
         model.include_bldgs = include_bldgs;
-        model.intersection_geom = intersection_geom;
 
         model.map = if path.ends_with(".osm") {
             convert_osm::convert(
@@ -236,6 +230,15 @@ impl Model {
         }
 
         self.intersection_added(id, ctx);
+    }
+
+    pub fn show_intersection_geometry(&mut self, ctx: &EventCtx, show: bool) {
+        self.intersection_geom = show;
+
+        for id in self.map.intersections.keys().cloned().collect::<Vec<_>>() {
+            self.world.delete(ID::Intersection(id));
+            self.intersection_added(id, ctx);
+        }
     }
 }
 

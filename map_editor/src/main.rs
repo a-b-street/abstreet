@@ -7,14 +7,14 @@ extern crate log;
 
 use model::{Model, ID};
 
-use abstutil::{CmdArgs, Timer};
+use abstutil::CmdArgs;
 use geom::{Distance, Line, Polygon, Pt2D};
 use map_gui::tools::CameraState;
 use map_model::osm;
 use map_model::raw::OriginalRoad;
 use widgetry::{
-    Canvas, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, SharedAppState, State, StyledButtons, Text, Transition, VerticalAlignment, Widget,
+    Canvas, Checkbox, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    SharedAppState, State, StyledButtons, Text, Transition, VerticalAlignment, Widget,
 };
 
 mod edit;
@@ -52,7 +52,6 @@ enum Mode {
     MovingBuilding(osm::OsmID),
     MovingRoadPoint(OriginalRoad, usize),
     CreatingRoad(osm::NodeID),
-    PreviewIntersection(Drawable),
     SetBoundaryPt1,
     SetBoundaryPt2(Pt2D),
 }
@@ -62,11 +61,10 @@ impl MainState {
         let mut args = CmdArgs::new();
         let load = args.optional_free();
         let include_bldgs = args.enabled("--bldgs");
-        let intersection_geom = args.enabled("--geom");
         args.done();
 
         let model = if let Some(path) = load {
-            Model::import(path, include_bldgs, intersection_geom, ctx)
+            Model::import(path, include_bldgs, ctx)
         } else {
             Model::blank()
         };
@@ -111,14 +109,12 @@ impl MainState {
                     ]),
                     Text::new().draw(ctx).named("instructions"),
                     Widget::col(vec![
+                        Checkbox::switch(ctx, "intersection geometry", Key::G, false),
                         ctx.style()
                             .btn_outline_light_text("adjust boundary")
                             .build_def(ctx),
                         ctx.style()
                             .btn_solid_dark_text("export to OSM")
-                            .build_def(ctx),
-                        ctx.style()
-                            .btn_outline_light_text("preview all intersections")
                             .build_def(ctx),
                     ]),
                 ]))
@@ -179,9 +175,6 @@ impl State<App> for MainState {
                         } else if ctx.input.pressed(Key::Backspace) {
                             app.model.delete_i(i);
                             app.model.world.handle_mouseover(ctx);
-                        } else if !app.model.intersection_geom && ctx.input.pressed(Key::P) {
-                            let draw = preview_intersection(i, &app.model, ctx);
-                            self.mode = Mode::PreviewIntersection(draw);
                         } else if ctx.input.pressed(Key::T) {
                             app.model.toggle_i(ctx, i);
                         }
@@ -201,11 +194,6 @@ impl State<App> for MainState {
                             Line("- Hold "),
                             Key::LeftControl.txt(ctx),
                             Line(" to move"),
-                        ]);
-                        txt.add_appended(vec![
-                            Line("- Press "),
-                            Key::P.txt(ctx),
-                            Line(" to preview geometry"),
                         ]);
                         txt.add_appended(vec![
                             Line("- Press "),
@@ -316,14 +304,14 @@ impl State<App> for MainState {
                                 "export to OSM" => {
                                     app.model.export_to_osm();
                                 }
-                                "preview all intersections" => {
-                                    if !app.model.intersection_geom {
-                                        let draw = preview_all_intersections(&app.model, ctx);
-                                        self.mode = Mode::PreviewIntersection(draw);
-                                    }
-                                }
                                 _ => unreachable!(),
                             },
+                            Outcome::Changed => {
+                                app.model.show_intersection_geometry(
+                                    ctx,
+                                    self.panel.is_checked("intersection geometry"),
+                                );
+                            }
                             _ => {
                                 if ctx.input.pressed(Key::I) {
                                     if let Some(pt) = cursor {
@@ -394,12 +382,6 @@ impl State<App> for MainState {
                     }
                 }
             }
-            Mode::PreviewIntersection(_) => {
-                if ctx.input.pressed(Key::P) {
-                    self.mode = Mode::Viewing;
-                    app.model.world.handle_mouseover(ctx);
-                }
-            }
             Mode::SetBoundaryPt1 => {
                 let mut txt = Text::new();
                 txt.add_appended(vec![
@@ -449,13 +431,7 @@ impl State<App> for MainState {
             Color::rgb(242, 239, 233),
             app.model.map.boundary_polygon.clone(),
         );
-        match self.mode {
-            Mode::PreviewIntersection(_) => app.model.world.draw(g, |id| match id {
-                ID::Intersection(_) => false,
-                _ => true,
-            }),
-            _ => app.model.world.draw(g, |_| true),
-        }
+        app.model.world.draw(g, |_| true);
 
         match self.mode {
             Mode::CreatingRoad(i1) => {
@@ -469,16 +445,6 @@ impl State<App> for MainState {
             | Mode::MovingIntersection(_)
             | Mode::MovingBuilding(_)
             | Mode::MovingRoadPoint(_, _) => {}
-            Mode::PreviewIntersection(ref draw) => {
-                g.redraw(draw);
-
-                if g.is_key_down(Key::RightAlt) {
-                    // TODO Argh, covers up mouseover tooltip.
-                    if let Some(cursor) = g.canvas.get_cursor_in_map_space() {
-                        g.draw_mouse_tooltip(Text::from(Line(cursor.to_string())));
-                    }
-                }
-            }
             Mode::SetBoundaryPt1 => {}
             Mode::SetBoundaryPt2(pt1) => {
                 if let Some(pt2) = g.canvas.get_cursor_in_map_space() {
@@ -491,42 +457,6 @@ impl State<App> for MainState {
 
         self.panel.draw(g);
     }
-}
-
-fn preview_intersection(i: osm::NodeID, model: &Model, ctx: &EventCtx) -> Drawable {
-    let (intersection, roads, debug) = model.map.preview_intersection(i);
-    let mut batch = GeomBatch::new();
-    batch.push(Color::ORANGE.alpha(0.5), intersection);
-    for r in roads {
-        batch.push(Color::GREEN.alpha(0.5), r);
-    }
-    for (label, poly) in debug {
-        let center = poly.center();
-        batch.push(Color::RED.alpha(0.5), poly);
-        batch.append(
-            Text::from(Line(label))
-                .with_bg()
-                .render_autocropped(ctx)
-                .scale(0.1)
-                .centered_on(center),
-        );
-    }
-    batch.upload(ctx)
-}
-
-fn preview_all_intersections(model: &Model, ctx: &EventCtx) -> Drawable {
-    let mut batch = GeomBatch::new();
-    let mut timer = Timer::new("preview all intersections");
-    timer.start_iter("preview", model.map.intersections.len());
-    for i in model.map.intersections.keys() {
-        timer.next();
-        if model.map.roads_per_intersection(*i).is_empty() {
-            continue;
-        }
-        let (intersection, _, _) = model.map.preview_intersection(*i);
-        batch.push(Color::ORANGE.alpha(0.5), intersection);
-    }
-    batch.upload(ctx)
 }
 
 fn main() {
