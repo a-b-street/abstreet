@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Mode",""]],"fn":[["main",""],["preview_all_intersections",""],["preview_intersection",""]],"mod":[["edit",""],["model",""],["world",""]],"struct":[["App",""],["MainState",""]]});
+initSidebarItems({"enum":[["Mode",""]],"fn":[["main",""]],"mod":[["edit",""],["model",""],["world",""]],"struct":[["App",""],["MainState",""]]});

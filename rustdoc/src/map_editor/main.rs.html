@@ -471,76 +471,6 @@
 <span id="468">468</span>
 <span id="469">469</span>
 <span id="470">470</span>
-<span id="471">471</span>
-<span id="472">472</span>
-<span id="473">473</span>
-<span id="474">474</span>
-<span id="475">475</span>
-<span id="476">476</span>
-<span id="477">477</span>
-<span id="478">478</span>
-<span id="479">479</span>
-<span id="480">480</span>
-<span id="481">481</span>
-<span id="482">482</span>
-<span id="483">483</span>
-<span id="484">484</span>
-<span id="485">485</span>
-<span id="486">486</span>
-<span id="487">487</span>
-<span id="488">488</span>
-<span id="489">489</span>
-<span id="490">490</span>
-<span id="491">491</span>
-<span id="492">492</span>
-<span id="493">493</span>
-<span id="494">494</span>
-<span id="495">495</span>
-<span id="496">496</span>
-<span id="497">497</span>
-<span id="498">498</span>
-<span id="499">499</span>
-<span id="500">500</span>
-<span id="501">501</span>
-<span id="502">502</span>
-<span id="503">503</span>
-<span id="504">504</span>
-<span id="505">505</span>
-<span id="506">506</span>
-<span id="507">507</span>
-<span id="508">508</span>
-<span id="509">509</span>
-<span id="510">510</span>
-<span id="511">511</span>
-<span id="512">512</span>
-<span id="513">513</span>
-<span id="514">514</span>
-<span id="515">515</span>
-<span id="516">516</span>
-<span id="517">517</span>
-<span id="518">518</span>
-<span id="519">519</span>
-<span id="520">520</span>
-<span id="521">521</span>
-<span id="522">522</span>
-<span id="523">523</span>
-<span id="524">524</span>
-<span id="525">525</span>
-<span id="526">526</span>
-<span id="527">527</span>
-<span id="528">528</span>
-<span id="529">529</span>
-<span id="530">530</span>
-<span id="531">531</span>
-<span id="532">532</span>
-<span id="533">533</span>
-<span id="534">534</span>
-<span id="535">535</span>
-<span id="536">536</span>
-<span id="537">537</span>
-<span id="538">538</span>
-<span id="539">539</span>
-<span id="540">540</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The map_editor renders and lets you edit RawMaps, which are a format in between OSM and the</span>
 <span class="doccomment">//! full Map. It&#39;s useful for debugging maps imported from OSM, and for drawing synthetic maps for</span>
@@ -551,14 +481,14 @@
 
 <span class="kw">use</span> <span class="ident">model</span>::{<span class="ident">Model</span>, <span class="ident">ID</span>};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">CmdArgs</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">CameraState</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">osm</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">raw</span>::<span class="ident">OriginalRoad</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Canvas</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
-    <span class="ident">Panel</span>, <span class="ident">SharedAppState</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">Transition</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Canvas</span>, <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
+    <span class="ident">SharedAppState</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">Transition</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">mod</span> <span class="ident">edit</span>;
@@ -596,7 +526,6 @@
     <span class="ident">MovingBuilding</span>(<span class="ident">osm</span>::<span class="ident">OsmID</span>),
     <span class="ident">MovingRoadPoint</span>(<span class="ident">OriginalRoad</span>, <span class="ident">usize</span>),
     <span class="ident">CreatingRoad</span>(<span class="ident">osm</span>::<span class="ident">NodeID</span>),
-    <span class="ident">PreviewIntersection</span>(<span class="ident">Drawable</span>),
     <span class="ident">SetBoundaryPt1</span>,
     <span class="ident">SetBoundaryPt2</span>(<span class="ident">Pt2D</span>),
 }
@@ -606,11 +535,10 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">CmdArgs</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="ident">load</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">optional_free</span>();
         <span class="kw">let</span> <span class="ident">include_bldgs</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--bldgs&quot;</span>);
-        <span class="kw">let</span> <span class="ident">intersection_geom</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--geom&quot;</span>);
         <span class="ident">args</span>.<span class="ident">done</span>();
 
         <span class="kw">let</span> <span class="ident">model</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">load</span> {
-            <span class="ident">Model</span>::<span class="ident">import</span>(<span class="ident">path</span>, <span class="ident">include_bldgs</span>, <span class="ident">intersection_geom</span>, <span class="ident">ctx</span>)
+            <span class="ident">Model</span>::<span class="ident">import</span>(<span class="ident">path</span>, <span class="ident">include_bldgs</span>, <span class="ident">ctx</span>)
         } <span class="kw">else</span> {
             <span class="ident">Model</span>::<span class="ident">blank</span>()
         };
@@ -655,14 +583,12 @@
                     ]),
                     <span class="ident">Text</span>::<span class="ident">new</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;instructions&quot;</span>),
                     <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                        <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;intersection geometry&quot;</span>, <span class="ident">Key</span>::<span class="ident">G</span>, <span class="bool-val">false</span>),
                         <span class="ident">ctx</span>.<span class="ident">style</span>()
                             .<span class="ident">btn_outline_light_text</span>(<span class="string">&quot;adjust boundary&quot;</span>)
                             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                         <span class="ident">ctx</span>.<span class="ident">style</span>()
                             .<span class="ident">btn_solid_dark_text</span>(<span class="string">&quot;export to OSM&quot;</span>)
-                            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                        <span class="ident">ctx</span>.<span class="ident">style</span>()
-                            .<span class="ident">btn_outline_light_text</span>(<span class="string">&quot;preview all intersections&quot;</span>)
                             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     ]),
                 ]))
@@ -723,9 +649,6 @@
                         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">Backspace</span>) {
                             <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">delete_i</span>(<span class="ident">i</span>);
                             <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">intersection_geom</span> <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">P</span>) {
-                            <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">preview_intersection</span>(<span class="ident">i</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">model</span>, <span class="ident">ctx</span>);
-                            <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode</span>::<span class="ident">PreviewIntersection</span>(<span class="ident">draw</span>);
                         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">T</span>) {
                             <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">toggle_i</span>(<span class="ident">ctx</span>, <span class="ident">i</span>);
                         }
@@ -745,11 +668,6 @@
                             <span class="ident">Line</span>(<span class="string">&quot;- Hold &quot;</span>),
                             <span class="ident">Key</span>::<span class="ident">LeftControl</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
                             <span class="ident">Line</span>(<span class="string">&quot; to move&quot;</span>),
-                        ]);
-                        <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                            <span class="ident">Line</span>(<span class="string">&quot;- Press &quot;</span>),
-                            <span class="ident">Key</span>::<span class="ident">P</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
-                            <span class="ident">Line</span>(<span class="string">&quot; to preview geometry&quot;</span>),
                         ]);
                         <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec</span><span class="macro">!</span>[
                             <span class="ident">Line</span>(<span class="string">&quot;- Press &quot;</span>),
@@ -860,14 +778,14 @@
                                 <span class="string">&quot;export to OSM&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                                     <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">export_to_osm</span>();
                                 }
-                                <span class="string">&quot;preview all intersections&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                                    <span class="kw">if</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">intersection_geom</span> {
-                                        <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">preview_all_intersections</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">model</span>, <span class="ident">ctx</span>);
-                                        <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode</span>::<span class="ident">PreviewIntersection</span>(<span class="ident">draw</span>);
-                                    }
-                                }
                                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
                             },
+                            <span class="ident">Outcome</span>::<span class="ident">Changed</span> <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">show_intersection_geometry</span>(
+                                    <span class="ident">ctx</span>,
+                                    <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;intersection geometry&quot;</span>),
+                                );
+                            }
                             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
                                 <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">I</span>) {
                                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">cursor</span> {
@@ -938,12 +856,6 @@
                     }
                 }
             }
-            <span class="ident">Mode</span>::<span class="ident">PreviewIntersection</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">P</span>) {
-                    <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode</span>::<span class="ident">Viewing</span>;
-                    <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
-                }
-            }
             <span class="ident">Mode</span>::<span class="ident">SetBoundaryPt1</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
                 <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -993,13 +905,7 @@
             <span class="ident">Color</span>::<span class="ident">rgb</span>(<span class="number">242</span>, <span class="number">239</span>, <span class="number">233</span>),
             <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">boundary_polygon</span>.<span class="ident">clone</span>(),
         );
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">mode</span> {
-            <span class="ident">Mode</span>::<span class="ident">PreviewIntersection</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">id</span> {
-                <span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            }),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="bool-val">true</span>),
-        }
+        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="bool-val">true</span>);
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">mode</span> {
             <span class="ident">Mode</span>::<span class="ident">CreatingRoad</span>(<span class="ident">i1</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -1013,16 +919,6 @@
             <span class="op">|</span> <span class="ident">Mode</span>::<span class="ident">MovingIntersection</span>(<span class="kw">_</span>)
             <span class="op">|</span> <span class="ident">Mode</span>::<span class="ident">MovingBuilding</span>(<span class="kw">_</span>)
             <span class="op">|</span> <span class="ident">Mode</span>::<span class="ident">MovingRoadPoint</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {}
-            <span class="ident">Mode</span>::<span class="ident">PreviewIntersection</span>(<span class="kw-2">ref</span> <span class="ident">draw</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">draw</span>);
-
-                <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">is_key_down</span>(<span class="ident">Key</span>::<span class="ident">RightAlt</span>) {
-                    <span class="comment">// TODO Argh, covers up mouseover tooltip.</span>
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cursor</span>) <span class="op">=</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
-                        <span class="ident">g</span>.<span class="ident">draw_mouse_tooltip</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">cursor</span>.<span class="ident">to_string</span>())));
-                    }
-                }
-            }
             <span class="ident">Mode</span>::<span class="ident">SetBoundaryPt1</span> <span class="op">=</span><span class="op">&gt;</span> {}
             <span class="ident">Mode</span>::<span class="ident">SetBoundaryPt2</span>(<span class="ident">pt1</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt2</span>) <span class="op">=</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
@@ -1035,42 +931,6 @@
 
         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
     }
-}
-
-<span class="kw">fn</span> <span class="ident">preview_intersection</span>(<span class="ident">i</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>, <span class="ident">model</span>: <span class="kw-2">&amp;</span><span class="ident">Model</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Drawable</span> {
-    <span class="kw">let</span> (<span class="ident">intersection</span>, <span class="ident">roads</span>, <span class="ident">debug</span>) <span class="op">=</span> <span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">preview_intersection</span>(<span class="ident">i</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-    <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">ORANGE</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">intersection</span>);
-    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">roads</span> {
-        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">GREEN</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">r</span>);
-    }
-    <span class="kw">for</span> (<span class="ident">label</span>, <span class="ident">poly</span>) <span class="kw">in</span> <span class="ident">debug</span> {
-        <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">center</span>();
-        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">RED</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">poly</span>);
-        <span class="ident">batch</span>.<span class="ident">append</span>(
-            <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">label</span>))
-                .<span class="ident">with_bg</span>()
-                .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)
-                .<span class="ident">scale</span>(<span class="number">0.1</span>)
-                .<span class="ident">centered_on</span>(<span class="ident">center</span>),
-        );
-    }
-    <span class="ident">batch</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>)
-}
-
-<span class="kw">fn</span> <span class="ident">preview_all_intersections</span>(<span class="ident">model</span>: <span class="kw-2">&amp;</span><span class="ident">Model</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Drawable</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;preview all intersections&quot;</span>);
-    <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;preview&quot;</span>, <span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">intersections</span>.<span class="ident">len</span>());
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">intersections</span>.<span class="ident">keys</span>() {
-        <span class="ident">timer</span>.<span class="ident">next</span>();
-        <span class="kw">if</span> <span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">roads_per_intersection</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">is_empty</span>() {
-            <span class="kw">continue</span>;
-        }
-        <span class="kw">let</span> (<span class="ident">intersection</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">preview_intersection</span>(<span class="kw-2">*</span><span class="ident">i</span>);
-        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">ORANGE</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">intersection</span>);
-    }
-    <span class="ident">batch</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>)
 }
 
 <span class="kw">fn</span> <span class="ident">main</span>() {
