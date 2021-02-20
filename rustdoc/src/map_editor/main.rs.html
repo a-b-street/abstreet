@@ -538,7 +538,7 @@
         <span class="ident">args</span>.<span class="ident">done</span>();
 
         <span class="kw">let</span> <span class="ident">model</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">load</span> {
-            <span class="ident">Model</span>::<span class="ident">import</span>(<span class="ident">path</span>, <span class="ident">include_bldgs</span>, <span class="ident">ctx</span>)
+            <span class="ident">Model</span>::<span class="ident">import</span>(<span class="ident">ctx</span>, <span class="ident">path</span>, <span class="ident">include_bldgs</span>)
         } <span class="kw">else</span> {
             <span class="ident">Model</span>::<span class="ident">blank</span>()
         };
@@ -634,7 +634,7 @@
                             <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">stop_showing_pts</span>(<span class="ident">id</span>);
                         }
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>) <span class="op">=</span> <span class="ident">after</span> {
-                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">show_r_points</span>(<span class="ident">r</span>, <span class="ident">ctx</span>);
+                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">show_r_points</span>(<span class="ident">ctx</span>, <span class="ident">r</span>);
                             <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
                         }
                     }
@@ -704,13 +704,13 @@
                             <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">delete_r</span>(<span class="ident">r</span>);
                             <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
                         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">cursor</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">P</span>) {
-                            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">insert_r_pt</span>(<span class="ident">r</span>, <span class="ident">cursor</span>.<span class="ident">unwrap</span>(), <span class="ident">ctx</span>) {
+                            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">insert_r_pt</span>(<span class="ident">ctx</span>, <span class="ident">r</span>, <span class="ident">cursor</span>.<span class="ident">unwrap</span>()) {
                                 <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">force_set_selection</span>(<span class="ident">id</span>);
                             }
                         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">X</span>) {
-                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">clear_r_pts</span>(<span class="ident">r</span>, <span class="ident">ctx</span>);
+                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">clear_r_pts</span>(<span class="ident">ctx</span>, <span class="ident">r</span>);
                         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">M</span>) {
-                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">merge_r</span>(<span class="ident">r</span>, <span class="ident">ctx</span>);
+                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">merge_r</span>(<span class="ident">ctx</span>, <span class="ident">r</span>);
                             <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
                         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
                             <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">edit</span>::<span class="ident">EditRoad</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">r</span>));
@@ -748,7 +748,7 @@
                         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">LeftControl</span>) {
                             <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode</span>::<span class="ident">MovingRoadPoint</span>(<span class="ident">r</span>, <span class="ident">idx</span>);
                         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">Backspace</span>) {
-                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">delete_r_pt</span>(<span class="ident">r</span>, <span class="ident">idx</span>, <span class="ident">ctx</span>);
+                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">delete_r_pt</span>(<span class="ident">ctx</span>, <span class="ident">r</span>, <span class="ident">idx</span>);
                             <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
                         }
 
@@ -789,7 +789,7 @@
                             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
                                 <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">I</span>) {
                                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">cursor</span> {
-                                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">create_i</span>(<span class="ident">pt</span>, <span class="ident">ctx</span>);
+                                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">create_i</span>(<span class="ident">ctx</span>, <span class="ident">pt</span>);
                                         <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
                                     }
                                 <span class="comment">// TODO Silly bug: Mouseover doesn&#39;t actually work! I think the</span>
@@ -797,7 +797,7 @@
                                 <span class="comment">// up the precomputed triangles.</span>
                                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">B</span>) {
                                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">cursor</span> {
-                                        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">create_b</span>(<span class="ident">pt</span>, <span class="ident">ctx</span>);
+                                        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">create_b</span>(<span class="ident">ctx</span>, <span class="ident">pt</span>);
                                         <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">force_set_selection</span>(<span class="ident">id</span>);
                                     }
                                 }
@@ -822,7 +822,7 @@
             }
             <span class="ident">Mode</span>::<span class="ident">MovingIntersection</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">cursor</span> {
-                    <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">move_i</span>(<span class="ident">id</span>, <span class="ident">pt</span>, <span class="ident">ctx</span>);
+                    <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">move_i</span>(<span class="ident">ctx</span>, <span class="ident">id</span>, <span class="ident">pt</span>);
                     <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">key_released</span>(<span class="ident">Key</span>::<span class="ident">LeftControl</span>) {
                         <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode</span>::<span class="ident">Viewing</span>;
                     }
@@ -830,7 +830,7 @@
             }
             <span class="ident">Mode</span>::<span class="ident">MovingBuilding</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">cursor</span> {
-                    <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">move_b</span>(<span class="ident">id</span>, <span class="ident">pt</span>, <span class="ident">ctx</span>);
+                    <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">move_b</span>(<span class="ident">ctx</span>, <span class="ident">id</span>, <span class="ident">pt</span>);
                     <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">key_released</span>(<span class="ident">Key</span>::<span class="ident">LeftControl</span>) {
                         <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode</span>::<span class="ident">Viewing</span>;
                     }
@@ -838,7 +838,7 @@
             }
             <span class="ident">Mode</span>::<span class="ident">MovingRoadPoint</span>(<span class="ident">r</span>, <span class="ident">idx</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">cursor</span> {
-                    <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">move_r_pt</span>(<span class="ident">r</span>, <span class="ident">idx</span>, <span class="ident">pt</span>, <span class="ident">ctx</span>);
+                    <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">move_r_pt</span>(<span class="ident">ctx</span>, <span class="ident">r</span>, <span class="ident">idx</span>, <span class="ident">pt</span>);
                     <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">key_released</span>(<span class="ident">Key</span>::<span class="ident">LeftControl</span>) {
                         <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode</span>::<span class="ident">Viewing</span>;
                     }
@@ -850,7 +850,7 @@
                     <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i2</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">get_selection</span>() {
                     <span class="kw">if</span> <span class="ident">i1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">i2</span> <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">R</span>) {
-                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">create_r</span>(<span class="ident">i1</span>, <span class="ident">i2</span>, <span class="ident">ctx</span>);
+                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">create_r</span>(<span class="ident">ctx</span>, <span class="ident">i1</span>, <span class="ident">i2</span>);
                         <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode</span>::<span class="ident">Viewing</span>;
                         <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
                     }
