@@ -12,6 +12,7 @@ wasm = ["widgetry/wasm-backend"]
 aabb-quadtree = "0.1.0"
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
+convert_osm = { path = "../convert_osm" }
 geom = { path = "../geom" }
 log = "0.4.14"
 map_gui = { path = "../map_gui", features=["native"] }

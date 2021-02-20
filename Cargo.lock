@@ -2109,6 +2109,7 @@ dependencies = [
  "aabb-quadtree",
  "abstio",
  "abstutil",
+ "convert_osm",
  "geom",
  "log",
  "map_gui",

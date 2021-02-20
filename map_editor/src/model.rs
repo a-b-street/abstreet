@@ -52,8 +52,35 @@ impl Model {
         let mut timer = Timer::new("import map");
         let mut model = Model::blank();
         model.include_bldgs = include_bldgs;
-        model.map = abstio::read_binary(path, &mut timer);
         model.intersection_geom = intersection_geom;
+
+        model.map = if path.ends_with(".osm") {
+            convert_osm::convert(
+                convert_osm::Options {
+                    name: MapName::new("zz", "oneshot", &abstutil::basename(&path)),
+                    osm_input: path,
+                    clip: None,
+                    map_config: map_model::MapConfig {
+                        driving_side: map_model::DrivingSide::Right,
+                        bikes_can_use_bus_lanes: true,
+                        inferred_sidewalks: true,
+                        separate_cycleways: false,
+                        street_parking_spot_length: Distance::meters(8.0),
+                    },
+                    onstreet_parking: convert_osm::OnstreetParking::JustOSM,
+                    public_offstreet_parking: convert_osm::PublicOffstreetParking::None,
+                    private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(
+                        0,
+                    ),
+                    elevation: None,
+                    include_railroads: true,
+                    extra_buildings: None,
+                },
+                &mut timer,
+            )
+        } else {
+            abstio::read_binary(path, &mut timer)
+        };
 
         if model.include_bldgs {
             for id in model.map.buildings.keys().cloned().collect::<Vec<_>>() {
