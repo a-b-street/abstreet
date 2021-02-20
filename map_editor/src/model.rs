@@ -189,6 +189,19 @@ impl Model {
         self.map.delete_intersection(id);
         self.world.delete(ID::Intersection(id));
     }
+
+    pub fn toggle_i(&mut self, ctx: &EventCtx, id: osm::NodeID) {
+        self.world.delete(ID::Intersection(id));
+
+        let i = self.map.intersections.get_mut(&id).unwrap();
+        if i.intersection_type == IntersectionType::TrafficSignal {
+            i.intersection_type = IntersectionType::StopSign;
+        } else if i.intersection_type == IntersectionType::StopSign {
+            i.intersection_type = IntersectionType::TrafficSignal;
+        }
+
+        self.intersection_added(id, ctx);
+    }
 }
 
 // Roads

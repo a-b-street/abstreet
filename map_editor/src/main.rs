@@ -177,6 +177,8 @@ impl State<App> for MainState {
                         } else if !app.model.intersection_geom && ctx.input.pressed(Key::P) {
                             let draw = preview_intersection(i, &app.model, ctx);
                             self.mode = Mode::PreviewIntersection(draw);
+                        } else if ctx.input.pressed(Key::T) {
+                            app.model.toggle_i(ctx, i);
                         }
 
                         let mut txt = Text::new();
@@ -199,6 +201,11 @@ impl State<App> for MainState {
                             Line("- Press "),
                             Key::P.txt(ctx),
                             Line(" to preview geometry"),
+                        ]);
+                        txt.add_appended(vec![
+                            Line("- Press "),
+                            Key::T.txt(ctx),
+                            Line(" to toggle stop sign / traffic signal"),
                         ]);
                         let instructions = txt.draw(ctx);
                         self.panel.replace(ctx, "instructions", instructions);

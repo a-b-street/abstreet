@@ -1,18 +1,29 @@
+use geom::{ArrowCap, Distance};
 use map_model::raw::OriginalRoad;
 use widgetry::{
-    Choice, DrawBaselayer, EventCtx, HorizontalAlignment, Key, Line, Panel, SimpleState, Spinner,
-    State, StyledButtons, Text, TextExt, Transition, VerticalAlignment, Widget,
+    Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Panel, SimpleState, Spinner, State, StyledButtons, Text, TextExt, Transition,
+    VerticalAlignment, Widget,
 };
 
 use crate::App;
 
 pub struct EditRoad {
     r: OriginalRoad,
+    show_direction: Drawable,
 }
 
 impl EditRoad {
     pub(crate) fn new(ctx: &mut EventCtx, app: &App, r: OriginalRoad) -> Box<dyn State<App>> {
         let road = &app.model.map.roads[&r];
+
+        let mut batch = GeomBatch::new();
+        if let Some(pl) = app.model.map.trimmed_road_geometry(r) {
+            batch.push(
+                Color::BLACK,
+                pl.make_arrow(Distance::meters(1.0), ArrowCap::Triangle),
+            );
+        }
 
         let mut txt = Text::new();
         for (k, v) in road.osm_tags.inner() {
@@ -105,7 +116,13 @@ impl EditRoad {
         let panel = Panel::new(Widget::col(col))
             .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
             .build(ctx);
-        SimpleState::new(panel, Box::new(EditRoad { r }))
+        SimpleState::new(
+            panel,
+            Box::new(EditRoad {
+                r,
+                show_direction: ctx.upload(batch),
+            }),
+        )
     }
 }
 
@@ -171,6 +188,10 @@ impl SimpleState<App> for EditRoad {
     fn other_event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition<App> {
         ctx.canvas_movement();
         Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
+        g.redraw(&self.show_direction);
     }
 
     fn draw_baselayer(&self) -> DrawBaselayer {
