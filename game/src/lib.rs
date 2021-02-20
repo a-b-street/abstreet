@@ -12,6 +12,7 @@ use sim::{Sim, SimFlags};
 use widgetry::{EventCtx, State, Transition};
 
 use crate::app::{App, Flags};
+use crate::common::jump_to_time_upon_startup;
 use crate::pregame::TitleScreen;
 use crate::sandbox::{GameplayMode, SandboxMode};
 
@@ -271,20 +272,15 @@ fn finish_app_setup(
         crate::sandbox::gameplay::Tutorial::initialize(ctx, app);
     }
 
-    let start_daytime = Box::new(|ctx: &mut EventCtx, app: &mut App| {
-        ctx.loading_screen("start in the daytime", |_, mut timer| {
-            app.primary
-                .sim
-                .timed_step(&app.primary.map, Duration::hours(6), &mut None, &mut timer);
-        });
-        vec![Transition::Keep]
-    });
-
     let states: Vec<Box<dyn State<App>>> = if title {
         vec![Box::new(TitleScreen::new(ctx, app))]
     } else if let Some(mode) = maybe_mode {
         if let GameplayMode::Actdev(_, _) = mode {
-            vec![SandboxMode::async_new(app, mode, start_daytime)]
+            vec![SandboxMode::async_new(
+                app,
+                mode,
+                jump_to_time_upon_startup(Duration::hours(8)),
+            )]
         } else {
             vec![SandboxMode::simple_new(app, mode)]
         }
@@ -294,7 +290,7 @@ fn finish_app_setup(
         vec![SandboxMode::async_new(
             app,
             GameplayMode::Freeform(app.primary.map.get_name().clone()),
-            start_daytime,
+            jump_to_time_upon_startup(Duration::hours(6)),
         )]
     };
     if let Some(ss) = savestate {

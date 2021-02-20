@@ -1,3 +1,4 @@
+use geom::Duration;
 use map_gui::tools::{grey_out_map, nice_map_name, open_browser, PopupMsg};
 use sim::{PersonID, TripID};
 use widgetry::{
@@ -6,6 +7,7 @@ use widgetry::{
 };
 
 use crate::app::{App, Transition};
+use crate::common::jump_to_time_upon_startup;
 use crate::edit::EditMode;
 use crate::info::{OpenTrip, Tab};
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
@@ -43,13 +45,13 @@ impl GameplayState for Actdev {
                     } else {
                         "base"
                     };
-                    // TODO Start in the daytime
-                    return Some(Transition::Replace(SandboxMode::simple_new(
+                    return Some(Transition::Replace(SandboxMode::async_new(
                         app,
                         GameplayMode::Actdev(
                             app.primary.map.get_name().clone(),
                             Some(scenario.to_string()),
                         ),
+                        jump_to_time_upon_startup(Duration::hours(8)),
                     )));
                 }
                 "edit map" => Some(Transition::Push(EditMode::new(

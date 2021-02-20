@@ -15,7 +15,7 @@ use widgetry::{
 };
 
 use crate::app::{App, Transition};
-use crate::common::{update_url_free_param, CommonState};
+use crate::common::{jump_to_time_upon_startup, update_url_free_param, CommonState};
 use crate::edit::EditMode;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{Actions, SandboxControls, SandboxMode};
@@ -63,17 +63,7 @@ impl GameplayState for Freeform {
                             SandboxMode::async_new(
                                 app,
                                 GameplayMode::Freeform(app.primary.map.get_name().clone()),
-                                Box::new(|ctx, app| {
-                                    ctx.loading_screen("start in the daytime", |_, mut timer| {
-                                        app.primary.sim.timed_step(
-                                            &app.primary.map,
-                                            Duration::hours(6),
-                                            &mut None,
-                                            &mut timer,
-                                        );
-                                    });
-                                    vec![Transition::Keep]
-                                }),
+                                jump_to_time_upon_startup(Duration::hours(6)),
                             )
                         } else {
                             SandboxMode::simple_new(
