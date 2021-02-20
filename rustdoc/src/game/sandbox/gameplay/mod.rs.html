@@ -416,7 +416,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::{<span class="ident">Actions</span>, <span class="ident">SandboxControls</span>, <span class="ident">SandboxMode</span>};
 
 <span class="comment">// TODO pub so challenges can grab cutscenes and SandboxMode can dispatch to actions. Weird?</span>
-<span class="kw">mod</span> <span class="ident">blog</span>;
+<span class="kw">mod</span> <span class="ident">actdev</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">commute</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">fix_traffic_signals</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">freeform</span>;
@@ -432,7 +432,7 @@
     <span class="ident">FixTrafficSignals</span>,
     <span class="ident">OptimizeCommute</span>(<span class="ident">OrigPersonID</span>, <span class="ident">Duration</span>),
     <span class="comment">// Map name, scenario name</span>
-    <span class="ident">Blog</span>(<span class="ident">MapName</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>),
+    <span class="ident">Actdev</span>(<span class="ident">MapName</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>),
 
     <span class="comment">// current</span>
     <span class="ident">Tutorial</span>(<span class="ident">TutorialPointer</span>),
@@ -497,7 +497,7 @@
             <span class="ident">GameplayMode</span>::<span class="ident">FixTrafficSignals</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;downtown&quot;</span>),
             <span class="ident">GameplayMode</span>::<span class="ident">OptimizeCommute</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;montlake&quot;</span>),
             <span class="ident">GameplayMode</span>::<span class="ident">Tutorial</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;montlake&quot;</span>),
-            <span class="ident">GameplayMode</span>::<span class="ident">Blog</span>(<span class="kw-2">ref</span> <span class="ident">name</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">name</span>.<span class="ident">clone</span>(),
+            <span class="ident">GameplayMode</span>::<span class="ident">Actdev</span>(<span class="kw-2">ref</span> <span class="ident">name</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">name</span>.<span class="ident">clone</span>(),
         }
     }
 
@@ -518,7 +518,7 @@
                     <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">LoadScenario</span>::<span class="ident">Nothing</span>,
                 };
             }
-            <span class="ident">GameplayMode</span>::<span class="ident">Blog</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">maybe_scenario</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">GameplayMode</span>::<span class="ident">Actdev</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">maybe_scenario</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="ident">maybe_scenario</span> {
                     <span class="ident">s</span>.<span class="ident">to_string</span>()
                 } <span class="kw">else</span> {
@@ -621,8 +621,8 @@
                 <span class="ident">commute</span>::<span class="ident">OptimizeCommute</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">*</span><span class="ident">p</span>, <span class="kw-2">*</span><span class="ident">goal</span>)
             }
             <span class="ident">GameplayMode</span>::<span class="ident">Tutorial</span>(<span class="ident">current</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Tutorial</span>::<span class="ident">make_gameplay</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">*</span><span class="ident">current</span>),
-            <span class="ident">GameplayMode</span>::<span class="ident">Blog</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">maybe_scenario</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">blog</span>::<span class="ident">Blog</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">maybe_scenario</span>.<span class="ident">clone</span>())
+            <span class="ident">GameplayMode</span>::<span class="ident">Actdev</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">maybe_scenario</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">actdev</span>::<span class="ident">Actdev</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">maybe_scenario</span>.<span class="ident">clone</span>())
             }
         }
     }
