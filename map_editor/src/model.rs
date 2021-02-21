@@ -281,6 +281,9 @@ impl Model {
         osm_tags.insert(osm::NAME, "Streety McStreetFace");
         osm_tags.insert(osm::MAXSPEED, "25 mph");
 
+        self.world.delete(ID::Intersection(i1));
+        self.world.delete(ID::Intersection(i2));
+
         self.map.roads.insert(
             id,
             RawRoad {
@@ -294,12 +297,20 @@ impl Model {
             },
         );
         self.road_added(ctx, id);
+
+        self.intersection_added(ctx, i1);
+        self.intersection_added(ctx, i2);
     }
 
-    pub fn delete_r(&mut self, id: OriginalRoad) {
+    pub fn delete_r(&mut self, ctx: &EventCtx, id: OriginalRoad) {
         self.stop_showing_pts(id);
         self.road_deleted(id);
+        self.world.delete(ID::Intersection(id.i1));
+        self.world.delete(ID::Intersection(id.i2));
         self.map.roads.remove(&id).unwrap();
+
+        self.intersection_added(ctx, id.i1);
+        self.intersection_added(ctx, id.i2);
     }
 
     fn road_object(&self, id: OriginalRoad) -> Object<ID> {

@@ -227,7 +227,7 @@ impl State<App> for MainState {
                     }
                     Some(ID::Road(r)) => {
                         if ctx.input.pressed(Key::Backspace) {
-                            app.model.delete_r(r);
+                            app.model.delete_r(ctx, r);
                             app.model.world.handle_mouseover(ctx);
                         } else if cursor.is_some() && ctx.input.pressed(Key::P) {
                             if let Some(id) = app.model.insert_r_pt(ctx, r, cursor.unwrap()) {
