@@ -15,8 +15,7 @@ pub struct Assets {
     pub default_line_height: RefCell<f64>,
     text_cache: RefCell<LruCache<String, GeomBatch>>,
     line_height_cache: RefCell<HashMap<(Font, usize), f64>>,
-    // Keyed by filename, then scale factor mangled into a hashable form. Tuple doesn't work
-    // because of borrowing.
+    // Keyed by filename
     svg_cache: RefCell<HashMap<String, (GeomBatch, Bounds)>>,
     font_to_id: HashMap<Font, fontdb::ID>,
     pub text_opts: Options,

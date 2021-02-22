@@ -1,4 +1,4 @@
-use std::cell::{Cell, RefCell};
+use std::cell::Cell;
 use std::panic;
 
 use image::{GenericImageView, Pixel};
@@ -159,6 +159,7 @@ pub struct Settings {
     window_title: String,
     dump_raw_events: bool,
     scale_factor: Option<f64>,
+    require_minimum_width: Option<f64>,
     window_icon: Option<String>,
     loading_tips: Option<Text>,
     read_svg: Box<dyn Fn(&str) -> Vec<u8>>,
@@ -171,6 +172,7 @@ impl Settings {
             window_title: window_title.to_string(),
             dump_raw_events: false,
             scale_factor: None,
+            require_minimum_width: None,
             window_icon: None,
             loading_tips: None,
             read_svg: Box::new(|path| {
@@ -195,6 +197,17 @@ impl Settings {
     /// Override the initial HiDPI scale factor from whatever winit initially detects.
     pub fn scale_factor(mut self, scale_factor: f64) -> Self {
         self.scale_factor = Some(scale_factor);
+        self
+    }
+
+    /// If the screen width using the monitor's detected scale factor is below this value (in units
+    /// of logical pixels, not physical), then force the scale factor to be 1. If `scale_factor()`
+    /// has been called, always use that override. This is helpful for users with HiDPI displays at
+    /// low resolutions, for applications designed for screens with some minimum width. Scaling
+    /// down UI elements isn't ideal (since it doesn't respect the user's device settings), but
+    /// having panels overlap is worse.
+    pub fn require_minimum_width(mut self, width: f64) -> Self {
+        self.require_minimum_width = Some(width);
         self
     }
 
@@ -246,12 +259,24 @@ pub fn run<
     }
 
     let monitor_scale_factor = prerender_innards.monitor_scale_factor();
-    let prerender = Prerender {
+    let mut prerender = Prerender {
         assets: Assets::new(settings.read_svg),
         num_uploads: Cell::new(0),
         inner: prerender_innards,
-        scale_factor: RefCell::new(settings.scale_factor.unwrap_or(monitor_scale_factor)),
+        scale_factor: settings.scale_factor.unwrap_or(monitor_scale_factor),
     };
+    if let Some(min_width) = settings.require_minimum_width {
+        let initial_size = prerender.window_size();
+        if initial_size.width < min_width && settings.scale_factor.is_none() {
+            warn!(
+                "Monitor scale factor is {}, screen window is {}, but the application requires \
+                 {}. Overriding the scale factor to 1.",
+                monitor_scale_factor, initial_size.width, min_width
+            );
+            prerender.scale_factor = 1.0;
+        }
+    }
+
     let mut style = Style::standard();
     style.loading_tips = settings.loading_tips.unwrap_or_else(Text::new);
 
