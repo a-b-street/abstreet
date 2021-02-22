@@ -64,7 +64,7 @@
               "to": {
                 "osm_way_id": 428005310,
                 "osm_node1": 53212741,
-                "osm_node2": 4271620155,
+                "osm_node2": 5440360050,
                 "is_forwards": true
               },
               "intersection_osm_node_id": 53212741,
@@ -82,7 +82,7 @@
               "to": {
                 "osm_way_id": 428005310,
                 "osm_node1": 53212741,
-                "osm_node2": 4271620155,
+                "osm_node2": 5440360050,
                 "is_forwards": true
               },
               "intersection_osm_node_id": 53212741,
@@ -115,7 +115,7 @@
               "from": {
                 "osm_way_id": 428005310,
                 "osm_node1": 53212741,
-                "osm_node2": 4271620155,
+                "osm_node2": 5440360050,
                 "is_forwards": false
               },
               "to": {
@@ -131,7 +131,7 @@
               "from": {
                 "osm_way_id": 428005310,
                 "osm_node1": 53212741,
-                "osm_node2": 4271620155,
+                "osm_node2": 5440360050,
                 "is_forwards": false
               },
               "to": {
@@ -147,7 +147,7 @@
               "from": {
                 "osm_way_id": 428005310,
                 "osm_node1": 53212741,
-                "osm_node2": 4271620155,
+                "osm_node2": 5440360050,
                 "is_forwards": false
               },
               "to": {
@@ -220,13 +220,13 @@
               "from": {
                 "osm_way_id": 428005310,
                 "osm_node1": 53212741,
-                "osm_node2": 4271620155,
+                "osm_node2": 5440360050,
                 "is_forwards": false
               },
               "to": {
                 "osm_way_id": 428005310,
                 "osm_node1": 53212741,
-                "osm_node2": 4271620155,
+                "osm_node2": 5440360050,
                 "is_forwards": true
               },
               "intersection_osm_node_id": 53212741,
@@ -236,13 +236,13 @@
               "from": {
                 "osm_way_id": 428005310,
                 "osm_node1": 53212741,
-                "osm_node2": 4271620155,
+                "osm_node2": 5440360050,
                 "is_forwards": true
               },
               "to": {
                 "osm_way_id": 428005310,
                 "osm_node1": 53212741,
-                "osm_node2": 4271620155,
+                "osm_node2": 5440360050,
                 "is_forwards": false
               },
               "intersection_osm_node_id": 53212741,

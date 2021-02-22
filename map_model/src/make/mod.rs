@@ -37,7 +37,9 @@ impl Map {
         // Better to defer this and see RawMaps with more debug info in map_editor
         remove_disconnected::remove_disconnected_roads(&mut raw, timer);
 
+        timer.start("merging short roads");
         let merged_intersections = merge_intersections::merge_short_roads(&mut raw);
+        timer.stop("merging short roads");
 
         timer.start("raw_map to InitialMap");
         let gps_bounds = raw.gps_bounds.clone();
@@ -110,7 +112,7 @@ impl Map {
                     .turn_restrictions
                     .iter()
                     .filter_map(|(rt, to)| {
-                        // Missing roads are filtered (like service roads) or clipped out
+                        // Missing roads are filtered (like some service roads) or clipped out
                         road_id_mapping.get(to).map(|to| (*rt, *to))
                     })
                     .collect(),

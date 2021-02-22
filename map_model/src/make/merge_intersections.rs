@@ -17,7 +17,7 @@ pub fn merge_short_roads(map: &mut RawMap) -> BTreeSet<NodeID> {
 
         // TODO Remove after improving this heuristic.
         if connects_dual_carriageway(map, r) {
-            info!("{} connects dual carriageways", r);
+            debug!("{} connects dual carriageways", r);
         }
     }
 

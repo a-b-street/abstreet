@@ -4,7 +4,7 @@ use osm::{NodeID, OsmID, RelationID, WayID};
 
 use abstio::MapName;
 use abstutil::{retain_btreemap, Tags, Timer};
-use geom::{HashablePt2D, Polygon, Pt2D, Ring};
+use geom::{Distance, FindClosest, HashablePt2D, Polygon, Pt2D, Ring};
 use kml::{ExtraShape, ExtraShapes};
 use map_model::raw::{RawArea, RawBuilding, RawMap, RawParkingLot, RawRoad, RestrictionType};
 use map_model::{osm, Amenity, AreaType, Direction, DrivingSide, NamePerLanguage};
@@ -83,7 +83,6 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
 
     // and cycleways
     let mut extra_footways = ExtraShapes { shapes: Vec::new() };
-    let mut extra_service_roads = ExtraShapes { shapes: Vec::new() };
 
     let mut coastline_groups: Vec<(WayID, Vec<Pt2D>)> = Vec::new();
     let mut memorial_areas: Vec<Polygon> = Vec::new();
@@ -115,11 +114,6 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
         } else if way.tags.is(osm::HIGHWAY, "service") {
             // If we got here, is_road didn't interpret it as a normal road
             map.parking_aisles.push((id, way.pts.clone()));
-
-            extra_service_roads.shapes.push(ExtraShape {
-                points: map.gps_bounds.convert_back(&way.pts),
-                attributes: way.tags.inner().clone(),
-            });
         } else if way
             .tags
             .is_any(osm::HIGHWAY, vec!["cycleway", "footway", "path"])
@@ -171,15 +165,11 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
         }
     }
 
-    // Since we're not actively working on using footways and service roads, stop generating except
-    // in Seattle. In the future, this should only happen for the largest or canonical map per
-    // city, but there's no way to express that right now.
+    // Since we're not actively working on using footways, stop generating except in Seattle. In
+    // the future, this should only happen for the largest or canonical map per city, but there's
+    // no way to express that right now.
     if map.name == MapName::seattle("huge_seattle") {
         abstio::write_binary(map.name.city.input_path("footways.bin"), &extra_footways);
-        abstio::write_binary(
-            map.name.city.input_path("service_roads.bin"),
-            &extra_service_roads,
-        );
     }
 
     let boundary = map.boundary_polygon.clone().into_ring();
@@ -384,6 +374,10 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
         _ => 0,
     });
 
+    timer.start("find service roads crossing parking lots");
+    find_parking_aisles(map, &mut out.roads);
+    timer.stop("find service roads crossing parking lots");
+
     out
 }
 
@@ -463,13 +457,10 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
         return false;
     }
 
-    // Service roads can represent lots of things, most of which we don't want to keep yet. What's
-    // allowed here is just based on what's been encountered so far in Seattle and Kraków.
-    if highway == "service" {
-        let for_buses = tags.is_any("psv", vec!["bus", "yes"]) || tags.is("bus", "yes");
-        if !for_buses && !tags.is("service", "alley") {
-            return false;
-        }
+    // Import most service roads. Always ignore driveways, and always reserve parking_aisles for
+    // parking lots.
+    if highway == "service" && tags.is_any("service", vec!["driveway", "parking_aisle"]) {
+        return false;
     }
 
     // Not sure what this means, found in Seoul.
@@ -590,4 +581,61 @@ fn get_area_type(tags: &Tags) -> Option<AreaType> {
     }
 
     None
+}
+
+// Look for any service roads that collide with parking lots, and treat them as parking aisles
+// instead.
+fn find_parking_aisles(map: &mut RawMap, roads: &mut Vec<(WayID, RawRoad)>) {
+    let mut closest: FindClosest<usize> = FindClosest::new(&map.gps_bounds.to_bounds());
+    for (idx, lot) in map.parking_lots.iter().enumerate() {
+        closest.add(idx, lot.polygon.points());
+    }
+    let mut keep_roads = Vec::new();
+    let mut parking_aisles = Vec::new();
+    for (id, road) in roads.drain(..) {
+        if !road.osm_tags.is(osm::HIGHWAY, "service") {
+            keep_roads.push((id, road));
+            continue;
+        }
+        // TODO This code is repeated later in make/parking_lots.rs, but oh well.
+
+        // Use the center of all the aisle points to match it to lots
+        let candidates: Vec<usize> = closest
+            .all_close_pts(Pt2D::center(&road.center_points), Distance::meters(500.0))
+            .into_iter()
+            .map(|(idx, _, _)| idx)
+            .collect();
+        if service_road_crosses_parking_lot(map, &road, candidates) {
+            parking_aisles.push((id, road.center_points.clone()));
+        } else {
+            keep_roads.push((id, road));
+        }
+    }
+    roads.extend(keep_roads);
+    for (id, pts) in parking_aisles {
+        map.parking_aisles.push((id, pts));
+    }
+}
+
+fn service_road_crosses_parking_lot(map: &RawMap, road: &RawRoad, candidates: Vec<usize>) -> bool {
+    match Ring::split_points(&road.center_points) {
+        Ok((polylines, rings)) => {
+            for pl in polylines {
+                for idx in &candidates {
+                    if map.parking_lots[*idx].polygon.clip_polyline(&pl).is_some() {
+                        return true;
+                    }
+                }
+            }
+            for ring in rings {
+                for idx in &candidates {
+                    if map.parking_lots[*idx].polygon.clip_ring(&ring).is_some() {
+                        return true;
+                    }
+                }
+            }
+        }
+        Err(_) => {}
+    }
+    false
 }
