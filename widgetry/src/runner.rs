@@ -200,11 +200,12 @@ impl Settings {
         self
     }
 
-    /// If the screen width using the monitor's detected scale factor is below this value, then
-    /// force the scale factor to be 1. If `scale_factor()` has been called, always use that
-    /// override. This is helpful for users with HiDPI displays at low resolutions, for applications
-    /// designed for screens with some minimum width. Scaling down UI elements isn't ideal (since it
-    /// doesn't respect the user's device settings), but having panels overlap is worse.
+    /// If the screen width using the monitor's detected scale factor is below this value (in units
+    /// of logical pixels, not physical), then force the scale factor to be 1. If `scale_factor()`
+    /// has been called, always use that override. This is helpful for users with HiDPI displays at
+    /// low resolutions, for applications designed for screens with some minimum width. Scaling
+    /// down UI elements isn't ideal (since it doesn't respect the user's device settings), but
+    /// having panels overlap is worse.
     pub fn require_minimum_width(mut self, width: f64) -> Self {
         self.require_minimum_width = Some(width);
         self
