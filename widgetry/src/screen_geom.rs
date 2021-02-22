@@ -139,10 +139,6 @@ impl ScreenDims {
             }
         }
     }
-
-    pub fn scaled(&self, factor: f64) -> ScreenDims {
-        ScreenDims::new(self.width * factor, self.height * factor)
-    }
 }
 
 impl From<winit::dpi::LogicalSize<f64>> for ScreenDims {

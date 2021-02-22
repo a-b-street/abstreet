@@ -44,7 +44,9 @@ pub fn main() {
     let mut settings = widgetry::Settings::new("A/B Street")
         .read_svg(Box::new(abstio::slurp_bytes))
         .window_icon(abstio::path("system/assets/pregame/icon.png"))
-        .loading_tips(map_gui::tools::loading_tips());
+        .loading_tips(map_gui::tools::loading_tips())
+        // This is approximately how much the 3 top panels in sandbox mode require.
+        .require_minimum_width(1500.0);
     if args.enabled("--dump_raw_events") {
         settings = settings.dump_raw_events();
     }
