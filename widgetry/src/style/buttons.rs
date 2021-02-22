@@ -1,6 +1,6 @@
 use geom::CornerRadii;
 
-use super::ButtonStyle;
+use super::ButtonTheme;
 use crate::{
     include_labeled_bytes, ButtonBuilder, ControlState, EventCtx, Key, ScreenDims, Style, Widget,
 };
@@ -238,7 +238,7 @@ impl<'a> StyledButtons<'a> for Style {
 }
 
 impl<'a> Style {
-    pub fn btn_plain(&self, button_style: &ButtonStyle) -> ButtonBuilder<'a> {
+    pub fn btn_plain(&self, button_style: &ButtonTheme) -> ButtonBuilder<'a> {
         ButtonBuilder::new()
             .label_color(button_style.fg, ControlState::Default)
             .label_color(button_style.fg_disabled, ControlState::Disabled)
@@ -249,7 +249,7 @@ impl<'a> Style {
             .bg_color(button_style.bg_disabled, ControlState::Disabled)
     }
 
-    pub fn btn_solid(&self, button_style: &ButtonStyle) -> ButtonBuilder<'a> {
+    pub fn btn_solid(&self, button_style: &ButtonTheme) -> ButtonBuilder<'a> {
         self.btn_plain(button_style).outline(
             self.outline_thickness,
             button_style.outline,
@@ -257,7 +257,7 @@ impl<'a> Style {
         )
     }
 
-    pub fn btn_outline(&self, button_style: &ButtonStyle) -> ButtonBuilder<'a> {
+    pub fn btn_outline(&self, button_style: &ButtonTheme) -> ButtonBuilder<'a> {
         self.btn_plain(button_style).outline(
             self.outline_thickness,
             button_style.outline,

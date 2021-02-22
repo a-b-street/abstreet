@@ -9,16 +9,16 @@ pub struct Style {
     pub panel_bg: Color,
     pub hotkey_color: Color,
     pub loading_tips: Text,
-    pub btn_solid_dark: ButtonStyle,
-    pub btn_outline_dark: ButtonStyle,
-    pub btn_solid_light: ButtonStyle,
-    pub btn_outline_light: ButtonStyle,
-    pub btn_solid_destructive: ButtonStyle,
-    pub btn_outline_destructive: ButtonStyle,
+    pub btn_solid_dark: ButtonTheme,
+    pub btn_outline_dark: ButtonTheme,
+    pub btn_solid_light: ButtonTheme,
+    pub btn_outline_light: ButtonTheme,
+    pub btn_solid_destructive: ButtonTheme,
+    pub btn_outline_destructive: ButtonTheme,
 }
 
 #[derive(Clone)]
-pub struct ButtonStyle {
+pub struct ButtonTheme {
     pub fg: Color,
     pub fg_disabled: Color,
     pub outline: Color,
@@ -37,7 +37,7 @@ impl Style {
             loading_tips: Text::new(),
 
             // Buttons
-            btn_solid_dark: ButtonStyle {
+            btn_solid_dark: ButtonTheme {
                 fg: hex("#4C4C4C"),
                 fg_disabled: hex("#4C4C4C").alpha(0.3),
                 bg: Color::WHITE.alpha(0.8),
@@ -45,7 +45,7 @@ impl Style {
                 bg_disabled: Color::grey(0.6),
                 outline: Color::WHITE.alpha(0.6),
             },
-            btn_outline_dark: ButtonStyle {
+            btn_outline_dark: ButtonTheme {
                 fg: hex("#4C4C4C"),
                 fg_disabled: hex("#4C4C4C").alpha(0.3),
                 bg: Color::CLEAR,
@@ -53,7 +53,7 @@ impl Style {
                 bg_disabled: Color::grey(0.8),
                 outline: hex("#4C4C4C"),
             },
-            btn_solid_light: ButtonStyle {
+            btn_solid_light: ButtonTheme {
                 fg: hex("#F2F2F2"),
                 fg_disabled: hex("#F2F2F2").alpha(0.3),
                 bg: hex("#003046").alpha(0.8),
@@ -61,7 +61,7 @@ impl Style {
                 bg_disabled: Color::grey(0.1),
                 outline: hex("#003046").alpha(0.6),
             },
-            btn_outline_light: ButtonStyle {
+            btn_outline_light: ButtonTheme {
                 fg: hex("#F2F2F2"),
                 fg_disabled: hex("#F2F2F2").alpha(0.3),
                 bg: Color::CLEAR,
@@ -69,7 +69,7 @@ impl Style {
                 bg_disabled: Color::grey(0.5),
                 outline: hex("#F2F2F2"),
             },
-            btn_solid_destructive: ButtonStyle {
+            btn_solid_destructive: ButtonTheme {
                 fg: hex("#F2F2F2"),
                 fg_disabled: hex("#F2F2F2").alpha(0.3),
                 bg: hex("#FF5E5E").alpha(0.8),
@@ -77,7 +77,7 @@ impl Style {
                 bg_disabled: Color::grey(0.1),
                 outline: hex("#FF5E5E").alpha(0.6),
             },
-            btn_outline_destructive: ButtonStyle {
+            btn_outline_destructive: ButtonTheme {
                 fg: hex("#FF5E5E"),
                 fg_disabled: hex("#FF5E5E").alpha(0.3),
                 bg: Color::CLEAR,
