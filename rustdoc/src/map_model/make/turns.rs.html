@@ -409,6 +409,14 @@
 <span id="406">406</span>
 <span id="407">407</span>
 <span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -637,6 +645,14 @@
                     } <span class="kw">else</span> {
                         <span class="ident">turn_type</span> <span class="op">=</span> <span class="ident">TurnType</span>::<span class="ident">Left</span>;
                     }
+                }
+
+                <span class="comment">// Some service roads wind up very short. Allowing u-turns there causes vehicles to</span>
+                <span class="comment">// gridlock pretty much instantly, because they occupy two intersections during the</span>
+                <span class="comment">// attempted movement.</span>
+                <span class="kw">if</span> <span class="ident">is_deadend</span> <span class="op">&amp;&amp;</span> <span class="ident">src</span>.<span class="ident">length</span>() <span class="op">&lt;</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">7.0</span>) {
+                    <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Skipping U-turn at tiny deadend on {}&quot;</span>, <span class="ident">src</span>.<span class="ident">id</span>);
+                    <span class="kw">continue</span>;
                 }
             }
             <span class="kw">let</span> <span class="ident">geom</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TurnType</span>::<span class="ident">Straight</span> {
