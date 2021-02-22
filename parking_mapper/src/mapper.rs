@@ -178,7 +178,7 @@ impl ParkingMapper {
                 ]),
                 Checkbox::checkbox(ctx, "max 3 days parking (default in Seattle)", None, false),
                 ctx.style()
-                    .btn_outline_light_text("Generate OsmChange file")
+                    .btn_outline_text("Generate OsmChange file")
                     .build_def(ctx),
                 "Select a road".draw_text(ctx).named("info"),
             ]))

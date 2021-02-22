@@ -33,7 +33,7 @@ impl PolygonEditor {
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 ctx.style()
-                    .btn_outline_light_text("export as an Osmosis polygon filter")
+                    .btn_outline_text("export as an Osmosis polygon filter")
                     .hotkey(Key::X)
                     .build_def(ctx),
             ]))

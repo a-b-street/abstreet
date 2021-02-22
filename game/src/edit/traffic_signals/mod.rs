@@ -494,20 +494,20 @@ impl State<App> for TrafficSignalEditor {
 fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool) -> Panel {
     let row = vec![
         ctx.style()
-            .btn_solid_dark_text("Finish")
+            .btn_solid_text("Finish")
             .hotkey(Key::Enter)
             .build_def(ctx),
         ctx.style()
-            .btn_solid_dark_text("Preview")
+            .btn_solid_text("Preview")
             .hotkey(lctrl(Key::P))
             .build_def(ctx),
         ctx.style()
-            .btn_plain_light_icon("system/assets/tools/undo.svg")
+            .btn_plain_icon("system/assets/tools/undo.svg")
             .disabled(!can_undo)
             .hotkey(lctrl(Key::Z))
             .build_widget(ctx, "undo"),
         ctx.style()
-            .btn_plain_light_icon("system/assets/tools/redo.svg")
+            .btn_plain_icon("system/assets/tools/redo.svg")
             .disabled(!can_redo)
             // TODO ctrl+shift+Z!
             .hotkey(lctrl(Key::Y))
@@ -522,7 +522,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
         Widget::row(vec![
             Line("Traffic signal editor").small_heading().draw(ctx),
             ctx.style()
-                .btn_plain_light_text("+ Edit multiple")
+                .btn_plain_text("+ Edit multiple")
                 .label_color(Color::hex("#4CA7E9"), ControlState::Default)
                 .hotkey(Key::M)
                 .build_widget(ctx, "Edit multiple signals"),
@@ -530,7 +530,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
         Widget::row(row),
         if app.opts.dev {
             ctx.style()
-                .btn_outline_light_text("Export")
+                .btn_outline_text("Export")
                 .tooltip(Text::from_multiline(vec![
                     Line("This will create a JSON file in traffic_signal_data/.").small(),
                     Line(
@@ -603,14 +603,14 @@ fn make_side_panel(
     if members.len() == 1 {
         col.push(
             ctx.style()
-                .btn_solid_dark_text("Edit entire signal")
+                .btn_solid_text("Edit entire signal")
                 .hotkey(Key::E)
                 .build_def(ctx),
         );
     } else {
         col.push(
             ctx.style()
-                .btn_solid_dark_text("Tune offsets between signals")
+                .btn_solid_text("Tune offsets between signals")
                 .hotkey(Key::O)
                 .build_def(ctx),
         );
@@ -628,14 +628,14 @@ fn make_side_panel(
 
         let up_button = ctx
             .style()
-            .btn_solid_light_icon_bytes(include_labeled_bytes!(
+            .btn_solid_icon_bytes(include_labeled_bytes!(
                 "../../../../widgetry/icons/arrow_up.svg"
             ))
             .disabled(idx == 0);
 
         let down_button = ctx
             .style()
-            .btn_solid_light_icon_bytes(include_labeled_bytes!(
+            .btn_solid_icon_bytes(include_labeled_bytes!(
                 "../../../../widgetry/icons/arrow_down.svg"
             ))
             .disabled(idx == canonical_signal.stages.len() - 1);
@@ -661,9 +661,8 @@ fn make_side_panel(
                     .draw_text(ctx)
                     .centered_vert(),
                     {
-                        let mut button = ctx
-                            .style()
-                            .btn_plain_light_icon("system/assets/tools/pencil.svg");
+                        let mut button =
+                            ctx.style().btn_plain_icon("system/assets/tools/pencil.svg");
                         if selected == idx {
                             button = button.hotkey(Key::X);
                         }
@@ -694,7 +693,7 @@ fn make_side_panel(
 
     col.push(
         ctx.style()
-            .btn_solid_dark_text("Add a new stage")
+            .btn_solid_text("Add a new stage")
             .build_def(ctx)
             .centered_horiz(),
     );

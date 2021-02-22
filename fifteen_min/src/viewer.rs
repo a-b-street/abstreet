@@ -313,7 +313,7 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
     for (amenity, buildings) in isochrone.amenities_reachable.borrow() {
         rows.push(
             ctx.style()
-                .btn_outline_light_text(&format!("{}: {}", amenity, buildings.len()))
+                .btn_outline_text(&format!("{}: {}", amenity, buildings.len()))
                 .build_widget(ctx, &format!("businesses: {}", amenity)),
         );
     }
@@ -324,13 +324,13 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
     rows.push(options_to_controls(ctx, &isochrone.options));
     rows.push(
         ctx.style()
-            .btn_solid_dark_text("Find your perfect home")
+            .btn_solid_text("Find your perfect home")
             .build_def(ctx),
     );
     rows.push(Widget::row(vec![
-        ctx.style().btn_plain_light_text("About").build_def(ctx),
+        ctx.style().btn_plain_text("About").build_def(ctx),
         ctx.style()
-            .btn_plain_light_icon("system/assets/tools/search.svg")
+            .btn_plain_icon("system/assets/tools/search.svg")
             .hotkey(lctrl(Key::F))
             .build_widget(ctx, "search"),
     ]));

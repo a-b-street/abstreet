@@ -77,9 +77,7 @@ impl GameplayState for Actdev {
                         .draw(ctx),
                         "This is a simplified version. Check out the full version below."
                             .draw_text(ctx),
-                        ctx.style()
-                            .btn_outline_light_text("abstreet.org")
-                            .build_def(ctx),
+                        ctx.style().btn_outline_text("abstreet.org").build_def(ctx),
                     ]))
                     .build(ctx);
                     Some(Transition::Push(SimpleState::new(panel, Box::new(About))))
@@ -121,7 +119,7 @@ impl GameplayState for Actdev {
         let col = Widget::col(vec![
             Widget::row(vec![
                 ctx.style()
-                    .btn_plain_light()
+                    .btn_plain()
                     .image_path("system/assets/pregame/logo.svg")
                     .image_dims(50.0)
                     .build_widget(ctx, "about A/B Street")
@@ -152,17 +150,17 @@ impl GameplayState for Actdev {
                     .disabled(self.scenario_name.is_none())
                     .build_widget(ctx, "change scenario"),
                 ctx.style()
-                    .btn_outline_light_icon_text("system/assets/tools/pencil.svg", "Edit map")
+                    .btn_outline_icon_text("system/assets/tools/pencil.svg", "Edit map")
                     .hotkey(lctrl(Key::E))
                     .build_widget(ctx, "edit map"),
             ])
             .centered(),
             Widget::row(vec![
                 ctx.style()
-                    .btn_plain_light_icon_text("system/assets/tools/location.svg", "Follow someone")
+                    .btn_plain_icon_text("system/assets/tools/location.svg", "Follow someone")
                     .build_widget(ctx, "follow someone"),
                 ctx.style()
-                    .btn_plain_light_icon_text("system/assets/meters/bike.svg", "Bike network")
+                    .btn_plain_icon_text("system/assets/meters/bike.svg", "Bike network")
                     .build_widget(ctx, "bike network"),
             ]),
         ]);

@@ -27,7 +27,7 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
         let label = format!("{} ({})", r.full_name, r.id);
         rows.push(
             ctx.style()
-                .btn_outline_light_text(&format!("Route {}", r.short_name))
+                .btn_outline_text(&format!("Route {}", r.short_name))
                 .build_widget(ctx, &label),
         );
         details.hyperlinks.insert(label, Tab::BusRoute(r.id));
@@ -107,7 +107,7 @@ pub fn bus_status(ctx: &mut EventCtx, app: &App, details: &mut Details, id: CarI
 
     rows.push(
         ctx.style()
-            .btn_outline_light_text(&format!("Serves route {}", route.short_name))
+            .btn_outline_text(&format!("Serves route {}", route.short_name))
             .build_def(ctx),
     );
     details.hyperlinks.insert(
@@ -184,7 +184,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
     if app.opts.dev {
         rows.push(
             ctx.style()
-                .btn_solid_dark_text("Open OSM relation")
+                .btn_solid_text("Open OSM relation")
                 .build_widget(ctx, &format!("open {}", route.osm_rel_id)),
         );
     }
@@ -197,7 +197,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
         for (bus, _, _, pt) in buses {
             rows.push(
                 ctx.style()
-                    .btn_outline_light_text(&bus.to_string())
+                    .btn_outline_text(&bus.to_string())
                     .build_def(ctx),
             );
             details
@@ -253,7 +253,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
         let name = format!("Starts at {}", i.name(app.opts.language.as_ref(), map));
         rows.push(Widget::row(vec![
             ctx.style()
-                .btn_plain_light_icon("system/assets/timeline/goal_pos.svg")
+                .btn_plain_icon("system/assets/timeline/goal_pos.svg")
                 .build_widget(ctx, &name),
             name.clone().draw_text(ctx),
         ]));
@@ -264,7 +264,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
         let name = format!("Stop {}: {}", idx + 1, bs.name);
         rows.push(Widget::row(vec![
             ctx.style()
-                .btn_plain_light_icon("system/assets/tools/pin.svg")
+                .btn_plain_icon("system/assets/tools/pin.svg")
                 .build_widget(ctx, &name),
             Text::from_all(vec![
                 Line(&bs.name),
@@ -285,7 +285,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
         let name = format!("Ends at {}", i.name(app.opts.language.as_ref(), map));
         rows.push(Widget::row(vec![
             ctx.style()
-                .btn_plain_light_icon("system/assets/timeline/goal_pos.svg")
+                .btn_plain_icon("system/assets/timeline/goal_pos.svg")
                 .build_widget(ctx, &name),
             name.clone().draw_text(ctx),
         ]));
@@ -296,7 +296,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
     {
         rows.push(
             ctx.style()
-                .btn_outline_light_text("Edit schedule")
+                .btn_outline_text("Edit schedule")
                 .hotkey(Key::E)
                 .build_widget(ctx, &format!("edit {}", route.id)),
         );

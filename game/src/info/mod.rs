@@ -375,7 +375,7 @@ impl InfoPanel {
                     cached_actions.push(key);
                     let button = ctx
                         .style()
-                        .btn_solid_dark_text(&label)
+                        .btn_solid_text(&label)
                         .hotkey(key)
                         .build_widget(ctx, &label);
                     col.push(button);
@@ -682,7 +682,7 @@ fn throughput<F: Fn(&Analytics) -> Vec<(AgentType, Vec<(Time, usize)>)>>(
         LinePlot::new(ctx, series, plot_opts),
     ])
     .padding(10)
-    .bg(app.cs.inner_panel)
+    .bg(app.cs.inner_panel_bg)
     .outline(2.0, Color::WHITE)
 }
 
@@ -696,22 +696,22 @@ fn make_tabs(
     for (name, link) in tabs {
         row.push(
             ctx.style()
-                .btn_solid_dark_text(name)
+                .btn_solid_text(name)
                 // We use "disabled" to denote "currently selected", but we want to style it like
                 // normal
                 .disabled(current_tab.variant() == link.variant())
-                .bg_color(ctx.style().btn_solid_dark.bg, ControlState::Disabled)
-                .label_color(ctx.style().btn_solid_dark.fg, ControlState::Disabled)
+                .bg_color(ctx.style().btn_solid_panel.bg, ControlState::Disabled)
+                .label_color(ctx.style().btn_solid_panel.fg, ControlState::Disabled)
                 .outline(
                     2.0,
-                    ctx.style().btn_solid_dark.bg_hover,
+                    ctx.style().btn_solid_panel.bg_hover,
                     ControlState::Disabled,
                 )
                 // Hide the hit area for selectable tabs unless hovered
                 .bg_color(Color::CLEAR, ControlState::Default)
                 .outline(0.0, Color::CLEAR, ControlState::Default)
                 .bg_color(
-                    ctx.style().btn_solid_dark.bg.alpha(0.6),
+                    ctx.style().btn_solid_panel.bg.alpha(0.6),
                     ControlState::Hovered,
                 )
                 .build_def(ctx),
@@ -726,7 +726,7 @@ fn make_tabs(
 fn header_btns(ctx: &EventCtx) -> Widget {
     Widget::row(vec![
         ctx.style()
-            .btn_plain_light_icon("system/assets/tools/location.svg")
+            .btn_plain_icon("system/assets/tools/location.svg")
             .hotkey(Key::J)
             .build_widget(ctx, "jump to object"),
         ctx.style().btn_close_widget(ctx),

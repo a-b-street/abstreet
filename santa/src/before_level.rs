@@ -308,7 +308,7 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
     if app.session.upzones_unlocked == 0 {
         return Panel::new(
             ctx.style()
-                .btn_solid_dark_text("Start game")
+                .btn_solid_text("Start game")
                 .hotkey(Key::Enter)
                 .build_def(ctx)
                 .container(),
@@ -324,7 +324,7 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
         Widget::row(vec![
             Line("Upzoning").small_heading().draw(ctx),
             ctx.style()
-                .btn_plain_light_icon("system/assets/tools/info.svg")
+                .btn_plain_icon("system/assets/tools/info.svg")
                 .build_widget(ctx, "help")
                 .align_right(),
         ]),
@@ -340,23 +340,23 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
         ]),
         Widget::row(vec![
             ctx.style()
-                .btn_outline_light_text("Randomly choose upzones")
+                .btn_outline_text("Randomly choose upzones")
                 .disabled(num_picked == app.session.upzones_unlocked)
                 .build_def(ctx),
             ctx.style()
-                .btn_outline_light_text("Clear upzones")
+                .btn_outline_text("Clear upzones")
                 .disabled(num_picked == 0)
                 .build_def(ctx)
                 .align_right(),
         ]),
         if num_picked == app.session.upzones_unlocked {
             ctx.style()
-                .btn_solid_dark_text("Start game")
+                .btn_solid_text("Start game")
                 .hotkey(Key::Enter)
                 .build_def(ctx)
         } else {
             ctx.style()
-                .btn_solid_dark_text("Finish upzoning before playing")
+                .btn_solid_text("Finish upzoning before playing")
                 .disabled(true)
                 .build_def(ctx)
         },

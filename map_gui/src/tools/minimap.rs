@@ -101,7 +101,7 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
         let zoom_col = {
             let mut col = vec![ctx
                 .style()
-                .btn_plain_light_icon("system/assets/speed/speed_up.svg")
+                .btn_plain_icon("system/assets/speed/speed_up.svg")
                 .build_widget(ctx, "zoom in")
                 .centered_horiz()
                 .margin_below(20)];
@@ -118,7 +118,7 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
 
                 let level_btn = ctx
                     .style()
-                    .btn_plain_light()
+                    .btn_plain()
                     .custom_batch(default_batch, ControlState::Default)
                     .custom_batch(hover_batch, ControlState::Hovered)
                     .padding(10);
@@ -132,7 +132,7 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
             }
             col.push(
                 ctx.style()
-                    .btn_plain_light_icon("system/assets/speed/slow_down.svg")
+                    .btn_plain_icon("system/assets/speed/slow_down.svg")
                     .build_widget(ctx, "zoom out")
                     .centered_horiz(),
             );
@@ -141,7 +141,9 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
             // pan up arrow. Also, double column to avoid the background color
             // stretching to the bottom of the row.
             Widget::custom_col(vec![
-                Widget::custom_col(col).padding(10).bg(app.cs().inner_panel),
+                Widget::custom_col(col)
+                    .padding(10)
+                    .bg(app.cs().inner_panel_bg),
                 if self.controls.has_zorder(app) {
                     Widget::col(vec![
                         Line("Z-order:").small().draw(ctx),
@@ -157,7 +159,7 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
         };
 
         let minimap_controls = {
-            let buttons = ctx.style().btn_plain_light().padding(4);
+            let buttons = ctx.style().btn_plain().padding(4);
             Widget::col(vec![
                 buttons
                     .clone()

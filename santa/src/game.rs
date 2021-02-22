@@ -74,7 +74,7 @@ impl Game {
 
         let pause_panel = Panel::new(
             ctx.style()
-                .btn_plain_light_icon_text("system/assets/speed/pause.svg", "Pause")
+                .btn_plain_icon_text("system/assets/speed/pause.svg", "Pause")
                 .hotkey(Key::Escape)
                 .build_widget(ctx, "pause")
                 .container(),

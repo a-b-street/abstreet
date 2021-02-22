@@ -31,7 +31,7 @@ impl RouteExplorer {
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 ctx.style()
-                    .btn_solid_dark_text("All routes")
+                    .btn_solid_text("All routes")
                     .hotkey(Key::A)
                     .build_def(ctx),
                 params_to_controls(ctx, TripMode::Bike, &RoutingParams::default()).named("params"),
@@ -177,15 +177,15 @@ impl State<App> for RouteExplorer {
 fn params_to_controls(ctx: &mut EventCtx, mode: TripMode, params: &RoutingParams) -> Widget {
     let mut rows = vec![Widget::custom_row(vec![
         ctx.style()
-            .btn_plain_light_icon("system/assets/meters/bike.svg")
+            .btn_plain_icon("system/assets/meters/bike.svg")
             .disabled(mode == TripMode::Bike)
             .build_widget(ctx, "bikes"),
         ctx.style()
-            .btn_plain_light_icon("system/assets/meters/car.svg")
+            .btn_plain_icon("system/assets/meters/car.svg")
             .disabled(mode == TripMode::Drive)
             .build_widget(ctx, "cars"),
         ctx.style()
-            .btn_plain_light_icon("system/assets/meters/pedestrian.svg")
+            .btn_plain_icon("system/assets/meters/pedestrian.svg")
             .disabled(mode == TripMode::Walk)
             .build_widget(ctx, "pedestrians"),
     ])
@@ -274,7 +274,7 @@ impl AllRoutesExplorer {
                 format!("{} total requests", prettyprint_usize(requests.len())).draw_text(ctx),
                 params_to_controls(ctx, TripMode::Bike, &RoutingParams::default()).named("params"),
                 ctx.style()
-                    .btn_solid_dark_text("Calculate differential demand")
+                    .btn_solid_text("Calculate differential demand")
                     .build_def(ctx),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)

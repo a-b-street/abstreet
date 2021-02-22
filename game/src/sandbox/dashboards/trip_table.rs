@@ -587,11 +587,11 @@ fn trip_category_selector(ctx: &mut EventCtx, app: &App, tab: DashTab) -> Widget
     let total = finished + cancelled + unfinished;
 
     let btn = |dash, action, label| {
-        let mut button = ctx.style().btn_solid_dark_text(label);
+        let mut button = ctx.style().btn_solid_text(label);
         if dash == tab {
             button = button
                 .disabled(true)
-                .bg_color(ctx.style().btn_solid_light.bg, ControlState::Disabled)
+                .bg_color(ctx.style().btn_solid_floating.bg, ControlState::Disabled)
                 .label_styled_text(Text::from(Line(label).underlined()), ControlState::Default)
         }
         button.build_widget(ctx, action)

@@ -95,7 +95,7 @@ impl ChangeDuration {
                 .secondary()
                 .draw(ctx),
             ctx.style()
-                .btn_solid_dark_text("Apply")
+                .btn_solid_text("Apply")
                 .hotkey(Key::Enter)
                 .build_def(ctx),
         ]))

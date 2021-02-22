@@ -35,19 +35,19 @@ impl UberTurnPicker {
                 ctx.style().btn_close_widget(ctx),
             ]),
             ctx.style()
-                .btn_outline_light_text("View uber-turns")
+                .btn_outline_text("View uber-turns")
                 .hotkey(Key::Enter)
                 .build_def(ctx),
             ctx.style()
-                .btn_outline_light_text("Edit")
+                .btn_outline_text("Edit")
                 .hotkey(Key::E)
                 .build_def(ctx),
             ctx.style()
-                .btn_outline_light_text("Detect all clusters")
+                .btn_outline_text("Detect all clusters")
                 .hotkey(Key::D)
                 .build_def(ctx),
             ctx.style()
-                .btn_outline_light_text("Preview merged intersection")
+                .btn_outline_text("Preview merged intersection")
                 .hotkey(Key::P)
                 .build_def(ctx),
         ]))

@@ -156,7 +156,7 @@ fn make_btn(ctx: &mut EventCtx, num: usize) -> Widget {
         _ => format!("Record {} intersections", num),
     };
     ctx.style()
-        .btn_solid_dark_text(&title)
+        .btn_solid_text(&title)
         .disabled(num == 0)
         .hotkey(Key::Enter)
         .build_widget(ctx, "record")

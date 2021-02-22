@@ -21,7 +21,7 @@ impl<T: 'static + PartialEq + Clone + std::fmt::Debug> PersistentSplit<T> {
         hotkey: MK,
         choices: Vec<Choice<T>>,
     ) -> Widget {
-        let outline_style = &ctx.style().btn_outline_light;
+        let outline_style = &ctx.style().btn_outline;
         let outline = outline_style.outline;
         Widget::new(Box::new(PersistentSplit::new(
             ctx,
@@ -49,7 +49,7 @@ impl<T: 'static + PartialEq + Clone + std::fmt::Debug> PersistentSplit<T> {
         }
         let btn = btn.build(ctx, label);
 
-        let outline_style = &ctx.style().btn_outline_light;
+        let outline_style = &ctx.style().btn_outline;
         let outline = outline_style.outline;
 
         PersistentSplit {
@@ -69,7 +69,7 @@ impl<T: 'static + PartialEq + Clone + std::fmt::Debug> PersistentSplit<T> {
 }
 
 fn button_builder<'a>(ctx: &EventCtx) -> ButtonBuilder<'a> {
-    let outline_style = &ctx.style().btn_outline_light;
+    let outline_style = &ctx.style().btn_outline;
     ctx.style()
         .btn_outline(outline_style)
         .outline(0.0, Color::CLEAR, ControlState::Default)

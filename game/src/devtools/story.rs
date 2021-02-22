@@ -313,11 +313,11 @@ fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) ->
             Line("Story map editor").small_heading().draw(ctx),
             Widget::vert_separator(ctx, 30.0),
             ctx.style()
-                .btn_outline_light_popup(&story.name)
+                .btn_outline_popup(&story.name)
                 .hotkey(lctrl(Key::L))
                 .build_widget(ctx, "load"),
             ctx.style()
-                .btn_solid_light_icon("system/assets/tools/save.svg")
+                .btn_solid_icon("system/assets/tools/save.svg")
                 .hotkey(lctrl(Key::S))
                 .disabled(!dirty)
                 .build_widget(ctx, "save"),
@@ -325,17 +325,17 @@ fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) ->
         ]),
         Widget::row(vec![
             ctx.style()
-                .btn_plain_light_icon("system/assets/timeline/goal_pos.svg")
+                .btn_plain_icon("system/assets/timeline/goal_pos.svg")
                 .disabled(matches!(mode, Mode::PlacingMarker))
                 .hotkey(Key::M)
                 .build_widget(ctx, "new marker"),
             ctx.style()
-                .btn_plain_light_icon("system/assets/tools/pan.svg")
+                .btn_plain_icon("system/assets/tools/pan.svg")
                 .disabled(matches!(mode, Mode::View))
                 .hotkey(Key::Escape)
                 .build_widget(ctx, "pan"),
             ctx.style()
-                .btn_plain_light_icon("system/assets/tools/select.svg")
+                .btn_plain_icon("system/assets/tools/select.svg")
                 .disabled(matches!(mode, Mode::Freehand(_)))
                 .hotkey(Key::P)
                 .build_widget(ctx, "draw freehand"),
@@ -487,10 +487,10 @@ impl Marker {
                 Line("Editing marker").small_heading().draw(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
-            ctx.style().btn_outline_light_text("delete").build_def(ctx),
+            ctx.style().btn_outline_text("delete").build_def(ctx),
             Widget::text_entry(ctx, self.event.clone(), true).named("event"),
             ctx.style()
-                .btn_outline_light_text("confirm")
+                .btn_outline_text("confirm")
                 .hotkey(Key::Enter)
                 .build_def(ctx),
         ]))

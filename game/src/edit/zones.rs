@@ -64,11 +64,11 @@ impl ZoneEditor {
                 ]),
                 Widget::custom_row(vec![
                     ctx.style()
-                        .btn_outline_light_text("Apply")
+                        .btn_outline_text("Apply")
                         .hotkey(Key::Enter)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_outline_light_text("Cancel")
+                        .btn_outline_text("Cancel")
                         .hotkey(Key::Escape)
                         .build_def(ctx),
                 ])

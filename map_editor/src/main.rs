@@ -111,11 +111,9 @@ impl MainState {
                     Widget::col(vec![
                         Checkbox::switch(ctx, "intersection geometry", Key::G, false),
                         ctx.style()
-                            .btn_outline_light_text("adjust boundary")
+                            .btn_outline_text("adjust boundary")
                             .build_def(ctx),
-                        ctx.style()
-                            .btn_solid_dark_text("export to OSM")
-                            .build_def(ctx),
+                        ctx.style().btn_solid_text("export to OSM").build_def(ctx),
                     ]),
                 ]))
                 .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)

@@ -27,7 +27,7 @@ impl Spinner {
     pub fn new(ctx: &EventCtx, (low, high): (isize, isize), mut current: isize) -> Widget {
         let button_builder = ctx
             .style()
-            .btn_plain_light()
+            .btn_plain()
             .padding(EdgeInsets {
                 top: 2.0,
                 bottom: 2.0,

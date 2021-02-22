@@ -134,17 +134,17 @@ impl GameplayState for Freeform {
                     .hotkey(Key::S)
                     .build_widget(ctx, "change scenario"),
                 ctx.style()
-                    .btn_outline_light_icon_text("system/assets/tools/pencil.svg", "Edit map")
+                    .btn_outline_icon_text("system/assets/tools/pencil.svg", "Edit map")
                     .hotkey(lctrl(Key::E))
                     .build_widget(ctx, "edit map"),
             ])
             .centered(),
             Widget::row(vec![
                 ctx.style()
-                    .btn_outline_light_text("Start a new trip")
+                    .btn_outline_text("Start a new trip")
                     .build_def(ctx),
                 ctx.style()
-                    .btn_outline_light_text("Record trips as a scenario")
+                    .btn_outline_text("Record trips as a scenario")
                     .build_def(ctx),
             ])
             .centered(),
@@ -224,7 +224,7 @@ impl ChangeScenario {
         for (name, label, description) in choices {
             let btn = ctx
                 .style()
-                .btn_solid_dark_text(&label)
+                .btn_solid_text(&label)
                 .disabled(name == current_scenario);
             col.push(
                 Widget::row(vec![
@@ -239,7 +239,7 @@ impl ChangeScenario {
         }
         col.push(
             ctx.style()
-                .btn_outline_light_text("Import your own data")
+                .btn_outline_text("Import your own data")
                 .build_def(ctx),
         );
 
@@ -321,7 +321,7 @@ impl AgentSpawner {
                     Spinner::new(ctx, (1, 1000), 1).named("number"),
                 ]),
                 ctx.style()
-                    .btn_outline_light_text("Confirm")
+                    .btn_outline_text("Confirm")
                     .disabled(true)
                     .build_def(ctx),
             ]))
@@ -407,7 +407,7 @@ impl State<App> for AgentSpawner {
                             ctx,
                             "Confirm",
                             ctx.style()
-                                .btn_outline_light_text("Confirm")
+                                .btn_outline_text("Confirm")
                                 .disabled(true)
                                 .build_def(ctx),
                         );
@@ -483,7 +483,7 @@ impl State<App> for AgentSpawner {
                         ctx,
                         "Confirm",
                         ctx.style()
-                            .btn_outline_light_text("Confirm")
+                            .btn_outline_text("Confirm")
                             .hotkey(Key::Enter)
                             .build_def(ctx),
                     );

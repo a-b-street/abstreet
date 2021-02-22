@@ -120,7 +120,7 @@ impl DebugWarp {
                 .draw(ctx),
                 Widget::text_entry(ctx, String::new(), true).named("input"),
                 ctx.style()
-                    .btn_outline_light_text("Go!")
+                    .btn_outline_text("Go!")
                     .hotkey(Key::Enter)
                     .build_def(ctx),
             ]))

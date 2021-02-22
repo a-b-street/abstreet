@@ -56,13 +56,13 @@ impl Viewer {
                 .build_widget(ctx, "change map"),
             Widget::row(vec![
                 ctx.style()
-                    .btn_plain_light_icon("system/assets/tools/settings.svg")
+                    .btn_plain_icon("system/assets/tools/settings.svg")
                     .build_widget(ctx, "settings"),
                 ctx.style()
-                    .btn_plain_light_icon("system/assets/tools/search.svg")
+                    .btn_plain_icon("system/assets/tools/search.svg")
                     .hotkey(lctrl(Key::F))
                     .build_widget(ctx, "search"),
-                ctx.style().btn_plain_light_text("About").build_def(ctx),
+                ctx.style().btn_plain_text("About").build_def(ctx),
             ]),
             Widget::horiz_separator(ctx, 0.3),
             self.calculate_tags(ctx, app),
@@ -71,7 +71,7 @@ impl Viewer {
                 biz_search_panel.unwrap_or_else(|| b.render(ctx).named("Search for businesses"))
             } else {
                 ctx.style()
-                    .btn_solid_dark_text("Search for businesses")
+                    .btn_solid_text("Search for businesses")
                     .hotkey(Key::Tab)
                     .build_def(ctx)
             },
@@ -95,20 +95,15 @@ impl Viewer {
                 col.push(
                     Widget::row(vec![
                         ctx.style()
-                            .btn_solid_dark_text(&format!(
-                                "Open OSM way {}",
-                                r.orig_id.osm_way_id.0
-                            ))
+                            .btn_solid_text(&format!("Open OSM way {}", r.orig_id.osm_way_id.0))
                             .build_widget(ctx, &format!("open {}", r.orig_id.osm_way_id)),
-                        ctx.style()
-                            .btn_solid_dark_text("Edit OSM way")
-                            .build_widget(
-                                ctx,
-                                &format!(
-                                    "open https://www.openstreetmap.org/edit?way={}",
-                                    r.orig_id.osm_way_id.0
-                                ),
+                        ctx.style().btn_solid_text("Edit OSM way").build_widget(
+                            ctx,
+                            &format!(
+                                "open https://www.openstreetmap.org/edit?way={}",
+                                r.orig_id.osm_way_id.0
                             ),
+                        ),
                     ])
                     .evenly_spaced(),
                 );
@@ -129,7 +124,7 @@ impl Viewer {
                         continue;
                     }
                     col.push(Widget::row(vec![
-                        ctx.style().btn_plain_light_text(k).build_widget(
+                        ctx.style().btn_plain_text(k).build_widget(
                             ctx,
                             &format!("open https://wiki.openstreetmap.org/wiki/Key:{}", k),
                         ),
@@ -141,7 +136,7 @@ impl Viewer {
                 let i = app.map.get_i(i);
                 col.push(
                     ctx.style()
-                        .btn_solid_dark_text(&format!("Open OSM node {}", i.orig_id.0))
+                        .btn_solid_text(&format!("Open OSM node {}", i.orig_id.0))
                         .build_widget(ctx, &format!("open {}", i.orig_id)),
                 );
             }
@@ -149,7 +144,7 @@ impl Viewer {
                 let b = app.map.get_b(b);
                 col.push(
                     ctx.style()
-                        .btn_solid_dark_text(&format!("Open OSM ID {}", b.orig_id.inner()))
+                        .btn_solid_text(&format!("Open OSM ID {}", b.orig_id.inner()))
                         .build_widget(ctx, &format!("open {}", b.orig_id)),
                 );
 
@@ -184,7 +179,7 @@ impl Viewer {
                             continue;
                         }
                         col.push(Widget::row(vec![
-                            ctx.style().btn_plain_light_text(k).build_widget(
+                            ctx.style().btn_plain_text(k).build_widget(
                                 ctx,
                                 &format!("open https://wiki.openstreetmap.org/wiki/Key:{}", k),
                             ),
@@ -197,7 +192,7 @@ impl Viewer {
                 let pl = app.map.get_pl(pl);
                 col.push(
                     ctx.style()
-                        .btn_solid_dark_text(&format!("Open OSM ID {}", pl.osm_id.inner()))
+                        .btn_solid_text(&format!("Open OSM ID {}", pl.osm_id.inner()))
                         .build_widget(ctx, &format!("open {}", pl.osm_id)),
                 );
 
@@ -441,7 +436,7 @@ impl BusinessSearch {
         let mut col = Vec::new();
         col.push(
             ctx.style()
-                .btn_solid_dark_text("Hide business search")
+                .btn_solid_text("Hide business search")
                 .hotkey(Key::Tab)
                 .build_def(ctx),
         );

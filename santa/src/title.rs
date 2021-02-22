@@ -48,7 +48,7 @@ impl TitleScreen {
                 .centered_horiz(),
                 Widget::custom_row(level_buttons).flex_wrap(ctx, Percent::int(80)),
                 Widget::row(vec![
-                    ctx.style().btn_solid_light_text("Credits").build_def(ctx),
+                    ctx.style().btn_solid_text("Credits").build_def(ctx),
                     "Created by Dustin Carlino, Yuwen Li, & Michael Kirk"
                         .draw_text(ctx)
                         .container()
@@ -173,7 +173,7 @@ impl Credits {
                 link(ctx, "Music from various sources", "https://github.com/a-b-street/abstreet/tree/master/data/system/assets/music/sources.md"),
                 link(ctx, "Fonts and icons by various sources", "https://a-b-street.github.io/docs/howto/#data-source-licensing"),
                 "Playtesting by Fridgehaus".draw_text(ctx),
-                ctx.style().btn_solid_dark_text("Back").hotkey(Key::Enter).build_def(ctx).centered_horiz(),
+                ctx.style().btn_solid_text("Back").hotkey(Key::Enter).build_def(ctx).centered_horiz(),
             ]))
             .build(ctx), Box::new(Credits))
     }
@@ -181,7 +181,7 @@ impl Credits {
 
 fn link(ctx: &mut EventCtx, label: &str, url: &str) -> Widget {
     ctx.style()
-        .btn_plain_light_text(label)
+        .btn_plain_text(label)
         .build_widget(ctx, &format!("open {}", url))
 }
 

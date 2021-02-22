@@ -58,8 +58,7 @@ pub struct ColorScheme {
 
     // UI
     pub panel_bg: Color,
-    pub section_bg: Color,
-    pub inner_panel: Color,
+    pub inner_panel_bg: Color,
     pub day_time_slider: Color,
     pub night_time_slider: Color,
     pub selected: Color,
@@ -185,8 +184,7 @@ impl ColorScheme {
 
             // UI
             panel_bg: gui_style.panel_bg,
-            section_bg: Color::grey(0.5),
-            inner_panel: gui_style.panel_bg.alpha(1.0),
+            inner_panel_bg: Color::grey(0.5),
             day_time_slider: hex("#F4DA22"),
             night_time_slider: hex("#12409D"),
             selected: Color::RED.alpha(0.7),
@@ -393,6 +391,12 @@ impl ColorScheme {
     // Shamelessly adapted from https://github.com/Uriopass/Egregoria
     fn night_mode() -> ColorScheme {
         let mut cs = ColorScheme::day_mode();
+
+        use widgetry::ButtonTheme;
+        cs.gui_style.btn_outline = ButtonTheme::btn_outline();
+        cs.gui_style.btn_solid = ButtonTheme::btn_solid_panel();
+        cs.inner_panel_bg = cs.gui_style.panel_bg.alpha(1.0);
+
         cs.void_background = hex("#200A24");
         cs.map_background = Color::BLACK.into();
         cs.grass = hex("#243A1F").into();
@@ -419,8 +423,7 @@ impl ColorScheme {
 
         cs.panel_bg = hex("#003046").alpha(0.9);
         cs.gui_style.panel_bg = cs.panel_bg;
-        cs.inner_panel = cs.panel_bg.alpha(1.0);
-        cs.section_bg = cs.inner_panel;
+        cs.inner_panel_bg = cs.panel_bg.alpha(1.0);
         cs.minimap_cursor_border = Color::WHITE;
         cs.minimap_cursor_bg = Some(Color::rgba(238, 112, 46, 0.2));
         cs.minimap_selected_zoom = hex("#EE702E");

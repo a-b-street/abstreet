@@ -253,9 +253,7 @@ impl GameplayState for FixTrafficSignals {
                         .fg(Color::RED)
                         .draw(ctx)
                         .centered_vert(),
-                    ctx.style()
-                        .btn_outline_light_text("try again")
-                        .build_def(ctx),
+                    ctx.style().btn_outline_text("try again").build_def(ctx),
                 ]),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
@@ -270,7 +268,7 @@ impl GameplayState for FixTrafficSignals {
                     ))
                     .draw(ctx),
                     ctx.style()
-                        .btn_plain_light_icon_text("system/assets/tools/lightbulb.svg", "Hint")
+                        .btn_plain_icon_text("system/assets/tools/lightbulb.svg", "Hint")
                         .build_widget(ctx, "hint")
                         .align_right(),
                 ]),
@@ -306,7 +304,7 @@ fn make_meter(ctx: &mut EventCtx, app: &App, worst: Option<(IntersectionID, Dura
                 ])
                 .draw(ctx),
                 ctx.style()
-                    .btn_plain_light_icon("system/assets/tools/location.svg")
+                    .btn_plain_icon("system/assets/tools/location.svg")
                     .build_widget(ctx, "go to slowest intersection")
                     .align_right(),
             ])
@@ -314,7 +312,7 @@ fn make_meter(ctx: &mut EventCtx, app: &App, worst: Option<(IntersectionID, Dura
             Widget::row(vec![
                 if app.primary.dirty_from_edits {
                     ctx.style()
-                        .btn_plain_light_icon("system/assets/tools/info.svg")
+                        .btn_plain_icon("system/assets/tools/info.svg")
                         .build_widget(ctx, "explain score")
                 } else {
                     Widget::nothing()
