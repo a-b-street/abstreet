@@ -745,7 +745,10 @@ impl Pedestrian {
                 PedState::WaitingToTurn(_, _) => Some(self.path.next_step().as_turn()),
                 _ => None,
             },
-            preparing_bike: matches!(self.state, PedState::StartingToBike(_, _, _) | PedState::FinishingBiking(_, _, _)),
+            preparing_bike: matches!(
+                self.state,
+                PedState::StartingToBike(_, _, _) | PedState::FinishingBiking(_, _, _)
+            ),
             waiting_for_bus: matches!(self.state, PedState::WaitingForBus(_, _)),
             on,
         }
