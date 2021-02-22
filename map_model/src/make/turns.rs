@@ -226,6 +226,14 @@ fn make_vehicle_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
                         turn_type = TurnType::Left;
                     }
                 }
+
+                // Some service roads wind up very short. Allowing u-turns there causes vehicles to
+                // gridlock pretty much instantly, because they occupy two intersections during the
+                // attempted movement.
+                if is_deadend && src.length() < Distance::meters(7.0) {
+                    warn!("Skipping U-turn at tiny deadend on {}", src.id);
+                    continue;
+                }
             }
             let geom = if turn_type == TurnType::Straight {
                 PolyLine::must_new(vec![src.last_pt(), dst.first_pt()])
