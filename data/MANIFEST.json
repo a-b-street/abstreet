@@ -1055,6 +1055,26 @@
       "uncompressed_size_bytes": 11368518,
       "compressed_size_bytes": 2676666
     },
+    "data/input/us/mt_vernon/osm/burlington.osm": {
+      "checksum": "3b49c047a0f63bbd5c1f89cdb23ce986",
+      "uncompressed_size_bytes": 4599137,
+      "compressed_size_bytes": 477209
+    },
+    "data/input/us/mt_vernon/osm/downtown.osm": {
+      "checksum": "0e1ea28236d5f0c7373577d5f5586903",
+      "uncompressed_size_bytes": 30652148,
+      "compressed_size_bytes": 2739793
+    },
+    "data/input/us/mt_vernon/raw_maps/burlington.bin": {
+      "checksum": "338172d988931289cf351777a6313dfd",
+      "uncompressed_size_bytes": 1400031,
+      "compressed_size_bytes": 287533
+    },
+    "data/input/us/mt_vernon/raw_maps/downtown.bin": {
+      "checksum": "0469ffd1bb9e58b16cfdbec59af31d09",
+      "uncompressed_size_bytes": 7972986,
+      "compressed_size_bytes": 1902396
+    },
     "data/input/us/nyc/osm/lower_manhattan.osm": {
       "checksum": "09bf8cdb40474741b58e74f4c486a69e",
       "uncompressed_size_bytes": 34156510,
@@ -2039,6 +2059,21 @@
       "checksum": "16a580c72a4ec0b7e61d11d771fb20ed",
       "uncompressed_size_bytes": 73112913,
       "compressed_size_bytes": 24380719
+    },
+    "data/system/us/mt_vernon/city.bin": {
+      "checksum": "173b2a66e9cdb9600e48e3c5f1506043",
+      "uncompressed_size_bytes": 197361,
+      "compressed_size_bytes": 109013
+    },
+    "data/system/us/mt_vernon/maps/burlington.bin": {
+      "checksum": "21e0192d0157fe2fc1e9a9bd204bafda",
+      "uncompressed_size_bytes": 12214817,
+      "compressed_size_bytes": 4181775
+    },
+    "data/system/us/mt_vernon/maps/downtown.bin": {
+      "checksum": "5a74a805be2b8d0aa00a9f049dc0a655",
+      "uncompressed_size_bytes": 28404305,
+      "compressed_size_bytes": 10073396
     },
     "data/system/us/nyc/city.bin": {
       "checksum": "9a9662b74848fdb334b154312e199ff0",
