@@ -384,6 +384,9 @@
 <span id="381">381</span>
 <span id="382">382</span>
 <span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Loading large resources (like maps, scenarios, and prebaked data) requires different strategies</span>
 <span class="doccomment">//! on native and web. Both cases are wrapped up as a State that runs a callback when done.</span>
@@ -651,6 +654,9 @@
         <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">split</span>(<span class="string">&quot;?&quot;</span>).<span class="ident">next</span>().<span class="ident">ok_or</span>(<span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;empty URL?&quot;</span>))<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">url</span>
             .<span class="ident">trim_end_matches</span>(<span class="string">&quot;index.html&quot;</span>)
+            <span class="comment">// TODO This is brittle; we should strip off the trailing filename no matter what it</span>
+            <span class="comment">// is.</span>
+            .<span class="ident">trim_end_matches</span>(<span class="string">&quot;prefetch.html&quot;</span>)
             .<span class="ident">trim_end_matches</span>(<span class="string">&quot;/&quot;</span>)
             .<span class="ident">to_string</span>())
     }
