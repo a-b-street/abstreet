@@ -264,6 +264,9 @@ mod wasm_loader {
         let url = url.split("?").next().ok_or(anyhow!("empty URL?"))?;
         Ok(url
             .trim_end_matches("index.html")
+            // TODO This is brittle; we should strip off the trailing filename no matter what it
+            // is.
+            .trim_end_matches("prefetch.html")
             .trim_end_matches("/")
             .to_string())
     }
