@@ -428,8 +428,6 @@
 <span id="425">425</span>
 <span id="426">426</span>
 <span id="427">427</span>
-<span id="428">428</span>
-<span id="429">429</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">PopupMsg</span>;
@@ -481,7 +479,7 @@
         <span class="ident">row</span>.<span class="ident">push</span>({
             <span class="kw">let</span> <span class="ident">button</span> <span class="op">=</span> <span class="ident">ctx</span>
                 .<span class="ident">style</span>()
-                .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/speed/triangle.svg&quot;</span>)
+                .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/speed/triangle.svg&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Space</span>);
 
             <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="kw">if</span> <span class="self">self</span>.<span class="ident">paused</span> {
@@ -510,7 +508,7 @@
 
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">triangle_btn</span> <span class="op">=</span> <span class="ident">ctx</span>
                         .<span class="ident">style</span>()
-                        .<span class="ident">btn_plain_light</span>()
+                        .<span class="ident">btn_plain</span>()
                         .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/speed/triangle.svg&quot;</span>)
                         .<span class="ident">image_dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="number">16.0</span>, <span class="number">26.0</span>))
                         .<span class="ident">tooltip</span>(<span class="ident">txt</span>)
@@ -529,10 +527,8 @@
                     }
 
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">setting</span> <span class="op">&lt;</span> <span class="ident">s</span> {
-                        <span class="ident">triangle_btn</span> <span class="op">=</span> <span class="ident">triangle_btn</span>.<span class="ident">image_color</span>(
-                            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline_light</span>.<span class="ident">fg_disabled</span>,
-                            <span class="ident">ControlState</span>::<span class="ident">Default</span>,
-                        )
+                        <span class="ident">triangle_btn</span> <span class="op">=</span> <span class="ident">triangle_btn</span>
+                            .<span class="ident">image_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">fg_disabled</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
                     }
 
                     <span class="ident">triangle_btn</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="ident">label</span>)
@@ -560,14 +556,14 @@
 
         <span class="ident">row</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/speed/jump_to_time.svg&quot;</span>)
+                .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/speed/jump_to_time.svg&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">B</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;jump to specific time&quot;</span>),
         );
 
         <span class="ident">row</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/speed/reset.svg&quot;</span>)
+                .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/speed/reset.svg&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">X</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;reset to midnight&quot;</span>),
         );

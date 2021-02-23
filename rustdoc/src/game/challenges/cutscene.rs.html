@@ -441,7 +441,7 @@
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
     <span class="kw">let</span> <span class="ident">prev</span> <span class="op">=</span> <span class="ident">ctx</span>
         .<span class="ident">style</span>()
-        .<span class="ident">btn_plain_dark_icon</span>(<span class="string">&quot;system/assets/tools/circled_prev.svg&quot;</span>)
+        .<span class="ident">btn_solid_icon</span>(<span class="string">&quot;system/assets/tools/circled_prev.svg&quot;</span>)
         .<span class="ident">image_dims</span>(<span class="number">45.0</span>)
         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">LeftArrow</span>)
         .<span class="ident">bg_color</span>(<span class="ident">Color</span>::<span class="ident">CLEAR</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
@@ -450,7 +450,7 @@
 
     <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="ident">ctx</span>
         .<span class="ident">style</span>()
-        .<span class="ident">btn_plain_dark_icon</span>(<span class="string">&quot;system/assets/tools/circled_next.svg&quot;</span>)
+        .<span class="ident">btn_solid_icon</span>(<span class="string">&quot;system/assets/tools/circled_next.svg&quot;</span>)
         .<span class="ident">image_dims</span>(<span class="number">45.0</span>)
         .<span class="ident">hotkey</span>(<span class="ident">hotkeys</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Key</span>::<span class="ident">RightArrow</span>, <span class="ident">Key</span>::<span class="ident">Space</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>]))
         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;next&quot;</span>);
@@ -459,7 +459,7 @@
         <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             (<span class="ident">make_task</span>)(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_dark_text</span>(<span class="string">&quot;Start&quot;</span>)
+                .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Start&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                 .<span class="ident">centered_horiz</span>()
@@ -518,7 +518,7 @@
             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">prev</span>.<span class="ident">margin_right</span>(<span class="number">40</span>), <span class="ident">next</span>]).<span class="ident">centered_horiz</span>(),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline_dark_text</span>(<span class="string">&quot;Skip cutscene&quot;</span>)
+                    .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Skip cutscene&quot;</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                     .<span class="ident">centered_horiz</span>(),
             ])
@@ -530,7 +530,7 @@
         <span class="comment">// TODO Can&#39;t get this to alignment to work</span>
         <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_light_back</span>(<span class="string">&quot;Home&quot;</span>)
+                .<span class="ident">btn_back</span>(<span class="string">&quot;Home&quot;</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;quit&quot;</span>)
                 .<span class="ident">margin_right</span>(<span class="number">100</span>),
             <span class="ident">Line</span>(<span class="ident">name</span>).<span class="ident">big_heading_styled</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
@@ -559,7 +559,7 @@
                 <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">contents</span>,
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_solid_dark_text</span>(<span class="string">&quot;Okay&quot;</span>)
+                        .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Okay&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">hotkeys</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Key</span>::<span class="ident">Escape</span>, <span class="ident">Key</span>::<span class="ident">Space</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>]))
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                         .<span class="ident">centered_horiz</span>()

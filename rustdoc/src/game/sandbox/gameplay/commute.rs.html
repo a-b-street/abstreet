@@ -582,7 +582,7 @@
                     .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
                     .<span class="ident">centered_vert</span>(),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain_light_icon_text</span>(<span class="string">&quot;system/assets/tools/lightbulb.svg&quot;</span>, <span class="string">&quot;Hint&quot;</span>)
+                    .<span class="ident">btn_plain_icon_text</span>(<span class="string">&quot;system/assets/tools/lightbulb.svg&quot;</span>, <span class="string">&quot;Hint&quot;</span>)
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;hint&quot;</span>)
                     .<span class="ident">align_right</span>(),
             ]),
@@ -626,7 +626,7 @@
         <span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.2</span>),
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;locate VIP&quot;</span>),
             <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/{} trips done&quot;</span>, <span class="ident">done</span>, <span class="ident">trips</span>).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
             <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>),

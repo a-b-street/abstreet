@@ -1278,11 +1278,11 @@
     <span class="kw">let</span> <span class="ident">total</span> <span class="op">=</span> <span class="ident">finished</span> <span class="op">+</span> <span class="ident">cancelled</span> <span class="op">+</span> <span class="ident">unfinished</span>;
 
     <span class="kw">let</span> <span class="ident">btn</span> <span class="op">=</span> <span class="op">|</span><span class="ident">dash</span>, <span class="ident">action</span>, <span class="ident">label</span><span class="op">|</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">button</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_dark_text</span>(<span class="ident">label</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">button</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_text</span>(<span class="ident">label</span>);
         <span class="kw">if</span> <span class="ident">dash</span> <span class="op">=</span><span class="op">=</span> <span class="ident">tab</span> {
             <span class="ident">button</span> <span class="op">=</span> <span class="ident">button</span>
                 .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
-                .<span class="ident">bg_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_light</span>.<span class="ident">bg</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
+                .<span class="ident">bg_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_floating</span>.<span class="ident">bg</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
                 .<span class="ident">label_styled_text</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">label</span>).<span class="ident">underlined</span>()), <span class="ident">ControlState</span>::<span class="ident">Default</span>)
         }
         <span class="ident">button</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="ident">action</span>)

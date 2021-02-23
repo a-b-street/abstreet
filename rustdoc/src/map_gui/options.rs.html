@@ -542,7 +542,7 @@
                             .<span class="ident">named</span>(<span class="string">&quot;gui_scroll_speed&quot;</span>),
                     ]),
                 ])
-                .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">section_bg</span>)
+                .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">inner_panel_bg</span>)
                 .<span class="ident">padding</span>(<span class="number">8</span>),
                 <span class="string">&quot;Appearance&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -623,7 +623,7 @@
                         <span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">units</span>.<span class="ident">metric</span>,
                     ),
                 ])
-                .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">section_bg</span>)
+                .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">inner_panel_bg</span>)
                 .<span class="ident">padding</span>(<span class="number">8</span>),
                 <span class="string">&quot;Debug&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -635,10 +635,10 @@
                         <span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">debug_all_agents</span>,
                     ),
                 ])
-                .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">section_bg</span>)
+                .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">inner_panel_bg</span>)
                 .<span class="ident">padding</span>(<span class="number">8</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_solid_dark_text</span>(<span class="string">&quot;Apply&quot;</span>)
+                    .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Apply&quot;</span>)
                     .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                     .<span class="ident">centered_horiz</span>(),

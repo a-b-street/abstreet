@@ -263,7 +263,7 @@
                 .<span class="ident">centered_horiz</span>(),
                 <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">level_buttons</span>).<span class="ident">flex_wrap</span>(<span class="ident">ctx</span>, <span class="ident">Percent</span>::<span class="ident">int</span>(<span class="number">80</span>)),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_light_text</span>(<span class="string">&quot;Credits&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_text</span>(<span class="string">&quot;Credits&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="string">&quot;Created by Dustin Carlino, Yuwen Li, &amp; Michael Kirk&quot;</span>
                         .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
                         .<span class="ident">container</span>()
@@ -388,7 +388,7 @@
                 <span class="ident">link</span>(<span class="ident">ctx</span>, <span class="string">&quot;Music from various sources&quot;</span>, <span class="string">&quot;https://github.com/a-b-street/abstreet/tree/master/data/system/assets/music/sources.md&quot;</span>),
                 <span class="ident">link</span>(<span class="ident">ctx</span>, <span class="string">&quot;Fonts and icons by various sources&quot;</span>, <span class="string">&quot;https://a-b-street.github.io/docs/howto/#data-source-licensing&quot;</span>),
                 <span class="string">&quot;Playtesting by Fridgehaus&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_dark_text</span>(<span class="string">&quot;Back&quot;</span>).<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>).<span class="ident">centered_horiz</span>(),
+                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_text</span>(<span class="string">&quot;Back&quot;</span>).<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>).<span class="ident">centered_horiz</span>(),
             ]))
             .<span class="ident">build</span>(<span class="ident">ctx</span>), <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Credits</span>))
     }
@@ -396,7 +396,7 @@
 
 <span class="kw">fn</span> <span class="ident">link</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
     <span class="ident">ctx</span>.<span class="ident">style</span>()
-        .<span class="ident">btn_plain_light_text</span>(<span class="ident">label</span>)
+        .<span class="ident">btn_plain_text</span>(<span class="ident">label</span>)
         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">url</span>))
 }
 

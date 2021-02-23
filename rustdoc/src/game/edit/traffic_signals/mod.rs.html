@@ -919,7 +919,6 @@
 <span id="916">916</span>
 <span id="917">917</span>
 <span id="918">918</span>
-<span id="919">919</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 
@@ -1417,20 +1416,20 @@
 <span class="kw">fn</span> <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">can_undo</span>: <span class="ident">bool</span>, <span class="ident">can_redo</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
     <span class="kw">let</span> <span class="ident">row</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_solid_dark_text</span>(<span class="string">&quot;Finish&quot;</span>)
+            .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Finish&quot;</span>)
             .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_solid_dark_text</span>(<span class="string">&quot;Preview&quot;</span>)
+            .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Preview&quot;</span>)
             .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">P</span>))
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/undo.svg&quot;</span>)
+            .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/tools/undo.svg&quot;</span>)
             .<span class="ident">disabled</span>(<span class="op">!</span><span class="ident">can_undo</span>)
             .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">Z</span>))
             .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;undo&quot;</span>),
         <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/redo.svg&quot;</span>)
+            .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/tools/redo.svg&quot;</span>)
             .<span class="ident">disabled</span>(<span class="op">!</span><span class="ident">can_redo</span>)
             <span class="comment">// TODO ctrl+shift+Z!</span>
             .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">Y</span>))
@@ -1445,7 +1444,7 @@
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;Traffic signal editor&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain_light_text</span>(<span class="string">&quot;+ Edit multiple&quot;</span>)
+                .<span class="ident">btn_plain_text</span>(<span class="string">&quot;+ Edit multiple&quot;</span>)
                 .<span class="ident">label_color</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#4CA7E9&quot;</span>), <span class="ident">ControlState</span>::<span class="ident">Default</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">M</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;Edit multiple signals&quot;</span>),
@@ -1453,7 +1452,7 @@
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="ident">row</span>),
         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_light_text</span>(<span class="string">&quot;Export&quot;</span>)
+                .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Export&quot;</span>)
                 .<span class="ident">tooltip</span>(<span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;This will create a JSON file in traffic_signal_data/.&quot;</span>).<span class="ident">small</span>(),
                     <span class="ident">Line</span>(
@@ -1526,14 +1525,14 @@
     <span class="kw">if</span> <span class="ident">members</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
         <span class="ident">col</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_dark_text</span>(<span class="string">&quot;Edit entire signal&quot;</span>)
+                .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Edit entire signal&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">E</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         );
     } <span class="kw">else</span> {
         <span class="ident">col</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_dark_text</span>(<span class="string">&quot;Tune offsets between signals&quot;</span>)
+                .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Tune offsets between signals&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">O</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         );
@@ -1551,14 +1550,14 @@
 
         <span class="kw">let</span> <span class="ident">up_button</span> <span class="op">=</span> <span class="ident">ctx</span>
             .<span class="ident">style</span>()
-            .<span class="ident">btn_solid_light_icon_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(
+            .<span class="ident">btn_solid_icon_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(
                 <span class="string">&quot;../../../../widgetry/icons/arrow_up.svg&quot;</span>
             ))
             .<span class="ident">disabled</span>(<span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>);
 
         <span class="kw">let</span> <span class="ident">down_button</span> <span class="op">=</span> <span class="ident">ctx</span>
             .<span class="ident">style</span>()
-            .<span class="ident">btn_solid_light_icon_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(
+            .<span class="ident">btn_solid_icon_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(
                 <span class="string">&quot;../../../../widgetry/icons/arrow_down.svg&quot;</span>
             ))
             .<span class="ident">disabled</span>(<span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">canonical_signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>);
@@ -1584,9 +1583,8 @@
                     .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
                     .<span class="ident">centered_vert</span>(),
                     {
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">button</span> <span class="op">=</span> <span class="ident">ctx</span>
-                            .<span class="ident">style</span>()
-                            .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>);
+                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">button</span> <span class="op">=</span>
+                            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>);
                         <span class="kw">if</span> <span class="ident">selected</span> <span class="op">=</span><span class="op">=</span> <span class="ident">idx</span> {
                             <span class="ident">button</span> <span class="op">=</span> <span class="ident">button</span>.<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">X</span>);
                         }
@@ -1617,7 +1615,7 @@
 
     <span class="ident">col</span>.<span class="ident">push</span>(
         <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_solid_dark_text</span>(<span class="string">&quot;Add a new stage&quot;</span>)
+            .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Add a new stage&quot;</span>)
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
             .<span class="ident">centered_horiz</span>(),
     );

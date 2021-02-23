@@ -896,16 +896,16 @@
         .<span class="ident">centered</span>()
         .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>)
         .<span class="ident">padding</span>(<span class="number">16</span>)
-        .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel</span>)
+        .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel_bg</span>)
         .<span class="ident">to_geom</span>(<span class="ident">ctx</span>, <span class="prelude-val">Some</span>(<span class="number">0.3</span>));
         <span class="ident">rows</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_light</span>()
+                .<span class="ident">btn_solid_floating</span>()
                 .<span class="ident">custom_batch</span>(<span class="ident">row_btn</span>.<span class="ident">clone</span>(), <span class="ident">ControlState</span>::<span class="ident">Default</span>)
                 .<span class="ident">custom_batch</span>(
                     <span class="ident">row_btn</span>.<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(
-                        <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel</span>,
-                        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline_light</span>.<span class="ident">bg_hover</span>,
+                        <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel_bg</span>,
+                        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">bg_hover</span>,
                     )),
                     <span class="ident">ControlState</span>::<span class="ident">Hovered</span>,
                 )
@@ -927,7 +927,7 @@
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">info</span>) <span class="op">=</span> <span class="ident">maybe_info</span> {
             <span class="ident">rows</span>.<span class="ident">push</span>(
                 <span class="ident">info</span>.<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>)
-                    .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel</span>)
+                    .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel_bg</span>)
                     .<span class="ident">padding</span>(<span class="number">16</span>),
             );
 
@@ -1019,7 +1019,7 @@
             <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">lookup_parked_car</span>(<span class="ident">v</span>.<span class="ident">id</span>).<span class="ident">is_some</span>() {
                 <span class="ident">rows</span>.<span class="ident">push</span>(
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_solid_dark_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Owner of {} (parked)&quot;</span>, <span class="ident">v</span>.<span class="ident">id</span>))
+                        .<span class="ident">btn_solid_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Owner of {} (parked)&quot;</span>, <span class="ident">v</span>.<span class="ident">id</span>))
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 );
                 <span class="ident">details</span>
@@ -1143,7 +1143,7 @@
         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{})&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>).<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_light_text</span>(<span class="kw-2">&amp;</span><span class="ident">person</span>.<span class="ident">to_string</span>())
+                .<span class="ident">btn_outline_text</span>(<span class="kw-2">&amp;</span><span class="ident">person</span>.<span class="ident">to_string</span>())
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         ]));
         <span class="ident">details</span>.<span class="ident">hyperlinks</span>.<span class="ident">insert</span>(
@@ -1181,13 +1181,13 @@
             <span class="comment">// for SandboxMode.</span>
             <span class="kw">if</span> <span class="ident">is_paused</span> {
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                    .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
                     .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">F</span>)
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;follow (run the simulation)&quot;</span>)
             } <span class="kw">else</span> {
                 <span class="comment">// TODO Blink</span>
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                    .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
                     .<span class="ident">image_color</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#7FFA4D&quot;</span>), <span class="ident">ControlState</span>::<span class="ident">Default</span>)
                     .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">F</span>)
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;unfollow (pause the simulation)&quot;</span>)
@@ -1202,7 +1202,7 @@
     <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_owner_of_car</span>(<span class="ident">id</span>).<span class="ident">unwrap</span>();
     <span class="ident">rows</span>.<span class="ident">push</span>(
         <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_solid_dark_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Owned by {}&quot;</span>, <span class="ident">p</span>))
+            .<span class="ident">btn_solid_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Owned by {}&quot;</span>, <span class="ident">p</span>))
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
     );
     <span class="ident">details</span>.<span class="ident">hyperlinks</span>.<span class="ident">insert</span>(
@@ -1309,13 +1309,13 @@
             <span class="comment">// for SandboxMode.</span>
             <span class="kw">if</span> <span class="ident">is_paused</span> {
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                    .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
                     .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">F</span>)
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;follow (run the simulation)&quot;</span>)
             } <span class="kw">else</span> {
                 <span class="comment">// TODO Blink</span>
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                    .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
                     .<span class="ident">image_color</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#7FFA4D&quot;</span>), <span class="ident">ControlState</span>::<span class="ident">Default</span>)
                     .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">F</span>)
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;unfollow (pause the simulation)&quot;</span>)

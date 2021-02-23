@@ -469,8 +469,6 @@
 <span id="466">466</span>
 <span id="467">467</span>
 <span id="468">468</span>
-<span id="469">469</span>
-<span id="470">470</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The map_editor renders and lets you edit RawMaps, which are a format in between OSM and the</span>
 <span class="doccomment">//! full Map. It&#39;s useful for debugging maps imported from OSM, and for drawing synthetic maps for</span>
@@ -585,11 +583,9 @@
                     <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;intersection geometry&quot;</span>, <span class="ident">Key</span>::<span class="ident">G</span>, <span class="bool-val">false</span>),
                         <span class="ident">ctx</span>.<span class="ident">style</span>()
-                            .<span class="ident">btn_outline_light_text</span>(<span class="string">&quot;adjust boundary&quot;</span>)
+                            .<span class="ident">btn_outline_text</span>(<span class="string">&quot;adjust boundary&quot;</span>)
                             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                        <span class="ident">ctx</span>.<span class="ident">style</span>()
-                            .<span class="ident">btn_solid_dark_text</span>(<span class="string">&quot;export to OSM&quot;</span>)
-                            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_text</span>(<span class="string">&quot;export to OSM&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     ]),
                 ]))
                 .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)

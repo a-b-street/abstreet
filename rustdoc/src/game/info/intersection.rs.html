@@ -475,7 +475,7 @@
     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
         <span class="ident">rows</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_dark_text</span>(<span class="string">&quot;Open OSM node&quot;</span>)
+                .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Open OSM node&quot;</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">i</span>.<span class="ident">orig_id</span>)),
         );
     }
@@ -649,18 +649,18 @@
             ),
         ])
         .<span class="ident">padding</span>(<span class="number">10</span>)
-        .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel</span>)
+        .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel_bg</span>)
         .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>),
     );
     <span class="ident">rows</span>.<span class="ident">push</span>(
         <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_outline_light_text</span>(<span class="string">&quot;Explore demand across all traffic signals&quot;</span>)
+            .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Explore demand across all traffic signals&quot;</span>)
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
     );
     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
         <span class="ident">rows</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_light_text</span>(<span class="string">&quot;Where are these agents headed?&quot;</span>)
+                .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Where are these agents headed?&quot;</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;routes across {}&quot;</span>, <span class="ident">id</span>)),
         );
     }
@@ -820,7 +820,7 @@
         },
     ])
     .<span class="ident">padding</span>(<span class="number">10</span>)
-    .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel</span>)
+    .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel_bg</span>)
     .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>)
 }
 

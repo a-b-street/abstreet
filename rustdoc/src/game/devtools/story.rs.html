@@ -882,11 +882,11 @@
             <span class="ident">Line</span>(<span class="string">&quot;Story map editor&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">vert_separator</span>(<span class="ident">ctx</span>, <span class="number">30.0</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_light_popup</span>(<span class="kw-2">&amp;</span><span class="ident">story</span>.<span class="ident">name</span>)
+                .<span class="ident">btn_outline_popup</span>(<span class="kw-2">&amp;</span><span class="ident">story</span>.<span class="ident">name</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">L</span>))
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;load&quot;</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_light_icon</span>(<span class="string">&quot;system/assets/tools/save.svg&quot;</span>)
+                .<span class="ident">btn_solid_icon</span>(<span class="string">&quot;system/assets/tools/save.svg&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">S</span>))
                 .<span class="ident">disabled</span>(<span class="op">!</span><span class="ident">dirty</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;save&quot;</span>),
@@ -894,17 +894,17 @@
         ]),
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
+                .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
                 .<span class="ident">disabled</span>(<span class="macro">matches</span><span class="macro">!</span>(<span class="ident">mode</span>, <span class="ident">Mode</span>::<span class="ident">PlacingMarker</span>))
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">M</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;new marker&quot;</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/pan.svg&quot;</span>)
+                .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/tools/pan.svg&quot;</span>)
                 .<span class="ident">disabled</span>(<span class="macro">matches</span><span class="macro">!</span>(<span class="ident">mode</span>, <span class="ident">Mode</span>::<span class="ident">View</span>))
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;pan&quot;</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/select.svg&quot;</span>)
+                .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/tools/select.svg&quot;</span>)
                 .<span class="ident">disabled</span>(<span class="macro">matches</span><span class="macro">!</span>(<span class="ident">mode</span>, <span class="ident">Mode</span>::<span class="ident">Freehand</span>(<span class="kw">_</span>)))
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">P</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;draw freehand&quot;</span>),
@@ -1056,10 +1056,10 @@
                 <span class="ident">Line</span>(<span class="string">&quot;Editing marker&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
             ]),
-            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline_light_text</span>(<span class="string">&quot;delete&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline_text</span>(<span class="string">&quot;delete&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">text_entry</span>(<span class="ident">ctx</span>, <span class="self">self</span>.<span class="ident">event</span>.<span class="ident">clone</span>(), <span class="bool-val">true</span>).<span class="ident">named</span>(<span class="string">&quot;event&quot;</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_light_text</span>(<span class="string">&quot;confirm&quot;</span>)
+                .<span class="ident">btn_outline_text</span>(<span class="string">&quot;confirm&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         ]))

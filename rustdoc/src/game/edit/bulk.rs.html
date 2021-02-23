@@ -411,24 +411,24 @@
         <span class="ident">selector</span>.<span class="ident">make_controls</span>(<span class="ident">ctx</span>),
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_light_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Edit {} roads&quot;</span>, <span class="ident">selector</span>.<span class="ident">roads</span>.<span class="ident">len</span>()))
+                .<span class="ident">btn_outline_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Edit {} roads&quot;</span>, <span class="ident">selector</span>.<span class="ident">roads</span>.<span class="ident">len</span>()))
                 .<span class="ident">disabled</span>(<span class="ident">selector</span>.<span class="ident">roads</span>.<span class="ident">is_empty</span>())
                 .<span class="ident">hotkey</span>(<span class="ident">hotkeys</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Key</span>::<span class="ident">E</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>]))
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit roads&quot;</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_light_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(
+                .<span class="ident">btn_outline_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(
                     <span class="string">&quot;Export {} roads to shared-row&quot;</span>,
                     <span class="ident">selector</span>.<span class="ident">roads</span>.<span class="ident">len</span>()
                 ))
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;export roads to shared-row&quot;</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_light_text</span>(<span class="string">&quot;export one road to Streetmix&quot;</span>)
+                .<span class="ident">btn_outline_text</span>(<span class="string">&quot;export one road to Streetmix&quot;</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_light_text</span>(<span class="string">&quot;export list of roads&quot;</span>)
+                .<span class="ident">btn_outline_text</span>(<span class="string">&quot;export list of roads&quot;</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_light_text</span>(<span class="string">&quot;Cancel&quot;</span>)
+                .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Cancel&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         ])
@@ -546,7 +546,7 @@
                 },
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_solid_dark_text</span>(<span class="string">&quot;Finish&quot;</span>)
+                        .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Finish&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
@@ -663,7 +663,7 @@
                 ],
             ),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain_light_text</span>(<span class="string">&quot;+ Add&quot;</span>)
+                .<span class="ident">btn_plain_text</span>(<span class="string">&quot;+ Add&quot;</span>)
                 .<span class="ident">label_color</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#4CA7E9&quot;</span>), <span class="ident">ControlState</span>::<span class="ident">Default</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;add another lane type transformation&quot;</span>),
         ]));

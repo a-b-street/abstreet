@@ -884,6 +884,9 @@
 <span id="881">881</span>
 <span id="882">882</span>
 <span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
@@ -1632,7 +1635,10 @@
                 <span class="ident">PedState</span>::<span class="ident">WaitingToTurn</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">path</span>.<span class="ident">next_step</span>().<span class="ident">as_turn</span>()),
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
             },
-            <span class="ident">preparing_bike</span>: <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">state</span>, <span class="ident">PedState</span>::<span class="ident">StartingToBike</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">|</span> <span class="ident">PedState</span>::<span class="ident">FinishingBiking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)),
+            <span class="ident">preparing_bike</span>: <span class="macro">matches</span><span class="macro">!</span>(
+                <span class="self">self</span>.<span class="ident">state</span>,
+                <span class="ident">PedState</span>::<span class="ident">StartingToBike</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">|</span> <span class="ident">PedState</span>::<span class="ident">FinishingBiking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)
+            ),
             <span class="ident">waiting_for_bus</span>: <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">state</span>, <span class="ident">PedState</span>::<span class="ident">WaitingForBus</span>(<span class="kw">_</span>, <span class="kw">_</span>)),
             <span class="ident">on</span>,
         }

@@ -431,7 +431,7 @@
         <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} ({})&quot;</span>, <span class="ident">r</span>.<span class="ident">full_name</span>, <span class="ident">r</span>.<span class="ident">id</span>);
         <span class="ident">rows</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_light_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Route {}&quot;</span>, <span class="ident">r</span>.<span class="ident">short_name</span>))
+                .<span class="ident">btn_outline_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Route {}&quot;</span>, <span class="ident">r</span>.<span class="ident">short_name</span>))
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">label</span>),
         );
         <span class="ident">details</span>.<span class="ident">hyperlinks</span>.<span class="ident">insert</span>(<span class="ident">label</span>, <span class="ident">Tab</span>::<span class="ident">BusRoute</span>(<span class="ident">r</span>.<span class="ident">id</span>));
@@ -511,7 +511,7 @@
 
     <span class="ident">rows</span>.<span class="ident">push</span>(
         <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_outline_light_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Serves route {}&quot;</span>, <span class="ident">route</span>.<span class="ident">short_name</span>))
+            .<span class="ident">btn_outline_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Serves route {}&quot;</span>, <span class="ident">route</span>.<span class="ident">short_name</span>))
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
     );
     <span class="ident">details</span>.<span class="ident">hyperlinks</span>.<span class="ident">insert</span>(
@@ -588,7 +588,7 @@
     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
         <span class="ident">rows</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_dark_text</span>(<span class="string">&quot;Open OSM relation&quot;</span>)
+                .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Open OSM relation&quot;</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">route</span>.<span class="ident">osm_rel_id</span>)),
         );
     }
@@ -601,7 +601,7 @@
         <span class="kw">for</span> (<span class="ident">bus</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">pt</span>) <span class="kw">in</span> <span class="ident">buses</span> {
             <span class="ident">rows</span>.<span class="ident">push</span>(
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline_light_text</span>(<span class="kw-2">&amp;</span><span class="ident">bus</span>.<span class="ident">to_string</span>())
+                    .<span class="ident">btn_outline_text</span>(<span class="kw-2">&amp;</span><span class="ident">bus</span>.<span class="ident">to_string</span>())
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             );
             <span class="ident">details</span>
@@ -657,7 +657,7 @@
         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Starts at {}&quot;</span>, <span class="ident">i</span>.<span class="ident">name</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>(), <span class="ident">map</span>));
         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
+                .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>),
             <span class="ident">name</span>.<span class="ident">clone</span>().<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
         ]));
@@ -668,7 +668,7 @@
         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Stop {}: {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">bs</span>.<span class="ident">name</span>);
         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/pin.svg&quot;</span>)
+                .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/tools/pin.svg&quot;</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>),
             <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">bs</span>.<span class="ident">name</span>),
@@ -689,7 +689,7 @@
         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Ends at {}&quot;</span>, <span class="ident">i</span>.<span class="ident">name</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>(), <span class="ident">map</span>));
         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
+                .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>),
             <span class="ident">name</span>.<span class="ident">clone</span>().<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
         ]));
@@ -700,7 +700,7 @@
     {
         <span class="ident">rows</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_light_text</span>(<span class="string">&quot;Edit schedule&quot;</span>)
+                .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Edit schedule&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">E</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;edit {}&quot;</span>, <span class="ident">route</span>.<span class="ident">id</span>)),
         );

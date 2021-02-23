@@ -256,84 +256,6 @@
 <span id="253">253</span>
 <span id="254">254</span>
 <span id="255">255</span>
-<span id="256">256</span>
-<span id="257">257</span>
-<span id="258">258</span>
-<span id="259">259</span>
-<span id="260">260</span>
-<span id="261">261</span>
-<span id="262">262</span>
-<span id="263">263</span>
-<span id="264">264</span>
-<span id="265">265</span>
-<span id="266">266</span>
-<span id="267">267</span>
-<span id="268">268</span>
-<span id="269">269</span>
-<span id="270">270</span>
-<span id="271">271</span>
-<span id="272">272</span>
-<span id="273">273</span>
-<span id="274">274</span>
-<span id="275">275</span>
-<span id="276">276</span>
-<span id="277">277</span>
-<span id="278">278</span>
-<span id="279">279</span>
-<span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
-<span id="283">283</span>
-<span id="284">284</span>
-<span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
-<span id="291">291</span>
-<span id="292">292</span>
-<span id="293">293</span>
-<span id="294">294</span>
-<span id="295">295</span>
-<span id="296">296</span>
-<span id="297">297</span>
-<span id="298">298</span>
-<span id="299">299</span>
-<span id="300">300</span>
-<span id="301">301</span>
-<span id="302">302</span>
-<span id="303">303</span>
-<span id="304">304</span>
-<span id="305">305</span>
-<span id="306">306</span>
-<span id="307">307</span>
-<span id="308">308</span>
-<span id="309">309</span>
-<span id="310">310</span>
-<span id="311">311</span>
-<span id="312">312</span>
-<span id="313">313</span>
-<span id="314">314</span>
-<span id="315">315</span>
-<span id="316">316</span>
-<span id="317">317</span>
-<span id="318">318</span>
-<span id="319">319</span>
-<span id="320">320</span>
-<span id="321">321</span>
-<span id="322">322</span>
-<span id="323">323</span>
-<span id="324">324</span>
-<span id="325">325</span>
-<span id="326">326</span>
-<span id="327">327</span>
-<span id="328">328</span>
-<span id="329">329</span>
-<span id="330">330</span>
-<span id="331">331</span>
-<span id="332">332</span>
-<span id="333">333</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">CornerRadii</span>;
 
@@ -343,91 +265,51 @@
 };
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">StyledButtons</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">btn_solid_dark</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">btn_solid_dark_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_solid_dark</span>().<span class="ident">label_text</span>(<span class="ident">text</span>)
+    <span class="kw">fn</span> <span class="ident">btn_plain</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">btn_plain_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">btn_plain</span>().<span class="ident">label_text</span>(<span class="ident">text</span>)
     }
-    <span class="kw">fn</span> <span class="ident">btn_solid_dark_icon</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">icon_button</span>(<span class="self">self</span>.<span class="ident">btn_solid_dark</span>().<span class="ident">image_path</span>(<span class="ident">image_path</span>))
+    <span class="kw">fn</span> <span class="ident">btn_plain_icon</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="ident">icon_button</span>(<span class="self">self</span>.<span class="ident">btn_plain</span>().<span class="ident">image_path</span>(<span class="ident">image_path</span>))
     }
-    <span class="kw">fn</span> <span class="ident">btn_solid_dark_icon_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_solid_dark</span>()
+    <span class="kw">fn</span> <span class="ident">btn_plain_icon_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">labeled_bytes</span>: (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>])) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="ident">icon_button</span>(<span class="self">self</span>.<span class="ident">btn_plain</span>().<span class="ident">image_bytes</span>(<span class="ident">labeled_bytes</span>))
+    }
+    <span class="kw">fn</span> <span class="ident">btn_plain_icon_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">btn_plain</span>()
             .<span class="ident">label_text</span>(<span class="ident">text</span>)
             .<span class="ident">image_path</span>(<span class="ident">image_path</span>)
             .<span class="ident">image_dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">square</span>(<span class="number">18.0</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">btn_outline_dark</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">btn_outline_dark_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_outline_dark</span>().<span class="ident">label_text</span>(<span class="ident">text</span>)
+    <span class="kw">fn</span> <span class="ident">btn_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">btn_outline_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">btn_outline</span>().<span class="ident">label_text</span>(<span class="ident">text</span>)
     }
-    <span class="kw">fn</span> <span class="ident">btn_outline_dark_icon</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">icon_button</span>(<span class="self">self</span>.<span class="ident">btn_outline_dark</span>().<span class="ident">image_path</span>(<span class="ident">image_path</span>))
+    <span class="kw">fn</span> <span class="ident">btn_outline_icon</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="ident">icon_button</span>(<span class="self">self</span>.<span class="ident">btn_outline</span>().<span class="ident">image_path</span>(<span class="ident">image_path</span>))
     }
-    <span class="kw">fn</span> <span class="ident">btn_outline_dark_icon_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_outline_dark</span>()
+    <span class="kw">fn</span> <span class="ident">btn_outline_icon_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">btn_outline</span>()
             .<span class="ident">label_text</span>(<span class="ident">text</span>)
             .<span class="ident">image_path</span>(<span class="ident">image_path</span>)
             .<span class="ident">image_dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">square</span>(<span class="number">18.0</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">btn_solid_light</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">btn_solid_light_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_solid_light</span>().<span class="ident">label_text</span>(<span class="ident">text</span>)
-    }
-    <span class="kw">fn</span> <span class="ident">btn_solid_light_icon</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">icon_button</span>(<span class="self">self</span>.<span class="ident">btn_solid_light</span>().<span class="ident">image_path</span>(<span class="ident">image_path</span>))
-    }
-    <span class="kw">fn</span> <span class="ident">btn_solid_light_icon_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">labeled_bytes</span>: (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>])) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">icon_button</span>(<span class="self">self</span>.<span class="ident">btn_solid_light</span>().<span class="ident">image_bytes</span>(<span class="ident">labeled_bytes</span>))
-    }
-    <span class="kw">fn</span> <span class="ident">btn_solid_light_icon_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_solid_light</span>()
-            .<span class="ident">label_text</span>(<span class="ident">text</span>)
-            .<span class="ident">image_path</span>(<span class="ident">image_path</span>)
-            .<span class="ident">image_dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">square</span>(<span class="number">18.0</span>))
-    }
+    <span class="kw">fn</span> <span class="ident">btn_solid</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">btn_solid_floating</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">btn_outline_light</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">btn_outline_light_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_outline_light</span>().<span class="ident">label_text</span>(<span class="ident">text</span>)
+    <span class="kw">fn</span> <span class="ident">btn_solid_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">btn_solid</span>().<span class="ident">label_text</span>(<span class="ident">text</span>)
     }
-    <span class="kw">fn</span> <span class="ident">btn_outline_light_icon</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">icon_button</span>(<span class="self">self</span>.<span class="ident">btn_outline_light</span>().<span class="ident">image_path</span>(<span class="ident">image_path</span>))
+    <span class="kw">fn</span> <span class="ident">btn_solid_icon</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="ident">icon_button</span>(<span class="self">self</span>.<span class="ident">btn_solid</span>().<span class="ident">image_path</span>(<span class="ident">image_path</span>))
     }
-    <span class="kw">fn</span> <span class="ident">btn_outline_light_icon_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_outline_light</span>()
-            .<span class="ident">label_text</span>(<span class="ident">text</span>)
-            .<span class="ident">image_path</span>(<span class="ident">image_path</span>)
-            .<span class="ident">image_dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">square</span>(<span class="number">18.0</span>))
+    <span class="kw">fn</span> <span class="ident">btn_solid_icon_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">labeled_bytes</span>: (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>])) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="ident">icon_button</span>(<span class="self">self</span>.<span class="ident">btn_solid</span>().<span class="ident">image_bytes</span>(<span class="ident">labeled_bytes</span>))
     }
-
-    <span class="kw">fn</span> <span class="ident">btn_plain_dark</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">btn_plain_dark_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_plain_dark</span>().<span class="ident">label_text</span>(<span class="ident">text</span>)
-    }
-    <span class="kw">fn</span> <span class="ident">btn_plain_dark_icon</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">icon_button</span>(<span class="self">self</span>.<span class="ident">btn_plain_dark</span>().<span class="ident">image_path</span>(<span class="ident">image_path</span>))
-    }
-    <span class="kw">fn</span> <span class="ident">btn_plain_dark_icon_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_plain_dark</span>()
-            .<span class="ident">label_text</span>(<span class="ident">text</span>)
-            .<span class="ident">image_path</span>(<span class="ident">image_path</span>)
-            .<span class="ident">image_dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">square</span>(<span class="number">18.0</span>))
-    }
-
-    <span class="kw">fn</span> <span class="ident">btn_plain_light</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">btn_plain_light_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_plain_light</span>().<span class="ident">label_text</span>(<span class="ident">text</span>)
-    }
-    <span class="kw">fn</span> <span class="ident">btn_plain_light_icon</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">icon_button</span>(<span class="self">self</span>.<span class="ident">btn_plain_light</span>().<span class="ident">image_path</span>(<span class="ident">image_path</span>))
-    }
-    <span class="kw">fn</span> <span class="ident">btn_plain_light_icon_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">labeled_bytes</span>: (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>])) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">icon_button</span>(<span class="self">self</span>.<span class="ident">btn_plain_light</span>().<span class="ident">image_bytes</span>(<span class="ident">labeled_bytes</span>))
-    }
-    <span class="kw">fn</span> <span class="ident">btn_plain_light_icon_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_plain_light</span>()
+    <span class="kw">fn</span> <span class="ident">btn_solid_icon_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">btn_solid</span>()
             .<span class="ident">label_text</span>(<span class="ident">text</span>)
             .<span class="ident">image_path</span>(<span class="ident">image_path</span>)
             .<span class="ident">image_dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">square</span>(<span class="number">18.0</span>))
@@ -480,52 +362,35 @@
     <span class="comment">// Specific UI Elements</span>
 
     <span class="doccomment">/// title: name of previous screen, which you&#39;ll return to</span>
-    <span class="kw">fn</span> <span class="ident">btn_light_back</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">title</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">back_button</span>(<span class="self">self</span>.<span class="ident">btn_plain_light</span>(), <span class="ident">title</span>)
+    <span class="kw">fn</span> <span class="ident">btn_back</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">title</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="ident">back_button</span>(<span class="self">self</span>.<span class="ident">btn_plain</span>(), <span class="ident">title</span>)
     }
 
-    <span class="doccomment">/// title: name of previous screen, which you&#39;ll return to</span>
-    <span class="kw">fn</span> <span class="ident">btn_dark_back</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">title</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">back_button</span>(<span class="self">self</span>.<span class="ident">btn_plain_dark</span>(), <span class="ident">title</span>)
+    <span class="kw">fn</span> <span class="ident">btn_outline_dropdown</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="ident">dropdown_button</span>(<span class="self">self</span>.<span class="ident">btn_outline</span>())
     }
 
-    <span class="kw">fn</span> <span class="ident">btn_solid_light_dropdown</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">dropdown_button</span>(<span class="self">self</span>.<span class="ident">btn_solid_light</span>())
+    <span class="kw">fn</span> <span class="ident">btn_solid_dropdown</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="ident">dropdown_button</span>(<span class="self">self</span>.<span class="ident">btn_solid</span>())
     }
 
-    <span class="kw">fn</span> <span class="ident">btn_outline_light_dropdown</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">dropdown_button</span>(<span class="self">self</span>.<span class="ident">btn_outline_light</span>())
-    }
-
-    <span class="kw">fn</span> <span class="ident">btn_solid_dark_dropdown</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">dropdown_button</span>(<span class="self">self</span>.<span class="ident">btn_solid_dark</span>())
-    }
-
-    <span class="kw">fn</span> <span class="ident">btn_outline_dark_dropdown</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">dropdown_button</span>(<span class="self">self</span>.<span class="ident">btn_outline_dark</span>())
-    }
-
-    <span class="kw">fn</span> <span class="ident">btn_outline_light_popup</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_outline_light_dropdown</span>().<span class="ident">label_text</span>(<span class="ident">text</span>)
-    }
-
-    <span class="kw">fn</span> <span class="ident">btn_outline_dark_popup</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_outline_dark_dropdown</span>().<span class="ident">label_text</span>(<span class="ident">text</span>)
+    <span class="kw">fn</span> <span class="ident">btn_outline_popup</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">btn_outline_dropdown</span>().<span class="ident">label_text</span>(<span class="ident">text</span>)
     }
 
     <span class="doccomment">/// A right facing caret, like &quot;&gt;&quot;, suitable for paging to the &quot;next&quot; set of results</span>
     <span class="kw">fn</span> <span class="ident">btn_next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_plain_light_icon_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/next.svg&quot;</span>))
+        <span class="self">self</span>.<span class="ident">btn_plain_icon_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/next.svg&quot;</span>))
     }
 
     <span class="doccomment">/// A left facing caret, like &quot;&lt;&quot;, suitable for paging to the &quot;next&quot; set of results</span>
     <span class="kw">fn</span> <span class="ident">btn_prev</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_plain_light_icon_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/prev.svg&quot;</span>))
+        <span class="self">self</span>.<span class="ident">btn_plain_icon_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/prev.svg&quot;</span>))
     }
 
     <span class="doccomment">/// An &quot;X&quot; button to close the current state. Bound to the escape key.</span>
     <span class="kw">fn</span> <span class="ident">btn_close</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_plain_light_icon_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/close.svg&quot;</span>))
+        <span class="self">self</span>.<span class="ident">btn_plain_icon_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/close.svg&quot;</span>))
             .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
     }
 
@@ -537,96 +402,51 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">StyledButtons</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Style</span> {
-    <span class="kw">fn</span> <span class="ident">btn_solid_dark</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_solid</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">btn_solid_dark</span>)
+    <span class="kw">fn</span> <span class="ident">btn_solid</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="ident">basic_button</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">btn_solid</span>, <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">outline_thickness</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">btn_outline_dark</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">btn_outline_dark</span>)
+    <span class="kw">fn</span> <span class="ident">btn_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="ident">basic_button</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">btn_outline</span>, <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">outline_thickness</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">btn_plain_dark</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_plain</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">btn_outline_dark</span>)
+    <span class="kw">fn</span> <span class="ident">btn_solid_floating</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="ident">basic_button</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">btn_solid_floating</span>, <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">outline_thickness</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">btn_solid_light</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_solid</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">btn_solid_light</span>)
-    }
-
-    <span class="kw">fn</span> <span class="ident">btn_outline_light</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">btn_outline_light</span>)
-    }
-
-    <span class="kw">fn</span> <span class="ident">btn_plain_light</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_plain</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">btn_outline_light</span>)
+    <span class="kw">fn</span> <span class="ident">btn_plain</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="ident">basic_button</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">btn_outline</span>, <span class="prelude-val">None</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">btn_plain_destructive</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_plain</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">btn_outline_destructive</span>)
+        <span class="ident">basic_button</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">btn_outline_destructive</span>, <span class="prelude-val">None</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">btn_solid_destructive</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_solid</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">btn_solid_destructive</span>)
+        <span class="ident">basic_button</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">btn_solid_destructive</span>, <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">outline_thickness</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">btn_outline_destructive</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">btn_solid_destructive</span>)
+        <span class="ident">basic_button</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">btn_solid_destructive</span>, <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">outline_thickness</span>))
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Style</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">btn_plain</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">button_style</span>: <span class="kw-2">&amp;</span><span class="ident">ButtonStyle</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">ButtonBuilder</span>::<span class="ident">new</span>()
-            .<span class="ident">label_color</span>(<span class="ident">button_style</span>.<span class="ident">fg</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
-            .<span class="ident">label_color</span>(<span class="ident">button_style</span>.<span class="ident">fg_disabled</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
-            .<span class="ident">image_color</span>(<span class="ident">button_style</span>.<span class="ident">fg</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
-            .<span class="ident">image_color</span>(<span class="ident">button_style</span>.<span class="ident">fg_disabled</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
-            .<span class="ident">bg_color</span>(<span class="ident">button_style</span>.<span class="ident">bg</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
-            .<span class="ident">bg_color</span>(<span class="ident">button_style</span>.<span class="ident">bg_hover</span>, <span class="ident">ControlState</span>::<span class="ident">Hovered</span>)
-            .<span class="ident">bg_color</span>(<span class="ident">button_style</span>.<span class="ident">bg_disabled</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">btn_solid</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">button_style</span>: <span class="kw-2">&amp;</span><span class="ident">ButtonStyle</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_plain</span>(<span class="ident">button_style</span>).<span class="ident">outline</span>(
-            <span class="self">self</span>.<span class="ident">outline_thickness</span>,
-            <span class="ident">button_style</span>.<span class="ident">outline</span>,
-            <span class="ident">ControlState</span>::<span class="ident">Default</span>,
-        )
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">btn_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">button_style</span>: <span class="kw-2">&amp;</span><span class="ident">ButtonStyle</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_plain</span>(<span class="ident">button_style</span>).<span class="ident">outline</span>(
-            <span class="self">self</span>.<span class="ident">outline_thickness</span>,
-            <span class="ident">button_style</span>.<span class="ident">outline</span>,
-            <span class="ident">ControlState</span>::<span class="ident">Default</span>,
-        )
-    }
-
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">btn_light_popup_icon_text</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">icon_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
         <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">outline_style</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">btn_outline_light</span>;
-        <span class="kw">let</span> <span class="ident">solid_style</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">btn_solid_dark</span>;
+        <span class="kw">let</span> <span class="ident">outline_style</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">btn_outline</span>;
+        <span class="kw">let</span> <span class="ident">solid_style</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">btn_solid</span>;
 
         <span class="comment">// The text is styled like an &quot;outline&quot; button, while the image is styled like a &quot;solid&quot;</span>
         <span class="comment">// button.</span>
-        <span class="self">self</span>.<span class="ident">btn_outline</span>(<span class="ident">outline_style</span>)
+        <span class="ident">basic_button</span>(<span class="ident">outline_style</span>, <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">outline_thickness</span>))
             .<span class="ident">label_text</span>(<span class="ident">text</span>)
             .<span class="ident">image_path</span>(<span class="ident">icon_path</span>)
             .<span class="ident">image_dims</span>(<span class="number">25.0</span>)
             .<span class="ident">image_color</span>(<span class="ident">solid_style</span>.<span class="ident">fg</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
-            .<span class="ident">outline</span>(
-                <span class="self">self</span>.<span class="ident">outline_thickness</span>,
-                <span class="ident">solid_style</span>.<span class="ident">outline</span>,
-                <span class="ident">ControlState</span>::<span class="ident">Default</span>,
-            )
-            .<span class="ident">outline</span>(
-                <span class="self">self</span>.<span class="ident">outline_thickness</span>,
-                <span class="ident">solid_style</span>.<span class="ident">bg_hover</span>,
-                <span class="ident">ControlState</span>::<span class="ident">Hovered</span>,
-            )
             .<span class="ident">image_bg_color</span>(<span class="ident">solid_style</span>.<span class="ident">bg</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
             .<span class="ident">image_bg_color</span>(<span class="ident">solid_style</span>.<span class="ident">bg_hover</span>, <span class="ident">ControlState</span>::<span class="ident">Hovered</span>)
             <span class="comment">// Move the padding from the *entire button* to just the image, so we get a colored</span>
@@ -667,6 +487,30 @@
         .<span class="ident">image_dims</span>(<span class="number">12.0</span>)
         .<span class="ident">stack_spacing</span>(<span class="number">12.0</span>)
         .<span class="ident">label_first</span>()
+}
+
+<span class="kw">fn</span> <span class="ident">basic_button</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
+    <span class="ident">button_style</span>: <span class="kw-2">&amp;</span><span class="ident">ButtonStyle</span>,
+    <span class="ident">outline_thickness</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">ButtonBuilder</span>::<span class="ident">new</span>()
+        .<span class="ident">label_color</span>(<span class="ident">button_style</span>.<span class="ident">fg</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
+        .<span class="ident">label_color</span>(<span class="ident">button_style</span>.<span class="ident">fg_disabled</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
+        .<span class="ident">image_color</span>(<span class="ident">button_style</span>.<span class="ident">fg</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
+        .<span class="ident">image_color</span>(<span class="ident">button_style</span>.<span class="ident">fg_disabled</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
+        .<span class="ident">bg_color</span>(<span class="ident">button_style</span>.<span class="ident">bg</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
+        .<span class="ident">bg_color</span>(<span class="ident">button_style</span>.<span class="ident">bg_hover</span>, <span class="ident">ControlState</span>::<span class="ident">Hovered</span>)
+        .<span class="ident">bg_color</span>(<span class="ident">button_style</span>.<span class="ident">bg_disabled</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>);
+
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">outline_thickness</span>) <span class="op">=</span> <span class="ident">outline_thickness</span> {
+        <span class="ident">builder</span>.<span class="ident">outline</span>(
+            <span class="ident">outline_thickness</span>,
+            <span class="ident">button_style</span>.<span class="ident">outline</span>,
+            <span class="ident">ControlState</span>::<span class="ident">Default</span>,
+        )
+    } <span class="kw">else</span> {
+        <span class="ident">builder</span>
+    }
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "widgetry";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>
