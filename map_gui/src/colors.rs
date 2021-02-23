@@ -184,7 +184,7 @@ impl ColorScheme {
 
             // UI
             panel_bg: gui_style.panel_bg,
-            inner_panel_bg: Color::grey(0.5),
+            inner_panel_bg: gui_style.panel_bg.alpha(1.0),
             day_time_slider: hex("#F4DA22"),
             night_time_slider: hex("#12409D"),
             selected: Color::RED.alpha(0.7),
