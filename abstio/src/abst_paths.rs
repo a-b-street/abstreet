@@ -70,7 +70,12 @@ pub struct CityName {
 impl CityName {
     /// Create a CityName from a country code and city.
     pub fn new(country: &str, city: &str) -> CityName {
-        assert_eq!(country.len(), 2);
+        if country.len() != 2 {
+            panic!(
+                "CityName::new({}, {}) has a country code that isn't two letters",
+                country, city
+            );
+        }
         CityName {
             country: country.to_string(),
             city: city.to_string(),

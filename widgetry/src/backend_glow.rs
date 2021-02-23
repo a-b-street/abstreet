@@ -31,7 +31,7 @@ pub(crate) unsafe fn build_program(
     gl.link_program(program);
     if !gl.get_program_link_status(program) {
         error!("Linking error: {}", gl.get_program_info_log(program));
-        panic!(gl.get_program_info_log(program));
+        panic!("{}", gl.get_program_info_log(program));
     }
 
     for shader in &shaders {

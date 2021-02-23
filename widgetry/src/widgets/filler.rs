@@ -1,9 +1,8 @@
 use crate::{EventCtx, GfxCtx, ScreenDims, ScreenPt, Widget, WidgetImpl, WidgetOutput};
 
-// Doesn't do anything by itself, just used for widgetsing. Something else reaches in, asks for the
-// ScreenRectangle to use.
+/// Doesn't do anything by itself, just used for widgetsing. Something else reaches in, asks for the
+/// ScreenRectangle to use.
 pub struct Filler {
-    top_left: ScreenPt,
     dims: ScreenDims,
 
     square_width_pct: f64,
@@ -17,7 +16,6 @@ impl Filler {
                 pct_width * ctx.canvas.window_width,
                 pct_width * ctx.canvas.window_width,
             ),
-            top_left: ScreenPt::new(0.0, 0.0),
             square_width_pct: pct_width,
         }))
     }
@@ -28,9 +26,7 @@ impl WidgetImpl for Filler {
         self.dims
     }
 
-    fn set_pos(&mut self, top_left: ScreenPt) {
-        self.top_left = top_left;
-    }
+    fn set_pos(&mut self, _: ScreenPt) {}
 
     fn event(&mut self, ctx: &mut EventCtx, _: &mut WidgetOutput) {
         if ctx.input.is_window_resized() {
