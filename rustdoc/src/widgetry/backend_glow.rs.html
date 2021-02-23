@@ -680,7 +680,7 @@
     <span class="ident">gl</span>.<span class="ident">link_program</span>(<span class="ident">program</span>);
     <span class="kw">if</span> <span class="op">!</span><span class="ident">gl</span>.<span class="ident">get_program_link_status</span>(<span class="ident">program</span>) {
         <span class="macro">error</span><span class="macro">!</span>(<span class="string">&quot;Linking error: {}&quot;</span>, <span class="ident">gl</span>.<span class="ident">get_program_info_log</span>(<span class="ident">program</span>));
-        <span class="macro">panic</span><span class="macro">!</span>(<span class="ident">gl</span>.<span class="ident">get_program_info_log</span>(<span class="ident">program</span>));
+        <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">gl</span>.<span class="ident">get_program_info_log</span>(<span class="ident">program</span>));
     }
 
     <span class="kw">for</span> <span class="ident">shader</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">shaders</span> {

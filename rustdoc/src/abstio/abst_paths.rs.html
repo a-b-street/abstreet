@@ -318,6 +318,11 @@
 <span id="315">315</span>
 <span id="316">316</span>
 <span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Generate paths for different A/B Street files</span>
 
@@ -391,7 +396,12 @@
 <span class="kw">impl</span> <span class="ident">CityName</span> {
     <span class="doccomment">/// Create a CityName from a country code and city.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">country</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">city</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CityName</span> {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">country</span>.<span class="ident">len</span>(), <span class="number">2</span>);
+        <span class="kw">if</span> <span class="ident">country</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">2</span> {
+            <span class="macro">panic</span><span class="macro">!</span>(
+                <span class="string">&quot;CityName::new({}, {}) has a country code that isn&#39;t two letters&quot;</span>,
+                <span class="ident">country</span>, <span class="ident">city</span>
+            );
+        }
         <span class="ident">CityName</span> {
             <span class="ident">country</span>: <span class="ident">country</span>.<span class="ident">to_string</span>(),
             <span class="ident">city</span>: <span class="ident">city</span>.<span class="ident">to_string</span>(),
