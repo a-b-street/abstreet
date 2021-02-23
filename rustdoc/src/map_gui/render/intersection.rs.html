@@ -492,6 +492,19 @@
 <span id="489">489</span>
 <span id="490">490</span>
 <span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 
@@ -724,37 +737,50 @@
             <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">src</span>).<span class="ident">dst_i</span> <span class="op">!</span><span class="op">=</span> <span class="ident">i</span>.<span class="ident">id</span> {
                 <span class="kw">continue</span>;
             }
-            <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">map</span>
-                .<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">src</span>)
-                .<span class="ident">width</span>
-                .<span class="ident">min</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">width</span>);
-
-            <span class="comment">// Special case for dead-ends: just thicken the geometry.</span>
-            <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
-                <span class="ident">corners</span>.<span class="ident">push</span>(<span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">make_polygons</span>(<span class="ident">width</span>));
-                <span class="kw">continue</span>;
-            }
-
             <span class="kw">let</span> <span class="ident">l1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">src</span>);
             <span class="kw">let</span> <span class="ident">l2</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>);
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">poly</span>) <span class="op">=</span> (<span class="op">|</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">shift_left</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">ok</span>()<span class="question-mark">?</span>.<span class="ident">into_points</span>();
-                <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">l2</span>.<span class="ident">first_line</span>().<span class="ident">shift_left</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt1</span>());
-                <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">l2</span>.<span class="ident">first_line</span>().<span class="ident">shift_right</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt1</span>());
-                <span class="ident">pts</span>.<span class="ident">extend</span>(
-                    <span class="ident">turn</span>.<span class="ident">geom</span>
-                        .<span class="ident">shift_right</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>)
-                        .<span class="ident">ok</span>()<span class="question-mark">?</span>
-                        .<span class="ident">reversed</span>()
-                        .<span class="ident">into_points</span>(),
-                );
-                <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">l1</span>.<span class="ident">last_line</span>().<span class="ident">shift_right</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt2</span>());
-                <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">l1</span>.<span class="ident">last_line</span>().<span class="ident">shift_left</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt2</span>());
+            <span class="comment">// Special case for dead-ends: just thicken the geometry.</span>
+            <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
+                <span class="ident">corners</span>.<span class="ident">push</span>(<span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">make_polygons</span>(<span class="ident">l1</span>.<span class="ident">width</span>.<span class="ident">min</span>(<span class="ident">l2</span>.<span class="ident">width</span>)));
+                <span class="kw">continue</span>;
+            }
+
+            <span class="kw">if</span> <span class="ident">l1</span>.<span class="ident">width</span> <span class="op">=</span><span class="op">=</span> <span class="ident">l2</span>.<span class="ident">width</span> {
+                <span class="comment">// When two sidewalks or two shoulders meet, use the turn geometry to create some</span>
+                <span class="comment">// nice rounding.</span>
+                <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">l1</span>.<span class="ident">width</span>;
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">poly</span>) <span class="op">=</span> (<span class="op">|</span><span class="op">|</span> {
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">shift_left</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">ok</span>()<span class="question-mark">?</span>.<span class="ident">into_points</span>();
+                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">l2</span>.<span class="ident">first_line</span>().<span class="ident">shift_left</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt1</span>());
+                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">l2</span>.<span class="ident">first_line</span>().<span class="ident">shift_right</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt1</span>());
+                    <span class="ident">pts</span>.<span class="ident">extend</span>(
+                        <span class="ident">turn</span>.<span class="ident">geom</span>
+                            .<span class="ident">shift_right</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>)
+                            .<span class="ident">ok</span>()<span class="question-mark">?</span>
+                            .<span class="ident">reversed</span>()
+                            .<span class="ident">into_points</span>(),
+                    );
+                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">l1</span>.<span class="ident">last_line</span>().<span class="ident">shift_right</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt2</span>());
+                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">l1</span>.<span class="ident">last_line</span>().<span class="ident">shift_left</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt2</span>());
+                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pts</span>[<span class="number">0</span>]);
+                    <span class="comment">// Many resulting shapes aren&#39;t valid rings, but we can still triangulate them.</span>
+                    <span class="prelude-val">Some</span>(<span class="ident">Polygon</span>::<span class="ident">buggy_new</span>(<span class="ident">pts</span>))
+                })() {
+                    <span class="ident">corners</span>.<span class="ident">push</span>(<span class="ident">poly</span>);
+                }
+            } <span class="kw">else</span> {
+                <span class="comment">// When a sidewalk and a shoulder meet, use a simpler shape to connect them.</span>
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">l2</span>.<span class="ident">first_line</span>().<span class="ident">shift_left</span>(<span class="ident">l2</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt1</span>(),
+                    <span class="ident">l2</span>.<span class="ident">first_line</span>().<span class="ident">shift_right</span>(<span class="ident">l2</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt1</span>(),
+                    <span class="ident">l1</span>.<span class="ident">last_line</span>().<span class="ident">shift_right</span>(<span class="ident">l1</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt2</span>(),
+                    <span class="ident">l1</span>.<span class="ident">last_line</span>().<span class="ident">shift_left</span>(<span class="ident">l1</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt2</span>(),
+                ];
                 <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pts</span>[<span class="number">0</span>]);
-                <span class="prelude-val">Some</span>(<span class="ident">Polygon</span>::<span class="ident">buggy_new</span>(<span class="ident">pts</span>))
-            })() {
-                <span class="ident">corners</span>.<span class="ident">push</span>(<span class="ident">poly</span>);
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">ring</span>) <span class="op">=</span> <span class="ident">Ring</span>::<span class="ident">new</span>(<span class="ident">pts</span>) {
+                    <span class="ident">corners</span>.<span class="ident">push</span>(<span class="ident">ring</span>.<span class="ident">to_polygon</span>());
+                }
             }
         }
     }
