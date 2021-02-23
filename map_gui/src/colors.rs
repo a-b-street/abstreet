@@ -392,9 +392,9 @@ impl ColorScheme {
     fn night_mode() -> ColorScheme {
         let mut cs = ColorScheme::day_mode();
 
-        use widgetry::ButtonTheme;
-        cs.gui_style.btn_outline = ButtonTheme::btn_outline();
-        cs.gui_style.btn_solid = ButtonTheme::btn_solid_panel();
+        use widgetry::ButtonStyle;
+        cs.gui_style.btn_outline = ButtonStyle::btn_outline();
+        cs.gui_style.btn_solid = ButtonStyle::btn_solid_panel();
         cs.inner_panel_bg = cs.gui_style.panel_bg.alpha(1.0);
 
         cs.void_background = hex("#200A24");

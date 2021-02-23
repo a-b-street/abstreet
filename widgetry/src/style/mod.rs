@@ -9,17 +9,17 @@ pub struct Style {
     pub panel_bg: Color,
     pub hotkey_color: Color,
     pub loading_tips: Text,
-    pub btn_solid_panel: ButtonTheme,
-    pub btn_outline_dark: ButtonTheme,
-    pub btn_solid_floating: ButtonTheme,
-    pub btn_solid_destructive: ButtonTheme,
-    pub btn_outline_destructive: ButtonTheme,
-    pub btn_solid: ButtonTheme,
-    pub btn_outline: ButtonTheme,
+    pub btn_solid_panel: ButtonStyle,
+    pub btn_outline_dark: ButtonStyle,
+    pub btn_solid_floating: ButtonStyle,
+    pub btn_solid_destructive: ButtonStyle,
+    pub btn_outline_destructive: ButtonStyle,
+    pub btn_solid: ButtonStyle,
+    pub btn_outline: ButtonStyle,
 }
 
 #[derive(Clone)]
-pub struct ButtonTheme {
+pub struct ButtonStyle {
     pub fg: Color,
     pub fg_disabled: Color,
     pub outline: Color,
@@ -28,9 +28,9 @@ pub struct ButtonTheme {
     pub bg_disabled: Color,
 }
 
-impl ButtonTheme {
+impl ButtonStyle {
     pub fn btn_solid_panel() -> Self {
-        ButtonTheme {
+        ButtonStyle {
             fg: hex("#4C4C4C"),
             fg_disabled: hex("#4C4C4C").alpha(0.3),
             bg: Color::WHITE.alpha(0.8),
@@ -41,7 +41,7 @@ impl ButtonTheme {
     }
 
     pub fn btn_outline_dark() -> Self {
-        ButtonTheme {
+        ButtonStyle {
             fg: hex("#4C4C4C"),
             fg_disabled: hex("#4C4C4C").alpha(0.3),
             bg: Color::CLEAR,
@@ -52,7 +52,7 @@ impl ButtonTheme {
     }
 
     pub fn btn_solid_floating() -> Self {
-        ButtonTheme {
+        ButtonStyle {
             fg: hex("#F2F2F2"),
             fg_disabled: hex("#F2F2F2").alpha(0.3),
             bg: hex("#003046").alpha(0.8),
@@ -63,7 +63,7 @@ impl ButtonTheme {
     }
 
     pub fn btn_outline() -> Self {
-        ButtonTheme {
+        ButtonStyle {
             fg: hex("#F2F2F2"),
             fg_disabled: hex("#F2F2F2").alpha(0.3),
             bg: Color::CLEAR,
@@ -87,18 +87,18 @@ impl Style {
 
             // TODO: light/dark are color scheme details that have leaked into Style
             // deprecate these and assign the specific colors we want in the color scheme builder
-            btn_solid_panel: ButtonTheme::btn_solid_panel(),
-            btn_outline_dark: ButtonTheme::btn_outline_dark(),
-            btn_solid_floating: ButtonTheme::btn_solid_floating(),
+            btn_solid_panel: ButtonStyle::btn_solid_panel(),
+            btn_outline_dark: ButtonStyle::btn_outline_dark(),
+            btn_solid_floating: ButtonStyle::btn_solid_floating(),
 
             // legacy day theme
-            btn_outline: ButtonTheme::btn_outline(),
-            btn_solid: ButtonTheme::btn_solid_panel(),
+            btn_outline: ButtonStyle::btn_outline(),
+            btn_solid: ButtonStyle::btn_solid_panel(),
 
             // TODO new day theme
-            // btn_solid: ButtonTheme::btn_solid_floating(),
-            // btn_outline: ButtonTheme::btn_outline_dark(),
-            btn_solid_destructive: ButtonTheme {
+            // btn_solid: ButtonStyle::btn_solid_floating(),
+            // btn_outline: ButtonStyle::btn_outline_dark(),
+            btn_solid_destructive: ButtonStyle {
                 fg: hex("#F2F2F2"),
                 fg_disabled: hex("#F2F2F2").alpha(0.3),
                 bg: hex("#FF5E5E").alpha(0.8),
@@ -106,7 +106,7 @@ impl Style {
                 bg_disabled: Color::grey(0.1),
                 outline: hex("#FF5E5E").alpha(0.6),
             },
-            btn_outline_destructive: ButtonTheme {
+            btn_outline_destructive: ButtonStyle {
                 fg: hex("#FF5E5E"),
                 fg_disabled: hex("#FF5E5E").alpha(0.3),
                 bg: Color::CLEAR,

@@ -136,13 +136,13 @@ pub struct ButtonBuilder<'a> {
     is_label_before_image: bool,
     corner_rounding: Option<CornerRounding>,
     is_disabled: bool,
-    default_style: ButtonStyle<'a>,
-    hover_style: ButtonStyle<'a>,
-    disable_style: ButtonStyle<'a>,
+    default_style: ButtonStateStyle<'a>,
+    hover_style: ButtonStateStyle<'a>,
+    disable_style: ButtonStateStyle<'a>,
 }
 
 #[derive(Clone, Debug, Default)]
-struct ButtonStyle<'a> {
+struct ButtonStateStyle<'a> {
     image: Option<Image<'a>>,
     label: Option<Label<'a>>,
     outline: Option<(f64, Color)>,
@@ -526,7 +526,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
 
     // private  methods
 
-    fn style_mut(&'b mut self, state: ControlState) -> &'b mut ButtonStyle<'a> {
+    fn style_mut(&'b mut self, state: ControlState) -> &'b mut ButtonStateStyle<'a> {
         match state {
             ControlState::Default => &mut self.default_style,
             ControlState::Hovered => &mut self.hover_style,
@@ -534,7 +534,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         }
     }
 
-    fn style(&'b self, state: ControlState) -> &'b ButtonStyle<'a> {
+    fn style(&'b self, state: ControlState) -> &'b ButtonStateStyle<'a> {
         match state {
             ControlState::Default => &self.default_style,
             ControlState::Hovered => &self.hover_style,

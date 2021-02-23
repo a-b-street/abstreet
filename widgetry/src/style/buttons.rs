@@ -1,6 +1,6 @@
 use geom::CornerRadii;
 
-use super::ButtonTheme;
+use super::ButtonStyle;
 use crate::{
     include_labeled_bytes, ButtonBuilder, ControlState, EventCtx, Key, ScreenDims, Style, Widget,
 };
@@ -181,7 +181,7 @@ impl<'a> StyledButtons<'a> for Style {
 }
 
 impl<'a> Style {
-    pub fn btn_solid(&self, button_style: &ButtonTheme) -> ButtonBuilder<'a> {
+    pub fn btn_solid(&self, button_style: &ButtonStyle) -> ButtonBuilder<'a> {
         plain_button(button_style).outline(
             self.outline_thickness,
             button_style.outline,
@@ -189,7 +189,7 @@ impl<'a> Style {
         )
     }
 
-    pub fn btn_outline(&self, button_style: &ButtonTheme) -> ButtonBuilder<'a> {
+    pub fn btn_outline(&self, button_style: &ButtonStyle) -> ButtonBuilder<'a> {
         plain_button(button_style).outline(
             self.outline_thickness,
             button_style.outline,
@@ -254,7 +254,7 @@ fn dropdown_button<'a>(builder: ButtonBuilder<'a>) -> ButtonBuilder<'a> {
         .label_first()
 }
 
-pub fn plain_button<'a>(button_style: &ButtonTheme) -> ButtonBuilder<'a> {
+pub fn plain_button<'a>(button_style: &ButtonStyle) -> ButtonBuilder<'a> {
     ButtonBuilder::new()
         .label_color(button_style.fg, ControlState::Default)
         .label_color(button_style.fg_disabled, ControlState::Disabled)
