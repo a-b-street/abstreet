@@ -229,37 +229,50 @@ pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
             if map.get_l(turn.id.src).dst_i != i.id {
                 continue;
             }
-            let width = map
-                .get_l(turn.id.src)
-                .width
-                .min(map.get_l(turn.id.dst).width);
-
-            // Special case for dead-ends: just thicken the geometry.
-            if i.roads.len() == 1 {
-                corners.push(turn.geom.make_polygons(width));
-                continue;
-            }
-
             let l1 = map.get_l(turn.id.src);
             let l2 = map.get_l(turn.id.dst);
 
-            if let Some(poly) = (|| {
-                let mut pts = turn.geom.shift_left(width / 2.0).ok()?.into_points();
-                pts.push(l2.first_line().shift_left(width / 2.0).pt1());
-                pts.push(l2.first_line().shift_right(width / 2.0).pt1());
-                pts.extend(
-                    turn.geom
-                        .shift_right(width / 2.0)
-                        .ok()?
-                        .reversed()
-                        .into_points(),
-                );
-                pts.push(l1.last_line().shift_right(width / 2.0).pt2());
-                pts.push(l1.last_line().shift_left(width / 2.0).pt2());
+            // Special case for dead-ends: just thicken the geometry.
+            if i.roads.len() == 1 {
+                corners.push(turn.geom.make_polygons(l1.width.min(l2.width)));
+                continue;
+            }
+
+            if l1.width == l2.width {
+                // When two sidewalks or two shoulders meet, use the turn geometry to create some
+                // nice rounding.
+                let width = l1.width;
+                if let Some(poly) = (|| {
+                    let mut pts = turn.geom.shift_left(width / 2.0).ok()?.into_points();
+                    pts.push(l2.first_line().shift_left(width / 2.0).pt1());
+                    pts.push(l2.first_line().shift_right(width / 2.0).pt1());
+                    pts.extend(
+                        turn.geom
+                            .shift_right(width / 2.0)
+                            .ok()?
+                            .reversed()
+                            .into_points(),
+                    );
+                    pts.push(l1.last_line().shift_right(width / 2.0).pt2());
+                    pts.push(l1.last_line().shift_left(width / 2.0).pt2());
+                    pts.push(pts[0]);
+                    // Many resulting shapes aren't valid rings, but we can still triangulate them.
+                    Some(Polygon::buggy_new(pts))
+                })() {
+                    corners.push(poly);
+                }
+            } else {
+                // When a sidewalk and a shoulder meet, use a simpler shape to connect them.
+                let mut pts = vec![
+                    l2.first_line().shift_left(l2.width / 2.0).pt1(),
+                    l2.first_line().shift_right(l2.width / 2.0).pt1(),
+                    l1.last_line().shift_right(l1.width / 2.0).pt2(),
+                    l1.last_line().shift_left(l1.width / 2.0).pt2(),
+                ];
                 pts.push(pts[0]);
-                Some(Polygon::buggy_new(pts))
-            })() {
-                corners.push(poly);
+                if let Ok(ring) = Ring::new(pts) {
+                    corners.push(ring.to_polygon());
+                }
             }
         }
     }
