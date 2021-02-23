@@ -100,7 +100,7 @@ impl MainMenu {
             Widget::row({
                 let btn_builder = ctx
                     .style()
-                    .btn_solid_panel()
+                    .btn_solid()
                     .image_dims(ScreenDims::new(200.0, 100.0))
                     .font_size(40)
                     .font(Font::OverpassBold)

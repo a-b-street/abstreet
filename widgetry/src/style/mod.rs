@@ -9,13 +9,11 @@ pub struct Style {
     pub panel_bg: Color,
     pub hotkey_color: Color,
     pub loading_tips: Text,
-    pub btn_solid_panel: ButtonStyle,
-    pub btn_outline_dark: ButtonStyle,
+    pub btn_solid: ButtonStyle,
+    pub btn_outline: ButtonStyle,
     pub btn_solid_floating: ButtonStyle,
     pub btn_solid_destructive: ButtonStyle,
     pub btn_outline_destructive: ButtonStyle,
-    pub btn_solid: ButtonStyle,
-    pub btn_outline: ButtonStyle,
 }
 
 #[derive(Clone)]
@@ -29,7 +27,7 @@ pub struct ButtonStyle {
 }
 
 impl ButtonStyle {
-    pub fn btn_solid_panel() -> Self {
+    pub fn btn_solid() -> Self {
         ButtonStyle {
             fg: hex("#4C4C4C"),
             fg_disabled: hex("#4C4C4C").alpha(0.3),
@@ -84,17 +82,11 @@ impl Style {
             loading_tips: Text::new(),
 
             // Buttons
-
-            // TODO: light/dark are color scheme details that have leaked into Style
-            // deprecate these and assign the specific colors we want in the color scheme builder
-            btn_solid_panel: ButtonStyle::btn_solid_panel(),
-            btn_outline_dark: ButtonStyle::btn_outline_dark(),
             btn_solid_floating: ButtonStyle::btn_solid_floating(),
 
             // legacy day theme
             btn_outline: ButtonStyle::btn_outline(),
-            btn_solid: ButtonStyle::btn_solid_panel(),
-
+            btn_solid: ButtonStyle::btn_solid(),
             // TODO new day theme
             // btn_solid: ButtonStyle::btn_solid_floating(),
             // btn_outline: ButtonStyle::btn_outline_dark(),

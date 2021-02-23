@@ -6,12 +6,6 @@ use crate::{
 };
 
 pub trait StyledButtons<'a> {
-    // Everything above this is deprecated and should be replaced with a call to a method
-    // which chooses a light vs. dark button as is appropriate for the theme. However, we can't
-    // "just" do this without breaking some current layouts.
-    fn btn_solid_panel(&self) -> ButtonBuilder<'a>;
-    fn btn_solid_floating(&self) -> ButtonBuilder<'a>;
-
     fn btn_plain(&self) -> ButtonBuilder<'a>;
     fn btn_plain_text(&self, text: &'a str) -> ButtonBuilder<'a> {
         self.btn_plain().label_text(text)
@@ -44,6 +38,8 @@ pub trait StyledButtons<'a> {
     }
 
     fn btn_solid(&self) -> ButtonBuilder<'a>;
+    fn btn_solid_floating(&self) -> ButtonBuilder<'a>;
+
     fn btn_solid_text(&self, text: &'a str) -> ButtonBuilder<'a> {
         self.btn_solid().label_text(text)
     }
@@ -147,56 +143,36 @@ pub trait StyledButtons<'a> {
 }
 
 impl<'a> StyledButtons<'a> for Style {
-    fn btn_solid_panel(&self) -> ButtonBuilder<'a> {
-        self.btn_solid(&self.btn_solid_panel)
-    }
-
-    fn btn_solid_floating(&self) -> ButtonBuilder<'a> {
-        self.btn_solid(&self.btn_solid_floating)
-    }
-
     fn btn_solid(&self) -> ButtonBuilder<'a> {
-        self.btn_solid(&self.btn_solid)
+        basic_button(&self.btn_solid, Some(self.outline_thickness))
     }
 
     fn btn_outline(&self) -> ButtonBuilder<'a> {
-        self.btn_outline(&self.btn_outline)
+        basic_button(&self.btn_outline, Some(self.outline_thickness))
+    }
+
+    fn btn_solid_floating(&self) -> ButtonBuilder<'a> {
+        basic_button(&self.btn_solid_floating, Some(self.outline_thickness))
     }
 
     fn btn_plain(&self) -> ButtonBuilder<'a> {
-        plain_button(&self.btn_outline)
+        basic_button(&self.btn_outline, None)
     }
 
     fn btn_plain_destructive(&self) -> ButtonBuilder<'a> {
-        plain_button(&self.btn_outline_destructive)
+        basic_button(&self.btn_outline_destructive, None)
     }
 
     fn btn_solid_destructive(&self) -> ButtonBuilder<'a> {
-        self.btn_solid(&self.btn_solid_destructive)
+        basic_button(&self.btn_solid_destructive, Some(self.outline_thickness))
     }
 
     fn btn_outline_destructive(&self) -> ButtonBuilder<'a> {
-        self.btn_outline(&self.btn_solid_destructive)
+        basic_button(&self.btn_solid_destructive, Some(self.outline_thickness))
     }
 }
 
 impl<'a> Style {
-    pub fn btn_solid(&self, button_style: &ButtonStyle) -> ButtonBuilder<'a> {
-        plain_button(button_style).outline(
-            self.outline_thickness,
-            button_style.outline,
-            ControlState::Default,
-        )
-    }
-
-    pub fn btn_outline(&self, button_style: &ButtonStyle) -> ButtonBuilder<'a> {
-        plain_button(button_style).outline(
-            self.outline_thickness,
-            button_style.outline,
-            ControlState::Default,
-        )
-    }
-
     pub fn btn_light_popup_icon_text(
         &self,
         icon_path: &'a str,
@@ -207,7 +183,7 @@ impl<'a> Style {
 
         // The text is styled like an "outline" button, while the image is styled like a "solid"
         // button.
-        self.btn_outline(outline_style)
+        basic_button(outline_style, Some(self.outline_thickness))
             .label_text(text)
             .image_path(icon_path)
             .image_dims(25.0)
@@ -254,13 +230,26 @@ fn dropdown_button<'a>(builder: ButtonBuilder<'a>) -> ButtonBuilder<'a> {
         .label_first()
 }
 
-pub fn plain_button<'a>(button_style: &ButtonStyle) -> ButtonBuilder<'a> {
-    ButtonBuilder::new()
+fn basic_button<'a>(
+    button_style: &ButtonStyle,
+    outline_thickness: Option<f64>,
+) -> ButtonBuilder<'a> {
+    let mut builder = ButtonBuilder::new()
         .label_color(button_style.fg, ControlState::Default)
         .label_color(button_style.fg_disabled, ControlState::Disabled)
         .image_color(button_style.fg, ControlState::Default)
         .image_color(button_style.fg_disabled, ControlState::Disabled)
         .bg_color(button_style.bg, ControlState::Default)
         .bg_color(button_style.bg_hover, ControlState::Hovered)
-        .bg_color(button_style.bg_disabled, ControlState::Disabled)
+        .bg_color(button_style.bg_disabled, ControlState::Disabled);
+
+    if let Some(outline_thickness) = outline_thickness {
+        builder.outline(
+            outline_thickness,
+            button_style.outline,
+            ControlState::Default,
+        )
+    } else {
+        builder
+    }
 }

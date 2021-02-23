@@ -2,7 +2,8 @@ use geom::Polygon;
 
 use crate::{
     Button, ButtonBuilder, Choice, Color, ControlState, Dropdown, EventCtx, GeomBatch, GfxCtx,
-    JustDraw, MultiKey, Outcome, ScreenDims, ScreenPt, Widget, WidgetImpl, WidgetOutput,
+    JustDraw, MultiKey, Outcome, ScreenDims, ScreenPt, StyledButtons, Widget, WidgetImpl,
+    WidgetOutput,
 };
 
 // TODO Radio buttons in the menu
@@ -69,9 +70,8 @@ impl<T: 'static + PartialEq + Clone + std::fmt::Debug> PersistentSplit<T> {
 }
 
 fn button_builder<'a>(ctx: &EventCtx) -> ButtonBuilder<'a> {
-    let outline_style = &ctx.style().btn_outline;
     ctx.style()
-        .btn_outline(outline_style)
+        .btn_plain()
         .outline(0.0, Color::CLEAR, ControlState::Default)
 }
 
