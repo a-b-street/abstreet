@@ -38,10 +38,13 @@ pub fn setup(
     let canvas = winit_window.canvas();
     let window = web_sys::window().unwrap();
     let document = window.document().unwrap();
-    document.get_element_by_id("loading").unwrap().remove();
-    let body = document.body().unwrap();
-    body.append_child(&canvas)
-        .expect("Append canvas to HTML body");
+    let div = document
+        .get_element_by_id("widgetry-canvas")
+        .expect("no widgetry-canvas div");
+    // Clear out any loading messages
+    div.set_inner_html("");
+    div.append_child(&canvas)
+        .expect("can't append canvas to widgetry-canvas div");
 
     let winit_window = Rc::new(winit_window);
 
