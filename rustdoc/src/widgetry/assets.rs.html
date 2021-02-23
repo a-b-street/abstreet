@@ -151,7 +151,6 @@
 <span id="148">148</span>
 <span id="149">149</span>
 <span id="150">150</span>
-<span id="151">151</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
@@ -170,8 +169,7 @@
     <span class="kw">pub</span> <span class="ident">default_line_height</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
     <span class="ident">text_cache</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">LruCache</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">GeomBatch</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">line_height_cache</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span>(<span class="ident">Font</span>, <span class="ident">usize</span>), <span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="comment">// Keyed by filename, then scale factor mangled into a hashable form. Tuple doesn&#39;t work</span>
-    <span class="comment">// because of borrowing.</span>
+    <span class="comment">// Keyed by filename</span>
     <span class="ident">svg_cache</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, (<span class="ident">GeomBatch</span>, <span class="ident">Bounds</span>)<span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">font_to_id</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Font</span>, <span class="ident">fontdb</span>::<span class="ident">ID</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">text_opts</span>: <span class="ident">Options</span>,

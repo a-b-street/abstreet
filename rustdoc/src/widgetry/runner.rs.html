@@ -382,8 +382,33 @@
 <span id="379">379</span>
 <span id="380">380</span>
 <span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::{<span class="ident">Cell</span>, <span class="ident">RefCell</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">Cell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">panic</span>;
 
 <span class="kw">use</span> <span class="ident">image</span>::{<span class="ident">GenericImageView</span>, <span class="ident">Pixel</span>};
@@ -544,6 +569,7 @@
     <span class="ident">window_title</span>: <span class="ident">String</span>,
     <span class="ident">dump_raw_events</span>: <span class="ident">bool</span>,
     <span class="ident">scale_factor</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
+    <span class="ident">require_minimum_width</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
     <span class="ident">window_icon</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="ident">loading_tips</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>,
     <span class="ident">read_svg</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -556,6 +582,7 @@
             <span class="ident">window_title</span>: <span class="ident">window_title</span>.<span class="ident">to_string</span>(),
             <span class="ident">dump_raw_events</span>: <span class="bool-val">false</span>,
             <span class="ident">scale_factor</span>: <span class="prelude-val">None</span>,
+            <span class="ident">require_minimum_width</span>: <span class="prelude-val">None</span>,
             <span class="ident">window_icon</span>: <span class="prelude-val">None</span>,
             <span class="ident">loading_tips</span>: <span class="prelude-val">None</span>,
             <span class="ident">read_svg</span>: <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> {
@@ -580,6 +607,17 @@
     <span class="doccomment">/// Override the initial HiDPI scale factor from whatever winit initially detects.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scale_factor</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scale_factor</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">scale_factor</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">scale_factor</span>);
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// If the screen width using the monitor&#39;s detected scale factor is below this value (in units</span>
+    <span class="doccomment">/// of logical pixels, not physical), then force the scale factor to be 1. If `scale_factor()`</span>
+    <span class="doccomment">/// has been called, always use that override. This is helpful for users with HiDPI displays at</span>
+    <span class="doccomment">/// low resolutions, for applications designed for screens with some minimum width. Scaling</span>
+    <span class="doccomment">/// down UI elements isn&#39;t ideal (since it doesn&#39;t respect the user&#39;s device settings), but</span>
+    <span class="doccomment">/// having panels overlap is worse.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">require_minimum_width</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">width</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">require_minimum_width</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">width</span>);
         <span class="self">self</span>
     }
 
@@ -631,12 +669,24 @@
     }
 
     <span class="kw">let</span> <span class="ident">monitor_scale_factor</span> <span class="op">=</span> <span class="ident">prerender_innards</span>.<span class="ident">monitor_scale_factor</span>();
-    <span class="kw">let</span> <span class="ident">prerender</span> <span class="op">=</span> <span class="ident">Prerender</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">prerender</span> <span class="op">=</span> <span class="ident">Prerender</span> {
         <span class="ident">assets</span>: <span class="ident">Assets</span>::<span class="ident">new</span>(<span class="ident">settings</span>.<span class="ident">read_svg</span>),
         <span class="ident">num_uploads</span>: <span class="ident">Cell</span>::<span class="ident">new</span>(<span class="number">0</span>),
         <span class="ident">inner</span>: <span class="ident">prerender_innards</span>,
-        <span class="ident">scale_factor</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="ident">settings</span>.<span class="ident">scale_factor</span>.<span class="ident">unwrap_or</span>(<span class="ident">monitor_scale_factor</span>)),
+        <span class="ident">scale_factor</span>: <span class="ident">settings</span>.<span class="ident">scale_factor</span>.<span class="ident">unwrap_or</span>(<span class="ident">monitor_scale_factor</span>),
     };
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">min_width</span>) <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">require_minimum_width</span> {
+        <span class="kw">let</span> <span class="ident">initial_size</span> <span class="op">=</span> <span class="ident">prerender</span>.<span class="ident">window_size</span>();
+        <span class="kw">if</span> <span class="ident">initial_size</span>.<span class="ident">width</span> <span class="op">&lt;</span> <span class="ident">min_width</span> <span class="op">&amp;&amp;</span> <span class="ident">settings</span>.<span class="ident">scale_factor</span>.<span class="ident">is_none</span>() {
+            <span class="macro">warn</span><span class="macro">!</span>(
+                <span class="string">&quot;Monitor scale factor is {}, screen window is {}, but the application requires \
+                 {}. Overriding the scale factor to 1.&quot;</span>,
+                <span class="ident">monitor_scale_factor</span>, <span class="ident">initial_size</span>.<span class="ident">width</span>, <span class="ident">min_width</span>
+            );
+            <span class="ident">prerender</span>.<span class="ident">scale_factor</span> <span class="op">=</span> <span class="number">1.0</span>;
+        }
+    }
+
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">style</span> <span class="op">=</span> <span class="ident">Style</span>::<span class="ident">standard</span>();
     <span class="ident">style</span>.<span class="ident">loading_tips</span> <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">loading_tips</span>.<span class="ident">unwrap_or_else</span>(<span class="ident">Text</span>::<span class="ident">new</span>);
 

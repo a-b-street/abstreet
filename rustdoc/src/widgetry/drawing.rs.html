@@ -307,7 +307,7 @@
 <span id="304">304</span>
 <span id="305">305</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::{<span class="ident">Cell</span>, <span class="ident">RefCell</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">Cell</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
@@ -555,7 +555,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">inner</span>: <span class="ident">PrerenderInnards</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">assets</span>: <span class="ident">Assets</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">num_uploads</span>: <span class="ident">Cell</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">scale_factor</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">scale_factor</span>: <span class="ident">f64</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Prerender</span> {
@@ -583,7 +583,7 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">get_scale_factor</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
-        <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">scale_factor</span>.<span class="ident">borrow</span>()
+        <span class="self">self</span>.<span class="ident">scale_factor</span>
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">window_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ScreenDims</span> {

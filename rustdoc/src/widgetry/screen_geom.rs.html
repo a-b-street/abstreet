@@ -164,10 +164,6 @@
 <span id="161">161</span>
 <span id="162">162</span>
 <span id="163">163</span>
-<span id="164">164</span>
-<span id="165">165</span>
-<span id="166">166</span>
-<span id="167">167</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -309,10 +305,6 @@
                 <span class="ident">ScreenPt</span>::<span class="ident">new</span>(<span class="ident">corner</span>.<span class="ident">x</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">width</span>, <span class="ident">corner</span>.<span class="ident">y</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">height</span>)
             }
         }
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scaled</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">factor</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ScreenDims</span> {
-        <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">width</span> <span class="op">*</span> <span class="ident">factor</span>, <span class="self">self</span>.<span class="ident">height</span> <span class="op">*</span> <span class="ident">factor</span>)
     }
 }
 
