@@ -234,7 +234,7 @@ fn basic_button<'a>(
     button_style: &ButtonStyle,
     outline_thickness: Option<f64>,
 ) -> ButtonBuilder<'a> {
-    let mut builder = ButtonBuilder::new()
+    let builder = ButtonBuilder::new()
         .label_color(button_style.fg, ControlState::Default)
         .label_color(button_style.fg_disabled, ControlState::Disabled)
         .image_color(button_style.fg, ControlState::Default)
