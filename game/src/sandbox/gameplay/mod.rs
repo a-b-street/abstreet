@@ -240,12 +240,12 @@ fn challenge_header(ctx: &mut EventCtx, title: &str) -> Widget {
     Widget::row(vec![
         Line(title).small_heading().draw(ctx).centered_vert(),
         ctx.style()
-            .btn_plain_light_icon("system/assets/tools/info.svg")
+            .btn_plain_icon("system/assets/tools/info.svg")
             .build_widget(ctx, "instructions")
             .centered_vert(),
         Widget::vert_separator(ctx, 50.0),
         ctx.style()
-            .btn_outline_light_icon_text("system/assets/tools/pencil.svg", "Edit map")
+            .btn_outline_icon_text("system/assets/tools/pencil.svg", "Edit map")
             .hotkey(lctrl(Key::E))
             .build_widget(ctx, "edit map")
             .centered_vert(),
@@ -285,19 +285,15 @@ impl FinalScore {
                     Widget::col(vec![
                         msg.draw_text(ctx),
                         // TODO Adjust wording
-                        ctx.style()
-                            .btn_solid_dark_text("Keep simulating")
-                            .build_def(ctx),
-                        ctx.style().btn_solid_dark_text("Try again").build_def(ctx),
+                        ctx.style().btn_solid_text("Keep simulating").build_def(ctx),
+                        ctx.style().btn_solid_text("Try again").build_def(ctx),
                         if next_mode.is_some() {
-                            ctx.style()
-                                .btn_solid_dark_text("Next challenge")
-                                .build_def(ctx)
+                            ctx.style().btn_solid_text("Next challenge").build_def(ctx)
                         } else {
                             Widget::nothing()
                         },
                         ctx.style()
-                            .btn_solid_dark_text("Back to challenges")
+                            .btn_solid_text("Back to challenges")
                             .build_def(ctx),
                     ])
                     .outline(10.0, Color::BLACK)

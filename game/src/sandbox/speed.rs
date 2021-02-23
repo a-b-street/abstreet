@@ -48,7 +48,7 @@ impl SpeedControls {
         row.push({
             let button = ctx
                 .style()
-                .btn_plain_light_icon("system/assets/speed/triangle.svg")
+                .btn_plain_icon("system/assets/speed/triangle.svg")
                 .hotkey(Key::Space);
 
             Widget::custom_row(vec![if self.paused {
@@ -77,7 +77,7 @@ impl SpeedControls {
 
                     let mut triangle_btn = ctx
                         .style()
-                        .btn_plain_light()
+                        .btn_plain()
                         .image_path("system/assets/speed/triangle.svg")
                         .image_dims(ScreenDims::new(16.0, 26.0))
                         .tooltip(txt)
@@ -96,10 +96,8 @@ impl SpeedControls {
                     }
 
                     if self.setting < s {
-                        triangle_btn = triangle_btn.image_color(
-                            ctx.style().btn_outline_light.fg_disabled,
-                            ControlState::Default,
-                        )
+                        triangle_btn = triangle_btn
+                            .image_color(ctx.style().btn_outline.fg_disabled, ControlState::Default)
                     }
 
                     triangle_btn.build_widget(ctx, label)
@@ -127,14 +125,14 @@ impl SpeedControls {
 
         row.push(
             ctx.style()
-                .btn_plain_light_icon("system/assets/speed/jump_to_time.svg")
+                .btn_plain_icon("system/assets/speed/jump_to_time.svg")
                 .hotkey(Key::B)
                 .build_widget(ctx, "jump to specific time"),
         );
 
         row.push(
             ctx.style()
-                .btn_plain_light_icon("system/assets/speed/reset.svg")
+                .btn_plain_icon("system/assets/speed/reset.svg")
                 .hotkey(Key::X)
                 .build_widget(ctx, "reset to midnight"),
         );

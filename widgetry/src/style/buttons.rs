@@ -6,91 +6,51 @@ use crate::{
 };
 
 pub trait StyledButtons<'a> {
-    fn btn_solid_dark(&self) -> ButtonBuilder<'a>;
-    fn btn_solid_dark_text(&self, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_solid_dark().label_text(text)
+    fn btn_plain(&self) -> ButtonBuilder<'a>;
+    fn btn_plain_text(&self, text: &'a str) -> ButtonBuilder<'a> {
+        self.btn_plain().label_text(text)
     }
-    fn btn_solid_dark_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
-        icon_button(self.btn_solid_dark().image_path(image_path))
+    fn btn_plain_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
+        icon_button(self.btn_plain().image_path(image_path))
     }
-    fn btn_solid_dark_icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_solid_dark()
+    fn btn_plain_icon_bytes(&self, labeled_bytes: (&'a str, &'a [u8])) -> ButtonBuilder<'a> {
+        icon_button(self.btn_plain().image_bytes(labeled_bytes))
+    }
+    fn btn_plain_icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
+        self.btn_plain()
             .label_text(text)
             .image_path(image_path)
             .image_dims(ScreenDims::square(18.0))
     }
 
-    fn btn_outline_dark(&self) -> ButtonBuilder<'a>;
-    fn btn_outline_dark_text(&self, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_outline_dark().label_text(text)
+    fn btn_outline(&self) -> ButtonBuilder<'a>;
+    fn btn_outline_text(&self, text: &'a str) -> ButtonBuilder<'a> {
+        self.btn_outline().label_text(text)
     }
-    fn btn_outline_dark_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
-        icon_button(self.btn_outline_dark().image_path(image_path))
+    fn btn_outline_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
+        icon_button(self.btn_outline().image_path(image_path))
     }
-    fn btn_outline_dark_icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_outline_dark()
+    fn btn_outline_icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
+        self.btn_outline()
             .label_text(text)
             .image_path(image_path)
             .image_dims(ScreenDims::square(18.0))
     }
 
-    fn btn_solid_light(&self) -> ButtonBuilder<'a>;
-    fn btn_solid_light_text(&self, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_solid_light().label_text(text)
-    }
-    fn btn_solid_light_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
-        icon_button(self.btn_solid_light().image_path(image_path))
-    }
-    fn btn_solid_light_icon_bytes(&self, labeled_bytes: (&'a str, &'a [u8])) -> ButtonBuilder<'a> {
-        icon_button(self.btn_solid_light().image_bytes(labeled_bytes))
-    }
-    fn btn_solid_light_icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_solid_light()
-            .label_text(text)
-            .image_path(image_path)
-            .image_dims(ScreenDims::square(18.0))
-    }
+    fn btn_solid(&self) -> ButtonBuilder<'a>;
+    fn btn_solid_floating(&self) -> ButtonBuilder<'a>;
 
-    fn btn_outline_light(&self) -> ButtonBuilder<'a>;
-    fn btn_outline_light_text(&self, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_outline_light().label_text(text)
+    fn btn_solid_text(&self, text: &'a str) -> ButtonBuilder<'a> {
+        self.btn_solid().label_text(text)
     }
-    fn btn_outline_light_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
-        icon_button(self.btn_outline_light().image_path(image_path))
+    fn btn_solid_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
+        icon_button(self.btn_solid().image_path(image_path))
     }
-    fn btn_outline_light_icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_outline_light()
-            .label_text(text)
-            .image_path(image_path)
-            .image_dims(ScreenDims::square(18.0))
+    fn btn_solid_icon_bytes(&self, labeled_bytes: (&'a str, &'a [u8])) -> ButtonBuilder<'a> {
+        icon_button(self.btn_solid().image_bytes(labeled_bytes))
     }
-
-    fn btn_plain_dark(&self) -> ButtonBuilder<'a>;
-    fn btn_plain_dark_text(&self, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_plain_dark().label_text(text)
-    }
-    fn btn_plain_dark_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
-        icon_button(self.btn_plain_dark().image_path(image_path))
-    }
-    fn btn_plain_dark_icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_plain_dark()
-            .label_text(text)
-            .image_path(image_path)
-            .image_dims(ScreenDims::square(18.0))
-    }
-
-    fn btn_plain_light(&self) -> ButtonBuilder<'a>;
-    fn btn_plain_light_text(&self, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_plain_light().label_text(text)
-    }
-    fn btn_plain_light_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
-        icon_button(self.btn_plain_light().image_path(image_path))
-    }
-    fn btn_plain_light_icon_bytes(&self, labeled_bytes: (&'a str, &'a [u8])) -> ButtonBuilder<'a> {
-        icon_button(self.btn_plain_light().image_bytes(labeled_bytes))
-    }
-    fn btn_plain_light_icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_plain_light()
+    fn btn_solid_icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
+        self.btn_solid()
             .label_text(text)
             .image_path(image_path)
             .image_dims(ScreenDims::square(18.0))
@@ -143,52 +103,35 @@ pub trait StyledButtons<'a> {
     // Specific UI Elements
 
     /// title: name of previous screen, which you'll return to
-    fn btn_light_back(&self, title: &'a str) -> ButtonBuilder<'a> {
-        back_button(self.btn_plain_light(), title)
+    fn btn_back(&self, title: &'a str) -> ButtonBuilder<'a> {
+        back_button(self.btn_plain(), title)
     }
 
-    /// title: name of previous screen, which you'll return to
-    fn btn_dark_back(&self, title: &'a str) -> ButtonBuilder<'a> {
-        back_button(self.btn_plain_dark(), title)
+    fn btn_outline_dropdown(&self) -> ButtonBuilder<'a> {
+        dropdown_button(self.btn_outline())
     }
 
-    fn btn_solid_light_dropdown(&self) -> ButtonBuilder<'a> {
-        dropdown_button(self.btn_solid_light())
+    fn btn_solid_dropdown(&self) -> ButtonBuilder<'a> {
+        dropdown_button(self.btn_solid())
     }
 
-    fn btn_outline_light_dropdown(&self) -> ButtonBuilder<'a> {
-        dropdown_button(self.btn_outline_light())
-    }
-
-    fn btn_solid_dark_dropdown(&self) -> ButtonBuilder<'a> {
-        dropdown_button(self.btn_solid_dark())
-    }
-
-    fn btn_outline_dark_dropdown(&self) -> ButtonBuilder<'a> {
-        dropdown_button(self.btn_outline_dark())
-    }
-
-    fn btn_outline_light_popup(&self, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_outline_light_dropdown().label_text(text)
-    }
-
-    fn btn_outline_dark_popup(&self, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_outline_dark_dropdown().label_text(text)
+    fn btn_outline_popup(&self, text: &'a str) -> ButtonBuilder<'a> {
+        self.btn_outline_dropdown().label_text(text)
     }
 
     /// A right facing caret, like ">", suitable for paging to the "next" set of results
     fn btn_next(&self) -> ButtonBuilder<'a> {
-        self.btn_plain_light_icon_bytes(include_labeled_bytes!("../../icons/next.svg"))
+        self.btn_plain_icon_bytes(include_labeled_bytes!("../../icons/next.svg"))
     }
 
     /// A left facing caret, like "<", suitable for paging to the "next" set of results
     fn btn_prev(&self) -> ButtonBuilder<'a> {
-        self.btn_plain_light_icon_bytes(include_labeled_bytes!("../../icons/prev.svg"))
+        self.btn_plain_icon_bytes(include_labeled_bytes!("../../icons/prev.svg"))
     }
 
     /// An "X" button to close the current state. Bound to the escape key.
     fn btn_close(&self) -> ButtonBuilder<'a> {
-        self.btn_plain_light_icon_bytes(include_labeled_bytes!("../../icons/close.svg"))
+        self.btn_plain_icon_bytes(include_labeled_bytes!("../../icons/close.svg"))
             .hotkey(Key::Escape)
     }
 
@@ -200,96 +143,51 @@ pub trait StyledButtons<'a> {
 }
 
 impl<'a> StyledButtons<'a> for Style {
-    fn btn_solid_dark(&self) -> ButtonBuilder<'a> {
-        self.btn_solid(&self.btn_solid_dark)
+    fn btn_solid(&self) -> ButtonBuilder<'a> {
+        basic_button(&self.btn_solid, Some(self.outline_thickness))
     }
 
-    fn btn_outline_dark(&self) -> ButtonBuilder<'a> {
-        self.btn_outline(&self.btn_outline_dark)
+    fn btn_outline(&self) -> ButtonBuilder<'a> {
+        basic_button(&self.btn_outline, Some(self.outline_thickness))
     }
 
-    fn btn_plain_dark(&self) -> ButtonBuilder<'a> {
-        self.btn_plain(&self.btn_outline_dark)
+    fn btn_solid_floating(&self) -> ButtonBuilder<'a> {
+        basic_button(&self.btn_solid_floating, Some(self.outline_thickness))
     }
 
-    fn btn_solid_light(&self) -> ButtonBuilder<'a> {
-        self.btn_solid(&self.btn_solid_light)
-    }
-
-    fn btn_outline_light(&self) -> ButtonBuilder<'a> {
-        self.btn_outline(&self.btn_outline_light)
-    }
-
-    fn btn_plain_light(&self) -> ButtonBuilder<'a> {
-        self.btn_plain(&self.btn_outline_light)
+    fn btn_plain(&self) -> ButtonBuilder<'a> {
+        basic_button(&self.btn_outline, None)
     }
 
     fn btn_plain_destructive(&self) -> ButtonBuilder<'a> {
-        self.btn_plain(&self.btn_outline_destructive)
+        basic_button(&self.btn_outline_destructive, None)
     }
 
     fn btn_solid_destructive(&self) -> ButtonBuilder<'a> {
-        self.btn_solid(&self.btn_solid_destructive)
+        basic_button(&self.btn_solid_destructive, Some(self.outline_thickness))
     }
 
     fn btn_outline_destructive(&self) -> ButtonBuilder<'a> {
-        self.btn_outline(&self.btn_solid_destructive)
+        basic_button(&self.btn_solid_destructive, Some(self.outline_thickness))
     }
 }
 
 impl<'a> Style {
-    pub fn btn_plain(&self, button_style: &ButtonStyle) -> ButtonBuilder<'a> {
-        ButtonBuilder::new()
-            .label_color(button_style.fg, ControlState::Default)
-            .label_color(button_style.fg_disabled, ControlState::Disabled)
-            .image_color(button_style.fg, ControlState::Default)
-            .image_color(button_style.fg_disabled, ControlState::Disabled)
-            .bg_color(button_style.bg, ControlState::Default)
-            .bg_color(button_style.bg_hover, ControlState::Hovered)
-            .bg_color(button_style.bg_disabled, ControlState::Disabled)
-    }
-
-    pub fn btn_solid(&self, button_style: &ButtonStyle) -> ButtonBuilder<'a> {
-        self.btn_plain(button_style).outline(
-            self.outline_thickness,
-            button_style.outline,
-            ControlState::Default,
-        )
-    }
-
-    pub fn btn_outline(&self, button_style: &ButtonStyle) -> ButtonBuilder<'a> {
-        self.btn_plain(button_style).outline(
-            self.outline_thickness,
-            button_style.outline,
-            ControlState::Default,
-        )
-    }
-
     pub fn btn_light_popup_icon_text(
         &self,
         icon_path: &'a str,
         text: &'a str,
     ) -> ButtonBuilder<'a> {
-        let outline_style = &self.btn_outline_light;
-        let solid_style = &self.btn_solid_dark;
+        let outline_style = &self.btn_outline;
+        let solid_style = &self.btn_solid;
 
         // The text is styled like an "outline" button, while the image is styled like a "solid"
         // button.
-        self.btn_outline(outline_style)
+        basic_button(outline_style, Some(self.outline_thickness))
             .label_text(text)
             .image_path(icon_path)
             .image_dims(25.0)
             .image_color(solid_style.fg, ControlState::Default)
-            .outline(
-                self.outline_thickness,
-                solid_style.outline,
-                ControlState::Default,
-            )
-            .outline(
-                self.outline_thickness,
-                solid_style.bg_hover,
-                ControlState::Hovered,
-            )
             .image_bg_color(solid_style.bg, ControlState::Default)
             .image_bg_color(solid_style.bg_hover, ControlState::Hovered)
             // Move the padding from the *entire button* to just the image, so we get a colored
@@ -330,4 +228,28 @@ fn dropdown_button<'a>(builder: ButtonBuilder<'a>) -> ButtonBuilder<'a> {
         .image_dims(12.0)
         .stack_spacing(12.0)
         .label_first()
+}
+
+fn basic_button<'a>(
+    button_style: &ButtonStyle,
+    outline_thickness: Option<f64>,
+) -> ButtonBuilder<'a> {
+    let builder = ButtonBuilder::new()
+        .label_color(button_style.fg, ControlState::Default)
+        .label_color(button_style.fg_disabled, ControlState::Disabled)
+        .image_color(button_style.fg, ControlState::Default)
+        .image_color(button_style.fg_disabled, ControlState::Disabled)
+        .bg_color(button_style.bg, ControlState::Default)
+        .bg_color(button_style.bg_hover, ControlState::Hovered)
+        .bg_color(button_style.bg_disabled, ControlState::Disabled);
+
+    if let Some(outline_thickness) = outline_thickness {
+        builder.outline(
+            outline_thickness,
+            button_style.outline,
+            ControlState::Default,
+        )
+    } else {
+        builder
+    }
 }

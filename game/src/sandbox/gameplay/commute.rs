@@ -205,7 +205,7 @@ impl GameplayState for OptimizeCommute {
                     .draw_text(ctx)
                     .centered_vert(),
                 ctx.style()
-                    .btn_plain_light_icon_text("system/assets/tools/lightbulb.svg", "Hint")
+                    .btn_plain_icon_text("system/assets/tools/lightbulb.svg", "Hint")
                     .build_widget(ctx, "hint")
                     .align_right(),
             ]),
@@ -249,7 +249,7 @@ fn make_meter(
         Widget::horiz_separator(ctx, 0.2),
         Widget::row(vec![
             ctx.style()
-                .btn_plain_light_icon("system/assets/tools/location.svg")
+                .btn_plain_icon("system/assets/tools/location.svg")
                 .build_widget(ctx, "locate VIP"),
             format!("{}/{} trips done", done, trips).draw_text(ctx),
             txt.draw(ctx),

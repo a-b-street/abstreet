@@ -313,59 +313,33 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
         // Button Style Gallery
         // TODO might be nice to have this in separate tabs or something.
         Text::from(Line("Buttons").big_heading_styled().size(18)).draw(ctx),
-        Widget::row(vec![
-            Widget::col(vec![
-                Text::from(Line("Neutral Dark")).bg(Color::CLEAR).draw(ctx),
-                btn.btn_solid_dark_text("Primary")
-                    .build_widget(ctx, "btn_solid_dark_text"),
-                Widget::row(vec![
-                    btn.btn_solid_dark_icon("system/assets/tools/map.svg")
-                        .build_widget(ctx, "btn_solid_dark_icon_1"),
-                    btn.btn_solid_dark_icon("system/assets/tools/layers.svg")
-                        .build_widget(ctx, "btn_solid_dark_icon_2"),
-                ]),
-                btn.btn_solid_dark_icon_text("system/assets/tools/location.svg", "Primary")
-                    .build_widget(ctx, "btn_solid_dark_icon_text"),
-                btn.btn_outline_dark_text("Secondary")
-                    .build_widget(ctx, "btn_outline_dark_text"),
-                Widget::row(vec![
-                    btn.btn_outline_dark_icon("system/assets/tools/map.svg")
-                        .build_widget(ctx, "btn_outline_dark_icon_1"),
-                    btn.btn_outline_dark_icon("system/assets/tools/layers.svg")
-                        .build_widget(ctx, "btn_outline_dark_icon_2"),
-                ]),
-                btn.btn_outline_dark_icon_text("system/assets/tools/home.svg", "Secondary")
-                    .build_widget(ctx, "btn_outline_dark_icon_text"),
+        Widget::row(vec![Widget::col(vec![
+            btn.btn_solid_text("Primary")
+                .build_widget(ctx, "btn_solid_text"),
+            Widget::row(vec![
+                btn.btn_solid_icon("system/assets/tools/map.svg")
+                    .build_widget(ctx, "btn_solid_icon_1"),
+                btn.btn_solid_icon("system/assets/tools/layers.svg")
+                    .build_widget(ctx, "btn_solid_icon_2"),
             ]),
-            Widget::col(vec![
-                Text::from(Line("Neutral Light")).bg(Color::CLEAR).draw(ctx),
-                btn.btn_solid_light_text("Primary")
-                    .build_widget(ctx, "btn_solid_light_text"),
-                Widget::row(vec![
-                    btn.btn_solid_light_icon("system/assets/tools/home.svg")
-                        .build_widget(ctx, "btn_solid_light_icon_1"),
-                    btn.btn_solid_light_icon("system/assets/tools/location.svg")
-                        .build_widget(ctx, "btn_solid_light_icon_2"),
-                ]),
-                btn.btn_solid_light_icon_text("system/assets/tools/map.svg", "Primary")
-                    .build_widget(ctx, "btn_solid_light_icon_text"),
-                btn.btn_outline_light_text("Secondary")
-                    .build_widget(ctx, "btn_outline_light_text"),
-                Widget::row(vec![
-                    btn.btn_outline_light_icon("system/assets/tools/home.svg")
-                        .build_widget(ctx, "btn_outline_light_icon_1"),
-                    btn.btn_outline_light_icon("system/assets/tools/location.svg")
-                        .build_widget(ctx, "btn_outline_light_icon_2"),
-                ]),
-                btn.btn_outline_light_icon_text("system/assets/tools/layers.svg", "Secondary")
-                    .build_widget(ctx, "btn_outline_light_icon_text"),
+            btn.btn_solid_icon_text("system/assets/tools/location.svg", "Primary")
+                .build_widget(ctx, "btn_solid_icon_text"),
+            btn.btn_outline_text("Secondary")
+                .build_widget(ctx, "btn_outline_dark_text"),
+            Widget::row(vec![
+                btn.btn_outline_icon("system/assets/tools/map.svg")
+                    .build_widget(ctx, "btn_outline_dark_icon_1"),
+                btn.btn_outline_icon("system/assets/tools/layers.svg")
+                    .build_widget(ctx, "btn_outline_dark_icon_2"),
             ]),
-        ]),
+            btn.btn_outline_icon_text("system/assets/tools/home.svg", "Secondary")
+                .build_widget(ctx, "btn_outline_icon_text"),
+        ])]),
         Text::from(Line("Spinner").big_heading_styled().size(18)).draw(ctx),
         widgetry::Spinner::new(ctx, (0, 11), 1),
         Widget::row(vec![
             ctx.style()
-                .btn_outline_light_text("New faces")
+                .btn_outline_text("New faces")
                 .hotkey(Key::F)
                 .build_widget(ctx, "generate new faces"),
             Checkbox::switch(ctx, "Draw scrollable canvas", None, true),
@@ -379,11 +353,11 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
             Checkbox::new(
                 false,
                 ctx.style()
-                    .btn_solid_light_text("Pause")
+                    .btn_solid_text("Pause")
                     .hotkey(Key::Space)
                     .build(ctx, "pause the stopwatch"),
                 ctx.style()
-                    .btn_solid_light_text("Resume")
+                    .btn_solid_text("Resume")
                     .hotkey(Key::Space)
                     .build(ctx, "resume the stopwatch"),
             )
@@ -399,7 +373,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 ],
             ),
             ctx.style()
-                .btn_outline_light_text("Reset Timer")
+                .btn_outline_text("Reset Timer")
                 .build_widget(ctx, "reset the stopwatch"),
         ])
         .evenly_spaced(),
@@ -438,7 +412,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 ],
             ),
             ctx.style()
-                .btn_outline_light_text("Apply")
+                .btn_outline_text("Apply")
                 .build_widget(ctx, "apply"),
         ])
         .margin_above(30),
@@ -459,27 +433,21 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 Widget::col(
                     (0..row_height)
                         .map(|_| {
-                            btn.btn_solid_dark_icon("system/assets/tools/layers.svg")
+                            btn.btn_solid_icon("system/assets/tools/layers.svg")
                                 .build_widget(ctx, &next_id())
                         })
                         .collect::<Vec<_>>(),
                 ),
                 Widget::col(
                     (0..row_height)
-                        .map(|_| {
-                            btn.btn_solid_dark_text("text")
-                                .build_widget(ctx, &next_id())
-                        })
+                        .map(|_| btn.btn_solid_text("text").build_widget(ctx, &next_id()))
                         .collect::<Vec<_>>(),
                 ),
                 Widget::col(
                     (0..row_height)
                         .map(|_| {
-                            btn.btn_outline_light_icon_text(
-                                "system/assets/tools/layers.svg",
-                                "icon+text",
-                            )
-                            .build_widget(ctx, &next_id())
+                            btn.btn_outline_icon_text("system/assets/tools/layers.svg", "icon+text")
+                                .build_widget(ctx, &next_id())
                         })
                         .collect::<Vec<_>>(),
                 ),
@@ -496,10 +464,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 ),
                 Widget::col(
                     (0..row_height)
-                        .map(|_| {
-                            btn.btn_outline_light_popup("popup")
-                                .build_widget(ctx, &next_id())
-                        })
+                        .map(|_| btn.btn_outline_popup("popup").build_widget(ctx, &next_id()))
                         .collect::<Vec<_>>(),
                 ),
                 Widget::col(

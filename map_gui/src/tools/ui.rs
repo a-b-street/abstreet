@@ -84,7 +84,7 @@ impl<A: AppLike + 'static> PromptInput<A> {
                 ]),
                 Widget::text_entry(ctx, String::new(), true).named("input"),
                 ctx.style()
-                    .btn_outline_light_text("confirm")
+                    .btn_outline_text("confirm")
                     .hotkey(Key::Enter)
                     .build_def(ctx),
             ]))
@@ -162,7 +162,7 @@ impl PopupMsg {
             panel: Panel::new(Widget::col(vec![
                 txt.draw(ctx),
                 ctx.style()
-                    .btn_solid_dark_text("OK")
+                    .btn_solid_text("OK")
                     .hotkey(hotkeys(vec![Key::Enter, Key::Escape]))
                     .build_def(ctx),
             ]))

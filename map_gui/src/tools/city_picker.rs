@@ -68,7 +68,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
 
                         let btn = ctx
                             .style()
-                            .btn_outline_light_text(nice_map_name(&name))
+                            .btn_outline_text(nice_map_name(&name))
                             .no_tooltip();
 
                         let action = name.path();
@@ -95,7 +95,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                     for name in MapName::list_all_maps_in_city(&city_name) {
                         this_city.push(
                             ctx.style()
-                                .btn_outline_light_text(nice_map_name(&name))
+                                .btn_outline_text(nice_map_name(&name))
                                 .no_tooltip()
                                 .disabled(&name == app.map().get_name())
                                 .build_widget(ctx, &name.path()),
@@ -113,7 +113,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                     if abstio::file_exists(abstio::path(&flag_path)) {
                         other_places.push(
                             ctx.style()
-                                .btn_outline_light_icon_text(
+                                .btn_outline_icon_text(
                                     &flag_path,
                                     &format!("{} in {}", cities.len(), nice_country_name(&country)),
                                 )
@@ -124,7 +124,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                     } else {
                         other_places.push(
                             ctx.style()
-                                .btn_outline_light_text(&format!(
+                                .btn_outline_text(&format!(
                                     "{} in {}",
                                     cities.len(),
                                     nice_country_name(&country)
@@ -135,7 +135,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                 }
                 other_places.push(
                     ctx.style()
-                        .btn_solid_dark_text("Search all maps")
+                        .btn_solid_text("Search all maps")
                         .hotkey(Key::Tab)
                         .build_def(ctx),
                 );
@@ -159,7 +159,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                                 .draw_text(ctx)
                                 .centered_vert(),
                             ctx.style()
-                                .btn_plain_light()
+                                .btn_plain()
                                 .label_styled_text(
                                     Text::from(
                                         Line("Import a new city into A/B Street")
@@ -172,7 +172,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                         ]),
                         if cfg!(not(target_arch = "wasm32")) {
                             ctx.style()
-                                .btn_outline_light_text("Download more cities")
+                                .btn_outline_text("Download more cities")
                                 .build_def(ctx)
                         } else {
                             Widget::nothing()
@@ -311,7 +311,7 @@ impl<A: AppLike + 'static> AllCityPicker<A> {
         for name in MapName::list_all_maps() {
             buttons.push(
                 ctx.style()
-                    .btn_outline_light_text(&name.describe())
+                    .btn_outline_text(&name.describe())
                     .build_widget(ctx, &name.path())
                     .margin_right(10)
                     .margin_below(10),
@@ -401,7 +401,7 @@ impl<A: AppLike + 'static> CitiesInCountryPicker<A> {
             }
             buttons.push(
                 ctx.style()
-                    .btn_outline_light_text(&city.city)
+                    .btn_outline_text(&city.city)
                     .build_widget(ctx, &city.to_path())
                     .margin_right(10)
                     .margin_below(10),

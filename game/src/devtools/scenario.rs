@@ -55,7 +55,7 @@ impl ScenarioManager {
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 ctx.style()
-                    .btn_outline_light_text("popular destinations")
+                    .btn_outline_text("popular destinations")
                     .hotkey(Key::D)
                     .build_def(ctx),
                 Text::from_multiline(vec![

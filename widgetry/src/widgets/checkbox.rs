@@ -35,7 +35,7 @@ impl Checkbox {
     ) -> Widget {
         let mut buttons = ctx
             .style()
-            .btn_plain_light_text(label)
+            .btn_plain_text(label)
             .image_color(RewriteColor::NoOp, ControlState::Default);
 
         if let Some(hotkey) = hotkey.into() {
@@ -61,19 +61,17 @@ impl Checkbox {
     ) -> Widget {
         let mut false_btn = ctx
             .style()
-            .btn_plain_light_icon_bytes(include_labeled_bytes!(
-                "../../icons/checkbox_unchecked.svg"
-            ))
+            .btn_plain_icon_bytes(include_labeled_bytes!("../../icons/checkbox_unchecked.svg"))
             .image_color(
-                RewriteColor::Change(Color::BLACK, ctx.style().btn_solid_light.bg),
+                RewriteColor::Change(Color::BLACK, ctx.style().btn_solid_floating.bg),
                 ControlState::Default,
             )
             .image_color(
-                RewriteColor::Change(Color::BLACK, ctx.style().btn_solid_light.bg_hover),
+                RewriteColor::Change(Color::BLACK, ctx.style().btn_solid_floating.bg_hover),
                 ControlState::Hovered,
             )
             .image_color(
-                RewriteColor::Change(Color::BLACK, ctx.style().btn_solid_light.bg_disabled),
+                RewriteColor::Change(Color::BLACK, ctx.style().btn_solid_floating.bg_disabled),
                 ControlState::Disabled,
             )
             .label_text(label);
@@ -103,19 +101,17 @@ impl Checkbox {
     ) -> Widget {
         let mut false_btn = ctx
             .style()
-            .btn_plain_light_icon_bytes(include_labeled_bytes!(
-                "../../icons/checkbox_unchecked.svg"
-            ))
+            .btn_plain_icon_bytes(include_labeled_bytes!("../../icons/checkbox_unchecked.svg"))
             .image_color(
-                RewriteColor::Change(Color::BLACK, ctx.style().btn_solid_light.bg),
+                RewriteColor::Change(Color::BLACK, ctx.style().btn_solid_floating.bg),
                 ControlState::Default,
             )
             .image_color(
-                RewriteColor::Change(Color::BLACK, ctx.style().btn_solid_light.bg_hover),
+                RewriteColor::Change(Color::BLACK, ctx.style().btn_solid_floating.bg_hover),
                 ControlState::Hovered,
             )
             .image_color(
-                RewriteColor::Change(Color::BLACK, ctx.style().btn_solid_light.bg_disabled),
+                RewriteColor::Change(Color::BLACK, ctx.style().btn_solid_floating.bg_disabled),
                 ControlState::Disabled,
             )
             .label_styled_text(Text::from_all(spans), ControlState::Default);
@@ -137,7 +133,7 @@ impl Checkbox {
     }
 
     pub fn colored(ctx: &EventCtx, label: &str, color: Color, enabled: bool) -> Widget {
-        let buttons = ctx.style().btn_plain_light().label_text(label).padding(4.0);
+        let buttons = ctx.style().btn_plain().label_text(label).padding(4.0);
 
         let false_btn = buttons
             .clone()
@@ -177,7 +173,7 @@ impl Checkbox {
     ) -> Widget {
         let mut toggle_left_button = ctx
             .style()
-            .btn_plain_light_icon_bytes(include_labeled_bytes!("../../icons/toggle_left.svg"))
+            .btn_plain_icon_bytes(include_labeled_bytes!("../../icons/toggle_left.svg"))
             .image_dims(ScreenDims::new(40.0, 40.0))
             .padding(4)
             .image_color(RewriteColor::NoOp, ControlState::Default);
@@ -192,7 +188,7 @@ impl Checkbox {
 
         let left_text_button = ctx
             .style()
-            .btn_plain_light_text(left_label)
+            .btn_plain_text(left_label)
             // Cheat vertical padding to align with switch
             .padding(EdgeInsets {
                 left: 2.0,
@@ -202,7 +198,7 @@ impl Checkbox {
             })
             // TODO: make these clickable. Currently they would explode due to re-use of an action
             .disabled(true)
-            .label_color(ctx.style().btn_outline_light.fg, ControlState::Disabled)
+            .label_color(ctx.style().btn_outline.fg, ControlState::Disabled)
             .bg_color(Color::CLEAR, ControlState::Disabled);
         let right_text_button = left_text_button.clone().label_text(right_label);
         Widget::row(vec![

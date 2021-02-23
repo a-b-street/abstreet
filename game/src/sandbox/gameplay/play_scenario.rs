@@ -142,7 +142,7 @@ impl GameplayState for PlayScenario {
                     .hotkey(Key::S)
                     .build_widget(ctx, "change scenario"),
                 ctx.style()
-                    .btn_outline_light_icon_text("system/assets/tools/pencil.svg", "Edit map")
+                    .btn_outline_icon_text("system/assets/tools/pencil.svg", "Edit map")
                     .hotkey(lctrl(Key::E))
                     .build_widget(ctx, "edit map"),
             ])
@@ -150,7 +150,7 @@ impl GameplayState for PlayScenario {
             if self.scenario_name != "empty" {
                 Widget::row(vec![
                     ctx.style()
-                        .btn_plain_light_icon("system/assets/tools/pencil.svg")
+                        .btn_plain_icon("system/assets/tools/pencil.svg")
                         .build_widget(ctx, "edit traffic patterns")
                         .centered_vert(),
                     format!("{} modifications to traffic patterns", self.modifiers.len())
@@ -210,29 +210,29 @@ impl EditScenarioModifiers {
         }
         rows.push(
             ctx.style()
-                .btn_solid_dark_text("Change trip mode")
+                .btn_solid_text("Change trip mode")
                 .build_def(ctx),
         );
         rows.push(
             ctx.style()
-                .btn_solid_dark_text("Add extra new trips")
+                .btn_solid_text("Add extra new trips")
                 .build_def(ctx),
         );
         rows.push(Widget::row(vec![
             Spinner::new(ctx, (2, 14), 2).named("repeat_days"),
             ctx.style()
-                .btn_solid_dark_text("Repeat schedule multiple days")
+                .btn_solid_text("Repeat schedule multiple days")
                 .build_def(ctx),
         ]));
         rows.push(Widget::horiz_separator(ctx, 0.5));
         rows.push(
             Widget::row(vec![
                 ctx.style()
-                    .btn_solid_dark_text("Apply")
+                    .btn_solid_text("Apply")
                     .hotkey(Key::Enter)
                     .build_def(ctx),
                 ctx.style()
-                    .btn_solid_dark_text("Discard changes")
+                    .btn_solid_text("Discard changes")
                     .hotkey(Key::Escape)
                     .build_def(ctx),
             ])
@@ -390,11 +390,11 @@ impl ChangeMode {
                 ]),
                 Widget::row(vec![
                     ctx.style()
-                        .btn_solid_dark_text("Apply")
+                        .btn_solid_text("Apply")
                         .hotkey(Key::Enter)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_solid_dark_text("Discard changes")
+                        .btn_solid_text("Discard changes")
                         .hotkey(Key::Escape)
                         .build_def(ctx),
                 ])

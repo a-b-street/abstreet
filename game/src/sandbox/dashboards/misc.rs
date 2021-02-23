@@ -173,7 +173,7 @@ impl TransitRoutes {
                     .map(|(boardings, alightings, waiting, name, id)| {
                         Widget::row(vec![
                             ctx.style()
-                                .btn_outline_light_text(&name)
+                                .btn_outline_text(&name)
                                 .build_widget(ctx, &id.to_string()),
                             format!(
                                 "{} boardings, {} alightings, {} currently waiting",

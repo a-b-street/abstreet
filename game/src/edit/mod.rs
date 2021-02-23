@@ -412,14 +412,14 @@ impl SaveEdits {
                     },
                     if cancel.is_some() {
                         ctx.style()
-                            .btn_solid_dark_text("Cancel")
+                            .btn_solid_text("Cancel")
                             .hotkey(Key::Escape)
                             .build_def(ctx)
                     } else {
                         Widget::nothing()
                     },
                     ctx.style()
-                        .btn_solid_dark_text("Save")
+                        .btn_solid_text("Save")
                         .disabled(true)
                         .build_def(ctx),
                 ])
@@ -440,7 +440,7 @@ impl SaveEdits {
                 ctx,
                 "Save",
                 ctx.style()
-                    .btn_solid_dark_text("Save")
+                    .btn_solid_text("Save")
                     .disabled(true)
                     .build_def(ctx),
             );
@@ -453,7 +453,7 @@ impl SaveEdits {
                 ctx,
                 "Save",
                 ctx.style()
-                    .btn_solid_dark_text("Save")
+                    .btn_solid_text("Save")
                     .disabled(true)
                     .build_def(ctx),
             );
@@ -469,7 +469,7 @@ impl SaveEdits {
                 ctx,
                 "Save",
                 ctx.style()
-                    .btn_solid_dark_text("Save")
+                    .btn_solid_text("Save")
                     .hotkey(Key::Enter)
                     .build_def(ctx),
             );
@@ -544,11 +544,7 @@ impl LoadEdits {
         for name in abstio::list_all_objects(abstio::path("system/proposals")) {
             let path = abstio::path(format!("system/proposals/{}.json", name));
             if MapEdits::load(&app.primary.map, path.clone(), &mut Timer::throwaway()).is_ok() {
-                proposals.push(
-                    ctx.style()
-                        .btn_outline_light_text(&name)
-                        .build_widget(ctx, &path),
-                );
+                proposals.push(ctx.style().btn_outline_text(&name).build_widget(ctx, &path));
             }
         }
 
@@ -560,7 +556,7 @@ impl LoadEdits {
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 ctx.style()
-                    .btn_outline_light_text("Start over with blank proposal")
+                    .btn_outline_text("Start over with blank proposal")
                     .build_def(ctx),
                 Widget::row(vec![Widget::col(your_edits), Widget::col(proposals)]).evenly_spaced(),
             ]))
@@ -652,7 +648,7 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Panel {
             .draw(ctx)
             .centered_horiz(),
         ctx.style()
-            .btn_solid_dark_text(&format!(
+            .btn_solid_text(&format!(
                 "Finish & resume from {}",
                 app.primary
                     .suspended_sim
@@ -782,7 +778,7 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Panel {
     let mut col = vec![
         Widget::row(vec![
             ctx.style()
-                .btn_outline_light_popup(&edits.edits_name)
+                .btn_outline_popup(&edits.edits_name)
                 .hotkey(lctrl(Key::P))
                 .build_widget(ctx, "manage proposals"),
             "autosaved"
@@ -813,7 +809,7 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Panel {
         }
         let btn = ctx
             .style()
-            .btn_plain_light()
+            .btn_plain()
             .label_styled_text(txt, ControlState::Default)
             .build_widget(ctx, &format!("change #{}", idx + 1));
         if idx == edits.commands.len() - 1 {
@@ -867,7 +863,7 @@ impl ConfirmDiscard {
                 "Are you sure you want to discard changes you made?".draw_text(ctx),
                 Widget::row(vec![
                     ctx.style()
-                        .btn_solid_dark_text("Cancel")
+                        .btn_solid_text("Cancel")
                         .hotkey(Key::Escape)
                         .build_def(ctx),
                     ctx.style()

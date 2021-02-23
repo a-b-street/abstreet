@@ -164,7 +164,7 @@ impl OptionsPanel {
                             .named("gui_scroll_speed"),
                     ]),
                 ])
-                .bg(app.cs().section_bg)
+                .bg(app.cs().inner_panel_bg)
                 .padding(8),
                 "Appearance".draw_text(ctx),
                 Widget::col(vec![
@@ -245,7 +245,7 @@ impl OptionsPanel {
                         app.opts().units.metric,
                     ),
                 ])
-                .bg(app.cs().section_bg)
+                .bg(app.cs().inner_panel_bg)
                 .padding(8),
                 "Debug".draw_text(ctx),
                 Widget::col(vec![
@@ -257,10 +257,10 @@ impl OptionsPanel {
                         app.opts().debug_all_agents,
                     ),
                 ])
-                .bg(app.cs().section_bg)
+                .bg(app.cs().inner_panel_bg)
                 .padding(8),
                 ctx.style()
-                    .btn_solid_dark_text("Apply")
+                    .btn_solid_text("Apply")
                     .hotkey(Key::Enter)
                     .build_def(ctx)
                     .centered_horiz(),

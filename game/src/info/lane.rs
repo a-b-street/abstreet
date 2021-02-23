@@ -167,7 +167,7 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
 
     rows.push(
         ctx.style()
-            .btn_solid_dark_text("Open OSM way")
+            .btn_solid_text("Open OSM way")
             .build_widget(ctx, &format!("open {}", r.orig_id.osm_way_id)),
     );
 

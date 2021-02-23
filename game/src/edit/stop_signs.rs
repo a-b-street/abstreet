@@ -52,7 +52,7 @@ impl StopSignEditor {
         let panel = Panel::new(Widget::col(vec![
             Line("Stop sign editor").small_heading().draw(ctx),
             ctx.style()
-                .btn_outline_light_text("reset to default")
+                .btn_outline_text("reset to default")
                 .hotkey(Key::R)
                 .disabled(
                     &ControlStopSign::new(&app.primary.map, id)
@@ -60,14 +60,14 @@ impl StopSignEditor {
                 )
                 .build_def(ctx),
             ctx.style()
-                .btn_outline_light_text("close intersection for construction")
+                .btn_outline_text("close intersection for construction")
                 .hotkey(Key::C)
                 .build_def(ctx),
             ctx.style()
-                .btn_outline_light_text("convert to traffic signal")
+                .btn_outline_text("convert to traffic signal")
                 .build_def(ctx),
             ctx.style()
-                .btn_outline_light_text("Finish")
+                .btn_outline_text("Finish")
                 .hotkey(Key::Escape)
                 .build_def(ctx),
         ]))

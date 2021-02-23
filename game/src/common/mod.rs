@@ -294,11 +294,11 @@ impl CommonState {
 pub fn tool_panel(ctx: &mut EventCtx) -> Panel {
     Panel::new(Widget::row(vec![
         ctx.style()
-            .btn_plain_light_icon("system/assets/tools/home.svg")
+            .btn_plain_icon("system/assets/tools/home.svg")
             .hotkey(Key::Escape)
             .build_widget(ctx, "back"),
         ctx.style()
-            .btn_plain_light_icon("system/assets/tools/settings.svg")
+            .btn_plain_icon("system/assets/tools/settings.svg")
             .build_widget(ctx, "settings"),
     ]))
     .aligned(HorizontalAlignment::Left, VerticalAlignment::BottomAboveOSD)

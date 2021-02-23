@@ -208,16 +208,16 @@ pub fn trips(
         .centered()
         .outline(2.0, Color::WHITE)
         .padding(16)
-        .bg(app.cs.inner_panel)
+        .bg(app.cs.inner_panel_bg)
         .to_geom(ctx, Some(0.3));
         rows.push(
             ctx.style()
-                .btn_solid_light()
+                .btn_solid_floating()
                 .custom_batch(row_btn.clone(), ControlState::Default)
                 .custom_batch(
                     row_btn.color(RewriteColor::Change(
-                        app.cs.inner_panel,
-                        ctx.style().btn_outline_light.bg_hover,
+                        app.cs.inner_panel_bg,
+                        ctx.style().btn_outline.bg_hover,
                     )),
                     ControlState::Hovered,
                 )
@@ -239,7 +239,7 @@ pub fn trips(
         if let Some(info) = maybe_info {
             rows.push(
                 info.outline(2.0, Color::WHITE)
-                    .bg(app.cs.inner_panel)
+                    .bg(app.cs.inner_panel_bg)
                     .padding(16),
             );
 
@@ -331,7 +331,7 @@ pub fn bio(
             if app.primary.sim.lookup_parked_car(v.id).is_some() {
                 rows.push(
                     ctx.style()
-                        .btn_solid_dark_text(&format!("Owner of {} (parked)", v.id))
+                        .btn_solid_text(&format!("Owner of {} (parked)", v.id))
                         .build_def(ctx),
                 );
                 details
@@ -455,7 +455,7 @@ pub fn crowd(
         rows.push(Widget::row(vec![
             format!("{})", idx + 1).draw_text(ctx).centered_vert(),
             ctx.style()
-                .btn_outline_light_text(&person.to_string())
+                .btn_outline_text(&person.to_string())
                 .build_def(ctx),
         ]));
         details.hyperlinks.insert(
@@ -493,13 +493,13 @@ pub fn parked_car(
             // for SandboxMode.
             if is_paused {
                 ctx.style()
-                    .btn_plain_light_icon("system/assets/tools/location.svg")
+                    .btn_plain_icon("system/assets/tools/location.svg")
                     .hotkey(Key::F)
                     .build_widget(ctx, "follow (run the simulation)")
             } else {
                 // TODO Blink
                 ctx.style()
-                    .btn_plain_light_icon("system/assets/tools/location.svg")
+                    .btn_plain_icon("system/assets/tools/location.svg")
                     .image_color(Color::hex("#7FFA4D"), ControlState::Default)
                     .hotkey(Key::F)
                     .build_widget(ctx, "unfollow (pause the simulation)")
@@ -514,7 +514,7 @@ pub fn parked_car(
     let p = app.primary.sim.get_owner_of_car(id).unwrap();
     rows.push(
         ctx.style()
-            .btn_solid_dark_text(&format!("Owned by {}", p))
+            .btn_solid_text(&format!("Owned by {}", p))
             .build_def(ctx),
     );
     details.hyperlinks.insert(
@@ -621,13 +621,13 @@ fn header(
             // for SandboxMode.
             if is_paused {
                 ctx.style()
-                    .btn_plain_light_icon("system/assets/tools/location.svg")
+                    .btn_plain_icon("system/assets/tools/location.svg")
                     .hotkey(Key::F)
                     .build_widget(ctx, "follow (run the simulation)")
             } else {
                 // TODO Blink
                 ctx.style()
-                    .btn_plain_light_icon("system/assets/tools/location.svg")
+                    .btn_plain_icon("system/assets/tools/location.svg")
                     .image_color(Color::hex("#7FFA4D"), ControlState::Default)
                     .hotkey(Key::F)
                     .build_widget(ctx, "unfollow (pause the simulation)")

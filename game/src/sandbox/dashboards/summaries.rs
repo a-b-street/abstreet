@@ -45,7 +45,7 @@ impl TripSummaries {
         ));
         filters.push(
             ctx.style()
-                .btn_plain_light_text("Export to CSV")
+                .btn_plain_text("Export to CSV")
                 .build_def(ctx)
                 .align_bottom(),
         );

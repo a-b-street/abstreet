@@ -111,10 +111,10 @@ impl Inner {
             Checkbox::new(
                 play_music,
                 ctx.style()
-                    .btn_solid_light_icon("system/assets/tools/volume_off.svg")
+                    .btn_solid_icon("system/assets/tools/volume_off.svg")
                     .build(ctx, "play music"),
                 ctx.style()
-                    .btn_solid_light_icon("system/assets/tools/volume_on.svg")
+                    .btn_solid_icon("system/assets/tools/volume_on.svg")
                     .build(ctx, "mute music"),
             )
             .named("play music")

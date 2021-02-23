@@ -751,7 +751,7 @@ impl TutorialState {
                 .btn_next()
                 .disabled(self.current.stage == self.stages.len() - 1)
                 .build_widget(ctx, "next tutorial"),
-            ctx.style().btn_outline_light_text("Quit").build_def(ctx),
+            ctx.style().btn_outline_text("Quit").build_def(ctx),
         ])
         .centered()];
         {
@@ -770,7 +770,7 @@ impl TutorialState {
                     // TODO also text saying "instructions"... can we layout two things easily to
                     // make a button?
                     ctx.style()
-                        .btn_plain_light_icon("system/assets/tools/info.svg")
+                        .btn_plain_icon("system/assets/tools/info.svg")
                         .build_widget(ctx, "instructions")
                         .centered_vert()
                         .align_right(),
@@ -781,7 +781,7 @@ impl TutorialState {
         if edit_map {
             col.push(
                 ctx.style()
-                    .btn_outline_light_icon_text("system/assets/tools/pencil.svg", "Edit map")
+                    .btn_outline_icon_text("system/assets/tools/pencil.svg", "Edit map")
                     .hotkey(lctrl(Key::E))
                     .build_widget(ctx, "edit map"),
             );
@@ -844,7 +844,7 @@ impl TutorialState {
                 if self.current.part == self.stage().messages.len() - 1 {
                     controls.push(
                         ctx.style()
-                            .btn_solid_dark_text("Try it")
+                            .btn_solid_text("Try it")
                             .hotkey(hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]))
                             .build_def(ctx),
                     );

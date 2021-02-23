@@ -133,7 +133,7 @@ impl ChallengesPicker {
         let mut links = BTreeMap::new();
         let mut master_col = vec![
             ctx.style()
-                .btn_light_back("Home")
+                .btn_back("Home")
                 .hotkey(Key::Escape)
                 .build_widget(ctx, "back")
                 .align_left(),
@@ -144,7 +144,7 @@ impl ChallengesPicker {
             .draw(ctx)
             .centered_horiz(),
             ctx.style()
-                .btn_solid_dark_text("Introduction and tutorial")
+                .btn_solid_text("Introduction and tutorial")
                 .build_def(ctx)
                 .centered_horiz()
                 .bg(app.cs.panel_bg)
@@ -161,7 +161,7 @@ impl ChallengesPicker {
                 .unwrap_or(false);
             flex_row.push(
                 ctx.style()
-                    .btn_solid_dark_text(&name)
+                    .btn_solid_text(&name)
                     .disabled(is_current_stage)
                     .hotkey(Key::NUM_KEYS[idx])
                     .build_def(ctx),
@@ -189,7 +189,7 @@ impl ChallengesPicker {
             {
                 col.push(
                     ctx.style()
-                        .btn_outline_light_text(&stage.title)
+                        .btn_outline_text(&stage.title)
                         .disabled(current == idx)
                         .build_def(ctx),
                 );
@@ -215,7 +215,7 @@ impl ChallengesPicker {
             let mut inner_col = vec![
                 txt.draw(ctx),
                 ctx.style()
-                    .btn_outline_light_text("Start!")
+                    .btn_outline_text("Start!")
                     .hotkey(Key::Enter)
                     .build_def(ctx),
             ];

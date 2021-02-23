@@ -58,7 +58,7 @@ impl LaneEditor {
         ] {
             row.push(
                 ctx.style()
-                    .btn_plain_light_icon(&format!("system/assets/edit/{}.svg", icon))
+                    .btn_plain_icon(&format!("system/assets/edit/{}.svg", icon))
                     .hotkey(key)
                     .disabled(current_lt == lt)
                     .build_widget(ctx, label),
@@ -70,7 +70,7 @@ impl LaneEditor {
             Widget::row(vec![
                 Line(format!("Editing {}", l)).small_heading().draw(ctx),
                 ctx.style()
-                    .btn_plain_light_text("+ Edit multiple")
+                    .btn_plain_text("+ Edit multiple")
                     .label_color(Color::hex("#4CA7E9"), ControlState::Default)
                     .hotkey(Key::M)
                     .build_widget(ctx, "Edit multiple lanes"),
@@ -78,7 +78,7 @@ impl LaneEditor {
             "Type of lane".draw_text(ctx),
             Widget::custom_row(row).centered(),
             ctx.style()
-                .btn_outline_light_text("reverse direction")
+                .btn_outline_text("reverse direction")
                 .hotkey(Key::F)
                 .build_def(ctx),
             {
@@ -95,11 +95,11 @@ impl LaneEditor {
                 ])
             },
             ctx.style()
-                .btn_outline_light_text("Change access restrictions")
+                .btn_outline_text("Change access restrictions")
                 .hotkey(Key::A)
                 .build_def(ctx),
             ctx.style()
-                .btn_solid_dark_text("Finish")
+                .btn_solid_text("Finish")
                 .hotkey(Key::Escape)
                 .build_def(ctx),
         ];
