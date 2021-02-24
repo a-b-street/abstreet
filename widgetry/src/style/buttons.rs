@@ -173,11 +173,7 @@ impl<'a> StyledButtons<'a> for Style {
 }
 
 impl<'a> Style {
-    pub fn btn_light_popup_icon_text(
-        &self,
-        icon_path: &'a str,
-        text: &'a str,
-    ) -> ButtonBuilder<'a> {
+    pub fn btn_popup_icon_text(&self, icon_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
         let outline_style = &self.btn_outline;
         let solid_style = &self.btn_solid;
 

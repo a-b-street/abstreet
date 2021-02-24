@@ -48,7 +48,7 @@ impl Viewer {
         let top_panel = Panel::new(Widget::col(vec![
             Line("OpenStreetMap viewer").small_heading().draw(ctx),
             ctx.style()
-                .btn_light_popup_icon_text(
+                .btn_popup_icon_text(
                     "system/assets/tools/map.svg",
                     nice_map_name(app.map.get_name()),
                 )

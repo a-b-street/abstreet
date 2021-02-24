@@ -269,7 +269,7 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
 
     rows.push(
         ctx.style()
-            .btn_light_popup_icon_text(
+            .btn_popup_icon_text(
                 "system/assets/tools/map.svg",
                 nice_map_name(app.map.get_name()),
             )
