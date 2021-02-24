@@ -219,7 +219,7 @@ impl SimpleState<App> for StopSignEditor {
                         .get_r(r)
                         .get_name(app.opts.language.as_ref()),
                 )
-                .fg(app.cs.bottom_bar_name),
+                .underlined(),
             ]);
             CommonState::draw_custom_osd(g, app, osd);
         } else {
