@@ -35,7 +35,7 @@ impl<T: 'static + Clone + Ord> Autocomplete<T> {
             choices,
 
             tb: TextBox::new(ctx, 50, String::new(), true),
-            menu: Menu::<()>::new(ctx, Vec::new()).take_menu(),
+            menu: Menu::<()>::new(ctx, Vec::new()),
 
             current_line: String::new(),
             chosen_values: None,
@@ -68,7 +68,7 @@ impl<T: 'static + Clone> Autocomplete<T> {
         if choices.len() == 2 {
             choices.remove(0);
         }
-        self.menu = Menu::new(ctx, choices).take_menu();
+        self.menu = Menu::new(ctx, choices);
     }
 }
 

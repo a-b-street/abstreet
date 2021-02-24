@@ -14,7 +14,11 @@ pub struct Menu<T> {
 }
 
 impl<T: 'static> Menu<T> {
-    pub fn new(ctx: &EventCtx, choices: Vec<Choice<T>>) -> Widget {
+    pub fn widget(ctx: &EventCtx, choices: Vec<Choice<T>>) -> Widget {
+        Widget::new(Box::new(Self::new(ctx, choices)))
+    }
+
+    pub fn new(ctx: &EventCtx, choices: Vec<Choice<T>>) -> Self {
         let mut m = Menu {
             choices,
             current_idx: 0,
@@ -23,7 +27,7 @@ impl<T: 'static> Menu<T> {
             dims: ScreenDims::new(0.0, 0.0),
         };
         m.dims = m.calculate_txt(ctx.style()).dims(&ctx.prerender.assets);
-        Widget::new(Box::new(m))
+        m
     }
 
     pub fn take_current_choice(&mut self) -> T {

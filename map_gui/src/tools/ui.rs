@@ -27,7 +27,7 @@ impl<A: AppLike + 'static, T: 'static> ChooseSomething<A, T> {
                     Line(query).small_heading().draw(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                Menu::new(ctx, choices).named("menu"),
+                Menu::widget(ctx, choices).named("menu"),
             ]))
             .build(ctx),
             cb,

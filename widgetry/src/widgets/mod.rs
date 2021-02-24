@@ -13,8 +13,7 @@ use crate::widgets::containers::{Container, Nothing};
 pub use crate::widgets::panel::Panel;
 use crate::{
     Button, Choice, Color, DeferDraw, DrawWithTooltips, Drawable, Dropdown, EventCtx, GeomBatch,
-    GfxCtx, JustDraw, Menu, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Text, TextBox,
-    Toggle,
+    GfxCtx, JustDraw, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Text, TextBox, Toggle,
 };
 
 pub mod autocomplete;
@@ -767,9 +766,6 @@ impl Widget {
         }
     }
 
-    pub(crate) fn take_menu<T: 'static + Clone>(self) -> Menu<T> {
-        *self.widget.downcast::<Menu<T>>().ok().unwrap()
-    }
     pub(crate) fn take_just_draw(self) -> JustDraw {
         *self.widget.downcast::<JustDraw>().ok().unwrap()
     }
