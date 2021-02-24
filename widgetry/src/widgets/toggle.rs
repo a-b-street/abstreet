@@ -1,3 +1,4 @@
+use crate::svg::load_svg_bytes;
 use crate::{
     include_labeled_bytes, Button, Color, ControlState, EdgeInsets, EventCtx, GfxCtx, MultiKey,
     Outcome, RewriteColor, ScreenDims, ScreenPt, StyledButtons, Text, TextSpan, Widget, WidgetImpl,
@@ -36,19 +37,36 @@ impl Toggle {
         let mut buttons = ctx
             .style()
             .btn_plain_text(label)
+            // we don't want the default coloring, because we do custom coloring below
             .image_color(RewriteColor::NoOp, ControlState::Default);
 
         if let Some(hotkey) = hotkey.into() {
             buttons = buttons.hotkey(hotkey);
         }
 
+        let (off_batch, off_bounds) = {
+            let (label, bytes) = include_labeled_bytes!("../../icons/switch_off.svg");
+            let (batch, bounds) = load_svg_bytes(ctx.prerender, label, bytes).expect("invalid SVG");
+            let batch = batch
+                .color(RewriteColor::Change(Color::WHITE, ctx.style.btn_solid.bg))
+                .color(RewriteColor::Change(Color::BLACK, ctx.style.btn_solid.fg));
+            (batch, bounds)
+        };
+        let (on_batch, on_bounds) = {
+            let (label, bytes) = include_labeled_bytes!("../../icons/switch_on.svg");
+            let (batch, bounds) = load_svg_bytes(ctx.prerender, label, bytes).expect("invalid SVG");
+            let batch = batch
+                .color(RewriteColor::Change(Color::WHITE, ctx.style.btn_solid.bg))
+                .color(RewriteColor::Change(Color::BLACK, ctx.style.btn_solid.fg));
+            (batch, bounds)
+        };
+
         let off_button = buttons
             .clone()
-            .image_bytes(include_labeled_bytes!("../../icons/toggle_off.svg"))
+            .image_batch(off_batch, off_bounds)
             .build(ctx, label);
-        let on_button = buttons
-            .image_bytes(include_labeled_bytes!("../../icons/toggle_on.svg"))
-            .build(ctx, label);
+
+        let on_button = buttons.image_batch(on_batch, on_bounds).build(ctx, label);
 
         Toggle::new(enabled, off_button, on_button).named(label)
     }
@@ -173,18 +191,40 @@ impl Toggle {
     ) -> Widget {
         let mut toggle_left_button = ctx
             .style()
-            .btn_plain_icon_bytes(include_labeled_bytes!("../../icons/toggle_left.svg"))
+            .btn_plain()
             .image_dims(ScreenDims::new(40.0, 40.0))
             .padding(4)
+            // we don't want the default coloring, because we do custom coloring below
             .image_color(RewriteColor::NoOp, ControlState::Default);
 
         if let Some(hotkey) = hotkey.into() {
             toggle_left_button = toggle_left_button.hotkey(hotkey);
         }
 
+        let (left_batch, left_bounds) = {
+            let (label, bytes) = include_labeled_bytes!("../../icons/toggle_left.svg");
+            let (batch, bounds) = load_svg_bytes(ctx.prerender, label, bytes).expect("invalid SVG");
+            let batch = batch
+                .color(RewriteColor::Change(Color::WHITE, ctx.style.btn_solid.bg))
+                .color(RewriteColor::Change(Color::BLACK, ctx.style.btn_solid.fg));
+            (batch, bounds)
+        };
+        let (right_batch, right_bounds) = {
+            let (label, bytes) = include_labeled_bytes!("../../icons/toggle_right.svg");
+            let (batch, bounds) = load_svg_bytes(ctx.prerender, label, bytes).expect("invalid SVG");
+            let batch = batch
+                .color(RewriteColor::Change(Color::WHITE, ctx.style.btn_solid.bg))
+                .color(RewriteColor::Change(Color::BLACK, ctx.style.btn_solid.fg));
+            (batch, bounds)
+        };
+
         let toggle_right_button = toggle_left_button
             .clone()
-            .image_bytes(include_labeled_bytes!("../../icons/toggle_right.svg"));
+            .image_batch(right_batch, right_bounds);
+
+        let toggle_left_button = toggle_left_button
+            .clone()
+            .image_batch(left_batch, left_bounds);
 
         let left_text_button = ctx
             .style()
