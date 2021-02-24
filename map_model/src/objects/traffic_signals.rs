@@ -237,14 +237,7 @@ impl ControlTrafficSignal {
         // What's the rank of each road?
         let mut rank_per_road: BTreeMap<RoadID, usize> = BTreeMap::new();
         for r in &map.get_i(self.id).roads {
-            rank_per_road.insert(
-                *r,
-                map.get_r(*r)
-                    .osm_tags
-                    .get(osm::HIGHWAY)
-                    .map(|hwy| osm::RoadRank::detailed_from_highway(hwy))
-                    .unwrap_or(0),
-            );
+            rank_per_road.insert(*r, map.get_r(*r).get_detailed_rank());
         }
         let mut ranks: Vec<usize> = rank_per_road.values().cloned().collect();
         ranks.sort();

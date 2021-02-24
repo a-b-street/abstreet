@@ -299,6 +299,13 @@ impl Road {
         }
     }
 
+    pub fn get_detailed_rank(&self) -> usize {
+        self.osm_tags
+            .get(osm::HIGHWAY)
+            .map(|hwy| osm::RoadRank::detailed_from_highway(hwy))
+            .unwrap_or(0)
+    }
+
     pub fn all_bus_stops(&self, map: &Map) -> Vec<BusStopID> {
         let mut stops = Vec::new();
         for id in self.all_lanes() {

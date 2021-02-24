@@ -645,6 +645,8 @@ fn validate_restrictions(map: &Map, steps: &Vec<PathStep>) {
 // space-expensive change right now.
 #[derive(PartialEq, Serialize, Deserialize)]
 pub struct RoutingParams {
+    // For all vehicles
+    pub unprotected_turn_penalty: f64,
     // For bike routing
     pub bike_lane_penalty: f64,
     pub bus_lane_penalty: f64,
@@ -654,6 +656,7 @@ pub struct RoutingParams {
 impl RoutingParams {
     pub const fn default() -> RoutingParams {
         RoutingParams {
+            unprotected_turn_penalty: 2.0,
             bike_lane_penalty: 1.0,
             bus_lane_penalty: 1.1,
             driving_lane_penalty: 1.5,

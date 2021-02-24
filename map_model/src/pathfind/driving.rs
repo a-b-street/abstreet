@@ -11,7 +11,8 @@ use abstutil::MultiMap;
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::pathfind::uber_turns::{IntersectionCluster, UberTurn};
 use crate::{
-    Lane, LaneID, Map, Path, PathConstraints, PathRequest, PathStep, RoutingParams, Turn, TurnID,
+    DrivingSide, Lane, LaneID, Map, Path, PathConstraints, PathRequest, PathStep, RoutingParams,
+    Turn, TurnID, TurnType,
 };
 
 #[derive(Serialize, Deserialize)]
@@ -291,6 +292,23 @@ pub fn driving_cost(
             (lt_penalty * (t1 + t2)).inner_seconds()
         }
         PathConstraints::Pedestrian => unreachable!(),
+    };
+
+    // Penalize unprotected turns at a stop sign from smaller to larger roads.
+    let unprotected_turn_type = if map.get_config().driving_side == DrivingSide::Right {
+        TurnType::Left
+    } else {
+        TurnType::Right
+    };
+    let rank_from = map.get_r(lane.parent).get_detailed_rank();
+    let rank_to = map.get_parent(turn.id.dst).get_detailed_rank();
+    let base = if turn.turn_type == unprotected_turn_type
+        && rank_from < rank_to
+        && map.get_i(turn.id.parent).is_stop_sign()
+    {
+        base * params.unprotected_turn_penalty
+    } else {
+        base
     };
 
     // Normally opportunistic lane-changing adjusts the path live, but that doesn't work near

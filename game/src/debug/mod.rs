@@ -620,9 +620,9 @@ impl ContextualActions for Actions {
                 );
                 Transition::Keep
             }
-            (ID::Intersection(i), "route from here") => {
-                Transition::Push(routes::RouteExplorer::new(ctx, TripEndpoint::Border(i)))
-            }
+            (ID::Intersection(i), "route from here") => Transition::Push(
+                routes::RouteExplorer::new(ctx, app, TripEndpoint::Border(i)),
+            ),
             (ID::Lane(l), "debug lane geometry") => {
                 Transition::Push(polygons::PolygonDebugger::new(
                     ctx,
@@ -702,7 +702,7 @@ impl ContextualActions for Actions {
                 ))
             }
             (ID::Building(b), "route from here") => {
-                Transition::Push(routes::RouteExplorer::new(ctx, TripEndpoint::Bldg(b)))
+                Transition::Push(routes::RouteExplorer::new(ctx, app, TripEndpoint::Bldg(b)))
             }
             _ => unreachable!(),
         }

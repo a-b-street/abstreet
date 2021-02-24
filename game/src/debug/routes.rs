@@ -21,7 +21,7 @@ pub struct RouteExplorer {
 }
 
 impl RouteExplorer {
-    pub fn new(ctx: &mut EventCtx, start: TripEndpoint) -> Box<dyn State<App>> {
+    pub fn new(ctx: &mut EventCtx, app: &App, start: TripEndpoint) -> Box<dyn State<App>> {
         Box::new(RouteExplorer {
             start,
             goal: None,
@@ -34,7 +34,8 @@ impl RouteExplorer {
                     .btn_solid_text("All routes")
                     .hotkey(Key::A)
                     .build_def(ctx),
-                params_to_controls(ctx, TripMode::Bike, &RoutingParams::default()).named("params"),
+                params_to_controls(ctx, TripMode::Bike, &app.primary.map.routing_params())
+                    .named("params"),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
@@ -69,19 +70,19 @@ impl State<App> for RouteExplorer {
                 }
                 "bikes" => {
                     let controls =
-                        params_to_controls(ctx, TripMode::Bike, &RoutingParams::default());
+                        params_to_controls(ctx, TripMode::Bike, app.primary.map.routing_params());
                     self.panel.replace(ctx, "params", controls);
                     self.recalc_paths(ctx, app);
                 }
                 "cars" => {
                     let controls =
-                        params_to_controls(ctx, TripMode::Drive, &RoutingParams::default());
+                        params_to_controls(ctx, TripMode::Drive, app.primary.map.routing_params());
                     self.panel.replace(ctx, "params", controls);
                     self.recalc_paths(ctx, app);
                 }
                 "pedestrians" => {
                     let controls =
-                        params_to_controls(ctx, TripMode::Walk, &RoutingParams::default());
+                        params_to_controls(ctx, TripMode::Walk, app.primary.map.routing_params());
                     self.panel.replace(ctx, "params", controls);
                     self.recalc_paths(ctx, app);
                 }
@@ -190,6 +191,17 @@ fn params_to_controls(ctx: &mut EventCtx, mode: TripMode, params: &RoutingParams
             .build_widget(ctx, "pedestrians"),
     ])
     .evenly_spaced()];
+    if mode == TripMode::Drive || mode == TripMode::Bike {
+        rows.push(Widget::row(vec![
+            "Unprotected turn penalty:".draw_text(ctx).margin_right(20),
+            Spinner::new(
+                ctx,
+                (1, 100),
+                (params.unprotected_turn_penalty * 10.0) as isize,
+            )
+            .named("unprotected turn penalty"),
+        ]));
+    }
     if mode == TripMode::Bike {
         // TODO Spinners that natively understand a floating point range with a given precision
         rows.push(Widget::row(vec![
@@ -214,11 +226,13 @@ fn params_to_controls(ctx: &mut EventCtx, mode: TripMode, params: &RoutingParams
 fn controls_to_params(panel: &Panel) -> (TripMode, RoutingParams) {
     let mut params = RoutingParams::default();
     if !panel.is_button_enabled("cars") {
+        params.unprotected_turn_penalty = panel.spinner("unprotected turn penalty") as f64 / 10.0;
         return (TripMode::Drive, params);
     }
     if !panel.is_button_enabled("pedestrians") {
         return (TripMode::Walk, params);
     }
+    params.unprotected_turn_penalty = panel.spinner("unprotected turn penalty") as f64 / 10.0;
     params.bike_lane_penalty = panel.spinner("bike lane penalty") as f64 / 10.0;
     params.bus_lane_penalty = panel.spinner("bus lane penalty") as f64 / 10.0;
     params.driving_lane_penalty = panel.spinner("driving lane penalty") as f64 / 10.0;
@@ -272,9 +286,13 @@ impl AllRoutesExplorer {
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 format!("{} total requests", prettyprint_usize(requests.len())).draw_text(ctx),
-                params_to_controls(ctx, TripMode::Bike, &RoutingParams::default()).named("params"),
+                params_to_controls(ctx, TripMode::Bike, app.primary.map.routing_params())
+                    .named("params"),
                 ctx.style()
                     .btn_solid_text("Calculate differential demand")
+                    .build_def(ctx),
+                ctx.style()
+                    .btn_solid_destructive_text("keep changed params")
                     .build_def(ctx),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
@@ -303,19 +321,30 @@ impl State<App> for AllRoutesExplorer {
                     });
                     return Transition::Pop;
                 }
+                "keep changed params" => {
+                    // This is handy for seeing the effects on a real simulation without rebuilding
+                    // the map.
+                    ctx.loading_screen("update routing params", |_, mut timer| {
+                        let (_, params) = controls_to_params(&self.panel);
+                        app.primary
+                            .map
+                            .hack_override_routing_params(params, &mut timer);
+                    });
+                    return Transition::Pop;
+                }
                 "bikes" => {
                     let controls =
-                        params_to_controls(ctx, TripMode::Bike, &RoutingParams::default());
+                        params_to_controls(ctx, TripMode::Bike, app.primary.map.routing_params());
                     self.panel.replace(ctx, "params", controls);
                 }
                 "cars" => {
                     let controls =
-                        params_to_controls(ctx, TripMode::Drive, &RoutingParams::default());
+                        params_to_controls(ctx, TripMode::Drive, app.primary.map.routing_params());
                     self.panel.replace(ctx, "params", controls);
                 }
                 "pedestrians" => {
                     let controls =
-                        params_to_controls(ctx, TripMode::Walk, &RoutingParams::default());
+                        params_to_controls(ctx, TripMode::Walk, app.primary.map.routing_params());
                     self.panel.replace(ctx, "params", controls);
                 }
                 "Calculate differential demand" => {
