@@ -1,8 +1,8 @@
 use geom::Pt2D;
 
 use crate::{
-    text, Choice, EventCtx, GfxCtx, Key, Line, Outcome, ScreenDims, ScreenPt, ScreenRectangle,
-    Style, Text, Widget, WidgetImpl, WidgetOutput,
+    Choice, EventCtx, GfxCtx, Key, Line, Outcome, ScreenDims, ScreenPt, ScreenRectangle, Style,
+    Text, Widget, WidgetImpl, WidgetOutput,
 };
 
 pub struct Menu<T> {
@@ -39,33 +39,39 @@ impl<T: 'static> Menu<T> {
         let mut txt = Text::new();
 
         for (idx, choice) in self.choices.iter().enumerate() {
+            let is_hovered = idx == self.current_idx;
+            let mut text_color = if is_hovered {
+                choice.fg.unwrap_or(style.btn_solid.fg)
+            } else {
+                choice.fg.unwrap_or(style.text_fg_color)
+            };
+
             if choice.active {
                 if let Some(ref key) = choice.hotkey {
                     txt.add_appended(vec![
                         Line(key.describe()).fg(style.text_hotkey_color),
-                        Line(format!(" - {}", choice.label)).maybe_fg(choice.fg),
+                        Line(format!(" - {}", choice.label)).fg(text_color),
                     ]);
                 } else {
-                    txt.add(Line(&choice.label).maybe_fg(choice.fg));
+                    txt.add(Line(&choice.label).fg(text_color))
                 }
             } else {
+                text_color = text_color.alpha(0.8);
                 if let Some(ref key) = choice.hotkey {
-                    txt.add(
-                        Line(format!("{} - {}", key.describe(), choice.label))
-                            .fg(text::INACTIVE_CHOICE_COLOR),
-                    );
+                    txt.add(Line(format!("{} - {}", key.describe(), choice.label)).fg(text_color));
                 } else {
-                    txt.add(Line(&choice.label).fg(text::INACTIVE_CHOICE_COLOR));
+                    txt.add(Line(&choice.label).fg(text_color));
                 }
             }
+
             if choice.tooltip.is_some() {
                 // TODO Ideally unicode info symbol, but the fonts don't seem to have it
                 txt.append(Line(" (!)"));
             }
 
             // TODO BG color should be on the TextSpan, so this isn't so terrible?
-            if idx == self.current_idx {
-                txt.highlight_last_line(text::SELECTED_COLOR);
+            if is_hovered {
+                txt.highlight_last_line(style.btn_solid.bg);
             }
         }
         txt

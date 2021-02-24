@@ -7,9 +7,12 @@ pub struct Style {
     pub outline_thickness: f64,
     pub outline_color: Color,
     pub panel_bg: Color,
+    pub dropdown_bg: Color,
+    pub dropdown_border: Color,
     pub text_fg_color: Color,
-    pub text_hotkey_color: Color,
     pub text_tooltip_color: Color,
+    pub text_hotkey_color: Color,
+    pub text_destructive_color: Color,
     pub loading_tips: Text,
     pub btn_solid: ButtonStyle,
     pub btn_outline: ButtonStyle,
@@ -83,7 +86,16 @@ impl Style {
             } else {
                 Color::WHITE.alpha(0.8)
             },
-
+            dropdown_bg: if use_legacy_day_theme {
+                Color::grey(0.3)
+            } else {
+                hex("#F2F2F2")
+            },
+            dropdown_border: if use_legacy_day_theme {
+                Color::WHITE
+            } else {
+                hex("#4C4C4C")
+            },
             outline_thickness: 2.0,
             outline_color: Color::WHITE,
             loading_tips: Text::new(),
@@ -100,6 +112,11 @@ impl Style {
                 hex("#EE702E")
             },
             text_tooltip_color: Color::WHITE,
+            text_destructive_color: if use_legacy_day_theme {
+                hex("#EB3223")
+            } else {
+                hex("#FF5E5E")
+            },
 
             // Buttons
             btn_outline: if use_legacy_day_theme {

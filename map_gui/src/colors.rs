@@ -391,13 +391,16 @@ impl ColorScheme {
         let mut cs = ColorScheme::day_mode();
 
         use widgetry::ButtonStyle;
+        cs.gui_style.panel_bg = hex("#003046").alpha(0.9);
         cs.gui_style.btn_outline = ButtonStyle::btn_outline();
         cs.gui_style.btn_solid = ButtonStyle::btn_solid();
         cs.gui_style.btn_solid_floating = ButtonStyle::btn_solid_floating();
         cs.gui_style.text_fg_color = Color::WHITE;
         cs.gui_style.text_hotkey_color = Color::GREEN;
+        cs.gui_style.text_destructive_color = hex("#FF5E5E");
 
-        cs.inner_panel_bg = cs.gui_style.panel_bg.alpha(1.0);
+        cs.gui_style.dropdown_border = Color::WHITE;
+        cs.gui_style.dropdown_bg = cs.gui_style.panel_bg;
 
         cs.void_background = hex("#200A24");
         cs.map_background = Color::BLACK.into();
@@ -423,8 +426,7 @@ impl ColorScheme {
         cs.pedestrian_plaza = hex("#94949C").into();
         cs.study_area = hex("#D9B002").into();
 
-        cs.panel_bg = hex("#003046").alpha(0.9);
-        cs.gui_style.panel_bg = cs.panel_bg;
+        cs.panel_bg = cs.gui_style.panel_bg;
         cs.inner_panel_bg = cs.panel_bg.alpha(1.0);
         cs.minimap_cursor_border = Color::WHITE;
         cs.minimap_cursor_bg = Some(Color::rgba(238, 112, 46, 0.2));

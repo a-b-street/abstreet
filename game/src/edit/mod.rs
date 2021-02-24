@@ -195,7 +195,7 @@ impl State<App> for EditMode {
                             Choice::string("create a blank proposal"),
                             Choice::string("save this proposal as..."),
                             Choice::string("delete this proposal and remove all edits")
-                                .fg(Color::hex("#EB3223")),
+                                .fg(ctx.style().text_destructive_color),
                         ],
                         Box::new(move |choice, ctx, app| match choice.as_ref() {
                             "rename current proposal" => {

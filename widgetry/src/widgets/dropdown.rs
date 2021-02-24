@@ -136,10 +136,10 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
             let height = m.get_dims().height + 2.0 * pad;
             let rect = Polygon::rounded_rectangle(width, height, 5.0);
             let draw_bg = g.upload(GeomBatch::from(vec![
-                (Color::grey(0.3), rect.clone()),
+                (g.style().dropdown_bg, rect.clone()),
                 (
-                    Color::WHITE,
-                    rect.to_outline(Distance::meters(3.0)).unwrap(),
+                    g.style().dropdown_border,
+                    rect.to_outline(Distance::meters(1.0)).unwrap(),
                 ),
             ]));
             g.fork(
