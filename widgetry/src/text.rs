@@ -5,12 +5,13 @@ use std::hash::Hasher;
 use geom::{PolyLine, Polygon};
 
 use crate::assets::Assets;
-use crate::{svg, Color, DeferDraw, EventCtx, GeomBatch, JustDraw, MultiKey, ScreenDims, Widget};
+use crate::{
+    svg, Color, DeferDraw, EventCtx, GeomBatch, JustDraw, MultiKey, ScreenDims, Style, Widget,
+};
 
 // Same as body()
 pub const DEFAULT_FONT: Font = Font::OverpassRegular;
 pub const DEFAULT_FONT_SIZE: usize = 21;
-const DEFAULT_FG_COLOR: Color = Color::WHITE;
 
 pub const BG_COLOR: Color = Color::grey(0.3);
 pub const SELECTED_COLOR: Color = Color::grey(0.5);
@@ -46,7 +47,7 @@ impl Font {
 #[derive(Debug, Clone)]
 pub struct TextSpan {
     text: String,
-    fg_color: Color,
+    fg_color: Option<Color>,
     size: usize,
     font: Font,
     underlined: bool,
@@ -54,16 +55,21 @@ pub struct TextSpan {
 
 impl TextSpan {
     pub fn fg(mut self, color: Color) -> TextSpan {
-        assert_eq!(self.fg_color, DEFAULT_FG_COLOR);
-        self.fg_color = color;
+        assert_eq!(self.fg_color, None);
+        self.fg_color = Some(color);
         self
     }
+
     pub fn maybe_fg(mut self, color: Option<Color>) -> TextSpan {
-        assert_eq!(self.fg_color, DEFAULT_FG_COLOR);
+        assert_eq!(self.fg_color, None);
         if let Some(c) = color {
-            self.fg_color = c;
+            self.fg_color = Some(c);
         }
         self
+    }
+
+    pub fn fg_color_for_style(&self, style: &Style) -> Color {
+        self.fg_color.unwrap_or(style.text_fg_color)
     }
 
     pub fn draw(self, ctx: &EventCtx) -> Widget {
@@ -104,7 +110,8 @@ impl TextSpan {
     pub fn secondary(mut self) -> TextSpan {
         self.font = Font::OverpassRegular;
         self.size = 21;
-        self.fg_color = Color::hex("#A3A3A3");
+        // TODO This should be per-theme
+        self.fg_color = Some(Color::hex("#A3A3A3"));
         self
     }
     pub fn small(mut self) -> TextSpan {
@@ -144,7 +151,7 @@ impl TextSpan {
 pub fn Line<S: Into<String>>(text: S) -> TextSpan {
     TextSpan {
         text: text.into(),
-        fg_color: DEFAULT_FG_COLOR,
+        fg_color: None,
         size: DEFAULT_FONT_SIZE,
         font: DEFAULT_FONT,
         underlined: false,
@@ -217,7 +224,7 @@ impl Text {
     pub fn change_fg(mut self, fg: Color) -> Text {
         for (_, spans) in self.lines.iter_mut() {
             for span in spans {
-                span.fg_color = fg;
+                span.fg_color = Some(fg);
             }
         }
         self
@@ -446,11 +453,12 @@ fn render_line(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
 
     let mut contents = String::new();
     for span in spans {
+        let fg_color = span.fg_color_for_style(&assets.style.borrow());
         write!(
             &mut contents,
             r##"<tspan fill="{}" fill-opacity="{}" {}>{}</tspan>"##,
-            span.fg_color.to_hex(),
-            span.fg_color.a,
+            fg_color.to_hex(),
+            fg_color.a,
             if span.underlined {
                 "text-decoration=\"underline\""
             } else {
@@ -529,6 +537,8 @@ impl TextSpan {
         // We need to subtract and account for the length of the text
         let start_offset = (path.length() / 2.0).inner_meters()
             - (Text::from(Line(&self.text)).dims(assets).width * scale) / 2.0;
+
+        let fg_color = self.fg_color_for_style(&assets.style.borrow());
         write!(
             &mut svg,
             r##"<text xml:space="preserve" font-size="{}" font-family="{}" {} fill="{}" fill-opacity="{}" startOffset="{}">"##,
@@ -541,8 +551,8 @@ impl TextSpan {
                 Font::OverpassSemiBold => "font-weight=\"600\"",
                 _ => "",
             },
-            self.fg_color.to_hex(),
-            self.fg_color.a,
+            fg_color.to_hex(),
+            fg_color.a,
             start_offset,
         )
             .unwrap();

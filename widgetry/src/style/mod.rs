@@ -7,6 +7,7 @@ pub struct Style {
     pub outline_thickness: f64,
     pub outline_color: Color,
     pub panel_bg: Color,
+    pub text_fg_color: Color,
     pub hotkey_color: Color,
     pub loading_tips: Text,
     pub btn_solid: ButtonStyle,
@@ -77,19 +78,22 @@ impl Style {
         Style {
             outline_thickness: 2.0,
             outline_color: Color::WHITE,
-            panel_bg: Color::grey(0.4),
             hotkey_color: Color::GREEN,
             loading_tips: Text::new(),
 
             // Buttons
-            btn_solid_floating: ButtonStyle::btn_solid_floating(),
+            btn_solid: ButtonStyle::btn_solid(),
 
             // legacy day theme
+            panel_bg: Color::grey(0.4),
+            text_fg_color: Color::WHITE,
             btn_outline: ButtonStyle::btn_outline(),
-            btn_solid: ButtonStyle::btn_solid(),
+            btn_solid_floating: ButtonStyle::btn_solid_floating(),
             // TODO new day theme
-            // btn_solid: ButtonStyle::btn_solid_floating(),
+            // panel_bg: Color::WHITE.alpha(0.8),
+            // text_fg_color: hex("#4C4C4C"),
             // btn_outline: ButtonStyle::btn_outline_dark(),
+            // btn_solid_floating: ButtonStyle::btn_solid(),
             btn_solid_destructive: ButtonStyle {
                 fg: hex("#F2F2F2"),
                 fg_disabled: hex("#F2F2F2").alpha(0.3),
