@@ -73,7 +73,7 @@ pub struct DebugWarp {
 
 impl DebugWarp {
     pub fn new(ctx: &mut EventCtx) -> Box<dyn State<App>> {
-        let c = ctx.style().hotkey_color;
+        let c = ctx.style().text_hotkey_color;
         Box::new(DebugWarp {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![

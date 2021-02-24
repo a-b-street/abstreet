@@ -97,7 +97,7 @@ impl CommonState {
         } else if app.opts.dev {
             Text::from_all(vec![
                 Line("Nothing selected. Hint: "),
-                Line("Ctrl+J").fg(g.style().hotkey_color),
+                Line("Ctrl+J").fg(g.style().text_hotkey_color),
                 Line(" to warp"),
             ])
         } else {
@@ -109,7 +109,7 @@ impl CommonState {
                 if idx != 0 {
                     osd.append(Line(", "));
                 }
-                osd.append(Line(key.describe()).fg(g.style().hotkey_color));
+                osd.append(Line(key.describe()).fg(g.style().text_hotkey_color));
             }
         }
 
@@ -227,7 +227,7 @@ impl CommonState {
         } else if app.opts.dev {
             Text::from_all(vec![
                 Line("Nothing selected. Hint: "),
-                Line("Ctrl+J").fg(g.style().hotkey_color),
+                Line("Ctrl+J").fg(g.style().text_hotkey_color),
                 Line(" to warp"),
             ])
         } else {
@@ -240,7 +240,7 @@ impl CommonState {
         if let Some(ref action) = app.per_obj.click_action {
             osd.append_all(vec![
                 Line("; "),
-                Line("click").fg(g.style().hotkey_color),
+                Line("click").fg(g.style().text_hotkey_color),
                 Line(format!(" to {}", action)),
             ]);
         }

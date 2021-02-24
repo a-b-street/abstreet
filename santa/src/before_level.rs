@@ -85,9 +85,9 @@ impl Picker {
                             ),
                         ),
                         Text::from_all(vec![
-                            Line("arrow keys").fg(ctx.style().hotkey_color),
+                            Line("arrow keys").fg(ctx.style().text_hotkey_color),
                             Line(" to move (or "),
-                            Line("WASD").fg(ctx.style().hotkey_color),
+                            Line("WASD").fg(ctx.style().text_hotkey_color),
                             Line(")"),
                         ])
                         .draw(ctx),
@@ -95,13 +95,14 @@ impl Picker {
                     Widget::row(vec![
                         Widget::draw_svg(ctx, "system/assets/tools/mouse.svg"),
                         Text::from_all(vec![
-                            Line("mouse scroll wheel or touchpad").fg(ctx.style().hotkey_color),
+                            Line("mouse scroll wheel or touchpad")
+                                .fg(ctx.style().text_hotkey_color),
                             Line(" to zoom in or out"),
                         ])
                         .draw(ctx),
                     ]),
                     Text::from_all(vec![
-                        Line("Escape key").fg(ctx.style().hotkey_color),
+                        Line("Escape key").fg(ctx.style().text_hotkey_color),
                         Line(" to pause"),
                     ])
                     .draw(ctx),
@@ -331,7 +332,7 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
         Widget::row(vec![
             Widget::draw_svg(ctx, "system/assets/tools/mouse.svg"),
             Line("Select the houses you want to turn into stores")
-                .fg(ctx.style().hotkey_color)
+                .fg(ctx.style().text_hotkey_color)
                 .draw(ctx),
         ]),
         Widget::row(vec![

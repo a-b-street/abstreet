@@ -242,7 +242,7 @@ impl State<App> for MainState {
 
                         let mut txt = Text::new();
                         txt.add_appended(vec![
-                            Line("Click").fg(ctx.style().hotkey_color),
+                            Line("Click").fg(ctx.style().text_hotkey_color),
                             Line(" to edit lanes"),
                         ]);
                         txt.add_appended(vec![
@@ -383,7 +383,7 @@ impl State<App> for MainState {
             Mode::SetBoundaryPt1 => {
                 let mut txt = Text::new();
                 txt.add_appended(vec![
-                    Line("Click").fg(ctx.style().hotkey_color),
+                    Line("Click").fg(ctx.style().text_hotkey_color),
                     Line(" the top-left corner of this map"),
                 ]);
                 let instructions = txt.draw(ctx);
@@ -398,7 +398,7 @@ impl State<App> for MainState {
             Mode::SetBoundaryPt2(pt1) => {
                 let mut txt = Text::new();
                 txt.add_appended(vec![
-                    Line("Click").fg(ctx.style().hotkey_color),
+                    Line("Click").fg(ctx.style().text_hotkey_color),
                     Line(" the bottom-right corner of this map"),
                 ]);
                 let instructions = txt.draw(ctx);

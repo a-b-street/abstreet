@@ -161,7 +161,7 @@ impl<'a> GfxCtx<'a> {
     pub fn draw_mouse_tooltip(&mut self, txt: Text) {
         // Add some padding
         let pad = 5.0;
-
+        let txt = txt.default_fg(self.style.text_tooltip_color);
         let txt_batch = txt.render(self);
         let raw_dims = txt_batch.get_dims();
         let dims = ScreenDims::new(raw_dims.width + 2.0 * pad, raw_dims.height + 2.0 * pad);
