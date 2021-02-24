@@ -1,7 +1,7 @@
 use geom::Duration;
 use sim::{TripEndpoint, TripID, TripPhaseType};
 use widgetry::table::{Col, Filter, Table};
-use widgetry::{Checkbox, EventCtx, Filler, Line, Panel, State, Text, Widget};
+use widgetry::{EventCtx, Filler, Line, Panel, State, Text, Toggle, Widget};
 
 use crate::app::App;
 use crate::sandbox::dashboards::generic_trip_table::GenericTripTable;
@@ -100,8 +100,8 @@ fn make_table(app: &App) -> Table<App, Entry, Filters> {
         },
         to_controls: Box::new(move |ctx, _, state| {
             Widget::row(vec![
-                Checkbox::switch(ctx, "starting off-map", None, state.starts_off_map),
-                Checkbox::switch(ctx, "ending off-map", None, state.ends_off_map),
+                Toggle::switch(ctx, "starting off-map", None, state.starts_off_map),
+                Toggle::switch(ctx, "ending off-map", None, state.ends_off_map),
             ])
         }),
         from_controls: Box::new(|panel| Filters {

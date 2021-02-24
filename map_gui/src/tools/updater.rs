@@ -6,7 +6,7 @@ use anyhow::Result;
 use abstio::{DataPacks, Manifest};
 use abstutil::Timer;
 use widgetry::{
-    Checkbox, EventCtx, GfxCtx, Line, Outcome, Panel, State, StyledButtons, TextExt, Transition,
+    EventCtx, GfxCtx, Line, Outcome, Panel, State, StyledButtons, TextExt, Toggle, Transition,
     Widget,
 };
 
@@ -44,7 +44,7 @@ impl<A: AppLike + 'static> Picker<A> {
         ];
         for (city, bytes) in size_per_city(&manifest) {
             col.push(Widget::row(vec![
-                Checkbox::checkbox(ctx, &city, None, data_packs.runtime.contains(&city)),
+                Toggle::checkbox(ctx, &city, None, data_packs.runtime.contains(&city)),
                 prettyprint_bytes(bytes).draw_text(ctx).centered_vert(),
             ]));
         }

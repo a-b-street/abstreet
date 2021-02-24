@@ -12,14 +12,13 @@ use geom::{CornerRadii, Distance, Percent, Polygon};
 use crate::widgets::containers::{Container, Nothing};
 pub use crate::widgets::panel::Panel;
 use crate::{
-    Button, Checkbox, Choice, Color, DeferDraw, DrawWithTooltips, Drawable, Dropdown, EventCtx,
-    GeomBatch, GfxCtx, JustDraw, Menu, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Text,
-    TextBox,
+    Button, Choice, Color, DeferDraw, DrawWithTooltips, Drawable, Dropdown, EventCtx, GeomBatch,
+    GfxCtx, JustDraw, Menu, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Text, TextBox,
+    Toggle,
 };
 
 pub mod autocomplete;
 pub mod button;
-pub mod checkbox;
 pub mod compare_times;
 pub mod containers;
 pub mod dropdown;
@@ -35,6 +34,7 @@ pub mod slider;
 pub mod spinner;
 pub mod table;
 pub mod text_box;
+pub mod toggle;
 
 /// Create a new widget by implementing this trait. You can instantiate your widget by calling
 /// `Widget::new(Box::new(instance of your new widget))`, which gives you the usual style options.
@@ -660,7 +660,7 @@ impl Widget {
             if btn.hovering {
                 return Some(&btn.action);
             }
-        } else if let Some(checkbox) = self.widget.downcast_ref::<Checkbox>() {
+        } else if let Some(checkbox) = self.widget.downcast_ref::<Toggle>() {
             if checkbox.btn.hovering {
                 return Some(&checkbox.btn.action);
             }

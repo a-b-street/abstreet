@@ -13,8 +13,8 @@ use map_gui::tools::CameraState;
 use map_model::osm;
 use map_model::raw::OriginalRoad;
 use widgetry::{
-    Canvas, Checkbox, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    SharedAppState, State, StyledButtons, Text, Transition, VerticalAlignment, Widget,
+    Canvas, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    SharedAppState, State, StyledButtons, Text, Toggle, Transition, VerticalAlignment, Widget,
 };
 
 mod edit;
@@ -109,7 +109,7 @@ impl MainState {
                     ]),
                     Text::new().draw(ctx).named("instructions"),
                     Widget::col(vec![
-                        Checkbox::switch(ctx, "intersection geometry", Key::G, false),
+                        Toggle::switch(ctx, "intersection geometry", Key::G, false),
                         ctx.style()
                             .btn_outline_text("adjust boundary")
                             .build_def(ctx),

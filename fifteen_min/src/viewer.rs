@@ -12,9 +12,9 @@ use map_model::connectivity::WalkingOptions;
 use map_model::{AmenityType, Building, BuildingID, LaneType};
 use widgetry::table::{Col, Filter, Table};
 use widgetry::{
-    lctrl, Cached, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, StyledButtons, Text,
-    Transition, VerticalAlignment, Widget,
+    lctrl, Cached, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Panel, RewriteColor, State, StyledButtons, Text, Toggle, Transition,
+    VerticalAlignment, Widget,
 };
 
 use crate::find_home::FindHome;
@@ -201,7 +201,7 @@ impl State<App> for Viewer {
 }
 
 fn options_to_controls(ctx: &mut EventCtx, opts: &Options) -> Widget {
-    let mut rows = vec![Checkbox::toggle(
+    let mut rows = vec![Toggle::choice(
         ctx,
         "walking / biking",
         "walking",
@@ -214,7 +214,7 @@ fn options_to_controls(ctx: &mut EventCtx, opts: &Options) -> Widget {
     )];
     match opts {
         Options::Walking(ref opts) => {
-            rows.push(Checkbox::switch(
+            rows.push(Toggle::switch(
                 ctx,
                 "Allow walking on the shoulder of the road without a sidewalk",
                 None,

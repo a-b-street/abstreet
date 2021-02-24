@@ -1,5 +1,5 @@
 use geom::{Bounds, Histogram, Polygon, Pt2D, Statistic};
-use widgetry::{Checkbox, Choice, Color, EventCtx, GeomBatch, Panel, Spinner, TextExt, Widget};
+use widgetry::{Choice, Color, EventCtx, GeomBatch, Panel, Spinner, TextExt, Toggle, Widget};
 
 use crate::tools::{ColorLegend, ColorScale};
 
@@ -53,8 +53,8 @@ impl HeatmapOptions {
                     .named("radius")
                     .align_right(),
             ]),
-            Checkbox::switch(ctx, "smoothing", None, self.smoothing),
-            Checkbox::switch(ctx, "contours", None, self.contours),
+            Toggle::switch(ctx, "smoothing", None, self.smoothing),
+            Toggle::switch(ctx, "contours", None, self.contours),
             Widget::row(vec![
                 "Color scheme".draw_text(ctx).centered_vert(),
                 Widget::dropdown(

@@ -5,7 +5,7 @@ use geom::{Duration, Time};
 use sim::{TripEndpoint, TripID, TripMode};
 use widgetry::table::{Col, Filter, Table};
 use widgetry::{
-    Checkbox, ControlState, EventCtx, Filler, Line, Panel, State, StyledButtons, Text, Widget,
+    ControlState, EventCtx, Filler, Line, Panel, State, StyledButtons, Text, Toggle, Widget,
 };
 
 use crate::app::App;
@@ -190,10 +190,10 @@ fn make_table_finished_trips(app: &App) -> Table<App, FinishedTrip, Filters> {
             Widget::col(vec![
                 checkbox_per_mode(ctx, app, &state.modes),
                 Widget::row(vec![
-                    Checkbox::switch(ctx, "starting off-map", None, state.off_map_starts),
-                    Checkbox::switch(ctx, "ending off-map", None, state.off_map_ends),
+                    Toggle::switch(ctx, "starting off-map", None, state.off_map_starts),
+                    Toggle::switch(ctx, "ending off-map", None, state.off_map_ends),
                     if app.primary.has_modified_trips {
-                        Checkbox::switch(
+                        Toggle::switch(
                             ctx,
                             "trips unmodified by experiment",
                             None,
@@ -203,7 +203,7 @@ fn make_table_finished_trips(app: &App) -> Table<App, FinishedTrip, Filters> {
                         Widget::nothing()
                     },
                     if app.primary.has_modified_trips {
-                        Checkbox::switch(
+                        Toggle::switch(
                             ctx,
                             "trips modified by experiment",
                             None,
@@ -213,7 +213,7 @@ fn make_table_finished_trips(app: &App) -> Table<App, FinishedTrip, Filters> {
                         Widget::nothing()
                     },
                     if any_congestion_caps {
-                        Checkbox::switch(
+                        Toggle::switch(
                             ctx,
                             "trips not affected by congestion caps",
                             None,
@@ -223,7 +223,7 @@ fn make_table_finished_trips(app: &App) -> Table<App, FinishedTrip, Filters> {
                         Widget::nothing()
                     },
                     if any_congestion_caps {
-                        Checkbox::switch(
+                        Toggle::switch(
                             ctx,
                             "trips affected by congestion caps",
                             None,
@@ -407,8 +407,8 @@ fn make_table_cancelled_trips(app: &App) -> Table<App, CancelledTrip, Filters> {
             Widget::col(vec![
                 checkbox_per_mode(ctx, app, &state.modes),
                 Widget::row(vec![
-                    Checkbox::switch(ctx, "starting off-map", None, state.off_map_starts),
-                    Checkbox::switch(ctx, "ending off-map", None, state.off_map_ends),
+                    Toggle::switch(ctx, "starting off-map", None, state.off_map_starts),
+                    Toggle::switch(ctx, "ending off-map", None, state.off_map_ends),
                 ]),
             ])
         }),

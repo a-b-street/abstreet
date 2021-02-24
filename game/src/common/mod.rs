@@ -7,9 +7,8 @@ use map_gui::ID;
 use map_model::{IntersectionID, Map, RoadID};
 use sim::{AgentType, TripMode, TripPhaseType};
 use widgetry::{
-    lctrl, Checkbox, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel,
-    ScreenDims, ScreenPt, ScreenRectangle, StyledButtons, Text, TextSpan, VerticalAlignment,
-    Widget,
+    lctrl, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel, ScreenDims,
+    ScreenPt, ScreenRectangle, StyledButtons, Text, TextSpan, Toggle, VerticalAlignment, Widget,
 };
 
 pub use self::minimap::MinimapController;
@@ -397,7 +396,7 @@ pub fn checkbox_per_mode(
     let mut filters = Vec::new();
     for m in TripMode::all() {
         filters.push(
-            Checkbox::colored(
+            Toggle::colored_checkbox(
                 ctx,
                 m.ongoing_verb(),
                 color_for_mode(app, m),

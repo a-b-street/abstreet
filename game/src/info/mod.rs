@@ -11,9 +11,9 @@ use sim::{
     VehicleType,
 };
 use widgetry::{
-    Checkbox, Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, LinePlot, Outcome, Panel, PlotOptions, Series, StyledButtons, TextExt, VerticalAlignment,
-    Widget,
+    Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    LinePlot, Outcome, Panel, PlotOptions, Series, StyledButtons, TextExt, Toggle,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -765,7 +765,7 @@ impl DataOptions {
             return Widget::nothing();
         }
         Widget::row(vec![
-            Checkbox::custom_checkbox(
+            Toggle::custom_checkbox(
                 ctx,
                 "Show before changes",
                 vec![
@@ -776,7 +776,7 @@ impl DataOptions {
                 self.show_before,
             ),
             if self.show_before {
-                Checkbox::switch(ctx, "Show full day", None, self.show_end_of_day)
+                Toggle::switch(ctx, "Show full day", None, self.show_end_of_day)
             } else {
                 Widget::nothing()
             },

@@ -9,8 +9,8 @@ use geom::{Distance, Duration, Polygon, Pt2D};
 use map_gui::tools::PopupMsg;
 use sim::TripMode;
 use widgetry::{
-    Checkbox, Choice, Color, CompareTimes, DrawBaselayer, DrawWithTooltips, EventCtx, GeomBatch,
-    GfxCtx, Line, Outcome, Panel, State, StyledButtons, Text, TextExt, Widget,
+    Choice, Color, CompareTimes, DrawBaselayer, DrawWithTooltips, EventCtx, GeomBatch, GfxCtx,
+    Line, Outcome, Panel, State, StyledButtons, Text, TextExt, Toggle, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -25,7 +25,7 @@ impl TripSummaries {
     pub fn new(ctx: &mut EventCtx, app: &App, filter: Filter) -> Box<dyn State<App>> {
         let mut filters = vec!["Filters".draw_text(ctx)];
         for mode in TripMode::all() {
-            filters.push(Checkbox::colored(
+            filters.push(Toggle::colored_checkbox(
                 ctx,
                 mode.ongoing_verb(),
                 color_for_mode(app, mode),

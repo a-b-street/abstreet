@@ -5,10 +5,10 @@ use rand_xorshift::XorShiftRng;
 
 use geom::{Angle, Duration, Percent, Polygon, Pt2D, Time};
 use widgetry::{
-    lctrl, Checkbox, Choice, Color, Drawable, EventCtx, Fill, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, LinePlot, Outcome, Panel, PersistentSplit, PlotOptions, Series,
-    SharedAppState, State, StyledButtons, Text, TextExt, Texture, Transition, UpdateType,
-    VerticalAlignment, Widget,
+    lctrl, Choice, Color, Drawable, EventCtx, Fill, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, LinePlot, Outcome, Panel, PersistentSplit, PlotOptions, Series, SharedAppState, State,
+    StyledButtons, Text, TextExt, Texture, Toggle, Transition, UpdateType, VerticalAlignment,
+    Widget,
 };
 
 pub fn main() {
@@ -342,15 +342,15 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 .btn_outline_text("New faces")
                 .hotkey(Key::F)
                 .build_widget(ctx, "generate new faces"),
-            Checkbox::switch(ctx, "Draw scrollable canvas", None, true),
-            Checkbox::switch(ctx, "Show timeseries", lctrl(Key::T), false),
+            Toggle::switch(ctx, "Draw scrollable canvas", None, true),
+            Toggle::switch(ctx, "Show timeseries", lctrl(Key::T), false),
         ]),
         "Stopwatch: ..."
             .draw_text(ctx)
             .named("stopwatch")
             .margin_above(30),
         Widget::row(vec![
-            Checkbox::new(
+            Toggle::new(
                 false,
                 ctx.style()
                     .btn_solid_text("Pause")
@@ -471,7 +471,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 ),
                 Widget::col(
                     (0..row_height)
-                        .map(|_| widgetry::Checkbox::checkbox(ctx, "checkbox", None, true))
+                        .map(|_| widgetry::Toggle::checkbox(ctx, "checkbox", None, true))
                         .collect::<Vec<_>>(),
                 ),
             ])

@@ -10,8 +10,8 @@ use geom::{Percent, Polygon};
 use crate::widgets::slider;
 use crate::widgets::Container;
 use crate::{
-    Autocomplete, Button, Checkbox, Color, Dropdown, EventCtx, GfxCtx, HorizontalAlignment, Menu,
-    Outcome, PersistentSplit, ScreenDims, ScreenPt, ScreenRectangle, Slider, Spinner, TextBox,
+    Autocomplete, Button, Color, Dropdown, EventCtx, GfxCtx, HorizontalAlignment, Menu, Outcome,
+    PersistentSplit, ScreenDims, ScreenPt, ScreenRectangle, Slider, Spinner, TextBox, Toggle,
     VerticalAlignment, Widget, WidgetImpl, WidgetOutput,
 };
 
@@ -360,11 +360,11 @@ impl Panel {
     }
 
     pub fn is_checked(&self, name: &str) -> bool {
-        self.find::<Checkbox>(name).enabled
+        self.find::<Toggle>(name).enabled
     }
     pub fn maybe_is_checked(&self, name: &str) -> Option<bool> {
         if self.has_widget(name) {
-            Some(self.find::<Checkbox>(name).enabled)
+            Some(self.find::<Toggle>(name).enabled)
         } else {
             None
         }

@@ -5,8 +5,8 @@ use geom::Percent;
 use map_gui::tools::PopupMsg;
 use map_model::{AmenityType, BuildingID};
 use widgetry::{
-    Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel,
-    SimpleState, State, StyledButtons, TextExt, Transition, VerticalAlignment, Widget,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel,
+    SimpleState, State, StyledButtons, TextExt, Toggle, Transition, VerticalAlignment, Widget,
 };
 
 use crate::isochrone::Options;
@@ -30,7 +30,7 @@ impl FindHome {
             Widget::custom_row(
                 AmenityType::all()
                     .into_iter()
-                    .map(|at| Checkbox::switch(ctx, &at.to_string(), None, false))
+                    .map(|at| Toggle::switch(ctx, &at.to_string(), None, false))
                     .collect(),
             )
             .flex_wrap(ctx, Percent::int(50)),

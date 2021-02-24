@@ -7,8 +7,8 @@ use geom::{
 };
 
 use crate::{
-    Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, ScreenDims, ScreenPt,
-    ScreenRectangle, Text, TextExt, Widget, WidgetImpl, WidgetOutput,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, ScreenDims, ScreenPt,
+    ScreenRectangle, Text, TextExt, Toggle, Widget, WidgetImpl, WidgetOutput,
 };
 
 // The X is always time
@@ -332,7 +332,7 @@ pub fn make_legend<T: Yvalue<T>>(
         }
         seen.insert(s.label.clone());
         if opts.filterable {
-            row.push(Checkbox::colored(
+            row.push(Toggle::colored_checkbox(
                 ctx,
                 &s.label,
                 s.color,

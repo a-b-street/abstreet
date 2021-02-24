@@ -4,22 +4,22 @@ use crate::{
     WidgetOutput,
 };
 
-pub struct Checkbox {
+pub struct Toggle {
     pub(crate) enabled: bool,
     pub(crate) btn: Button,
     other_btn: Button,
 }
 
-impl Checkbox {
+impl Toggle {
     pub fn new(enabled: bool, false_btn: Button, true_btn: Button) -> Widget {
         if enabled {
-            Widget::new(Box::new(Checkbox {
+            Widget::new(Box::new(Toggle {
                 enabled,
                 btn: true_btn,
                 other_btn: false_btn,
             }))
         } else {
-            Widget::new(Box::new(Checkbox {
+            Widget::new(Box::new(Toggle {
                 enabled,
                 btn: false_btn,
                 other_btn: true_btn,
@@ -50,7 +50,7 @@ impl Checkbox {
             .image_bytes(include_labeled_bytes!("../../icons/toggle_on.svg"))
             .build(ctx, label);
 
-        Checkbox::new(enabled, off_button, on_button).named(label)
+        Toggle::new(enabled, off_button, on_button).named(label)
     }
 
     pub fn checkbox<MK: Into<Option<MultiKey>>>(
@@ -84,7 +84,7 @@ impl Checkbox {
             .clone()
             .image_bytes(include_labeled_bytes!("../../icons/checkbox_checked.svg"));
 
-        Checkbox::new(
+        Toggle::new(
             enabled,
             false_btn.build(ctx, label),
             true_btn.build(ctx, label),
@@ -124,7 +124,7 @@ impl Checkbox {
             .clone()
             .image_bytes(include_labeled_bytes!("../../icons/checkbox_checked.svg"));
 
-        Checkbox::new(
+        Toggle::new(
             enabled,
             false_btn.build(ctx, action),
             true_btn.build(ctx, action),
@@ -132,7 +132,7 @@ impl Checkbox {
         .named(action)
     }
 
-    pub fn colored(ctx: &EventCtx, label: &str, color: Color, enabled: bool) -> Widget {
+    pub fn colored_checkbox(ctx: &EventCtx, label: &str, color: Color, enabled: bool) -> Widget {
         let buttons = ctx.style().btn_plain().label_text(label).padding(4.0);
 
         let false_btn = buttons
@@ -154,7 +154,7 @@ impl Checkbox {
                 ControlState::Default,
             );
 
-        Checkbox::new(
+        Toggle::new(
             enabled,
             false_btn.build(ctx, label),
             true_btn.build(ctx, label),
@@ -163,7 +163,7 @@ impl Checkbox {
     }
 
     // TODO These should actually be radio buttons
-    pub fn toggle<MK: Into<Option<MultiKey>>>(
+    pub fn choice<MK: Into<Option<MultiKey>>>(
         ctx: &EventCtx,
         label: &str,
         left_label: &str,
@@ -203,7 +203,7 @@ impl Checkbox {
         let right_text_button = left_text_button.clone().label_text(right_label);
         Widget::row(vec![
             left_text_button.build_def(ctx).centered_vert(),
-            Checkbox::new(
+            Toggle::new(
                 enabled,
                 toggle_right_button.build(ctx, right_label),
                 toggle_left_button.build(ctx, left_label),
@@ -215,7 +215,7 @@ impl Checkbox {
     }
 }
 
-impl WidgetImpl for Checkbox {
+impl WidgetImpl for Toggle {
     fn get_dims(&self) -> ScreenDims {
         self.btn.get_dims()
     }

@@ -4,8 +4,8 @@ use map_gui::ID;
 use map_model::{AmenityType, BuildingID};
 use sim::{Scenario, TripEndpoint};
 use widgetry::{
-    Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome,
-    Panel, State, StyledButtons, Text, VerticalAlignment, Widget,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, State,
+    StyledButtons, Text, Toggle, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -97,7 +97,7 @@ impl PopularDestinations {
                     Line("Most popular destinations").small_heading().draw(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                Checkbox::switch(ctx, "Show heatmap", None, opts.is_some()),
+                Toggle::switch(ctx, "Show heatmap", None, opts.is_some()),
                 controls,
                 breakdown.draw(ctx),
             ]))

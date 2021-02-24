@@ -1,8 +1,8 @@
 use abstutil::CmdArgs;
 use geom::{Duration, UnitFmt};
 use widgetry::{
-    Checkbox, Choice, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, Spinner, State,
-    StyledButtons, TextExt, Widget,
+    Choice, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, Spinner, State, StyledButtons,
+    TextExt, Toggle, Widget,
 };
 
 use crate::colors::ColorSchemeChoice;
@@ -133,26 +133,26 @@ impl OptionsPanel {
                 ]),
                 "Camera controls".draw_text(ctx),
                 Widget::col(vec![
-                    Checkbox::checkbox(
+                    Toggle::checkbox(
                         ctx,
                         "Invert direction of vertical scrolling",
                         None,
                         ctx.canvas.invert_scroll,
                     ),
-                    Checkbox::checkbox(
+                    Toggle::checkbox(
                         ctx,
                         "Pan map when cursor is at edge of screen",
                         None,
                         ctx.canvas.edge_auto_panning,
                     )
                     .named("autopan"),
-                    Checkbox::checkbox(
+                    Toggle::checkbox(
                         ctx,
                         "Use touchpad to pan and hold Control to zoom",
                         None,
                         ctx.canvas.touchpad_to_move,
                     ),
-                    Checkbox::checkbox(
+                    Toggle::checkbox(
                         ctx,
                         "Use arrow keys to pan and Q/W to zoom",
                         None,
@@ -236,7 +236,7 @@ impl OptionsPanel {
                             choices
                         }),
                     ]),
-                    Checkbox::toggle(
+                    Toggle::choice(
                         ctx,
                         "metric / imperial units",
                         "metric",
@@ -249,8 +249,8 @@ impl OptionsPanel {
                 .padding(8),
                 "Debug".draw_text(ctx),
                 Widget::col(vec![
-                    Checkbox::checkbox(ctx, "Enable developer mode", None, app.opts().dev),
-                    Checkbox::checkbox(
+                    Toggle::checkbox(ctx, "Enable developer mode", None, app.opts().dev),
+                    Toggle::checkbox(
                         ctx,
                         "Draw all agents to debug geometry (Slow!)",
                         None,

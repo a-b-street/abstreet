@@ -1,7 +1,7 @@
 use map_gui::tools::ColorDiscrete;
 use map_model::{PathConstraints, PathStep};
 use widgetry::{
-    Checkbox, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Outcome, Panel, VerticalAlignment,
+    Drawable, EventCtx, GfxCtx, HorizontalAlignment, Outcome, Panel, Toggle, VerticalAlignment,
     Widget,
 };
 
@@ -116,9 +116,9 @@ impl TransitNetwork {
 
         let panel = Panel::new(Widget::col(vec![
             header(ctx, "Transit network"),
-            Checkbox::switch(ctx, "show all routes", None, show_all_routes),
-            Checkbox::switch(ctx, "show buses", None, show_buses),
-            Checkbox::switch(ctx, "show trains", None, show_trains),
+            Toggle::switch(ctx, "show all routes", None, show_all_routes),
+            Toggle::switch(ctx, "show buses", None, show_buses),
+            Toggle::switch(ctx, "show trains", None, show_trains),
             legend,
         ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
