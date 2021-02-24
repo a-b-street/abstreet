@@ -2,14 +2,16 @@ use std::collections::HashSet;
 
 use abstio::MapName;
 use abstutil::{Parallelism, Tags, Timer};
-use geom::{Distance, Pt2D};
+use geom::{ArrowCap, Distance, PolyLine, Pt2D};
 use map_gui::colors::ColorSchemeChoice;
 use map_gui::load::MapLoader;
 use map_gui::options::OptionsPanel;
 use map_gui::render::{calculate_corners, DrawMap, DrawOptions};
 use map_gui::tools::{ChooseSomething, PopupMsg, PromptInput};
 use map_gui::{AppLike, ID};
-use map_model::{osm, ControlTrafficSignal, IntersectionID, NORMAL_LANE_THICKNESS};
+use map_model::{
+    osm, ControlTrafficSignal, IntersectionID, PathConstraints, RoadID, NORMAL_LANE_THICKNESS,
+};
 use sim::{Sim, TripEndpoint};
 use widgetry::{
     lctrl, Cached, Checkbox, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
@@ -112,6 +114,10 @@ impl DebugMode {
                     ctx.style()
                         .btn_outline_text("render to GeoJSON")
                         .hotkey(Key::G)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline_text("draw banned turns")
+                        .hotkey(Key::T)
                         .build_def(ctx),
                 ]),
                 Text::from_all(vec![
@@ -315,6 +321,15 @@ impl State<App> for DebugMode {
                         abstio::write_json("rendered_map.json".to_string(), &geojson);
                         timer.stop("render");
                     });
+                }
+                "draw banned turns" => {
+                    // Abuse this just to draw
+                    self.search_results = Some(SearchResults {
+                        query: "banned turns".to_string(),
+                        num_matches: 0,
+                        draw: draw_banned_turns(ctx, app),
+                    });
+                    self.reset_info(ctx);
                 }
                 _ => unreachable!(),
             },
@@ -872,4 +887,36 @@ fn export_for_leaflet(ctx: &mut EventCtx, app: &App) {
             leaflet_naming: true,
         });
     }
+}
+
+fn draw_banned_turns(ctx: &mut EventCtx, app: &App) -> Drawable {
+    let mut batch = GeomBatch::new();
+    let map = &app.primary.map;
+    for i in map.all_intersections() {
+        let mut pairs: HashSet<(RoadID, RoadID)> = HashSet::new();
+        // Don't call out one-ways, so use incoming/outgoing roads, and just for cars.
+        for l1 in i.get_incoming_lanes(map, PathConstraints::Car) {
+            for l2 in i.get_outgoing_lanes(map, PathConstraints::Car) {
+                pairs.insert((map.get_l(l1).parent, map.get_l(l2).parent));
+            }
+        }
+        for t in &i.turns {
+            let r1 = map.get_l(t.src).parent;
+            let r2 = map.get_l(t.dst).parent;
+            pairs.remove(&(r1, r2));
+        }
+
+        for (r1, r2) in pairs {
+            if let Ok(pl) = PolyLine::new(vec![
+                map.get_r(r1).center_pts.middle(),
+                map.get_r(r2).center_pts.middle(),
+            ]) {
+                batch.push(
+                    Color::RED,
+                    pl.make_arrow(Distance::meters(1.0), ArrowCap::Triangle),
+                );
+            }
+        }
+    }
+    ctx.upload(batch)
 }
