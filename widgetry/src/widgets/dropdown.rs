@@ -64,8 +64,7 @@ impl<T: 'static + Clone> Dropdown<T> {
                 .enumerate()
                 .map(|(idx, c)| c.with_value(idx))
                 .collect(),
-        )
-        .take_menu();
+        );
         let y1_below = self.btn.top_left.y + self.btn.dims.height + 15.0;
 
         menu.set_pos(ScreenPt::new(

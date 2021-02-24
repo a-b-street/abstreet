@@ -529,7 +529,7 @@ impl LoadEdits {
         let current_edits_name = &app.primary.map.get_edits().edits_name;
         let your_edits = vec![
             Line("Your proposals").small_heading().draw(ctx),
-            Menu::new(
+            Menu::widget(
                 ctx,
                 abstio::list_all_objects(abstio::path_all_edits(app.primary.map.get_name()))
                     .into_iter()
