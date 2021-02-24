@@ -560,6 +560,34 @@
 <span id="557">557</span>
 <span id="558">558</span>
 <span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate</span>
 <span class="doccomment">//! structure is useful to iterate quickly on parts of the map importing pipeline without having to</span>
@@ -654,6 +682,16 @@
             <span class="string">&quot;OriginalRoad::new({}, ({}, {}))&quot;</span>,
             <span class="self">self</span>.<span class="ident">osm_way_id</span>.<span class="number">0</span>, <span class="self">self</span>.<span class="ident">i1</span>.<span class="number">0</span>, <span class="self">self</span>.<span class="ident">i2</span>.<span class="number">0</span>
         )
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">common_endpt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="ident">OriginalRoad</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">osm</span>::<span class="ident">NodeID</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">i1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">i1</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">i1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">i2</span> {
+            <span class="kw">return</span> <span class="self">self</span>.<span class="ident">i1</span>;
+        }
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">i2</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">i1</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">i2</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">i2</span> {
+            <span class="kw">return</span> <span class="self">self</span>.<span class="ident">i2</span>;
+        }
+        <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;{:?} and {:?} have no common_endpt&quot;</span>, <span class="self">self</span>, <span class="ident">other</span>);
     }
 }
 
@@ -884,6 +922,9 @@
             <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t merge {} -- it&#39;s a loop on {}&quot;</span>, <span class="ident">short</span>, <span class="ident">i1</span>);
         }
         <span class="kw">let</span> <span class="ident">i1_pt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">intersections</span>[<span class="kw-2">&amp;</span><span class="ident">i1</span>].<span class="ident">point</span>;
+        <span class="comment">// Remember the original connections to i1 before we merge. None of these will change IDs.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connected_to_i1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">roads_per_intersection</span>(<span class="ident">i1</span>);
+        <span class="ident">connected_to_i1</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">!</span><span class="op">=</span> <span class="ident">short</span>);
 
         <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">short</span>).<span class="ident">unwrap</span>();
 
@@ -902,7 +943,8 @@
         <span class="comment">// since one intersection changes.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">deleted</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">short</span>];
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">created</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">remapped_road_ids</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">old_to_new</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_to_old</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">roads_per_intersection</span>(<span class="ident">i2</span>) {
             <span class="ident">deleted</span>.<span class="ident">push</span>(<span class="ident">r</span>);
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">road</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>).<span class="ident">unwrap</span>();
@@ -928,21 +970,35 @@
                     <span class="ident">road</span>.<span class="ident">center_points</span>.<span class="ident">push</span>(<span class="ident">i1_pt</span>);
                 }
             }
-            <span class="ident">remapped_road_ids</span>.<span class="ident">insert</span>(<span class="ident">r</span>, <span class="ident">new_id</span>);
+            <span class="ident">old_to_new</span>.<span class="ident">insert</span>(<span class="ident">r</span>, <span class="ident">new_id</span>);
+            <span class="ident">new_to_old</span>.<span class="ident">insert</span>(<span class="ident">new_id</span>, <span class="ident">r</span>);
 
             <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">insert</span>(<span class="ident">new_id</span>, <span class="ident">road</span>);
             <span class="ident">created</span>.<span class="ident">push</span>(<span class="ident">new_id</span>);
         }
 
         <span class="comment">// If we&#39;re deleting the target of a simple restriction somewhere, update it.</span>
-        <span class="kw">for</span> <span class="ident">road</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">values_mut</span>() {
+        <span class="kw">for</span> (<span class="ident">from_id</span>, <span class="ident">road</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">roads</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fix_trs</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
             <span class="kw">for</span> (<span class="ident">rt</span>, <span class="ident">to</span>) <span class="kw">in</span> <span class="ident">road</span>.<span class="ident">turn_restrictions</span>.<span class="ident">drain</span>(..) {
                 <span class="kw">if</span> <span class="ident">to</span> <span class="op">=</span><span class="op">=</span> <span class="ident">short</span> <span class="op">&amp;&amp;</span> <span class="ident">rt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">RestrictionType</span>::<span class="ident">BanTurns</span> {
                     <span class="comment">// Remove this restriction, replace it with a new one to each of the successors</span>
-                    <span class="comment">// of the deleted road</span>
-                    <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">created</span> {
-                        <span class="ident">fix_trs</span>.<span class="ident">push</span>((<span class="ident">rt</span>, <span class="kw-2">*</span><span class="ident">x</span>));
+                    <span class="comment">// of the deleted road. Depending if the intersection we kept is the one</span>
+                    <span class="comment">// connecting these two roads, the successors differ.</span>
+                    <span class="kw">if</span> <span class="ident">new_to_old</span>
+                        .<span class="ident">get</span>(<span class="ident">from_id</span>)
+                        .<span class="ident">cloned</span>()
+                        .<span class="ident">unwrap_or</span>(<span class="kw-2">*</span><span class="ident">from_id</span>)
+                        .<span class="ident">common_endpt</span>(<span class="ident">short</span>)
+                        <span class="op">=</span><span class="op">=</span> <span class="ident">i1</span>
+                    {
+                        <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">created</span> {
+                            <span class="ident">fix_trs</span>.<span class="ident">push</span>((<span class="ident">rt</span>, <span class="kw-2">*</span><span class="ident">x</span>));
+                        }
+                    } <span class="kw">else</span> {
+                        <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">connected_to_i1</span> {
+                            <span class="ident">fix_trs</span>.<span class="ident">push</span>((<span class="ident">rt</span>, <span class="kw-2">*</span><span class="ident">x</span>));
+                        }
                     }
                 } <span class="kw">else</span> {
                     <span class="ident">fix_trs</span>.<span class="ident">push</span>((<span class="ident">rt</span>, <span class="ident">to</span>));
@@ -958,7 +1014,7 @@
             <span class="ident">road</span>.<span class="ident">complicated_turn_restrictions</span>.<span class="ident">retain</span>(<span class="op">|</span>(<span class="ident">via</span>, <span class="ident">to</span>)<span class="op">|</span> {
                 <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">via</span> <span class="op">=</span><span class="op">=</span> <span class="ident">short</span> {
                     <span class="comment">// Depending which intersection we&#39;re deleting, the ID of &#39;to&#39; might change</span>
-                    <span class="kw">let</span> <span class="ident">to_id</span> <span class="op">=</span> <span class="ident">remapped_road_ids</span>.<span class="ident">get</span>(<span class="ident">to</span>).<span class="ident">cloned</span>().<span class="ident">unwrap_or</span>(<span class="kw-2">*</span><span class="ident">to</span>);
+                    <span class="kw">let</span> <span class="ident">to_id</span> <span class="op">=</span> <span class="ident">old_to_new</span>.<span class="ident">get</span>(<span class="ident">to</span>).<span class="ident">cloned</span>().<span class="ident">unwrap_or</span>(<span class="kw-2">*</span><span class="ident">to</span>);
                     <span class="ident">add</span>.<span class="ident">push</span>((<span class="ident">RestrictionType</span>::<span class="ident">BanTurns</span>, <span class="ident">to_id</span>));
                     <span class="bool-val">false</span>
                 } <span class="kw">else</span> {
