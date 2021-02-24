@@ -6,7 +6,7 @@
 //!
 //! * [`Autocomplete`] - select predefined value by combining text entry with menus
 //! * [`Button`] - clickable buttons with keybindings and tooltips
-//! * [`Checkbox`] - toggle between two buttons
+//! * [`Toggle`] - checkboxes, switches, and other toggles
 //! * [`CompareTimes`] - a scatter plot specialized for comparing times
 //! * [`DrawWithTooltips`] - draw static geometry, with mouse tooltips in certain regions
 //! * [`Dropdown`] - a button that expands into a menu
@@ -48,7 +48,6 @@ pub use crate::tools::Cached;
 pub use crate::widgets::autocomplete::Autocomplete;
 pub(crate) use crate::widgets::button::Button;
 pub use crate::widgets::button::{ButtonBuilder, MultiButton};
-pub use crate::widgets::checkbox::Checkbox;
 pub use crate::widgets::compare_times::CompareTimes;
 pub(crate) use crate::widgets::dropdown::Dropdown;
 pub use crate::widgets::fan_chart::FanChart;
@@ -63,6 +62,7 @@ pub use crate::widgets::slider::Slider;
 pub use crate::widgets::spinner::Spinner;
 pub use crate::widgets::table;
 pub(crate) use crate::widgets::text_box::TextBox;
+pub use crate::widgets::toggle::Toggle;
 pub use crate::widgets::{
     CornerRounding, EdgeInsets, Outcome, Panel, Widget, WidgetImpl, WidgetOutput,
 };

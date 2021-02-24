@@ -6,8 +6,8 @@ use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use map_model::{IntersectionCluster, IntersectionID, Map, PathConstraints, RoadID};
 use widgetry::{
-    Checkbox, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, Panel, SimpleState, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
+    Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Panel, SimpleState, State, StyledButtons, Text, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, ShowEverything, Transition};
@@ -201,7 +201,7 @@ impl UberTurnViewer {
             ]),
             format!("driving_cost for a Car: {}", sum_cost).draw_text(ctx),
             Widget::row(vec![
-                Checkbox::toggle(
+                Toggle::choice(
                     ctx,
                     "legal / illegal movements",
                     "legal",

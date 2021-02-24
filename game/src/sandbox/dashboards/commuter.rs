@@ -8,9 +8,8 @@ use map_gui::tools::ColorLegend;
 use map_model::{osm, BuildingID, BuildingType, IntersectionID, LaneID, Map, RoadID, TurnType};
 use sim::{TripEndpoint, TripInfo, TripMode};
 use widgetry::{
-    Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, RewriteColor, Slider, State, StyledButtons, Text, TextExt, VerticalAlignment,
-    Widget,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    RewriteColor, Slider, State, StyledButtons, Text, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -685,8 +684,8 @@ fn make_panel(ctx: &mut EventCtx, app: &App) -> Panel {
             Line("Commute map by block").small_heading().draw(ctx),
             ctx.style().btn_close_widget(ctx),
         ]),
-        Checkbox::toggle(ctx, "from / to this block", "from", "to", Key::Space, true),
-        Checkbox::switch(ctx, "include borders", None, true),
+        Toggle::choice(ctx, "from / to this block", "from", "to", Key::Space, true),
+        Toggle::switch(ctx, "include borders", None, true),
         Widget::row(vec![
             "Departing from:".draw_text(ctx).margin_right(20),
             Slider::area(ctx, 0.15 * ctx.canvas.window_width, 0.0).named("depart from"),

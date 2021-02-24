@@ -4,8 +4,8 @@ use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, StageType,
 };
 use widgetry::{
-    Checkbox, Choice, DrawBaselayer, EventCtx, Key, Line, Panel, SimpleState, Spinner, State,
-    StyledButtons, TextExt, Widget,
+    Choice, DrawBaselayer, EventCtx, Key, Line, Panel, SimpleState, Spinner, State, StyledButtons,
+    TextExt, Toggle, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -47,7 +47,7 @@ impl ChangeDuration {
             ]),
             Widget::row(vec![
                 "Type:".draw_text(ctx),
-                Checkbox::toggle(
+                Toggle::choice(
                     ctx,
                     "stage type",
                     "fixed",

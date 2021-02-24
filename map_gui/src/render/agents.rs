@@ -6,7 +6,7 @@ use aabb_quadtree::QuadTree;
 use geom::{Circle, Pt2D, Time};
 use map_model::{Map, Traversable};
 use sim::{AgentID, Sim, UnzoomedAgent, VehicleType};
-use widgetry::{Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Panel, Prerender, Widget};
+use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Panel, Prerender, Toggle, Widget};
 
 use crate::colors::ColorScheme;
 use crate::render::{
@@ -209,19 +209,20 @@ impl UnzoomedAgents {
 
     pub fn make_horiz_viz_panel(&self, ctx: &mut EventCtx) -> Widget {
         Widget::custom_row(vec![
-            Checkbox::colored(ctx, "Car", self.car_color, self.cars).margin_right(24),
-            Checkbox::colored(ctx, "Bike", self.bike_color, self.bikes).margin_right(24),
-            Checkbox::colored(ctx, "Bus", self.bus_color, self.buses_and_trains).margin_right(24),
-            Checkbox::colored(ctx, "Walk", self.ped_color, self.peds).margin_right(8),
+            Toggle::colored_checkbox(ctx, "Car", self.car_color, self.cars).margin_right(24),
+            Toggle::colored_checkbox(ctx, "Bike", self.bike_color, self.bikes).margin_right(24),
+            Toggle::colored_checkbox(ctx, "Bus", self.bus_color, self.buses_and_trains)
+                .margin_right(24),
+            Toggle::colored_checkbox(ctx, "Walk", self.ped_color, self.peds).margin_right(8),
         ])
     }
 
     pub fn make_vert_viz_panel(&self, ctx: &mut EventCtx) -> Widget {
         Widget::col(vec![
-            Checkbox::colored(ctx, "Car", self.car_color, self.cars),
-            Checkbox::colored(ctx, "Bike", self.bike_color, self.bikes),
-            Checkbox::colored(ctx, "Bus", self.bus_color, self.buses_and_trains),
-            Checkbox::colored(ctx, "Walk", self.ped_color, self.peds),
+            Toggle::colored_checkbox(ctx, "Car", self.car_color, self.cars),
+            Toggle::colored_checkbox(ctx, "Bike", self.bike_color, self.bikes),
+            Toggle::colored_checkbox(ctx, "Bus", self.bus_color, self.buses_and_trains),
+            Toggle::colored_checkbox(ctx, "Walk", self.ped_color, self.peds),
         ])
     }
 

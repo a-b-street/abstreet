@@ -9,8 +9,8 @@ use map_model::{
 };
 use sim::{ParkingSpot, Scenario, VehicleType};
 use widgetry::{
-    Checkbox, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel,
-    Text, VerticalAlignment, Widget,
+    Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, Text, Toggle,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -228,16 +228,16 @@ impl Occupancy {
             ])
             .draw(ctx),
             Widget::row(vec![
-                Checkbox::switch(ctx, "On-street spots", None, onstreet),
-                Checkbox::switch(ctx, "Parking lots", None, lots),
+                Toggle::switch(ctx, "On-street spots", None, onstreet),
+                Toggle::switch(ctx, "Parking lots", None, lots),
             ])
             .evenly_spaced(),
             Widget::row(vec![
-                Checkbox::switch(ctx, "Public garages", None, garages),
-                Checkbox::switch(ctx, "Private buildings", None, private_bldgs),
+                Toggle::switch(ctx, "Public garages", None, garages),
+                Toggle::switch(ctx, "Private buildings", None, private_bldgs),
             ])
             .evenly_spaced(),
-            Checkbox::colored(
+            Toggle::colored_checkbox(
                 ctx,
                 "Cars looking for parking",
                 app.cs.parking_trip,

@@ -5,8 +5,8 @@ use geom::{Circle, Distance, Pt2D, Time};
 use map_gui::tools::{make_heatmap, HeatmapOptions};
 use sim::PersonState;
 use widgetry::{
-    Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
-    Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
+    Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome,
+    Panel, Text, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -223,7 +223,7 @@ fn make_controls(ctx: &mut EventCtx, app: &App, opts: &Options, legend: Option<W
         ]),
     ];
 
-    col.push(Checkbox::switch(
+    col.push(Toggle::switch(
         ctx,
         "Show heatmap",
         None,

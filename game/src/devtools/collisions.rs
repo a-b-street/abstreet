@@ -4,8 +4,8 @@ use geom::{Circle, Distance, Duration, FindClosest, Polygon, Time};
 use map_gui::tools::ColorNetwork;
 use map_gui::ID;
 use widgetry::{
-    Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
-    Outcome, Panel, Slider, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
+    Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome,
+    Panel, Slider, State, StyledButtons, Text, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -88,7 +88,7 @@ impl Filters {
 
     fn to_controls(ctx: &mut EventCtx) -> Widget {
         Widget::col(vec![
-            Checkbox::toggle(
+            Toggle::choice(
                 ctx,
                 "individual / aggregated",
                 "individual",

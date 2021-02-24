@@ -4,8 +4,7 @@ use anyhow::Result;
 use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink};
 
 use widgetry::{
-    Checkbox, EventCtx, GfxCtx, HorizontalAlignment, Outcome, Panel, StyledButtons,
-    VerticalAlignment,
+    EventCtx, GfxCtx, HorizontalAlignment, Outcome, Panel, StyledButtons, Toggle, VerticalAlignment,
 };
 
 // TODO Speed up when we're almost out of time, slow down when we're low on energy
@@ -108,7 +107,7 @@ impl Inner {
         }
 
         let panel = Panel::new(
-            Checkbox::new(
+            Toggle::new(
                 play_music,
                 ctx.style()
                     .btn_solid_icon("system/assets/tools/volume_off.svg")

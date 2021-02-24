@@ -14,8 +14,8 @@ use map_model::{
 };
 use sim::{Sim, TripEndpoint};
 use widgetry::{
-    lctrl, Cached, Checkbox, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Panel, ScreenDims, State, StyledButtons, Text,
+    lctrl, Cached, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Panel, ScreenDims, State, StyledButtons, Text, Toggle,
     UpdateType, VerticalAlignment, Widget,
 };
 
@@ -55,12 +55,12 @@ impl DebugMode {
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 Text::new().draw(ctx).named("current info"),
-                Checkbox::switch(ctx, "show buildings", Key::Num1, true),
-                Checkbox::switch(ctx, "show intersections", Key::Num2, true),
-                Checkbox::switch(ctx, "show lanes", Key::Num3, true),
-                Checkbox::switch(ctx, "show areas", Key::Num4, true),
-                Checkbox::switch(ctx, "show labels", Key::Num5, false),
-                Checkbox::switch(ctx, "show route for all agents", lctrl(Key::R), false),
+                Toggle::switch(ctx, "show buildings", Key::Num1, true),
+                Toggle::switch(ctx, "show intersections", Key::Num2, true),
+                Toggle::switch(ctx, "show lanes", Key::Num3, true),
+                Toggle::switch(ctx, "show areas", Key::Num4, true),
+                Toggle::switch(ctx, "show labels", Key::Num5, false),
+                Toggle::switch(ctx, "show route for all agents", lctrl(Key::R), false),
                 Widget::col(vec![
                     ctx.style()
                         .btn_outline_text("unhide everything")

@@ -6,8 +6,8 @@ use map_gui::render::DrawOptions;
 use map_gui::tools::{grey_out_map, PopupMsg};
 use map_gui::ID;
 use widgetry::{
-    Checkbox, Choice, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
-    Slider, State, StyledButtons, Text, UpdateType, Widget,
+    Choice, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, Slider,
+    State, StyledButtons, Text, Toggle, UpdateType, Widget,
 };
 
 use crate::app::{App, FindDelayedIntersections, ShowEverything, Transition};
@@ -69,7 +69,7 @@ impl JumpToTime {
                     target.to_percent(end_of_day).min(1.0),
                 )
                 .named("time slider"),
-                Checkbox::checkbox(
+                Toggle::checkbox(
                     ctx,
                     "skip drawing (for faster simulations)",
                     None,
@@ -194,7 +194,7 @@ impl JumpToDelay {
                     ),
                     Line("minute delay").small_heading().draw(ctx),
                 ]),
-                Checkbox::checkbox(
+                Toggle::checkbox(
                     ctx,
                     "skip drawing (for faster simulations)",
                     None,

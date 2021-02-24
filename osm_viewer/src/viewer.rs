@@ -11,9 +11,9 @@ use map_gui::tools::{
 use map_gui::{SimpleApp, ID};
 use map_model::osm;
 use widgetry::{
-    lctrl, Checkbox, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Panel, State, StyledButtons, Text, TextExt,
-    Transition, VerticalAlignment, Widget,
+    lctrl, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Panel, State, StyledButtons, Text, TextExt, Toggle, Transition,
+    VerticalAlignment, Widget,
 };
 
 type App = SimpleApp<()>;
@@ -444,7 +444,7 @@ impl BusinessSearch {
             format!("{} businesses total", prettyprint_usize(self.counts.sum())).draw_text(ctx),
         );
         for (amenity, cnt) in self.counts.borrow() {
-            col.push(Checkbox::custom_checkbox(
+            col.push(Toggle::custom_checkbox(
                 ctx,
                 amenity,
                 vec![Line(format!("{}: {}", amenity, prettyprint_usize(*cnt)))],

@@ -7,8 +7,8 @@ use map_gui::render::traffic_signal::draw_signal_stage;
 use map_model::{IntersectionID, IntersectionType, StageType};
 use sim::AgentType;
 use widgetry::{
-    Checkbox, Color, DrawWithTooltips, EventCtx, FanChart, GeomBatch, Line, PlotOptions,
-    ScatterPlot, Series, StyledButtons, Text, Widget,
+    Color, DrawWithTooltips, EventCtx, FanChart, GeomBatch, Line, PlotOptions, ScatterPlot, Series,
+    StyledButtons, Text, Toggle, Widget,
 };
 
 use crate::app::App;
@@ -117,7 +117,7 @@ pub fn delay(
 
     assert!(i.is_traffic_signal());
     rows.push(opts.to_controls(ctx, app));
-    rows.push(Checkbox::toggle(
+    rows.push(Toggle::choice(
         ctx,
         "fan chart / scatter plot",
         "fan chart",

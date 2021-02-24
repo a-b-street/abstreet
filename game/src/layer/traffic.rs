@@ -10,8 +10,8 @@ use map_gui::ID;
 use map_model::{IntersectionID, Map, Traversable};
 use sim::{AgentType, VehicleType};
 use widgetry::{
-    Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome,
-    Panel, Text, TextExt, VerticalAlignment, Widget,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, Text,
+    TextExt, Toggle, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -223,7 +223,7 @@ impl Throughput {
                 .wrap_to_pct(ctx, 15)
                 .draw(ctx),
             if app.has_prebaked().is_some() {
-                Checkbox::switch(ctx, "Compare before proposal", None, false)
+                Toggle::switch(ctx, "Compare before proposal", None, false)
             } else {
                 Widget::nothing()
             },
@@ -231,7 +231,7 @@ impl Throughput {
                 AgentType::all()
                     .into_iter()
                     .map(|agent_type| {
-                        Checkbox::checkbox(
+                        Toggle::checkbox(
                             ctx,
                             agent_type.noun(),
                             None,
@@ -367,7 +367,7 @@ impl CompareThroughput {
 
         let panel = Panel::new(Widget::col(vec![
             header(ctx, "Relative Throughput"),
-            Checkbox::switch(ctx, "Compare before proposal", None, true),
+            Toggle::switch(ctx, "Compare before proposal", None, true),
             scale.make_legend(ctx, vec!["less traffic", "same", "more"]),
         ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
