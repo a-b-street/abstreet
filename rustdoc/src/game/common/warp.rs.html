@@ -351,7 +351,7 @@
 
 <span class="kw">impl</span> <span class="ident">DebugWarp</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">hotkey_color</span>;
+        <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>;
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">DebugWarp</span> {
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[

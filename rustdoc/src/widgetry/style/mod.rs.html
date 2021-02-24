@@ -121,6 +121,36 @@
 <span id="118">118</span>
 <span id="119">119</span>
 <span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Color</span>, <span class="ident">Text</span>};
 
@@ -132,7 +162,8 @@
     <span class="kw">pub</span> <span class="ident">outline_color</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">panel_bg</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">text_fg_color</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">hotkey_color</span>: <span class="ident">Color</span>,
+    <span class="kw">pub</span> <span class="ident">text_hotkey_color</span>: <span class="ident">Color</span>,
+    <span class="kw">pub</span> <span class="ident">text_tooltip_color</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">loading_tips</span>: <span class="ident">Text</span>,
     <span class="kw">pub</span> <span class="ident">btn_solid</span>: <span class="ident">ButtonStyle</span>,
     <span class="kw">pub</span> <span class="ident">btn_outline</span>: <span class="ident">ButtonStyle</span>,
@@ -199,25 +230,54 @@
 
 <span class="kw">impl</span> <span class="ident">Style</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">standard</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Style</span> {
+        <span class="kw">let</span> <span class="ident">use_legacy_day_theme</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="ident">Style</span> {
+            <span class="ident">panel_bg</span>: <span class="kw">if</span> <span class="ident">use_legacy_day_theme</span> {
+                <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.4</span>)
+            } <span class="kw">else</span> {
+                <span class="ident">Color</span>::<span class="ident">WHITE</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>)
+            },
+
             <span class="ident">outline_thickness</span>: <span class="number">2.0</span>,
             <span class="ident">outline_color</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>,
-            <span class="ident">hotkey_color</span>: <span class="ident">Color</span>::<span class="ident">GREEN</span>,
             <span class="ident">loading_tips</span>: <span class="ident">Text</span>::<span class="ident">new</span>(),
 
-            <span class="comment">// Buttons</span>
-            <span class="ident">btn_solid</span>: <span class="ident">ButtonStyle</span>::<span class="ident">btn_solid</span>(),
+            <span class="comment">// Text</span>
+            <span class="ident">text_fg_color</span>: <span class="kw">if</span> <span class="ident">use_legacy_day_theme</span> {
+                <span class="ident">Color</span>::<span class="ident">WHITE</span>
+            } <span class="kw">else</span> {
+                <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>)
+            },
+            <span class="ident">text_hotkey_color</span>: <span class="kw">if</span> <span class="ident">use_legacy_day_theme</span> {
+                <span class="ident">Color</span>::<span class="ident">GREEN</span>
+            } <span class="kw">else</span> {
+                <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>)
+            },
+            <span class="ident">text_tooltip_color</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>,
 
-            <span class="comment">// legacy day theme</span>
-            <span class="ident">panel_bg</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.4</span>),
-            <span class="ident">text_fg_color</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>,
-            <span class="ident">btn_outline</span>: <span class="ident">ButtonStyle</span>::<span class="ident">btn_outline</span>(),
-            <span class="ident">btn_solid_floating</span>: <span class="ident">ButtonStyle</span>::<span class="ident">btn_solid_floating</span>(),
-            <span class="comment">// TODO new day theme</span>
-            <span class="comment">// panel_bg: Color::WHITE.alpha(0.8),</span>
-            <span class="comment">// text_fg_color: hex(&quot;#4C4C4C&quot;),</span>
-            <span class="comment">// btn_outline: ButtonStyle::btn_outline_dark(),</span>
-            <span class="comment">// btn_solid_floating: ButtonStyle::btn_solid(),</span>
+            <span class="comment">// Buttons</span>
+            <span class="ident">btn_outline</span>: <span class="kw">if</span> <span class="ident">use_legacy_day_theme</span> {
+                <span class="ident">ButtonStyle</span>::<span class="ident">btn_outline</span>()
+            } <span class="kw">else</span> {
+                <span class="ident">ButtonStyle</span>::<span class="ident">btn_outline_dark</span>()
+            },
+            <span class="ident">btn_solid</span>: <span class="kw">if</span> <span class="ident">use_legacy_day_theme</span> {
+                <span class="ident">ButtonStyle</span>::<span class="ident">btn_solid</span>()
+            } <span class="kw">else</span> {
+                <span class="ident">ButtonStyle</span> {
+                    <span class="ident">fg</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>,
+                    <span class="ident">fg_disabled</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>.<span class="ident">alpha</span>(<span class="number">0.3</span>),
+                    <span class="ident">bg</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.8</span>),
+                    <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>),
+                    <span class="ident">bg_disabled</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.6</span>),
+                    <span class="ident">outline</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.6</span>),
+                }
+            },
+            <span class="ident">btn_solid_floating</span>: <span class="kw">if</span> <span class="ident">use_legacy_day_theme</span> {
+                <span class="ident">ButtonStyle</span>::<span class="ident">btn_solid_floating</span>()
+            } <span class="kw">else</span> {
+                <span class="ident">ButtonStyle</span>::<span class="ident">btn_solid</span>()
+            },
             <span class="ident">btn_solid_destructive</span>: <span class="ident">ButtonStyle</span> {
                 <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>),
                 <span class="ident">fg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.3</span>),

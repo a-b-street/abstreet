@@ -831,7 +831,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">txt</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TextSpan</span> {
-        <span class="ident">Line</span>(<span class="self">self</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">hotkey_color</span>)
+        <span class="ident">Line</span>(<span class="self">self</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>)
     }
 }
 
