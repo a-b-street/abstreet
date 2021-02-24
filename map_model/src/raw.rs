@@ -92,6 +92,16 @@ impl OriginalRoad {
             self.osm_way_id.0, self.i1.0, self.i2.0
         )
     }
+
+    pub fn common_endpt(&self, other: OriginalRoad) -> osm::NodeID {
+        if self.i1 == other.i1 || self.i1 == other.i2 {
+            return self.i1;
+        }
+        if self.i2 == other.i1 || self.i2 == other.i2 {
+            return self.i2;
+        }
+        panic!("{:?} and {:?} have no common_endpt", self, other);
+    }
 }
 
 impl RawMap {
@@ -321,6 +331,9 @@ impl RawMap {
             bail!("Can't merge {} -- it's a loop on {}", short, i1);
         }
         let i1_pt = self.intersections[&i1].point;
+        // Remember the original connections to i1 before we merge. None of these will change IDs.
+        let mut connected_to_i1 = self.roads_per_intersection(i1);
+        connected_to_i1.retain(|x| *x != short);
 
         self.roads.remove(&short).unwrap();
 
@@ -339,7 +352,8 @@ impl RawMap {
         // since one intersection changes.
         let mut deleted = vec![short];
         let mut created = Vec::new();
-        let mut remapped_road_ids = BTreeMap::new();
+        let mut old_to_new = BTreeMap::new();
+        let mut new_to_old = BTreeMap::new();
         for r in self.roads_per_intersection(i2) {
             deleted.push(r);
             let mut road = self.roads.remove(&r).unwrap();
@@ -365,21 +379,35 @@ impl RawMap {
                     road.center_points.push(i1_pt);
                 }
             }
-            remapped_road_ids.insert(r, new_id);
+            old_to_new.insert(r, new_id);
+            new_to_old.insert(new_id, r);
 
             self.roads.insert(new_id, road);
             created.push(new_id);
         }
 
         // If we're deleting the target of a simple restriction somewhere, update it.
-        for road in self.roads.values_mut() {
+        for (from_id, road) in &mut self.roads {
             let mut fix_trs = Vec::new();
             for (rt, to) in road.turn_restrictions.drain(..) {
                 if to == short && rt == RestrictionType::BanTurns {
                     // Remove this restriction, replace it with a new one to each of the successors
-                    // of the deleted road
-                    for x in &created {
-                        fix_trs.push((rt, *x));
+                    // of the deleted road. Depending if the intersection we kept is the one
+                    // connecting these two roads, the successors differ.
+                    if new_to_old
+                        .get(from_id)
+                        .cloned()
+                        .unwrap_or(*from_id)
+                        .common_endpt(short)
+                        == i1
+                    {
+                        for x in &created {
+                            fix_trs.push((rt, *x));
+                        }
+                    } else {
+                        for x in &connected_to_i1 {
+                            fix_trs.push((rt, *x));
+                        }
                     }
                 } else {
                     fix_trs.push((rt, to));
@@ -395,7 +423,7 @@ impl RawMap {
             road.complicated_turn_restrictions.retain(|(via, to)| {
                 if *via == short {
                     // Depending which intersection we're deleting, the ID of 'to' might change
-                    let to_id = remapped_road_ids.get(to).cloned().unwrap_or(*to);
+                    let to_id = old_to_new.get(to).cloned().unwrap_or(*to);
                     add.push((RestrictionType::BanTurns, to_id));
                     false
                 } else {
