@@ -473,6 +473,13 @@
 <span id="470">470</span>
 <span id="471">471</span>
 <span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
@@ -773,6 +780,13 @@
         } <span class="kw">else</span> {
             <span class="ident">osm</span>::<span class="ident">RoadRank</span>::<span class="ident">Local</span>
         }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_detailed_rank</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+        <span class="self">self</span>.<span class="ident">osm_tags</span>
+            .<span class="ident">get</span>(<span class="ident">osm</span>::<span class="ident">HIGHWAY</span>)
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">hwy</span><span class="op">|</span> <span class="ident">osm</span>::<span class="ident">RoadRank</span>::<span class="ident">detailed_from_highway</span>(<span class="ident">hwy</span>))
+            .<span class="ident">unwrap_or</span>(<span class="number">0</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_bus_stops</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BusStopID</span><span class="op">&gt;</span> {

@@ -313,6 +313,24 @@
 <span id="310">310</span>
 <span id="311">311</span>
 <span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Pathfinding for cars, bikes, buses, and trains using contraction hierarchies</span>
 
@@ -327,7 +345,8 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">node_map</span>::{<span class="ident">deserialize_nodemap</span>, <span class="ident">NodeMap</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">uber_turns</span>::{<span class="ident">IntersectionCluster</span>, <span class="ident">UberTurn</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>, <span class="ident">RoutingParams</span>, <span class="ident">Turn</span>, <span class="ident">TurnID</span>,
+    <span class="ident">DrivingSide</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>, <span class="ident">RoutingParams</span>,
+    <span class="ident">Turn</span>, <span class="ident">TurnID</span>, <span class="ident">TurnType</span>,
 };
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -607,6 +626,23 @@
             (<span class="ident">lt_penalty</span> <span class="op">*</span> (<span class="ident">t1</span> <span class="op">+</span> <span class="ident">t2</span>)).<span class="ident">inner_seconds</span>()
         }
         <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+    };
+
+    <span class="comment">// Penalize unprotected turns at a stop sign from smaller to larger roads.</span>
+    <span class="kw">let</span> <span class="ident">unprotected_turn_type</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide</span>::<span class="ident">Right</span> {
+        <span class="ident">TurnType</span>::<span class="ident">Left</span>
+    } <span class="kw">else</span> {
+        <span class="ident">TurnType</span>::<span class="ident">Right</span>
+    };
+    <span class="kw">let</span> <span class="ident">rank_from</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">lane</span>.<span class="ident">parent</span>).<span class="ident">get_detailed_rank</span>();
+    <span class="kw">let</span> <span class="ident">rank_to</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">get_detailed_rank</span>();
+    <span class="kw">let</span> <span class="ident">base</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">turn</span>.<span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">unprotected_turn_type</span>
+        <span class="op">&amp;&amp;</span> <span class="ident">rank_from</span> <span class="op">&lt;</span> <span class="ident">rank_to</span>
+        <span class="op">&amp;&amp;</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">parent</span>).<span class="ident">is_stop_sign</span>()
+    {
+        <span class="ident">base</span> <span class="op">*</span> <span class="ident">params</span>.<span class="ident">unprotected_turn_penalty</span>
+    } <span class="kw">else</span> {
+        <span class="ident">base</span>
     };
 
     <span class="comment">// Normally opportunistic lane-changing adjusts the path live, but that doesn&#39;t work near</span>

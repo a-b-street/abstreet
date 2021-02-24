@@ -663,6 +663,9 @@
 <span id="660">660</span>
 <span id="661">661</span>
 <span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Everything related to pathfinding through a map for different types of agents.</span>
 
@@ -1311,6 +1314,8 @@
 <span class="comment">// space-expensive change right now.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RoutingParams</span> {
+    <span class="comment">// For all vehicles</span>
+    <span class="kw">pub</span> <span class="ident">unprotected_turn_penalty</span>: <span class="ident">f64</span>,
     <span class="comment">// For bike routing</span>
     <span class="kw">pub</span> <span class="ident">bike_lane_penalty</span>: <span class="ident">f64</span>,
     <span class="kw">pub</span> <span class="ident">bus_lane_penalty</span>: <span class="ident">f64</span>,
@@ -1320,6 +1325,7 @@
 <span class="kw">impl</span> <span class="ident">RoutingParams</span> {
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RoutingParams</span> {
         <span class="ident">RoutingParams</span> {
+            <span class="ident">unprotected_turn_penalty</span>: <span class="number">2.0</span>,
             <span class="ident">bike_lane_penalty</span>: <span class="number">1.0</span>,
             <span class="ident">bus_lane_penalty</span>: <span class="number">1.1</span>,
             <span class="ident">driving_lane_penalty</span>: <span class="number">1.5</span>,

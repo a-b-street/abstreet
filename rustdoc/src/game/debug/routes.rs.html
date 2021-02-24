@@ -435,6 +435,35 @@
 <span id="432">432</span>
 <span id="433">433</span>
 <span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>, <span class="ident">Parallelism</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">colors</span>::<span class="ident">ColorSchemeChoice</span>;
@@ -459,7 +488,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">RouteExplorer</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">start</span>: <span class="ident">TripEndpoint</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">start</span>: <span class="ident">TripEndpoint</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">RouteExplorer</span> {
             <span class="ident">start</span>,
             <span class="ident">goal</span>: <span class="prelude-val">None</span>,
@@ -472,7 +501,8 @@
                     .<span class="ident">btn_solid_text</span>(<span class="string">&quot;All routes&quot;</span>)
                     .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">A</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                <span class="ident">params_to_controls</span>(<span class="ident">ctx</span>, <span class="ident">TripMode</span>::<span class="ident">Bike</span>, <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span>::<span class="ident">default</span>()).<span class="ident">named</span>(<span class="string">&quot;params&quot;</span>),
+                <span class="ident">params_to_controls</span>(<span class="ident">ctx</span>, <span class="ident">TripMode</span>::<span class="ident">Bike</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">routing_params</span>())
+                    .<span class="ident">named</span>(<span class="string">&quot;params&quot;</span>),
             ]))
             .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
@@ -507,19 +537,19 @@
                 }
                 <span class="string">&quot;bikes&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">controls</span> <span class="op">=</span>
-                        <span class="ident">params_to_controls</span>(<span class="ident">ctx</span>, <span class="ident">TripMode</span>::<span class="ident">Bike</span>, <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span>::<span class="ident">default</span>());
+                        <span class="ident">params_to_controls</span>(<span class="ident">ctx</span>, <span class="ident">TripMode</span>::<span class="ident">Bike</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">routing_params</span>());
                     <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;params&quot;</span>, <span class="ident">controls</span>);
                     <span class="self">self</span>.<span class="ident">recalc_paths</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
                 <span class="string">&quot;cars&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">controls</span> <span class="op">=</span>
-                        <span class="ident">params_to_controls</span>(<span class="ident">ctx</span>, <span class="ident">TripMode</span>::<span class="ident">Drive</span>, <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span>::<span class="ident">default</span>());
+                        <span class="ident">params_to_controls</span>(<span class="ident">ctx</span>, <span class="ident">TripMode</span>::<span class="ident">Drive</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">routing_params</span>());
                     <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;params&quot;</span>, <span class="ident">controls</span>);
                     <span class="self">self</span>.<span class="ident">recalc_paths</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
                 <span class="string">&quot;pedestrians&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">controls</span> <span class="op">=</span>
-                        <span class="ident">params_to_controls</span>(<span class="ident">ctx</span>, <span class="ident">TripMode</span>::<span class="ident">Walk</span>, <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span>::<span class="ident">default</span>());
+                        <span class="ident">params_to_controls</span>(<span class="ident">ctx</span>, <span class="ident">TripMode</span>::<span class="ident">Walk</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">routing_params</span>());
                     <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;params&quot;</span>, <span class="ident">controls</span>);
                     <span class="self">self</span>.<span class="ident">recalc_paths</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
@@ -628,6 +658,17 @@
             .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;pedestrians&quot;</span>),
     ])
     .<span class="ident">evenly_spaced</span>()];
+    <span class="kw">if</span> <span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TripMode</span>::<span class="ident">Drive</span> <span class="op">|</span><span class="op">|</span> <span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TripMode</span>::<span class="ident">Bike</span> {
+        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="string">&quot;Unprotected turn penalty:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
+            <span class="ident">Spinner</span>::<span class="ident">new</span>(
+                <span class="ident">ctx</span>,
+                (<span class="number">1</span>, <span class="number">100</span>),
+                (<span class="ident">params</span>.<span class="ident">unprotected_turn_penalty</span> <span class="op">*</span> <span class="number">10.0</span>) <span class="kw">as</span> <span class="ident">isize</span>,
+            )
+            .<span class="ident">named</span>(<span class="string">&quot;unprotected turn penalty&quot;</span>),
+        ]));
+    }
     <span class="kw">if</span> <span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TripMode</span>::<span class="ident">Bike</span> {
         <span class="comment">// TODO Spinners that natively understand a floating point range with a given precision</span>
         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -652,11 +693,13 @@
 <span class="kw">fn</span> <span class="ident">controls_to_params</span>(<span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">TripMode</span>, <span class="ident">RoutingParams</span>) {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">RoutingParams</span>::<span class="ident">default</span>();
     <span class="kw">if</span> <span class="op">!</span><span class="ident">panel</span>.<span class="ident">is_button_enabled</span>(<span class="string">&quot;cars&quot;</span>) {
+        <span class="ident">params</span>.<span class="ident">unprotected_turn_penalty</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;unprotected turn penalty&quot;</span>) <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="number">10.0</span>;
         <span class="kw">return</span> (<span class="ident">TripMode</span>::<span class="ident">Drive</span>, <span class="ident">params</span>);
     }
     <span class="kw">if</span> <span class="op">!</span><span class="ident">panel</span>.<span class="ident">is_button_enabled</span>(<span class="string">&quot;pedestrians&quot;</span>) {
         <span class="kw">return</span> (<span class="ident">TripMode</span>::<span class="ident">Walk</span>, <span class="ident">params</span>);
     }
+    <span class="ident">params</span>.<span class="ident">unprotected_turn_penalty</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;unprotected turn penalty&quot;</span>) <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="number">10.0</span>;
     <span class="ident">params</span>.<span class="ident">bike_lane_penalty</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;bike lane penalty&quot;</span>) <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="number">10.0</span>;
     <span class="ident">params</span>.<span class="ident">bus_lane_penalty</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;bus lane penalty&quot;</span>) <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="number">10.0</span>;
     <span class="ident">params</span>.<span class="ident">driving_lane_penalty</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;driving lane penalty&quot;</span>) <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="number">10.0</span>;
@@ -710,9 +753,13 @@
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} total requests&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">requests</span>.<span class="ident">len</span>())).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                <span class="ident">params_to_controls</span>(<span class="ident">ctx</span>, <span class="ident">TripMode</span>::<span class="ident">Bike</span>, <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span>::<span class="ident">default</span>()).<span class="ident">named</span>(<span class="string">&quot;params&quot;</span>),
+                <span class="ident">params_to_controls</span>(<span class="ident">ctx</span>, <span class="ident">TripMode</span>::<span class="ident">Bike</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">routing_params</span>())
+                    .<span class="ident">named</span>(<span class="string">&quot;params&quot;</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Calculate differential demand&quot;</span>)
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_solid_destructive_text</span>(<span class="string">&quot;keep changed params&quot;</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             ]))
             .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
@@ -741,19 +788,30 @@
                     });
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                 }
+                <span class="string">&quot;keep changed params&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="comment">// This is handy for seeing the effects on a real simulation without rebuilding</span>
+                    <span class="comment">// the map.</span>
+                    <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;update routing params&quot;</span>, <span class="op">|</span><span class="kw">_</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
+                        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">controls_to_params</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
+                        <span class="ident">app</span>.<span class="ident">primary</span>
+                            .<span class="ident">map</span>
+                            .<span class="ident">hack_override_routing_params</span>(<span class="ident">params</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
+                    });
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
+                }
                 <span class="string">&quot;bikes&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">controls</span> <span class="op">=</span>
-                        <span class="ident">params_to_controls</span>(<span class="ident">ctx</span>, <span class="ident">TripMode</span>::<span class="ident">Bike</span>, <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span>::<span class="ident">default</span>());
+                        <span class="ident">params_to_controls</span>(<span class="ident">ctx</span>, <span class="ident">TripMode</span>::<span class="ident">Bike</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">routing_params</span>());
                     <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;params&quot;</span>, <span class="ident">controls</span>);
                 }
                 <span class="string">&quot;cars&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">controls</span> <span class="op">=</span>
-                        <span class="ident">params_to_controls</span>(<span class="ident">ctx</span>, <span class="ident">TripMode</span>::<span class="ident">Drive</span>, <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span>::<span class="ident">default</span>());
+                        <span class="ident">params_to_controls</span>(<span class="ident">ctx</span>, <span class="ident">TripMode</span>::<span class="ident">Drive</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">routing_params</span>());
                     <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;params&quot;</span>, <span class="ident">controls</span>);
                 }
                 <span class="string">&quot;pedestrians&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">controls</span> <span class="op">=</span>
-                        <span class="ident">params_to_controls</span>(<span class="ident">ctx</span>, <span class="ident">TripMode</span>::<span class="ident">Walk</span>, <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span>::<span class="ident">default</span>());
+                        <span class="ident">params_to_controls</span>(<span class="ident">ctx</span>, <span class="ident">TripMode</span>::<span class="ident">Walk</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">routing_params</span>());
                     <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;params&quot;</span>, <span class="ident">controls</span>);
                 }
                 <span class="string">&quot;Calculate differential demand&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {

@@ -1499,9 +1499,9 @@
                 );
                 <span class="ident">Transition</span>::<span class="ident">Keep</span>
             }
-            (<span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>), <span class="string">&quot;route from here&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">routes</span>::<span class="ident">RouteExplorer</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">i</span>)))
-            }
+            (<span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>), <span class="string">&quot;route from here&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(
+                <span class="ident">routes</span>::<span class="ident">RouteExplorer</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">i</span>)),
+            ),
             (<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>), <span class="string">&quot;debug lane geometry&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">polygons</span>::<span class="ident">PolygonDebugger</span>::<span class="ident">new</span>(
                     <span class="ident">ctx</span>,
@@ -1581,7 +1581,7 @@
                 ))
             }
             (<span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">b</span>), <span class="string">&quot;route from here&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">routes</span>::<span class="ident">RouteExplorer</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>)))
+                <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">routes</span>::<span class="ident">RouteExplorer</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>)))
             }
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         }
