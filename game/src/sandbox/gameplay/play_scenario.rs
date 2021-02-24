@@ -128,17 +128,14 @@ impl GameplayState for PlayScenario {
                 Line("Sandbox").small_heading().draw(ctx),
                 Widget::vert_separator(ctx, 50.0),
                 ctx.style()
-                    .btn_light_popup_icon_text(
+                    .btn_popup_icon_text(
                         "system/assets/tools/map.svg",
                         nice_map_name(app.primary.map.get_name()),
                     )
                     .hotkey(lctrl(Key::L))
                     .build_widget(ctx, "change map"),
                 ctx.style()
-                    .btn_light_popup_icon_text(
-                        "system/assets/tools/calendar.svg",
-                        &self.scenario_name,
-                    )
+                    .btn_popup_icon_text("system/assets/tools/calendar.svg", &self.scenario_name)
                     .hotkey(Key::S)
                     .build_widget(ctx, "change scenario"),
                 ctx.style()

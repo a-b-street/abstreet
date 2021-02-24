@@ -129,7 +129,7 @@ impl GameplayState for Actdev {
                     .draw(ctx),
                 Widget::vert_separator(ctx, 50.0),
                 ctx.style()
-                    .btn_light_popup_icon_text("system/assets/tools/calendar.svg", "scenario")
+                    .btn_popup_icon_text("system/assets/tools/calendar.svg", "scenario")
                     .label_styled_text(
                         match &self.scenario_name {
                             Some(x) => match x.as_ref() {

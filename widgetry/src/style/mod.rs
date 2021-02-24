@@ -8,7 +8,8 @@ pub struct Style {
     pub outline_color: Color,
     pub panel_bg: Color,
     pub text_fg_color: Color,
-    pub hotkey_color: Color,
+    pub text_hotkey_color: Color,
+    pub text_tooltip_color: Color,
     pub loading_tips: Text,
     pub btn_solid: ButtonStyle,
     pub btn_outline: ButtonStyle,
@@ -75,25 +76,54 @@ impl ButtonStyle {
 
 impl Style {
     pub fn standard() -> Style {
+        let use_legacy_day_theme = true;
         Style {
+            panel_bg: if use_legacy_day_theme {
+                Color::grey(0.4)
+            } else {
+                Color::WHITE.alpha(0.8)
+            },
+
             outline_thickness: 2.0,
             outline_color: Color::WHITE,
-            hotkey_color: Color::GREEN,
             loading_tips: Text::new(),
 
-            // Buttons
-            btn_solid: ButtonStyle::btn_solid(),
+            // Text
+            text_fg_color: if use_legacy_day_theme {
+                Color::WHITE
+            } else {
+                hex("#4C4C4C")
+            },
+            text_hotkey_color: if use_legacy_day_theme {
+                Color::GREEN
+            } else {
+                hex("#EE702E")
+            },
+            text_tooltip_color: Color::WHITE,
 
-            // legacy day theme
-            panel_bg: Color::grey(0.4),
-            text_fg_color: Color::WHITE,
-            btn_outline: ButtonStyle::btn_outline(),
-            btn_solid_floating: ButtonStyle::btn_solid_floating(),
-            // TODO new day theme
-            // panel_bg: Color::WHITE.alpha(0.8),
-            // text_fg_color: hex("#4C4C4C"),
-            // btn_outline: ButtonStyle::btn_outline_dark(),
-            // btn_solid_floating: ButtonStyle::btn_solid(),
+            // Buttons
+            btn_outline: if use_legacy_day_theme {
+                ButtonStyle::btn_outline()
+            } else {
+                ButtonStyle::btn_outline_dark()
+            },
+            btn_solid: if use_legacy_day_theme {
+                ButtonStyle::btn_solid()
+            } else {
+                ButtonStyle {
+                    fg: Color::WHITE,
+                    fg_disabled: Color::WHITE.alpha(0.3),
+                    bg: hex("#4C4C4C").alpha(0.8),
+                    bg_hover: hex("#4C4C4C"),
+                    bg_disabled: Color::grey(0.6),
+                    outline: hex("#4C4C4C").alpha(0.6),
+                }
+            },
+            btn_solid_floating: if use_legacy_day_theme {
+                ButtonStyle::btn_solid_floating()
+            } else {
+                ButtonStyle::btn_solid()
+            },
             btn_solid_destructive: ButtonStyle {
                 fg: hex("#F2F2F2"),
                 fg_disabled: hex("#F2F2F2").alpha(0.3),

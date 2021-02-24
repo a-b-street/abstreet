@@ -38,7 +38,7 @@ impl<T: 'static> Menu<T> {
             if choice.active {
                 if let Some(ref key) = choice.hotkey {
                     txt.add_appended(vec![
-                        Line(key.describe()).fg(style.hotkey_color),
+                        Line(key.describe()).fg(style.text_hotkey_color),
                         Line(format!(" - {}", choice.label)).maybe_fg(choice.fg),
                     ]);
                 } else {

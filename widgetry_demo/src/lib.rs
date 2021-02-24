@@ -454,11 +454,8 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 Widget::col(
                     (0..row_height)
                         .map(|_| {
-                            btn.btn_light_popup_icon_text(
-                                "system/assets/tools/layers.svg",
-                                "icon+text",
-                            )
-                            .build_widget(ctx, &next_id())
+                            btn.btn_popup_icon_text("system/assets/tools/layers.svg", "icon+text")
+                                .build_widget(ctx, &next_id())
                         })
                         .collect::<Vec<_>>(),
                 ),

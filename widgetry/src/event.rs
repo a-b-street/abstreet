@@ -390,7 +390,7 @@ impl Key {
     }
 
     pub fn txt(self, ctx: &EventCtx) -> TextSpan {
-        Line(self.describe()).fg(ctx.style().hotkey_color)
+        Line(self.describe()).fg(ctx.style().text_hotkey_color)
     }
 }
 

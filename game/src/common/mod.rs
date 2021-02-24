@@ -97,7 +97,7 @@ impl CommonState {
         } else if app.opts.dev {
             Text::from_all(vec![
                 Line("Nothing selected. Hint: "),
-                Line("Ctrl+J").fg(g.style().hotkey_color),
+                Line("Ctrl+J").fg(g.style().text_hotkey_color),
                 Line(" to warp"),
             ])
         } else {
@@ -109,7 +109,7 @@ impl CommonState {
                 if idx != 0 {
                     osd.append(Line(", "));
                 }
-                osd.append(Line(key.describe()).fg(g.style().hotkey_color));
+                osd.append(Line(key.describe()).fg(g.style().text_hotkey_color));
             }
         }
 
@@ -119,7 +119,6 @@ impl CommonState {
     fn osd_for(app: &App, id: ID) -> Text {
         let map = &app.primary.map;
         let id_color = app.cs.bottom_bar_id;
-        let name_color = app.cs.bottom_bar_name;
         let mut osd = Text::new();
         match id {
             ID::Lane(l) => {
@@ -130,7 +129,7 @@ impl CommonState {
                 let r = map.get_parent(l);
                 osd.append_all(vec![
                     Line(format!("{} of ", map.get_l(l).lane_type.describe())),
-                    Line(r.get_name(app.opts.language.as_ref())).fg(name_color),
+                    Line(r.get_name(app.opts.language.as_ref())).underlined(),
                 ]);
                 if app.opts.dev {
                     osd.append(Line(" ("));
@@ -144,7 +143,7 @@ impl CommonState {
                     osd.append(Line(" is "));
                 }
                 let bldg = map.get_b(b);
-                osd.append(Line(&bldg.address).fg(name_color));
+                osd.append(Line(&bldg.address).underlined())
             }
             ID::ParkingLot(pl) => {
                 osd.append(Line(pl.to_string()).fg(id_color));
@@ -165,7 +164,7 @@ impl CommonState {
                 for r in &map.get_i(i).roads {
                     road_names.insert(map.get_r(*r).get_name(app.opts.language.as_ref()));
                 }
-                list_names(&mut osd, |l| l.fg(name_color), road_names);
+                list_names(&mut osd, |l| l.underlined(), road_names);
             }
             ID::Car(c) => {
                 if app.opts.dev {
@@ -176,7 +175,7 @@ impl CommonState {
                 if let Some(r) = app.primary.sim.bus_route_id(c) {
                     osd.append_all(vec![
                         Line(" serving "),
-                        Line(&map.get_br(r).full_name).fg(name_color),
+                        Line(&map.get_br(r).full_name).underlined(),
                     ]);
                 }
             }
@@ -195,7 +194,7 @@ impl CommonState {
                     osd.append(Line(bs.to_string()).fg(id_color));
                 } else {
                     osd.append(Line("transit stop "));
-                    osd.append(Line(&map.get_bs(bs).name).fg(name_color));
+                    osd.append(Line(&map.get_bs(bs).name).underlined());
                 }
                 osd.append(Line(" served by "));
 
@@ -204,7 +203,7 @@ impl CommonState {
                     .into_iter()
                     .map(|r| r.short_name.clone())
                     .collect();
-                list_names(&mut osd, |l| l.fg(name_color), routes);
+                list_names(&mut osd, |l| l.underlined(), routes);
             }
             ID::Area(a) => {
                 // Only selectable in dev mode anyway
@@ -215,7 +214,7 @@ impl CommonState {
                     osd.append(Line(r.to_string()).fg(id_color));
                     osd.append(Line(" is "));
                 }
-                osd.append(Line(map.get_r(r).get_name(app.opts.language.as_ref())).fg(name_color));
+                osd.append(Line(map.get_r(r).get_name(app.opts.language.as_ref())).underlined());
             }
         }
         osd
@@ -227,7 +226,7 @@ impl CommonState {
         } else if app.opts.dev {
             Text::from_all(vec![
                 Line("Nothing selected. Hint: "),
-                Line("Ctrl+J").fg(g.style().hotkey_color),
+                Line("Ctrl+J").fg(g.style().text_hotkey_color),
                 Line(" to warp"),
             ])
         } else {
@@ -240,7 +239,7 @@ impl CommonState {
         if let Some(ref action) = app.per_obj.click_action {
             osd.append_all(vec![
                 Line("; "),
-                Line("click").fg(g.style().hotkey_color),
+                Line("click").fg(g.style().text_hotkey_color),
                 Line(format!(" to {}", action)),
             ]);
         }

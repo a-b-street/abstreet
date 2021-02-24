@@ -65,7 +65,6 @@ pub struct ColorScheme {
     pub current_object: Color,
     pub perma_selected_object: Color,
     pub bottom_bar_id: Color,
-    pub bottom_bar_name: Color,
     pub fade_map_dark: Color,
     gui_style: Style,
     pub dialog_bg: Color,
@@ -191,7 +190,6 @@ impl ColorScheme {
             current_object: Color::WHITE,
             perma_selected_object: Color::BLUE,
             bottom_bar_id: Color::RED,
-            bottom_bar_name: Color::CYAN,
             fade_map_dark: Color::BLACK.alpha(0.6),
             dialog_bg: hex("#94C84A"),
             minimap_cursor_border: Color::BLACK,
@@ -395,7 +393,10 @@ impl ColorScheme {
         use widgetry::ButtonStyle;
         cs.gui_style.btn_outline = ButtonStyle::btn_outline();
         cs.gui_style.btn_solid = ButtonStyle::btn_solid();
+        cs.gui_style.btn_solid_floating = ButtonStyle::btn_solid_floating();
         cs.gui_style.text_fg_color = Color::WHITE;
+        cs.gui_style.text_hotkey_color = Color::GREEN;
+
         cs.inner_panel_bg = cs.gui_style.panel_bg.alpha(1.0);
 
         cs.void_background = hex("#200A24");

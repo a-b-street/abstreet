@@ -211,7 +211,9 @@ impl Text {
     pub fn tooltip<MK: Into<Option<MultiKey>>>(ctx: &EventCtx, hotkey: MK, action: &str) -> Text {
         if let Some(ref key) = hotkey.into() {
             Text::from_all(vec![
-                Line(key.describe()).fg(ctx.style().hotkey_color).small(),
+                Line(key.describe())
+                    .fg(ctx.style().text_hotkey_color)
+                    .small(),
                 Line(format!(" - {}", action)).small(),
             ])
         } else {
@@ -223,6 +225,17 @@ impl Text {
         for (_, spans) in self.lines.iter_mut() {
             for span in spans {
                 span.fg_color = Some(fg);
+            }
+        }
+        self
+    }
+
+    pub fn default_fg(mut self, fg: Color) -> Text {
+        for (_, spans) in self.lines.iter_mut() {
+            for span in spans {
+                if span.fg_color.is_none() {
+                    span.fg_color = Some(fg);
+                }
             }
         }
         self
