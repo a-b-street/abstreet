@@ -62,9 +62,7 @@ impl TextSpan {
 
     pub fn maybe_fg(mut self, color: Option<Color>) -> TextSpan {
         assert_eq!(self.fg_color, None);
-        if let Some(c) = color {
-            self.fg_color = Some(c);
-        }
+        self.fg_color = color;
         self
     }
 
