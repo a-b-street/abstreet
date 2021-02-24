@@ -395,6 +395,7 @@ impl ColorScheme {
         use widgetry::ButtonStyle;
         cs.gui_style.btn_outline = ButtonStyle::btn_outline();
         cs.gui_style.btn_solid = ButtonStyle::btn_solid();
+        cs.gui_style.text_fg_color = Color::WHITE;
         cs.inner_panel_bg = cs.gui_style.panel_bg.alpha(1.0);
 
         cs.void_background = hex("#200A24");

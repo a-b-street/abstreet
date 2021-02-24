@@ -8,7 +8,7 @@ use usvg::Options;
 use geom::Bounds;
 
 use crate::text::Font;
-use crate::{text, EventCtx, GeomBatch, GfxCtx, Prerender};
+use crate::{text, EventCtx, GeomBatch, GfxCtx, Prerender, Style};
 
 // TODO We don't need refcell maybe? Can we take &mut Assets?
 pub struct Assets {
@@ -18,12 +18,13 @@ pub struct Assets {
     // Keyed by filename
     svg_cache: RefCell<HashMap<String, (GeomBatch, Bounds)>>,
     font_to_id: HashMap<Font, fontdb::ID>,
+    pub(crate) style: RefCell<Style>,
     pub text_opts: Options,
     pub read_svg: Box<dyn Fn(&str) -> Vec<u8>>,
 }
 
 impl Assets {
-    pub fn new(read_svg: Box<dyn Fn(&str) -> Vec<u8>>) -> Assets {
+    pub fn new(style: Style, read_svg: Box<dyn Fn(&str) -> Vec<u8>>) -> Assets {
         let mut a = Assets {
             default_line_height: RefCell::new(0.0),
             text_cache: RefCell::new(LruCache::new(500)),
@@ -31,6 +32,7 @@ impl Assets {
             svg_cache: RefCell::new(HashMap::new()),
             font_to_id: HashMap::new(),
             text_opts: Options::default(),
+            style: RefCell::new(style),
             read_svg,
         };
         // All fonts are statically bundled with the library right now, on both native and web.
@@ -112,8 +114,13 @@ impl Assets {
     pub fn get_cached_text(&self, key: &String) -> Option<GeomBatch> {
         self.text_cache.borrow_mut().get(key).cloned()
     }
+
     pub fn cache_text(&self, key: String, geom: GeomBatch) {
         self.text_cache.borrow_mut().put(key, geom);
+    }
+
+    pub fn clear_text_cache(&self) {
+        self.text_cache.borrow_mut().clear()
     }
 
     pub fn get_cached_svg(&self, key: &str) -> Option<(GeomBatch, Bounds)> {

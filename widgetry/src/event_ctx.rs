@@ -138,6 +138,8 @@ impl<'a> EventCtx<'a> {
     }
 
     pub fn set_style(&mut self, style: Style) {
+        *self.prerender.assets.style.borrow_mut() = style.clone();
+        self.prerender.assets.clear_text_cache();
         *self.style = style;
     }
 

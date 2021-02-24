@@ -258,9 +258,12 @@ pub fn run<
         }
     }
 
+    let mut style = Style::standard();
+    style.loading_tips = settings.loading_tips.unwrap_or_else(Text::new);
+
     let monitor_scale_factor = prerender_innards.monitor_scale_factor();
     let mut prerender = Prerender {
-        assets: Assets::new(settings.read_svg),
+        assets: Assets::new(style.clone(), settings.read_svg),
         num_uploads: Cell::new(0),
         inner: prerender_innards,
         scale_factor: settings.scale_factor.unwrap_or(monitor_scale_factor),
@@ -276,9 +279,6 @@ pub fn run<
             prerender.scale_factor = 1.0;
         }
     }
-
-    let mut style = Style::standard();
-    style.loading_tips = settings.loading_tips.unwrap_or_else(Text::new);
 
     let initial_size = prerender.window_size();
     let mut canvas = Canvas::new(initial_size);
