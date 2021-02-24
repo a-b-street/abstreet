@@ -2,8 +2,6 @@
 //! `./data/` and `./importer/config` must exist.
 
 #[macro_use]
-extern crate anyhow;
-#[macro_use]
 extern crate log;
 
 use abstio::{CityName, MapName};
