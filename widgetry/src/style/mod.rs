@@ -120,9 +120,9 @@ impl Style {
                 }
             },
             btn_solid_floating: if use_legacy_day_theme {
-                ButtonStyle::btn_solid()
-            } else {
                 ButtonStyle::btn_solid_floating()
+            } else {
+                ButtonStyle::btn_solid()
             },
             btn_solid_destructive: ButtonStyle {
                 fg: hex("#F2F2F2"),

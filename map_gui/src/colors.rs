@@ -393,6 +393,7 @@ impl ColorScheme {
         use widgetry::ButtonStyle;
         cs.gui_style.btn_outline = ButtonStyle::btn_outline();
         cs.gui_style.btn_solid = ButtonStyle::btn_solid();
+        cs.gui_style.btn_solid_floating = ButtonStyle::btn_solid_floating();
         cs.gui_style.text_fg_color = Color::WHITE;
         cs.gui_style.text_hotkey_color = Color::GREEN;
 
