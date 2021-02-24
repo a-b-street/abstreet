@@ -275,6 +275,8 @@
 <span id="272">272</span>
 <span id="273">273</span>
 <span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">VecDeque</span>;
 
@@ -416,6 +418,8 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_style</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">style</span>: <span class="ident">Style</span>) {
+        <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">assets</span>.<span class="ident">style</span>.<span class="ident">borrow_mut</span>() <span class="op">=</span> <span class="ident">style</span>.<span class="ident">clone</span>();
+        <span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">assets</span>.<span class="ident">clear_text_cache</span>();
         <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">style</span> <span class="op">=</span> <span class="ident">style</span>;
     }
 

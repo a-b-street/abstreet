@@ -593,6 +593,7 @@
 <span id="590">590</span>
 <span id="591">591</span>
 <span id="592">592</span>
+<span id="593">593</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A color scheme groups colors used for different map, dynamic, and UI elements in one place, to</span>
 <span class="doccomment">//! encourage deduplication. The player can also switch between different color schemes.</span>
@@ -991,6 +992,7 @@
         <span class="kw">use</span> <span class="ident">widgetry</span>::<span class="ident">ButtonStyle</span>;
         <span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">btn_outline</span> <span class="op">=</span> <span class="ident">ButtonStyle</span>::<span class="ident">btn_outline</span>();
         <span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">btn_solid</span> <span class="op">=</span> <span class="ident">ButtonStyle</span>::<span class="ident">btn_solid</span>();
+        <span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">text_fg_color</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">WHITE</span>;
         <span class="ident">cs</span>.<span class="ident">inner_panel_bg</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">panel_bg</span>.<span class="ident">alpha</span>(<span class="number">1.0</span>);
 
         <span class="ident">cs</span>.<span class="ident">void_background</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#200A24&quot;</span>);
