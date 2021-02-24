@@ -260,7 +260,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
 
     /// Set the image for the button. If not set, the button will have no image.
     ///
-    /// This will replace any image previously set by [`Self::image_bytes`]
+    /// This will replace any image previously set.
     pub fn image_path(mut self, path: &'a str) -> Self {
         // Currently we don't support setting image for other states like "hover", we easily
         // could, but the API gets more verbose for a thing we don't currently need.
@@ -272,7 +272,8 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
 
     /// Set the image for the button. If not set, the button will have no image.
     ///
-    /// This will replace any image previously set by [`Self::image_path`].
+    /// This will replace any image previously set.
+    ///
     /// * `labeled_bytes`: is a (`label`, `bytes`) tuple you can generate with
     ///   [`include_labeled_bytes!`]
     /// * `label`: a label to describe the bytes for debugging purposes
@@ -286,6 +287,19 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
             bytes,
             cache_key: label,
         });
+        self.default_style.image = Some(image);
+        self
+    }
+
+    /// Set the image for the button. If not set, the button will have no image.
+    ///
+    /// This will replace any image previously set.
+    ///
+    /// This method is useful when doing more complex transforms. For example, to re-write more than
+    /// one color for your button image, do so externally and pass in the resultant GeomBatch here.
+    pub fn image_batch(mut self, batch: GeomBatch, bounds: geom::Bounds) -> Self {
+        let mut image = self.default_style.image.take().unwrap_or_default();
+        image.source = Some(ImageSource::GeomBatch(batch, bounds));
         self.default_style.image = Some(image);
         self
     }
@@ -727,6 +741,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
 enum ImageSource<'a> {
     Path(&'a str),
     Bytes { bytes: &'a [u8], cache_key: &'a str },
+    GeomBatch(GeomBatch, geom::Bounds),
 }
 
 impl ImageSource<'_> {
@@ -739,6 +754,7 @@ impl ImageSource<'_> {
                     cache_key
                 ))
             }
+            ImageSource::GeomBatch(geom_batch, bounds) => (geom_batch.clone(), *bounds),
         }
     }
 }

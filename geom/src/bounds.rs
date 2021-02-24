@@ -5,7 +5,7 @@ use aabb_quadtree::geom::{Point, Rect};
 use crate::{Distance, LonLat, Polygon, Pt2D, Ring};
 
 /// Represents a rectangular boundary of `Pt2D` points.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Bounds {
     pub min_x: f64,
     pub min_y: f64,
