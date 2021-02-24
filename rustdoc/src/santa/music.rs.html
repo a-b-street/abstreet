@@ -170,7 +170,6 @@
 <span id="167">167</span>
 <span id="168">168</span>
 <span id="169">169</span>
-<span id="170">170</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Cursor</span>;
 
@@ -178,8 +177,7 @@
 <span class="kw">use</span> <span class="ident">rodio</span>::{<span class="ident">Decoder</span>, <span class="ident">OutputStream</span>, <span class="ident">OutputStreamHandle</span>, <span class="ident">Sink</span>};
 
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Checkbox</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">StyledButtons</span>,
-    <span class="ident">VerticalAlignment</span>,
+    <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">StyledButtons</span>, <span class="ident">Toggle</span>, <span class="ident">VerticalAlignment</span>,
 };
 
 <span class="comment">// TODO Speed up when we&#39;re almost out of time, slow down when we&#39;re low on energy</span>
@@ -282,7 +280,7 @@
         }
 
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(
-            <span class="ident">Checkbox</span>::<span class="ident">new</span>(
+            <span class="ident">Toggle</span>::<span class="ident">new</span>(
                 <span class="ident">play_music</span>,
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_solid_icon</span>(<span class="string">&quot;system/assets/tools/volume_off.svg&quot;</span>)

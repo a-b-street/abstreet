@@ -204,7 +204,7 @@
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripID</span>, <span class="ident">TripPhaseType</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::<span class="ident">table</span>::{<span class="ident">Col</span>, <span class="ident">Filter</span>, <span class="ident">Table</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Checkbox</span>, <span class="ident">EventCtx</span>, <span class="ident">Filler</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">Filler</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">dashboards</span>::<span class="ident">generic_trip_table</span>::<span class="ident">GenericTripTable</span>;
@@ -303,8 +303,8 @@
         },
         <span class="ident">to_controls</span>: <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">state</span><span class="op">|</span> {
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;starting off-map&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">state</span>.<span class="ident">starts_off_map</span>),
-                <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;ending off-map&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">state</span>.<span class="ident">ends_off_map</span>),
+                <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;starting off-map&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">state</span>.<span class="ident">starts_off_map</span>),
+                <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;ending off-map&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">state</span>.<span class="ident">ends_off_map</span>),
             ])
         }),
         <span class="ident">from_controls</span>: <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">panel</span><span class="op">|</span> <span class="ident">Filters</span> {

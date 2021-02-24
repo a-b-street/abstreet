@@ -138,7 +138,7 @@
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">ColorDiscrete</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">PathConstraints</span>, <span class="ident">PathStep</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Checkbox</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">VerticalAlignment</span>,
+    <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Toggle</span>, <span class="ident">VerticalAlignment</span>,
     <span class="ident">Widget</span>,
 };
 
@@ -253,9 +253,9 @@
 
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Transit network&quot;</span>),
-            <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show all routes&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">show_all_routes</span>),
-            <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show buses&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">show_buses</span>),
-            <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show trains&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">show_trains</span>),
+            <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show all routes&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">show_all_routes</span>),
+            <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show buses&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">show_buses</span>),
+            <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show trains&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">show_trains</span>),
             <span class="ident">legend</span>,
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Center</span>)

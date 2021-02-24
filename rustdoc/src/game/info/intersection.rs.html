@@ -445,8 +445,8 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">StageType</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">AgentType</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">EventCtx</span>, <span class="ident">FanChart</span>, <span class="ident">GeomBatch</span>, <span class="ident">Line</span>, <span class="ident">PlotOptions</span>,
-    <span class="ident">ScatterPlot</span>, <span class="ident">Series</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
+    <span class="ident">Color</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">EventCtx</span>, <span class="ident">FanChart</span>, <span class="ident">GeomBatch</span>, <span class="ident">Line</span>, <span class="ident">PlotOptions</span>, <span class="ident">ScatterPlot</span>, <span class="ident">Series</span>,
+    <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
@@ -555,7 +555,7 @@
 
     <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">is_traffic_signal</span>());
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">opts</span>.<span class="ident">to_controls</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Checkbox</span>::<span class="ident">toggle</span>(
+    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Toggle</span>::<span class="ident">choice</span>(
         <span class="ident">ctx</span>,
         <span class="string">&quot;fan chart / scatter plot&quot;</span>,
         <span class="string">&quot;fan chart&quot;</span>,

@@ -585,7 +585,6 @@
 <span id="582">582</span>
 <span id="583">583</span>
 <span id="584">584</span>
-<span id="585">585</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -596,9 +595,8 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentType</span>, <span class="ident">TripMode</span>, <span class="ident">TripPhaseType</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>,
-    <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextSpan</span>, <span class="ident">VerticalAlignment</span>,
-    <span class="ident">Widget</span>,
+    <span class="ident">lctrl</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">ScreenDims</span>,
+    <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextSpan</span>, <span class="ident">Toggle</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">minimap</span>::<span class="ident">MinimapController</span>;
@@ -986,7 +984,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">filters</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="ident">TripMode</span>::<span class="ident">all</span>() {
         <span class="ident">filters</span>.<span class="ident">push</span>(
-            <span class="ident">Checkbox</span>::<span class="ident">colored</span>(
+            <span class="ident">Toggle</span>::<span class="ident">colored_checkbox</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">m</span>.<span class="ident">ongoing_verb</span>(),
                 <span class="ident">color_for_mode</span>(<span class="ident">app</span>, <span class="ident">m</span>),

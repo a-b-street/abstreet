@@ -379,8 +379,8 @@
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">CmdArgs</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">UnitFmt</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>,
-    <span class="ident">StyledButtons</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
+    <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>,
+    <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">colors</span>::<span class="ident">ColorSchemeChoice</span>;
@@ -511,26 +511,26 @@
                 ]),
                 <span class="string">&quot;Camera controls&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Checkbox</span>::<span class="ident">checkbox</span>(
+                    <span class="ident">Toggle</span>::<span class="ident">checkbox</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Invert direction of vertical scrolling&quot;</span>,
                         <span class="prelude-val">None</span>,
                         <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">invert_scroll</span>,
                     ),
-                    <span class="ident">Checkbox</span>::<span class="ident">checkbox</span>(
+                    <span class="ident">Toggle</span>::<span class="ident">checkbox</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Pan map when cursor is at edge of screen&quot;</span>,
                         <span class="prelude-val">None</span>,
                         <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">edge_auto_panning</span>,
                     )
                     .<span class="ident">named</span>(<span class="string">&quot;autopan&quot;</span>),
-                    <span class="ident">Checkbox</span>::<span class="ident">checkbox</span>(
+                    <span class="ident">Toggle</span>::<span class="ident">checkbox</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Use touchpad to pan and hold Control to zoom&quot;</span>,
                         <span class="prelude-val">None</span>,
                         <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">touchpad_to_move</span>,
                     ),
-                    <span class="ident">Checkbox</span>::<span class="ident">checkbox</span>(
+                    <span class="ident">Toggle</span>::<span class="ident">checkbox</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Use arrow keys to pan and Q/W to zoom&quot;</span>,
                         <span class="prelude-val">None</span>,
@@ -614,7 +614,7 @@
                             <span class="ident">choices</span>
                         }),
                     ]),
-                    <span class="ident">Checkbox</span>::<span class="ident">toggle</span>(
+                    <span class="ident">Toggle</span>::<span class="ident">choice</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;metric / imperial units&quot;</span>,
                         <span class="string">&quot;metric&quot;</span>,
@@ -627,8 +627,8 @@
                 .<span class="ident">padding</span>(<span class="number">8</span>),
                 <span class="string">&quot;Debug&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Checkbox</span>::<span class="ident">checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Enable developer mode&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">dev</span>),
-                    <span class="ident">Checkbox</span>::<span class="ident">checkbox</span>(
+                    <span class="ident">Toggle</span>::<span class="ident">checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Enable developer mode&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">dev</span>),
+                    <span class="ident">Toggle</span>::<span class="ident">checkbox</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Draw all agents to debug geometry (Slow!)&quot;</span>,
                         <span class="prelude-val">None</span>,

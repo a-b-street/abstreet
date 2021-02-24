@@ -943,6 +943,22 @@
 <span id="940">940</span>
 <span id="941">941</span>
 <span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
@@ -1206,7 +1222,7 @@
 
     <span class="doccomment">/// Set the image for the button. If not set, the button will have no image.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This will replace any image previously set by [`Self::image_bytes`]</span>
+    <span class="doccomment">/// This will replace any image previously set.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image_path</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="comment">// Currently we don&#39;t support setting image for other states like &quot;hover&quot;, we easily</span>
         <span class="comment">// could, but the API gets more verbose for a thing we don&#39;t currently need.</span>
@@ -1218,7 +1234,8 @@
 
     <span class="doccomment">/// Set the image for the button. If not set, the button will have no image.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This will replace any image previously set by [`Self::image_path`].</span>
+    <span class="doccomment">/// This will replace any image previously set.</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// * `labeled_bytes`: is a (`label`, `bytes`) tuple you can generate with</span>
     <span class="doccomment">///   [`include_labeled_bytes!`]</span>
     <span class="doccomment">/// * `label`: a label to describe the bytes for debugging purposes</span>
@@ -1232,6 +1249,19 @@
             <span class="ident">bytes</span>,
             <span class="ident">cache_key</span>: <span class="ident">label</span>,
         });
+        <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">image</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">image</span>);
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Set the image for the button. If not set, the button will have no image.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This will replace any image previously set.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This method is useful when doing more complex transforms. For example, to re-write more than</span>
+    <span class="doccomment">/// one color for your button image, do so externally and pass in the resultant GeomBatch here.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image_batch</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">batch</span>: <span class="ident">GeomBatch</span>, <span class="ident">bounds</span>: <span class="ident">geom</span>::<span class="ident">Bounds</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">image</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">image</span>.<span class="ident">take</span>().<span class="ident">unwrap_or_default</span>();
+        <span class="ident">image</span>.<span class="ident">source</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">ImageSource</span>::<span class="ident">GeomBatch</span>(<span class="ident">batch</span>, <span class="ident">bounds</span>));
         <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">image</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">image</span>);
         <span class="self">self</span>
     }
@@ -1673,6 +1703,7 @@
 <span class="kw">enum</span> <span class="ident">ImageSource</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">Path</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>),
     <span class="ident">Bytes</span> { <span class="ident">bytes</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>], <span class="ident">cache_key</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span> },
+    <span class="ident">GeomBatch</span>(<span class="ident">GeomBatch</span>, <span class="ident">geom</span>::<span class="ident">Bounds</span>),
 }
 
 <span class="kw">impl</span> <span class="ident">ImageSource</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
@@ -1685,6 +1716,7 @@
                     <span class="ident">cache_key</span>
                 ))
             }
+            <span class="ident">ImageSource</span>::<span class="ident">GeomBatch</span>(<span class="ident">geom_batch</span>, <span class="ident">bounds</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">geom_batch</span>.<span class="ident">clone</span>(), <span class="kw-2">*</span><span class="ident">bounds</span>),
         }
     }
 }

@@ -824,9 +824,9 @@
     <span class="ident">VehicleType</span>,
 };
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>,
-    <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PlotOptions</span>, <span class="ident">Series</span>, <span class="ident">StyledButtons</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>,
-    <span class="ident">Widget</span>,
+    <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
+    <span class="ident">LinePlot</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PlotOptions</span>, <span class="ident">Series</span>, <span class="ident">StyledButtons</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>,
+    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
@@ -1578,7 +1578,7 @@
             <span class="kw">return</span> <span class="ident">Widget</span>::<span class="ident">nothing</span>();
         }
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Checkbox</span>::<span class="ident">custom_checkbox</span>(
+            <span class="ident">Toggle</span>::<span class="ident">custom_checkbox</span>(
                 <span class="ident">ctx</span>,
                 <span class="string">&quot;Show before changes&quot;</span>,
                 <span class="macro">vec</span><span class="macro">!</span>[
@@ -1589,7 +1589,7 @@
                 <span class="self">self</span>.<span class="ident">show_before</span>,
             ),
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">show_before</span> {
-                <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Show full day&quot;</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.<span class="ident">show_end_of_day</span>)
+                <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Show full day&quot;</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.<span class="ident">show_end_of_day</span>)
             } <span class="kw">else</span> {
                 <span class="ident">Widget</span>::<span class="ident">nothing</span>()
             },

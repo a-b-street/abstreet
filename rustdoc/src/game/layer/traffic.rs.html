@@ -622,8 +622,8 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">Traversable</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentType</span>, <span class="ident">VehicleType</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
-    <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>,
+    <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
@@ -835,7 +835,7 @@
                 .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">15</span>)
                 .<span class="ident">draw</span>(<span class="ident">ctx</span>),
             <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">has_prebaked</span>().<span class="ident">is_some</span>() {
-                <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Compare before proposal&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">false</span>)
+                <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Compare before proposal&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">false</span>)
             } <span class="kw">else</span> {
                 <span class="ident">Widget</span>::<span class="ident">nothing</span>()
             },
@@ -843,7 +843,7 @@
                 <span class="ident">AgentType</span>::<span class="ident">all</span>()
                     .<span class="ident">into_iter</span>()
                     .<span class="ident">map</span>(<span class="op">|</span><span class="ident">agent_type</span><span class="op">|</span> {
-                        <span class="ident">Checkbox</span>::<span class="ident">checkbox</span>(
+                        <span class="ident">Toggle</span>::<span class="ident">checkbox</span>(
                             <span class="ident">ctx</span>,
                             <span class="ident">agent_type</span>.<span class="ident">noun</span>(),
                             <span class="prelude-val">None</span>,
@@ -979,7 +979,7 @@
 
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Relative Throughput&quot;</span>),
-            <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Compare before proposal&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>),
+            <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Compare before proposal&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>),
             <span class="ident">scale</span>.<span class="ident">make_legend</span>(<span class="ident">ctx</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;less traffic&quot;</span>, <span class="string">&quot;same&quot;</span>, <span class="string">&quot;more&quot;</span>]),
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Center</span>)

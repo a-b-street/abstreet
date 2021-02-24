@@ -597,8 +597,8 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">slider</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">Container</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Autocomplete</span>, <span class="ident">Button</span>, <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">Dropdown</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Menu</span>,
-    <span class="ident">Outcome</span>, <span class="ident">PersistentSplit</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Slider</span>, <span class="ident">Spinner</span>, <span class="ident">TextBox</span>,
+    <span class="ident">Autocomplete</span>, <span class="ident">Button</span>, <span class="ident">Color</span>, <span class="ident">Dropdown</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Menu</span>, <span class="ident">Outcome</span>,
+    <span class="ident">PersistentSplit</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Slider</span>, <span class="ident">Spinner</span>, <span class="ident">TextBox</span>, <span class="ident">Toggle</span>,
     <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
 };
 
@@ -947,11 +947,11 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_checked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">find</span>::<span class="op">&lt;</span><span class="ident">Checkbox</span><span class="op">&gt;</span>(<span class="ident">name</span>).<span class="ident">enabled</span>
+        <span class="self">self</span>.<span class="ident">find</span>::<span class="op">&lt;</span><span class="ident">Toggle</span><span class="op">&gt;</span>(<span class="ident">name</span>).<span class="ident">enabled</span>
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_is_checked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">has_widget</span>(<span class="ident">name</span>) {
-            <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">find</span>::<span class="op">&lt;</span><span class="ident">Checkbox</span><span class="op">&gt;</span>(<span class="ident">name</span>).<span class="ident">enabled</span>)
+            <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">find</span>::<span class="op">&lt;</span><span class="ident">Toggle</span><span class="op">&gt;</span>(<span class="ident">name</span>).<span class="ident">enabled</span>)
         } <span class="kw">else</span> {
             <span class="prelude-val">None</span>
         }

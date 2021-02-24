@@ -940,8 +940,8 @@
 };
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">Sim</span>, <span class="ident">TripEndpoint</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Cached</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
-    <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenDims</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>,
+    <span class="ident">lctrl</span>, <span class="ident">Cached</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
+    <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenDims</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">Toggle</span>,
     <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
@@ -981,12 +981,12 @@
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="ident">Text</span>::<span class="ident">new</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;current info&quot;</span>),
-                <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show buildings&quot;</span>, <span class="ident">Key</span>::<span class="ident">Num1</span>, <span class="bool-val">true</span>),
-                <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show intersections&quot;</span>, <span class="ident">Key</span>::<span class="ident">Num2</span>, <span class="bool-val">true</span>),
-                <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show lanes&quot;</span>, <span class="ident">Key</span>::<span class="ident">Num3</span>, <span class="bool-val">true</span>),
-                <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show areas&quot;</span>, <span class="ident">Key</span>::<span class="ident">Num4</span>, <span class="bool-val">true</span>),
-                <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show labels&quot;</span>, <span class="ident">Key</span>::<span class="ident">Num5</span>, <span class="bool-val">false</span>),
-                <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show route for all agents&quot;</span>, <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">R</span>), <span class="bool-val">false</span>),
+                <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show buildings&quot;</span>, <span class="ident">Key</span>::<span class="ident">Num1</span>, <span class="bool-val">true</span>),
+                <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show intersections&quot;</span>, <span class="ident">Key</span>::<span class="ident">Num2</span>, <span class="bool-val">true</span>),
+                <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show lanes&quot;</span>, <span class="ident">Key</span>::<span class="ident">Num3</span>, <span class="bool-val">true</span>),
+                <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show areas&quot;</span>, <span class="ident">Key</span>::<span class="ident">Num4</span>, <span class="bool-val">true</span>),
+                <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show labels&quot;</span>, <span class="ident">Key</span>::<span class="ident">Num5</span>, <span class="bool-val">false</span>),
+                <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show route for all agents&quot;</span>, <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">R</span>), <span class="bool-val">false</span>),
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_outline_text</span>(<span class="string">&quot;unhide everything&quot;</span>)

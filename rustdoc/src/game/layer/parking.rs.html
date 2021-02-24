@@ -451,8 +451,8 @@
 };
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">ParkingSpot</span>, <span class="ident">Scenario</span>, <span class="ident">VehicleType</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Checkbox</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
-    <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">Toggle</span>,
+    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
@@ -670,16 +670,16 @@
             ])
             .<span class="ident">draw</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;On-street spots&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">onstreet</span>),
-                <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Parking lots&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">lots</span>),
+                <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;On-street spots&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">onstreet</span>),
+                <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Parking lots&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">lots</span>),
             ])
             .<span class="ident">evenly_spaced</span>(),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Public garages&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">garages</span>),
-                <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Private buildings&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">private_bldgs</span>),
+                <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Public garages&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">garages</span>),
+                <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Private buildings&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">private_bldgs</span>),
             ])
             .<span class="ident">evenly_spaced</span>(),
-            <span class="ident">Checkbox</span>::<span class="ident">colored</span>(
+            <span class="ident">Toggle</span>::<span class="ident">colored_checkbox</span>(
                 <span class="ident">ctx</span>,
                 <span class="string">&quot;Cars looking for parking&quot;</span>,
                 <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">parking_trip</span>,

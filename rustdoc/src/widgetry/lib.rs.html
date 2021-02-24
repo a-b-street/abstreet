@@ -231,7 +231,7 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! * [`Autocomplete`] - select predefined value by combining text entry with menus</span>
 <span class="doccomment">//! * [`Button`] - clickable buttons with keybindings and tooltips</span>
-<span class="doccomment">//! * [`Checkbox`] - toggle between two buttons</span>
+<span class="doccomment">//! * [`Toggle`] - checkboxes, switches, and other toggles</span>
 <span class="doccomment">//! * [`CompareTimes`] - a scatter plot specialized for comparing times</span>
 <span class="doccomment">//! * [`DrawWithTooltips`] - draw static geometry, with mouse tooltips in certain regions</span>
 <span class="doccomment">//! * [`Dropdown`] - a button that expands into a menu</span>
@@ -273,7 +273,6 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">autocomplete</span>::<span class="ident">Autocomplete</span>;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">button</span>::<span class="ident">Button</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">button</span>::{<span class="ident">ButtonBuilder</span>, <span class="ident">MultiButton</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">checkbox</span>::<span class="ident">Checkbox</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">compare_times</span>::<span class="ident">CompareTimes</span>;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">dropdown</span>::<span class="ident">Dropdown</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">fan_chart</span>::<span class="ident">FanChart</span>;
@@ -288,6 +287,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">spinner</span>::<span class="ident">Spinner</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">table</span>;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">text_box</span>::<span class="ident">TextBox</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">toggle</span>::<span class="ident">Toggle</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::{
     <span class="ident">CornerRounding</span>, <span class="ident">EdgeInsets</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
 };

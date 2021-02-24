@@ -404,8 +404,8 @@
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">JustDraw</span>, <span class="ident">Line</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>,
-    <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
+    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">JustDraw</span>, <span class="ident">Line</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>,
+    <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
 };
 
 <span class="comment">// The X is always time</span>
@@ -729,7 +729,7 @@
         }
         <span class="ident">seen</span>.<span class="ident">insert</span>(<span class="ident">s</span>.<span class="ident">label</span>.<span class="ident">clone</span>());
         <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">filterable</span> {
-            <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">Checkbox</span>::<span class="ident">colored</span>(
+            <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">Toggle</span>::<span class="ident">colored_checkbox</span>(
                 <span class="ident">ctx</span>,
                 <span class="kw-2">&amp;</span><span class="ident">s</span>.<span class="ident">label</span>,
                 <span class="ident">s</span>.<span class="ident">color</span>,
