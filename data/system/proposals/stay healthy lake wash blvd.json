@@ -1,13 +1,13 @@
 {
   "map_name": {
     "city": {
-	    "country": "us",
-	    "city": "seattle"
+      "country": "us",
+      "city": "seattle"
     },
     "map": "lakeslice"
   },
   "edits_name": "stay healthy lake wash blvd",
-  "version": 7,
+  "version": 8,
   "commands": [
     {
       "ChangeRoad": {
@@ -5156,81 +5156,6 @@
           "osm_way_id": 170683231,
           "i1": 53077630,
           "i2": 53077627
-        },
-        "new": {
-          "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Parking",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Parking",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
-          ],
-          "speed_limit": 6.7056,
-          "access_restrictions": {
-            "allow_through_traffic": 31,
-            "cap_vehicles_per_hour": null
-          }
-        },
-        "old": {
-          "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Parking",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Parking",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
-          ],
-          "speed_limit": 11.176,
-          "access_restrictions": {
-            "allow_through_traffic": 31,
-            "cap_vehicles_per_hour": null
-          }
-        }
-      }
-    },
-    {
-      "ChangeRoad": {
-        "r": {
-          "osm_way_id": 170683288,
-          "i1": 53074020,
-          "i2": 53233035
         },
         "new": {
           "lanes_ltr": [
