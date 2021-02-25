@@ -88,6 +88,9 @@ async fn download(version: String, quiet: bool) {
         // Fail the build.
         panic!("Failed to download stuff: {:?}", failed);
     }
+
+    remove_empty_directories("data/input");
+    remove_empty_directories("data/system");
 }
 
 fn just_compare() {
@@ -310,4 +313,38 @@ async fn curl(version: &str, path: &str, quiet: bool) -> Result<Vec<u8>> {
     }
     println!();
     Ok(bytes)
+}
+
+// download() will remove stray files, but leave empty directories around. Since some runtime code
+// discovers lists of countries, cities, etc from the filesystem, this can get confusing.
+//
+// I'm sure there's a simpler way to do this, but I haven't found it.
+fn remove_empty_directories(root: &str) {
+    loop {
+        // First just find all directories and files.
+        let mut all_paths = Vec::new();
+        let mut all_dirs = Vec::new();
+        for entry in WalkDir::new(root).into_iter().filter_map(|e| e.ok()) {
+            let path = entry.path().display().to_string();
+            all_paths.push(path.clone());
+            if entry.file_type().is_dir() {
+                all_dirs.push(path);
+            }
+        }
+
+        // Now filter out directories that're a prefix of some path.
+        all_dirs.retain(|dir| !all_paths.iter().any(|p| p != dir && p.starts_with(dir)));
+
+        if all_dirs.is_empty() {
+            break;
+        } else {
+            // Remove them! Then repeat, since we might have nested/empty/directories/.
+            for x in all_dirs {
+                println!("> Removing empty directory {}", x);
+                // This fails if the directory isn't empty, which is a good sanity check. If
+                // something weird happened, just bail.
+                std::fs::remove_dir(&x).unwrap();
+            }
+        }
+    }
 }
