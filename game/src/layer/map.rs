@@ -1,3 +1,5 @@
+use maplit::btreeset;
+
 use abstutil::{prettyprint_usize, Counter};
 use geom::{Distance, Time};
 use map_gui::tools::{ColorDiscrete, ColorLegend, ColorNetwork};
@@ -12,16 +14,17 @@ use widgetry::{
 use crate::app::App;
 use crate::layer::{header, Layer, LayerOutcome};
 
-pub struct BikeNetwork {
+pub struct BikeActivity {
     panel: Panel,
     time: Time,
     unzoomed: Drawable,
     zoomed: Drawable,
+    tooltip: Option<Text>,
 }
 
-impl Layer for BikeNetwork {
+impl Layer for BikeActivity {
     fn name(&self) -> Option<&'static str> {
-        Some("bike network")
+        Some("cycling activity")
     }
     fn event(
         &mut self,
@@ -29,8 +32,30 @@ impl Layer for BikeNetwork {
         app: &mut App,
         minimap: &Panel,
     ) -> Option<LayerOutcome> {
+        let mut recalc_tooltip = false;
         if app.primary.sim.time() != self.time {
-            *self = BikeNetwork::new(ctx, app);
+            *self = BikeActivity::new(ctx, app);
+            recalc_tooltip = true;
+        }
+
+        // Show a tooltip with count, only when unzoomed
+        if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+            if ctx.redo_mouseover() || recalc_tooltip {
+                self.tooltip = None;
+                if let Some(ID::Road(r)) = app.mouseover_unzoomed_roads_and_intersections(ctx) {
+                    let cnt = app
+                        .primary
+                        .sim
+                        .get_analytics()
+                        .road_thruput
+                        .total_for_with_agent_types(r, btreeset! { AgentType::Bike });
+                    if cnt > 0 {
+                        self.tooltip = Some(Text::from(Line(prettyprint_usize(cnt))));
+                    }
+                }
+            }
+        } else {
+            self.tooltip = None;
         }
 
         Layer::simple_event(ctx, minimap, &mut self.panel)
@@ -42,14 +67,17 @@ impl Layer for BikeNetwork {
         } else {
             g.redraw(&self.zoomed);
         }
+        if let Some(ref txt) = self.tooltip {
+            g.draw_mouse_tooltip(txt.clone());
+        }
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
         g.redraw(&self.unzoomed);
     }
 }
 
-impl BikeNetwork {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> BikeNetwork {
+impl BikeActivity {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> BikeActivity {
         let mut num_lanes = 0;
         let mut total_dist = Distance::ZERO;
         let mut on_bike_lanes = Counter::new();
@@ -106,9 +134,9 @@ impl BikeNetwork {
         }
 
         let panel = Panel::new(Widget::col(vec![
-            header(ctx, "Bike network"),
+            header(ctx, "Cycling activity"),
             Text::from_multiline(vec![
-                Line(format!("{} lanes", num_lanes)),
+                Line(format!("{} bike lanes", num_lanes)),
                 Line(format!(
                     "total distance of {}",
                     total_dist.to_string(&app.opts.units)
@@ -138,11 +166,12 @@ impl BikeNetwork {
         colorer.ranked_intersections(intersections_off, &app.cs.good_to_bad_red);
         let (unzoomed, zoomed) = colorer.build(ctx);
 
-        BikeNetwork {
+        BikeActivity {
             panel,
             time: app.primary.sim.time(),
             unzoomed,
             zoomed,
+            tooltip: None,
         }
     }
 }

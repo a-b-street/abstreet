@@ -1,6 +1,8 @@
+use maplit::btreeset;
+
 use geom::Duration;
 use map_gui::tools::{grey_out_map, nice_map_name, open_browser, PopupMsg};
-use sim::{PersonID, TripID};
+use sim::{AgentType, PersonID, TripID};
 use widgetry::{
     lctrl, ControlState, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
     SimpleState, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
@@ -54,10 +56,13 @@ impl GameplayState for Actdev {
                         jump_to_time_upon_startup(Duration::hours(8)),
                     )));
                 }
-                "edit map" => Some(Transition::Push(EditMode::new(
+                "Edit map" => Some(Transition::Push(EditMode::new(
                     ctx,
                     app,
-                    GameplayMode::Freeform(app.primary.map.get_name().clone()),
+                    GameplayMode::Actdev(
+                        app.primary.map.get_name().clone(),
+                        self.scenario_name.clone(),
+                    ),
                 ))),
                 "about A/B Street" => {
                     let panel = Panel::new(Widget::col(vec![
@@ -82,8 +87,10 @@ impl GameplayState for Actdev {
                     .build(ctx);
                     Some(Transition::Push(SimpleState::new(panel, Box::new(About))))
                 }
-                "follow someone" => {
+                "Follow someone" => {
                     if let Some((person, trip)) = find_active_trip(app) {
+                        // The user may not realize they have to close layers; do it for them.
+                        app.primary.layer = None;
                         ctx.canvas.cam_zoom = 40.0;
                         controls.common.as_mut().unwrap().launch_info_panel(
                             ctx,
@@ -100,9 +107,17 @@ impl GameplayState for Actdev {
                         )));
                     }
                 }
-                "bike network" => {
+                "Cycling activity" => {
                     app.primary.layer =
-                        Some(Box::new(crate::layer::map::BikeNetwork::new(ctx, app)));
+                        Some(Box::new(crate::layer::map::BikeActivity::new(ctx, app)));
+                    None
+                }
+                "Walking activity" => {
+                    app.primary.layer = Some(Box::new(crate::layer::traffic::Throughput::new(
+                        ctx,
+                        app,
+                        btreeset! { AgentType::Pedestrian },
+                    )));
                     None
                 }
                 _ => unreachable!(),
@@ -152,16 +167,19 @@ impl GameplayState for Actdev {
                 ctx.style()
                     .btn_outline_icon_text("system/assets/tools/pencil.svg", "Edit map")
                     .hotkey(lctrl(Key::E))
-                    .build_widget(ctx, "edit map"),
+                    .build_def(ctx),
             ])
             .centered(),
             Widget::row(vec![
                 ctx.style()
                     .btn_plain_icon_text("system/assets/tools/location.svg", "Follow someone")
-                    .build_widget(ctx, "follow someone"),
+                    .build_def(ctx),
                 ctx.style()
-                    .btn_plain_icon_text("system/assets/meters/bike.svg", "Bike network")
-                    .build_widget(ctx, "bike network"),
+                    .btn_plain_icon_text("system/assets/meters/bike.svg", "Cycling activity")
+                    .build_def(ctx),
+                ctx.style()
+                    .btn_plain_icon_text("system/assets/meters/pedestrian.svg", "Walking activity")
+                    .build_def(ctx),
             ]),
         ]);
 

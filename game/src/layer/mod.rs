@@ -109,12 +109,12 @@ impl PickLayer {
                     btn("delay", Key::D),
                     btn("throughput", Key::T),
                     btn("traffic jams", Key::J),
+                    btn("cycling activity", Key::B),
                 ]),
                 Widget::col(vec![
                     "Map".draw_text(ctx),
                     btn("map edits", Key::E),
                     btn("parking occupancy", Key::P),
-                    btn("bike network", Key::B),
                     btn("transit network", Key::U),
                     btn("population map", Key::X),
                     btn("no sidewalks", Key::S),
@@ -171,8 +171,8 @@ impl State<App> for PickLayer {
                 "backpressure" => {
                     app.primary.layer = Some(Box::new(traffic::Backpressure::new(ctx, app)));
                 }
-                "bike network" => {
-                    app.primary.layer = Some(Box::new(map::BikeNetwork::new(ctx, app)));
+                "cycling activity" => {
+                    app.primary.layer = Some(Box::new(map::BikeActivity::new(ctx, app)));
                 }
                 "delay" => {
                     app.primary.layer = Some(Box::new(traffic::Delay::new(ctx, app)));
