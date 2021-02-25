@@ -584,7 +584,6 @@
 <span id="581">581</span>
 <span id="582">582</span>
 <span id="583">583</span>
-<span id="584">584</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -705,12 +704,11 @@
 
     <span class="kw">fn</span> <span class="ident">osd_for</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">ID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Text</span> {
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-        <span class="kw">let</span> <span class="ident">id_color</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">bottom_bar_id</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">osd</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
         <span class="kw">match</span> <span class="ident">id</span> {
             <span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
-                    <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">l</span>.<span class="ident">to_string</span>()).<span class="ident">fg</span>(<span class="ident">id_color</span>));
+                    <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">l</span>.<span class="ident">to_string</span>()).<span class="ident">bold_body</span>());
                     <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot; is &quot;</span>));
                 }
                 <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l</span>);
@@ -720,20 +718,20 @@
                 ]);
                 <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
                     <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot; (&quot;</span>));
-                    <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">r</span>.<span class="ident">id</span>.<span class="ident">to_string</span>()).<span class="ident">fg</span>(<span class="ident">id_color</span>));
+                    <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">r</span>.<span class="ident">id</span>.<span class="ident">to_string</span>()).<span class="ident">bold_body</span>());
                     <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot;)&quot;</span>));
                 }
             }
             <span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
-                    <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">b</span>.<span class="ident">to_string</span>()).<span class="ident">fg</span>(<span class="ident">id_color</span>));
+                    <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">b</span>.<span class="ident">to_string</span>()).<span class="ident">bold_body</span>());
                     <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot; is &quot;</span>));
                 }
                 <span class="kw">let</span> <span class="ident">bldg</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>);
                 <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">bldg</span>.<span class="ident">address</span>).<span class="ident">underlined</span>())
             }
             <span class="ident">ID</span>::<span class="ident">ParkingLot</span>(<span class="ident">pl</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">pl</span>.<span class="ident">to_string</span>()).<span class="ident">fg</span>(<span class="ident">id_color</span>));
+                <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">pl</span>.<span class="ident">to_string</span>()).<span class="ident">bold_body</span>());
             }
             <span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">is_border</span>() {
@@ -741,7 +739,7 @@
                 }
 
                 <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
-                    <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">i</span>.<span class="ident">to_string</span>()).<span class="ident">fg</span>(<span class="ident">id_color</span>));
+                    <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">i</span>.<span class="ident">to_string</span>()).<span class="ident">bold_body</span>());
                 } <span class="kw">else</span> {
                     <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot;Intersection&quot;</span>));
                 }
@@ -755,7 +753,7 @@
             }
             <span class="ident">ID</span>::<span class="ident">Car</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
-                    <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">c</span>.<span class="ident">to_string</span>()).<span class="ident">fg</span>(<span class="ident">id_color</span>));
+                    <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">c</span>.<span class="ident">to_string</span>()).<span class="ident">bold_body</span>());
                 } <span class="kw">else</span> {
                     <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;a {}&quot;</span>, <span class="ident">c</span>.<span class="number">1</span>)));
                 }
@@ -768,7 +766,7 @@
             }
             <span class="ident">ID</span>::<span class="ident">Pedestrian</span>(<span class="ident">p</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
-                    <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">p</span>.<span class="ident">to_string</span>()).<span class="ident">fg</span>(<span class="ident">id_color</span>));
+                    <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">p</span>.<span class="ident">to_string</span>()).<span class="ident">bold_body</span>());
                 } <span class="kw">else</span> {
                     <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot;a pedestrian&quot;</span>));
                 }
@@ -778,7 +776,7 @@
             }
             <span class="ident">ID</span>::<span class="ident">BusStop</span>(<span class="ident">bs</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
-                    <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">bs</span>.<span class="ident">to_string</span>()).<span class="ident">fg</span>(<span class="ident">id_color</span>));
+                    <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">bs</span>.<span class="ident">to_string</span>()).<span class="ident">bold_body</span>());
                 } <span class="kw">else</span> {
                     <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot;transit stop &quot;</span>));
                     <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="ident">bs</span>).<span class="ident">name</span>).<span class="ident">underlined</span>());
@@ -794,11 +792,11 @@
             }
             <span class="ident">ID</span>::<span class="ident">Area</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// Only selectable in dev mode anyway</span>
-                <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">a</span>.<span class="ident">to_string</span>()).<span class="ident">fg</span>(<span class="ident">id_color</span>));
+                <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">a</span>.<span class="ident">to_string</span>()).<span class="ident">bold_body</span>());
             }
             <span class="ident">ID</span>::<span class="ident">Road</span>(<span class="ident">r</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
-                    <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">r</span>.<span class="ident">to_string</span>()).<span class="ident">fg</span>(<span class="ident">id_color</span>));
+                    <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">r</span>.<span class="ident">to_string</span>()).<span class="ident">bold_body</span>());
                     <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot; is &quot;</span>));
                 }
                 <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">get_name</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>())).<span class="ident">underlined</span>());
