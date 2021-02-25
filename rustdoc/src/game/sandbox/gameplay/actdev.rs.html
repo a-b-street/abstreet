@@ -250,7 +250,7 @@
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;change scenario&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scenario_name</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&quot;base&quot;</span> {
-                        <span class="string">&quot;dutch&quot;</span>
+                        <span class="string">&quot;go_active&quot;</span>
                     } <span class="kw">else</span> {
                         <span class="string">&quot;base&quot;</span>
                     };
@@ -346,7 +346,7 @@
                                     <span class="ident">Line</span>(<span class="string">&quot;Baseline / &quot;</span>),
                                     <span class="ident">Line</span>(<span class="string">&quot;Go Active&quot;</span>).<span class="ident">secondary</span>(),
                                 ]),
-                                <span class="string">&quot;dutch&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                                <span class="string">&quot;go_active&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
                                     <span class="ident">Line</span>(<span class="string">&quot;Baseline&quot;</span>).<span class="ident">secondary</span>(),
                                     <span class="ident">Line</span>(<span class="string">&quot; / Go Active&quot;</span>),
                                 ]),
