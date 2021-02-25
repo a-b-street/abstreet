@@ -104,6 +104,11 @@ impl TextSpan {
         self.size = 21;
         self
     }
+    pub fn bold_body(mut self) -> TextSpan {
+        self.font = Font::OverpassBold;
+        self.size = 21;
+        self
+    }
     pub fn secondary(mut self) -> TextSpan {
         self.font = Font::OverpassRegular;
         self.size = 21;
@@ -259,11 +264,6 @@ impl Text {
             return;
         }
 
-        // Can't override the size or font mid-line.
-        let last = self.lines.last().unwrap().1.last().unwrap();
-        assert_eq!(line.size, last.size);
-        assert_eq!(line.font, last.font);
-
         self.lines.last_mut().unwrap().1.push(line);
     }
 
@@ -312,10 +312,15 @@ impl Text {
 
         let mut y = 0.0;
         let mut max_width = 0.0_f64;
+        // TODO Can we make usvg do the work of layouting multiple lines too?
+        // https://www.oreilly.com/library/view/svg-text-layout/9781491933817/ch04.html
         for (line_color, line) in self.lines {
-            // Assume size doesn't change mid-line. Always use this fixed line height per font
-            // size.
-            let line_height = assets.line_height(line[0].font, line[0].size);
+            // In case size changes mid-line, take the max of every span.
+            // (f64 isn't Ord, so no max(), so do this manually.)
+            let mut line_height = 0.0_f64;
+            for span in &line {
+                line_height = line_height.max(assets.line_height(span.font, span.size));
+            }
 
             let line_batch = render_line(line, tolerance, assets);
             let line_dims = if line_batch.is_empty() {
@@ -441,32 +446,24 @@ impl Text {
 }
 
 fn render_line(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBatch {
-    // TODO This assumes size and font don't change mid-line. We might be able to support that now,
-    // actually.
-    // https://www.oreilly.com/library/view/svg-text-layout/9781491933817/ch04.html
-
     // Just set a sufficiently large view box
     let mut svg = r##"<svg width="9999" height="9999" viewBox="0 0 9999 9999" xmlns="http://www.w3.org/2000/svg">"##.to_string();
 
-    write!(
-        &mut svg,
-        r##"<text x="0" y="0" xml:space="preserve" font-size="{}" font-family="{}" {}>"##,
-        spans[0].size,
-        spans[0].font.family(),
-        match spans[0].font {
-            Font::OverpassBold => "font-weight=\"bold\"",
-            Font::OverpassSemiBold => "font-weight=\"600\"",
-            _ => "",
-        }
-    )
-    .unwrap();
+    write!(&mut svg, r##"<text x="0" y="0" xml:space="preserve">"##,).unwrap();
 
     let mut contents = String::new();
     for span in spans {
         let fg_color = span.fg_color_for_style(&assets.style.borrow());
         write!(
             &mut contents,
-            r##"<tspan fill="{}" fill-opacity="{}" {}>{}</tspan>"##,
+            r##"<tspan font-size="{}" font-family="{}" {} fill="{}" fill-opacity="{}" {}>{}</tspan>"##,
+            span.size,
+            span.font.family(),
+            match span.font {
+                Font::OverpassBold => "font-weight=\"bold\"",
+                Font::OverpassSemiBold => "font-weight=\"600\"",
+                _ => "",
+            },
             fg_color.to_hex(),
             fg_color.a,
             if span.underlined {

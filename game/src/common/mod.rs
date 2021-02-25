@@ -117,12 +117,11 @@ impl CommonState {
 
     fn osd_for(app: &App, id: ID) -> Text {
         let map = &app.primary.map;
-        let id_color = app.cs.bottom_bar_id;
         let mut osd = Text::new();
         match id {
             ID::Lane(l) => {
                 if app.opts.dev {
-                    osd.append(Line(l.to_string()).fg(id_color));
+                    osd.append(Line(l.to_string()).bold_body());
                     osd.append(Line(" is "));
                 }
                 let r = map.get_parent(l);
@@ -132,20 +131,20 @@ impl CommonState {
                 ]);
                 if app.opts.dev {
                     osd.append(Line(" ("));
-                    osd.append(Line(r.id.to_string()).fg(id_color));
+                    osd.append(Line(r.id.to_string()).bold_body());
                     osd.append(Line(")"));
                 }
             }
             ID::Building(b) => {
                 if app.opts.dev {
-                    osd.append(Line(b.to_string()).fg(id_color));
+                    osd.append(Line(b.to_string()).bold_body());
                     osd.append(Line(" is "));
                 }
                 let bldg = map.get_b(b);
                 osd.append(Line(&bldg.address).underlined())
             }
             ID::ParkingLot(pl) => {
-                osd.append(Line(pl.to_string()).fg(id_color));
+                osd.append(Line(pl.to_string()).bold_body());
             }
             ID::Intersection(i) => {
                 if map.get_i(i).is_border() {
@@ -153,7 +152,7 @@ impl CommonState {
                 }
 
                 if app.opts.dev {
-                    osd.append(Line(i.to_string()).fg(id_color));
+                    osd.append(Line(i.to_string()).bold_body());
                 } else {
                     osd.append(Line("Intersection"));
                 }
@@ -167,7 +166,7 @@ impl CommonState {
             }
             ID::Car(c) => {
                 if app.opts.dev {
-                    osd.append(Line(c.to_string()).fg(id_color));
+                    osd.append(Line(c.to_string()).bold_body());
                 } else {
                     osd.append(Line(format!("a {}", c.1)));
                 }
@@ -180,7 +179,7 @@ impl CommonState {
             }
             ID::Pedestrian(p) => {
                 if app.opts.dev {
-                    osd.append(Line(p.to_string()).fg(id_color));
+                    osd.append(Line(p.to_string()).bold_body());
                 } else {
                     osd.append(Line("a pedestrian"));
                 }
@@ -190,7 +189,7 @@ impl CommonState {
             }
             ID::BusStop(bs) => {
                 if app.opts.dev {
-                    osd.append(Line(bs.to_string()).fg(id_color));
+                    osd.append(Line(bs.to_string()).bold_body());
                 } else {
                     osd.append(Line("transit stop "));
                     osd.append(Line(&map.get_bs(bs).name).underlined());
@@ -206,11 +205,11 @@ impl CommonState {
             }
             ID::Area(a) => {
                 // Only selectable in dev mode anyway
-                osd.append(Line(a.to_string()).fg(id_color));
+                osd.append(Line(a.to_string()).bold_body());
             }
             ID::Road(r) => {
                 if app.opts.dev {
-                    osd.append(Line(r.to_string()).fg(id_color));
+                    osd.append(Line(r.to_string()).bold_body());
                     osd.append(Line(" is "));
                 }
                 osd.append(Line(map.get_r(r).get_name(app.opts.language.as_ref())).underlined());
