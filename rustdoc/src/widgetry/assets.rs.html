@@ -158,9 +158,14 @@
 <span id="155">155</span>
 <span id="156">156</span>
 <span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">lru</span>::<span class="ident">LruCache</span>;
 <span class="kw">use</span> <span class="ident">usvg</span>::<span class="ident">fontdb</span>;
@@ -179,44 +184,35 @@
     <span class="comment">// Keyed by filename</span>
     <span class="ident">svg_cache</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, (<span class="ident">GeomBatch</span>, <span class="ident">Bounds</span>)<span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">font_to_id</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Font</span>, <span class="ident">fontdb</span>::<span class="ident">ID</span><span class="op">&gt;</span>,
+    <span class="ident">extra_fonts</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">style</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">Style</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">text_opts</span>: <span class="ident">Options</span>,
+    <span class="kw">pub</span> <span class="ident">text_opts</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">Options</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">read_svg</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Assets</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">style</span>: <span class="ident">Style</span>, <span class="ident">read_svg</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Assets</span> {
+        <span class="comment">// Many fonts are statically bundled with the library right now, on both native and web.</span>
+        <span class="comment">// ctx.is_font_loaded and ctx.load_font can be used to dynamically add more later.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fontdb</span> <span class="op">=</span> <span class="ident">fontdb</span>::<span class="ident">Database</span>::<span class="ident">new</span>();
+        <span class="ident">fontdb</span>.<span class="ident">load_font_data</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../fonts/BungeeInline-Regular.ttf&quot;</span>).<span class="ident">to_vec</span>());
+        <span class="ident">fontdb</span>.<span class="ident">load_font_data</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../fonts/Bungee-Regular.ttf&quot;</span>).<span class="ident">to_vec</span>());
+        <span class="ident">fontdb</span>.<span class="ident">load_font_data</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../fonts/Overpass-Bold.ttf&quot;</span>).<span class="ident">to_vec</span>());
+        <span class="ident">fontdb</span>.<span class="ident">load_font_data</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../fonts/OverpassMono-Bold.ttf&quot;</span>).<span class="ident">to_vec</span>());
+        <span class="ident">fontdb</span>.<span class="ident">load_font_data</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../fonts/Overpass-Regular.ttf&quot;</span>).<span class="ident">to_vec</span>());
+        <span class="ident">fontdb</span>.<span class="ident">load_font_data</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../fonts/Overpass-SemiBold.ttf&quot;</span>).<span class="ident">to_vec</span>());
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">Assets</span> {
             <span class="ident">default_line_height</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="number">0.0</span>),
             <span class="ident">text_cache</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="ident">LruCache</span>::<span class="ident">new</span>(<span class="number">500</span>)),
             <span class="ident">line_height_cache</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="ident">HashMap</span>::<span class="ident">new</span>()),
             <span class="ident">svg_cache</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="ident">HashMap</span>::<span class="ident">new</span>()),
             <span class="ident">font_to_id</span>: <span class="ident">HashMap</span>::<span class="ident">new</span>(),
-            <span class="ident">text_opts</span>: <span class="ident">Options</span>::<span class="ident">default</span>(),
+            <span class="ident">extra_fonts</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="ident">HashSet</span>::<span class="ident">new</span>()),
+            <span class="ident">text_opts</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="ident">Options</span>::<span class="ident">default</span>()),
             <span class="ident">style</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="ident">style</span>),
             <span class="ident">read_svg</span>,
         };
-        <span class="comment">// All fonts are statically bundled with the library right now, on both native and web.</span>
-        <span class="comment">// Eventually need to let people specify their own fonts dynamically at runtime.</span>
-        <span class="ident">a</span>.<span class="ident">text_opts</span>.<span class="ident">fontdb</span> <span class="op">=</span> <span class="ident">fontdb</span>::<span class="ident">Database</span>::<span class="ident">new</span>();
-        <span class="ident">a</span>.<span class="ident">text_opts</span>
-            .<span class="ident">fontdb</span>
-            .<span class="ident">load_font_data</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../fonts/BungeeInline-Regular.ttf&quot;</span>).<span class="ident">to_vec</span>());
-        <span class="ident">a</span>.<span class="ident">text_opts</span>
-            .<span class="ident">fontdb</span>
-            .<span class="ident">load_font_data</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../fonts/Bungee-Regular.ttf&quot;</span>).<span class="ident">to_vec</span>());
-        <span class="ident">a</span>.<span class="ident">text_opts</span>
-            .<span class="ident">fontdb</span>
-            .<span class="ident">load_font_data</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../fonts/Overpass-Bold.ttf&quot;</span>).<span class="ident">to_vec</span>());
-        <span class="ident">a</span>.<span class="ident">text_opts</span>
-            .<span class="ident">fontdb</span>
-            .<span class="ident">load_font_data</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../fonts/OverpassMono-Bold.ttf&quot;</span>).<span class="ident">to_vec</span>());
-        <span class="ident">a</span>.<span class="ident">text_opts</span>
-            .<span class="ident">fontdb</span>
-            .<span class="ident">load_font_data</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../fonts/Overpass-Regular.ttf&quot;</span>).<span class="ident">to_vec</span>());
-        <span class="ident">a</span>.<span class="ident">text_opts</span>
-            .<span class="ident">fontdb</span>
-            .<span class="ident">load_font_data</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../fonts/Overpass-SemiBold.ttf&quot;</span>).<span class="ident">to_vec</span>());
+        <span class="ident">a</span>.<span class="ident">text_opts</span>.<span class="ident">borrow_mut</span>().<span class="ident">fontdb</span> <span class="op">=</span> <span class="ident">fontdb</span>;
         <span class="kw">for</span> <span class="ident">font</span> <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Font</span>::<span class="ident">BungeeInlineRegular</span>,
             <span class="ident">Font</span>::<span class="ident">BungeeRegular</span>,
@@ -228,6 +224,7 @@
             <span class="ident">a</span>.<span class="ident">font_to_id</span>.<span class="ident">insert</span>(
                 <span class="ident">font</span>,
                 <span class="ident">a</span>.<span class="ident">text_opts</span>
+                    .<span class="ident">borrow</span>()
                     .<span class="ident">fontdb</span>
                     .<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">fontdb</span>::<span class="ident">Query</span> {
                         <span class="ident">families</span>: <span class="kw-2">&amp;</span><span class="macro">vec</span><span class="macro">!</span>[<span class="ident">fontdb</span>::<span class="ident">Family</span>::<span class="ident">Name</span>(<span class="ident">font</span>.<span class="ident">family</span>())],
@@ -247,6 +244,18 @@
         <span class="ident">a</span>
     }
 
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_font_loaded</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">extra_fonts</span>.<span class="ident">borrow</span>().<span class="ident">contains</span>(<span class="ident">filename</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_font</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">bytes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) {
+        <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;Loaded extra font {}&quot;</span>, <span class="ident">filename</span>);
+        <span class="self">self</span>.<span class="ident">extra_fonts</span>.<span class="ident">borrow_mut</span>().<span class="ident">insert</span>(<span class="ident">filename</span>.<span class="ident">to_string</span>());
+        <span class="self">self</span>.<span class="ident">text_opts</span>.<span class="ident">borrow_mut</span>().<span class="ident">fontdb</span>.<span class="ident">load_font_data</span>(<span class="ident">bytes</span>);
+        <span class="comment">// We don&#39;t need to fill out font_to_id, because we can&#39;t directly create text using this</span>
+        <span class="comment">// font.</span>
+    }
+
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">line_height</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">font</span>: <span class="ident">Font</span>, <span class="ident">font_size</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> (<span class="ident">font</span>, <span class="ident">font_size</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">height</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">line_height_cache</span>.<span class="ident">borrow</span>().<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>) {
@@ -256,6 +265,7 @@
         <span class="comment">// This seems to be missing line_gap, and line_gap is 0, so manually adjust here.</span>
         <span class="kw">let</span> <span class="ident">line_height</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">text_opts</span>
+            .<span class="ident">borrow</span>()
             .<span class="ident">fontdb</span>
             .<span class="ident">with_face_data</span>(<span class="self">self</span>.<span class="ident">font_to_id</span>[<span class="kw-2">&amp;</span><span class="ident">font</span>], <span class="op">|</span><span class="ident">data</span>, <span class="ident">face_index</span><span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">font</span> <span class="op">=</span> <span class="ident">ttf_parser</span>::<span class="ident">Face</span>::<span class="ident">from_slice</span>(<span class="ident">data</span>, <span class="ident">face_index</span>).<span class="ident">unwrap</span>();

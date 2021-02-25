@@ -323,6 +323,10 @@
 <span id="320">320</span>
 <span id="321">321</span>
 <span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Generate paths for different A/B Street files</span>
 
@@ -412,7 +416,11 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list_all_cities_from_system_data</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CityName</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cities</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">country</span> <span class="kw">in</span> <span class="ident">list_all_objects</span>(<span class="ident">path</span>(<span class="string">&quot;system&quot;</span>)) {
-            <span class="kw">if</span> <span class="ident">country</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;assets&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">country</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;proposals&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">country</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;study_areas&quot;</span> {
+            <span class="kw">if</span> <span class="ident">country</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;assets&quot;</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">country</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;extra_fonts&quot;</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">country</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;proposals&quot;</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">country</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;study_areas&quot;</span>
+            {
                 <span class="kw">continue</span>;
             }
             <span class="kw">for</span> <span class="ident">city</span> <span class="kw">in</span> <span class="ident">list_all_objects</span>(<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/{}&quot;</span>, <span class="ident">country</span>))) {

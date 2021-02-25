@@ -109,6 +109,10 @@
 <span id="106">106</span>
 <span id="107">107</span>
 <span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
@@ -159,6 +163,10 @@
                     <span class="op">|</span><span class="op">|</span> <span class="ident">path</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;data/system/us/seattle/scenarios/huge_seattle/weekday.bin&quot;</span>)
             {
                 <span class="ident">remove</span>.<span class="ident">push</span>(<span class="ident">path</span>.<span class="ident">clone</span>());
+                <span class="kw">continue</span>;
+            }
+            <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">starts_with</span>(<span class="string">&quot;data/system/extra_fonts&quot;</span>) {
+                <span class="comment">// Always grab all of these</span>
                 <span class="kw">continue</span>;
             }
 

@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["FileLoader",""]]});
+initSidebarItems({"struct":[["FileLoader",""],["RawFileLoader",""]]});
