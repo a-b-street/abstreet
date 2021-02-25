@@ -218,6 +218,7 @@
     <span class="kw">pub</span> <span class="ident">departure</span>: <span class="ident">Time</span>,
     <span class="kw">pub</span> <span class="ident">destination</span>: <span class="ident">ExternalTripEndpoint</span>,
     <span class="kw">pub</span> <span class="ident">mode</span>: <span class="ident">TripMode</span>,
+    <span class="kw">pub</span> <span class="ident">purpose</span>: <span class="ident">TripPurpose</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
@@ -285,10 +286,9 @@
                 <span class="ident">trips</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
             };
             <span class="kw">for</span> <span class="ident">trip</span> <span class="kw">in</span> <span class="ident">person</span>.<span class="ident">trips</span> {
-                <span class="comment">// TODO Add space in the API to specify purpose, but probably make it optional.</span>
                 <span class="ident">spec</span>.<span class="ident">trips</span>.<span class="ident">push</span>(<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
                     <span class="ident">trip</span>.<span class="ident">departure</span>,
-                    <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
+                    <span class="ident">trip</span>.<span class="ident">purpose</span>,
                     <span class="comment">// TODO Do we handle somebody going off-map via one one-way bridge, and</span>
                     <span class="comment">// re-entering using the other?</span>
                     <span class="kw">match</span> <span class="ident">lookup_pt</span>(<span class="ident">trip</span>.<span class="ident">destination</span>, <span class="bool-val">false</span>, <span class="ident">trip</span>.<span class="ident">mode</span>) {
