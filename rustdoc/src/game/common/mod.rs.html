@@ -687,7 +687,7 @@
                 <span class="ident">Line</span>(<span class="string">&quot; to warp&quot;</span>),
             ])
         } <span class="kw">else</span> {
-            <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;...&quot;</span>))
+            <span class="ident">Text</span>::<span class="ident">new</span>()
         };
         <span class="kw">if</span> <span class="op">!</span><span class="ident">keys</span>.<span class="ident">is_empty</span>() {
             <span class="ident">osd</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot;   Hotkeys: &quot;</span>));
@@ -815,7 +815,7 @@
                 <span class="ident">Line</span>(<span class="string">&quot; to warp&quot;</span>),
             ])
         } <span class="kw">else</span> {
-            <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;...&quot;</span>))
+            <span class="ident">Text</span>::<span class="ident">new</span>()
         };
         <span class="ident">CommonState</span>::<span class="ident">draw_custom_osd</span>(<span class="ident">g</span>, <span class="ident">app</span>, <span class="ident">osd</span>);
     }
