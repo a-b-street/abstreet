@@ -119,24 +119,26 @@ impl GameplayState for Freeform {
 
     fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
         let rows = vec![
-            Widget::row(vec![
-                Line("Sandbox").small_heading().draw(ctx),
-                Widget::vert_separator(ctx, 50.0),
+            Widget::custom_row(vec![
+                Line("Sandbox").small_heading().draw(ctx).margin_right(18),
                 ctx.style()
                     .btn_popup_icon_text(
                         "system/assets/tools/map.svg",
                         nice_map_name(app.primary.map.get_name()),
                     )
                     .hotkey(lctrl(Key::L))
-                    .build_widget(ctx, "change map"),
+                    .build_widget(ctx, "change map")
+                    .margin_right(8),
                 ctx.style()
                     .btn_popup_icon_text("system/assets/tools/calendar.svg", "none")
                     .hotkey(Key::S)
-                    .build_widget(ctx, "change scenario"),
+                    .build_widget(ctx, "change scenario")
+                    .margin_right(8),
                 ctx.style()
                     .btn_outline_icon_text("system/assets/tools/pencil.svg", "Edit map")
                     .hotkey(lctrl(Key::E))
-                    .build_widget(ctx, "edit map"),
+                    .build_widget(ctx, "edit map")
+                    .margin_right(8),
             ])
             .centered(),
             Widget::row(vec![
