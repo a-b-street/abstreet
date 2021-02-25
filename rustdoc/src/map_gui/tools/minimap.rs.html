@@ -460,16 +460,13 @@
 <span id="457">457</span>
 <span id="458">458</span>
 <span id="459">459</span>
-<span id="460">460</span>
-<span id="461">461</span>
-<span id="462">462</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Filler</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>,
-    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenPt</span>, <span class="ident">Spinner</span>, <span class="ident">StyledButtons</span>, <span class="ident">Transition</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Filler</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
+    <span class="ident">ScreenPt</span>, <span class="ident">Spinner</span>, <span class="ident">StyledButtons</span>, <span class="ident">Transition</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">AppLike</span>;
@@ -567,38 +564,35 @@
         <span class="kw">let</span> <span class="ident">zoom_col</span> <span class="op">=</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">ctx</span>
                 .<span class="ident">style</span>()
-                .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/speed/speed_up.svg&quot;</span>)
+                .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/speed/plus.svg&quot;</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;zoom in&quot;</span>)
                 .<span class="ident">centered_horiz</span>()
-                .<span class="ident">margin_below</span>(<span class="number">20</span>)];
+                .<span class="ident">margin_below</span>(<span class="number">10</span>)];
+
+            <span class="kw">let</span> <span class="ident">level_btn</span> <span class="op">=</span> <span class="ident">ctx</span>
+                .<span class="ident">style</span>()
+                .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/speed/zoom_level_rect.svg&quot;</span>)
+                .<span class="ident">padding_top</span>(<span class="number">0.0</span>)
+                .<span class="ident">padding_bottom</span>(<span class="number">0.0</span>);
+
             <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> (<span class="number">0</span>..<span class="op">=</span><span class="number">3</span>).<span class="ident">rev</span>() {
-                <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">zoom_lvl</span> <span class="op">&lt;</span> <span class="ident">i</span> {
-                    <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">minimap_unselected_zoom</span>
+                <span class="kw">let</span> <span class="ident">level_btn</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">zoom_lvl</span> <span class="op">&lt;</span> <span class="ident">i</span> {
+                    <span class="ident">level_btn</span>
+                        .<span class="ident">clone</span>()
+                        .<span class="ident">image_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">fg_disabled</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
                 } <span class="kw">else</span> {
-                    <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">minimap_selected_zoom</span>
+                    <span class="ident">level_btn</span>.<span class="ident">clone</span>()
                 };
-                <span class="kw">let</span> <span class="ident">rect</span> <span class="op">=</span> <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="number">20.0</span>, <span class="number">8.0</span>);
-
-                <span class="kw">let</span> <span class="ident">default_batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">color</span>, <span class="ident">rect</span>.<span class="ident">clone</span>())]);
-                <span class="kw">let</span> <span class="ident">hover_batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">rect</span>)]);
-
-                <span class="kw">let</span> <span class="ident">level_btn</span> <span class="op">=</span> <span class="ident">ctx</span>
-                    .<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>()
-                    .<span class="ident">custom_batch</span>(<span class="ident">default_batch</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
-                    .<span class="ident">custom_batch</span>(<span class="ident">hover_batch</span>, <span class="ident">ControlState</span>::<span class="ident">Hovered</span>)
-                    .<span class="ident">padding</span>(<span class="number">10</span>);
-
                 <span class="ident">col</span>.<span class="ident">push</span>(
                     <span class="ident">level_btn</span>
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;zoom to level {}&quot;</span>, <span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>))
                         .<span class="ident">centered_horiz</span>()
-                        .<span class="ident">margin_below</span>(<span class="number">20</span>),
+                        .<span class="ident">margin_below</span>(<span class="number">10</span>),
                 );
             }
             <span class="ident">col</span>.<span class="ident">push</span>(
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/speed/slow_down.svg&quot;</span>)
+                    .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/speed/minus.svg&quot;</span>)
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;zoom out&quot;</span>)
                     .<span class="ident">centered_horiz</span>(),
             );

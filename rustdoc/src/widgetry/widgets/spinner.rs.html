@@ -147,6 +147,9 @@
 <span id="144">144</span>
 <span id="145">145</span>
 <span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
@@ -206,6 +209,8 @@
             <span class="ident">current</span> <span class="op">=</span> <span class="ident">high</span>;
             <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Spinner current value is out of bounds!&quot;</span>);
         }
+
+        <span class="kw">let</span> <span class="ident">outline</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">outline</span>;
         <span class="ident">Widget</span>::<span class="ident">new</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Spinner</span> {
             <span class="ident">low</span>,
             <span class="ident">high</span>,
@@ -217,6 +222,7 @@
             <span class="ident">top_left</span>: <span class="ident">ScreenPt</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
             <span class="ident">dims</span>,
         }))
+        .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">outline</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">modify</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">delta</span>: <span class="ident">isize</span>) {
@@ -279,7 +285,7 @@
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>) {
         <span class="comment">// TODO Cache</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(
-            <span class="ident">text</span>::<span class="ident">BG_COLOR</span>,
+            <span class="ident">g</span>.<span class="ident">style</span>().<span class="ident">panel_bg</span>,
             <span class="ident">Polygon</span>::<span class="ident">rounded_rectangle</span>(<span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">width</span>, <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span>, <span class="number">5.0</span>),
         )]);
         <span class="ident">batch</span>.<span class="ident">append</span>(

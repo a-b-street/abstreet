@@ -277,6 +277,7 @@
 <span id="274">274</span>
 <span id="275">275</span>
 <span id="276">276</span>
+<span id="277">277</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">VecDeque</span>;
 
@@ -448,6 +449,7 @@
                 <span class="self">self</span>.<span class="ident">style</span>
                     .<span class="ident">loading_tips</span>
                     .<span class="ident">clone</span>()
+                    .<span class="ident">default_fg</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>)
                     .<span class="ident">wrap_to_pct</span>(<span class="self">self</span>, <span class="number">25</span>)
                     .<span class="ident">draw</span>(<span class="self">self</span>)
                     .<span class="ident">container</span>()
