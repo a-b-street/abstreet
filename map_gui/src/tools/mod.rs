@@ -103,6 +103,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("great_kneighton", "center") => "Great Kneighton (Cambridge)",
             ("hampton", "center") => "Hampton",
             ("kidbrooke_village", "center") => "Kidbrooke Village",
+            ("lcid", "center") => "Leeds Climate Innovation District",
             ("leeds", "central") => "Leeds (city center)",
             ("leeds", "huge") => "Leeds (entire area inside motorways)",
             ("leeds", "north") => "North Leeds",

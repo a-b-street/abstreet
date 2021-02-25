@@ -184,7 +184,7 @@ fn generate_elevation_queries(map: &RawMap) -> Result<()> {
             for (idx, gps) in map.gps_bounds.convert_back(&pts).into_iter().enumerate() {
                 write!(f, "{},{}", gps.x(), gps.y())?;
                 if idx != pts.len() - 1 {
-                    write!(f, ",")?;
+                    write!(f, " ")?;
                 }
             }
             writeln!(f)?;
