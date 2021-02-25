@@ -41,7 +41,7 @@ impl GameplayState for Actdev {
             Outcome::Clicked(x) => match x.as_ref() {
                 "change scenario" => {
                     let scenario = if self.scenario_name.as_ref().unwrap() == "base" {
-                        "dutch"
+                        "go_active"
                     } else {
                         "base"
                     };
@@ -137,7 +137,7 @@ impl GameplayState for Actdev {
                                     Line("Baseline / "),
                                     Line("Go Active").secondary(),
                                 ]),
-                                "dutch" => Text::from_all(vec![
+                                "go_active" => Text::from_all(vec![
                                     Line("Baseline").secondary(),
                                     Line(" / Go Active"),
                                 ]),
