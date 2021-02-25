@@ -1,9 +1,9 @@
 use std::marker::PhantomData;
 
-use geom::{Distance, Polygon, Pt2D, Ring};
+use geom::{Distance, Pt2D, Ring};
 use widgetry::{
-    ControlState, Drawable, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Line,
-    Outcome, Panel, ScreenPt, Spinner, StyledButtons, Transition, VerticalAlignment, Widget,
+    ControlState, Drawable, EventCtx, Filler, GfxCtx, HorizontalAlignment, Line, Outcome, Panel,
+    ScreenPt, Spinner, StyledButtons, Transition, VerticalAlignment, Widget,
 };
 
 use crate::AppLike;
@@ -101,38 +101,35 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
         let zoom_col = {
             let mut col = vec![ctx
                 .style()
-                .btn_plain_icon("system/assets/speed/speed_up.svg")
+                .btn_plain_icon("system/assets/speed/plus.svg")
                 .build_widget(ctx, "zoom in")
                 .centered_horiz()
-                .margin_below(20)];
+                .margin_below(10)];
+
+            let level_btn = ctx
+                .style()
+                .btn_plain_icon("system/assets/speed/zoom_level_rect.svg")
+                .padding_top(0.0)
+                .padding_bottom(0.0);
+
             for i in (0..=3).rev() {
-                let color = if self.zoom_lvl < i {
-                    app.cs().minimap_unselected_zoom
+                let level_btn = if self.zoom_lvl < i {
+                    level_btn
+                        .clone()
+                        .image_color(ctx.style().btn_outline.fg_disabled, ControlState::Default)
                 } else {
-                    app.cs().minimap_selected_zoom
+                    level_btn.clone()
                 };
-                let rect = Polygon::rectangle(20.0, 8.0);
-
-                let default_batch = GeomBatch::from(vec![(color, rect.clone())]);
-                let hover_batch = GeomBatch::from(vec![(color.alpha(0.5), rect)]);
-
-                let level_btn = ctx
-                    .style()
-                    .btn_plain()
-                    .custom_batch(default_batch, ControlState::Default)
-                    .custom_batch(hover_batch, ControlState::Hovered)
-                    .padding(10);
-
                 col.push(
                     level_btn
                         .build_widget(ctx, &format!("zoom to level {}", i + 1))
                         .centered_horiz()
-                        .margin_below(20),
+                        .margin_below(10),
                 );
             }
             col.push(
                 ctx.style()
-                    .btn_plain_icon("system/assets/speed/slow_down.svg")
+                    .btn_plain_icon("system/assets/speed/minus.svg")
                     .build_widget(ctx, "zoom out")
                     .centered_horiz(),
             );

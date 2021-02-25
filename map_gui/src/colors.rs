@@ -70,8 +70,6 @@ pub struct ColorScheme {
     pub dialog_bg: Color,
     pub minimap_cursor_border: Color,
     pub minimap_cursor_bg: Option<Color>,
-    pub minimap_selected_zoom: Color,
-    pub minimap_unselected_zoom: Color,
 
     // Roads
     driving_lane: Color,
@@ -194,8 +192,6 @@ impl ColorScheme {
             dialog_bg: hex("#94C84A"),
             minimap_cursor_border: Color::BLACK,
             minimap_cursor_bg: None,
-            minimap_selected_zoom: Color::WHITE,
-            minimap_unselected_zoom: Color::WHITE.alpha(0.2),
             gui_style,
 
             // Roads
@@ -430,8 +426,6 @@ impl ColorScheme {
         cs.inner_panel_bg = cs.panel_bg.alpha(1.0);
         cs.minimap_cursor_border = Color::WHITE;
         cs.minimap_cursor_bg = Some(Color::rgba(238, 112, 46, 0.2));
-        cs.minimap_selected_zoom = hex("#EE702E");
-        cs.minimap_unselected_zoom = Color::WHITE.alpha(0.3);
 
         cs
     }
