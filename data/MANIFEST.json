@@ -1015,6 +1015,21 @@
       "uncompressed_size_bytes": 34040061,
       "compressed_size_bytes": 7442080
     },
+    "data/input/tw/taipei/osm/center.osm": {
+      "checksum": "81824933e147997b3b67e6653f0606de",
+      "uncompressed_size_bytes": 46038808,
+      "compressed_size_bytes": 4603260
+    },
+    "data/input/tw/taipei/osm/taiwan-latest.osm.pbf": {
+      "checksum": "3e748dfa994d6ef36327de48c79aacae",
+      "uncompressed_size_bytes": 85615240,
+      "compressed_size_bytes": 85493225
+    },
+    "data/input/tw/taipei/raw_maps/center.bin": {
+      "checksum": "410176e214919a11361b2e39830fab9c",
+      "uncompressed_size_bytes": 13069685,
+      "compressed_size_bytes": 2727379
+    },
     "data/input/us/anchorage/osm/alaska-latest.osm.pbf": {
       "checksum": "e27bab279362bc0be399abd141474683",
       "uncompressed_size_bytes": 112507133,
@@ -2034,6 +2049,11 @@
       "checksum": "ccadce80d4c8e375f36d2142c32da38e",
       "uncompressed_size_bytes": 104167248,
       "compressed_size_bytes": 33916856
+    },
+    "data/system/tw/taipei/maps/center.bin": {
+      "checksum": "16ecdd7e093223b3fc61f732fa21c7b6",
+      "uncompressed_size_bytes": 63862705,
+      "compressed_size_bytes": 18189313
     },
     "data/system/us/anchorage/maps/downtown.bin": {
       "checksum": "bfbb50e0133e9afb7d71f439c330ecb3",
