@@ -496,7 +496,7 @@ impl Widget {
         Widget::draw_batch(
             ctx,
             GeomBatch::from(vec![(
-                Color::WHITE,
+                ctx.style().btn_outline.fg,
                 Polygon::rectangle(pct_width * ctx.canvas.window_width, 2.0),
             )]),
         )
@@ -506,7 +506,10 @@ impl Widget {
     pub fn vert_separator(ctx: &mut EventCtx, height_px: f64) -> Widget {
         Widget::draw_batch(
             ctx,
-            GeomBatch::from(vec![(Color::WHITE, Polygon::rectangle(2.0, height_px))]),
+            GeomBatch::from(vec![(
+                ctx.style().btn_outline.fg,
+                Polygon::rectangle(2.0, height_px),
+            )]),
         )
     }
 }
