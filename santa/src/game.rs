@@ -52,7 +52,9 @@ impl Game {
             "15-min Santa".draw_text(ctx).centered_vert(),
             Widget::row(vec![
                 // TODO The blur is messed up
-                Widget::draw_svg(ctx, "system/assets/tools/map.svg").centered_vert(),
+                Icon::from_path("system/assets/tools/map.svg")
+                    .centered_vert()
+                    .into_widget(ctx),
                 Line(&level.title).draw(ctx),
             ])
             .padding(10)

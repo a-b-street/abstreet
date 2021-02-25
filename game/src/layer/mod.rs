@@ -1,8 +1,8 @@
 use map_gui::tools::{grey_out_map, HeatmapOptions};
 use sim::AgentType;
 use widgetry::{
-    DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, StyledButtons, TextExt,
-    Widget,
+    DrawBaselayer, EventCtx, GfxCtx, Image, Key, Line, Outcome, Panel, State, StyledButtons,
+    TextExt, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -268,7 +268,9 @@ impl State<App> for PickLayer {
 /// Creates the top row for any layer panel.
 pub fn header(ctx: &mut EventCtx, name: &str) -> Widget {
     Widget::row(vec![
-        Widget::draw_svg(ctx, "system/assets/tools/layers.svg").centered_vert(),
+        Image::icon("system/assets/tools/layers.svg")
+            .into_widget(ctx)
+            .centered_vert(),
         name.draw_text(ctx).centered_vert(),
         ctx.style().btn_close_widget(ctx),
     ])

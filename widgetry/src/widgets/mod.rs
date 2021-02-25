@@ -12,8 +12,8 @@ use geom::{CornerRadii, Distance, Percent, Polygon};
 use crate::widgets::containers::{Container, Nothing};
 pub use crate::widgets::panel::Panel;
 use crate::{
-    Button, Choice, Color, DeferDraw, DrawWithTooltips, Drawable, Dropdown, EventCtx, GeomBatch,
-    GfxCtx, JustDraw, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Text, TextBox, Toggle,
+    Button, Choice, Color, DeferDraw, Drawable, Dropdown, EventCtx, GeomBatch, GfxCtx, JustDraw,
+    ScreenDims, ScreenPt, ScreenRectangle, TextBox, Toggle,
 };
 
 pub mod autocomplete;
@@ -23,6 +23,7 @@ pub mod containers;
 pub mod dropdown;
 pub mod fan_chart;
 pub mod filler;
+pub mod image;
 pub mod just_draw;
 pub mod line_plot;
 pub mod menu;
@@ -355,28 +356,6 @@ impl Widget {
     // or not?
     pub fn draw_batch(ctx: &EventCtx, batch: GeomBatch) -> Widget {
         JustDraw::wrap(ctx, batch)
-    }
-    pub fn draw_svg<I: Into<String>>(ctx: &EventCtx, filename: I) -> Widget {
-        JustDraw::svg(ctx, filename.into())
-    }
-    pub fn draw_svg_transform(ctx: &EventCtx, filename: &str, rewrite: RewriteColor) -> Widget {
-        JustDraw::svg_transform(ctx, filename, rewrite)
-    }
-    pub fn draw_svg_with_tooltip<I: Into<String>>(
-        ctx: &EventCtx,
-        filename: I,
-        tooltip: Text,
-    ) -> Widget {
-        let (mut batch, bounds) = crate::svg::load_svg(ctx.prerender, &filename.into());
-        // Preserve the whitespace in the SVG.
-        // TODO Maybe always do this, add a way to autocrop() to remove it if needed.
-        batch.push(Color::CLEAR, bounds.get_rectangle());
-        DrawWithTooltips::new(
-            ctx,
-            batch,
-            vec![(bounds.get_rectangle(), tooltip)],
-            Box::new(|_| GeomBatch::new()),
-        )
     }
 
     // TODO Likewise

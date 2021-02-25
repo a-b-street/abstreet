@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use geom::{Duration, Time};
 use sim::{OrigPersonID, PersonID, TripID};
 use widgetry::{
-    Color, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, RewriteColor, State,
+    Color, EventCtx, GfxCtx, HorizontalAlignment, Image, Line, Outcome, Panel, State,
     StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
@@ -329,11 +329,9 @@ fn cutscene_task(mode: &GameplayMode) -> Box<dyn Fn(&mut EventCtx) -> Widget> {
             Widget::row(vec![
                 Widget::col(vec![
                     Line("Time").fg(Color::BLACK).draw(ctx),
-                    Widget::draw_svg_transform(
-                        ctx,
-                        "system/assets/tools/time.svg",
-                        RewriteColor::ChangeAll(Color::BLACK),
-                    ),
+                    Image::icon("system/assets/tools/time.svg")
+                        .color(Color::BLACK)
+                        .into_widget(ctx),
                     Text::from_multiline(vec![
                         Line("Until the VIP's").fg(Color::BLACK),
                         Line("last trip is done").fg(Color::BLACK),
@@ -342,11 +340,9 @@ fn cutscene_task(mode: &GameplayMode) -> Box<dyn Fn(&mut EventCtx) -> Widget> {
                 ]),
                 Widget::col(vec![
                     Line("Goal").fg(Color::BLACK).draw(ctx),
-                    Widget::draw_svg_transform(
-                        ctx,
-                        "system/assets/tools/location.svg",
-                        RewriteColor::ChangeAll(Color::BLACK),
-                    ),
+                    Image::icon("system/assets/tools/location.svg")
+                        .color(Color::BLACK)
+                        .into_widget(ctx),
                     Text::from_multiline(vec![
                         Line("Speed up the VIP's trips").fg(Color::BLACK),
                         Line(format!("by at least {}", goal)).fg(Color::BLACK),
@@ -355,11 +351,9 @@ fn cutscene_task(mode: &GameplayMode) -> Box<dyn Fn(&mut EventCtx) -> Widget> {
                 ]),
                 Widget::col(vec![
                     Line("Score").fg(Color::BLACK).draw(ctx),
-                    Widget::draw_svg_transform(
-                        ctx,
-                        "system/assets/tools/star.svg",
-                        RewriteColor::ChangeAll(Color::BLACK),
-                    ),
+                    Image::icon("system/assets/tools/star.svg")
+                        .color(Color::BLACK)
+                        .into_widget(ctx),
                     Text::from_multiline(vec![
                         Line("How much time").fg(Color::BLACK),
                         Line("the VIP saves").fg(Color::BLACK),

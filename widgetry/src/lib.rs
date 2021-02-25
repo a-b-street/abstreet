@@ -52,6 +52,7 @@ pub use crate::widgets::compare_times::CompareTimes;
 pub(crate) use crate::widgets::dropdown::Dropdown;
 pub use crate::widgets::fan_chart::FanChart;
 pub use crate::widgets::filler::Filler;
+pub use crate::widgets::image::Image;
 pub use crate::widgets::just_draw::DrawWithTooltips;
 pub(crate) use crate::widgets::just_draw::{DeferDraw, JustDraw};
 pub use crate::widgets::line_plot::{LinePlot, PlotOptions, Series};
