@@ -426,7 +426,7 @@ impl ChangeWay {
                         .draw(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                Menu::new(
+                Menu::widget(
                     ctx,
                     vec![
                         Choice::new("none -- no stopping or parking", Value::NoStopping),

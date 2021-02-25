@@ -20,6 +20,7 @@ pub struct ExternalTrip {
     pub departure: Time,
     pub destination: ExternalTripEndpoint,
     pub mode: TripMode,
+    pub purpose: TripPurpose,
 }
 
 #[derive(Deserialize)]
@@ -87,10 +88,9 @@ impl ExternalPerson {
                 trips: Vec::new(),
             };
             for trip in person.trips {
-                // TODO Add space in the API to specify purpose, but probably make it optional.
                 spec.trips.push(IndividTrip::new(
                     trip.departure,
-                    TripPurpose::Shopping,
+                    trip.purpose,
                     // TODO Do we handle somebody going off-map via one one-way bridge, and
                     // re-entering using the other?
                     match lookup_pt(trip.destination, false, trip.mode) {

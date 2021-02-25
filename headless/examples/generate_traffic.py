@@ -53,7 +53,8 @@ def main():
                         'Bldg': dst,
                     }
                 },
-                'mode': 'Bike'
+                'mode': 'Bike',
+                'purpose': 'Shopping'
             }]
         })
 
