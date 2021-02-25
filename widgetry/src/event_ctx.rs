@@ -197,6 +197,17 @@ impl<'a> EventCtx<'a> {
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Center)
         .build_custom(self)
     }
+
+    /// Checks if an extra font has previously been loaded with `load_font`. Returns false for
+    /// built-in system fonts.
+    pub fn is_font_loaded(&self, filename: &str) -> bool {
+        self.prerender.assets.is_font_loaded(filename)
+    }
+
+    /// Loads an extra font, used only for automatic fallback of missing glyphs.
+    pub fn load_font(&mut self, filename: &str, bytes: Vec<u8>) {
+        self.prerender.assets.load_font(filename, bytes)
+    }
 }
 
 struct LoadingScreen<'a> {

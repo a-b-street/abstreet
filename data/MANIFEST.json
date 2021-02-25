@@ -1480,6 +1480,11 @@
       "uncompressed_size_bytes": 25964767,
       "compressed_size_bytes": 8714926
     },
+    "data/system/extra_fonts/ZCOOLXiaoWei-Regular.ttf": {
+      "checksum": "edea762b9f6ccee6d330ec37b6d1cd66",
+      "uncompressed_size_bytes": 6302056,
+      "compressed_size_bytes": 3409781
+    },
     "data/system/fr/charleville_mezieres/city.bin": {
       "checksum": "a283fcc74ca4d6d2b471204440a7a20f",
       "uncompressed_size_bytes": 292296,

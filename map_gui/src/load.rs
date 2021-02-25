@@ -20,10 +20,10 @@ use crate::tools::PopupMsg;
 use crate::AppLike;
 
 #[cfg(not(target_arch = "wasm32"))]
-pub use native_loader::FileLoader;
+pub use native_loader::{FileLoader, RawFileLoader};
 
 #[cfg(target_arch = "wasm32")]
-pub use wasm_loader::FileLoader;
+pub use wasm_loader::{FileLoader, RawFileLoader};
 
 pub struct MapLoader;
 
@@ -38,6 +38,26 @@ impl MapLoader {
             return Box::new(MapAlreadyLoaded {
                 on_load: Some(on_load),
             });
+        }
+
+        // TODO Generalize this more, maybe with some kind of country code -> font config
+        let zcool = "ZCOOLXiaoWei-Regular.ttf";
+        if name.city.country == "tw" && !ctx.is_font_loaded(zcool) {
+            return RawFileLoader::<A>::new(
+                ctx,
+                abstio::path(format!("system/extra_fonts/{}", zcool)),
+                Box::new(move |ctx, app, bytes| match bytes {
+                    Ok(bytes) => {
+                        ctx.load_font(zcool, bytes);
+                        Transition::Replace(MapLoader::new(ctx, app, name, on_load))
+                    }
+                    Err(err) => Transition::Replace(PopupMsg::new(
+                        ctx,
+                        "Error",
+                        vec![format!("Couldn't load {}", zcool), err.to_string()],
+                    )),
+                }),
+            );
         }
 
         FileLoader::<A, map_model::Map>::new(
@@ -81,6 +101,7 @@ impl<A: AppLike + 'static> State<A> for MapAlreadyLoaded<A> {
 mod native_loader {
     use super::*;
 
+    // This loads a JSON or bincoded file, then deserializes it
     pub struct FileLoader<A: AppLike, T> {
         path: String,
         // Wrapped in an Option just to make calling from event() work. Technically this is unsafe
@@ -115,10 +136,45 @@ mod native_loader {
             g.clear(Color::BLACK);
         }
     }
+
+    // TODO Ideally merge with FileLoader
+    pub struct RawFileLoader<A: AppLike> {
+        path: String,
+        // Wrapped in an Option just to make calling from event() work. Technically this is unsafe
+        // if a caller fails to pop the FileLoader state in their transitions!
+        on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut A, Result<Vec<u8>>) -> Transition<A>>>,
+    }
+
+    impl<A: AppLike + 'static> RawFileLoader<A> {
+        pub fn new(
+            _: &mut EventCtx,
+            path: String,
+            on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, Result<Vec<u8>>) -> Transition<A>>,
+        ) -> Box<dyn State<A>> {
+            Box::new(RawFileLoader {
+                path,
+                on_load: Some(on_load),
+            })
+        }
+    }
+
+    impl<A: AppLike + 'static> State<A> for RawFileLoader<A> {
+        fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
+            debug!("Loading {}", self.path);
+            let bytes = abstio::slurp_file(&self.path);
+            (self.on_load.take().unwrap())(ctx, app, bytes)
+        }
+
+        fn draw(&self, g: &mut GfxCtx, _: &A) {
+            g.clear(Color::BLACK);
+        }
+    }
 }
 
 #[cfg(target_arch = "wasm32")]
 mod wasm_loader {
+    use std::io::Read;
+
     use futures_channel::oneshot;
     use instant::Instant;
     use wasm_bindgen::JsCast;
@@ -228,6 +284,119 @@ mod wasm_loader {
                     }
                 });
                 return (self.on_load.take().unwrap())(ctx, app, &mut timer, result);
+            }
+
+            self.panel = ctx.make_loading_screen(Text::from_multiline(vec![
+                Line(format!("Loading {}...", self.url)),
+                Line(format!(
+                    "Time spent: {}",
+                    Duration::realtime_elapsed(self.started)
+                )),
+            ]));
+
+            // Until the response is received, just ask winit to regularly call event(), so we can
+            // keep polling the channel.
+            ctx.request_update(UpdateType::Game);
+            Transition::Keep
+        }
+
+        fn draw(&self, g: &mut GfxCtx, _: &A) {
+            // TODO Progress bar for bytes received
+            g.clear(Color::BLACK);
+            self.panel.draw(g);
+        }
+    }
+
+    // TODO This is a horrible copy of FileLoader. Make the serde FileLoader just build on top of
+    // this one!!!
+    pub struct RawFileLoader<A: AppLike> {
+        response: oneshot::Receiver<Result<Vec<u8>>>,
+        on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut A, Result<Vec<u8>>) -> Transition<A>>>,
+        panel: Panel,
+        started: Instant,
+        url: String,
+    }
+
+    impl<A: AppLike + 'static> RawFileLoader<A> {
+        pub fn new(
+            ctx: &mut EventCtx,
+            path: String,
+            on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, Result<Vec<u8>>) -> Transition<A>>,
+        ) -> Box<dyn State<A>> {
+            // The current URL is of the index.html page. We can find the data directory relative
+            // to that.
+            let base_url = get_base_url().unwrap();
+            let file_path = path.strip_prefix(&abstio::path("")).unwrap();
+            // Note that files are gzipped on S3 and other deployments. When running locally, we
+            // just symlink the data/ directory, where files aren't compressed.
+            let url =
+                if base_url.contains("http://0.0.0.0") || base_url.contains("http://localhost") {
+                    format!("{}/{}", base_url, file_path)
+                } else if base_url.contains("abstreet.s3-website") {
+                    // The directory structure on S3 is a little weird -- the base directory has
+                    // data/ alongside game/, fifteen_min/, etc.
+                    format!("{}/../data/{}.gz", base_url, file_path)
+                } else {
+                    format!("{}/{}.gz", base_url, file_path)
+                };
+
+            // Make the HTTP request nonblockingly. When the response is received, send it through
+            // the channel.
+            let (tx, rx) = oneshot::channel();
+            let url_copy = url.clone();
+            debug!("Loading {}", url_copy);
+            wasm_bindgen_futures::spawn_local(async move {
+                let mut opts = RequestInit::new();
+                opts.method("GET");
+                opts.mode(RequestMode::Cors);
+                let request = Request::new_with_str_and_init(&url_copy, &opts).unwrap();
+
+                let window = web_sys::window().unwrap();
+                match JsFuture::from(window.fetch_with_request(&request)).await {
+                    Ok(resp_value) => {
+                        let resp: Response = resp_value.dyn_into().unwrap();
+                        if resp.ok() {
+                            let buf = JsFuture::from(resp.array_buffer().unwrap()).await.unwrap();
+                            let array = js_sys::Uint8Array::new(&buf);
+                            tx.send(Ok(array.to_vec())).unwrap();
+                        } else {
+                            let status = resp.status();
+                            let err = resp.status_text();
+                            tx.send(Err(anyhow!("HTTP {}: {}", status, err))).unwrap();
+                        }
+                    }
+                    Err(err) => {
+                        tx.send(Err(anyhow!("{:?}", err))).unwrap();
+                    }
+                }
+            });
+
+            Box::new(RawFileLoader {
+                response: rx,
+                on_load: Some(on_load),
+                panel: ctx.make_loading_screen(Text::from(Line(format!("Loading {}...", url)))),
+                started: Instant::now(),
+                url,
+            })
+        }
+    }
+
+    impl<A: AppLike + 'static> State<A> for RawFileLoader<A> {
+        fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
+            if let Some(maybe_resp) = self.response.try_recv().unwrap() {
+                let bytes = if self.url.ends_with(".gz") {
+                    maybe_resp.and_then(|gzipped| {
+                        let mut decoder = flate2::read::GzDecoder::new(&gzipped[..]);
+                        let mut buffer: Vec<u8> = Vec::new();
+                        decoder
+                            .read_to_end(&mut buffer)
+                            .map(|_| buffer)
+                            .map_err(|err| err.into())
+                    })
+                } else {
+                    maybe_resp
+                };
+                return (self.on_load.take().unwrap())(ctx, app, bytes);
             }
 
             self.panel = ctx.make_loading_screen(Text::from_multiline(vec![

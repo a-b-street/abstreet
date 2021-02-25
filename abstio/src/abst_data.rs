@@ -49,6 +49,10 @@ impl Manifest {
                 remove.push(path.clone());
                 continue;
             }
+            if path.starts_with("data/system/extra_fonts") {
+                // Always grab all of these
+                continue;
+            }
 
             let parts = path.split("/").collect::<Vec<_>>();
             let city = format!("{}/{}", parts[2], parts[3]);

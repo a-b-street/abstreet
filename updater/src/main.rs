@@ -133,6 +133,7 @@ fn upload(version: String) {
     }
 
     // Anything missing or needing updating?
+    // TODO Parallelize, since compression can be slow!
     for (path, entry) in &mut local.entries {
         let remote_path = format!("{}/{}.gz", remote_base, path);
         let changed = remote.entries.get(path).map(|x| &x.checksum) != Some(&entry.checksum);
@@ -185,6 +186,9 @@ fn opt_into_all() {
             || path == "data/system/us/seattle/scenarios/huge_seattle/weekday.bin"
         {
             data_packs.runtime.insert("us/huge_seattle".to_string());
+            continue;
+        }
+        if path.starts_with("data/system/extra_fonts") {
             continue;
         }
         let parts = path.split("/").collect::<Vec<_>>();

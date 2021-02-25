@@ -86,7 +86,11 @@ impl CityName {
     pub fn list_all_cities_from_system_data() -> Vec<CityName> {
         let mut cities = Vec::new();
         for country in list_all_objects(path("system")) {
-            if country == "assets" || country == "proposals" || country == "study_areas" {
+            if country == "assets"
+                || country == "extra_fonts"
+                || country == "proposals"
+                || country == "study_areas"
+            {
                 continue;
             }
             for city in list_all_objects(path(format!("system/{}", country))) {
