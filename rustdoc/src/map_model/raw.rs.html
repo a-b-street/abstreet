@@ -588,6 +588,13 @@
 <span id="585">585</span>
 <span id="586">586</span>
 <span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate</span>
 <span class="doccomment">//! structure is useful to iterate quickly on parts of the map importing pipeline without having to</span>
@@ -1082,7 +1089,14 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_footway</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">osm_tags</span>.<span class="ident">is_any</span>(
             <span class="ident">osm</span>::<span class="ident">HIGHWAY</span>,
-            <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;cycleway&quot;</span>, <span class="string">&quot;footway&quot;</span>, <span class="string">&quot;path&quot;</span>, <span class="string">&quot;pedestrian&quot;</span>, <span class="string">&quot;steps&quot;</span>],
+            <span class="macro">vec</span><span class="macro">!</span>[
+                <span class="string">&quot;cycleway&quot;</span>,
+                <span class="string">&quot;footway&quot;</span>,
+                <span class="string">&quot;path&quot;</span>,
+                <span class="string">&quot;pedestrian&quot;</span>,
+                <span class="string">&quot;steps&quot;</span>,
+                <span class="string">&quot;track&quot;</span>,
+            ],
         )
     }
 
