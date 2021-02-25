@@ -56,6 +56,8 @@ impl Spinner {
             current = high;
             warn!("Spinner current value is out of bounds!");
         }
+
+        let outline = ctx.style().btn_outline.outline;
         Widget::new(Box::new(Spinner {
             low,
             high,
@@ -67,6 +69,7 @@ impl Spinner {
             top_left: ScreenPt::new(0.0, 0.0),
             dims,
         }))
+        .outline(2.0, outline)
     }
 
     pub fn modify(&mut self, delta: isize) {
@@ -129,7 +132,7 @@ impl WidgetImpl for Spinner {
     fn draw(&self, g: &mut GfxCtx) {
         // TODO Cache
         let mut batch = GeomBatch::from(vec![(
-            text::BG_COLOR,
+            g.style().panel_bg,
             Polygon::rounded_rectangle(self.dims.width, self.dims.height, 5.0),
         )]);
         batch.append(
