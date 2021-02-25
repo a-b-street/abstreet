@@ -1097,7 +1097,7 @@
                             <span class="ident">Choice</span>::<span class="ident">string</span>(<span class="string">&quot;create a blank proposal&quot;</span>),
                             <span class="ident">Choice</span>::<span class="ident">string</span>(<span class="string">&quot;save this proposal as...&quot;</span>),
                             <span class="ident">Choice</span>::<span class="ident">string</span>(<span class="string">&quot;delete this proposal and remove all edits&quot;</span>)
-                                .<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#EB3223&quot;</span>)),
+                                .<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_destructive_color</span>),
                         ],
                         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">choice</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">choice</span>.<span class="ident">as_ref</span>() {
                             <span class="string">&quot;rename current proposal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -1431,7 +1431,7 @@
         <span class="kw">let</span> <span class="ident">current_edits_name</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>;
         <span class="kw">let</span> <span class="ident">your_edits</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;Your proposals&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
-            <span class="ident">Menu</span>::<span class="ident">new</span>(
+            <span class="ident">Menu</span>::<span class="ident">widget</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">abstio</span>::<span class="ident">list_all_objects</span>(<span class="ident">abstio</span>::<span class="ident">path_all_edits</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()))
                     .<span class="ident">into_iter</span>()

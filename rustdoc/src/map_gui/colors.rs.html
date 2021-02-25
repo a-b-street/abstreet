@@ -595,6 +595,8 @@
 <span id="592">592</span>
 <span id="593">593</span>
 <span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A color scheme groups colors used for different map, dynamic, and UI elements in one place, to</span>
 <span class="doccomment">//! encourage deduplication. The player can also switch between different color schemes.</span>
@@ -989,13 +991,16 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">day_mode</span>();
 
         <span class="kw">use</span> <span class="ident">widgetry</span>::<span class="ident">ButtonStyle</span>;
+        <span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">panel_bg</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#003046&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.9</span>);
         <span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">btn_outline</span> <span class="op">=</span> <span class="ident">ButtonStyle</span>::<span class="ident">btn_outline</span>();
         <span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">btn_solid</span> <span class="op">=</span> <span class="ident">ButtonStyle</span>::<span class="ident">btn_solid</span>();
         <span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">btn_solid_floating</span> <span class="op">=</span> <span class="ident">ButtonStyle</span>::<span class="ident">btn_solid_floating</span>();
         <span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">text_fg_color</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">WHITE</span>;
         <span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">text_hotkey_color</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">GREEN</span>;
+        <span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">text_destructive_color</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>);
 
-        <span class="ident">cs</span>.<span class="ident">inner_panel_bg</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">panel_bg</span>.<span class="ident">alpha</span>(<span class="number">1.0</span>);
+        <span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">dropdown_border</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">WHITE</span>;
+        <span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">dropdown_bg</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">panel_bg</span>;
 
         <span class="ident">cs</span>.<span class="ident">void_background</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#200A24&quot;</span>);
         <span class="ident">cs</span>.<span class="ident">map_background</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">BLACK</span>.<span class="ident">into</span>();
@@ -1021,8 +1026,7 @@
         <span class="ident">cs</span>.<span class="ident">pedestrian_plaza</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#94949C&quot;</span>).<span class="ident">into</span>();
         <span class="ident">cs</span>.<span class="ident">study_area</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#D9B002&quot;</span>).<span class="ident">into</span>();
 
-        <span class="ident">cs</span>.<span class="ident">panel_bg</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#003046&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.9</span>);
-        <span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">panel_bg</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">panel_bg</span>;
+        <span class="ident">cs</span>.<span class="ident">panel_bg</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">panel_bg</span>;
         <span class="ident">cs</span>.<span class="ident">inner_panel_bg</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">panel_bg</span>.<span class="ident">alpha</span>(<span class="number">1.0</span>);
         <span class="ident">cs</span>.<span class="ident">minimap_cursor_border</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">WHITE</span>;
         <span class="ident">cs</span>.<span class="ident">minimap_cursor_bg</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Color</span>::<span class="ident">rgba</span>(<span class="number">238</span>, <span class="number">112</span>, <span class="number">46</span>, <span class="number">0.2</span>));

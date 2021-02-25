@@ -834,10 +834,6 @@
 <span id="831">831</span>
 <span id="832">832</span>
 <span id="833">833</span>
-<span id="834">834</span>
-<span id="835">835</span>
-<span id="836">836</span>
-<span id="837">837</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -854,8 +850,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">panel</span>::<span class="ident">Panel</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">Button</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">DeferDraw</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">Drawable</span>, <span class="ident">Dropdown</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>,
-    <span class="ident">GfxCtx</span>, <span class="ident">JustDraw</span>, <span class="ident">Menu</span>, <span class="ident">RewriteColor</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>, <span class="ident">TextBox</span>,
-    <span class="ident">Toggle</span>,
+    <span class="ident">GfxCtx</span>, <span class="ident">JustDraw</span>, <span class="ident">RewriteColor</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>, <span class="ident">TextBox</span>, <span class="ident">Toggle</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">autocomplete</span>;
@@ -1608,9 +1603,6 @@
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">take_menu</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Clone</span><span class="op">&gt;</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Menu</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">widget</span>.<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">Menu</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>()
-    }
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">take_just_draw</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">JustDraw</span> {
         <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">widget</span>.<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">JustDraw</span><span class="op">&gt;</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>()
     }

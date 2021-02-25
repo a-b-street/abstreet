@@ -167,7 +167,7 @@
             <span class="ident">choices</span>,
 
             <span class="ident">tb</span>: <span class="ident">TextBox</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="number">50</span>, <span class="ident">String</span>::<span class="ident">new</span>(), <span class="bool-val">true</span>),
-            <span class="ident">menu</span>: <span class="ident">Menu</span>::<span class="op">&lt;</span>()<span class="op">&gt;</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">Vec</span>::<span class="ident">new</span>()).<span class="ident">take_menu</span>(),
+            <span class="ident">menu</span>: <span class="ident">Menu</span>::<span class="op">&lt;</span>()<span class="op">&gt;</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">Vec</span>::<span class="ident">new</span>()),
 
             <span class="ident">current_line</span>: <span class="ident">String</span>::<span class="ident">new</span>(),
             <span class="ident">chosen_values</span>: <span class="prelude-val">None</span>,
@@ -200,7 +200,7 @@
         <span class="kw">if</span> <span class="ident">choices</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">2</span> {
             <span class="ident">choices</span>.<span class="ident">remove</span>(<span class="number">0</span>);
         }
-        <span class="self">self</span>.<span class="ident">menu</span> <span class="op">=</span> <span class="ident">Menu</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">choices</span>).<span class="ident">take_menu</span>();
+        <span class="self">self</span>.<span class="ident">menu</span> <span class="op">=</span> <span class="ident">Menu</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">choices</span>);
     }
 }
 
