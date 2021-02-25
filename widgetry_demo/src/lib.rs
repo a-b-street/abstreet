@@ -310,6 +310,14 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
             Line("Click and drag the background to pan, use touchpad or scroll wheel to zoom"),
         ])
         .draw(ctx),
+        Text::from_all(vec![
+            Line("You can "),
+            Line("change fonts ").big_heading_plain(),
+            Line("on the same ").small(),
+            Line("line!").small_heading(),
+        ])
+        .bg(Color::PURPLE)
+        .draw(ctx),
         // Button Style Gallery
         // TODO might be nice to have this in separate tabs or something.
         Text::from(Line("Buttons").big_heading_styled().size(18)).draw(ctx),
