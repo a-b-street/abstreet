@@ -168,6 +168,7 @@ impl<'a> EventCtx<'a> {
                 self.style
                     .loading_tips
                     .clone()
+                    .default_fg(Color::WHITE)
                     .wrap_to_pct(self, 25)
                     .draw(self)
                     .container()
