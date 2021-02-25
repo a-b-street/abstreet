@@ -100,7 +100,7 @@ impl CommonState {
                 Line(" to warp"),
             ])
         } else {
-            Text::from(Line("..."))
+            Text::new()
         };
         if !keys.is_empty() {
             osd.append(Line("   Hotkeys: "));
@@ -228,7 +228,7 @@ impl CommonState {
                 Line(" to warp"),
             ])
         } else {
-            Text::from(Line("..."))
+            Text::new()
         };
         CommonState::draw_custom_osd(g, app, osd);
     }
