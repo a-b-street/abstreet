@@ -66,6 +66,7 @@ impl RoadRank {
             "unclassified",
             "residential",
             "cycleway",
+            "track",
         ]
         .into_iter()
         .enumerate()

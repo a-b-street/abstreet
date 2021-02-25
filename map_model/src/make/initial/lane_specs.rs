@@ -45,7 +45,7 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
     if tags.is_any("railway", vec!["light_rail", "rail"]) {
         return vec![fwd(LaneType::LightRail)];
     }
-    if cfg.separate_cycleways && tags.is(osm::HIGHWAY, "cycleway") {
+    if cfg.separate_cycleways && tags.is_any(osm::HIGHWAY, vec!["cycleway", "track"]) {
         let half_width = |mut spec: LaneSpec| {
             spec.width = spec.width / 2.0;
             spec
@@ -86,7 +86,10 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
         return assemble_ltr(fwd_side, back_side, cfg.driving_side);
     }
 
-    if tags.is_any(osm::HIGHWAY, vec!["cycleway", "footway", "path", "steps"]) {
+    if tags.is_any(
+        osm::HIGHWAY,
+        vec!["cycleway", "footway", "path", "steps", "track"],
+    ) {
         return vec![fwd(LaneType::Sidewalk)];
     }
 

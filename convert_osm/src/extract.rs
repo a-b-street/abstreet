@@ -430,6 +430,7 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
         "steps",
         "tertiary",
         "tertiary_link",
+        "track",
         "trunk",
         "trunk_link",
         "unclassified",
@@ -439,8 +440,11 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
         return false;
     }
 
-    if highway == "cycleway" {
+    if highway == "cycleway" || highway == "track" {
         if !opts.map_config.separate_cycleways && opts.map_config.inferred_sidewalks {
+            return false;
+        }
+        if highway == "track" && tags.is("bicycle", "no") {
             return false;
         }
     }
@@ -451,7 +455,7 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
         return false;
     }
     if !opts.map_config.separate_cycleways
-        && (highway == "cycleway" || highway == "path")
+        && (highway == "cycleway" || highway == "path" || highway == "track")
         && !tags.is_any("foot", vec!["yes", "designated"])
     {
         return false;
@@ -505,7 +509,7 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
             || tags.is("foot", "no")
             || tags.is(osm::HIGHWAY, "service")
             // TODO For now, not attempting shared walking/biking paths.
-            || tags.is_any(osm::HIGHWAY, vec!["cycleway", "pedestrian"])
+            || tags.is_any(osm::HIGHWAY, vec!["cycleway", "pedestrian", "track"])
         {
             tags.insert(osm::SIDEWALK, "none");
         } else if tags.is("oneway", "yes") {

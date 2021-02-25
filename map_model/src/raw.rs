@@ -491,7 +491,14 @@ impl RawRoad {
     pub fn is_footway(&self) -> bool {
         self.osm_tags.is_any(
             osm::HIGHWAY,
-            vec!["cycleway", "footway", "path", "pedestrian", "steps"],
+            vec![
+                "cycleway",
+                "footway",
+                "path",
+                "pedestrian",
+                "steps",
+                "track",
+            ],
         )
     }
 
