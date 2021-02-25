@@ -19,11 +19,6 @@ fn input(config: &ImporterConfiguration, timer: &mut Timer) {
 
     download(
         config,
-        city.input_path("N47W122.hgt"),
-        "https://dds.cr.usgs.gov/srtm/version2_1/SRTM1/Region_01/N47W122.hgt.zip",
-    );
-    download(
-        config,
         city.input_path("osm/washington-latest.osm.pbf"),
         "http://download.geofabrik.de/north-america/us/washington-latest.osm.pbf",
     );
@@ -140,7 +135,7 @@ pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration)
                     _ => 1,
                 },
             ),
-            elevation: Some(city.input_path("N47W122.hgt")),
+            elevation: None,
             // They mess up 16th and E Marginal badly enough to cause gridlock.
             include_railroads: false,
             extra_buildings: None,

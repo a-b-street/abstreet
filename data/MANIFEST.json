@@ -1130,11 +1130,6 @@
       "uncompressed_size_bytes": 5908059,
       "compressed_size_bytes": 1715285
     },
-    "data/input/us/seattle/N47W122.hgt": {
-      "checksum": "0db4e23e51f7680538b0bbbc72208e07",
-      "uncompressed_size_bytes": 25934402,
-      "compressed_size_bytes": 15114076
-    },
     "data/input/us/seattle/blockface.bin": {
       "checksum": "c5402f77d7cb81a1a7bfb60e90b699c8",
       "uncompressed_size_bytes": 52132126,
