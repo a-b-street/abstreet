@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["BikeNetwork",""],["CongestionCaps",""],["Static",""]]});
+initSidebarItems({"struct":[["BikeActivity",""],["CongestionCaps",""],["Static",""]]});

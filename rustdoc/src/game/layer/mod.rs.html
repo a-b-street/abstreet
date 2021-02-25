@@ -388,12 +388,12 @@
                     <span class="ident">btn</span>(<span class="string">&quot;delay&quot;</span>, <span class="ident">Key</span>::<span class="ident">D</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;throughput&quot;</span>, <span class="ident">Key</span>::<span class="ident">T</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;traffic jams&quot;</span>, <span class="ident">Key</span>::<span class="ident">J</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;cycling activity&quot;</span>, <span class="ident">Key</span>::<span class="ident">B</span>),
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="string">&quot;Map&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;map edits&quot;</span>, <span class="ident">Key</span>::<span class="ident">E</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;parking occupancy&quot;</span>, <span class="ident">Key</span>::<span class="ident">P</span>),
-                    <span class="ident">btn</span>(<span class="string">&quot;bike network&quot;</span>, <span class="ident">Key</span>::<span class="ident">B</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;transit network&quot;</span>, <span class="ident">Key</span>::<span class="ident">U</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;population map&quot;</span>, <span class="ident">Key</span>::<span class="ident">X</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;no sidewalks&quot;</span>, <span class="ident">Key</span>::<span class="ident">S</span>),
@@ -450,8 +450,8 @@
                 <span class="string">&quot;backpressure&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">traffic</span>::<span class="ident">Backpressure</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
                 }
-                <span class="string">&quot;bike network&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">map</span>::<span class="ident">BikeNetwork</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+                <span class="string">&quot;cycling activity&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">map</span>::<span class="ident">BikeActivity</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
                 }
                 <span class="string">&quot;delay&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">traffic</span>::<span class="ident">Delay</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
