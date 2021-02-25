@@ -313,7 +313,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
         Text::from_all(vec![
             Line("You can "),
             Line("change fonts ").big_heading_plain(),
-            Line("on the same").small(),
+            Line("on the same ").small(),
             Line("line!").small_heading(),
         ])
         .bg(Color::PURPLE)
