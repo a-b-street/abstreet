@@ -22,6 +22,7 @@ use crate::tools::{loading_tips, ColorScale};
 pub enum ColorSchemeChoice {
     DayMode,
     NightMode,
+    Pregame,
     SAMGreenDay,
     SAMDesertDay,
     BAP,
@@ -156,6 +157,7 @@ impl ColorScheme {
         let mut cs = match scheme {
             ColorSchemeChoice::DayMode => ColorScheme::day_mode(),
             ColorSchemeChoice::NightMode => ColorScheme::night_mode(),
+            ColorSchemeChoice::Pregame => ColorScheme::pregame(),
             ColorSchemeChoice::SAMGreenDay => ColorScheme::sam_green_day(),
             ColorSchemeChoice::SAMDesertDay => ColorScheme::sam_desert_day(),
             ColorSchemeChoice::BAP => ColorScheme::bap(),
@@ -172,8 +174,19 @@ impl ColorScheme {
         cs
     }
 
+    fn pregame() -> ColorScheme {
+        let mut cs = Self::light_background(Style::pregame());
+        cs.scheme = ColorSchemeChoice::Pregame;
+        cs
+    }
+
     fn day_mode() -> ColorScheme {
-        let mut gui_style = Style::standard();
+        let mut cs = Self::light_background(Style::light_bg());
+        cs.scheme = ColorSchemeChoice::DayMode;
+        cs
+    }
+
+    fn light_background(mut gui_style: Style) -> ColorScheme {
         gui_style.loading_tips = loading_tips();
         ColorScheme {
             scheme: ColorSchemeChoice::DayMode,
@@ -383,19 +396,7 @@ impl ColorScheme {
     // Shamelessly adapted from https://github.com/Uriopass/Egregoria
     fn night_mode() -> ColorScheme {
         let mut cs = ColorScheme::day_mode();
-
-        use widgetry::ButtonStyle;
-        cs.gui_style.panel_bg = hex("#003046").alpha(0.9);
-        cs.gui_style.btn_outline = ButtonStyle::btn_outline();
-        cs.gui_style.btn_solid = ButtonStyle::btn_solid();
-        cs.gui_style.btn_solid_floating = ButtonStyle::btn_solid_floating();
-        cs.gui_style.text_fg_color = Color::WHITE;
-        cs.gui_style.icon_fg = Color::WHITE;
-        cs.gui_style.text_hotkey_color = Color::GREEN;
-        cs.gui_style.text_destructive_color = hex("#FF5E5E");
-
-        cs.gui_style.dropdown_border = Color::WHITE;
-        cs.gui_style.field_bg = cs.gui_style.panel_bg.shade(0.2);
+        cs.gui_style = widgetry::Style::dark_bg();
 
         cs.void_background = hex("#200A24");
         cs.map_background = Color::BLACK.into();

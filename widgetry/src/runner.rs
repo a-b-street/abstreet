@@ -258,7 +258,7 @@ pub fn run<
         }
     }
 
-    let mut style = Style::standard();
+    let mut style = Style::pregame();
     style.loading_tips = settings.loading_tips.unwrap_or_else(Text::new);
 
     let monitor_scale_factor = prerender_innards.monitor_scale_factor();
