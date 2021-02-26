@@ -220,10 +220,6 @@
 <span id="217">217</span>
 <span id="218">218</span>
 <span id="219">219</span>
-<span id="220">220</span>
-<span id="221">221</span>
-<span id="222">222</span>
-<span id="223">223</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
 
@@ -246,11 +242,11 @@
 <span class="doccomment">/// https://cyipt.github.io/acton/articles/the-actdev-project.html.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Actdev</span> {
     <span class="ident">top_center</span>: <span class="ident">Panel</span>,
-    <span class="ident">scenario_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="ident">scenario_name</span>: <span class="ident">String</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Actdev</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">scenario_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">GameplayState</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">scenario_name</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">GameplayState</span><span class="op">&gt;</span> {
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Actdev</span> {
             <span class="ident">top_center</span>: <span class="ident">Panel</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>),
             <span class="ident">scenario_name</span>,
@@ -269,7 +265,7 @@
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">top_center</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;change scenario&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scenario_name</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&quot;base&quot;</span> {
+                    <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scenario_name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;base&quot;</span> {
                         <span class="string">&quot;go_active&quot;</span>
                     } <span class="kw">else</span> {
                         <span class="string">&quot;base&quot;</span>
@@ -278,7 +274,7 @@
                         <span class="ident">app</span>,
                         <span class="ident">GameplayMode</span>::<span class="ident">Actdev</span>(
                             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>(),
-                            <span class="prelude-val">Some</span>(<span class="ident">scenario</span>.<span class="ident">to_string</span>()),
+                            <span class="ident">scenario</span>.<span class="ident">to_string</span>(),
                         ),
                         <span class="ident">jump_to_time_upon_startup</span>(<span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">8</span>)),
                     )));
@@ -373,23 +369,19 @@
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_popup_icon_text</span>(<span class="string">&quot;system/assets/tools/calendar.svg&quot;</span>, <span class="string">&quot;scenario&quot;</span>)
                     .<span class="ident">label_styled_text</span>(
-                        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">scenario_name</span> {
-                            <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                                <span class="string">&quot;base&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                                    <span class="ident">Line</span>(<span class="string">&quot;Baseline / &quot;</span>),
-                                    <span class="ident">Line</span>(<span class="string">&quot;Go Active&quot;</span>).<span class="ident">secondary</span>(),
-                                ]),
-                                <span class="string">&quot;go_active&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                                    <span class="ident">Line</span>(<span class="string">&quot;Baseline&quot;</span>).<span class="ident">secondary</span>(),
-                                    <span class="ident">Line</span>(<span class="string">&quot; / Go Active&quot;</span>),
-                                ]),
-                                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-                            },
-                            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;no scenario data&quot;</span>).<span class="ident">secondary</span>()),
+                        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">scenario_name</span>.<span class="ident">as_ref</span>() {
+                            <span class="string">&quot;base&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                                <span class="ident">Line</span>(<span class="string">&quot;Baseline / &quot;</span>),
+                                <span class="ident">Line</span>(<span class="string">&quot;Go Active&quot;</span>).<span class="ident">secondary</span>(),
+                            ]),
+                            <span class="string">&quot;go_active&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                                <span class="ident">Line</span>(<span class="string">&quot;Baseline&quot;</span>).<span class="ident">secondary</span>(),
+                                <span class="ident">Line</span>(<span class="string">&quot; / Go Active&quot;</span>),
+                            ]),
+                            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
                         },
                         <span class="ident">ControlState</span>::<span class="ident">Default</span>,
                     )
-                    .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">scenario_name</span>.<span class="ident">is_none</span>())
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change scenario&quot;</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_outline_icon_text</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>, <span class="string">&quot;Edit map&quot;</span>)

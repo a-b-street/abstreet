@@ -348,12 +348,6 @@
 <span id="345">345</span>
 <span id="346">346</span>
 <span id="347">347</span>
-<span id="348">348</span>
-<span id="349">349</span>
-<span id="350">350</span>
-<span id="351">351</span>
-<span id="352">352</span>
-<span id="353">353</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
@@ -459,13 +453,7 @@
         <span class="comment">// Parking data in the actdev maps is nonexistent, so many people have convoluted walking</span>
         <span class="comment">// routes just to fetch their car. Just disable parking entirely.</span>
         <span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">opts</span>.<span class="ident">infinite_parking</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="comment">// Start with the baseline scenario if it exists.</span>
-        <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">abstio</span>::<span class="ident">file_exists</span>(<span class="ident">abstio</span>::<span class="ident">path_scenario</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>, <span class="string">&quot;base&quot;</span>)) {
-            <span class="prelude-val">Some</span>(<span class="string">&quot;base&quot;</span>.<span class="ident">to_string</span>())
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
-        };
-        <span class="ident">mode</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">sandbox</span>::<span class="ident">GameplayMode</span>::<span class="ident">Actdev</span>(<span class="ident">name</span>, <span class="ident">scenario</span>));
+        <span class="ident">mode</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">sandbox</span>::<span class="ident">GameplayMode</span>::<span class="ident">Actdev</span>(<span class="ident">name</span>, <span class="string">&quot;base&quot;</span>.<span class="ident">to_string</span>()));
     }
 
     <span class="ident">args</span>.<span class="ident">done</span>();
