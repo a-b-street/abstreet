@@ -99,7 +99,7 @@ impl LaneEditor {
                 .hotkey(Key::A)
                 .build_def(ctx),
             ctx.style()
-                .btn_solid_text("Finish")
+                .btn_solid_primary_text("Finish")
                 .hotkey(Key::Escape)
                 .build_def(ctx),
         ];

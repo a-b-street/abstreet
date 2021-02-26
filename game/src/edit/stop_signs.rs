@@ -67,7 +67,7 @@ impl StopSignEditor {
                 .btn_outline_text("convert to traffic signal")
                 .build_def(ctx),
             ctx.style()
-                .btn_outline_text("Finish")
+                .btn_solid_primary_text("Finish")
                 .hotkey(Key::Escape)
                 .build_def(ctx),
         ]))

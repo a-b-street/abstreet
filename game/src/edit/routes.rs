@@ -32,7 +32,7 @@ impl RouteEditor {
                     Spinner::new(ctx, (1, 120), 60).named("freq_mins"),
                 ]),
                 ctx.style()
-                    .btn_solid_text("Apply")
+                    .btn_solid_primary_text("Apply")
                     .hotkey(Key::Enter)
                     .build_def(ctx),
             ]))

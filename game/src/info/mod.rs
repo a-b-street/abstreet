@@ -375,7 +375,7 @@ impl InfoPanel {
                     cached_actions.push(key);
                     let button = ctx
                         .style()
-                        .btn_solid_text(&label)
+                        .btn_outline_text(&label)
                         .hotkey(key)
                         .build_widget(ctx, &label);
                     col.push(button);

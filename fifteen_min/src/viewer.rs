@@ -324,7 +324,7 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
     rows.push(options_to_controls(ctx, &isochrone.options));
     rows.push(
         ctx.style()
-            .btn_solid_text("Find your perfect home")
+            .btn_outline_text("Find your perfect home")
             .build_def(ctx),
     );
     rows.push(Widget::row(vec![

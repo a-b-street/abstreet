@@ -275,15 +275,19 @@ impl FinalScore {
                     Widget::col(vec![
                         msg.draw_text(ctx),
                         // TODO Adjust wording
-                        ctx.style().btn_solid_text("Keep simulating").build_def(ctx),
-                        ctx.style().btn_solid_text("Try again").build_def(ctx),
+                        ctx.style()
+                            .btn_outline_text("Keep simulating")
+                            .build_def(ctx),
+                        ctx.style().btn_outline_text("Try again").build_def(ctx),
                         if next_mode.is_some() {
-                            ctx.style().btn_solid_text("Next challenge").build_def(ctx)
+                            ctx.style()
+                                .btn_solid_primary_text("Next challenge")
+                                .build_def(ctx)
                         } else {
                             Widget::nothing()
                         },
                         ctx.style()
-                            .btn_solid_text("Back to challenges")
+                            .btn_outline_text("Back to challenges")
                             .build_def(ctx),
                     ])
                     .outline(10.0, Color::BLACK)

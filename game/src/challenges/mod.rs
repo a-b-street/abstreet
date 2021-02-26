@@ -144,7 +144,7 @@ impl ChallengesPicker {
             .draw(ctx)
             .centered_horiz(),
             ctx.style()
-                .btn_solid_text("Introduction and tutorial")
+                .btn_outline_text("Introduction and tutorial")
                 .build_def(ctx)
                 .centered_horiz()
                 .bg(app.cs.panel_bg)
@@ -161,7 +161,7 @@ impl ChallengesPicker {
                 .unwrap_or(false);
             flex_row.push(
                 ctx.style()
-                    .btn_solid_text(&name)
+                    .btn_outline_text(&name)
                     .disabled(is_current_stage)
                     .hotkey(Key::NUM_KEYS[idx])
                     .build_def(ctx),

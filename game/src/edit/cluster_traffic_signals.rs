@@ -25,7 +25,7 @@ impl ClusterTrafficSignalEditor {
         Box::new(ClusterTrafficSignalEditor {
             panel: Panel::new(Widget::row(vec![ctx
                 .style()
-                .btn_outline_text("Finish")
+                .btn_solid_primary_text("Finish")
                 .hotkey(Key::Escape)
                 .build_def(ctx)]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)

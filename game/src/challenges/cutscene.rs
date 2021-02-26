@@ -161,7 +161,7 @@ fn make_panel(
         Widget::custom_col(vec![
             (make_task)(ctx),
             ctx.style()
-                .btn_solid_text("Start")
+                .btn_solid_primary_text("Start")
                 .hotkey(Key::Enter)
                 .build_def(ctx)
                 .centered_horiz()
@@ -222,7 +222,7 @@ fn make_panel(
             Widget::col(vec![
                 Widget::row(vec![prev.margin_right(40), next]).centered_horiz(),
                 ctx.style()
-                    .btn_solid_text("Skip cutscene")
+                    .btn_outline_text("Skip cutscene")
                     .build_def(ctx)
                     .centered_horiz(),
             ])
@@ -263,7 +263,7 @@ impl FYI {
                 Widget::custom_col(vec![
                     contents,
                     ctx.style()
-                        .btn_solid_text("Okay")
+                        .btn_solid_primary_text("OK")
                         .hotkey(hotkeys(vec![Key::Escape, Key::Space, Key::Enter]))
                         .build_def(ctx)
                         .centered_horiz()
@@ -282,7 +282,7 @@ impl State<App> for FYI {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "Okay" => Transition::Pop,
+                "OK" => Transition::Pop,
                 _ => unreachable!(),
             },
             _ => Transition::Keep,

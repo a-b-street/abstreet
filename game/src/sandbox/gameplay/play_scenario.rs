@@ -209,29 +209,29 @@ impl EditScenarioModifiers {
         }
         rows.push(
             ctx.style()
-                .btn_solid_text("Change trip mode")
+                .btn_outline_text("Change trip mode")
                 .build_def(ctx),
         );
         rows.push(
             ctx.style()
-                .btn_solid_text("Add extra new trips")
+                .btn_outline_text("Add extra new trips")
                 .build_def(ctx),
         );
         rows.push(Widget::row(vec![
             Spinner::new(ctx, (2, 14), 2).named("repeat_days"),
             ctx.style()
-                .btn_solid_text("Repeat schedule multiple days")
+                .btn_outline_text("Repeat schedule multiple days")
                 .build_def(ctx),
         ]));
         rows.push(Widget::horiz_separator(ctx, 0.5));
         rows.push(
             Widget::row(vec![
                 ctx.style()
-                    .btn_solid_text("Apply")
+                    .btn_solid_primary_text("Apply")
                     .hotkey(Key::Enter)
                     .build_def(ctx),
                 ctx.style()
-                    .btn_solid_text("Discard changes")
+                    .btn_solid_destructive_text("Discard changes")
                     .hotkey(Key::Escape)
                     .build_def(ctx),
             ])
@@ -389,11 +389,11 @@ impl ChangeMode {
                 ]),
                 Widget::row(vec![
                     ctx.style()
-                        .btn_solid_text("Apply")
+                        .btn_solid_primary_text("Apply")
                         .hotkey(Key::Enter)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_solid_text("Discard changes")
+                        .btn_solid_destructive_text("Discard changes")
                         .hotkey(Key::Escape)
                         .build_def(ctx),
                 ])

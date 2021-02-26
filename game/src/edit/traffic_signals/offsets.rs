@@ -253,7 +253,7 @@ impl TuneRelative {
                     .named("offset"),
             ]),
             ctx.style()
-                .btn_solid_text("Update offset")
+                .btn_outline_text("Update offset")
                 .hotkey(Key::Enter)
                 .build_def(ctx),
         ]))

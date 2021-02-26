@@ -295,7 +295,7 @@ impl TimeWarpScreen {
                 Widget::col(vec![
                     Text::new().draw(ctx).named("text"),
                     ctx.style()
-                        .btn_solid_text("stop now")
+                        .btn_outline_text("stop now")
                         .hotkey(Key::Escape)
                         .build_def(ctx)
                         .centered_horiz(),
@@ -474,7 +474,7 @@ fn compare_count(after: usize, before: usize) -> String {
 
 fn build_jump_to_time_btn(ctx: &EventCtx, target: Time) -> Widget {
     ctx.style()
-        .btn_solid_text(&format!("Jump to {}", target.ampm_tostring()))
+        .btn_solid_primary_text(&format!("Jump to {}", target.ampm_tostring()))
         .hotkey(Key::Enter)
         .build_widget(ctx, "jump to time")
         .centered_horiz()
@@ -483,7 +483,7 @@ fn build_jump_to_time_btn(ctx: &EventCtx, target: Time) -> Widget {
 
 fn build_jump_to_delay_button(ctx: &EventCtx, delay: Duration) -> Widget {
     ctx.style()
-        .btn_solid_text(&format!("Jump to next {} delay", delay))
+        .btn_solid_primary_text(&format!("Jump to next {} delay", delay))
         .hotkey(Key::Enter)
         .build_widget(ctx, "jump to delay")
         .centered_horiz()

@@ -331,7 +331,7 @@ pub fn bio(
             if app.primary.sim.lookup_parked_car(v.id).is_some() {
                 rows.push(
                     ctx.style()
-                        .btn_solid_text(&format!("Owner of {} (parked)", v.id))
+                        .btn_outline_text(&format!("Owner of {} (parked)", v.id))
                         .build_def(ctx),
                 );
                 details
@@ -514,7 +514,7 @@ pub fn parked_car(
     let p = app.primary.sim.get_owner_of_car(id).unwrap();
     rows.push(
         ctx.style()
-            .btn_solid_text(&format!("Owned by {}", p))
+            .btn_outline_text(&format!("Owned by {}", p))
             .build_def(ctx),
     );
     details.hyperlinks.insert(
