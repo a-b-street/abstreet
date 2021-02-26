@@ -31,10 +31,14 @@ impl CutsceneBuilder {
         }
     }
 
+    fn fg_color() -> Color {
+        Color::hex("#4C4C4C")
+    }
+
     pub fn player<I: Into<String>>(mut self, msg: I) -> CutsceneBuilder {
         self.scenes.push(Scene {
             layout: Layout::PlayerSpeaking,
-            msg: Text::from(Line(msg).fg(Color::BLACK)),
+            msg: Text::from(Line(msg).fg(Self::fg_color())),
         });
         self
     }
@@ -42,7 +46,7 @@ impl CutsceneBuilder {
     pub fn boss<I: Into<String>>(mut self, msg: I) -> CutsceneBuilder {
         self.scenes.push(Scene {
             layout: Layout::BossSpeaking,
-            msg: Text::from(Line(msg).fg(Color::BLACK)),
+            msg: Text::from(Line(msg).fg(Self::fg_color())),
         });
         self
     }
@@ -55,7 +59,7 @@ impl CutsceneBuilder {
     ) -> CutsceneBuilder {
         self.scenes.push(Scene {
             layout: Layout::Extra(character, scale),
-            msg: Text::from(Line(msg).fg(Color::BLACK)),
+            msg: Text::from(Line(msg).fg(Self::fg_color())),
         });
         self
     }
@@ -141,21 +145,22 @@ fn make_panel(
     make_task: &Box<dyn Fn(&mut EventCtx) -> Widget>,
     idx: usize,
 ) -> Panel {
-    let prev = ctx
+    let prev_builder = ctx
         .style()
-        .btn_solid_icon("system/assets/tools/circled_prev.svg")
+        .btn_plain_icon("system/assets/tools/circled_prev.svg")
+        .image_color(CutsceneBuilder::fg_color(), ControlState::Default)
+        .bg_color(Color::grey(0.1), ControlState::Hovered)
         .image_dims(45.0)
         .hotkey(Key::LeftArrow)
-        .bg_color(Color::CLEAR, ControlState::Disabled)
-        .disabled(idx == 0)
-        .build_widget(ctx, "back");
+        .bg_color(Color::CLEAR, ControlState::Disabled);
 
-    let next = ctx
-        .style()
-        .btn_solid_icon("system/assets/tools/circled_next.svg")
-        .image_dims(45.0)
+    let next = prev_builder
+        .clone()
+        .image_path("system/assets/tools/circled_next.svg")
         .hotkey(hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]))
         .build_widget(ctx, "next");
+
+    let prev = prev_builder.disabled(idx == 0).build_widget(ctx, "back");
 
     let inner = if idx == scenes.len() {
         Widget::custom_col(vec![
@@ -223,6 +228,8 @@ fn make_panel(
                 Widget::row(vec![prev.margin_right(40), next]).centered_horiz(),
                 ctx.style()
                     .btn_outline_text("Skip cutscene")
+                    .outline(2.0, CutsceneBuilder::fg_color(), ControlState::Default)
+                    .label_color(CutsceneBuilder::fg_color(), ControlState::Default)
                     .build_def(ctx)
                     .centered_horiz(),
             ])
@@ -244,7 +251,7 @@ fn make_panel(
             .fill_height()
             .padding(42)
             .bg(Color::WHITE)
-            .outline(2.0, Color::BLACK),
+            .outline(2.0, CutsceneBuilder::fg_color()),
     ];
 
     Panel::new(Widget::custom_col(col))
