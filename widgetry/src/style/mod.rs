@@ -20,6 +20,8 @@ pub struct Style {
     pub btn_solid_floating: ButtonStyle,
     pub btn_solid_destructive: ButtonStyle,
     pub btn_outline_destructive: ButtonStyle,
+    pub btn_solid_primary: ButtonStyle,
+    pub btn_outline_primary: ButtonStyle,
 }
 
 #[derive(Clone)]
@@ -163,6 +165,22 @@ impl Style {
                 bg_hover: hex("#FF5E5E").alpha(0.1),
                 bg_disabled: Color::grey(0.1),
                 outline: hex("#FF5E5E"),
+            },
+            btn_solid_primary: ButtonStyle {
+                fg: hex("#F2F2F2"),
+                fg_disabled: hex("#F2F2F2").alpha(0.3),
+                bg: hex("#EE702E").alpha(0.8),
+                bg_hover: hex("#EE702E"),
+                bg_disabled: hex("#EE702E").alpha(0.3),
+                outline: hex("#EE702E").alpha(0.6),
+            },
+            btn_outline_primary: ButtonStyle {
+                fg: hex("#EE702E"),
+                fg_disabled: hex("#EE702E").alpha(0.3),
+                bg: Color::CLEAR,
+                bg_hover: hex("#EE702E").alpha(0.1),
+                bg_disabled: Color::grey(0.1),
+                outline: hex("#EE702E"),
             },
         }
     }

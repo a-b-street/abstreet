@@ -100,6 +100,46 @@ pub trait StyledButtons<'a> {
             .image_dims(ScreenDims::square(18.0))
     }
 
+    fn btn_plain_primary(&self) -> ButtonBuilder<'a>;
+    fn btn_plain_primary_text(&self, text: &'a str) -> ButtonBuilder<'a> {
+        self.btn_plain_primary().label_text(text)
+    }
+    fn btn_plain_primary_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
+        icon_button(self.btn_plain_primary().image_path(image_path))
+    }
+
+    fn btn_solid_primary(&self) -> ButtonBuilder<'a>;
+    fn btn_solid_primary_text(&self, text: &'a str) -> ButtonBuilder<'a> {
+        self.btn_solid_primary().label_text(text)
+    }
+    fn btn_solid_primary_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
+        icon_button(self.btn_solid_primary().image_path(image_path))
+    }
+    fn btn_solid_primary_icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
+        self.btn_solid_primary()
+            .label_text(text)
+            .image_path(image_path)
+            .image_dims(ScreenDims::square(18.0))
+    }
+
+    fn btn_outline_primary(&self) -> ButtonBuilder<'a>;
+    fn btn_outline_primary_text(&self, text: &'a str) -> ButtonBuilder<'a> {
+        self.btn_outline_primary().label_text(text)
+    }
+    fn btn_outline_primary_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
+        icon_button(self.btn_outline_primary().image_path(image_path))
+    }
+    fn btn_outline_primary_icon_text(
+        &self,
+        image_path: &'a str,
+        text: &'a str,
+    ) -> ButtonBuilder<'a> {
+        self.btn_outline_primary()
+            .label_text(text)
+            .image_path(image_path)
+            .image_dims(ScreenDims::square(18.0))
+    }
+
     // Specific UI Elements
 
     /// title: name of previous screen, which you'll return to
@@ -169,6 +209,18 @@ impl<'a> StyledButtons<'a> for Style {
 
     fn btn_outline_destructive(&self) -> ButtonBuilder<'a> {
         basic_button(&self.btn_solid_destructive, Some(self.outline_thickness))
+    }
+
+    fn btn_plain_primary(&self) -> ButtonBuilder<'a> {
+        basic_button(&self.btn_outline_primary, None)
+    }
+
+    fn btn_solid_primary(&self) -> ButtonBuilder<'a> {
+        basic_button(&self.btn_solid_primary, Some(self.outline_thickness))
+    }
+
+    fn btn_outline_primary(&self) -> ButtonBuilder<'a> {
+        basic_button(&self.btn_solid_primary, Some(self.outline_thickness))
     }
 }
 
