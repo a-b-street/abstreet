@@ -368,19 +368,13 @@
 <span id="365">365</span>
 <span id="366">366</span>
 <span id="367">367</span>
-<span id="368">368</span>
-<span id="369">369</span>
-<span id="370">370</span>
-<span id="371">371</span>
-<span id="372">372</span>
-<span id="373">373</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">OrigPersonID</span>, <span class="ident">PersonID</span>, <span class="ident">TripID</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">State</span>,
+    <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>,
     <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
@@ -706,11 +700,9 @@
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Time&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Widget</span>::<span class="ident">draw_svg_transform</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="string">&quot;system/assets/tools/time.svg&quot;</span>,
-                        <span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>),
-                    ),
+                    <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/time.svg&quot;</span>)
+                        .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)
+                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">Line</span>(<span class="string">&quot;Until the VIP&#39;s&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>),
                         <span class="ident">Line</span>(<span class="string">&quot;last trip is done&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>),
@@ -719,11 +711,9 @@
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Goal&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Widget</span>::<span class="ident">draw_svg_transform</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="string">&quot;system/assets/tools/location.svg&quot;</span>,
-                        <span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>),
-                    ),
+                    <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                        .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)
+                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">Line</span>(<span class="string">&quot;Speed up the VIP&#39;s trips&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>),
                         <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;by at least {}&quot;</span>, <span class="ident">goal</span>)).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>),
@@ -732,11 +722,9 @@
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Score&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Widget</span>::<span class="ident">draw_svg_transform</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="string">&quot;system/assets/tools/star.svg&quot;</span>,
-                        <span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>),
-                    ),
+                    <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/star.svg&quot;</span>)
+                        .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)
+                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">Line</span>(<span class="string">&quot;How much time&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>),
                         <span class="ident">Line</span>(<span class="string">&quot;the VIP saves&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>),

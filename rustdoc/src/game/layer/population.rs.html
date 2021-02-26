@@ -197,7 +197,7 @@
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">make_heatmap</span>, <span class="ident">HeatmapOptions</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">PersonState</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
+    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
     <span class="ident">Toggle</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
@@ -354,7 +354,7 @@
         ),
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Widget</span>::<span class="ident">draw_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/tools/home.svg&quot;</span>),
+                <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Line</span>(<span class="ident">prettyprint_usize</span>(<span class="ident">ppl_in_bldg</span>)).<span class="ident">small</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
             ]),
             <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Off-map: {}&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">ppl_off_map</span>)))

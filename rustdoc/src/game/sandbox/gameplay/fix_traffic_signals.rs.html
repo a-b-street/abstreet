@@ -405,21 +405,13 @@
 <span id="402">402</span>
 <span id="403">403</span>
 <span id="404">404</span>
-<span id="405">405</span>
-<span id="406">406</span>
-<span id="407">407</span>
-<span id="408">408</span>
-<span id="409">409</span>
-<span id="410">410</span>
-<span id="411">411</span>
-<span id="412">412</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">IntersectionID</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">State</span>,
-    <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>,
+    <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">Transition</span>;
@@ -734,12 +726,10 @@
                     <span class="ident">Widget</span>::<span class="ident">nothing</span>()
                 },
                 <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Line</span>(<span class="string">&quot;Worst delay: &quot;</span>), <span class="ident">Line</span>(<span class="string">&quot;none!&quot;</span>).<span class="ident">secondary</span>()]).<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                <span class="ident">Widget</span>::<span class="ident">draw_svg_transform</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;system/assets/tools/location.svg&quot;</span>,
-                    <span class="ident">RewriteColor</span>::<span class="ident">ChangeAlpha</span>(<span class="number">0.5</span>),
-                )
-                .<span class="ident">align_right</span>(),
+                <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                    .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAlpha</span>(<span class="number">0.5</span>))
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">align_right</span>(),
             ])
         },
     ]))
@@ -793,20 +783,16 @@
         <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;Time&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                <span class="ident">Widget</span>::<span class="ident">draw_svg_transform</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;system/assets/tools/time.svg&quot;</span>,
-                    <span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>),
-                ),
+                <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/time.svg&quot;</span>)
+                    .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Line</span>(<span class="string">&quot;24 hours&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>),
             ]),
             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;Goal&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                <span class="ident">Widget</span>::<span class="ident">draw_svg_transform</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;system/assets/tools/location.svg&quot;</span>,
-                    <span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>),
-                ),
+                <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                    .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Keep delay at all intersections&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>),
                     <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;under {}&quot;</span>, <span class="ident">THRESHOLD</span>)).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>),
@@ -815,11 +801,9 @@
             ]),
             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;Score&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                <span class="ident">Widget</span>::<span class="ident">draw_svg_transform</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;system/assets/tools/star.svg&quot;</span>,
-                    <span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>),
-                ),
+                <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/star.svg&quot;</span>)
+                    .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Line</span>(<span class="string">&quot;How long you survive&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>),
             ]),
         ])
