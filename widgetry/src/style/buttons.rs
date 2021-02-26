@@ -224,6 +224,55 @@ impl<'a> StyledButtons<'a> for Style {
     }
 }
 
+impl<'a> ButtonStyle {
+    pub fn plain(&self) -> ButtonBuilder<'a> {
+        basic_button(self, None)
+    }
+
+    pub fn outline(&self) -> ButtonBuilder<'a> {
+        self.plain()
+            .outline(self.outline_thickness, self.outline, ControlState::Default)
+    }
+
+    pub fn plain_text(&self, text: &'a str) -> ButtonBuilder<'a> {
+        self.plain().label_text(text)
+    }
+
+    pub fn plain_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
+        icon_button(self.plain().image_path(image_path))
+    }
+
+    pub fn plain_icon_bytes(&self, labeled_bytes: (&'a str, &'a [u8])) -> ButtonBuilder<'a> {
+        icon_button(self.plain().image_bytes(labeled_bytes))
+    }
+
+    pub fn plain_icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
+        self.plain()
+            .label_text(text)
+            .image_path(image_path)
+            .image_dims(ScreenDims::square(18.0))
+    }
+
+    pub fn outline_text(&self, text: &'a str) -> ButtonBuilder<'a> {
+        self.outline().label_text(text)
+    }
+
+    pub fn outline_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
+        icon_button(self.outline().image_path(image_path))
+    }
+
+    pub fn outline_icon_bytes(&self, labeled_bytes: (&'a str, &'a [u8])) -> ButtonBuilder<'a> {
+        icon_button(self.outline().image_bytes(labeled_bytes))
+    }
+
+    pub fn outline_icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
+        self.outline()
+            .label_text(text)
+            .image_path(image_path)
+            .image_dims(ScreenDims::square(18.0))
+    }
+}
+
 impl<'a> Style {
     pub fn btn_popup_icon_text(&self, icon_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
         let outline_style = &self.btn_outline;

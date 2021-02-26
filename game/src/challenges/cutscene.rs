@@ -1,7 +1,7 @@
 use map_gui::tools::grey_out_map;
 use widgetry::{
-    hotkeys, Color, ControlState, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Image, Key, Line,
-    Outcome, Panel, State, StyledButtons, Text, Widget,
+    hotkeys, ButtonStyle, Color, ControlState, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Image,
+    Key, Line, Outcome, Panel, State, StyledButtons, Text, Widget,
 };
 
 use crate::app::App;
@@ -32,7 +32,7 @@ impl CutsceneBuilder {
     }
 
     fn fg_color() -> Color {
-        Color::hex("#4C4C4C")
+        ButtonStyle::outline_dark_fg().fg
     }
 
     pub fn player<I: Into<String>>(mut self, msg: I) -> CutsceneBuilder {
@@ -145,11 +145,8 @@ fn make_panel(
     make_task: &Box<dyn Fn(&mut EventCtx) -> Widget>,
     idx: usize,
 ) -> Panel {
-    let prev_builder = ctx
-        .style()
-        .btn_plain_icon("system/assets/tools/circled_prev.svg")
-        .image_color(CutsceneBuilder::fg_color(), ControlState::Default)
-        .bg_color(Color::grey(0.1), ControlState::Hovered)
+    let prev_builder = ButtonStyle::outline_dark_fg()
+        .plain_icon("system/assets/tools/circled_prev.svg")
         .image_dims(45.0)
         .hotkey(Key::LeftArrow)
         .bg_color(Color::CLEAR, ControlState::Disabled);
@@ -226,10 +223,8 @@ fn make_panel(
             .margin_above(100),
             Widget::col(vec![
                 Widget::row(vec![prev.margin_right(40), next]).centered_horiz(),
-                ctx.style()
-                    .btn_outline_text("Skip cutscene")
-                    .outline(2.0, CutsceneBuilder::fg_color(), ControlState::Default)
-                    .label_color(CutsceneBuilder::fg_color(), ControlState::Default)
+                ButtonStyle::outline_dark_fg()
+                    .outline_text("Skip cutscene")
                     .build_def(ctx)
                     .centered_horiz(),
             ])
