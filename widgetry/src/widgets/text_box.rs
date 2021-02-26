@@ -1,8 +1,8 @@
-use geom::Polygon;
+use geom::{Distance, Polygon};
 
 use crate::{
-    text, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, ScreenDims, ScreenPt, ScreenRectangle,
-    Text, WidgetImpl, WidgetOutput,
+    text, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, ScreenDims, ScreenPt,
+    ScreenRectangle, Style, Text, WidgetImpl, WidgetOutput,
 };
 
 // TODO right now, only a single line
@@ -13,39 +13,45 @@ pub struct TextBox {
     has_focus: bool,
     hovering: bool,
     autofocus: bool,
-
+    padding: EdgeInsets,
     top_left: ScreenPt,
     dims: ScreenDims,
 }
 
 impl TextBox {
     pub fn new(ctx: &EventCtx, max_chars: usize, prefilled: String, autofocus: bool) -> TextBox {
+        let padding = EdgeInsets {
+            top: 6.0,
+            left: 8.0,
+            bottom: 8.0,
+            right: 8.0,
+        };
         TextBox {
             cursor_x: prefilled.len(),
             line: prefilled,
             has_focus: false,
             hovering: false,
             autofocus,
-
+            padding,
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(
-                (max_chars as f64) * text::MAX_CHAR_WIDTH,
-                ctx.default_line_height(),
+                (max_chars as f64) * text::MAX_CHAR_WIDTH + (padding.left + padding.right) as f64,
+                ctx.default_line_height() + (padding.top + padding.bottom) as f64,
             ),
         }
     }
 
-    fn calculate_text(&self) -> Text {
+    fn calculate_text(&self, style: &Style) -> Text {
         let mut txt = Text::from(Line(&self.line[0..self.cursor_x]));
         if self.cursor_x < self.line.len() {
             // TODO This "cursor" looks awful!
             txt.append_all(vec![
-                Line("|").fg(text::SELECTED_COLOR),
+                Line("|").fg(style.text_fg_color),
                 Line(&self.line[self.cursor_x..=self.cursor_x]),
                 Line(&self.line[self.cursor_x + 1..]),
             ]);
         } else {
-            txt.append(Line("|").fg(text::SELECTED_COLOR));
+            txt.append(Line("|").fg(style.text_fg_color));
         }
         txt
     }
@@ -116,10 +122,21 @@ impl WidgetImpl for TextBox {
     fn draw(&self, g: &mut GfxCtx) {
         // TODO Cache
         let mut batch = GeomBatch::from(vec![(
-            text::BG_COLOR,
-            Polygon::rectangle(self.dims.width, self.dims.height),
+            g.style().field_bg,
+            Polygon::rounded_rectangle(self.dims.width, self.dims.height, 2.0),
         )]);
-        batch.append(self.calculate_text().render_autocropped(g));
+
+        if let Ok(outline) = Polygon::rounded_rectangle(self.dims.width, self.dims.height, 2.0)
+            .to_outline(Distance::meters(2.0))
+        {
+            batch.push(g.style().btn_outline.outline, outline);
+        }
+
+        batch.append(
+            self.calculate_text(g.style())
+                .render_autocropped(g)
+                .translate(self.padding.left as f64, self.padding.top as f64),
+        );
         let draw = g.upload(batch);
         g.redraw_at(self.top_left, &draw);
     }

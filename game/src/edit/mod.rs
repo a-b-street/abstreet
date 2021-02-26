@@ -396,7 +396,7 @@ impl SaveEdits {
             panel: Panel::new(Widget::col(vec![
                 Line(title).small_heading().draw(ctx),
                 Widget::row(vec![
-                    "Name:".draw_text(ctx),
+                    "Name:".draw_text(ctx).centered_vert(),
                     Widget::text_entry(ctx, initial_name, true).named("filename"),
                 ]),
                 // TODO Want this to always consistently be one line high, but it isn't for a blank
