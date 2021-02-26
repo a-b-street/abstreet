@@ -440,13 +440,8 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
         return false;
     }
 
-    if highway == "cycleway" || highway == "track" {
-        if !opts.map_config.separate_cycleways && opts.map_config.inferred_sidewalks {
-            return false;
-        }
-        if highway == "track" && tags.is("bicycle", "no") {
-            return false;
-        }
+    if highway == "track" && tags.is("bicycle", "no") {
+        return false;
     }
 
     if (highway == "footway" || highway == "path" || highway == "steps")
@@ -454,13 +449,6 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
     {
         return false;
     }
-    if !opts.map_config.separate_cycleways
-        && (highway == "cycleway" || highway == "path" || highway == "track")
-        && !tags.is_any("foot", vec!["yes", "designated"])
-    {
-        return false;
-    }
-
     // Import most service roads. Always ignore driveways, and always reserve parking_aisles for
     // parking lots.
     if highway == "service" && tags.is_any("service", vec!["driveway", "parking_aisle"]) {

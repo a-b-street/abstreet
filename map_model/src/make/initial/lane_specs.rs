@@ -45,7 +45,7 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
     if tags.is_any("railway", vec!["light_rail", "rail"]) {
         return vec![fwd(LaneType::LightRail)];
     }
-    if cfg.separate_cycleways && tags.is_any(osm::HIGHWAY, vec!["cycleway", "track"]) {
+    if tags.is_any(osm::HIGHWAY, vec!["cycleway", "track"]) {
         let half_width = |mut spec: LaneSpec| {
             spec.width = spec.width / 2.0;
             spec
@@ -542,7 +542,6 @@ mod tests {
                 driving_side,
                 bikes_can_use_bus_lanes: true,
                 inferred_sidewalks: true,
-                separate_cycleways: false,
                 street_parking_spot_length: Distance::meters(8.0),
             };
             let actual = get_lane_specs_ltr(&tags(input.clone()), &cfg);

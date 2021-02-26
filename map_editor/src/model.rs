@@ -58,7 +58,6 @@ impl Model {
                         driving_side: map_model::DrivingSide::Right,
                         bikes_can_use_bus_lanes: true,
                         inferred_sidewalks: true,
-                        separate_cycleways: false,
                         street_parking_spot_length: Distance::meters(8.0),
                     },
                     onstreet_parking: convert_osm::OnstreetParking::JustOSM,

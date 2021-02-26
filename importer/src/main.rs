@@ -311,7 +311,6 @@ fn oneshot(
                 },
                 bikes_can_use_bus_lanes: true,
                 inferred_sidewalks: true,
-                separate_cycleways: false,
                 street_parking_spot_length: Distance::meters(8.0),
             },
 

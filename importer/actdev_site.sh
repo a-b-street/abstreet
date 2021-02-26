@@ -14,7 +14,6 @@ fi
 CITY=`echo $SITE | sed -r 's/-/_/g'`
 
 cp -Rv importer/config/gb/leeds importer/config/gb/$CITY
-perl -pi -e "s#\"separate_cycleways\": false#\"separate_cycleways\": true#" importer/config/gb/$CITY/cfg.json
 rm -fv importer/config/gb/$CITY/*.poly
 wget https://raw.githubusercontent.com/cyipt/actdev/main/data-small/$SITE/small-study-area.geojson
 cargo run --bin geojson_to_osmosis < small-study-area.geojson
