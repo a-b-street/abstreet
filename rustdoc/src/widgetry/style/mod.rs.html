@@ -175,6 +175,24 @@
 <span id="172">172</span>
 <span id="173">173</span>
 <span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Color</span>, <span class="ident">Text</span>};
 
@@ -198,6 +216,8 @@
     <span class="kw">pub</span> <span class="ident">btn_solid_floating</span>: <span class="ident">ButtonStyle</span>,
     <span class="kw">pub</span> <span class="ident">btn_solid_destructive</span>: <span class="ident">ButtonStyle</span>,
     <span class="kw">pub</span> <span class="ident">btn_outline_destructive</span>: <span class="ident">ButtonStyle</span>,
+    <span class="kw">pub</span> <span class="ident">btn_solid_primary</span>: <span class="ident">ButtonStyle</span>,
+    <span class="kw">pub</span> <span class="ident">btn_outline_primary</span>: <span class="ident">ButtonStyle</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
@@ -341,6 +361,22 @@
                 <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.1</span>),
                 <span class="ident">bg_disabled</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.1</span>),
                 <span class="ident">outline</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>),
+            },
+            <span class="ident">btn_solid_primary</span>: <span class="ident">ButtonStyle</span> {
+                <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>),
+                <span class="ident">fg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.3</span>),
+                <span class="ident">bg</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.8</span>),
+                <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>),
+                <span class="ident">bg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.3</span>),
+                <span class="ident">outline</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.6</span>),
+            },
+            <span class="ident">btn_outline_primary</span>: <span class="ident">ButtonStyle</span> {
+                <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>),
+                <span class="ident">fg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.3</span>),
+                <span class="ident">bg</span>: <span class="ident">Color</span>::<span class="ident">CLEAR</span>,
+                <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.1</span>),
+                <span class="ident">bg_disabled</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.1</span>),
+                <span class="ident">outline</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>),
             },
         }
     }
