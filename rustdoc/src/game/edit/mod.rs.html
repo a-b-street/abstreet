@@ -1298,7 +1298,7 @@
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="ident">title</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="string">&quot;Name:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                    <span class="string">&quot;Name:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
                     <span class="ident">Widget</span>::<span class="ident">text_entry</span>(<span class="ident">ctx</span>, <span class="ident">initial_name</span>, <span class="bool-val">true</span>).<span class="ident">named</span>(<span class="string">&quot;filename&quot;</span>),
                 ]),
                 <span class="comment">// TODO Want this to always consistently be one line high, but it isn&#39;t for a blank</span>

@@ -603,7 +603,7 @@
                             <span class="comment">// a fixed SVG asset and just rotate it, but we&#39;d still need to</span>
                             <span class="comment">// calculate the octagon hitbox for the stop sign editor.</span>
                             <span class="ident">default_geom</span>.<span class="ident">append</span>(
-                                <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">widgetry</span>::<span class="ident">Line</span>(<span class="string">&quot;STOP&quot;</span>).<span class="ident">small_heading</span>())
+                                <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">widgetry</span>::<span class="ident">Line</span>(<span class="string">&quot;STOP&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>))
                                     .<span class="ident">render_autocropped</span>(<span class="ident">prerender</span>.<span class="ident">as_ref</span>())
                                     .<span class="ident">scale</span>(<span class="number">0.02</span>)
                                     .<span class="ident">centered_on</span>(<span class="ident">center</span>)

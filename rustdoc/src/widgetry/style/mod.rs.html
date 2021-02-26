@@ -178,7 +178,7 @@
     <span class="kw">pub</span> <span class="ident">outline_thickness</span>: <span class="ident">f64</span>,
     <span class="kw">pub</span> <span class="ident">outline_color</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">panel_bg</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">dropdown_bg</span>: <span class="ident">Color</span>,
+    <span class="kw">pub</span> <span class="ident">field_bg</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">dropdown_border</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">text_fg_color</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">text_tooltip_color</span>: <span class="ident">Color</span>,
@@ -257,7 +257,7 @@
             } <span class="kw">else</span> {
                 <span class="ident">Color</span>::<span class="ident">WHITE</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>)
             },
-            <span class="ident">dropdown_bg</span>: <span class="kw">if</span> <span class="ident">use_legacy_day_theme</span> {
+            <span class="ident">field_bg</span>: <span class="kw">if</span> <span class="ident">use_legacy_day_theme</span> {
                 <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.3</span>)
             } <span class="kw">else</span> {
                 <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>)
