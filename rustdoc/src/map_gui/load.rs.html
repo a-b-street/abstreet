@@ -600,20 +600,20 @@
         }
 
         <span class="comment">// TODO Generalize this more, maybe with some kind of country code -&gt; font config</span>
-        <span class="kw">let</span> <span class="ident">zcool</span> <span class="op">=</span> <span class="string">&quot;ZCOOLXiaoWei-Regular.ttf&quot;</span>;
-        <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;tw&quot;</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">is_font_loaded</span>(<span class="ident">zcool</span>) {
+        <span class="kw">let</span> <span class="ident">chinese_font</span> <span class="op">=</span> <span class="string">&quot;NotoSerifCJKtc-Regular.otf&quot;</span>;
+        <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;tw&quot;</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">is_font_loaded</span>(<span class="ident">chinese_font</span>) {
             <span class="kw">return</span> <span class="ident">RawFileLoader</span>::<span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>::<span class="ident">new</span>(
                 <span class="ident">ctx</span>,
-                <span class="ident">abstio</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/extra_fonts/{}&quot;</span>, <span class="ident">zcool</span>)),
+                <span class="ident">abstio</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/extra_fonts/{}&quot;</span>, <span class="ident">chinese_font</span>)),
                 <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">bytes</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">bytes</span> {
                     <span class="prelude-val">Ok</span>(<span class="ident">bytes</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="ident">ctx</span>.<span class="ident">load_font</span>(<span class="ident">zcool</span>, <span class="ident">bytes</span>);
+                        <span class="ident">ctx</span>.<span class="ident">load_font</span>(<span class="ident">chinese_font</span>, <span class="ident">bytes</span>);
                         <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">MapLoader</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">name</span>, <span class="ident">on_load</span>))
                     }
                     <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Error&quot;</span>,
-                        <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Couldn&#39;t load {}&quot;</span>, <span class="ident">zcool</span>), <span class="ident">err</span>.<span class="ident">to_string</span>()],
+                        <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Couldn&#39;t load {}&quot;</span>, <span class="ident">chinese_font</span>), <span class="ident">err</span>.<span class="ident">to_string</span>()],
                     )),
                 }),
             );
