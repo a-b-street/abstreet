@@ -133,24 +133,34 @@ fn upload(version: String) {
     }
 
     // Anything missing or needing updating?
-    // TODO Parallelize, since compression can be slow!
-    for (path, entry) in &mut local.entries {
-        let remote_path = format!("{}/{}.gz", remote_base, path);
-        let changed = remote.entries.get(path).map(|x| &x.checksum) != Some(&entry.checksum);
-        if changed {
-            std::fs::create_dir_all(std::path::Path::new(&remote_path).parent().unwrap()).unwrap();
-            println!("> compressing {}", path);
-            {
-                let mut input = BufReader::new(File::open(&path).unwrap());
-                let out = File::create(&remote_path).unwrap();
-                let mut encoder = flate2::write::GzEncoder::new(out, flate2::Compression::best());
-                std::io::copy(&mut input, &mut encoder).unwrap();
-                encoder.finish().unwrap();
+    let local_entries = std::mem::replace(&mut local.entries, BTreeMap::new());
+    for (path, entry) in Timer::new("compress files").parallelize(
+        "compress files",
+        Parallelism::Fastest,
+        local_entries.into_iter().collect(),
+        |(path, mut entry)| {
+            let remote_path = format!("{}/{}.gz", remote_base, path);
+            let changed = remote.entries.get(&path).map(|x| &x.checksum) != Some(&entry.checksum);
+            if changed {
+                std::fs::create_dir_all(std::path::Path::new(&remote_path).parent().unwrap())
+                    .unwrap();
+                println!("> compressing {}", path);
+                {
+                    let mut input = BufReader::new(File::open(&path).unwrap());
+                    let out = File::create(&remote_path).unwrap();
+                    let mut encoder =
+                        flate2::write::GzEncoder::new(out, flate2::Compression::best());
+                    std::io::copy(&mut input, &mut encoder).unwrap();
+                    encoder.finish().unwrap();
+                }
             }
-        }
-        // Always do this -- even if nothing changed, compressed_size_bytes isn't filled out by
-        // generate_manifest.
-        entry.compressed_size_bytes = std::fs::metadata(&remote_path).unwrap().len() as usize;
+            // Always do this -- even if nothing changed, compressed_size_bytes isn't filled out by
+            // generate_manifest.
+            entry.compressed_size_bytes = std::fs::metadata(&remote_path).unwrap().len() as usize;
+            (path, entry)
+        },
+    ) {
+        local.entries.insert(path, entry);
     }
 
     abstio::write_json(format!("{}/MANIFEST.json", remote_base), &local);
