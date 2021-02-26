@@ -711,9 +711,19 @@ fn make_tabs(
         );
         hyperlinks.insert(name.to_string(), link);
     }
-    // TODO Centered, but actually, we need to set the padding of each button to divide the
-    // available space evenly. Fancy fill rules... hmmm.
-    Widget::custom_row(row).bg(Color::grey(0.8)).margin_vert(16)
+    {
+        // stop-gap color that is semi-legible across themes until the tab redesign is completed
+        let tab_bg = ctx
+            .style()
+            .btn_solid
+            .bg
+            .lerp(ctx.style().btn_solid.fg, 0.3)
+            .alpha(1.0);
+
+        // TODO Centered, but actually, we need to set the padding of each button to divide the
+        // available space evenly. Fancy fill rules... hmmm.
+        Widget::custom_row(row).bg(tab_bg).margin_vert(16)
+    }
 }
 
 fn header_btns(ctx: &EventCtx) -> Widget {
