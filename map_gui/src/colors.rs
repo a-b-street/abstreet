@@ -394,7 +394,7 @@ impl ColorScheme {
         cs.gui_style.text_destructive_color = hex("#FF5E5E");
 
         cs.gui_style.dropdown_border = Color::WHITE;
-        cs.gui_style.dropdown_bg = cs.gui_style.panel_bg;
+        cs.gui_style.field_bg = cs.gui_style.panel_bg;
 
         cs.void_background = hex("#200A24");
         cs.map_background = Color::BLACK.into();

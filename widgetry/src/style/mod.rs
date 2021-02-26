@@ -7,7 +7,7 @@ pub struct Style {
     pub outline_thickness: f64,
     pub outline_color: Color,
     pub panel_bg: Color,
-    pub dropdown_bg: Color,
+    pub field_bg: Color,
     pub dropdown_border: Color,
     pub text_fg_color: Color,
     pub text_tooltip_color: Color,
@@ -86,7 +86,7 @@ impl Style {
             } else {
                 Color::WHITE.alpha(0.8)
             },
-            dropdown_bg: if use_legacy_day_theme {
+            field_bg: if use_legacy_day_theme {
                 Color::grey(0.3)
             } else {
                 hex("#F2F2F2")
