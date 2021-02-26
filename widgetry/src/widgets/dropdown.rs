@@ -174,12 +174,12 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
 
 fn make_btn(ctx: &EventCtx, label: &str, tooltip: &str, is_persisten_split: bool) -> Button {
     // If we want to make Dropdown configurable, pass in or expose its button builder?
-    let mut builder = ctx.style().btn_solid_dropdown();
-    if is_persisten_split {
+    let builder = if is_persisten_split {
         // Quick hacks to make PersistentSplit's dropdown look a little better.
         // It's not ideal, but we only use one persistent split in the whole app
         // and it's front and center - we'll notice if something breaks.
-        builder = builder
+        ctx.style()
+            .btn_solid_dropdown()
             .padding(EdgeInsets {
                 top: 15.0,
                 bottom: 15.0,
@@ -192,10 +192,10 @@ fn make_btn(ctx: &EventCtx, label: &str, tooltip: &str, is_persisten_split: bool
                 bottom_right: 2.0,
                 top_right: 2.0,
             }))
-            .outline(0.0, Color::CLEAR, ControlState::Default);
+            .outline(0.0, Color::CLEAR, ControlState::Default)
     } else {
-        builder = builder.label_text(label);
-    }
+        ctx.style().btn_outline_dropdown().label_text(label)
+    };
 
     builder.build(ctx, tooltip)
 }
