@@ -375,6 +375,10 @@
 <span id="372">372</span>
 <span id="373">373</span>
 <span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">future</span>::<span class="ident">Future</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">pin</span>::<span class="ident">Pin</span>;
@@ -653,15 +657,19 @@
                     <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">msg</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                         <span class="comment">// TODO Adjust wording</span>
-                        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_text</span>(<span class="string">&quot;Keep simulating&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_text</span>(<span class="string">&quot;Try again&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                        <span class="ident">ctx</span>.<span class="ident">style</span>()
+                            .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Keep simulating&quot;</span>)
+                            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline_text</span>(<span class="string">&quot;Try again&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                         <span class="kw">if</span> <span class="ident">next_mode</span>.<span class="ident">is_some</span>() {
-                            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_text</span>(<span class="string">&quot;Next challenge&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>)
+                            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                                .<span class="ident">btn_solid_primary_text</span>(<span class="string">&quot;Next challenge&quot;</span>)
+                                .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                         } <span class="kw">else</span> {
                             <span class="ident">Widget</span>::<span class="ident">nothing</span>()
                         },
                         <span class="ident">ctx</span>.<span class="ident">style</span>()
-                            .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Back to challenges&quot;</span>)
+                            .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Back to challenges&quot;</span>)
                             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     ])
                     .<span class="ident">outline</span>(<span class="number">10.0</span>, <span class="ident">Color</span>::<span class="ident">BLACK</span>)

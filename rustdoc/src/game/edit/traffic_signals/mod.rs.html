@@ -1416,11 +1416,11 @@
 <span class="kw">fn</span> <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">can_undo</span>: <span class="ident">bool</span>, <span class="ident">can_redo</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
     <span class="kw">let</span> <span class="ident">row</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Finish&quot;</span>)
+            .<span class="ident">btn_solid_primary_text</span>(<span class="string">&quot;Finish&quot;</span>)
             .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Preview&quot;</span>)
+            .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Preview&quot;</span>)
             .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">P</span>))
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         <span class="ident">ctx</span>.<span class="ident">style</span>()
@@ -1525,14 +1525,14 @@
     <span class="kw">if</span> <span class="ident">members</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
         <span class="ident">col</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Edit entire signal&quot;</span>)
+                .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Edit entire signal&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">E</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         );
     } <span class="kw">else</span> {
         <span class="ident">col</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Tune offsets between signals&quot;</span>)
+                .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Tune offsets between signals&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">O</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         );
@@ -1615,7 +1615,7 @@
 
     <span class="ident">col</span>.<span class="ident">push</span>(
         <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Add a new stage&quot;</span>)
+            .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Add a new stage&quot;</span>)
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
             .<span class="ident">centered_horiz</span>(),
     );
