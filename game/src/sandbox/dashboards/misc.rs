@@ -2,8 +2,8 @@ use abstutil::{prettyprint_usize, Counter};
 use geom::Time;
 use map_model::BusRouteID;
 use widgetry::{
-    Autocomplete, DrawBaselayer, EventCtx, GfxCtx, Line, LinePlot, Outcome, Panel, PlotOptions,
-    Series, State, StyledButtons, TextExt, Widget,
+    Autocomplete, DrawBaselayer, EventCtx, GfxCtx, Image, Line, LinePlot, Outcome, Panel,
+    PlotOptions, Series, State, StyledButtons, TextExt, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -155,7 +155,7 @@ impl TransitRoutes {
                 .small_heading()
                 .draw(ctx),
             Widget::row(vec![
-                Widget::draw_svg(ctx, "system/assets/tools/search.svg"),
+                Image::icon("system/assets/tools/search.svg").into_widget(ctx),
                 Autocomplete::new(
                     ctx,
                     routes

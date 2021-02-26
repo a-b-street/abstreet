@@ -11,8 +11,8 @@ use map_gui::tools::{open_browser, PopupMsg};
 use map_model::PermanentMapEdits;
 use sim::{AlertHandler, ScenarioGenerator, Sim, SimOptions};
 use widgetry::{
-    hotkeys, Color, ContentMode, DrawBaselayer, EdgeInsets, EventCtx, Font, GfxCtx, Key, Line,
-    Outcome, Panel, ScreenDims, State, StyledButtons, Text, UpdateType, Widget,
+    hotkeys, Color, ContentMode, DrawBaselayer, EdgeInsets, EventCtx, Font, GfxCtx, Image, Key,
+    Line, Outcome, Panel, ScreenDims, State, StyledButtons, Text, UpdateType, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -42,7 +42,7 @@ impl TitleScreen {
         TitleScreen {
             panel: Panel::new(
                 Widget::col(vec![
-                    Widget::draw_svg(ctx, "system/assets/pregame/logo.svg"),
+                    Image::icon("system/assets/pregame/logo.svg").into_widget(ctx),
                     // TODO that nicer font
                     // TODO Any key
                     ctx.style()

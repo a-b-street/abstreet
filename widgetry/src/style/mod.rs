@@ -9,6 +9,7 @@ pub struct Style {
     pub panel_bg: Color,
     pub field_bg: Color,
     pub dropdown_border: Color,
+    pub icon_fg: Color,
     pub text_fg_color: Color,
     pub text_tooltip_color: Color,
     pub text_hotkey_color: Color,
@@ -99,6 +100,12 @@ impl Style {
             outline_thickness: 2.0,
             outline_color: Color::WHITE,
             loading_tips: Text::new(),
+
+            icon_fg: if use_legacy_day_theme {
+                Color::WHITE
+            } else {
+                hex("#4C4C4C")
+            },
 
             // Text
             text_fg_color: if use_legacy_day_theme {

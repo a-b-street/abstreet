@@ -5,7 +5,7 @@ use geom::{Circle, Distance, Pt2D, Time};
 use map_gui::tools::{make_heatmap, HeatmapOptions};
 use sim::PersonState;
 use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Image, Line, Outcome, Panel,
     Toggle, VerticalAlignment, Widget,
 };
 
@@ -162,7 +162,7 @@ fn make_controls(ctx: &mut EventCtx, app: &App, opts: &Options, legend: Option<W
         ),
         Widget::row(vec![
             Widget::row(vec![
-                Widget::draw_svg(ctx, "system/assets/tools/home.svg"),
+                Image::icon("system/assets/tools/home.svg").into_widget(ctx),
                 Line(prettyprint_usize(ppl_in_bldg)).small().draw(ctx),
             ]),
             Line(format!("Off-map: {}", prettyprint_usize(ppl_off_map)))

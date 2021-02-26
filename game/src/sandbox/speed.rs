@@ -3,9 +3,9 @@ use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use sim::AlertLocation;
 use widgetry::{
-    Choice, Color, ControlState, EdgeInsets, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Panel, PersistentSplit, ScreenDims, StyledButtons, Text, VerticalAlignment,
-    Widget,
+    Choice, Color, ControlState, EdgeInsets, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
+    Image, Key, Line, Outcome, Panel, PersistentSplit, ScreenDims, StyledButtons, Text,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -402,9 +402,9 @@ impl TimePanel {
                 },
                 Widget::custom_row(vec![
                     Line("00:00").small_monospaced().draw(ctx),
-                    Widget::draw_svg(ctx, "system/assets/speed/sunrise.svg"),
+                    Image::icon("system/assets/speed/sunrise.svg").into_widget(ctx),
                     Line("12:00").small_monospaced().draw(ctx),
-                    Widget::draw_svg(ctx, "system/assets/speed/sunset.svg"),
+                    Image::icon("system/assets/speed/sunset.svg").into_widget(ctx),
                     Line("24:00").small_monospaced().draw(ctx),
                 ])
                 .evenly_spaced(),

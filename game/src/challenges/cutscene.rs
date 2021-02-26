@@ -1,7 +1,7 @@
 use map_gui::tools::grey_out_map;
 use widgetry::{
-    hotkeys, Color, ControlState, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
-    Panel, State, StyledButtons, Text, Widget,
+    hotkeys, Color, ControlState, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Image, Key, Line,
+    Outcome, Panel, State, StyledButtons, Text, Widget,
 };
 
 use crate::app::App;
@@ -179,7 +179,7 @@ fn make_panel(
                     ),
                     Widget::custom_row(vec![
                         scenes[idx].msg.clone().wrap_to_pct(ctx, 30).draw(ctx),
-                        Widget::draw_svg(ctx, "system/assets/characters/player.svg"),
+                        Image::untinted("system/assets/characters/player.svg").into_widget(ctx),
                     ])
                     .align_right(),
                 ]),
@@ -191,7 +191,9 @@ fn make_panel(
                             .autocrop(),
                     ),
                     scenes[idx].msg.clone().wrap_to_pct(ctx, 30).draw(ctx),
-                    Widget::draw_svg(ctx, "system/assets/characters/player.svg").align_right(),
+                    Image::untinted("system/assets/characters/player.svg")
+                        .into_widget(ctx)
+                        .align_right(),
                 ]),
                 Layout::Extra(filename, scale) => Widget::custom_row(vec![
                     Widget::draw_batch(
@@ -212,7 +214,7 @@ fn make_panel(
                         ),
                         scenes[idx].msg.clone().wrap_to_pct(ctx, 30).draw(ctx),
                     ]),
-                    Widget::draw_svg(ctx, "system/assets/characters/player.svg"),
+                    Image::untinted("system/assets/characters/player.svg").into_widget(ctx),
                 ])
                 .evenly_spaced(),
             }

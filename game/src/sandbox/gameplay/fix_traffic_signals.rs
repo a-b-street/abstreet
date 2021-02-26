@@ -2,8 +2,8 @@ use geom::{Duration, Time};
 use map_gui::ID;
 use map_model::IntersectionID;
 use widgetry::{
-    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State,
-    StyledButtons, Text, VerticalAlignment, Widget,
+    Color, EventCtx, GfxCtx, HorizontalAlignment, Image, Key, Line, Outcome, Panel, RewriteColor,
+    State, StyledButtons, Text, VerticalAlignment, Widget,
 };
 
 use crate::app::Transition;
@@ -318,12 +318,10 @@ fn make_meter(ctx: &mut EventCtx, app: &App, worst: Option<(IntersectionID, Dura
                     Widget::nothing()
                 },
                 Text::from_all(vec![Line("Worst delay: "), Line("none!").secondary()]).draw(ctx),
-                Widget::draw_svg_transform(
-                    ctx,
-                    "system/assets/tools/location.svg",
-                    RewriteColor::ChangeAlpha(0.5),
-                )
-                .align_right(),
+                Image::icon("system/assets/tools/location.svg")
+                    .color(RewriteColor::ChangeAlpha(0.5))
+                    .into_widget(ctx)
+                    .align_right(),
             ])
         },
     ]))
@@ -377,20 +375,16 @@ fn cutscene_pt1_task(ctx: &mut EventCtx) -> Widget {
         Widget::custom_row(vec![
             Widget::col(vec![
                 Line("Time").fg(Color::BLACK).draw(ctx),
-                Widget::draw_svg_transform(
-                    ctx,
-                    "system/assets/tools/time.svg",
-                    RewriteColor::ChangeAll(Color::BLACK),
-                ),
+                Image::icon("system/assets/tools/time.svg")
+                    .color(Color::BLACK)
+                    .into_widget(ctx),
                 Line("24 hours").fg(Color::BLACK).draw(ctx),
             ]),
             Widget::col(vec![
                 Line("Goal").fg(Color::BLACK).draw(ctx),
-                Widget::draw_svg_transform(
-                    ctx,
-                    "system/assets/tools/location.svg",
-                    RewriteColor::ChangeAll(Color::BLACK),
-                ),
+                Image::icon("system/assets/tools/location.svg")
+                    .color(Color::BLACK)
+                    .into_widget(ctx),
                 Text::from_multiline(vec![
                     Line("Keep delay at all intersections").fg(Color::BLACK),
                     Line(format!("under {}", THRESHOLD)).fg(Color::BLACK),
@@ -399,11 +393,9 @@ fn cutscene_pt1_task(ctx: &mut EventCtx) -> Widget {
             ]),
             Widget::col(vec![
                 Line("Score").fg(Color::BLACK).draw(ctx),
-                Widget::draw_svg_transform(
-                    ctx,
-                    "system/assets/tools/star.svg",
-                    RewriteColor::ChangeAll(Color::BLACK),
-                ),
+                Image::icon("system/assets/tools/star.svg")
+                    .color(Color::BLACK)
+                    .into_widget(ctx),
                 Line("How long you survive").fg(Color::BLACK).draw(ctx),
             ]),
         ])

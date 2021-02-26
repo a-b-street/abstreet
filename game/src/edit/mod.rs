@@ -10,8 +10,9 @@ use map_gui::tools::{grey_out_map, ChooseSomething, ColorLegend, PopupMsg};
 use map_gui::ID;
 use map_model::{EditCmd, IntersectionID, LaneID, LaneType, MapEdits};
 use widgetry::{
-    lctrl, Choice, Color, ControlState, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Menu, Outcome, Panel, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, Choice, Color, ControlState, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Image,
+    Key, Line, Menu, Outcome, Panel, State, StyledButtons, Text, TextExt, VerticalAlignment,
+    Widget,
 };
 
 pub use self::cluster_traffic_signals::ClusterTrafficSignalEditor;
@@ -854,7 +855,8 @@ impl ConfirmDiscard {
             discard,
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
-                    Widget::draw_svg(ctx, "system/assets/tools/alert.svg")
+                    Image::untinted("system/assets/tools/alert.svg")
+                        .into_widget(ctx)
                         .container()
                         .padding_top(6),
                     Line("Alert").small_heading().draw(ctx),

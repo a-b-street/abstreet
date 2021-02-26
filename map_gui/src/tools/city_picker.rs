@@ -4,8 +4,8 @@ use abstio::{CityName, MapName};
 use geom::{Distance, Percent, Polygon, Pt2D};
 use map_model::City;
 use widgetry::{
-    Autocomplete, Color, ControlState, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line,
-    Outcome, Panel, RewriteColor, ScreenPt, State, StyledButtons, Text, TextExt, Transition,
+    Autocomplete, Color, ControlState, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Image, Key,
+    Line, Outcome, Panel, RewriteColor, ScreenPt, State, StyledButtons, Text, TextExt, Transition,
     Widget,
 };
 
@@ -327,7 +327,7 @@ impl<A: AppLike + 'static> AllCityPicker<A> {
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 Widget::row(vec![
-                    Widget::draw_svg(ctx, "system/assets/tools/search.svg"),
+                    Image::icon("system/assets/tools/search.svg").into_widget(ctx),
                     Autocomplete::new(ctx, autocomplete_entries).named("search"),
                 ])
                 .padding(8),

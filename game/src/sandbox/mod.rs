@@ -11,8 +11,8 @@ use map_gui::tools::{ChooseSomething, Minimap, PopupMsg, TurnExplorer};
 use map_gui::{AppLike, ID};
 use sim::{Analytics, Scenario};
 use widgetry::{
-    lctrl, Choice, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, State, StyledButtons, Text, TextExt, UpdateType, VerticalAlignment, Widget,
+    lctrl, Choice, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Image, Key, Line,
+    Outcome, Panel, State, StyledButtons, Text, TextExt, UpdateType, VerticalAlignment, Widget,
 };
 
 pub use self::gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};
@@ -312,10 +312,8 @@ impl AgentMeter {
         let counts = app.primary.sim.num_commuters_vehicles();
 
         row.push(Widget::custom_row(vec![
-            Widget::draw_svg_with_tooltip(
-                ctx,
-                "system/assets/meters/pedestrian.svg",
-                Text::from_multiline(vec![
+            Image::icon("system/assets/meters/pedestrian.svg")
+                .tooltip(Text::from_multiline(vec![
                     Line("Pedestrians"),
                     Line(format!(
                         "Walking commuters: {}",
@@ -337,9 +335,9 @@ impl AgentMeter {
                         prettyprint_usize(counts.walking_to_from_bike)
                     ))
                     .secondary(),
-                ]),
-            )
-            .margin_right(5),
+                ]))
+                .into_widget(ctx)
+                .margin_right(5),
             prettyprint_usize(
                 counts.walking_commuters
                     + counts.walking_to_from_transit
@@ -350,40 +348,34 @@ impl AgentMeter {
         ]));
 
         row.push(Widget::custom_row(vec![
-            Widget::draw_svg_with_tooltip(
-                ctx,
-                "system/assets/meters/bike.svg",
-                Text::from_multiline(vec![
+            Image::icon("system/assets/meters/bike.svg")
+                .tooltip(Text::from_multiline(vec![
                     Line("Cyclists"),
                     Line(prettyprint_usize(counts.cyclists)).secondary(),
-                ]),
-            )
-            .margin_right(5),
+                ]))
+                .into_widget(ctx)
+                .margin_right(5),
             prettyprint_usize(counts.cyclists).draw_text(ctx),
         ]));
 
         row.push(Widget::custom_row(vec![
-            Widget::draw_svg_with_tooltip(
-                ctx,
-                "system/assets/meters/car.svg",
-                Text::from_multiline(vec![
+            Image::icon("system/assets/meters/car.svg")
+                .tooltip(Text::from_multiline(vec![
                     Line("Cars"),
                     Line(format!(
                         "Single-occupancy vehicles: {}",
                         prettyprint_usize(counts.sov_drivers)
                     ))
                     .secondary(),
-                ]),
-            )
-            .margin_right(5),
+                ]))
+                .into_widget(ctx)
+                .margin_right(5),
             prettyprint_usize(counts.sov_drivers).draw_text(ctx),
         ]));
 
         row.push(Widget::custom_row(vec![
-            Widget::draw_svg_with_tooltip(
-                ctx,
-                "system/assets/meters/bus.svg",
-                Text::from_multiline(vec![
+            Image::icon("system/assets/meters/bus.svg")
+                .tooltip(Text::from_multiline(vec![
                     Line("Public transit"),
                     Line(format!(
                         "{} passengers on {} buses",
@@ -397,9 +389,9 @@ impl AgentMeter {
                         prettyprint_usize(counts.trains)
                     ))
                     .secondary(),
-                ]),
-            )
-            .margin_right(5),
+                ]))
+                .into_widget(ctx)
+                .margin_right(5),
             prettyprint_usize(counts.bus_riders + counts.train_riders).draw_text(ctx),
         ]));
 

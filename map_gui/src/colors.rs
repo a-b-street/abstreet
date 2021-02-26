@@ -390,6 +390,7 @@ impl ColorScheme {
         cs.gui_style.btn_solid = ButtonStyle::btn_solid();
         cs.gui_style.btn_solid_floating = ButtonStyle::btn_solid_floating();
         cs.gui_style.text_fg_color = Color::WHITE;
+        cs.gui_style.icon_fg = Color::WHITE;
         cs.gui_style.text_hotkey_color = Color::GREEN;
         cs.gui_style.text_destructive_color = hex("#FF5E5E");
 
