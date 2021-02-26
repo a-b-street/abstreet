@@ -19,11 +19,11 @@ use crate::sandbox::{Actions, SandboxControls, SandboxMode};
 /// https://cyipt.github.io/acton/articles/the-actdev-project.html.
 pub struct Actdev {
     top_center: Panel,
-    scenario_name: Option<String>,
+    scenario_name: String,
 }
 
 impl Actdev {
-    pub fn new(ctx: &mut EventCtx, scenario_name: Option<String>) -> Box<dyn GameplayState> {
+    pub fn new(ctx: &mut EventCtx, scenario_name: String) -> Box<dyn GameplayState> {
         Box::new(Actdev {
             top_center: Panel::empty(ctx),
             scenario_name,
@@ -42,7 +42,7 @@ impl GameplayState for Actdev {
         match self.top_center.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "change scenario" => {
-                    let scenario = if self.scenario_name.as_ref().unwrap() == "base" {
+                    let scenario = if self.scenario_name == "base" {
                         "go_active"
                     } else {
                         "base"
@@ -51,7 +51,7 @@ impl GameplayState for Actdev {
                         app,
                         GameplayMode::Actdev(
                             app.primary.map.get_name().clone(),
-                            Some(scenario.to_string()),
+                            scenario.to_string(),
                         ),
                         jump_to_time_upon_startup(Duration::hours(8)),
                     )));
@@ -146,23 +146,19 @@ impl GameplayState for Actdev {
                 ctx.style()
                     .btn_popup_icon_text("system/assets/tools/calendar.svg", "scenario")
                     .label_styled_text(
-                        match &self.scenario_name {
-                            Some(x) => match x.as_ref() {
-                                "base" => Text::from_all(vec![
-                                    Line("Baseline / "),
-                                    Line("Go Active").secondary(),
-                                ]),
-                                "go_active" => Text::from_all(vec![
-                                    Line("Baseline").secondary(),
-                                    Line(" / Go Active"),
-                                ]),
-                                _ => unreachable!(),
-                            },
-                            None => Text::from(Line("no scenario data").secondary()),
+                        match self.scenario_name.as_ref() {
+                            "base" => Text::from_all(vec![
+                                Line("Baseline / "),
+                                Line("Go Active").secondary(),
+                            ]),
+                            "go_active" => Text::from_all(vec![
+                                Line("Baseline").secondary(),
+                                Line(" / Go Active"),
+                            ]),
+                            _ => unreachable!(),
                         },
                         ControlState::Default,
                     )
-                    .disabled(self.scenario_name.is_none())
                     .build_widget(ctx, "change scenario"),
                 ctx.style()
                     .btn_outline_icon_text("system/assets/tools/pencil.svg", "Edit map")

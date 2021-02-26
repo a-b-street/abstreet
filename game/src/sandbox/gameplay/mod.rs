@@ -40,7 +40,7 @@ pub enum GameplayMode {
     FixTrafficSignals,
     OptimizeCommute(OrigPersonID, Duration),
     // Map name, scenario name
-    Actdev(MapName, Option<String>),
+    Actdev(MapName, String),
 
     // current
     Tutorial(TutorialPointer),
@@ -126,15 +126,7 @@ impl GameplayMode {
                     None => LoadScenario::Nothing,
                 };
             }
-            GameplayMode::Actdev(_, ref maybe_scenario) => {
-                if let Some(s) = maybe_scenario {
-                    s.to_string()
-                } else {
-                    let mut s = Scenario::empty(map, "empty");
-                    s.only_seed_buses = None;
-                    return LoadScenario::Scenario(s);
-                }
-            }
+            GameplayMode::Actdev(_, ref scenario) => scenario.to_string(),
             GameplayMode::FixTrafficSignals | GameplayMode::OptimizeCommute(_, _) => {
                 "weekday".to_string()
             }
@@ -229,9 +221,7 @@ impl GameplayMode {
                 commute::OptimizeCommute::new(ctx, app, *p, *goal)
             }
             GameplayMode::Tutorial(current) => Tutorial::make_gameplay(ctx, app, *current),
-            GameplayMode::Actdev(_, ref maybe_scenario) => {
-                actdev::Actdev::new(ctx, maybe_scenario.clone())
-            }
+            GameplayMode::Actdev(_, ref scenario) => actdev::Actdev::new(ctx, scenario.clone()),
         }
     }
 }
