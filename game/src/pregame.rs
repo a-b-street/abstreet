@@ -360,7 +360,8 @@ impl Proposals {
                 if edits.proposal_link.is_some() {
                     current_tab.push(
                         ctx.style()
-                            .btn_solid_text("Read detailed write-up")
+                            .btn_plain()
+                            .label_underlined_text("Read detailed write-up")
                             .build_def(ctx)
                             .margin_below(10),
                     );

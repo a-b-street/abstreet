@@ -592,7 +592,7 @@ fn trip_category_selector(ctx: &mut EventCtx, app: &App, tab: DashTab) -> Widget
             button = button
                 .disabled(true)
                 .bg_color(ctx.style().btn_solid_floating.bg, ControlState::Disabled)
-                .label_styled_text(Text::from(Line(label).underlined()), ControlState::Default)
+                .label_underlined_text(label);
         }
         button.build_widget(ctx, action)
     };

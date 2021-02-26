@@ -213,6 +213,17 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
+    /// Set the text of the button's label. The text will be decorated with an underline.
+    ///
+    /// See `label_styled_text` if you need something more customizable text styling.
+    pub fn label_underlined_text(mut self, text: &'a str) -> Self {
+        let mut label = self.default_style.label.take().unwrap_or_default();
+        label.text = Some(text);
+        label.styled_text = Some(Text::from(Line(text).underlined()));
+        self.default_style.label = Some(label);
+        self
+    }
+
     /// Assign a pre-styled `Text` instance if your button need something more than uniformly
     /// colored text.
     pub fn label_styled_text(mut self, styled_text: Text, for_state: ControlState) -> Self {
