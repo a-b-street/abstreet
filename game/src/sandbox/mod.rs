@@ -293,6 +293,7 @@ struct BackToMainMenu;
 
 impl State<App> for BackToMainMenu {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        app.change_color_scheme(ctx, ColorSchemeChoice::Pregame);
         app.clear_everything(ctx);
         Transition::Clear(vec![MainMenu::new(ctx)])
     }
