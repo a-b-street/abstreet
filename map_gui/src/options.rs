@@ -260,7 +260,7 @@ impl OptionsPanel {
                 .bg(app.cs().inner_panel_bg)
                 .padding(8),
                 ctx.style()
-                    .btn_solid_text("Apply")
+                    .btn_solid_primary_text("Apply")
                     .hotkey(Key::Enter)
                     .build_def(ctx)
                     .centered_horiz(),

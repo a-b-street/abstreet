@@ -494,11 +494,11 @@ impl State<App> for TrafficSignalEditor {
 fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool) -> Panel {
     let row = vec![
         ctx.style()
-            .btn_solid_text("Finish")
+            .btn_solid_primary_text("Finish")
             .hotkey(Key::Enter)
             .build_def(ctx),
         ctx.style()
-            .btn_solid_text("Preview")
+            .btn_outline_text("Preview")
             .hotkey(lctrl(Key::P))
             .build_def(ctx),
         ctx.style()
@@ -603,14 +603,14 @@ fn make_side_panel(
     if members.len() == 1 {
         col.push(
             ctx.style()
-                .btn_solid_text("Edit entire signal")
+                .btn_outline_text("Edit entire signal")
                 .hotkey(Key::E)
                 .build_def(ctx),
         );
     } else {
         col.push(
             ctx.style()
-                .btn_solid_text("Tune offsets between signals")
+                .btn_outline_text("Tune offsets between signals")
                 .hotkey(Key::O)
                 .build_def(ctx),
         );
@@ -693,7 +693,7 @@ fn make_side_panel(
 
     col.push(
         ctx.style()
-            .btn_solid_text("Add a new stage")
+            .btn_outline_text("Add a new stage")
             .build_def(ctx)
             .centered_horiz(),
     );

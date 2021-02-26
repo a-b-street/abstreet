@@ -96,7 +96,7 @@ impl Strategize {
         let panel = Panel::new(Widget::col(vec![
             txt.draw(ctx),
             ctx.style()
-                .btn_solid_text("Back to title screen")
+                .btn_outline_text("Back to title screen")
                 .hotkey(Key::Enter)
                 .build_def(ctx),
             Widget::row(vec![
@@ -197,7 +197,7 @@ impl Results {
             Panel::new(Widget::col(vec![
                 txt.draw(ctx),
                 ctx.style()
-                    .btn_solid_text("OK")
+                    .btn_solid_primary_text("OK")
                     .hotkey(Key::Enter)
                     .build_def(ctx),
             ]))

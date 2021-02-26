@@ -113,7 +113,9 @@ impl MainState {
                         ctx.style()
                             .btn_outline_text("adjust boundary")
                             .build_def(ctx),
-                        ctx.style().btn_solid_text("export to OSM").build_def(ctx),
+                        ctx.style()
+                            .btn_solid_primary_text("export to OSM")
+                            .build_def(ctx),
                     ]),
                 ]))
                 .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)

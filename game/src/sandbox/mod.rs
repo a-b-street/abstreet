@@ -444,7 +444,7 @@ impl AgentMeter {
                 .centered_vert(),
                 format!("{} trips captured", prettyprint_usize(n)).draw_text(ctx),
                 ctx.style()
-                    .btn_solid_text("Stop")
+                    .btn_solid_primary_text("Finish Capture")
                     .build_def(ctx)
                     .align_right(),
             ]));
@@ -485,7 +485,7 @@ impl AgentMeter {
                         ],
                     )));
                 }
-                "Stop" => {
+                "Finish Capture" => {
                     app.primary.sim.save_recorded_traffic(&app.primary.map);
                 }
                 _ => unreachable!(),

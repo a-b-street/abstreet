@@ -413,14 +413,14 @@ impl SaveEdits {
                     },
                     if cancel.is_some() {
                         ctx.style()
-                            .btn_solid_text("Cancel")
+                            .btn_outline_text("Cancel")
                             .hotkey(Key::Escape)
                             .build_def(ctx)
                     } else {
                         Widget::nothing()
                     },
                     ctx.style()
-                        .btn_solid_text("Save")
+                        .btn_solid_primary_text("Save")
                         .disabled(true)
                         .build_def(ctx),
                 ])
@@ -441,7 +441,7 @@ impl SaveEdits {
                 ctx,
                 "Save",
                 ctx.style()
-                    .btn_solid_text("Save")
+                    .btn_solid_primary_text("Save")
                     .disabled(true)
                     .build_def(ctx),
             );
@@ -454,7 +454,7 @@ impl SaveEdits {
                 ctx,
                 "Save",
                 ctx.style()
-                    .btn_solid_text("Save")
+                    .btn_solid_primary_text("Save")
                     .disabled(true)
                     .build_def(ctx),
             );
@@ -470,7 +470,7 @@ impl SaveEdits {
                 ctx,
                 "Save",
                 ctx.style()
-                    .btn_solid_text("Save")
+                    .btn_solid_primary_text("Save")
                     .hotkey(Key::Enter)
                     .build_def(ctx),
             );
@@ -649,7 +649,7 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Panel {
             .draw(ctx)
             .centered_horiz(),
         ctx.style()
-            .btn_solid_text(&format!(
+            .btn_solid_primary_text(&format!(
                 "Finish & resume from {}",
                 app.primary
                     .suspended_sim
@@ -865,7 +865,7 @@ impl ConfirmDiscard {
                 "Are you sure you want to discard changes you made?".draw_text(ctx),
                 Widget::row(vec![
                     ctx.style()
-                        .btn_solid_text("Cancel")
+                        .btn_outline_text("Cancel")
                         .hotkey(Key::Escape)
                         .build_def(ctx),
                     ctx.style()

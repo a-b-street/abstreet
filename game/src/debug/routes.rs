@@ -31,7 +31,7 @@ impl RouteExplorer {
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 ctx.style()
-                    .btn_solid_text("All routes")
+                    .btn_outline_text("All routes")
                     .hotkey(Key::A)
                     .build_def(ctx),
                 params_to_controls(ctx, TripMode::Bike, &app.primary.map.routing_params())
@@ -289,7 +289,7 @@ impl AllRoutesExplorer {
                 params_to_controls(ctx, TripMode::Bike, app.primary.map.routing_params())
                     .named("params"),
                 ctx.style()
-                    .btn_solid_text("Calculate differential demand")
+                    .btn_outline_text("Calculate differential demand")
                     .build_def(ctx),
                 ctx.style()
                     .btn_solid_destructive_text("keep changed params")

@@ -162,7 +162,7 @@ impl PopupMsg {
             panel: Panel::new(Widget::col(vec![
                 txt.draw(ctx),
                 ctx.style()
-                    .btn_solid_text("OK")
+                    .btn_solid_primary_text("OK")
                     .hotkey(hotkeys(vec![Key::Enter, Key::Escape]))
                     .build_def(ctx),
             ]))

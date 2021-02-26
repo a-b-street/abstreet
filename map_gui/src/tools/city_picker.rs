@@ -135,7 +135,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                 }
                 other_places.push(
                     ctx.style()
-                        .btn_solid_text("Search all maps")
+                        .btn_outline_text("Search all maps")
                         .hotkey(Key::Tab)
                         .build_def(ctx),
                 );

@@ -309,7 +309,7 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
     if app.session.upzones_unlocked == 0 {
         return Panel::new(
             ctx.style()
-                .btn_solid_text("Start game")
+                .btn_solid_primary_text("Start game")
                 .hotkey(Key::Enter)
                 .build_def(ctx)
                 .container(),
@@ -352,12 +352,12 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
         ]),
         if num_picked == app.session.upzones_unlocked {
             ctx.style()
-                .btn_solid_text("Start game")
+                .btn_solid_primary_text("Start game")
                 .hotkey(Key::Enter)
                 .build_def(ctx)
         } else {
             ctx.style()
-                .btn_solid_text("Finish upzoning before playing")
+                .btn_solid_primary_text("Finish upzoning before playing")
                 .disabled(true)
                 .build_def(ctx)
         },

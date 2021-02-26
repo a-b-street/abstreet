@@ -48,7 +48,11 @@ impl<A: AppLike + 'static> Picker<A> {
                 prettyprint_bytes(bytes).draw_text(ctx).centered_vert(),
             ]));
         }
-        col.push(ctx.style().btn_solid_text("Sync files").build_def(ctx));
+        col.push(
+            ctx.style()
+                .btn_solid_primary_text("Sync files")
+                .build_def(ctx),
+        );
 
         Box::new(Picker {
             panel: Panel::new(Widget::col(col)).build(ctx),
