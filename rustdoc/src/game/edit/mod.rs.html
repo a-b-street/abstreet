@@ -1317,14 +1317,14 @@
                     },
                     <span class="kw">if</span> <span class="ident">cancel</span>.<span class="ident">is_some</span>() {
                         <span class="ident">ctx</span>.<span class="ident">style</span>()
-                            .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Cancel&quot;</span>)
+                            .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Cancel&quot;</span>)
                             .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
                             .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                     } <span class="kw">else</span> {
                         <span class="ident">Widget</span>::<span class="ident">nothing</span>()
                     },
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_solid_primary_text</span>(<span class="string">&quot;Save&quot;</span>)
+                        .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Save&quot;</span>)
                         .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 ])
@@ -1345,7 +1345,7 @@
                 <span class="ident">ctx</span>,
                 <span class="string">&quot;Save&quot;</span>,
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_solid_primary_text</span>(<span class="string">&quot;Save&quot;</span>)
+                    .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Save&quot;</span>)
                     .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             );
@@ -1358,7 +1358,7 @@
                 <span class="ident">ctx</span>,
                 <span class="string">&quot;Save&quot;</span>,
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_solid_primary_text</span>(<span class="string">&quot;Save&quot;</span>)
+                    .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Save&quot;</span>)
                     .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             );
@@ -1374,7 +1374,7 @@
                 <span class="ident">ctx</span>,
                 <span class="string">&quot;Save&quot;</span>,
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_solid_primary_text</span>(<span class="string">&quot;Save&quot;</span>)
+                    .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Save&quot;</span>)
                     .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             );
@@ -1553,7 +1553,7 @@
             .<span class="ident">draw</span>(<span class="ident">ctx</span>)
             .<span class="ident">centered_horiz</span>(),
         <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_solid_primary_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(
+            .<span class="ident">btn_solid_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;Finish &amp; resume from {}&quot;</span>,
                 <span class="ident">app</span>.<span class="ident">primary</span>
                     .<span class="ident">suspended_sim</span>
@@ -1769,7 +1769,7 @@
                 <span class="string">&quot;Are you sure you want to discard changes you made?&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Cancel&quot;</span>)
+                        .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Cancel&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()

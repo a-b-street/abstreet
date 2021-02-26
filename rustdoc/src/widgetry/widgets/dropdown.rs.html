@@ -379,12 +379,12 @@
 
 <span class="kw">fn</span> <span class="ident">make_btn</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">tooltip</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">is_persisten_split</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Button</span> {
     <span class="comment">// If we want to make Dropdown configurable, pass in or expose its button builder?</span>
-    <span class="kw">let</span> <span class="ident">builder</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">is_persisten_split</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_dropdown</span>();
+    <span class="kw">if</span> <span class="ident">is_persisten_split</span> {
         <span class="comment">// Quick hacks to make PersistentSplit&#39;s dropdown look a little better.</span>
         <span class="comment">// It&#39;s not ideal, but we only use one persistent split in the whole app</span>
         <span class="comment">// and it&#39;s front and center - we&#39;ll notice if something breaks.</span>
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_solid_dropdown</span>()
+        <span class="ident">builder</span> <span class="op">=</span> <span class="ident">builder</span>
             .<span class="ident">padding</span>(<span class="ident">EdgeInsets</span> {
                 <span class="ident">top</span>: <span class="number">15.0</span>,
                 <span class="ident">bottom</span>: <span class="number">15.0</span>,
@@ -397,10 +397,10 @@
                 <span class="ident">bottom_right</span>: <span class="number">2.0</span>,
                 <span class="ident">top_right</span>: <span class="number">2.0</span>,
             }))
-            .<span class="ident">outline</span>(<span class="number">0.0</span>, <span class="ident">Color</span>::<span class="ident">CLEAR</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
+            .<span class="ident">outline</span>(<span class="number">0.0</span>, <span class="ident">Color</span>::<span class="ident">CLEAR</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>);
     } <span class="kw">else</span> {
-        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline_dropdown</span>().<span class="ident">label_text</span>(<span class="ident">label</span>)
-    };
+        <span class="ident">builder</span> <span class="op">=</span> <span class="ident">builder</span>.<span class="ident">label_text</span>(<span class="ident">label</span>);
+    }
 
     <span class="ident">builder</span>.<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">tooltip</span>)
 }

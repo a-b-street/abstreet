@@ -227,16 +227,6 @@
 <span id="224">224</span>
 <span id="225">225</span>
 <span id="226">226</span>
-<span id="227">227</span>
-<span id="228">228</span>
-<span id="229">229</span>
-<span id="230">230</span>
-<span id="231">231</span>
-<span id="232">232</span>
-<span id="233">233</span>
-<span id="234">234</span>
-<span id="235">235</span>
-<span id="236">236</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
@@ -377,16 +367,6 @@
             <span class="ident">lerp</span>(<span class="ident">pct</span>, (<span class="self">self</span>.<span class="ident">b</span>, <span class="ident">other</span>.<span class="ident">b</span>)),
             <span class="ident">lerp</span>(<span class="ident">pct</span>, (<span class="self">self</span>.<span class="ident">a</span>, <span class="ident">other</span>.<span class="ident">a</span>)),
         )
-    }
-
-    <span class="comment">// Mix the color with black</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">shade</span>(<span class="self">self</span>, <span class="ident">black_ratio</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Color</span> {
-        <span class="self">self</span>.<span class="ident">lerp</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>, <span class="ident">black_ratio</span>)
-    }
-
-    <span class="comment">// Mix the color with white</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tint</span>(<span class="self">self</span>, <span class="ident">white_ratio</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Color</span> {
-        <span class="self">self</span>.<span class="ident">lerp</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">white_ratio</span>)
     }
 }
 

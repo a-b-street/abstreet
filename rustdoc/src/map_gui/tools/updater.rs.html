@@ -202,10 +202,6 @@
 <span id="199">199</span>
 <span id="200">200</span>
 <span id="201">201</span>
-<span id="202">202</span>
-<span id="203">203</span>
-<span id="204">204</span>
-<span id="205">205</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
@@ -257,11 +253,7 @@
                 <span class="ident">prettyprint_bytes</span>(<span class="ident">bytes</span>).<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
             ]));
         }
-        <span class="ident">col</span>.<span class="ident">push</span>(
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_primary_text</span>(<span class="string">&quot;Sync files&quot;</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-        );
+        <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_text</span>(<span class="string">&quot;Sync files&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>));
 
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Picker</span> {
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>)).<span class="ident">build</span>(<span class="ident">ctx</span>),

@@ -461,7 +461,7 @@
         <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             (<span class="ident">make_task</span>)(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_primary_text</span>(<span class="string">&quot;Start&quot;</span>)
+                .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Start&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                 .<span class="ident">centered_horiz</span>()
@@ -522,7 +522,7 @@
             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">prev</span>.<span class="ident">margin_right</span>(<span class="number">40</span>), <span class="ident">next</span>]).<span class="ident">centered_horiz</span>(),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Skip cutscene&quot;</span>)
+                    .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Skip cutscene&quot;</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                     .<span class="ident">centered_horiz</span>(),
             ])
@@ -563,7 +563,7 @@
                 <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">contents</span>,
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_solid_primary_text</span>(<span class="string">&quot;OK&quot;</span>)
+                        .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Okay&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">hotkeys</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Key</span>::<span class="ident">Escape</span>, <span class="ident">Key</span>::<span class="ident">Space</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>]))
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                         .<span class="ident">centered_horiz</span>()
@@ -582,7 +582,7 @@
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;OK&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>,
+                <span class="string">&quot;Okay&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>,
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             },
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Keep</span>,

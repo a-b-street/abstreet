@@ -959,17 +959,6 @@
 <span id="956">956</span>
 <span id="957">957</span>
 <span id="958">958</span>
-<span id="959">959</span>
-<span id="960">960</span>
-<span id="961">961</span>
-<span id="962">962</span>
-<span id="963">963</span>
-<span id="964">964</span>
-<span id="965">965</span>
-<span id="966">966</span>
-<span id="967">967</span>
-<span id="968">968</span>
-<span id="969">969</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
@@ -1182,17 +1171,6 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">label_text</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">label</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">label</span>.<span class="ident">take</span>().<span class="ident">unwrap_or_default</span>();
         <span class="ident">label</span>.<span class="ident">text</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">text</span>);
-        <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">label</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">label</span>);
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Set the text of the button&#39;s label. The text will be decorated with an underline.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See `label_styled_text` if you need something more customizable text styling.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">label_underlined_text</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">label</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">label</span>.<span class="ident">take</span>().<span class="ident">unwrap_or_default</span>();
-        <span class="ident">label</span>.<span class="ident">text</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">text</span>);
-        <span class="ident">label</span>.<span class="ident">styled_text</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">text</span>).<span class="ident">underlined</span>()));
         <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">label</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">label</span>);
         <span class="self">self</span>
     }

@@ -544,7 +544,7 @@
                 <span class="ident">biz_search_panel</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">b</span>.<span class="ident">render</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;Search for businesses&quot;</span>))
             } <span class="kw">else</span> {
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Search for businesses&quot;</span>)
+                    .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Search for businesses&quot;</span>)
                     .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Tab</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
             },
@@ -568,7 +568,7 @@
                 <span class="ident">col</span>.<span class="ident">push</span>(
                     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">ctx</span>.<span class="ident">style</span>()
-                            .<span class="ident">btn_outline_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Open OSM way {}&quot;</span>, <span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>.<span class="number">0</span>))
+                            .<span class="ident">btn_solid_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Open OSM way {}&quot;</span>, <span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>.<span class="number">0</span>))
                             .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>)),
                         <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_text</span>(<span class="string">&quot;Edit OSM way&quot;</span>).<span class="ident">build_widget</span>(
                             <span class="ident">ctx</span>,
@@ -609,7 +609,7 @@
                 <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>);
                 <span class="ident">col</span>.<span class="ident">push</span>(
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Open OSM node {}&quot;</span>, <span class="ident">i</span>.<span class="ident">orig_id</span>.<span class="number">0</span>))
+                        .<span class="ident">btn_solid_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Open OSM node {}&quot;</span>, <span class="ident">i</span>.<span class="ident">orig_id</span>.<span class="number">0</span>))
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">i</span>.<span class="ident">orig_id</span>)),
                 );
             }
@@ -617,7 +617,7 @@
                 <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>);
                 <span class="ident">col</span>.<span class="ident">push</span>(
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Open OSM ID {}&quot;</span>, <span class="ident">b</span>.<span class="ident">orig_id</span>.<span class="ident">inner</span>()))
+                        .<span class="ident">btn_solid_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Open OSM ID {}&quot;</span>, <span class="ident">b</span>.<span class="ident">orig_id</span>.<span class="ident">inner</span>()))
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">b</span>.<span class="ident">orig_id</span>)),
                 );
 
@@ -665,7 +665,7 @@
                 <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">pl</span>);
                 <span class="ident">col</span>.<span class="ident">push</span>(
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Open OSM ID {}&quot;</span>, <span class="ident">pl</span>.<span class="ident">osm_id</span>.<span class="ident">inner</span>()))
+                        .<span class="ident">btn_solid_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Open OSM ID {}&quot;</span>, <span class="ident">pl</span>.<span class="ident">osm_id</span>.<span class="ident">inner</span>()))
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">pl</span>.<span class="ident">osm_id</span>)),
                 );
 
@@ -909,7 +909,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="ident">col</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Hide business search&quot;</span>)
+                .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Hide business search&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Tab</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         );

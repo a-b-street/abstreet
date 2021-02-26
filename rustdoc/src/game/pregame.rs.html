@@ -582,7 +582,6 @@
 <span id="579">579</span>
 <span id="580">580</span>
 <span id="581">581</span>
-<span id="582">582</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -628,11 +627,11 @@
         <span class="ident">TitleScreen</span> {
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Image</span>::<span class="ident">untinted</span>(<span class="string">&quot;system/assets/pregame/logo.svg&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/pregame/logo.svg&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="comment">// TODO that nicer font</span>
                     <span class="comment">// TODO Any key</span>
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_solid_primary_text</span>(<span class="string">&quot;Play&quot;</span>)
+                        .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Play&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">hotkeys</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Key</span>::<span class="ident">Space</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>]))
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;start game&quot;</span>),
                 ])
@@ -872,7 +871,7 @@
                 .<span class="ident">padding</span>(<span class="number">16</span>)
             },
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_text</span>(<span class="string">&quot;See full credits&quot;</span>)
+                .<span class="ident">btn_solid_text</span>(<span class="string">&quot;See full credits&quot;</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                 .<span class="ident">centered_horiz</span>(),
         ];
@@ -946,15 +945,14 @@
                 <span class="kw">if</span> <span class="ident">edits</span>.<span class="ident">proposal_link</span>.<span class="ident">is_some</span>() {
                     <span class="ident">current_tab</span>.<span class="ident">push</span>(
                         <span class="ident">ctx</span>.<span class="ident">style</span>()
-                            .<span class="ident">btn_plain</span>()
-                            .<span class="ident">label_underlined_text</span>(<span class="string">&quot;Read detailed write-up&quot;</span>)
+                            .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Read detailed write-up&quot;</span>)
                             .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                             .<span class="ident">margin_below</span>(<span class="number">10</span>),
                     );
                 }
                 <span class="ident">current_tab</span>.<span class="ident">push</span>(
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_solid_primary_text</span>(<span class="string">&quot;Try out this proposal&quot;</span>)
+                        .<span class="ident">btn_solid_text</span>(<span class="string">&quot;Try out this proposal&quot;</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 );
 

@@ -1019,7 +1019,7 @@
             <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">lookup_parked_car</span>(<span class="ident">v</span>.<span class="ident">id</span>).<span class="ident">is_some</span>() {
                 <span class="ident">rows</span>.<span class="ident">push</span>(
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Owner of {} (parked)&quot;</span>, <span class="ident">v</span>.<span class="ident">id</span>))
+                        .<span class="ident">btn_solid_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Owner of {} (parked)&quot;</span>, <span class="ident">v</span>.<span class="ident">id</span>))
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 );
                 <span class="ident">details</span>
@@ -1202,7 +1202,7 @@
     <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_owner_of_car</span>(<span class="ident">id</span>).<span class="ident">unwrap</span>();
     <span class="ident">rows</span>.<span class="ident">push</span>(
         <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_outline_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Owned by {}&quot;</span>, <span class="ident">p</span>))
+            .<span class="ident">btn_solid_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Owned by {}&quot;</span>, <span class="ident">p</span>))
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
     );
     <span class="ident">details</span>.<span class="ident">hyperlinks</span>.<span class="ident">insert</span>(
