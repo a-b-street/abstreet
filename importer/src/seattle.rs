@@ -114,7 +114,7 @@ pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration)
                 driving_side: map_model::DrivingSide::Right,
                 bikes_can_use_bus_lanes: true,
                 inferred_sidewalks: true,
-                separate_cycleways: false,
+                separate_cycleways: true,
                 street_parking_spot_length: Distance::meters(8.0),
             },
 
