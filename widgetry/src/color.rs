@@ -138,6 +138,16 @@ impl Color {
             lerp(pct, (self.a, other.a)),
         )
     }
+
+    // Mix the color with black
+    pub fn shade(self, black_ratio: f64) -> Color {
+        self.lerp(Color::BLACK, black_ratio)
+    }
+
+    // Mix the color with white
+    pub fn tint(self, white_ratio: f64) -> Color {
+        self.lerp(Color::WHITE, white_ratio)
+    }
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/linear-gradient is the best reference I've
