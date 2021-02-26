@@ -5,8 +5,8 @@ use geom::{ArrowCap, Circle, Distance, Duration, PolyLine, Pt2D, Time};
 use map_gui::tools::{ChooseSomething, ColorLegend, Minimap, MinimapControls};
 use map_model::BuildingID;
 use widgetry::{
-    Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, State, StyledButtons, Text, TextExt, UpdateType, VerticalAlignment, Widget,
+    Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Image, Key, Line,
+    Outcome, Panel, State, StyledButtons, Text, TextExt, UpdateType, VerticalAlignment, Widget,
 };
 
 use crate::after_level::{RecordPath, Results, Strategize};
@@ -52,9 +52,9 @@ impl Game {
             "15-min Santa".draw_text(ctx).centered_vert(),
             Widget::row(vec![
                 // TODO The blur is messed up
-                Icon::from_path("system/assets/tools/map.svg")
-                    .centered_vert()
-                    .into_widget(ctx),
+                Image::icon("system/assets/tools/map.svg")
+                    .into_widget(ctx)
+                    .centered_vert(),
                 Line(&level.title).draw(ctx),
             ])
             .padding(10)
