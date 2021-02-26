@@ -41,20 +41,20 @@ impl MapLoader {
         }
 
         // TODO Generalize this more, maybe with some kind of country code -> font config
-        let zcool = "ZCOOLXiaoWei-Regular.ttf";
-        if name.city.country == "tw" && !ctx.is_font_loaded(zcool) {
+        let chinese_font = "NotoSerifCJKtc-Regular.otf";
+        if name.city.country == "tw" && !ctx.is_font_loaded(chinese_font) {
             return RawFileLoader::<A>::new(
                 ctx,
-                abstio::path(format!("system/extra_fonts/{}", zcool)),
+                abstio::path(format!("system/extra_fonts/{}", chinese_font)),
                 Box::new(move |ctx, app, bytes| match bytes {
                     Ok(bytes) => {
-                        ctx.load_font(zcool, bytes);
+                        ctx.load_font(chinese_font, bytes);
                         Transition::Replace(MapLoader::new(ctx, app, name, on_load))
                     }
                     Err(err) => Transition::Replace(PopupMsg::new(
                         ctx,
                         "Error",
-                        vec![format!("Couldn't load {}", zcool), err.to_string()],
+                        vec![format!("Couldn't load {}", chinese_font), err.to_string()],
                     )),
                 }),
             );
