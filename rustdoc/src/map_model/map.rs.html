@@ -726,9 +726,6 @@
 <span id="723">723</span>
 <span id="724">724</span>
 <span id="725">725</span>
-<span id="726">726</span>
-<span id="727">727</span>
-<span id="728">728</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.</span>
 
@@ -761,8 +758,6 @@
     <span class="doccomment">/// false, no sidewalks will be inferred if not tagged in OSM, and separate sidewalks will be</span>
     <span class="doccomment">/// included.</span>
     <span class="kw">pub</span> <span class="ident">inferred_sidewalks</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// If true, separate cycleways from OSM will be included.</span>
-    <span class="kw">pub</span> <span class="ident">separate_cycleways</span>: <span class="ident">bool</span>,
     <span class="doccomment">/// Street parking is divided into spots of this length. 8 meters is a reasonable default, but</span>
     <span class="doccomment">/// people in some regions might be more accustomed to squeezing into smaller spaces. This</span>
     <span class="doccomment">/// value can be smaller than the hardcoded maximum car length; cars may render on top of each</span>
@@ -902,7 +897,6 @@
                 <span class="ident">driving_side</span>: <span class="ident">DrivingSide</span>::<span class="ident">Right</span>,
                 <span class="ident">bikes_can_use_bus_lanes</span>: <span class="bool-val">true</span>,
                 <span class="ident">inferred_sidewalks</span>: <span class="bool-val">true</span>,
-                <span class="ident">separate_cycleways</span>: <span class="bool-val">false</span>,
                 <span class="ident">street_parking_spot_length</span>: <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">8.0</span>),
             },
             <span class="ident">pathfinder</span>: <span class="ident">Pathfinder</span>::<span class="ident">Dijkstra</span>,
