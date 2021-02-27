@@ -15,10 +15,10 @@ pub struct Style {
     pub loading_tips: Text,
     pub section_bg: Color,
     pub section_outline: OutlineStyle,
-    pub btn_tab: ButtonStyle,
     pub btn_plain: ButtonStyle,
     pub btn_outline: ButtonStyle,
     pub btn_floating: ButtonStyle,
+    pub btn_tab: ButtonStyle,
     pub btn_solid_destructive: ButtonStyle,
     pub btn_plain_destructive: ButtonStyle,
     pub btn_solid_primary: ButtonStyle,
@@ -210,21 +210,28 @@ impl Style {
 
     pub fn dark_bg() -> Style {
         let navy = hex("#003046");
-        let mut style = Self::light_bg();
-        style.panel_bg = navy.alpha(0.9);
-        style.section_outline.1 = navy.shade(0.2);
-        style.section_bg = navy;
-        style.field_bg = navy.shade(0.2);
-        style.btn_outline = ButtonStyle::outline_light_fg();
-        style.btn_plain = ButtonStyle::plain_light_fg();
-        style.btn_tab = ButtonStyle::solid_dark_fg();
-        style.btn_floating = ButtonStyle::solid_light_fg();
-        style.text_fg_color = Color::WHITE;
-        style.icon_fg = Color::WHITE;
-        style.text_hotkey_color = Color::GREEN;
-        style.text_destructive_color = hex("#FF5E5E");
-        style.dropdown_border = Color::WHITE;
-        style
+        Style {
+            panel_bg: navy.alpha(0.9),
+            field_bg: navy.shade(0.2),
+            dropdown_border: Color::WHITE,
+            // TODO: replace inner_panel_bg with this
+            section_bg: navy,
+            section_outline: (DEFAULT_OUTLINE_THICKNESS, navy.shade(0.2)),
+            loading_tips: Text::new(),
+            icon_fg: Color::WHITE,
+            text_fg_color: Color::WHITE,
+            text_hotkey_color: Color::GREEN,
+            text_tooltip_color: Color::WHITE,
+            text_destructive_color: hex("#FF5E5E"),
+            btn_outline: ButtonStyle::outline_light_fg(),
+            btn_plain: ButtonStyle::plain_light_fg(),
+            btn_tab: ButtonStyle::solid_dark_fg(),
+            btn_floating: ButtonStyle::solid_light_fg(),
+            btn_solid_destructive: ButtonStyle::solid_destructive(),
+            btn_plain_destructive: ButtonStyle::plain_destructive(),
+            btn_solid_primary: ButtonStyle::solid_primary(),
+            btn_plain_primary: ButtonStyle::plain_primary(),
+        }
     }
 }
 
