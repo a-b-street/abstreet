@@ -2,8 +2,8 @@ use geom::{Distance, Polygon, Pt2D};
 
 use crate::{
     svg, text::Font, Color, ContentMode, ControlState, CornerRounding, Drawable, EdgeInsets,
-    EventCtx, GeomBatch, GfxCtx, Line, MultiKey, Outcome, RewriteColor, ScreenDims, ScreenPt,
-    ScreenRectangle, Text, Widget, WidgetImpl, WidgetOutput,
+    EventCtx, GeomBatch, GfxCtx, Line, MultiKey, Outcome, OutlineStyle, RewriteColor, ScreenDims,
+    ScreenPt, ScreenRectangle, Text, Widget, WidgetImpl, WidgetOutput,
 };
 
 pub struct Button {
@@ -145,7 +145,7 @@ pub struct ButtonBuilder<'a> {
 struct ButtonStateStyle<'a> {
     image: Option<Image<'a>>,
     label: Option<Label<'a>>,
-    outline: Option<(f64, Color)>,
+    outline: Option<OutlineStyle>,
     bg_color: Option<Color>,
     custom_batch: Option<GeomBatch>,
 }
@@ -398,8 +398,8 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     ///
     /// If the style hasn't been set for the current ControlState, the style for
     /// `ControlState::Default` will be used.
-    pub fn outline(mut self, thickness: f64, color: Color, for_state: ControlState) -> Self {
-        self.style_mut(for_state).outline = Some((thickness, color));
+    pub fn outline(mut self, outline: OutlineStyle, for_state: ControlState) -> Self {
+        self.style_mut(for_state).outline = Some(outline);
         self
     }
 

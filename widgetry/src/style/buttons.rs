@@ -230,8 +230,7 @@ impl<'a> ButtonStyle {
     }
 
     pub fn outline(&self) -> ButtonBuilder<'a> {
-        self.plain()
-            .outline(self.outline_thickness, self.outline, ControlState::Default)
+        self.plain().outline(self.outline, ControlState::Default)
     }
 
     pub fn plain_text(&self, text: &'a str) -> ButtonBuilder<'a> {
@@ -342,8 +341,7 @@ fn basic_button<'a>(
 
     if let Some(outline_thickness) = outline_thickness {
         builder.outline(
-            outline_thickness,
-            button_style.outline,
+            (outline_thickness, button_style.outline.1),
             ControlState::Default,
         )
     } else {

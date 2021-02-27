@@ -206,6 +206,7 @@ impl Widget {
     }
 
     // Callers have to adjust padding too, probably
+    #[deprecated(note = "combine params into OutlineStyle")]
     pub fn outline(mut self, thickness: f64, color: Color) -> Widget {
         self.layout.outline = Some((thickness, color));
         self

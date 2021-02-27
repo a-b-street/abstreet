@@ -81,15 +81,15 @@ impl Toggle {
             .style()
             .btn_plain_icon_bytes(include_labeled_bytes!("../../icons/checkbox_unchecked.svg"))
             .image_color(
-                RewriteColor::Change(Color::BLACK, ctx.style().btn_outline.outline),
+                RewriteColor::Change(Color::BLACK, ctx.style().icon_fg),
                 ControlState::Default,
             )
             .image_color(
-                RewriteColor::Change(Color::BLACK, ctx.style().btn_outline.outline),
+                RewriteColor::Change(Color::BLACK, ctx.style().icon_fg),
                 ControlState::Hovered,
             )
             .image_color(
-                RewriteColor::Change(Color::BLACK, ctx.style().btn_outline.outline),
+                RewriteColor::Change(Color::BLACK, ctx.style().icon_fg),
                 ControlState::Disabled,
             )
             .label_text(label);
@@ -121,15 +121,15 @@ impl Toggle {
             .style()
             .btn_plain_icon_bytes(include_labeled_bytes!("../../icons/checkbox_unchecked.svg"))
             .image_color(
-                RewriteColor::Change(Color::BLACK, ctx.style().btn_outline.outline),
+                RewriteColor::Change(Color::BLACK, ctx.style().icon_fg),
                 ControlState::Default,
             )
             .image_color(
-                RewriteColor::Change(Color::BLACK, ctx.style().btn_outline.outline),
+                RewriteColor::Change(Color::BLACK, ctx.style().icon_fg),
                 ControlState::Hovered,
             )
             .image_color(
-                RewriteColor::Change(Color::BLACK, ctx.style().btn_outline.outline),
+                RewriteColor::Change(Color::BLACK, ctx.style().icon_fg),
                 ControlState::Disabled,
             )
             .label_styled_text(Text::from_all(spans), ControlState::Default);

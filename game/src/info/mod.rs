@@ -702,10 +702,10 @@ fn make_tabs(
                 .disabled(current_tab.variant() == link.variant())
                 .bg_color(ctx.style().btn_solid.bg, ControlState::Disabled)
                 .label_color(ctx.style().btn_solid.fg, ControlState::Disabled)
-                .outline(2.0, ctx.style().btn_solid.bg_hover, ControlState::Disabled)
+                .outline(ctx.style().btn_solid.outline, ControlState::Disabled)
                 // Hide the hit area for selectable tabs unless hovered
                 .bg_color(Color::CLEAR, ControlState::Default)
-                .outline(0.0, Color::CLEAR, ControlState::Default)
+                .outline((0.0, Color::CLEAR), ControlState::Default)
                 .bg_color(ctx.style().btn_solid.bg.alpha(0.6), ControlState::Hovered)
                 .build_def(ctx),
         );

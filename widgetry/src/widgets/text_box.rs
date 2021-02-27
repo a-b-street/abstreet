@@ -126,10 +126,11 @@ impl WidgetImpl for TextBox {
             Polygon::rounded_rectangle(self.dims.width, self.dims.height, 2.0),
         )]);
 
+        let outline_style = g.style().btn_outline.outline;
         if let Ok(outline) = Polygon::rounded_rectangle(self.dims.width, self.dims.height, 2.0)
-            .to_outline(Distance::meters(2.0))
+            .to_outline(Distance::meters(outline_style.0))
         {
-            batch.push(g.style().btn_outline.outline, outline);
+            batch.push(outline_style.1, outline);
         }
 
         batch.append(
