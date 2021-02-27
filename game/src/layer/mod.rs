@@ -1,8 +1,7 @@
 use map_gui::tools::{grey_out_map, HeatmapOptions};
 use sim::AgentType;
 use widgetry::{
-    DrawBaselayer, EventCtx, GfxCtx, Image, Key, Line, Outcome, Panel, State, StyledButtons,
-    TextExt, Widget,
+    DrawBaselayer, EventCtx, GfxCtx, Image, Key, Line, Outcome, Panel, State, TextExt, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -94,7 +93,8 @@ impl PickLayer {
         };
         let btn = |name: &str, key| {
             ctx.style()
-                .btn_outline_text(name)
+                .btn_outline
+                .text(name)
                 .hotkey(key)
                 .disabled(name == current)
                 .build_widget(ctx, name)

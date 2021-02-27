@@ -1,7 +1,7 @@
 use geom::{Circle, Distance, LonLat, Pt2D, Ring};
 use widgetry::{
-    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, StyledButtons,
-    Text, VerticalAlignment, Widget,
+    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -33,7 +33,8 @@ impl PolygonEditor {
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 ctx.style()
-                    .btn_outline_text("export as an Osmosis polygon filter")
+                    .btn_outline
+                    .text("export as an Osmosis polygon filter")
                     .hotkey(Key::X)
                     .build_def(ctx),
             ]))

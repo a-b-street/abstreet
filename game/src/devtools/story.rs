@@ -5,8 +5,8 @@ use map_gui::render::DrawOptions;
 use map_gui::tools::{ChooseSomething, PromptInput};
 use widgetry::{
     lctrl, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, StyledButtons, Text,
-    VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, Text, VerticalAlignment,
+    Widget,
 };
 
 use crate::app::{App, ShowEverything, Transition};
@@ -313,7 +313,8 @@ fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) ->
             Line("Story map editor").small_heading().draw(ctx),
             Widget::vert_separator(ctx, 30.0),
             ctx.style()
-                .btn_outline_popup(&story.name)
+                .btn_outline
+                .popup(&story.name)
                 .hotkey(lctrl(Key::L))
                 .build_widget(ctx, "load"),
             ctx.style()
@@ -326,17 +327,20 @@ fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) ->
         ]),
         Widget::row(vec![
             ctx.style()
-                .btn_plain_icon("system/assets/timeline/goal_pos.svg")
+                .btn_plain
+                .icon("system/assets/timeline/goal_pos.svg")
                 .disabled(matches!(mode, Mode::PlacingMarker))
                 .hotkey(Key::M)
                 .build_widget(ctx, "new marker"),
             ctx.style()
-                .btn_plain_icon("system/assets/tools/pan.svg")
+                .btn_plain
+                .icon("system/assets/tools/pan.svg")
                 .disabled(matches!(mode, Mode::View))
                 .hotkey(Key::Escape)
                 .build_widget(ctx, "pan"),
             ctx.style()
-                .btn_plain_icon("system/assets/tools/select.svg")
+                .btn_plain
+                .icon("system/assets/tools/select.svg")
                 .disabled(matches!(mode, Mode::Freehand(_)))
                 .hotkey(Key::P)
                 .build_widget(ctx, "draw freehand"),
@@ -488,10 +492,11 @@ impl Marker {
                 Line("Editing marker").small_heading().draw(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
-            ctx.style().btn_outline_text("delete").build_def(ctx),
+            ctx.style().btn_outline.text("delete").build_def(ctx),
             Widget::text_entry(ctx, self.event.clone(), true).named("event"),
             ctx.style()
-                .btn_outline_text("confirm")
+                .btn_outline
+                .text("confirm")
                 .hotkey(Key::Enter)
                 .build_def(ctx),
         ]))

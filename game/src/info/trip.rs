@@ -8,7 +8,7 @@ use map_model::{Map, Path, PathStep};
 use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhase, TripPhaseType};
 use widgetry::{
     Color, ControlState, DrawWithTooltips, EventCtx, GeomBatch, Line, LinePlot, PlotOptions,
-    RewriteColor, Series, StyledButtons, Text, TextExt, Widget,
+    RewriteColor, Series, Text, TextExt, Widget,
 };
 
 use crate::app::App;
@@ -696,7 +696,8 @@ fn make_trip_details(
         );
 
         ctx.style()
-            .btn_plain_icon("system/assets/timeline/start_pos.svg")
+            .btn_plain
+            .icon("system/assets/timeline/start_pos.svg")
             .tooltip(Text::from(Line(name)))
             .build_widget(ctx, &format!("jump to start of {}", trip_id))
     };
@@ -728,7 +729,8 @@ fn make_trip_details(
         );
 
         ctx.style()
-            .btn_plain_icon("system/assets/timeline/goal_pos.svg")
+            .btn_plain
+            .icon("system/assets/timeline/goal_pos.svg")
             .tooltip(Text::from(Line(name)))
             .build_widget(ctx, &format!("jump to goal of {}", trip_id))
     };
@@ -801,7 +803,8 @@ fn make_trip_details(
                     (trip_id, trip.departure),
                 );
                 ctx.style()
-                    .btn_plain_icon("system/assets/speed/jump_to_time.svg")
+                    .btn_plain
+                    .icon("system/assets/speed/jump_to_time.svg")
                     .tooltip({
                         let mut txt = Text::from(Line("This will jump to "));
                         txt.append(Line(trip.departure.ampm_tostring()).fg(Color::hex("#F9EC51")));
@@ -819,7 +822,8 @@ fn make_trip_details(
                         .time_warpers
                         .insert(format!("jump to {}", t), (trip_id, t));
                     ctx.style()
-                        .btn_plain_icon("system/assets/speed/jump_to_time.svg")
+                        .btn_plain
+                        .icon("system/assets/speed/jump_to_time.svg")
                         .tooltip({
                             let mut txt = Text::from(Line("This will jump to "));
                             txt.append(Line(t.ampm_tostring()).fg(Color::hex("#F9EC51")));

@@ -7,7 +7,7 @@ use map_gui::ID;
 use map_model::{IntersectionCluster, IntersectionID, Map, PathConstraints, RoadID};
 use widgetry::{
     Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Panel, SimpleState, State, StyledButtons, Text, TextExt, Toggle, VerticalAlignment, Widget,
+    Panel, SimpleState, State, Text, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, ShowEverything, Transition};
@@ -35,19 +35,23 @@ impl UberTurnPicker {
                 ctx.style().btn_close_widget(ctx),
             ]),
             ctx.style()
-                .btn_outline_text("View uber-turns")
+                .btn_outline
+                .text("View uber-turns")
                 .hotkey(Key::Enter)
                 .build_def(ctx),
             ctx.style()
-                .btn_outline_text("Edit")
+                .btn_outline
+                .text("Edit")
                 .hotkey(Key::E)
                 .build_def(ctx),
             ctx.style()
-                .btn_outline_text("Detect all clusters")
+                .btn_outline
+                .text("Detect all clusters")
                 .hotkey(Key::D)
                 .build_def(ctx),
             ctx.style()
-                .btn_outline_text("Preview merged intersection")
+                .btn_outline
+                .text("Preview merged intersection")
                 .hotkey(Key::P)
                 .build_def(ctx),
         ]))

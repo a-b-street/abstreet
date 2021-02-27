@@ -14,7 +14,7 @@ use sim::{
 };
 use widgetry::{
     hotkeys, lctrl, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    ScreenPt, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
+    ScreenPt, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -751,7 +751,7 @@ impl TutorialState {
                 .btn_next()
                 .disabled(self.current.stage == self.stages.len() - 1)
                 .build_widget(ctx, "next tutorial"),
-            ctx.style().btn_outline_text("Quit").build_def(ctx),
+            ctx.style().btn_outline.text("Quit").build_def(ctx),
         ])
         .centered()];
         {
@@ -770,7 +770,8 @@ impl TutorialState {
                     // TODO also text saying "instructions"... can we layout two things easily to
                     // make a button?
                     ctx.style()
-                        .btn_plain_icon("system/assets/tools/info.svg")
+                        .btn_plain
+                        .icon("system/assets/tools/info.svg")
                         .build_widget(ctx, "instructions")
                         .centered_vert()
                         .align_right(),
@@ -781,7 +782,8 @@ impl TutorialState {
         if edit_map {
             col.push(
                 ctx.style()
-                    .btn_outline_icon_text("system/assets/tools/pencil.svg", "Edit map")
+                    .btn_outline
+                    .icon_text("system/assets/tools/pencil.svg", "Edit map")
                     .hotkey(lctrl(Key::E))
                     .build_widget(ctx, "edit map"),
             );

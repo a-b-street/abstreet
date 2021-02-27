@@ -5,8 +5,8 @@ use geom::Duration;
 use map_gui::tools::ChooseSomething;
 use map_model::IntersectionID;
 use widgetry::{
-    Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, StyledButtons,
-    TextExt, UpdateType, VerticalAlignment, Widget,
+    Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, TextExt, UpdateType,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -26,7 +26,8 @@ impl PreviewTrafficSignal {
             panel: Panel::new(Widget::col(vec![
                 "Previewing traffic signal".draw_text(ctx),
                 ctx.style()
-                    .btn_outline_text("back to editing")
+                    .btn_outline
+                    .text("back to editing")
                     .hotkey(Key::Escape)
                     .build_def(ctx),
             ]))

@@ -12,8 +12,7 @@ use sim::{
 };
 use widgetry::{
     Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    LinePlot, Outcome, Panel, PlotOptions, Series, StyledButtons, TextExt, Toggle,
-    VerticalAlignment, Widget,
+    LinePlot, Outcome, Panel, PlotOptions, Series, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -375,7 +374,8 @@ impl InfoPanel {
                     cached_actions.push(key);
                     let button = ctx
                         .style()
-                        .btn_outline_text(&label)
+                        .btn_outline
+                        .text(&label)
                         .hotkey(key)
                         .build_widget(ctx, &label);
                     col.push(button);
@@ -730,7 +730,8 @@ fn make_tabs(
 fn header_btns(ctx: &EventCtx) -> Widget {
     Widget::row(vec![
         ctx.style()
-            .btn_plain_icon("system/assets/tools/location.svg")
+            .btn_plain
+            .icon("system/assets/tools/location.svg")
             .hotkey(Key::J)
             .build_widget(ctx, "jump to object"),
         ctx.style().btn_close_widget(ctx),

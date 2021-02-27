@@ -6,8 +6,7 @@ use anyhow::Result;
 use abstio::{DataPacks, Manifest};
 use abstutil::Timer;
 use widgetry::{
-    EventCtx, GfxCtx, Line, Outcome, Panel, State, StyledButtons, TextExt, Toggle, Transition,
-    Widget,
+    EventCtx, GfxCtx, Line, Outcome, Panel, State, TextExt, Toggle, Transition, Widget,
 };
 
 use crate::tools::PopupMsg;

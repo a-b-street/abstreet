@@ -4,8 +4,7 @@ use map_gui::ID;
 use sim::AlertLocation;
 use widgetry::{
     Choice, Color, ControlState, EdgeInsets, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Image, Key, Line, Outcome, Panel, PersistentSplit, ScreenDims, StyledButtons, Text,
-    VerticalAlignment, Widget,
+    Image, Key, Line, Outcome, Panel, PersistentSplit, ScreenDims, Text, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -48,7 +47,8 @@ impl SpeedControls {
         row.push({
             let button = ctx
                 .style()
-                .btn_plain_icon("system/assets/speed/triangle.svg")
+                .btn_plain
+                .icon("system/assets/speed/triangle.svg")
                 .hotkey(Key::Space);
 
             Widget::custom_row(vec![if self.paused {
@@ -77,7 +77,8 @@ impl SpeedControls {
 
                     let mut triangle_btn = ctx
                         .style()
-                        .btn_plain()
+                        .btn_plain
+                        .btn()
                         .image_path("system/assets/speed/triangle.svg")
                         .image_dims(ScreenDims::new(16.0, 26.0))
                         .tooltip(txt)
@@ -125,14 +126,16 @@ impl SpeedControls {
 
         row.push(
             ctx.style()
-                .btn_plain_icon("system/assets/speed/jump_to_time.svg")
+                .btn_plain
+                .icon("system/assets/speed/jump_to_time.svg")
                 .hotkey(Key::B)
                 .build_widget(ctx, "jump to specific time"),
         );
 
         row.push(
             ctx.style()
-                .btn_plain_icon("system/assets/speed/reset.svg")
+                .btn_plain
+                .icon("system/assets/speed/reset.svg")
                 .hotkey(Key::X)
                 .build_widget(ctx, "reset to midnight"),
         );

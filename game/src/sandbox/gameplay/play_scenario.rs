@@ -6,7 +6,7 @@ use map_gui::tools::{grey_out_map, nice_map_name, ChooseSomething, CityPicker, P
 use sim::{ScenarioModifier, TripMode};
 use widgetry::{
     lctrl, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Slider,
-    Spinner, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
+    Spinner, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -140,7 +140,8 @@ impl GameplayState for PlayScenario {
                     .build_widget(ctx, "change scenario")
                     .margin_right(8),
                 ctx.style()
-                    .btn_outline_icon_text("system/assets/tools/pencil.svg", "Edit map")
+                    .btn_outline
+                    .icon_text("system/assets/tools/pencil.svg", "Edit map")
                     .hotkey(lctrl(Key::E))
                     .build_widget(ctx, "edit map")
                     .margin_right(8),
@@ -149,7 +150,8 @@ impl GameplayState for PlayScenario {
             if self.scenario_name != "empty" {
                 Widget::row(vec![
                     ctx.style()
-                        .btn_plain_icon("system/assets/tools/pencil.svg")
+                        .btn_plain
+                        .icon("system/assets/tools/pencil.svg")
                         .build_widget(ctx, "edit traffic patterns")
                         .centered_vert(),
                     format!("{} modifications to traffic patterns", self.modifiers.len())
@@ -210,18 +212,21 @@ impl EditScenarioModifiers {
         }
         rows.push(
             ctx.style()
-                .btn_outline_text("Change trip mode")
+                .btn_outline
+                .text("Change trip mode")
                 .build_def(ctx),
         );
         rows.push(
             ctx.style()
-                .btn_outline_text("Add extra new trips")
+                .btn_outline
+                .text("Add extra new trips")
                 .build_def(ctx),
         );
         rows.push(Widget::row(vec![
             Spinner::widget(ctx, (2, 14), 2).named("repeat_days"),
             ctx.style()
-                .btn_outline_text("Repeat schedule multiple days")
+                .btn_outline
+                .text("Repeat schedule multiple days")
                 .build_def(ctx),
         ]));
         rows.push(Widget::horiz_separator(ctx, 0.5));

@@ -2,9 +2,7 @@ use std::collections::HashSet;
 
 use abstutil::prettyprint_usize;
 use map_model::{LaneID, PathConstraints};
-use widgetry::{
-    EventCtx, Line, LinePlot, PlotOptions, Series, StyledButtons, Text, TextExt, Widget,
-};
+use widgetry::{EventCtx, Line, LinePlot, PlotOptions, Series, Text, TextExt, Widget};
 
 use crate::app::App;
 use crate::info::{header_btns, make_table, make_tabs, throughput, DataOptions, Details, Tab};
@@ -173,7 +171,8 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
 
     rows.push(
         ctx.style()
-            .btn_outline_text("Open OSM way")
+            .btn_outline
+            .text("Open OSM way")
             .build_widget(ctx, &format!("open {}", r.orig_id.osm_way_id)),
     );
 

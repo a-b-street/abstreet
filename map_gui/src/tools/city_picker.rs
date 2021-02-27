@@ -5,8 +5,7 @@ use geom::{Distance, Percent, Polygon, Pt2D};
 use map_model::City;
 use widgetry::{
     Autocomplete, Color, ControlState, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Image, Key,
-    Line, Outcome, Panel, RewriteColor, ScreenPt, State, StyledButtons, Text, TextExt, Transition,
-    Widget,
+    Line, Outcome, Panel, RewriteColor, ScreenPt, State, Text, TextExt, Transition, Widget,
 };
 
 use crate::load::{FileLoader, MapLoader};
@@ -68,7 +67,8 @@ impl<A: AppLike + 'static> CityPicker<A> {
 
                         let btn = ctx
                             .style()
-                            .btn_outline_text(nice_map_name(&name))
+                            .btn_outline
+                            .text(nice_map_name(&name))
                             .no_tooltip();
 
                         let action = name.path();
@@ -95,7 +95,8 @@ impl<A: AppLike + 'static> CityPicker<A> {
                     for name in MapName::list_all_maps_in_city(&city_name) {
                         this_city.push(
                             ctx.style()
-                                .btn_outline_text(nice_map_name(&name))
+                                .btn_outline
+                                .text(nice_map_name(&name))
                                 .no_tooltip()
                                 .disabled(&name == app.map().get_name())
                                 .build_widget(ctx, &name.path()),
@@ -113,7 +114,8 @@ impl<A: AppLike + 'static> CityPicker<A> {
                     if abstio::file_exists(abstio::path(&flag_path)) {
                         other_places.push(
                             ctx.style()
-                                .btn_outline_icon_text(
+                                .btn_outline
+                                .icon_text(
                                     &flag_path,
                                     &format!("{} in {}", cities.len(), nice_country_name(&country)),
                                 )
@@ -124,7 +126,8 @@ impl<A: AppLike + 'static> CityPicker<A> {
                     } else {
                         other_places.push(
                             ctx.style()
-                                .btn_outline_text(&format!(
+                                .btn_outline
+                                .text(&format!(
                                     "{} in {}",
                                     cities.len(),
                                     nice_country_name(&country)
@@ -135,7 +138,8 @@ impl<A: AppLike + 'static> CityPicker<A> {
                 }
                 other_places.push(
                     ctx.style()
-                        .btn_outline_text("Search all maps")
+                        .btn_outline
+                        .text("Search all maps")
                         .hotkey(Key::Tab)
                         .build_def(ctx),
                 );
@@ -159,7 +163,8 @@ impl<A: AppLike + 'static> CityPicker<A> {
                                 .draw_text(ctx)
                                 .centered_vert(),
                             ctx.style()
-                                .btn_plain()
+                                .btn_plain
+                                .btn()
                                 .label_styled_text(
                                     Text::from(
                                         Line("Import a new city into A/B Street")
@@ -172,7 +177,8 @@ impl<A: AppLike + 'static> CityPicker<A> {
                         ]),
                         if cfg!(not(target_arch = "wasm32")) {
                             ctx.style()
-                                .btn_outline_text("Download more cities")
+                                .btn_outline
+                                .text("Download more cities")
                                 .build_def(ctx)
                         } else {
                             Widget::nothing()
@@ -311,7 +317,8 @@ impl<A: AppLike + 'static> AllCityPicker<A> {
         for name in MapName::list_all_maps() {
             buttons.push(
                 ctx.style()
-                    .btn_outline_text(&name.describe())
+                    .btn_outline
+                    .text(&name.describe())
                     .build_widget(ctx, &name.path())
                     .margin_right(10)
                     .margin_below(10),
@@ -401,7 +408,8 @@ impl<A: AppLike + 'static> CitiesInCountryPicker<A> {
             }
             buttons.push(
                 ctx.style()
-                    .btn_outline_text(&city.city)
+                    .btn_outline
+                    .text(&city.city)
                     .build_widget(ctx, &city.to_path())
                     .margin_right(10)
                     .margin_below(10),

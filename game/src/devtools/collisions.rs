@@ -5,7 +5,7 @@ use map_gui::tools::ColorNetwork;
 use map_gui::ID;
 use widgetry::{
     Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome,
-    Panel, Slider, State, StyledButtons, Text, TextExt, Toggle, VerticalAlignment, Widget,
+    Panel, Slider, State, Text, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};

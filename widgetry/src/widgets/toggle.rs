@@ -1,8 +1,7 @@
 use crate::svg::load_svg_bytes;
 use crate::{
     include_labeled_bytes, Button, Color, ControlState, EdgeInsets, EventCtx, GfxCtx, MultiKey,
-    Outcome, RewriteColor, ScreenDims, ScreenPt, StyledButtons, Text, TextSpan, Widget, WidgetImpl,
-    WidgetOutput,
+    Outcome, RewriteColor, ScreenDims, ScreenPt, Text, TextSpan, Widget, WidgetImpl, WidgetOutput,
 };
 
 pub struct Toggle {
@@ -36,7 +35,8 @@ impl Toggle {
     ) -> Widget {
         let mut buttons = ctx
             .style()
-            .btn_plain_text(label)
+            .btn_plain
+            .text(label)
             // we don't want the default coloring, because we do custom coloring below
             .image_color(RewriteColor::NoOp, ControlState::Default);
 
@@ -79,7 +79,8 @@ impl Toggle {
     ) -> Widget {
         let mut false_btn = ctx
             .style()
-            .btn_plain_icon_bytes(include_labeled_bytes!("../../icons/checkbox_unchecked.svg"))
+            .btn_plain
+            .icon_bytes(include_labeled_bytes!("../../icons/checkbox_unchecked.svg"))
             .image_color(
                 RewriteColor::Change(Color::BLACK, ctx.style().icon_fg),
                 ControlState::Default,
@@ -119,7 +120,8 @@ impl Toggle {
     ) -> Widget {
         let mut false_btn = ctx
             .style()
-            .btn_plain_icon_bytes(include_labeled_bytes!("../../icons/checkbox_unchecked.svg"))
+            .btn_plain
+            .icon_bytes(include_labeled_bytes!("../../icons/checkbox_unchecked.svg"))
             .image_color(
                 RewriteColor::Change(Color::BLACK, ctx.style().icon_fg),
                 ControlState::Default,
@@ -151,7 +153,7 @@ impl Toggle {
     }
 
     pub fn colored_checkbox(ctx: &EventCtx, label: &str, color: Color, enabled: bool) -> Widget {
-        let buttons = ctx.style().btn_plain().label_text(label).padding(4.0);
+        let buttons = ctx.style().btn_plain.btn().label_text(label).padding(4.0);
 
         let false_btn = buttons
             .clone()
@@ -191,7 +193,8 @@ impl Toggle {
     ) -> Widget {
         let mut toggle_left_button = ctx
             .style()
-            .btn_plain()
+            .btn_plain
+            .btn()
             .image_dims(ScreenDims::new(40.0, 40.0))
             .padding(4)
             // we don't want the default coloring, because we do custom coloring below
@@ -228,7 +231,8 @@ impl Toggle {
 
         let left_text_button = ctx
             .style()
-            .btn_plain_text(left_label)
+            .btn_plain
+            .text(left_label)
             // Cheat vertical padding to align with switch
             .padding(EdgeInsets {
                 left: 2.0,

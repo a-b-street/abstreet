@@ -3,8 +3,7 @@ use std::collections::BTreeMap;
 use geom::{Duration, Percent};
 use sim::OrigPersonID;
 use widgetry::{
-    DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, StyledButtons, Text,
-    TextExt, Widget,
+    DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Widget,
 };
 
 use crate::app::App;
@@ -144,7 +143,8 @@ impl ChallengesPicker {
             .draw(ctx)
             .centered_horiz(),
             ctx.style()
-                .btn_outline_text("Introduction and tutorial")
+                .btn_outline
+                .text("Introduction and tutorial")
                 .build_def(ctx)
                 .centered_horiz()
                 .bg(app.cs.panel_bg)
@@ -161,7 +161,8 @@ impl ChallengesPicker {
                 .unwrap_or(false);
             flex_row.push(
                 ctx.style()
-                    .btn_outline_text(&name)
+                    .btn_outline
+                    .text(&name)
                     .disabled(is_current_stage)
                     .hotkey(Key::NUM_KEYS[idx])
                     .build_def(ctx),
@@ -189,7 +190,8 @@ impl ChallengesPicker {
             {
                 col.push(
                     ctx.style()
-                        .btn_outline_text(&stage.title)
+                        .btn_outline
+                        .text(&stage.title)
                         .disabled(current == idx)
                         .build_def(ctx),
                 );
@@ -215,7 +217,8 @@ impl ChallengesPicker {
             let mut inner_col = vec![
                 txt.draw(ctx),
                 ctx.style()
-                    .btn_outline_text("Start!")
+                    .btn_outline
+                    .text("Start!")
                     .hotkey(Key::Enter)
                     .build_def(ctx),
             ];

@@ -13,8 +13,7 @@ use map_model::{AmenityType, Building, BuildingID, LaneType};
 use widgetry::table::{Col, Filter, Table};
 use widgetry::{
     lctrl, Cached, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Panel, RewriteColor, State, StyledButtons, Text, Toggle, Transition,
-    VerticalAlignment, Widget,
+    Line, Outcome, Panel, RewriteColor, State, Text, Toggle, Transition, VerticalAlignment, Widget,
 };
 
 use crate::find_home::FindHome;
@@ -313,7 +312,8 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
     for (amenity, buildings) in isochrone.amenities_reachable.borrow() {
         rows.push(
             ctx.style()
-                .btn_outline_text(&format!("{}: {}", amenity, buildings.len()))
+                .btn_outline
+                .text(&format!("{}: {}", amenity, buildings.len()))
                 .build_widget(ctx, &format!("businesses: {}", amenity)),
         );
     }
@@ -324,13 +324,15 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
     rows.push(options_to_controls(ctx, &isochrone.options));
     rows.push(
         ctx.style()
-            .btn_outline_text("Find your perfect home")
+            .btn_outline
+            .text("Find your perfect home")
             .build_def(ctx),
     );
     rows.push(Widget::row(vec![
-        ctx.style().btn_plain_text("About").build_def(ctx),
+        ctx.style().btn_plain.text("About").build_def(ctx),
         ctx.style()
-            .btn_plain_icon("system/assets/tools/search.svg")
+            .btn_plain
+            .icon("system/assets/tools/search.svg")
             .hotkey(lctrl(Key::F))
             .build_widget(ctx, "search"),
     ]));

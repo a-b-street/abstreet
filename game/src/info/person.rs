@@ -12,7 +12,7 @@ use sim::{
 };
 use widgetry::{
     Color, ControlState, CornerRounding, EdgeInsets, EventCtx, GeomBatch, Key, Line, RewriteColor,
-    StyledButtons, Text, TextExt, TextSpan, Widget,
+    Text, TextExt, TextSpan, Widget,
 };
 
 use crate::app::App;
@@ -332,7 +332,8 @@ pub fn bio(
             if app.primary.sim.lookup_parked_car(v.id).is_some() {
                 rows.push(
                     ctx.style()
-                        .btn_outline_text(&format!("Owner of {} (parked)", v.id))
+                        .btn_outline
+                        .text(&format!("Owner of {} (parked)", v.id))
                         .build_def(ctx),
                 );
                 details
@@ -456,7 +457,8 @@ pub fn crowd(
         rows.push(Widget::row(vec![
             format!("{})", idx + 1).draw_text(ctx).centered_vert(),
             ctx.style()
-                .btn_outline_text(&person.to_string())
+                .btn_outline
+                .text(&person.to_string())
                 .build_def(ctx),
         ]));
         details.hyperlinks.insert(
@@ -494,13 +496,15 @@ pub fn parked_car(
             // for SandboxMode.
             if is_paused {
                 ctx.style()
-                    .btn_plain_icon("system/assets/tools/location.svg")
+                    .btn_plain
+                    .icon("system/assets/tools/location.svg")
                     .hotkey(Key::F)
                     .build_widget(ctx, "follow (run the simulation)")
             } else {
                 // TODO Blink
                 ctx.style()
-                    .btn_plain_icon("system/assets/tools/location.svg")
+                    .btn_plain
+                    .icon("system/assets/tools/location.svg")
                     .image_color(Color::hex("#7FFA4D"), ControlState::Default)
                     .hotkey(Key::F)
                     .build_widget(ctx, "unfollow (pause the simulation)")
@@ -515,7 +519,8 @@ pub fn parked_car(
     let p = app.primary.sim.get_owner_of_car(id).unwrap();
     rows.push(
         ctx.style()
-            .btn_outline_text(&format!("Owned by {}", p))
+            .btn_outline
+            .text(&format!("Owned by {}", p))
             .build_def(ctx),
     );
     details.hyperlinks.insert(
@@ -622,13 +627,15 @@ fn header(
             // for SandboxMode.
             if is_paused {
                 ctx.style()
-                    .btn_plain_icon("system/assets/tools/location.svg")
+                    .btn_plain
+                    .icon("system/assets/tools/location.svg")
                     .hotkey(Key::F)
                     .build_widget(ctx, "follow (run the simulation)")
             } else {
                 // TODO Blink
                 ctx.style()
-                    .btn_plain_icon("system/assets/tools/location.svg")
+                    .btn_plain
+                    .icon("system/assets/tools/location.svg")
                     .image_color(Color::hex("#7FFA4D"), ControlState::Default)
                     .hotkey(Key::F)
                     .build_widget(ctx, "unfollow (pause the simulation)")

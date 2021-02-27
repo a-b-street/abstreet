@@ -5,7 +5,7 @@ use geom::{ArrowCap, Circle, Distance, Duration, PolyLine, Polygon, Pt2D};
 use sim::{AgentID, DelayCause};
 use widgetry::{
     Cached, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome,
-    Panel, State, StyledButtons, Text, VerticalAlignment, Widget,
+    Panel, State, Text, VerticalAlignment, Widget,
 };
 
 use crate::app::App;

@@ -6,7 +6,7 @@ use map_gui::tools::PopupMsg;
 use map_model::{AmenityType, BuildingID};
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel,
-    SimpleState, State, StyledButtons, TextExt, Toggle, Transition, VerticalAlignment, Widget,
+    SimpleState, State, TextExt, Toggle, Transition, VerticalAlignment, Widget,
 };
 
 use crate::isochrone::Options;
@@ -154,7 +154,8 @@ impl Results {
             )
             .draw_text(ctx),
             ctx.style()
-                .btn_outline_text("Back")
+                .btn_outline
+                .text("Back")
                 .hotkey(Key::Escape)
                 .build_def(ctx),
         ]))

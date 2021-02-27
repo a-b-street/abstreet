@@ -2,8 +2,8 @@ use abstutil::prettyprint_usize;
 use map_gui::tools::ColorDiscrete;
 use sim::Scenario;
 use widgetry::{
-    Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
-    StyledButtons, Text, VerticalAlignment, Widget,
+    Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -55,7 +55,8 @@ impl ScenarioManager {
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 ctx.style()
-                    .btn_outline_text("popular destinations")
+                    .btn_outline
+                    .text("popular destinations")
                     .hotkey(Key::D)
                     .build_def(ctx),
                 Text::from_multiline(vec![

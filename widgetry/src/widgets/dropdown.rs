@@ -2,7 +2,7 @@ use geom::{CornerRadii, Distance, Polygon, Pt2D};
 
 use crate::{
     Button, Choice, Color, ControlState, CornerRounding, EdgeInsets, EventCtx, GeomBatch, GfxCtx,
-    Menu, Outcome, ScreenDims, ScreenPt, ScreenRectangle, StyledButtons, WidgetImpl, WidgetOutput,
+    Menu, Outcome, ScreenDims, ScreenPt, ScreenRectangle, WidgetImpl, WidgetOutput,
 };
 
 pub struct Dropdown<T: Clone> {
@@ -196,7 +196,7 @@ fn make_btn(ctx: &EventCtx, label: &str, tooltip: &str, is_persisten_split: bool
             // override any outline element within persistent split
             .outline((0.0, Color::CLEAR), ControlState::Default)
     } else {
-        ctx.style().btn_outline_dropdown().label_text(label)
+        ctx.style().btn_outline.dropdown().label_text(label)
     };
 
     builder.build(ctx, tooltip)

@@ -8,7 +8,7 @@ use map_model::{ControlTrafficSignal, IntersectionID, MovementID, PathStep, Turn
 use sim::TripEndpoint;
 use widgetry::{
     Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, Spinner, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
+    Outcome, Panel, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, ShowEverything, Transition};

@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use geom::{Distance, Pt2D, Ring};
 use widgetry::{
     ControlState, Drawable, EventCtx, Filler, GfxCtx, HorizontalAlignment, Line, Outcome, Panel,
-    ScreenPt, Spinner, StyledButtons, Transition, VerticalAlignment, Widget,
+    ScreenPt, Spinner, Transition, VerticalAlignment, Widget,
 };
 
 use crate::AppLike;
@@ -101,14 +101,16 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
         let zoom_col = {
             let mut col = vec![ctx
                 .style()
-                .btn_plain_icon("system/assets/speed/plus.svg")
+                .btn_plain
+                .icon("system/assets/speed/plus.svg")
                 .build_widget(ctx, "zoom in")
                 .centered_horiz()
                 .margin_below(10)];
 
             let level_btn = ctx
                 .style()
-                .btn_plain_icon("system/assets/speed/zoom_level_rect.svg")
+                .btn_plain
+                .icon("system/assets/speed/zoom_level_rect.svg")
                 .padding_top(0.0)
                 .padding_bottom(0.0);
 
@@ -129,7 +131,8 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
             }
             col.push(
                 ctx.style()
-                    .btn_plain_icon("system/assets/speed/minus.svg")
+                    .btn_plain
+                    .icon("system/assets/speed/minus.svg")
                     .build_widget(ctx, "zoom out")
                     .centered_horiz(),
             );
@@ -160,7 +163,7 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
         };
 
         let minimap_controls = {
-            let buttons = ctx.style().btn_plain().padding(4);
+            let buttons = ctx.style().btn_plain.btn().padding(4);
             Widget::col(vec![
                 buttons
                     .clone()

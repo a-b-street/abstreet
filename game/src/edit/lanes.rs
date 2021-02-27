@@ -3,7 +3,7 @@ use map_gui::ID;
 use map_model::{EditCmd, LaneID, LaneType, Map};
 use widgetry::{
     Choice, Color, ControlState, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel,
-    SimpleState, State, StyledButtons, TextExt, VerticalAlignment, Widget,
+    SimpleState, State, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -58,7 +58,8 @@ impl LaneEditor {
         ] {
             row.push(
                 ctx.style()
-                    .btn_plain_icon(&format!("system/assets/edit/{}.svg", icon))
+                    .btn_plain
+                    .icon(&format!("system/assets/edit/{}.svg", icon))
                     .hotkey(key)
                     .disabled(current_lt == lt)
                     .build_widget(ctx, label),
@@ -70,7 +71,8 @@ impl LaneEditor {
             Widget::row(vec![
                 Line(format!("Editing {}", l)).small_heading().draw(ctx),
                 ctx.style()
-                    .btn_plain_text("+ Edit multiple")
+                    .btn_plain
+                    .text("+ Edit multiple")
                     .label_color(Color::hex("#4CA7E9"), ControlState::Default)
                     .hotkey(Key::M)
                     .build_widget(ctx, "Edit multiple lanes"),
@@ -78,7 +80,8 @@ impl LaneEditor {
             "Type of lane".draw_text(ctx),
             Widget::custom_row(row).centered(),
             ctx.style()
-                .btn_outline_text("reverse direction")
+                .btn_outline
+                .text("reverse direction")
                 .hotkey(Key::F)
                 .build_def(ctx),
             {
@@ -95,7 +98,8 @@ impl LaneEditor {
                 ])
             },
             ctx.style()
-                .btn_outline_text("Change access restrictions")
+                .btn_outline
+                .text("Change access restrictions")
                 .hotkey(Key::A)
                 .build_def(ctx),
             ctx.style()

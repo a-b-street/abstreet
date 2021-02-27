@@ -9,7 +9,7 @@ use map_model::{osm, BuildingID, BuildingType, IntersectionID, LaneID, Map, Road
 use sim::{TripEndpoint, TripInfo, TripMode};
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    RewriteColor, Slider, State, StyledButtons, Text, TextExt, Toggle, VerticalAlignment, Widget,
+    RewriteColor, Slider, State, Text, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};

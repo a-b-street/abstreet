@@ -15,8 +15,8 @@ use map_model::{
 use sim::{Sim, TripEndpoint};
 use widgetry::{
     lctrl, Cached, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Panel, ScreenDims, State, StyledButtons, Text, Toggle,
-    UpdateType, VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Line, Outcome, Panel, ScreenDims, State, Text, Toggle, UpdateType,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::{App, ShowLayers, ShowObject, Transition};
@@ -63,60 +63,76 @@ impl DebugMode {
                 Toggle::switch(ctx, "show route for all agents", lctrl(Key::R), false),
                 Widget::col(vec![
                     ctx.style()
-                        .btn_outline_text("unhide everything")
+                        .btn_outline
+                        .text("unhide everything")
                         .hotkey(lctrl(Key::H))
                         .build_def(ctx),
                     ctx.style()
-                        .btn_outline_text("screenshot everything (for leaflet)")
+                        .btn_outline
+                        .text("screenshot everything (for leaflet)")
                         .build_def(ctx),
                     ctx.style()
-                        .btn_outline_text("screenshot all of the everything")
+                        .btn_outline
+                        .text("screenshot all of the everything")
                         .build_def(ctx),
                     ctx.style()
-                        .btn_outline_text("search OSM metadata")
+                        .btn_outline
+                        .text("search OSM metadata")
                         .hotkey(Key::Slash)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_outline_text("clear OSM search results")
+                        .btn_outline
+                        .text("clear OSM search results")
                         .hotkey(Key::Slash)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_outline_text("save sim state")
+                        .btn_outline
+                        .text("save sim state")
                         .hotkey(Key::O)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_outline_text("load previous sim state")
+                        .btn_outline
+                        .text("load previous sim state")
                         .hotkey(Key::Y)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_outline_text("load next sim state")
+                        .btn_outline
+                        .text("load next sim state")
                         .hotkey(Key::U)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_outline_text("pick a savestate to load")
+                        .btn_outline
+                        .text("pick a savestate to load")
                         .build_def(ctx),
                     ctx.style()
-                        .btn_outline_text("find bad traffic signals")
+                        .btn_outline
+                        .text("find bad traffic signals")
                         .build_def(ctx),
                     ctx.style()
-                        .btn_outline_text("find degenerate roads")
+                        .btn_outline
+                        .text("find degenerate roads")
                         .build_def(ctx),
                     ctx.style()
-                        .btn_outline_text("find large intersections")
+                        .btn_outline
+                        .text("find large intersections")
                         .build_def(ctx),
                     ctx.style()
-                        .btn_outline_text("sim internal stats")
+                        .btn_outline
+                        .text("sim internal stats")
                         .build_def(ctx),
                     ctx.style()
-                        .btn_outline_text("blocked-by graph")
+                        .btn_outline
+                        .text("blocked-by graph")
                         .hotkey(Key::B)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_outline_text("render to GeoJSON")
+                        .btn_outline
+                        .text("render to GeoJSON")
                         .hotkey(Key::G)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_outline_text("draw banned turns")
+                        .btn_outline
+                        .text("draw banned turns")
                         .hotkey(Key::T)
                         .build_def(ctx),
                 ]),

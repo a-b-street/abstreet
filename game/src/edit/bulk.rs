@@ -7,7 +7,7 @@ use map_gui::tools::PopupMsg;
 use map_model::{LaneType, RoadID};
 use widgetry::{
     hotkeys, Choice, Color, ControlState, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Panel, State, StyledButtons, TextExt, VerticalAlignment, Widget,
+    Line, Outcome, Panel, State, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -33,24 +33,29 @@ fn make_select_panel(ctx: &mut EventCtx, selector: &RoadSelector) -> Panel {
         selector.make_controls(ctx),
         Widget::row(vec![
             ctx.style()
-                .btn_outline_text(&format!("Edit {} roads", selector.roads.len()))
+                .btn_outline
+                .text(&format!("Edit {} roads", selector.roads.len()))
                 .disabled(selector.roads.is_empty())
                 .hotkey(hotkeys(vec![Key::E, Key::Enter]))
                 .build_widget(ctx, "edit roads"),
             ctx.style()
-                .btn_outline_text(&format!(
+                .btn_outline
+                .text(&format!(
                     "Export {} roads to shared-row",
                     selector.roads.len()
                 ))
                 .build_widget(ctx, "export roads to shared-row"),
             ctx.style()
-                .btn_outline_text("export one road to Streetmix")
+                .btn_outline
+                .text("export one road to Streetmix")
                 .build_def(ctx),
             ctx.style()
-                .btn_outline_text("export list of roads")
+                .btn_outline
+                .text("export list of roads")
                 .build_def(ctx),
             ctx.style()
-                .btn_outline_text("Cancel")
+                .btn_outline
+                .text("Cancel")
                 .hotkey(Key::Escape)
                 .build_def(ctx),
         ])
@@ -287,7 +292,8 @@ fn make_lt_switcher(
                 ],
             ),
             ctx.style()
-                .btn_plain_text("+ Add")
+                .btn_plain
+                .text("+ Add")
                 .label_color(Color::hex("#4CA7E9"), ControlState::Default)
                 .build_widget(ctx, "add another lane type transformation"),
         ]));

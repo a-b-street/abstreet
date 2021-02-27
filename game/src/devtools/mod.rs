@@ -8,7 +8,7 @@ use map_gui::tools::{nice_map_name, ChooseSomething, CityPicker};
 use map_gui::AppLike;
 use widgetry::{
     lctrl, Choice, DrawBaselayer, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    State, StyledButtons, TextExt, VerticalAlignment, Widget,
+    State, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -37,36 +37,43 @@ impl DevToolsMode {
                 Widget::row(vec![
                     "Change map:".draw_text(ctx),
                     ctx.style()
-                        .btn_outline_popup(nice_map_name(app.primary.map.get_name()))
+                        .btn_outline
+                        .popup(nice_map_name(app.primary.map.get_name()))
                         .hotkey(lctrl(Key::L))
                         .build_widget(ctx, "change map"),
                 ]),
                 Widget::custom_row(vec![
                     ctx.style()
-                        .btn_outline_text("edit a polygon")
+                        .btn_outline
+                        .text("edit a polygon")
                         .hotkey(Key::E)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_outline_text("draw a polygon")
+                        .btn_outline
+                        .text("draw a polygon")
                         .hotkey(Key::P)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_outline_text("load scenario")
+                        .btn_outline
+                        .text("load scenario")
                         .hotkey(Key::W)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_outline_text("view KML")
+                        .btn_outline
+                        .text("view KML")
                         .hotkey(Key::K)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_outline_text("story maps")
+                        .btn_outline
+                        .text("story maps")
                         .hotkey(Key::S)
                         .build_def(ctx),
                     if abstio::file_exists(
                         app.primary.map.get_city_name().input_path("collisions.bin"),
                     ) {
                         ctx.style()
-                            .btn_outline_text("collisions")
+                            .btn_outline
+                            .text("collisions")
                             .hotkey(Key::C)
                             .build_def(ctx)
                     } else {
