@@ -567,6 +567,7 @@
 <span id="564">564</span>
 <span id="565">565</span>
 <span id="566">566</span>
+<span id="567">567</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/// Purely from OSM tags, determine the lanes that a road segment has.</span>
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">iter</span>;
@@ -628,7 +629,8 @@
         <span class="comment">// types, assume bikes are allowed, except for footways, where they must be explicitly</span>
         <span class="comment">// allowed.</span>
         <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;bicycle&quot;</span>, <span class="string">&quot;no&quot;</span>)
-            <span class="op">|</span><span class="op">|</span> (<span class="ident">tags</span>.<span class="ident">is</span>(<span class="ident">osm</span>::<span class="ident">HIGHWAY</span>, <span class="string">&quot;footway&quot;</span>) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;bicycle&quot;</span>, <span class="string">&quot;yes&quot;</span>))
+            <span class="op">|</span><span class="op">|</span> (<span class="ident">tags</span>.<span class="ident">is</span>(<span class="ident">osm</span>::<span class="ident">HIGHWAY</span>, <span class="string">&quot;footway&quot;</span>)
+                <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;bicycle&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;designated&quot;</span>, <span class="string">&quot;yes&quot;</span>]))
         {
             <span class="kw">return</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">fwd</span>(<span class="ident">LaneType</span>::<span class="ident">Sidewalk</span>)];
         }
