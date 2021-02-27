@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use abstutil::prettyprint_usize;
 use map_model::{LaneID, PathConstraints};
 use widgetry::{
-    EventCtx, Line, LinePlot, PlotOptions, Series, StyledButtons, Text, TextExt, Widget,
+    Color, EventCtx, Line, LinePlot, PlotOptions, Series, StyledButtons, Text, TextExt, Widget,
 };
 
 use crate::app::App;
@@ -81,17 +81,23 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
                 ),
             });
         }
-        rows.push("Parking spots available".draw_text(ctx));
-        rows.push(LinePlot::new(
-            ctx,
-            series,
-            PlotOptions {
-                filterable: false,
-                max_x: None,
-                max_y: Some(capacity),
-                disabled: HashSet::new(),
-            },
-        ));
+        let section = Widget::col(vec![
+            Line("Parking spots available").small_heading().draw(ctx),
+            LinePlot::new(
+                ctx,
+                series,
+                PlotOptions {
+                    filterable: false,
+                    max_x: None,
+                    max_y: Some(capacity),
+                    disabled: HashSet::new(),
+                },
+            ),
+        ])
+        .padding(10)
+        .bg(app.cs.inner_panel_bg)
+        .outline(2.0, Color::WHITE);
+        rows.push(section);
     }
 
     rows
