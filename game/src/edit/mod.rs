@@ -406,7 +406,8 @@ impl SaveEdits {
                 Widget::row(vec![
                     if discard {
                         ctx.style()
-                            .btn_solid_destructive_text("Discard proposal")
+                            .btn_solid_destructive
+                            .text("Discard proposal")
                             .build_def(ctx)
                     } else {
                         Widget::nothing()
@@ -874,7 +875,8 @@ impl ConfirmDiscard {
                         .hotkey(Key::Escape)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_solid_destructive_text("Yes, discard")
+                        .btn_solid_destructive
+                        .text("Yes, discard")
                         .build_def(ctx),
                 ])
                 .align_right(),

@@ -56,50 +56,6 @@ pub trait StyledButtons<'a> {
             .image_dims(ScreenDims::square(18.0))
     }
 
-    fn btn_plain_destructive(&self) -> ButtonBuilder<'a>;
-    fn btn_plain_destructive_text(&self, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_plain_destructive().label_text(text)
-    }
-    fn btn_plain_destructive_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
-        icon_button(self.btn_plain_destructive().image_path(image_path))
-    }
-
-    fn btn_solid_destructive(&self) -> ButtonBuilder<'a>;
-    fn btn_solid_destructive_text(&self, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_solid_destructive().label_text(text)
-    }
-    fn btn_solid_destructive_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
-        icon_button(self.btn_solid_destructive().image_path(image_path))
-    }
-    fn btn_solid_destructive_icon_text(
-        &self,
-        image_path: &'a str,
-        text: &'a str,
-    ) -> ButtonBuilder<'a> {
-        self.btn_solid_destructive()
-            .label_text(text)
-            .image_path(image_path)
-            .image_dims(ScreenDims::square(18.0))
-    }
-
-    fn btn_outline_destructive(&self) -> ButtonBuilder<'a>;
-    fn btn_outline_destructive_text(&self, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_outline_destructive().label_text(text)
-    }
-    fn btn_outline_destructive_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
-        icon_button(self.btn_outline_destructive().image_path(image_path))
-    }
-    fn btn_outline_destructive_icon_text(
-        &self,
-        image_path: &'a str,
-        text: &'a str,
-    ) -> ButtonBuilder<'a> {
-        self.btn_outline_destructive()
-            .label_text(text)
-            .image_path(image_path)
-            .image_dims(ScreenDims::square(18.0))
-    }
-
     // Specific UI Elements
 
     /// title: name of previous screen, which you'll return to
@@ -157,18 +113,6 @@ impl<'a> StyledButtons<'a> for Style {
 
     fn btn_plain(&self) -> ButtonBuilder<'a> {
         basic_button(&self.btn_outline, false)
-    }
-
-    fn btn_plain_destructive(&self) -> ButtonBuilder<'a> {
-        basic_button(&self.btn_outline_destructive, false)
-    }
-
-    fn btn_solid_destructive(&self) -> ButtonBuilder<'a> {
-        basic_button(&self.btn_solid_destructive, true)
-    }
-
-    fn btn_outline_destructive(&self) -> ButtonBuilder<'a> {
-        basic_button(&self.btn_solid_destructive, true)
     }
 }
 

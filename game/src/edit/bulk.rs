@@ -173,7 +173,8 @@ impl BulkEdit {
                         .hotkey(Key::Enter)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_plain_destructive_text("Cancel")
+                        .btn_outline_destructive
+                        .plain_text("Cancel")
                         .hotkey(Key::Escape)
                         .build_def(ctx)
                         .align_right(),
