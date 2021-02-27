@@ -682,10 +682,11 @@ fn make_side_panel(
                 stage_btn,
             ]),
         ])
-        .padding(10);
+        .padding(10)
+        .bg(app.cs.inner_panel_bg);
 
         if idx == selected {
-            col.push(stage_controls.bg(Color::hex("#2A2A2A")));
+            col.push(stage_controls.outline(2.0, ctx.style().outline_color));
         } else {
             col.push(stage_controls);
         }
