@@ -295,8 +295,7 @@ impl State<App> for Viewer {
                             "",
                             "Note major liberties have been taken with inferring where sidewalks \
                              and crosswalks exist.",
-                            "Separate footpaths, bicycle trails, tram lines, etc are not imported \
-                             yet.",
+                            "Separate footpaths, tram lines, etc are not imported yet.",
                         ],
                     ));
                 }
