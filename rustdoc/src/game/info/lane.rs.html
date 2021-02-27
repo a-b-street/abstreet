@@ -281,7 +281,7 @@
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">LaneID</span>, <span class="ident">PathConstraints</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">PlotOptions</span>, <span class="ident">Series</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
+    <span class="ident">EventCtx</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">PlotOptions</span>, <span class="ident">Series</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
@@ -374,7 +374,7 @@
         ])
         .<span class="ident">padding</span>(<span class="number">10</span>)
         .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel_bg</span>)
-        .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>);
+        .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_outline</span>);
         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">section</span>);
     }
 

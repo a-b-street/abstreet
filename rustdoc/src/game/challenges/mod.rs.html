@@ -311,7 +311,7 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Percent</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">OrigPersonID</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>,
+    <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>,
     <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
 };
 
@@ -457,7 +457,7 @@
                 .<span class="ident">centered_horiz</span>()
                 .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>)
                 .<span class="ident">padding</span>(<span class="number">16</span>)
-                .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">BLACK</span>),
+                .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid</span>.<span class="ident">outline</span>),
         ];
 
         <span class="comment">// First list challenges</span>
@@ -481,7 +481,7 @@
                 .<span class="ident">flex_wrap</span>(<span class="ident">ctx</span>, <span class="ident">Percent</span>::<span class="ident">int</span>(<span class="number">80</span>))
                 .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>)
                 .<span class="ident">padding</span>(<span class="number">16</span>)
-                .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">BLACK</span>),
+                .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid</span>.<span class="ident">outline</span>),
         );
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">main_row</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
@@ -507,7 +507,7 @@
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>)
                     .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>)
                     .<span class="ident">padding</span>(<span class="number">16</span>)
-                    .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">BLACK</span>),
+                    .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid</span>.<span class="ident">outline</span>),
             );
         }
 
@@ -548,7 +548,7 @@
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">inner_col</span>)
                     .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>)
                     .<span class="ident">padding</span>(<span class="number">16</span>)
-                    .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">BLACK</span>),
+                    .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid</span>.<span class="ident">outline</span>),
             );
             <span class="ident">current_challenge</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">challenge</span>);
         }

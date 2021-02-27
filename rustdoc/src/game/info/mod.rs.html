@@ -1506,7 +1506,7 @@
     ])
     .<span class="ident">padding</span>(<span class="number">10</span>)
     .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel_bg</span>)
-    .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>)
+    .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_outline</span>)
 }
 
 <span class="kw">fn</span> <span class="ident">make_tabs</span>(
@@ -1525,10 +1525,10 @@
                 .<span class="ident">disabled</span>(<span class="ident">current_tab</span>.<span class="ident">variant</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">link</span>.<span class="ident">variant</span>())
                 .<span class="ident">bg_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid</span>.<span class="ident">bg</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
                 .<span class="ident">label_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid</span>.<span class="ident">fg</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
-                .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid</span>.<span class="ident">bg_hover</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
+                .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid</span>.<span class="ident">outline</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
                 <span class="comment">// Hide the hit area for selectable tabs unless hovered</span>
                 .<span class="ident">bg_color</span>(<span class="ident">Color</span>::<span class="ident">CLEAR</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
-                .<span class="ident">outline</span>(<span class="number">0.0</span>, <span class="ident">Color</span>::<span class="ident">CLEAR</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
+                .<span class="ident">outline</span>((<span class="number">0.0</span>, <span class="ident">Color</span>::<span class="ident">CLEAR</span>), <span class="ident">ControlState</span>::<span class="ident">Default</span>)
                 .<span class="ident">bg_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid</span>.<span class="ident">bg</span>.<span class="ident">alpha</span>(<span class="number">0.6</span>), <span class="ident">ControlState</span>::<span class="ident">Hovered</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         );

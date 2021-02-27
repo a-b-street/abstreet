@@ -548,7 +548,7 @@
             .<span class="ident">fill_height</span>()
             .<span class="ident">padding</span>(<span class="number">42</span>)
             .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>)
-            .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">CutsceneBuilder</span>::<span class="ident">fg_color</span>()),
+            .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid</span>.<span class="ident">outline</span>),
     ];
 
     <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="ident">col</span>))

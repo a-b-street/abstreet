@@ -221,13 +221,6 @@
 <span id="218">218</span>
 <span id="219">219</span>
 <span id="220">220</span>
-<span id="221">221</span>
-<span id="222">222</span>
-<span id="223">223</span>
-<span id="224">224</span>
-<span id="225">225</span>
-<span id="226">226</span>
-<span id="227">227</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Color</span>, <span class="ident">Text</span>};
 
@@ -235,8 +228,6 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Style</span> {
-    <span class="kw">pub</span> <span class="ident">outline_thickness</span>: <span class="ident">f64</span>,
-    <span class="kw">pub</span> <span class="ident">outline_color</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">panel_bg</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">field_bg</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">dropdown_border</span>: <span class="ident">Color</span>,
@@ -246,6 +237,8 @@
     <span class="kw">pub</span> <span class="ident">text_hotkey_color</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">text_destructive_color</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">loading_tips</span>: <span class="ident">Text</span>,
+    <span class="kw">pub</span> <span class="ident">section_bg</span>: <span class="ident">Color</span>,
+    <span class="kw">pub</span> <span class="ident">section_outline</span>: <span class="ident">OutlineStyle</span>,
     <span class="kw">pub</span> <span class="ident">btn_solid</span>: <span class="ident">ButtonStyle</span>,
     <span class="kw">pub</span> <span class="ident">btn_outline</span>: <span class="ident">ButtonStyle</span>,
     <span class="kw">pub</span> <span class="ident">btn_solid_floating</span>: <span class="ident">ButtonStyle</span>,
@@ -255,16 +248,19 @@
     <span class="kw">pub</span> <span class="ident">btn_outline_primary</span>: <span class="ident">ButtonStyle</span>,
 }
 
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">OutlineStyle</span> <span class="op">=</span> (<span class="ident">f64</span>, <span class="ident">Color</span>);
+
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ButtonStyle</span> {
     <span class="kw">pub</span> <span class="ident">fg</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">fg_disabled</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">outline</span>: <span class="ident">Color</span>,
+    <span class="kw">pub</span> <span class="ident">outline</span>: <span class="ident">OutlineStyle</span>,
     <span class="kw">pub</span> <span class="ident">bg</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">bg_hover</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">bg_disabled</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">outline_thickness</span>: <span class="ident">f64</span>,
 }
+
+<span class="kw">static</span> <span class="ident">DEFAULT_OUTLINE_THICKNESS</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">2.0</span>;
 
 <span class="kw">impl</span> <span class="ident">ButtonStyle</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">solid_dark_fg</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
@@ -274,8 +270,7 @@
             <span class="ident">bg</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>),
             <span class="ident">bg_hover</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>,
             <span class="ident">bg_disabled</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.6</span>),
-            <span class="ident">outline</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>.<span class="ident">alpha</span>(<span class="number">0.6</span>),
-            <span class="ident">outline_thickness</span>: <span class="number">2.0</span>,
+            <span class="ident">outline</span>: (<span class="ident">DEFAULT_OUTLINE_THICKNESS</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>.<span class="ident">alpha</span>(<span class="number">0.6</span>)),
         }
     }
 
@@ -285,9 +280,8 @@
             <span class="ident">fg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.3</span>),
             <span class="ident">bg</span>: <span class="ident">Color</span>::<span class="ident">CLEAR</span>,
             <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.1</span>),
-            <span class="ident">bg_disabled</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.8</span>),
-            <span class="ident">outline</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>),
-            <span class="ident">outline_thickness</span>: <span class="number">2.0</span>,
+            <span class="ident">bg_disabled</span>: <span class="ident">Color</span>::<span class="ident">CLEAR</span>,
+            <span class="ident">outline</span>: (<span class="ident">DEFAULT_OUTLINE_THICKNESS</span>, <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>)),
         }
     }
 
@@ -298,8 +292,7 @@
             <span class="ident">bg</span>: <span class="ident">hex</span>(<span class="string">&quot;#003046&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.8</span>),
             <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#003046&quot;</span>),
             <span class="ident">bg_disabled</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.1</span>),
-            <span class="ident">outline</span>: <span class="ident">hex</span>(<span class="string">&quot;#003046&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.6</span>),
-            <span class="ident">outline_thickness</span>: <span class="number">2.0</span>,
+            <span class="ident">outline</span>: (<span class="ident">DEFAULT_OUTLINE_THICKNESS</span>, <span class="ident">hex</span>(<span class="string">&quot;#003046&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.6</span>)),
         }
     }
 
@@ -309,9 +302,8 @@
             <span class="ident">fg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.3</span>),
             <span class="ident">bg</span>: <span class="ident">Color</span>::<span class="ident">CLEAR</span>,
             <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.1</span>),
-            <span class="ident">bg_disabled</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.5</span>),
-            <span class="ident">outline</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>),
-            <span class="ident">outline_thickness</span>: <span class="number">2.0</span>,
+            <span class="ident">bg_disabled</span>: <span class="ident">Color</span>::<span class="ident">CLEAR</span>,
+            <span class="ident">outline</span>: (<span class="ident">DEFAULT_OUTLINE_THICKNESS</span>, <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>)),
         }
     }
 }
@@ -322,8 +314,9 @@
             <span class="ident">panel_bg</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>),
             <span class="ident">field_bg</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>),
             <span class="ident">dropdown_border</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>),
-            <span class="ident">outline_thickness</span>: <span class="number">2.0</span>,
-            <span class="ident">outline_color</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>),
+            <span class="comment">// TODO: replace inner_panel_bg with this</span>
+            <span class="ident">section_bg</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>,
+            <span class="ident">section_outline</span>: (<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>.<span class="ident">shade</span>(<span class="number">0.1</span>)),
             <span class="ident">loading_tips</span>: <span class="ident">Text</span>::<span class="ident">new</span>(),
             <span class="ident">icon_fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>),
             <span class="ident">text_fg_color</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>),
@@ -337,8 +330,7 @@
                 <span class="ident">bg</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.8</span>),
                 <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>),
                 <span class="ident">bg_disabled</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.6</span>),
-                <span class="ident">outline</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.6</span>),
-                <span class="ident">outline_thickness</span>: <span class="number">2.0</span>,
+                <span class="ident">outline</span>: (<span class="ident">DEFAULT_OUTLINE_THICKNESS</span>, <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.6</span>)),
             },
             <span class="ident">btn_solid_floating</span>: <span class="ident">ButtonStyle</span>::<span class="ident">solid_dark_fg</span>(),
             <span class="ident">btn_solid_destructive</span>: <span class="ident">ButtonStyle</span> {
@@ -347,17 +339,15 @@
                 <span class="ident">bg</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.8</span>),
                 <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>),
                 <span class="ident">bg_disabled</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.1</span>),
-                <span class="ident">outline</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.6</span>),
-                <span class="ident">outline_thickness</span>: <span class="number">2.0</span>,
+                <span class="ident">outline</span>: (<span class="ident">DEFAULT_OUTLINE_THICKNESS</span>, <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.6</span>)),
             },
             <span class="ident">btn_outline_destructive</span>: <span class="ident">ButtonStyle</span> {
                 <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>),
                 <span class="ident">fg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.3</span>),
                 <span class="ident">bg</span>: <span class="ident">Color</span>::<span class="ident">CLEAR</span>,
                 <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.1</span>),
-                <span class="ident">bg_disabled</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.1</span>),
-                <span class="ident">outline</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>),
-                <span class="ident">outline_thickness</span>: <span class="number">2.0</span>,
+                <span class="ident">bg_disabled</span>: <span class="ident">Color</span>::<span class="ident">CLEAR</span>,
+                <span class="ident">outline</span>: (<span class="ident">DEFAULT_OUTLINE_THICKNESS</span>, <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>)),
             },
             <span class="ident">btn_solid_primary</span>: <span class="ident">ButtonStyle</span> {
                 <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>),
@@ -365,17 +355,15 @@
                 <span class="ident">bg</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.8</span>),
                 <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>),
                 <span class="ident">bg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.3</span>),
-                <span class="ident">outline</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.6</span>),
-                <span class="ident">outline_thickness</span>: <span class="number">2.0</span>,
+                <span class="ident">outline</span>: (<span class="ident">DEFAULT_OUTLINE_THICKNESS</span>, <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.6</span>)),
             },
             <span class="ident">btn_outline_primary</span>: <span class="ident">ButtonStyle</span> {
                 <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>),
                 <span class="ident">fg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.3</span>),
                 <span class="ident">bg</span>: <span class="ident">Color</span>::<span class="ident">CLEAR</span>,
                 <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.1</span>),
-                <span class="ident">bg_disabled</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.1</span>),
-                <span class="ident">outline</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>),
-                <span class="ident">outline_thickness</span>: <span class="number">2.0</span>,
+                <span class="ident">bg_disabled</span>: <span class="ident">Color</span>::<span class="ident">CLEAR</span>,
+                <span class="ident">outline</span>: (<span class="ident">DEFAULT_OUTLINE_THICKNESS</span>, <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>)),
             },
         }
     }
@@ -385,8 +373,8 @@
             <span class="ident">panel_bg</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.4</span>),
             <span class="ident">field_bg</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.3</span>),
             <span class="ident">dropdown_border</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>,
-            <span class="ident">outline_thickness</span>: <span class="number">2.0</span>,
-            <span class="ident">outline_color</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>,
+            <span class="ident">section_bg</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.5</span>),
+            <span class="ident">section_outline</span>: (<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>),
             <span class="ident">loading_tips</span>: <span class="ident">Text</span>::<span class="ident">new</span>(),
             <span class="ident">icon_fg</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>,
             <span class="ident">text_fg_color</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>,
@@ -402,8 +390,7 @@
                 <span class="ident">bg</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.8</span>),
                 <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>),
                 <span class="ident">bg_disabled</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.1</span>),
-                <span class="ident">outline</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.6</span>),
-                <span class="ident">outline_thickness</span>: <span class="number">2.0</span>,
+                <span class="ident">outline</span>: (<span class="ident">DEFAULT_OUTLINE_THICKNESS</span>, <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.6</span>)),
             },
             <span class="ident">btn_outline_destructive</span>: <span class="ident">ButtonStyle</span> {
                 <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>),
@@ -411,8 +398,7 @@
                 <span class="ident">bg</span>: <span class="ident">Color</span>::<span class="ident">CLEAR</span>,
                 <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.1</span>),
                 <span class="ident">bg_disabled</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.1</span>),
-                <span class="ident">outline</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>),
-                <span class="ident">outline_thickness</span>: <span class="number">2.0</span>,
+                <span class="ident">outline</span>: (<span class="ident">DEFAULT_OUTLINE_THICKNESS</span>, <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>)),
             },
             <span class="ident">btn_solid_primary</span>: <span class="ident">ButtonStyle</span> {
                 <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>),
@@ -420,8 +406,7 @@
                 <span class="ident">bg</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.8</span>),
                 <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>),
                 <span class="ident">bg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.3</span>),
-                <span class="ident">outline</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.6</span>),
-                <span class="ident">outline_thickness</span>: <span class="number">2.0</span>,
+                <span class="ident">outline</span>: (<span class="ident">DEFAULT_OUTLINE_THICKNESS</span>, <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.6</span>)),
             },
             <span class="ident">btn_outline_primary</span>: <span class="ident">ButtonStyle</span> {
                 <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>),
@@ -429,17 +414,18 @@
                 <span class="ident">bg</span>: <span class="ident">Color</span>::<span class="ident">CLEAR</span>,
                 <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.1</span>),
                 <span class="ident">bg_disabled</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.1</span>),
-                <span class="ident">outline</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>),
-                <span class="ident">outline_thickness</span>: <span class="number">2.0</span>,
+                <span class="ident">outline</span>: (<span class="ident">DEFAULT_OUTLINE_THICKNESS</span>, <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>)),
             },
         }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dark_bg</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Style</span> {
+        <span class="kw">let</span> <span class="ident">navy</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#003046&quot;</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">style</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">light_bg</span>();
-        <span class="ident">style</span>.<span class="ident">outline_color</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">WHITE</span>;
-        <span class="ident">style</span>.<span class="ident">panel_bg</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#003046&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.9</span>);
-        <span class="ident">style</span>.<span class="ident">field_bg</span> <span class="op">=</span> <span class="ident">style</span>.<span class="ident">panel_bg</span>.<span class="ident">shade</span>(<span class="number">0.2</span>);
+        <span class="ident">style</span>.<span class="ident">panel_bg</span> <span class="op">=</span> <span class="ident">navy</span>.<span class="ident">alpha</span>(<span class="number">0.9</span>);
+        <span class="ident">style</span>.<span class="ident">section_outline</span>.<span class="number">1</span> <span class="op">=</span> <span class="ident">navy</span>.<span class="ident">shade</span>(<span class="number">0.2</span>);
+        <span class="ident">style</span>.<span class="ident">section_bg</span> <span class="op">=</span> <span class="ident">navy</span>;
+        <span class="ident">style</span>.<span class="ident">field_bg</span> <span class="op">=</span> <span class="ident">navy</span>.<span class="ident">shade</span>(<span class="number">0.2</span>);
         <span class="ident">style</span>.<span class="ident">btn_outline</span> <span class="op">=</span> <span class="ident">ButtonStyle</span>::<span class="ident">outline_light_fg</span>();
         <span class="ident">style</span>.<span class="ident">btn_solid</span> <span class="op">=</span> <span class="ident">ButtonStyle</span>::<span class="ident">solid_dark_fg</span>();
         <span class="ident">style</span>.<span class="ident">btn_solid_floating</span> <span class="op">=</span> <span class="ident">ButtonStyle</span>::<span class="ident">solid_light_fg</span>();

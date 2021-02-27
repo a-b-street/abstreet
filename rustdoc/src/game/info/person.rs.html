@@ -843,7 +843,7 @@
             ])
             .<span class="ident">centered</span>()
             .<span class="ident">corner_rounding</span>(<span class="ident">CornerRounding</span>::<span class="ident">FullyRounded</span>)
-            .<span class="ident">outline</span>(<span class="number">1.0</span>, <span class="ident">color</span>)
+            .<span class="ident">outline</span>((<span class="number">1.0</span>, <span class="ident">color</span>))
             .<span class="ident">bg</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.2</span>))
             .<span class="ident">padding</span>(<span class="ident">EdgeInsets</span> {
                 <span class="ident">top</span>: <span class="number">5.0</span>,
@@ -894,7 +894,7 @@
             },
         ])
         .<span class="ident">centered</span>()
-        .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>)
+        .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_outline</span>)
         .<span class="ident">padding</span>(<span class="number">16</span>)
         .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel_bg</span>)
         .<span class="ident">to_geom</span>(<span class="ident">ctx</span>, <span class="prelude-val">Some</span>(<span class="number">0.3</span>));
@@ -926,7 +926,7 @@
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">info</span>) <span class="op">=</span> <span class="ident">maybe_info</span> {
             <span class="ident">rows</span>.<span class="ident">push</span>(
-                <span class="ident">info</span>.<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>)
+                <span class="ident">info</span>.<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_outline</span>)
                     .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel_bg</span>)
                     .<span class="ident">padding</span>(<span class="number">16</span>),
             );

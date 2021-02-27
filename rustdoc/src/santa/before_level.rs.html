@@ -646,7 +646,7 @@
                 <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>)
                     .<span class="ident">container</span>()
                     .<span class="ident">padding</span>(<span class="number">5</span>)
-                    .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>)
+                    .<span class="ident">outline</span>((<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>))
             } <span class="kw">else</span> {
                 <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">clone</span>().<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">MakeGrayscale</span>);
                 <span class="kw">let</span> <span class="ident">hovered</span> <span class="op">=</span> <span class="ident">batch</span>;

@@ -975,8 +975,8 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">svg</span>, <span class="ident">text</span>::<span class="ident">Font</span>, <span class="ident">Color</span>, <span class="ident">ContentMode</span>, <span class="ident">ControlState</span>, <span class="ident">CornerRounding</span>, <span class="ident">Drawable</span>, <span class="ident">EdgeInsets</span>,
-    <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">MultiKey</span>, <span class="ident">Outcome</span>, <span class="ident">RewriteColor</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>,
-    <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
+    <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">MultiKey</span>, <span class="ident">Outcome</span>, <span class="ident">OutlineStyle</span>, <span class="ident">RewriteColor</span>, <span class="ident">ScreenDims</span>,
+    <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Button</span> {
@@ -1118,7 +1118,7 @@
 <span class="kw">struct</span> <span class="ident">ButtonStateStyle</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">image</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Image</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">label</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Label</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">outline</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">f64</span>, <span class="ident">Color</span>)<span class="op">&gt;</span>,
+    <span class="ident">outline</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OutlineStyle</span><span class="op">&gt;</span>,
     <span class="ident">bg_color</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span>,
     <span class="ident">custom_batch</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GeomBatch</span><span class="op">&gt;</span>,
 }
@@ -1371,8 +1371,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// If the style hasn&#39;t been set for the current ControlState, the style for</span>
     <span class="doccomment">/// `ControlState::Default` will be used.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">outline</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">f64</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">for_state</span>: <span class="ident">ControlState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">style_mut</span>(<span class="ident">for_state</span>).<span class="ident">outline</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">thickness</span>, <span class="ident">color</span>));
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">outline</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">outline</span>: <span class="ident">OutlineStyle</span>, <span class="ident">for_state</span>: <span class="ident">ControlState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">style_mut</span>(<span class="ident">for_state</span>).<span class="ident">outline</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">outline</span>);
         <span class="self">self</span>
     }
 
@@ -1654,7 +1654,7 @@
                 <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">label</span>
                     .<span class="ident">color</span>
                     .<span class="ident">or</span>(<span class="ident">default</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">d</span><span class="op">|</span> <span class="ident">d</span>.<span class="ident">color</span>))
-                    .<span class="ident">unwrap_or</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">outline_color</span>);
+                    .<span class="ident">unwrap_or</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_fg_color</span>);
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">Line</span>(<span class="ident">text</span>).<span class="ident">fg</span>(<span class="ident">color</span>);
 
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">font_size</span>) <span class="op">=</span> <span class="ident">label</span>.<span class="ident">font_size</span>.<span class="ident">or</span>(<span class="ident">default</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">d</span><span class="op">|</span> <span class="ident">d</span>.<span class="ident">font_size</span>)) {
@@ -1708,8 +1708,8 @@
                 <span class="comment">// uniformly sized buttons.</span>
                 .<span class="ident">unwrap_or</span>(<span class="ident">Color</span>::<span class="ident">CLEAR</span>));
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">thickness</span>, <span class="ident">color</span>)) <span class="op">=</span> <span class="ident">state_style</span>.<span class="ident">outline</span>.<span class="ident">or</span>(<span class="ident">default_style</span>.<span class="ident">outline</span>) {
-            <span class="ident">button_widget</span> <span class="op">=</span> <span class="ident">button_widget</span>.<span class="ident">outline</span>(<span class="ident">thickness</span>, <span class="ident">color</span>);
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">outline</span>) <span class="op">=</span> <span class="ident">state_style</span>.<span class="ident">outline</span>.<span class="ident">or</span>(<span class="ident">default_style</span>.<span class="ident">outline</span>) {
+            <span class="ident">button_widget</span> <span class="op">=</span> <span class="ident">button_widget</span>.<span class="ident">outline</span>(<span class="ident">outline</span>);
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">corner_rounding</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">corner_rounding</span> {

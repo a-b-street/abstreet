@@ -650,7 +650,7 @@
         ])
         .<span class="ident">padding</span>(<span class="number">10</span>)
         .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel_bg</span>)
-        .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>),
+        .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_outline</span>),
     );
     <span class="ident">rows</span>.<span class="ident">push</span>(
         <span class="ident">ctx</span>.<span class="ident">style</span>()
@@ -821,7 +821,7 @@
     ])
     .<span class="ident">padding</span>(<span class="number">10</span>)
     .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel_bg</span>)
-    .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>)
+    .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_outline</span>)
 }
 
 <span class="kw">fn</span> <span class="ident">header</span>(

@@ -150,6 +150,20 @@
 <span id="147">147</span>
 <span id="148">148</span>
 <span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
@@ -182,8 +196,8 @@
             .<span class="ident">style</span>()
             .<span class="ident">btn_plain</span>()
             .<span class="ident">padding</span>(<span class="ident">EdgeInsets</span> {
-                <span class="ident">top</span>: <span class="number">2.0</span>,
-                <span class="ident">bottom</span>: <span class="number">2.0</span>,
+                <span class="ident">top</span>: <span class="number">1.0</span>,
+                <span class="ident">bottom</span>: <span class="number">1.0</span>,
                 <span class="ident">left</span>: <span class="number">4.0</span>,
                 <span class="ident">right</span>: <span class="number">4.0</span>,
             })
@@ -192,6 +206,7 @@
         <span class="kw">let</span> <span class="ident">up</span> <span class="op">=</span> <span class="ident">button_builder</span>
             .<span class="ident">clone</span>()
             .<span class="ident">image_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/arrow_up.svg&quot;</span>))
+            .<span class="ident">padding_bottom</span>(<span class="number">2.0</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;increase value&quot;</span>);
 
         <span class="kw">let</span> <span class="ident">down</span> <span class="op">=</span> <span class="ident">button_builder</span>
@@ -200,7 +215,7 @@
 
         <span class="kw">let</span> <span class="ident">dims</span> <span class="op">=</span> <span class="ident">ScreenDims</span>::<span class="ident">new</span>(
             <span class="ident">TEXT_WIDTH</span> <span class="op">+</span> <span class="ident">up</span>.<span class="ident">get_dims</span>().<span class="ident">width</span>,
-            <span class="ident">up</span>.<span class="ident">get_dims</span>().<span class="ident">height</span> <span class="op">+</span> <span class="ident">down</span>.<span class="ident">get_dims</span>().<span class="ident">height</span> <span class="op">+</span> <span class="number">1.0</span>,
+            <span class="ident">up</span>.<span class="ident">get_dims</span>().<span class="ident">height</span> <span class="op">+</span> <span class="ident">down</span>.<span class="ident">get_dims</span>().<span class="ident">height</span>,
         );
         <span class="kw">if</span> <span class="ident">current</span> <span class="op">&lt;</span> <span class="ident">low</span> {
             <span class="ident">current</span> <span class="op">=</span> <span class="ident">low</span>;
@@ -210,8 +225,7 @@
             <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Spinner current value is out of bounds!&quot;</span>);
         }
 
-        <span class="kw">let</span> <span class="ident">outline</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">outline</span>;
-        <span class="ident">Widget</span>::<span class="ident">new</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Spinner</span> {
+        <span class="kw">let</span> <span class="ident">padded_widget</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Widget</span>::<span class="ident">new</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Spinner</span> {
             <span class="ident">low</span>,
             <span class="ident">high</span>,
             <span class="ident">current</span>,
@@ -221,8 +235,22 @@
 
             <span class="ident">top_left</span>: <span class="ident">ScreenPt</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
             <span class="ident">dims</span>,
-        }))
-        .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">outline</span>)
+        }))])
+        <span class="comment">// pad to consistent height with other input components</span>
+        <span class="comment">// Also, something funny going on with the outline here - without this padding</span>
+        <span class="comment">// the outline is cropped and looks undesirably thin. I don&#39;t understand</span>
+        <span class="comment">// why padding would affect the thickness of the outline stroke</span>
+        .<span class="ident">padding</span>(<span class="ident">EdgeInsets</span> {
+            <span class="ident">top</span>: <span class="number">2.0</span>,
+            <span class="ident">left</span>: <span class="number">1.0</span>,
+            <span class="ident">bottom</span>: <span class="number">2.0</span>,
+            <span class="ident">right</span>: <span class="number">1.0</span>,
+        })
+        .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">outline</span>);
+
+        <span class="comment">// Wrap in another widget so that the caller can apply any additional padding or whatever</span>
+        <span class="comment">// they need without blowing away what&#39;s necessary for the spinner control to look right.</span>
+        <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">padded_widget</span>])
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">modify</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">delta</span>: <span class="ident">isize</span>) {

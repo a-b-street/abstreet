@@ -202,6 +202,7 @@
 <span id="199">199</span>
 <span id="200">200</span>
 <span id="201">201</span>
+<span id="202">202</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">CornerRadii</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
@@ -397,7 +398,8 @@
                 <span class="ident">bottom_right</span>: <span class="number">2.0</span>,
                 <span class="ident">top_right</span>: <span class="number">2.0</span>,
             }))
-            .<span class="ident">outline</span>(<span class="number">0.0</span>, <span class="ident">Color</span>::<span class="ident">CLEAR</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
+            <span class="comment">// override any outline element within persistent split</span>
+            .<span class="ident">outline</span>((<span class="number">0.0</span>, <span class="ident">Color</span>::<span class="ident">CLEAR</span>), <span class="ident">ControlState</span>::<span class="ident">Default</span>)
     } <span class="kw">else</span> {
         <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline_dropdown</span>().<span class="ident">label_text</span>(<span class="ident">label</span>)
     };

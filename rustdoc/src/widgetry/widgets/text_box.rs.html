@@ -144,6 +144,7 @@
 <span id="141">141</span>
 <span id="142">142</span>
 <span id="143">143</span>
+<span id="144">144</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>};
 
@@ -273,10 +274,11 @@
             <span class="ident">Polygon</span>::<span class="ident">rounded_rectangle</span>(<span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">width</span>, <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span>, <span class="number">2.0</span>),
         )]);
 
+        <span class="kw">let</span> <span class="ident">outline_style</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">outline</span>;
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">outline</span>) <span class="op">=</span> <span class="ident">Polygon</span>::<span class="ident">rounded_rectangle</span>(<span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">width</span>, <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span>, <span class="number">2.0</span>)
-            .<span class="ident">to_outline</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">2.0</span>))
+            .<span class="ident">to_outline</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="ident">outline_style</span>.<span class="number">0</span>))
         {
-            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">g</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">outline</span>, <span class="ident">outline</span>);
+            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">outline_style</span>.<span class="number">1</span>, <span class="ident">outline</span>);
         }
 
         <span class="ident">batch</span>.<span class="ident">append</span>(

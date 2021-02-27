@@ -832,7 +832,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">panel</span>::<span class="ident">Panel</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">Button</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">DeferDraw</span>, <span class="ident">Drawable</span>, <span class="ident">Dropdown</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">JustDraw</span>,
-    <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">TextBox</span>, <span class="ident">Toggle</span>,
+    <span class="ident">OutlineStyle</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">TextBox</span>, <span class="ident">Toggle</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">autocomplete</span>;
@@ -1025,8 +1025,8 @@
     }
 
     <span class="comment">// Callers have to adjust padding too, probably</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">outline</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">f64</span>, <span class="ident">color</span>: <span class="ident">Color</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-        <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">outline</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">thickness</span>, <span class="ident">color</span>));
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">outline</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">style</span>: <span class="ident">OutlineStyle</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+        <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">outline</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">style</span>);
         <span class="self">self</span>
     }
 

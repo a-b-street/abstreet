@@ -1727,7 +1727,7 @@
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;undo&quot;</span>),
                 ])
                 .<span class="ident">padding</span>(<span class="number">16</span>)
-                .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>),
+                .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">outline</span>),
             );
         } <span class="kw">else</span> {
             <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">btn</span>);
