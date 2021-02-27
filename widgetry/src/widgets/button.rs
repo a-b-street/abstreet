@@ -180,25 +180,25 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     }
 
     /// Extra spacing around a button's items (label and/or image).
-    pub fn padding_top(mut self, padding: f32) -> Self {
+    pub fn padding_top(mut self, padding: f64) -> Self {
         self.padding.top = padding;
         self
     }
 
     /// Extra spacing around a button's items (label and/or image).
-    pub fn padding_left(mut self, padding: f32) -> Self {
+    pub fn padding_left(mut self, padding: f64) -> Self {
         self.padding.left = padding;
         self
     }
 
     /// Extra spacing around a button's items (label and/or image).
-    pub fn padding_bottom(mut self, padding: f32) -> Self {
+    pub fn padding_bottom(mut self, padding: f64) -> Self {
         self.padding.bottom = padding;
         self
     }
 
     /// Extra spacing around a button's items (label and/or image).
-    pub fn padding_right(mut self, padding: f32) -> Self {
+    pub fn padding_right(mut self, padding: f64) -> Self {
         self.padding.right = padding;
         self
     }
@@ -622,14 +622,14 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
                     let mut container_batch = GeomBatch::new();
                     let container = match image_corners {
                         CornerRounding::FullyRounded => Polygon::pill(
-                            image_dims.width + padding.left as f64 + padding.right as f64,
-                            image_dims.height + padding.top as f64 + padding.bottom as f64,
+                            image_dims.width + padding.left + padding.right,
+                            image_dims.height + padding.top + padding.bottom,
                         ),
                         CornerRounding::CornerRadii(image_corners) => {
                             Polygon::rounded_rectangle(
                                 // TODO: EdgeInsets -> f64?
-                                image_dims.width + padding.left as f64 + padding.right as f64,
-                                image_dims.height + padding.top as f64 + padding.bottom as f64,
+                                image_dims.width + padding.left + padding.right,
+                                image_dims.height + padding.top + padding.bottom,
                                 image_corners,
                             )
                         }
@@ -642,8 +642,8 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
                     container_batch.push(image_bg, container);
 
                     let center = Pt2D::new(
-                        image_dims.width / 2.0 + padding.left as f64,
-                        image_dims.height / 2.0 + padding.top as f64,
+                        image_dims.width / 2.0 + padding.left,
+                        image_dims.height / 2.0 + padding.top,
                     );
                     svg_batch = svg_batch.autocrop().centered_on(center);
 

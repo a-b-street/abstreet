@@ -153,7 +153,7 @@ impl Slider {
         }
 
         let padding = self.style.padding();
-        batch = batch.translate(padding.left as f64, padding.top as f64);
+        batch = batch.translate(padding.left, padding.top);
         self.dims = self.style.inner_dims().pad(padding);
         self.draw = ctx.upload(batch);
     }
@@ -182,8 +182,8 @@ impl Slider {
     fn pt_to_percent(&self, pt: ScreenPt) -> f64 {
         let padding = self.style.padding();
         let pt = pt.translated(
-            -self.top_left.x - padding.left as f64,
-            -self.top_left.y - padding.top as f64,
+            -self.top_left.x - padding.left,
+            -self.top_left.y - padding.top,
         );
 
         match self.style {
@@ -243,8 +243,8 @@ impl Slider {
                 self.mouse_on_slider = self
                     .button_geom()
                     .translate(
-                        self.top_left.x + padding.left as f64,
-                        self.top_left.y + padding.top as f64,
+                        self.top_left.x + padding.left,
+                        self.top_left.y + padding.top,
                     )
                     .contains_pt(pt.to_pt());
             } else {
@@ -262,8 +262,8 @@ impl Slider {
             if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
                 if Polygon::rectangle(self.dims.width, self.dims.height)
                     .translate(
-                        self.top_left.x + padding.left as f64,
-                        self.top_left.y + padding.top as f64,
+                        self.top_left.x + padding.left,
+                        self.top_left.y + padding.top,
                     )
                     .contains_pt(pt.to_pt())
                 {

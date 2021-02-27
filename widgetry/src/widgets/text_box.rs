@@ -136,7 +136,7 @@ impl WidgetImpl for TextBox {
         batch.append(
             self.calculate_text(g.style())
                 .render_autocropped(g)
-                .translate(self.padding.left as f64, self.padding.top as f64),
+                .translate(self.padding.left, self.padding.top),
         );
         let draw = g.upload(batch);
         g.redraw_at(self.top_left, &draw);

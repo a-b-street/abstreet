@@ -755,10 +755,10 @@ impl Widget {
 
 #[derive(Copy, Clone, Debug, Default, PartialEq)]
 pub struct EdgeInsets {
-    pub top: f32,
-    pub left: f32,
-    pub bottom: f32,
-    pub right: f32,
+    pub top: f64,
+    pub left: f64,
+    pub bottom: f64,
+    pub right: f64,
 }
 
 impl EdgeInsets {
@@ -771,7 +771,7 @@ impl EdgeInsets {
         }
     }
 
-    pub fn uniform(inset: f32) -> Self {
+    pub fn uniform(inset: f64) -> Self {
         EdgeInsets {
             top: inset,
             left: inset,
@@ -784,16 +784,16 @@ impl EdgeInsets {
 impl From<usize> for EdgeInsets {
     fn from(uniform_size: usize) -> EdgeInsets {
         EdgeInsets {
-            top: uniform_size as f32,
-            left: uniform_size as f32,
-            bottom: uniform_size as f32,
-            right: uniform_size as f32,
+            top: uniform_size as f64,
+            left: uniform_size as f64,
+            bottom: uniform_size as f64,
+            right: uniform_size as f64,
         }
     }
 }
 
-impl From<f32> for EdgeInsets {
-    fn from(uniform_size: f32) -> EdgeInsets {
+impl From<f64> for EdgeInsets {
+    fn from(uniform_size: f64) -> EdgeInsets {
         EdgeInsets {
             top: uniform_size,
             left: uniform_size,
@@ -806,10 +806,10 @@ impl From<f32> for EdgeInsets {
 impl From<EdgeInsets> for Rect<Dimension> {
     fn from(insets: EdgeInsets) -> Rect<Dimension> {
         Rect {
-            start: Dimension::Points(insets.left),
-            end: Dimension::Points(insets.right),
-            top: Dimension::Points(insets.top),
-            bottom: Dimension::Points(insets.bottom),
+            start: Dimension::Points(insets.left as f32),
+            end: Dimension::Points(insets.right as f32),
+            top: Dimension::Points(insets.top as f32),
+            bottom: Dimension::Points(insets.bottom as f32),
         }
     }
 }
