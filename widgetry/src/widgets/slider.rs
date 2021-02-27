@@ -24,7 +24,7 @@ enum Style {
     Area { width: f64 },
 }
 
-pub const BG_CROSS_AXIS_LEN: f64 = 20.0;
+pub const BG_CROSS_AXIS_LEN: f64 = 4.0;
 
 impl Slider {
     pub fn horizontal(
@@ -93,16 +93,16 @@ impl Slider {
 
                 // The background
                 batch.push(
-                    Color::WHITE,
+                    ctx.style.field_bg,
                     Polygon::rectangle(self.dims.width, self.dims.height),
                 );
 
                 // The draggy thing
                 batch.push(
                     if self.mouse_on_slider {
-                        Color::grey(0.7).alpha(0.7)
+                        ctx.style.btn_solid.bg_hover
                     } else {
-                        Color::grey(0.7)
+                        ctx.style.btn_solid.bg
                     },
                     self.slider_geom(),
                 );
@@ -113,9 +113,10 @@ impl Slider {
 
                 // The background
                 batch.push(
-                    Color::hex("#F2F2F2"),
+                    ctx.style.field_bg,
                     Polygon::pill(self.dims.width, self.dims.height),
                 );
+
                 // So far
                 batch.push(
                     Color::hex("#F4DF4D"),
@@ -125,9 +126,12 @@ impl Slider {
                 // The circle dragger
                 batch.push(
                     if self.mouse_on_slider {
-                        Color::WHITE.alpha(0.7)
+                        ctx.style.btn_solid.bg_hover
                     } else {
-                        Color::WHITE
+                        // we don't want to use `ctx.style.btn_solid.bg` because it achieves it's
+                        // "dulling" with opacity, which causes the slider to "peak through" and
+                        // looks weird.
+                        ctx.style.btn_solid.bg_hover.dull(0.2)
                     },
                     self.slider_geom(),
                 );
@@ -143,12 +147,12 @@ impl Slider {
             Style::Horizontal {
                 main_bg_len,
                 dragger_len,
-            } => Polygon::rectangle(dragger_len, BG_CROSS_AXIS_LEN)
+            } => Polygon::pill(dragger_len, BG_CROSS_AXIS_LEN)
                 .translate(self.current_percent * (main_bg_len - dragger_len), 0.0),
             Style::Vertical {
                 main_bg_len,
                 dragger_len,
-            } => Polygon::rectangle(BG_CROSS_AXIS_LEN, dragger_len)
+            } => Polygon::pill(BG_CROSS_AXIS_LEN, dragger_len)
                 .translate(0.0, self.current_percent * (main_bg_len - dragger_len)),
             Style::Area { width } => Circle::new(
                 Pt2D::new(self.current_percent * width, BG_CROSS_AXIS_LEN / 2.0),

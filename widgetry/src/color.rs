@@ -148,6 +148,11 @@ impl Color {
     pub fn tint(self, white_ratio: f64) -> Color {
         self.lerp(Color::WHITE, white_ratio)
     }
+
+    // A theme agnostic way to get a more/less intense color without affecting alpha.
+    pub fn dull(self, ratio: f64) -> Color {
+        self.lerp(Color::grey(0.5), ratio)
+    }
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/linear-gradient is the best reference I've
