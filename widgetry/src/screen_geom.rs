@@ -126,8 +126,8 @@ impl ScreenDims {
 
     pub fn pad(&self, edge_insets: EdgeInsets) -> Self {
         Self {
-            width: self.width + (edge_insets.left + edge_insets.right) as f64,
-            height: self.height + (edge_insets.top + edge_insets.bottom) as f64,
+            width: self.width + edge_insets.left + edge_insets.right,
+            height: self.height + edge_insets.top + edge_insets.bottom,
         }
     }
 
