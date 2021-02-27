@@ -114,7 +114,8 @@ impl MainState {
                             .btn_outline_text("adjust boundary")
                             .build_def(ctx),
                         ctx.style()
-                            .btn_solid_primary_text("export to OSM")
+                            .btn_solid_primary
+                            .text("export to OSM")
                             .build_def(ctx),
                     ]),
                 ]))

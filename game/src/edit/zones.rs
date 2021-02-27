@@ -64,7 +64,8 @@ impl ZoneEditor {
                 ]),
                 Widget::custom_row(vec![
                     ctx.style()
-                        .btn_solid_primary_text("Apply")
+                        .btn_solid_primary
+                        .text("Apply")
                         .hotkey(Key::Enter)
                         .build_def(ctx),
                     ctx.style()

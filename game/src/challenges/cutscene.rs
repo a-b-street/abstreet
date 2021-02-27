@@ -163,7 +163,8 @@ fn make_panel(
         Widget::custom_col(vec![
             (make_task)(ctx),
             ctx.style()
-                .btn_solid_primary_text("Start")
+                .btn_solid_primary
+                .text("Start")
                 .hotkey(Key::Enter)
                 .build_def(ctx)
                 .centered_horiz()
@@ -224,7 +225,7 @@ fn make_panel(
             Widget::col(vec![
                 Widget::row(vec![prev.margin_right(40), next]).centered_horiz(),
                 ButtonStyle::outline_dark_fg()
-                    .outline_text("Skip cutscene")
+                    .text("Skip cutscene")
                     .build_def(ctx)
                     .centered_horiz(),
             ])
@@ -265,7 +266,8 @@ impl FYI {
                 Widget::custom_col(vec![
                     contents,
                     ctx.style()
-                        .btn_solid_primary_text("OK")
+                        .btn_solid_primary
+                        .text("OK")
                         .hotkey(hotkeys(vec![Key::Escape, Key::Space, Key::Enter]))
                         .build_def(ctx)
                         .centered_horiz()

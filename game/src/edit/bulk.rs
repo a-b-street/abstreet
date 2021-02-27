@@ -168,7 +168,8 @@ impl BulkEdit {
                 },
                 Widget::row(vec![
                     ctx.style()
-                        .btn_solid_primary_text("Finish")
+                        .btn_solid_primary
+                        .text("Finish")
                         .hotkey(Key::Enter)
                         .build_def(ctx),
                     ctx.style()

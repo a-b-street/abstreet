@@ -494,7 +494,8 @@ impl State<App> for TrafficSignalEditor {
 fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool) -> Panel {
     let row = vec![
         ctx.style()
-            .btn_solid_primary_text("Finish")
+            .btn_solid_primary
+            .text("Finish")
             .hotkey(Key::Enter)
             .build_def(ctx),
         ctx.style()
