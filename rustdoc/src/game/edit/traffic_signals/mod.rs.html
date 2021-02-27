@@ -919,6 +919,7 @@
 <span id="916">916</span>
 <span id="917">917</span>
 <span id="918">918</span>
+<span id="919">919</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 
@@ -1604,10 +1605,11 @@
                 <span class="ident">stage_btn</span>,
             ]),
         ])
-        .<span class="ident">padding</span>(<span class="number">10</span>);
+        .<span class="ident">padding</span>(<span class="number">10</span>)
+        .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel_bg</span>);
 
         <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">selected</span> {
-            <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">stage_controls</span>.<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#2A2A2A&quot;</span>)));
+            <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">stage_controls</span>.<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">outline_color</span>));
         } <span class="kw">else</span> {
             <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">stage_controls</span>);
         }
