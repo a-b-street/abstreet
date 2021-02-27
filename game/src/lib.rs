@@ -95,6 +95,9 @@ pub fn main() {
     let center_camera = args.optional("--cam");
 
     if let Some(site) = args.optional("--actdev") {
+        // Handle if the site was accidentally passed in with underscores. Otherwise, some study
+        // areas won't be found!
+        let site = site.replace("_", "-");
         let city = site.replace("-", "_");
         let name = MapName::new("gb", &city, "center");
         flags.sim_flags.load = name.path();
