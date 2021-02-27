@@ -226,7 +226,8 @@ impl ChangeScenario {
         for (name, label, description) in choices {
             let btn = ctx
                 .style()
-                .btn_solid_text(&label)
+                .btn_tab
+                .text(&label)
                 .disabled(name == current_scenario);
             col.push(
                 Widget::row(vec![

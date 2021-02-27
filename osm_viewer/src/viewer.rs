@@ -97,7 +97,7 @@ impl Viewer {
                         ctx.style()
                             .btn_outline_text(&format!("Open OSM way {}", r.orig_id.osm_way_id.0))
                             .build_widget(ctx, &format!("open {}", r.orig_id.osm_way_id)),
-                        ctx.style().btn_solid_text("Edit OSM way").build_widget(
+                        ctx.style().btn_outline.text("Edit OSM way").build_widget(
                             ctx,
                             &format!(
                                 "open https://www.openstreetmap.org/edit?way={}",

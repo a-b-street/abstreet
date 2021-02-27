@@ -15,9 +15,9 @@ pub struct Style {
     pub loading_tips: Text,
     pub section_bg: Color,
     pub section_outline: OutlineStyle,
-    pub btn_solid: ButtonStyle,
+    pub btn_tab: ButtonStyle,
     pub btn_outline: ButtonStyle,
-    pub btn_solid_floating: ButtonStyle,
+    pub btn_floating: ButtonStyle,
     pub btn_solid_destructive: ButtonStyle,
     pub btn_outline_destructive: ButtonStyle,
     pub btn_solid_primary: ButtonStyle,
@@ -100,7 +100,7 @@ impl Style {
             text_tooltip_color: Color::WHITE,
             text_destructive_color: hex("#FF5E5E"),
             btn_outline: ButtonStyle::outline_dark_fg(),
-            btn_solid: ButtonStyle {
+            btn_tab: ButtonStyle {
                 fg: Color::WHITE,
                 fg_disabled: Color::WHITE.alpha(0.3),
                 bg: hex("#4C4C4C").alpha(0.8),
@@ -108,7 +108,7 @@ impl Style {
                 bg_disabled: Color::grey(0.6),
                 outline: (DEFAULT_OUTLINE_THICKNESS, hex("#4C4C4C").alpha(0.6)),
             },
-            btn_solid_floating: ButtonStyle::solid_dark_fg(),
+            btn_floating: ButtonStyle::solid_dark_fg(),
             btn_solid_destructive: ButtonStyle {
                 fg: hex("#F2F2F2"),
                 fg_disabled: hex("#F2F2F2").alpha(0.3),
@@ -158,8 +158,8 @@ impl Style {
             text_tooltip_color: Color::WHITE,
             text_destructive_color: hex("#EB3223"),
             btn_outline: ButtonStyle::outline_light_fg(),
-            btn_solid: ButtonStyle::solid_dark_fg(),
-            btn_solid_floating: ButtonStyle::solid_light_fg(),
+            btn_tab: ButtonStyle::solid_dark_fg(),
+            btn_floating: ButtonStyle::solid_light_fg(),
             btn_solid_destructive: ButtonStyle {
                 fg: hex("#F2F2F2"),
                 fg_disabled: hex("#F2F2F2").alpha(0.3),
@@ -203,8 +203,8 @@ impl Style {
         style.section_bg = navy;
         style.field_bg = navy.shade(0.2);
         style.btn_outline = ButtonStyle::outline_light_fg();
-        style.btn_solid = ButtonStyle::solid_dark_fg();
-        style.btn_solid_floating = ButtonStyle::solid_light_fg();
+        style.btn_tab = ButtonStyle::solid_dark_fg();
+        style.btn_floating = ButtonStyle::solid_light_fg();
         style.text_fg_color = Color::WHITE;
         style.icon_fg = Color::WHITE;
         style.text_hotkey_color = Color::GREEN;

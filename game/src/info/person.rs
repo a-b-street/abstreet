@@ -212,7 +212,8 @@ pub fn trips(
         .to_geom(ctx, Some(0.3));
         rows.push(
             ctx.style()
-                .btn_solid_floating()
+                .btn_floating
+                .btn()
                 .custom_batch(row_btn.clone(), ControlState::Default)
                 .custom_batch(
                     row_btn.color(RewriteColor::Change(

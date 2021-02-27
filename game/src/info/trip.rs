@@ -253,7 +253,8 @@ pub fn finished(
         );
         col.push(
             ctx.style()
-                .btn_solid_floating()
+                .btn_floating
+                .btn()
                 .label_styled_text(
                     Text::from_all(vec![
                         Line("After / "),
@@ -274,7 +275,8 @@ pub fn finished(
         );
         col.push(
             ctx.style()
-                .btn_solid_floating()
+                .btn_floating
+                .btn()
                 .label_styled_text(
                     Text::from_all(vec![
                         Line("After / ").secondary(),

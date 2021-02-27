@@ -101,7 +101,8 @@ impl MainMenu {
             Widget::row({
                 let btn_builder = ctx
                     .style()
-                    .btn_solid()
+                    .btn_tab
+                    .btn()
                     .image_dims(ScreenDims::new(200.0, 100.0))
                     .font_size(40)
                     .font(Font::OverpassBold)
@@ -376,7 +377,8 @@ impl Proposals {
 
                 buttons.push(
                     ctx.style()
-                        .btn_solid_text(&edits.proposal_description[0])
+                        .btn_tab
+                        .text(&edits.proposal_description[0])
                         .disabled(true)
                         .build_def(ctx)
                         .margin_below(10),
@@ -384,7 +386,8 @@ impl Proposals {
             } else {
                 buttons.push(
                     ctx.style()
-                        .btn_solid_text(&edits.proposal_description[0])
+                        .btn_tab
+                        .text(&edits.proposal_description[0])
                         .no_tooltip()
                         .build_widget(ctx, &name)
                         .margin_below(10),

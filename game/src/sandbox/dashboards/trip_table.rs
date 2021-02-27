@@ -4,9 +4,7 @@ use abstutil::prettyprint_usize;
 use geom::{Duration, Time};
 use sim::{TripEndpoint, TripID, TripMode};
 use widgetry::table::{Col, Filter, Table};
-use widgetry::{
-    ControlState, EventCtx, Filler, Line, Panel, State, StyledButtons, Text, Toggle, Widget,
-};
+use widgetry::{ControlState, EventCtx, Filler, Line, Panel, State, Text, Toggle, Widget};
 
 use crate::app::App;
 use crate::common::{checkbox_per_mode, cmp_duration_shorter, color_for_mode};
@@ -587,11 +585,11 @@ fn trip_category_selector(ctx: &mut EventCtx, app: &App, tab: DashTab) -> Widget
     let total = finished + cancelled + unfinished;
 
     let btn = |dash, action, label| {
-        let mut button = ctx.style().btn_solid_text(label);
+        let mut button = ctx.style().btn_tab.text(label);
         if dash == tab {
             button = button
                 .disabled(true)
-                .bg_color(ctx.style().btn_solid_floating.bg, ControlState::Disabled)
+                .bg_color(ctx.style().btn_floating.bg, ControlState::Disabled)
                 .label_underlined_text(label);
         }
         button.build_widget(ctx, action)

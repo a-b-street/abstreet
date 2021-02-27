@@ -696,17 +696,18 @@ fn make_tabs(
     for (name, link) in tabs {
         row.push(
             ctx.style()
-                .btn_solid_text(name)
+                .btn_tab
+                .text(name)
                 // We use "disabled" to denote "currently selected", but we want to style it like
                 // normal
                 .disabled(current_tab.variant() == link.variant())
-                .bg_color(ctx.style().btn_solid.bg, ControlState::Disabled)
-                .label_color(ctx.style().btn_solid.fg, ControlState::Disabled)
-                .outline(ctx.style().btn_solid.outline, ControlState::Disabled)
+                .bg_color(ctx.style().btn_tab.bg, ControlState::Disabled)
+                .label_color(ctx.style().btn_tab.fg, ControlState::Disabled)
+                .outline(ctx.style().btn_tab.outline, ControlState::Disabled)
                 // Hide the hit area for selectable tabs unless hovered
                 .bg_color(Color::CLEAR, ControlState::Default)
                 .outline((0.0, Color::CLEAR), ControlState::Default)
-                .bg_color(ctx.style().btn_solid.bg.alpha(0.6), ControlState::Hovered)
+                .bg_color(ctx.style().btn_tab.bg.alpha(0.6), ControlState::Hovered)
                 .build_def(ctx),
         );
         hyperlinks.insert(name.to_string(), link);
@@ -715,9 +716,9 @@ fn make_tabs(
         // stop-gap color that is semi-legible across themes until the tab redesign is completed
         let tab_bg = ctx
             .style()
-            .btn_solid
+            .btn_tab
             .bg
-            .lerp(ctx.style().btn_solid.fg, 0.3)
+            .lerp(ctx.style().btn_tab.fg, 0.3)
             .alpha(1.0);
 
         // TODO Centered, but actually, we need to set the padding of each button to divide the

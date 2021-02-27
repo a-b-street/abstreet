@@ -317,7 +317,8 @@ fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) ->
                 .hotkey(lctrl(Key::L))
                 .build_widget(ctx, "load"),
             ctx.style()
-                .btn_solid_icon("system/assets/tools/save.svg")
+                .btn_outline
+                .plain_icon("system/assets/tools/save.svg")
                 .hotkey(lctrl(Key::S))
                 .disabled(!dirty)
                 .build_widget(ctx, "save"),

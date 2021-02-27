@@ -3,9 +3,7 @@ use std::io::Cursor;
 use anyhow::Result;
 use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink};
 
-use widgetry::{
-    EventCtx, GfxCtx, HorizontalAlignment, Outcome, Panel, StyledButtons, Toggle, VerticalAlignment,
-};
+use widgetry::{EventCtx, GfxCtx, HorizontalAlignment, Outcome, Panel, Toggle, VerticalAlignment};
 
 // TODO Speed up when we're almost out of time, slow down when we're low on energy
 
@@ -110,10 +108,12 @@ impl Inner {
             Toggle::new(
                 play_music,
                 ctx.style()
-                    .btn_solid_icon("system/assets/tools/volume_off.svg")
+                    .btn_outline
+                    .plain_icon("system/assets/tools/volume_off.svg")
                     .build(ctx, "play music"),
                 ctx.style()
-                    .btn_solid_icon("system/assets/tools/volume_on.svg")
+                    .btn_outline
+                    .plain_icon("system/assets/tools/volume_on.svg")
                     .build(ctx, "mute music"),
             )
             .named("play music")
