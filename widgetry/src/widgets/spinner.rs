@@ -29,8 +29,8 @@ impl Spinner {
             .style()
             .btn_plain()
             .padding(EdgeInsets {
-                top: 1.0,
-                bottom: 1.0,
+                top: 2.0,
+                bottom: 2.0,
                 left: 4.0,
                 right: 4.0,
             })
@@ -39,7 +39,6 @@ impl Spinner {
         let up = button_builder
             .clone()
             .image_bytes(include_labeled_bytes!("../../icons/arrow_up.svg"))
-            .padding_bottom(2.0)
             .build(ctx, "increase value");
 
         let down = button_builder
@@ -48,7 +47,7 @@ impl Spinner {
 
         let dims = ScreenDims::new(
             TEXT_WIDTH + up.get_dims().width,
-            up.get_dims().height + down.get_dims().height,
+            up.get_dims().height + down.get_dims().height + 1.0,
         );
         if current < low {
             current = low;
@@ -58,7 +57,8 @@ impl Spinner {
             warn!("Spinner current value is out of bounds!");
         }
 
-        let padded_widget = Widget::row(vec![Widget::new(Box::new(Spinner {
+        let outline = ctx.style().btn_outline.outline;
+        Widget::new(Box::new(Spinner {
             low,
             high,
             current,
@@ -68,22 +68,8 @@ impl Spinner {
 
             top_left: ScreenPt::new(0.0, 0.0),
             dims,
-        }))])
-        // pad to consistent height with other input components
-        // Also, something funny going on with the outline here - without this padding
-        // the outline is cropped and looks undesirably thin. I don't understand
-        // why padding would affect the thickness of the outline stroke
-        .padding(EdgeInsets {
-            top: 2.0,
-            left: 1.0,
-            bottom: 2.0,
-            right: 1.0,
-        })
-        .outline(ctx.style().btn_outline.outline);
-
-        // Wrap in another widget so that the caller can apply any additional padding or whatever
-        // they need without blowing away what's necessary for the spinner control to look right.
-        Widget::row(vec![padded_widget])
+        }))
+        .outline(outline)
     }
 
     pub fn modify(&mut self, delta: isize) {
