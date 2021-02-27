@@ -101,6 +101,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("dunton_hills", "center") => "Dunton Hills",
             ("ebbsfleet", "center") => "Ebbsfleet (Dartford)",
             ("great_kneighton", "center") => "Great Kneighton (Cambridge)",
+            ("halsnhead", "center") => "Halsnead",
             ("hampton", "center") => "Hampton",
             ("kidbrooke_village", "center") => "Kidbrooke Village",
             ("lcid", "center") => "Leeds Climate Innovation District",

@@ -540,6 +540,26 @@
       "uncompressed_size_bytes": 40266434,
       "compressed_size_bytes": 40251009
     },
+    "data/input/gb/halsnead/osm/center.osm": {
+      "checksum": "9b4aedf25220e29e11d0970cf7c70a26",
+      "uncompressed_size_bytes": 30400273,
+      "compressed_size_bytes": 2833123
+    },
+    "data/input/gb/halsnead/osm/merseyside-latest.osm.pbf": {
+      "checksum": "ddcb5a8d469167e9f8966da5ae0020f8",
+      "uncompressed_size_bytes": 20087750,
+      "compressed_size_bytes": 20062743
+    },
+    "data/input/gb/halsnead/procgen_houses.json": {
+      "checksum": "81dbe9df82b3fd9f82ceb63ad597859b",
+      "uncompressed_size_bytes": 12147800,
+      "compressed_size_bytes": 1377541
+    },
+    "data/input/gb/halsnead/raw_maps/center.bin": {
+      "checksum": "ecbf2c81e6828aa0e42c2b78d2ad593e",
+      "uncompressed_size_bytes": 12371550,
+      "compressed_size_bytes": 3099564
+    },
     "data/input/gb/hampton/osm/cambridgeshire-latest.osm.pbf": {
       "checksum": "c4ec8f81dc604526443750f695886ebf",
       "uncompressed_size_bytes": 22722189,
@@ -1784,6 +1804,21 @@
       "checksum": "d942a33d08f30fb912686c8bba6d8327",
       "uncompressed_size_bytes": 113378,
       "compressed_size_bytes": 23484
+    },
+    "data/system/gb/halsnead/maps/center.bin": {
+      "checksum": "404abe7ce73150776d764ccb3afdc04f",
+      "uncompressed_size_bytes": 51461335,
+      "compressed_size_bytes": 17655792
+    },
+    "data/system/gb/halsnead/scenarios/center/base.bin": {
+      "checksum": "abc419c8fb1bec62bb4aee15129097a4",
+      "uncompressed_size_bytes": 49339,
+      "compressed_size_bytes": 8342
+    },
+    "data/system/gb/halsnead/scenarios/center/go_active.bin": {
+      "checksum": "78693552f6faab94fc80c3bc10e713d3",
+      "uncompressed_size_bytes": 49292,
+      "compressed_size_bytes": 8504
     },
     "data/system/gb/hampton/maps/center.bin": {
       "checksum": "3c7be46881f32811c8c2db09c96afd93",

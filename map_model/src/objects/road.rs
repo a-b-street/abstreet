@@ -367,7 +367,7 @@ impl Road {
     }
 
     pub fn is_private(&self) -> bool {
-        self.access_restrictions != AccessRestrictions::new()
+        self.access_restrictions != AccessRestrictions::new() && !self.is_light_rail()
     }
 
     pub(crate) fn access_restrictions_from_osm(&self) -> AccessRestrictions {
