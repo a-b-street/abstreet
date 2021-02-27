@@ -93,7 +93,7 @@ impl Panel {
         // TODO Handle making room for a horizontal scrollbar on the bottom. The equivalent change
         // to container_dims.height doesn't work as expected.
         if self.scrollable_y {
-            container_dims.width += slider::SCROLLBAR_WIDTH;
+            container_dims.width += slider::SCROLLBAR_BG_WIDTH;
         }
         let top_left = ctx
             .canvas

@@ -1,8 +1,8 @@
 use geom::{Circle, Distance, Polygon, Pt2D};
 
 use crate::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenPt, ScreenRectangle, Widget,
-    WidgetImpl, WidgetOutput,
+    Color, Drawable, EdgeInsets, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenPt,
+    ScreenRectangle, Widget, WidgetImpl, WidgetOutput,
 };
 
 pub struct Slider {
@@ -24,8 +24,34 @@ enum Style {
     Area { width: f64 },
 }
 
-pub const SCROLLBAR_WIDTH: f64 = 4.0;
-pub const AREA_SLIDER_WIDTH: f64 = 10.0;
+pub const SCROLLBAR_BG_WIDTH: f64 = 4.0;
+pub const AREA_SLIDER_BG_WIDTH: f64 = 10.0;
+
+impl Style {
+    fn padding(&self) -> EdgeInsets {
+        match self {
+            Style::Horizontal { .. } | Style::Vertical { .. } => EdgeInsets::zero(),
+            Style::Area { .. } => EdgeInsets {
+                top: 10.0,
+                bottom: 10.0,
+                left: 20.0,
+                right: 20.0,
+            },
+        }
+    }
+
+    fn inner_dims(&self) -> ScreenDims {
+        match self {
+            Style::Horizontal { main_bg_len, .. } => {
+                ScreenDims::new(*main_bg_len, SCROLLBAR_BG_WIDTH)
+            }
+            Style::Vertical { main_bg_len, .. } => {
+                ScreenDims::new(SCROLLBAR_BG_WIDTH, *main_bg_len)
+            }
+            Style::Area { width } => ScreenDims::new(*width, AREA_SLIDER_BG_WIDTH),
+        }
+    }
+}
 
 impl Slider {
     pub fn horizontal(
@@ -64,9 +90,7 @@ impl Slider {
             current_percent,
             mouse_on_slider: false,
             dragging: false,
-
             style,
-
             draw: Drawable::empty(ctx),
 
             top_left: ScreenPt::new(0.0, 0.0),
@@ -81,21 +105,11 @@ impl Slider {
 
         match self.style {
             Style::Horizontal { .. } | Style::Vertical { .. } => {
-                // Full dims
-                self.dims = match self.style {
-                    Style::Horizontal { main_bg_len, .. } => {
-                        ScreenDims::new(main_bg_len, SCROLLBAR_WIDTH)
-                    }
-                    Style::Vertical { main_bg_len, .. } => {
-                        ScreenDims::new(SCROLLBAR_WIDTH, main_bg_len)
-                    }
-                    _ => unreachable!(),
-                };
-
+                let inner_dims = self.style.inner_dims();
                 // The background
                 batch.push(
                     ctx.style.field_bg,
-                    Polygon::rectangle(self.dims.width, self.dims.height),
+                    Polygon::rectangle(inner_dims.width, inner_dims.height),
                 );
 
                 // The draggy thing
@@ -105,23 +119,22 @@ impl Slider {
                     } else {
                         ctx.style.btn_solid.bg
                     },
-                    self.slider_geom(),
+                    self.button_geom(),
                 );
             }
-            Style::Area { width } => {
+            Style::Area { .. } => {
                 // Full dims
-                self.dims = ScreenDims::new(width, AREA_SLIDER_WIDTH);
-
+                let inner_dims = self.style.inner_dims();
                 // The background
                 batch.push(
                     ctx.style.field_bg.dull(0.5),
-                    Polygon::pill(self.dims.width, self.dims.height),
+                    Polygon::pill(inner_dims.width, inner_dims.height),
                 );
 
                 // So far
                 batch.push(
                     Color::hex("#F4DF4D"),
-                    Polygon::pill(self.current_percent * self.dims.width, self.dims.height),
+                    Polygon::pill(self.current_percent * inner_dims.width, inner_dims.height),
                 );
 
                 // The circle dragger
@@ -134,46 +147,55 @@ impl Slider {
                         // looks weird.
                         ctx.style.btn_solid.bg_hover.dull(0.2)
                     },
-                    self.slider_geom(),
+                    self.button_geom(),
                 );
             }
         }
 
+        let padding = self.style.padding();
+        batch = batch.translate(padding.left as f64, padding.top as f64);
+        self.dims = self.style.inner_dims().pad(padding);
         self.draw = ctx.upload(batch);
     }
 
     // Doesn't touch self.top_left
-    fn slider_geom(&self) -> Polygon {
+    fn button_geom(&self) -> Polygon {
         match self.style {
             Style::Horizontal {
                 main_bg_len,
                 dragger_len,
-            } => Polygon::pill(dragger_len, SCROLLBAR_WIDTH)
+            } => Polygon::pill(dragger_len, SCROLLBAR_BG_WIDTH)
                 .translate(self.current_percent * (main_bg_len - dragger_len), 0.0),
             Style::Vertical {
                 main_bg_len,
                 dragger_len,
-            } => Polygon::pill(SCROLLBAR_WIDTH, dragger_len)
+            } => Polygon::pill(SCROLLBAR_BG_WIDTH, dragger_len)
                 .translate(0.0, self.current_percent * (main_bg_len - dragger_len)),
             Style::Area { width } => Circle::new(
-                Pt2D::new(self.current_percent * width, AREA_SLIDER_WIDTH / 2.0),
-                Distance::meters(20.0),
+                Pt2D::new(self.current_percent * width, AREA_SLIDER_BG_WIDTH / 2.0),
+                Distance::meters(16.0),
             )
             .to_polygon(),
         }
     }
 
     fn pt_to_percent(&self, pt: ScreenPt) -> f64 {
+        let padding = self.style.padding();
+        let pt = pt.translated(
+            -self.top_left.x - padding.left as f64,
+            -self.top_left.y - padding.top as f64,
+        );
+
         match self.style {
             Style::Horizontal {
                 main_bg_len,
                 dragger_len,
-            } => (pt.x - self.top_left.x - (dragger_len / 2.0)) / (main_bg_len - dragger_len),
+            } => (pt.x - (dragger_len / 2.0)) / (main_bg_len - dragger_len),
             Style::Vertical {
                 main_bg_len,
                 dragger_len,
-            } => (pt.y - self.top_left.y - (dragger_len / 2.0)) / (main_bg_len - dragger_len),
-            Style::Area { width } => (pt.x - self.top_left.x) / width,
+            } => (pt.y - (dragger_len / 2.0)) / (main_bg_len - dragger_len),
+            Style::Area { width } => pt.x / width,
         }
     }
 
@@ -191,7 +213,7 @@ impl Slider {
         self.recalc(ctx);
         if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
             self.mouse_on_slider = self
-                .slider_geom()
+                .button_geom()
                 .translate(self.top_left.x, self.top_left.y)
                 .contains_pt(pt.to_pt());
         } else {
@@ -214,13 +236,16 @@ impl Slider {
             }
             return false;
         }
-
+        let padding = self.style.padding();
         if ctx.redo_mouseover() {
             let old = self.mouse_on_slider;
             if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
                 self.mouse_on_slider = self
-                    .slider_geom()
-                    .translate(self.top_left.x, self.top_left.y)
+                    .button_geom()
+                    .translate(
+                        self.top_left.x + padding.left as f64,
+                        self.top_left.y + padding.top as f64,
+                    )
                     .contains_pt(pt.to_pt());
             } else {
                 self.mouse_on_slider = false;
@@ -236,7 +261,10 @@ impl Slider {
             // Did we click somewhere else on the bar?
             if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
                 if Polygon::rectangle(self.dims.width, self.dims.height)
-                    .translate(self.top_left.x, self.top_left.y)
+                    .translate(
+                        self.top_left.x + padding.left as f64,
+                        self.top_left.y + padding.top as f64,
+                    )
                     .contains_pt(pt.to_pt())
                 {
                     self.current_percent = self

@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use geom::{trim_f64, Polygon, Pt2D};
 
-use crate::Canvas;
+use crate::{Canvas, EdgeInsets};
 
 /// ScreenPt is in units of logical pixels, as opposed to physical pixels.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -20,6 +20,13 @@ impl ScreenPt {
     // screen-space.
     pub fn to_pt(self) -> Pt2D {
         Pt2D::new(self.x, self.y)
+    }
+
+    pub fn translated(&self, x: f64, y: f64) -> Self {
+        Self {
+            x: self.x + x,
+            y: self.y + y,
+        }
     }
 }
 
@@ -115,6 +122,13 @@ impl ScreenDims {
 
     pub fn square(square: f64) -> Self {
         Self::new(square, square)
+    }
+
+    pub fn pad(&self, edge_insets: EdgeInsets) -> Self {
+        Self {
+            width: self.width + (edge_insets.left + edge_insets.right) as f64,
+            height: self.height + (edge_insets.top + edge_insets.bottom) as f64,
+        }
     }
 
     pub fn top_left_for_corner(&self, corner: ScreenPt, canvas: &Canvas) -> ScreenPt {
