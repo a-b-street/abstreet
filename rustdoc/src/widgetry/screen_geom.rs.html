@@ -307,8 +307,8 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pad</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">edge_insets</span>: <span class="ident">EdgeInsets</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">width</span>: <span class="self">self</span>.<span class="ident">width</span> <span class="op">+</span> (<span class="ident">edge_insets</span>.<span class="ident">left</span> <span class="op">+</span> <span class="ident">edge_insets</span>.<span class="ident">right</span>) <span class="kw">as</span> <span class="ident">f64</span>,
-            <span class="ident">height</span>: <span class="self">self</span>.<span class="ident">height</span> <span class="op">+</span> (<span class="ident">edge_insets</span>.<span class="ident">top</span> <span class="op">+</span> <span class="ident">edge_insets</span>.<span class="ident">bottom</span>) <span class="kw">as</span> <span class="ident">f64</span>,
+            <span class="ident">width</span>: <span class="self">self</span>.<span class="ident">width</span> <span class="op">+</span> <span class="ident">edge_insets</span>.<span class="ident">left</span> <span class="op">+</span> <span class="ident">edge_insets</span>.<span class="ident">right</span>,
+            <span class="ident">height</span>: <span class="self">self</span>.<span class="ident">height</span> <span class="op">+</span> <span class="ident">edge_insets</span>.<span class="ident">top</span> <span class="op">+</span> <span class="ident">edge_insets</span>.<span class="ident">bottom</span>,
         }
     }
 

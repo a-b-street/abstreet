@@ -1574,10 +1574,10 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EdgeInsets</span> {
-    <span class="kw">pub</span> <span class="ident">top</span>: <span class="ident">f32</span>,
-    <span class="kw">pub</span> <span class="ident">left</span>: <span class="ident">f32</span>,
-    <span class="kw">pub</span> <span class="ident">bottom</span>: <span class="ident">f32</span>,
-    <span class="kw">pub</span> <span class="ident">right</span>: <span class="ident">f32</span>,
+    <span class="kw">pub</span> <span class="ident">top</span>: <span class="ident">f64</span>,
+    <span class="kw">pub</span> <span class="ident">left</span>: <span class="ident">f64</span>,
+    <span class="kw">pub</span> <span class="ident">bottom</span>: <span class="ident">f64</span>,
+    <span class="kw">pub</span> <span class="ident">right</span>: <span class="ident">f64</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">EdgeInsets</span> {
@@ -1590,7 +1590,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform</span>(<span class="ident">inset</span>: <span class="ident">f32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform</span>(<span class="ident">inset</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">EdgeInsets</span> {
             <span class="ident">top</span>: <span class="ident">inset</span>,
             <span class="ident">left</span>: <span class="ident">inset</span>,
@@ -1603,16 +1603,16 @@
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">EdgeInsets</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">uniform_size</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">EdgeInsets</span> {
         <span class="ident">EdgeInsets</span> {
-            <span class="ident">top</span>: <span class="ident">uniform_size</span> <span class="kw">as</span> <span class="ident">f32</span>,
-            <span class="ident">left</span>: <span class="ident">uniform_size</span> <span class="kw">as</span> <span class="ident">f32</span>,
-            <span class="ident">bottom</span>: <span class="ident">uniform_size</span> <span class="kw">as</span> <span class="ident">f32</span>,
-            <span class="ident">right</span>: <span class="ident">uniform_size</span> <span class="kw">as</span> <span class="ident">f32</span>,
+            <span class="ident">top</span>: <span class="ident">uniform_size</span> <span class="kw">as</span> <span class="ident">f64</span>,
+            <span class="ident">left</span>: <span class="ident">uniform_size</span> <span class="kw">as</span> <span class="ident">f64</span>,
+            <span class="ident">bottom</span>: <span class="ident">uniform_size</span> <span class="kw">as</span> <span class="ident">f64</span>,
+            <span class="ident">right</span>: <span class="ident">uniform_size</span> <span class="kw">as</span> <span class="ident">f64</span>,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">EdgeInsets</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">uniform_size</span>: <span class="ident">f32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">EdgeInsets</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">EdgeInsets</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">uniform_size</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">EdgeInsets</span> {
         <span class="ident">EdgeInsets</span> {
             <span class="ident">top</span>: <span class="ident">uniform_size</span>,
             <span class="ident">left</span>: <span class="ident">uniform_size</span>,
@@ -1625,10 +1625,10 @@
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">EdgeInsets</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Rect</span><span class="op">&lt;</span><span class="ident">Dimension</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">insets</span>: <span class="ident">EdgeInsets</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Rect</span><span class="op">&lt;</span><span class="ident">Dimension</span><span class="op">&gt;</span> {
         <span class="ident">Rect</span> {
-            <span class="ident">start</span>: <span class="ident">Dimension</span>::<span class="ident">Points</span>(<span class="ident">insets</span>.<span class="ident">left</span>),
-            <span class="ident">end</span>: <span class="ident">Dimension</span>::<span class="ident">Points</span>(<span class="ident">insets</span>.<span class="ident">right</span>),
-            <span class="ident">top</span>: <span class="ident">Dimension</span>::<span class="ident">Points</span>(<span class="ident">insets</span>.<span class="ident">top</span>),
-            <span class="ident">bottom</span>: <span class="ident">Dimension</span>::<span class="ident">Points</span>(<span class="ident">insets</span>.<span class="ident">bottom</span>),
+            <span class="ident">start</span>: <span class="ident">Dimension</span>::<span class="ident">Points</span>(<span class="ident">insets</span>.<span class="ident">left</span> <span class="kw">as</span> <span class="ident">f32</span>),
+            <span class="ident">end</span>: <span class="ident">Dimension</span>::<span class="ident">Points</span>(<span class="ident">insets</span>.<span class="ident">right</span> <span class="kw">as</span> <span class="ident">f32</span>),
+            <span class="ident">top</span>: <span class="ident">Dimension</span>::<span class="ident">Points</span>(<span class="ident">insets</span>.<span class="ident">top</span> <span class="kw">as</span> <span class="ident">f32</span>),
+            <span class="ident">bottom</span>: <span class="ident">Dimension</span>::<span class="ident">Points</span>(<span class="ident">insets</span>.<span class="ident">bottom</span> <span class="kw">as</span> <span class="ident">f32</span>),
         }
     }
 }

@@ -463,7 +463,7 @@
         }
 
         <span class="kw">let</span> <span class="ident">padding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">style</span>.<span class="ident">padding</span>();
-        <span class="ident">batch</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">translate</span>(<span class="ident">padding</span>.<span class="ident">left</span> <span class="kw">as</span> <span class="ident">f64</span>, <span class="ident">padding</span>.<span class="ident">top</span> <span class="kw">as</span> <span class="ident">f64</span>);
+        <span class="ident">batch</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">translate</span>(<span class="ident">padding</span>.<span class="ident">left</span>, <span class="ident">padding</span>.<span class="ident">top</span>);
         <span class="self">self</span>.<span class="ident">dims</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">style</span>.<span class="ident">inner_dims</span>().<span class="ident">pad</span>(<span class="ident">padding</span>);
         <span class="self">self</span>.<span class="ident">draw</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
     }
@@ -492,8 +492,8 @@
     <span class="kw">fn</span> <span class="ident">pt_to_percent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">ScreenPt</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
         <span class="kw">let</span> <span class="ident">padding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">style</span>.<span class="ident">padding</span>();
         <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">pt</span>.<span class="ident">translated</span>(
-            <span class="op">-</span><span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">x</span> <span class="op">-</span> <span class="ident">padding</span>.<span class="ident">left</span> <span class="kw">as</span> <span class="ident">f64</span>,
-            <span class="op">-</span><span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">y</span> <span class="op">-</span> <span class="ident">padding</span>.<span class="ident">top</span> <span class="kw">as</span> <span class="ident">f64</span>,
+            <span class="op">-</span><span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">x</span> <span class="op">-</span> <span class="ident">padding</span>.<span class="ident">left</span>,
+            <span class="op">-</span><span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">y</span> <span class="op">-</span> <span class="ident">padding</span>.<span class="ident">top</span>,
         );
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">style</span> {
@@ -553,8 +553,8 @@
                 <span class="self">self</span>.<span class="ident">mouse_on_slider</span> <span class="op">=</span> <span class="self">self</span>
                     .<span class="ident">button_geom</span>()
                     .<span class="ident">translate</span>(
-                        <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">x</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">left</span> <span class="kw">as</span> <span class="ident">f64</span>,
-                        <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">y</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">top</span> <span class="kw">as</span> <span class="ident">f64</span>,
+                        <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">x</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">left</span>,
+                        <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">y</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">top</span>,
                     )
                     .<span class="ident">contains_pt</span>(<span class="ident">pt</span>.<span class="ident">to_pt</span>());
             } <span class="kw">else</span> {
@@ -572,8 +572,8 @@
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_screen_space</span>() {
                 <span class="kw">if</span> <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">width</span>, <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span>)
                     .<span class="ident">translate</span>(
-                        <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">x</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">left</span> <span class="kw">as</span> <span class="ident">f64</span>,
-                        <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">y</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">top</span> <span class="kw">as</span> <span class="ident">f64</span>,
+                        <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">x</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">left</span>,
+                        <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">y</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">top</span>,
                     )
                     .<span class="ident">contains_pt</span>(<span class="ident">pt</span>.<span class="ident">to_pt</span>())
                 {

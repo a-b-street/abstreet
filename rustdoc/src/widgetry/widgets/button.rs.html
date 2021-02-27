@@ -1153,25 +1153,25 @@
     }
 
     <span class="doccomment">/// Extra spacing around a button&#39;s items (label and/or image).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_top</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">padding</span>: <span class="ident">f32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_top</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">padding</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">padding</span>.<span class="ident">top</span> <span class="op">=</span> <span class="ident">padding</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Extra spacing around a button&#39;s items (label and/or image).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_left</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">padding</span>: <span class="ident">f32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_left</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">padding</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">padding</span>.<span class="ident">left</span> <span class="op">=</span> <span class="ident">padding</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Extra spacing around a button&#39;s items (label and/or image).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_bottom</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">padding</span>: <span class="ident">f32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_bottom</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">padding</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">padding</span>.<span class="ident">bottom</span> <span class="op">=</span> <span class="ident">padding</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Extra spacing around a button&#39;s items (label and/or image).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_right</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">padding</span>: <span class="ident">f32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_right</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">padding</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">padding</span>.<span class="ident">right</span> <span class="op">=</span> <span class="ident">padding</span>;
         <span class="self">self</span>
     }
@@ -1595,14 +1595,14 @@
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">container_batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
                     <span class="kw">let</span> <span class="ident">container</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">image_corners</span> {
                         <span class="ident">CornerRounding</span>::<span class="ident">FullyRounded</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Polygon</span>::<span class="ident">pill</span>(
-                            <span class="ident">image_dims</span>.<span class="ident">width</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">left</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">right</span> <span class="kw">as</span> <span class="ident">f64</span>,
-                            <span class="ident">image_dims</span>.<span class="ident">height</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">top</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">bottom</span> <span class="kw">as</span> <span class="ident">f64</span>,
+                            <span class="ident">image_dims</span>.<span class="ident">width</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">left</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">right</span>,
+                            <span class="ident">image_dims</span>.<span class="ident">height</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">top</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">bottom</span>,
                         ),
                         <span class="ident">CornerRounding</span>::<span class="ident">CornerRadii</span>(<span class="ident">image_corners</span>) <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="ident">Polygon</span>::<span class="ident">rounded_rectangle</span>(
                                 <span class="comment">// TODO: EdgeInsets -&gt; f64?</span>
-                                <span class="ident">image_dims</span>.<span class="ident">width</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">left</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">right</span> <span class="kw">as</span> <span class="ident">f64</span>,
-                                <span class="ident">image_dims</span>.<span class="ident">height</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">top</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">bottom</span> <span class="kw">as</span> <span class="ident">f64</span>,
+                                <span class="ident">image_dims</span>.<span class="ident">width</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">left</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">right</span>,
+                                <span class="ident">image_dims</span>.<span class="ident">height</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">top</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">bottom</span>,
                                 <span class="ident">image_corners</span>,
                             )
                         }
@@ -1615,8 +1615,8 @@
                     <span class="ident">container_batch</span>.<span class="ident">push</span>(<span class="ident">image_bg</span>, <span class="ident">container</span>);
 
                     <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(
-                        <span class="ident">image_dims</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">left</span> <span class="kw">as</span> <span class="ident">f64</span>,
-                        <span class="ident">image_dims</span>.<span class="ident">height</span> <span class="op">/</span> <span class="number">2.0</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">top</span> <span class="kw">as</span> <span class="ident">f64</span>,
+                        <span class="ident">image_dims</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">left</span>,
+                        <span class="ident">image_dims</span>.<span class="ident">height</span> <span class="op">/</span> <span class="number">2.0</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">top</span>,
                     );
                     <span class="ident">svg_batch</span> <span class="op">=</span> <span class="ident">svg_batch</span>.<span class="ident">autocrop</span>().<span class="ident">centered_on</span>(<span class="ident">center</span>);
 
