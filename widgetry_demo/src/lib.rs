@@ -76,9 +76,9 @@ impl Demo {
             .draw(ctx),
             Widget::row(vec![
                 // Examples of styling widgets
-                Widget::col(col1).outline(3.0, Color::BLACK).padding(5),
-                Widget::col(col).outline(3.0, Color::BLACK).padding(5),
-                Widget::col(col3).outline(3.0, Color::BLACK).padding(5),
+                Widget::col(col1).outline((2.0, Color::BLACK)).padding(5),
+                Widget::col(col).outline((5.0, Color::BLACK)).padding(5),
+                Widget::col(col3).outline((5.0, Color::BLUE)).padding(5),
             ]),
             LinePlot::new(
                 ctx,

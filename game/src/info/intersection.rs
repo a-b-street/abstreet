@@ -212,7 +212,7 @@ pub fn current_demand(
         ])
         .padding(10)
         .bg(app.cs.inner_panel_bg)
-        .outline(2.0, Color::WHITE),
+        .outline(ctx.style().section_outline),
     );
     rows.push(
         ctx.style()
@@ -383,7 +383,7 @@ fn delay_plot(
     ])
     .padding(10)
     .bg(app.cs.inner_panel_bg)
-    .outline(2.0, Color::WHITE)
+    .outline(ctx.style().section_outline)
 }
 
 fn header(

@@ -4,8 +4,6 @@ pub mod buttons;
 
 #[derive(Clone)]
 pub struct Style {
-    pub outline_thickness: f64,
-    pub outline_color: Color,
     pub panel_bg: Color,
     pub field_bg: Color,
     pub dropdown_border: Color,
@@ -15,6 +13,8 @@ pub struct Style {
     pub text_hotkey_color: Color,
     pub text_destructive_color: Color,
     pub loading_tips: Text,
+    pub section_bg: Color,
+    pub section_outline: OutlineStyle,
     pub btn_solid: ButtonStyle,
     pub btn_outline: ButtonStyle,
     pub btn_solid_floating: ButtonStyle,
@@ -90,8 +90,9 @@ impl Style {
             panel_bg: Color::WHITE.alpha(0.8),
             field_bg: hex("#F2F2F2"),
             dropdown_border: hex("#4C4C4C"),
-            outline_thickness: 2.0,
-            outline_color: hex("#4C4C4C"),
+            // TODO: replace inner_panel_bg with this
+            section_bg: Color::WHITE,
+            section_outline: (2.0, Color::WHITE.shade(0.1)),
             loading_tips: Text::new(),
             icon_fg: hex("#4C4C4C"),
             text_fg_color: hex("#4C4C4C"),
@@ -148,8 +149,8 @@ impl Style {
             panel_bg: Color::grey(0.4),
             field_bg: Color::grey(0.3),
             dropdown_border: Color::WHITE,
-            outline_thickness: 2.0,
-            outline_color: Color::WHITE,
+            section_bg: Color::grey(0.5),
+            section_outline: (2.0, Color::WHITE),
             loading_tips: Text::new(),
             icon_fg: Color::WHITE,
             text_fg_color: Color::WHITE,
@@ -195,10 +196,12 @@ impl Style {
     }
 
     pub fn dark_bg() -> Style {
+        let navy = hex("#003046");
         let mut style = Self::light_bg();
-        style.outline_color = Color::WHITE;
-        style.panel_bg = hex("#003046").alpha(0.9);
-        style.field_bg = style.panel_bg.shade(0.2);
+        style.panel_bg = navy.alpha(0.9);
+        style.section_outline.1 = navy.shade(0.2);
+        style.section_bg = navy;
+        style.field_bg = navy.shade(0.2);
         style.btn_outline = ButtonStyle::outline_light_fg();
         style.btn_solid = ButtonStyle::solid_dark_fg();
         style.btn_solid_floating = ButtonStyle::solid_light_fg();

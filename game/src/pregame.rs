@@ -52,7 +52,7 @@ impl TitleScreen {
                 ])
                 .bg(app.cs.dialog_bg)
                 .padding(16)
-                .outline(3.0, Color::BLACK)
+                .outline((3.0, Color::BLACK))
                 .centered(),
             )
             .build_custom(ctx),

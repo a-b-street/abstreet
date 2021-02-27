@@ -852,7 +852,7 @@ impl TutorialState {
                 col.push(Widget::col(controls).align_bottom());
 
                 Some(
-                    Panel::new(Widget::col(col).outline(5.0, Color::WHITE))
+                    Panel::new(Widget::col(col).outline((5.0, Color::WHITE)))
                         .exact_size_percent(40, 40)
                         .aligned(*horiz_align, VerticalAlignment::Center)
                         .build(ctx),

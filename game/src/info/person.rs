@@ -155,7 +155,7 @@ pub fn trips(
             ])
             .centered()
             .corner_rounding(CornerRounding::FullyRounded)
-            .outline(1.0, color)
+            .outline((1.0, color))
             .bg(color.alpha(0.2))
             .padding(EdgeInsets {
                 top: 5.0,
@@ -206,7 +206,7 @@ pub fn trips(
             },
         ])
         .centered()
-        .outline(2.0, Color::WHITE)
+        .outline(ctx.style().section_outline)
         .padding(16)
         .bg(app.cs.inner_panel_bg)
         .to_geom(ctx, Some(0.3));
@@ -238,7 +238,7 @@ pub fn trips(
 
         if let Some(info) = maybe_info {
             rows.push(
-                info.outline(2.0, Color::WHITE)
+                info.outline(ctx.style().section_outline)
                     .bg(app.cs.inner_panel_bg)
                     .padding(16),
             );

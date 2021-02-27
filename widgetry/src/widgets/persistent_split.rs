@@ -30,7 +30,7 @@ impl<T: 'static + PartialEq + Clone + std::fmt::Debug> PersistentSplit<T> {
             hotkey,
             choices,
         )))
-        .outline(outline.0, outline.1)
+        .outline(outline)
         .named(label)
     }
 

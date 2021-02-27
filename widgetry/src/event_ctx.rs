@@ -157,7 +157,7 @@ impl<'a> EventCtx<'a> {
                 .container()
                 .bg(Color::BLACK)
                 .padding(15)
-                .outline(5.0, border)
+                .outline((5.0, border))
                 .centered_horiz()
                 .margin_below(5),
                 Widget::draw_batch(
@@ -174,7 +174,7 @@ impl<'a> EventCtx<'a> {
                     .container()
                     .bg(Color::BLACK)
                     .padding(15)
-                    .outline(5.0, Color::YELLOW)
+                    .outline((5.0, Color::YELLOW))
                     .force_width_pct(self, Percent::int(30))
                     .margin_below(5),
                 Widget::draw_batch(

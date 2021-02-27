@@ -823,7 +823,7 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Panel {
                         .build_widget(ctx, "undo"),
                 ])
                 .padding(16)
-                .outline(2.0, Color::WHITE),
+                .outline(ctx.style().btn_outline.outline),
             );
         } else {
             col.push(btn);

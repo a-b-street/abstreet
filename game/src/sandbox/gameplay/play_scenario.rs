@@ -5,7 +5,7 @@ use maplit::btreeset;
 use map_gui::tools::{grey_out_map, nice_map_name, ChooseSomething, CityPicker, PopupMsg};
 use sim::{ScenarioModifier, TripMode};
 use widgetry::{
-    lctrl, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Slider,
+    lctrl, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Slider,
     Spinner, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
@@ -204,7 +204,7 @@ impl EditScenarioModifiers {
                         .align_right(),
                 ])
                 .padding(10)
-                .outline(2.0, Color::WHITE),
+                .outline(ctx.style().section_outline),
             );
         }
         rows.push(

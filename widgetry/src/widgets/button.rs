@@ -681,7 +681,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
                 let color = label
                     .color
                     .or(default.and_then(|d| d.color))
-                    .unwrap_or(ctx.style().outline_color);
+                    .unwrap_or(ctx.style().text_fg_color);
                 let mut line = Line(text).fg(color);
 
                 if let Some(font_size) = label.font_size.or(default.and_then(|d| d.font_size)) {
@@ -735,8 +735,8 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
                 // uniformly sized buttons.
                 .unwrap_or(Color::CLEAR));
 
-        if let Some((thickness, color)) = state_style.outline.or(default_style.outline) {
-            button_widget = button_widget.outline(thickness, color);
+        if let Some(outline) = state_style.outline.or(default_style.outline) {
+            button_widget = button_widget.outline(outline);
         }
 
         if let Some(corner_rounding) = self.corner_rounding {

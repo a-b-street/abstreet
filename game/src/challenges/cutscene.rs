@@ -246,7 +246,7 @@ fn make_panel(
             .fill_height()
             .padding(42)
             .bg(Color::WHITE)
-            .outline(2.0, CutsceneBuilder::fg_color()),
+            .outline(ctx.style().btn_solid.outline),
     ];
 
     Panel::new(Widget::custom_col(col))

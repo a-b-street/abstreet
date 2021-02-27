@@ -683,7 +683,7 @@ fn throughput<F: Fn(&Analytics) -> Vec<(AgentType, Vec<(Time, usize)>)>>(
     ])
     .padding(10)
     .bg(app.cs.inner_panel_bg)
-    .outline(2.0, Color::WHITE)
+    .outline(ctx.style().section_outline)
 }
 
 fn make_tabs(
