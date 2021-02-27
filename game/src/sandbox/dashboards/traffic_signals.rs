@@ -56,7 +56,7 @@ impl TrafficSignalDemand {
                 .draw(ctx),
                 Widget::row(vec![
                     "Hour:".draw_text(ctx),
-                    Spinner::new(ctx, (0, 24), 7).named("hour"),
+                    Spinner::widget(ctx, (0, 24), 7).named("hour"),
                 ]),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
@@ -111,11 +111,11 @@ impl State<App> for TrafficSignalDemand {
             _ => {}
         }
         if ctx.input.pressed(Key::LeftArrow) {
-            self.panel.modify_spinner("hour", -1);
+            self.panel.modify_spinner(ctx, "hour", -1);
             changed = true;
         }
         if ctx.input.pressed(Key::RightArrow) {
-            self.panel.modify_spinner("hour", 1);
+            self.panel.modify_spinner(ctx, "hour", 1);
             changed = true;
         }
         if changed {

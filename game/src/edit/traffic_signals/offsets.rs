@@ -249,7 +249,7 @@ impl TuneRelative {
             .draw(ctx),
             Widget::row(vec![
                 "Offset (seconds):".draw_text(ctx),
-                Spinner::new(ctx, (0, 90), (offset2 - offset1).inner_seconds() as isize)
+                Spinner::widget(ctx, (0, 90), (offset2 - offset1).inner_seconds() as isize)
                     .named("offset"),
             ]),
             ctx.style()

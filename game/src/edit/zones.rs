@@ -59,7 +59,7 @@ impl ZoneEditor {
                 Widget::row(vec![
                     "Limit the number of vehicles passing through per hour (0 = unlimited):"
                         .draw_text(ctx),
-                    Spinner::new(ctx, (0, 1000), cap_vehicles_per_hour.unwrap_or(0) as isize)
+                    Spinner::widget(ctx, (0, 1000), cap_vehicles_per_hour.unwrap_or(0) as isize)
                         .named("cap_vehicles"),
                 ]),
                 Widget::custom_row(vec![

@@ -377,8 +377,8 @@ impl Panel {
     pub fn spinner(&self, name: &str) -> isize {
         self.find::<Spinner>(name).current
     }
-    pub fn modify_spinner(&mut self, name: &str, delta: isize) {
-        self.find_mut::<Spinner>(name).modify(delta)
+    pub fn modify_spinner(&mut self, ctx: &EventCtx, name: &str, delta: isize) {
+        self.find_mut::<Spinner>(name).modify(ctx, delta)
     }
 
     pub fn dropdown_value<T: 'static + PartialEq + Clone, I: Into<String>>(&self, name: I) -> T {

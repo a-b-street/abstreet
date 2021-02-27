@@ -144,8 +144,12 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
                 if self.controls.has_zorder(app) {
                     Widget::col(vec![
                         Line("Z-order:").small().draw(ctx),
-                        Spinner::new(ctx, app.draw_map().zorder_range, app.draw_map().show_zorder)
-                            .named("zorder"),
+                        Spinner::widget(
+                            ctx,
+                            app.draw_map().zorder_range,
+                            app.draw_map().show_zorder,
+                        )
+                        .named("zorder"),
                     ])
                     .margin_above(10)
                 } else {

@@ -41,7 +41,7 @@ impl HeatmapOptions {
             // TODO Display the value...
             Widget::row(vec![
                 "Resolution (meters)".draw_text(ctx).centered_vert(),
-                Spinner::new(ctx, (1, 100), self.resolution as isize)
+                Spinner::widget(ctx, (1, 100), self.resolution as isize)
                     .named("resolution")
                     .align_right(),
             ]),
@@ -49,7 +49,7 @@ impl HeatmapOptions {
                 "Radius (resolution multiplier)"
                     .draw_text(ctx)
                     .centered_vert(),
-                Spinner::new(ctx, (0, 10), self.radius as isize)
+                Spinner::widget(ctx, (0, 10), self.radius as isize)
                     .named("radius")
                     .align_right(),
             ]),
