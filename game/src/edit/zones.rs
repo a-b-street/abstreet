@@ -8,7 +8,7 @@ use map_model::{AccessRestrictions, PathConstraints, RoadID};
 use sim::TripMode;
 use widgetry::{
     Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Spinner,
-    State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
+    State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -69,7 +69,8 @@ impl ZoneEditor {
                         .hotkey(Key::Enter)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_solid_destructive_text("Cancel")
+                        .btn_solid_destructive
+                        .text("Cancel")
                         .hotkey(Key::Escape)
                         .build_def(ctx),
                 ])

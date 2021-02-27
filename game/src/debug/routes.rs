@@ -292,7 +292,8 @@ impl AllRoutesExplorer {
                     .btn_outline_text("Calculate differential demand")
                     .build_def(ctx),
                 ctx.style()
-                    .btn_solid_destructive_text("keep changed params")
+                    .btn_solid_destructive
+                    .text("keep changed params")
                     .build_def(ctx),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)

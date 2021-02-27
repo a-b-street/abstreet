@@ -514,7 +514,8 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
             .hotkey(lctrl(Key::Y))
             .build_widget(ctx, "redo"),
         ctx.style()
-            .btn_plain_destructive_text("Cancel")
+            .btn_outline_destructive
+            .plain_text("Cancel")
             .hotkey(Key::Escape)
             .build_def(ctx)
             .align_right(),
@@ -673,7 +674,8 @@ fn make_side_panel(
                     },
                     if canonical_signal.stages.len() > 1 {
                         ctx.style()
-                            .btn_solid_destructive_icon("system/assets/tools/trash.svg")
+                            .btn_solid_destructive
+                            .icon("system/assets/tools/trash.svg")
                             .build_widget(ctx, &format!("delete stage {}", idx + 1))
                             .align_right()
                     } else {
