@@ -445,7 +445,8 @@ impl AgentMeter {
                 .centered_vert(),
                 format!("{} trips captured", prettyprint_usize(n)).draw_text(ctx),
                 ctx.style()
-                    .btn_solid_primary_text("Finish Capture")
+                    .btn_solid_primary
+                    .text("Finish Capture")
                     .build_def(ctx)
                     .align_right(),
             ]));

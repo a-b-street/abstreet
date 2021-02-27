@@ -420,7 +420,8 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 ],
             ),
             ctx.style()
-                .btn_outline_primary_text("Apply")
+                .btn_outline_primary
+                .text("Apply")
                 .build_widget(ctx, "apply"),
         ])
         .margin_above(30),

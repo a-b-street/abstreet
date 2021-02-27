@@ -5,7 +5,7 @@ use map_gui::render::{DrawOptions, DrawUberTurnGroup, BIG_ARROW_THICKNESS};
 use map_model::{IntersectionCluster, IntersectionID};
 use widgetry::{
     DrawBaselayer, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State,
-    StyledButtons, VerticalAlignment, Widget,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::Transition;
@@ -25,7 +25,8 @@ impl ClusterTrafficSignalEditor {
         Box::new(ClusterTrafficSignalEditor {
             panel: Panel::new(Widget::row(vec![ctx
                 .style()
-                .btn_solid_primary_text("Finish")
+                .btn_solid_primary
+                .text("Finish")
                 .hotkey(Key::Escape)
                 .build_def(ctx)]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)

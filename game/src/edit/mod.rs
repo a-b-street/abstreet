@@ -420,7 +420,8 @@ impl SaveEdits {
                         Widget::nothing()
                     },
                     ctx.style()
-                        .btn_solid_primary_text("Save")
+                        .btn_solid_primary
+                        .text("Save")
                         .disabled(true)
                         .build_def(ctx),
                 ])
@@ -441,7 +442,8 @@ impl SaveEdits {
                 ctx,
                 "Save",
                 ctx.style()
-                    .btn_solid_primary_text("Save")
+                    .btn_solid_primary
+                    .text("Save")
                     .disabled(true)
                     .build_def(ctx),
             );
@@ -454,7 +456,8 @@ impl SaveEdits {
                 ctx,
                 "Save",
                 ctx.style()
-                    .btn_solid_primary_text("Save")
+                    .btn_solid_primary
+                    .text("Save")
                     .disabled(true)
                     .build_def(ctx),
             );
@@ -470,7 +473,8 @@ impl SaveEdits {
                 ctx,
                 "Save",
                 ctx.style()
-                    .btn_solid_primary_text("Save")
+                    .btn_solid_primary
+                    .text("Save")
                     .hotkey(Key::Enter)
                     .build_def(ctx),
             );
@@ -649,7 +653,8 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Panel {
             .draw(ctx)
             .centered_horiz(),
         ctx.style()
-            .btn_solid_primary_text(&format!(
+            .btn_solid_primary
+            .text(&format!(
                 "Finish & resume from {}",
                 app.primary
                     .suspended_sim

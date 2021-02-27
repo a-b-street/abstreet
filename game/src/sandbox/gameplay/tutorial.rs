@@ -844,7 +844,8 @@ impl TutorialState {
                 if self.current.part == self.stage().messages.len() - 1 {
                     controls.push(
                         ctx.style()
-                            .btn_solid_primary_text("Try it")
+                            .btn_solid_primary
+                            .text("Try it")
                             .hotkey(hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]))
                             .build_def(ctx),
                     );

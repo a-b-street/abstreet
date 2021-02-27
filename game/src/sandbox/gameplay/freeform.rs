@@ -323,7 +323,8 @@ impl AgentSpawner {
                     Spinner::widget(ctx, (1, 1000), 1).named("number"),
                 ]),
                 ctx.style()
-                    .btn_solid_primary_text("Confirm")
+                    .btn_solid_primary
+                    .text("Confirm")
                     .disabled(true)
                     .build_def(ctx),
             ]))
@@ -409,7 +410,8 @@ impl State<App> for AgentSpawner {
                             ctx,
                             "Confirm",
                             ctx.style()
-                                .btn_solid_primary_text("Confirm")
+                                .btn_solid_primary
+                                .text("Confirm")
                                 .disabled(true)
                                 .build_def(ctx),
                         );
@@ -485,7 +487,8 @@ impl State<App> for AgentSpawner {
                         ctx,
                         "Confirm",
                         ctx.style()
-                            .btn_solid_primary_text("Confirm")
+                            .btn_solid_primary
+                            .text("Confirm")
                             .hotkey(Key::Enter)
                             .build_def(ctx),
                     );

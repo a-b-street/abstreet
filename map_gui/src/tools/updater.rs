@@ -50,7 +50,8 @@ impl<A: AppLike + 'static> Picker<A> {
         }
         col.push(
             ctx.style()
-                .btn_solid_primary_text("Sync files")
+                .btn_solid_primary
+                .text("Sync files")
                 .build_def(ctx),
         );
 

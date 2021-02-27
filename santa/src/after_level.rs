@@ -197,7 +197,8 @@ impl Results {
             Panel::new(Widget::col(vec![
                 txt.draw(ctx),
                 ctx.style()
-                    .btn_solid_primary_text("OK")
+                    .btn_solid_primary
+                    .text("OK")
                     .hotkey(Key::Enter)
                     .build_def(ctx),
             ]))

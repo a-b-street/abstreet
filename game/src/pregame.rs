@@ -46,7 +46,8 @@ impl TitleScreen {
                     // TODO that nicer font
                     // TODO Any key
                     ctx.style()
-                        .btn_solid_primary_text("Play")
+                        .btn_solid_primary
+                        .text("Play")
                         .hotkey(hotkeys(vec![Key::Space, Key::Enter]))
                         .build_widget(ctx, "start game"),
                 ])
@@ -368,7 +369,8 @@ impl Proposals {
                 }
                 current_tab.push(
                     ctx.style()
-                        .btn_solid_primary_text("Try out this proposal")
+                        .btn_solid_primary
+                        .text("Try out this proposal")
                         .build_def(ctx),
                 );
 

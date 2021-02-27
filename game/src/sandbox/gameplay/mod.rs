@@ -281,7 +281,8 @@ impl FinalScore {
                         ctx.style().btn_outline_text("Try again").build_def(ctx),
                         if next_mode.is_some() {
                             ctx.style()
-                                .btn_solid_primary_text("Next challenge")
+                                .btn_solid_primary
+                                .text("Next challenge")
                                 .build_def(ctx)
                         } else {
                             Widget::nothing()
