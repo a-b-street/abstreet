@@ -2,8 +2,7 @@ use geom::CornerRadii;
 
 use super::ButtonStyle;
 use crate::{
-    include_labeled_bytes, ButtonBuilder, Color, ControlState, EventCtx, Key, ScreenDims, Style,
-    Widget,
+    include_labeled_bytes, ButtonBuilder, ControlState, EventCtx, Key, ScreenDims, Style, Widget,
 };
 
 pub trait StyledButtons<'a> {
@@ -81,7 +80,7 @@ impl<'a> StyledButtons<'a> for Style {
         self.btn_outline.btn()
     }
     fn btn_plain(&self) -> ButtonBuilder<'a> {
-        self.btn_outline.btn_plain()
+        self.btn_plain.btn()
     }
 }
 
@@ -97,31 +96,8 @@ impl<'a> ButtonStyle {
             .bg_color(self.bg_disabled, ControlState::Disabled)
     }
 
-    pub fn btn_plain(&self) -> ButtonBuilder<'a> {
-        self.basic().bg_color(Color::CLEAR, ControlState::Default)
-    }
-
     pub fn btn(&self) -> ButtonBuilder<'a> {
         self.basic().outline(self.outline, ControlState::Default)
-    }
-
-    pub fn plain_text(&self, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_plain().label_text(text)
-    }
-
-    pub fn plain_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
-        icon_button(self.btn_plain().image_path(image_path))
-    }
-
-    pub fn plain_icon_bytes(&self, labeled_bytes: (&'a str, &'a [u8])) -> ButtonBuilder<'a> {
-        icon_button(self.btn_plain().image_bytes(labeled_bytes))
-    }
-
-    pub fn plain_icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_plain()
-            .label_text(text)
-            .image_path(image_path)
-            .image_dims(ScreenDims::square(18.0))
     }
 
     pub fn text(&self, text: &'a str) -> ButtonBuilder<'a> {

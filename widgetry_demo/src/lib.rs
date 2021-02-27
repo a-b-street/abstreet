@@ -326,11 +326,11 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 .text("Primary")
                 .build_widget(ctx, "btn_primary_text"),
             Widget::row(vec![
-                btn.btn_solid_primary
+                btn.btn_plain_primary
                     .icon("system/assets/tools/map.svg")
                     .build_widget(ctx, "btn_primary_icon_1"),
-                btn.btn_solid_primary
-                    .plain_icon("system/assets/tools/map.svg")
+                btn.btn_plain_primary
+                    .icon("system/assets/tools/map.svg")
                     .build_widget(ctx, "btn_primary_icon_2"),
             ]),
             btn.btn_solid_primary

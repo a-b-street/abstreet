@@ -145,8 +145,8 @@ fn make_panel(
     make_task: &Box<dyn Fn(&mut EventCtx) -> Widget>,
     idx: usize,
 ) -> Panel {
-    let prev_builder = ButtonStyle::outline_dark_fg()
-        .plain_icon("system/assets/tools/circled_prev.svg")
+    let prev_builder = ButtonStyle::plain_dark_fg()
+        .icon("system/assets/tools/circled_prev.svg")
         .image_dims(45.0)
         .hotkey(Key::LeftArrow)
         .bg_color(Color::CLEAR, ControlState::Disabled);

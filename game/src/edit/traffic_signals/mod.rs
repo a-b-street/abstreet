@@ -514,8 +514,8 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
             .hotkey(lctrl(Key::Y))
             .build_widget(ctx, "redo"),
         ctx.style()
-            .btn_outline_destructive
-            .plain_text("Cancel")
+            .btn_plain_destructive
+            .text("Cancel")
             .hotkey(Key::Escape)
             .build_def(ctx)
             .align_right(),
@@ -630,16 +630,16 @@ fn make_side_panel(
 
         let up_button = ctx
             .style()
-            .btn_outline
-            .plain_icon_bytes(include_labeled_bytes!(
+            .btn_plain
+            .icon_bytes(include_labeled_bytes!(
                 "../../../../widgetry/icons/arrow_up.svg"
             ))
             .disabled(idx == 0);
 
         let down_button = ctx
             .style()
-            .btn_outline
-            .plain_icon_bytes(include_labeled_bytes!(
+            .btn_plain
+            .icon_bytes(include_labeled_bytes!(
                 "../../../../widgetry/icons/arrow_down.svg"
             ))
             .disabled(idx == canonical_signal.stages.len() - 1);
