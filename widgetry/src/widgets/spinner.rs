@@ -69,7 +69,7 @@ impl Spinner {
             top_left: ScreenPt::new(0.0, 0.0),
             dims,
         }))
-        .outline(2.0, outline)
+        .outline(outline.0, outline.1)
     }
 
     pub fn modify(&mut self, delta: isize) {

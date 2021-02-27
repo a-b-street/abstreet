@@ -192,7 +192,8 @@ fn make_btn(ctx: &EventCtx, label: &str, tooltip: &str, is_persisten_split: bool
                 bottom_right: 2.0,
                 top_right: 2.0,
             }))
-            .outline(0.0, Color::CLEAR, ControlState::Default)
+            // override any outline element within persistent split
+            .outline((0.0, Color::CLEAR), ControlState::Default)
     } else {
         ctx.style().btn_outline_dropdown().label_text(label)
     };

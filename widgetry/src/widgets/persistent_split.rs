@@ -30,7 +30,7 @@ impl<T: 'static + PartialEq + Clone + std::fmt::Debug> PersistentSplit<T> {
             hotkey,
             choices,
         )))
-        .outline(2.0, outline)
+        .outline(outline.0, outline.1)
         .named(label)
     }
 
@@ -50,14 +50,14 @@ impl<T: 'static + PartialEq + Clone + std::fmt::Debug> PersistentSplit<T> {
         let btn = btn.build(ctx, label);
 
         let outline_style = &ctx.style().btn_outline;
-        let outline = outline_style.outline;
+        let (_, outline_color) = outline_style.outline;
 
         PersistentSplit {
             current_value: dropdown.current_value(),
             spacer: JustDraw::wrap(
                 ctx,
                 GeomBatch::from(vec![(
-                    outline,
+                    outline_color,
                     Polygon::rectangle(3.0, btn.get_dims().height),
                 )]),
             )
@@ -71,7 +71,7 @@ impl<T: 'static + PartialEq + Clone + std::fmt::Debug> PersistentSplit<T> {
 fn button_builder<'a>(ctx: &EventCtx) -> ButtonBuilder<'a> {
     ctx.style()
         .btn_plain()
-        .outline(0.0, Color::CLEAR, ControlState::Default)
+        .outline((0.0, Color::CLEAR), ControlState::Default)
 }
 
 impl<T: 'static + PartialEq + Clone> PersistentSplit<T> {

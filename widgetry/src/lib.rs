@@ -41,7 +41,7 @@ pub use crate::geom::{GeomBatch, RewriteColor};
 pub use crate::input::UserInput;
 pub use crate::runner::{run, Settings};
 pub use crate::screen_geom::{ScreenDims, ScreenPt, ScreenRectangle};
-pub use crate::style::{buttons::StyledButtons, ButtonStyle, Style};
+pub use crate::style::{buttons::StyledButtons, ButtonStyle, OutlineStyle, Style};
 pub use crate::text::{Font, Line, Text, TextExt, TextSpan};
 pub use crate::tools::warper::Warper;
 pub use crate::tools::Cached;
