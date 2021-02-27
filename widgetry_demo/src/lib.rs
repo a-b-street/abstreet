@@ -344,7 +344,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 .build_widget(ctx, "btn_outline_icon_text"),
         ])]),
         Text::from(Line("Spinner").big_heading_styled().size(18)).draw(ctx),
-        widgetry::Spinner::new(ctx, (0, 11), 1),
+        widgetry::Spinner::widget(ctx, (0, 11), 1),
         Widget::row(vec![
             ctx.style()
                 .btn_outline_text("New faces")
@@ -474,7 +474,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 ),
                 Widget::col(
                     (0..row_height)
-                        .map(|_| widgetry::Spinner::new(ctx, (0, 11), 1))
+                        .map(|_| widgetry::Spinner::widget(ctx, (0, 11), 1))
                         .collect::<Vec<_>>(),
                 ),
                 Widget::col(

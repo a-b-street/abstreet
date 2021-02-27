@@ -32,7 +32,7 @@ impl ChangeDuration {
             ]),
             Widget::row(vec![
                 "Seconds:".draw_text(ctx).centered_vert(),
-                Spinner::new(
+                Spinner::widget(
                     ctx,
                     (
                         signal.get_min_crossing_time(idx).inner_seconds() as isize,
@@ -64,7 +64,7 @@ impl ChangeDuration {
                 .draw(ctx)]),
             Widget::row(vec![
                 "Seconds:".draw_text(ctx).centered_vert(),
-                Spinner::new(
+                Spinner::widget(
                     ctx,
                     (1, 300),
                     match signal.stages[idx].stage_type {
@@ -81,7 +81,7 @@ impl ChangeDuration {
                 .draw(ctx)]),
             Widget::row(vec![
                 "Seconds:".draw_text(ctx).centered_vert(),
-                Spinner::new(
+                Spinner::widget(
                     ctx,
                     (1, 300),
                     match signal.stages[idx].stage_type {

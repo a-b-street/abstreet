@@ -194,7 +194,7 @@ fn params_to_controls(ctx: &mut EventCtx, mode: TripMode, params: &RoutingParams
     if mode == TripMode::Drive || mode == TripMode::Bike {
         rows.push(Widget::row(vec![
             "Unprotected turn penalty:".draw_text(ctx).margin_right(20),
-            Spinner::new(
+            Spinner::widget(
                 ctx,
                 (1, 100),
                 (params.unprotected_turn_penalty * 10.0) as isize,
@@ -206,17 +206,17 @@ fn params_to_controls(ctx: &mut EventCtx, mode: TripMode, params: &RoutingParams
         // TODO Spinners that natively understand a floating point range with a given precision
         rows.push(Widget::row(vec![
             "Bike lane penalty:".draw_text(ctx).margin_right(20),
-            Spinner::new(ctx, (0, 20), (params.bike_lane_penalty * 10.0) as isize)
+            Spinner::widget(ctx, (0, 20), (params.bike_lane_penalty * 10.0) as isize)
                 .named("bike lane penalty"),
         ]));
         rows.push(Widget::row(vec![
             "Bus lane penalty:".draw_text(ctx).margin_right(20),
-            Spinner::new(ctx, (0, 20), (params.bus_lane_penalty * 10.0) as isize)
+            Spinner::widget(ctx, (0, 20), (params.bus_lane_penalty * 10.0) as isize)
                 .named("bus lane penalty"),
         ]));
         rows.push(Widget::row(vec![
             "Driving lane penalty:".draw_text(ctx).margin_right(20),
-            Spinner::new(ctx, (0, 20), (params.driving_lane_penalty * 10.0) as isize)
+            Spinner::widget(ctx, (0, 20), (params.driving_lane_penalty * 10.0) as isize)
                 .named("driving lane penalty"),
         ]));
     }

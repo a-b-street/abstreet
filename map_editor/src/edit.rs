@@ -34,7 +34,7 @@ impl EditRoad {
         let controls = Widget::col(vec![
             Widget::row(vec![
                 "lanes:forward".draw_text(ctx).margin_right(20),
-                Spinner::new(
+                Spinner::widget(
                     ctx,
                     (1, 5),
                     road.osm_tags
@@ -46,7 +46,7 @@ impl EditRoad {
             ]),
             Widget::row(vec![
                 "lanes:backward".draw_text(ctx).margin_right(20),
-                Spinner::new(
+                Spinner::widget(
                     ctx,
                     (0, 5),
                     road.osm_tags
