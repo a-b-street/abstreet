@@ -686,7 +686,7 @@ fn make_side_panel(
         .bg(app.cs.inner_panel_bg);
 
         if idx == selected {
-            col.push(stage_controls.outline(2.0, ctx.style().outline_color));
+            col.push(stage_controls.outline(ctx.style().btn_outline.outline));
         } else {
             col.push(stage_controls);
         }

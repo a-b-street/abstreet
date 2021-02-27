@@ -54,7 +54,9 @@ impl TripSummaries {
             panel: Panel::new(Widget::col(vec![
                 DashTab::TripSummaries.picker(ctx, app),
                 Widget::row(vec![
-                    Widget::col(filters).padding(16).outline(2.0, Color::WHITE),
+                    Widget::col(filters)
+                        .padding(16)
+                        .outline(ctx.style().section_outline),
                     Widget::col(vec![
                         summary_boxes(ctx, app, &filter),
                         Widget::row(vec![
@@ -180,7 +182,7 @@ fn summary_boxes(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
         .container()
         .padding(20)
         .bg(Color::hex("#72CE36").alpha(0.5))
-        .outline(2.0, Color::WHITE),
+        .outline(ctx.style().section_outline),
         Text::from_multiline(vec![
             Line(format!("Slower Trips: {}", prettyprint_usize(num_slower))).big_heading_plain(),
             Line(format!(
@@ -203,7 +205,7 @@ fn summary_boxes(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
         .container()
         .padding(20)
         .bg(Color::hex("#EB3223").alpha(0.5))
-        .outline(2.0, Color::WHITE),
+        .outline(ctx.style().section_outline),
         Text::from_multiline(vec![
             Line(format!("Unchanged: {}", prettyprint_usize(num_same))).big_heading_plain(),
             Line(format!(
@@ -216,7 +218,7 @@ fn summary_boxes(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
         .container()
         .padding(20)
         .bg(Color::hex("#F4DA22").alpha(0.5))
-        .outline(2.0, Color::WHITE),
+        .outline(ctx.style().section_outline),
     ])
     .evenly_spaced()
 }
@@ -247,7 +249,7 @@ fn scatter_plot(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
         ),
     ])
     .padding(16)
-    .outline(2.0, Color::WHITE)
+    .outline(ctx.style().section_outline)
 }
 
 fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
@@ -396,7 +398,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
         Line("number of trips (slower)").secondary().draw(ctx),
     ])
     .padding(16)
-    .outline(2.0, Color::WHITE)
+    .outline(ctx.style().section_outline)
 }
 
 pub struct Filter {

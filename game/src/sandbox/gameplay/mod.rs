@@ -270,7 +270,7 @@ impl FinalScore {
                             .autocrop(),
                     )
                     .container()
-                    .outline(10.0, Color::BLACK)
+                    .outline((10.0, Color::BLACK))
                     .padding(10),
                     Widget::col(vec![
                         msg.draw_text(ctx),
@@ -290,7 +290,7 @@ impl FinalScore {
                             .btn_outline_text("Back to challenges")
                             .build_def(ctx),
                     ])
-                    .outline(10.0, Color::BLACK)
+                    .outline((10.0, Color::BLACK))
                     .padding(10),
                 ])
                 .bg(app.cs.panel_bg),

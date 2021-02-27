@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use geom::{Duration, Percent};
 use sim::OrigPersonID;
 use widgetry::{
-    Color, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, StyledButtons, Text,
+    DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, StyledButtons, Text,
     TextExt, Widget,
 };
 
@@ -149,7 +149,7 @@ impl ChallengesPicker {
                 .centered_horiz()
                 .bg(app.cs.panel_bg)
                 .padding(16)
-                .outline(2.0, Color::BLACK),
+                .outline(ctx.style().btn_solid.outline),
         ];
 
         // First list challenges
@@ -173,7 +173,7 @@ impl ChallengesPicker {
                 .flex_wrap(ctx, Percent::int(80))
                 .bg(app.cs.panel_bg)
                 .padding(16)
-                .outline(2.0, Color::BLACK),
+                .outline(ctx.style().btn_solid.outline),
         );
 
         let mut main_row = Vec::new();
@@ -199,7 +199,7 @@ impl ChallengesPicker {
                 Widget::col(col)
                     .bg(app.cs.panel_bg)
                     .padding(16)
-                    .outline(2.0, Color::BLACK),
+                    .outline(ctx.style().btn_solid.outline),
             );
         }
 
@@ -240,7 +240,7 @@ impl ChallengesPicker {
                 Widget::col(inner_col)
                     .bg(app.cs.panel_bg)
                     .padding(16)
-                    .outline(2.0, Color::BLACK),
+                    .outline(ctx.style().btn_solid.outline),
             );
             current_challenge = Some(challenge);
         }

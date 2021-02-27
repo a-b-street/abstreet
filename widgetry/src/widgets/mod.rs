@@ -13,7 +13,7 @@ use crate::widgets::containers::{Container, Nothing};
 pub use crate::widgets::panel::Panel;
 use crate::{
     Button, Choice, Color, DeferDraw, Drawable, Dropdown, EventCtx, GeomBatch, GfxCtx, JustDraw,
-    ScreenDims, ScreenPt, ScreenRectangle, TextBox, Toggle,
+    OutlineStyle, ScreenDims, ScreenPt, ScreenRectangle, TextBox, Toggle,
 };
 
 pub mod autocomplete;
@@ -206,9 +206,8 @@ impl Widget {
     }
 
     // Callers have to adjust padding too, probably
-    #[deprecated(note = "combine params into OutlineStyle")]
-    pub fn outline(mut self, thickness: f64, color: Color) -> Widget {
-        self.layout.outline = Some((thickness, color));
+    pub fn outline(mut self, style: OutlineStyle) -> Widget {
+        self.layout.outline = Some(style);
         self
     }
 

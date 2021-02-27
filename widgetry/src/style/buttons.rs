@@ -184,49 +184,49 @@ pub trait StyledButtons<'a> {
 
 impl<'a> StyledButtons<'a> for Style {
     fn btn_solid(&self) -> ButtonBuilder<'a> {
-        basic_button(&self.btn_solid, Some(self.outline_thickness))
+        basic_button(&self.btn_solid, true)
     }
 
     fn btn_outline(&self) -> ButtonBuilder<'a> {
-        basic_button(&self.btn_outline, Some(self.outline_thickness))
+        basic_button(&self.btn_outline, true)
     }
 
     fn btn_solid_floating(&self) -> ButtonBuilder<'a> {
-        basic_button(&self.btn_solid_floating, Some(self.outline_thickness))
+        basic_button(&self.btn_solid_floating, true)
     }
 
     fn btn_plain(&self) -> ButtonBuilder<'a> {
-        basic_button(&self.btn_outline, None)
+        basic_button(&self.btn_outline, false)
     }
 
     fn btn_plain_destructive(&self) -> ButtonBuilder<'a> {
-        basic_button(&self.btn_outline_destructive, None)
+        basic_button(&self.btn_outline_destructive, false)
     }
 
     fn btn_solid_destructive(&self) -> ButtonBuilder<'a> {
-        basic_button(&self.btn_solid_destructive, Some(self.outline_thickness))
+        basic_button(&self.btn_solid_destructive, true)
     }
 
     fn btn_outline_destructive(&self) -> ButtonBuilder<'a> {
-        basic_button(&self.btn_solid_destructive, Some(self.outline_thickness))
+        basic_button(&self.btn_solid_destructive, true)
     }
 
     fn btn_plain_primary(&self) -> ButtonBuilder<'a> {
-        basic_button(&self.btn_outline_primary, None)
+        basic_button(&self.btn_outline_primary, false)
     }
 
     fn btn_solid_primary(&self) -> ButtonBuilder<'a> {
-        basic_button(&self.btn_solid_primary, Some(self.outline_thickness))
+        basic_button(&self.btn_solid_primary, true)
     }
 
     fn btn_outline_primary(&self) -> ButtonBuilder<'a> {
-        basic_button(&self.btn_solid_primary, Some(self.outline_thickness))
+        basic_button(&self.btn_solid_primary, true)
     }
 }
 
 impl<'a> ButtonStyle {
     pub fn plain(&self) -> ButtonBuilder<'a> {
-        basic_button(self, None)
+        basic_button(self, false)
     }
 
     pub fn outline(&self) -> ButtonBuilder<'a> {
@@ -279,7 +279,7 @@ impl<'a> Style {
 
         // The text is styled like an "outline" button, while the image is styled like a "solid"
         // button.
-        basic_button(outline_style, Some(self.outline_thickness))
+        basic_button(outline_style, true)
             .label_text(text)
             .image_path(icon_path)
             .image_dims(25.0)
@@ -326,10 +326,7 @@ fn dropdown_button<'a>(builder: ButtonBuilder<'a>) -> ButtonBuilder<'a> {
         .label_first()
 }
 
-fn basic_button<'a>(
-    button_style: &ButtonStyle,
-    outline_thickness: Option<f64>,
-) -> ButtonBuilder<'a> {
+fn basic_button<'a>(button_style: &ButtonStyle, outline: bool) -> ButtonBuilder<'a> {
     let builder = ButtonBuilder::new()
         .label_color(button_style.fg, ControlState::Default)
         .label_color(button_style.fg_disabled, ControlState::Disabled)
@@ -339,11 +336,8 @@ fn basic_button<'a>(
         .bg_color(button_style.bg_hover, ControlState::Hovered)
         .bg_color(button_style.bg_disabled, ControlState::Disabled);
 
-    if let Some(outline_thickness) = outline_thickness {
-        builder.outline(
-            (outline_thickness, button_style.outline.1),
-            ControlState::Default,
-        )
+    if outline {
+        builder.outline(button_style.outline, ControlState::Default)
     } else {
         builder
     }

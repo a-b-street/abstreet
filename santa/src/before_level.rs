@@ -257,7 +257,7 @@ fn make_vehicle_panel(ctx: &mut EventCtx, app: &App) -> Panel {
                 Widget::draw_batch(ctx, batch)
                     .container()
                     .padding(5)
-                    .outline(2.0, Color::WHITE)
+                    .outline((2.0, Color::WHITE))
             } else {
                 let normal = batch.clone().color(RewriteColor::MakeGrayscale);
                 let hovered = batch;

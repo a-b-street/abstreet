@@ -2,9 +2,7 @@ use std::collections::HashSet;
 
 use abstutil::prettyprint_usize;
 use map_model::ParkingLotID;
-use widgetry::{
-    Color, EventCtx, Line, LinePlot, PlotOptions, Series, StyledButtons, TextExt, Widget,
-};
+use widgetry::{EventCtx, Line, LinePlot, PlotOptions, Series, StyledButtons, TextExt, Widget};
 
 use crate::app::App;
 use crate::info::{header_btns, make_tabs, Details, Tab};
@@ -59,7 +57,7 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: ParkingLot
     ])
     .padding(10)
     .bg(app.cs.inner_panel_bg)
-    .outline(2.0, Color::WHITE);
+    .outline(ctx.style().section_outline);
     rows.push(section);
 
     if app.opts.dev {

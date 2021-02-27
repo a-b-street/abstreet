@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use abstutil::prettyprint_usize;
 use map_model::{LaneID, PathConstraints};
 use widgetry::{
-    Color, EventCtx, Line, LinePlot, PlotOptions, Series, StyledButtons, Text, TextExt, Widget,
+    EventCtx, Line, LinePlot, PlotOptions, Series, StyledButtons, Text, TextExt, Widget,
 };
 
 use crate::app::App;
@@ -96,7 +96,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
         ])
         .padding(10)
         .bg(app.cs.inner_panel_bg)
-        .outline(2.0, Color::WHITE);
+        .outline(ctx.style().section_outline);
         rows.push(section);
     }
 
