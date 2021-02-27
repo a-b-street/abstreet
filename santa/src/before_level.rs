@@ -12,8 +12,8 @@ use map_gui::ID;
 use map_model::BuildingID;
 use widgetry::{
     ButtonBuilder, Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Image, Key, Line, Outcome, Panel, RewriteColor, State, StyledButtons, Text, TextExt,
-    VerticalAlignment, Widget,
+    Image, Key, Line, Outcome, Panel, RewriteColor, State, Text, TextExt, VerticalAlignment,
+    Widget,
 };
 
 use crate::buildings::{BldgState, Buildings};
@@ -326,7 +326,8 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
         Widget::row(vec![
             Line("Upzoning").small_heading().draw(ctx),
             ctx.style()
-                .btn_plain_icon("system/assets/tools/info.svg")
+                .btn_plain
+                .icon("system/assets/tools/info.svg")
                 .build_widget(ctx, "help")
                 .align_right(),
         ]),
@@ -342,11 +343,13 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
         ]),
         Widget::row(vec![
             ctx.style()
-                .btn_outline_text("Randomly choose upzones")
+                .btn_outline
+                .text("Randomly choose upzones")
                 .disabled(num_picked == app.session.upzones_unlocked)
                 .build_def(ctx),
             ctx.style()
-                .btn_outline_text("Clear upzones")
+                .btn_outline
+                .text("Clear upzones")
                 .disabled(num_picked == 0)
                 .build_def(ctx)
                 .align_right(),

@@ -1,6 +1,7 @@
 use crate::{Color, Text};
 
-pub mod buttons;
+pub mod button_style;
+pub use button_style::ButtonStyle;
 
 #[derive(Clone)]
 pub struct Style {
@@ -27,18 +28,9 @@ pub struct Style {
 
 pub type OutlineStyle = (f64, Color);
 
-#[derive(Clone)]
-pub struct ButtonStyle {
-    pub fg: Color,
-    pub fg_disabled: Color,
-    pub outline: OutlineStyle,
-    pub bg: Color,
-    pub bg_hover: Color,
-    pub bg_disabled: Color,
-}
-
 static DEFAULT_OUTLINE_THICKNESS: f64 = 2.0;
 
+// Some ButtonStyles are shared across Styles
 impl ButtonStyle {
     pub fn solid_dark_fg() -> Self {
         ButtonStyle {

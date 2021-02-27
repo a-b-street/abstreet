@@ -4,7 +4,7 @@ use map_gui::ID;
 use map_model::IntersectionID;
 use widgetry::{
     hotkeys, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    State, StyledButtons, VerticalAlignment, Widget,
+    State, VerticalAlignment, Widget,
 };
 
 use crate::app::App;

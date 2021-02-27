@@ -7,7 +7,7 @@ use map_model::IntersectionID;
 use sim::Scenario;
 use widgetry::{
     Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, RewriteColor,
-    SimpleState, Spinner, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
+    SimpleState, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -253,7 +253,8 @@ impl TuneRelative {
                     .named("offset"),
             ]),
             ctx.style()
-                .btn_outline_text("Update offset")
+                .btn_outline
+                .text("Update offset")
                 .hotkey(Key::Enter)
                 .build_def(ctx),
         ]))

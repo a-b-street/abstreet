@@ -2,7 +2,7 @@ use geom::{ArrowCap, Distance};
 use map_model::{LaneID, TurnType};
 use widgetry::{
     Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, State, StyledButtons, Text, TextExt, Transition, VerticalAlignment, Widget,
+    Panel, State, Text, TextExt, Transition, VerticalAlignment, Widget,
 };
 
 use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};

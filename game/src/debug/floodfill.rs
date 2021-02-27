@@ -4,7 +4,7 @@ use map_gui::tools::ColorDiscrete;
 use map_model::{connectivity, LaneID, Map, PathConstraints};
 use widgetry::{
     Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, State,
-    StyledButtons, TextExt, VerticalAlignment, Widget,
+    TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;

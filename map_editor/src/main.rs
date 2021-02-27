@@ -14,7 +14,7 @@ use map_model::osm;
 use map_model::raw::OriginalRoad;
 use widgetry::{
     Canvas, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    SharedAppState, State, StyledButtons, Text, Toggle, Transition, VerticalAlignment, Widget,
+    SharedAppState, State, Text, Toggle, Transition, VerticalAlignment, Widget,
 };
 
 mod edit;
@@ -111,7 +111,8 @@ impl MainState {
                     Widget::col(vec![
                         Toggle::switch(ctx, "intersection geometry", Key::G, false),
                         ctx.style()
-                            .btn_outline_text("adjust boundary")
+                            .btn_outline
+                            .text("adjust boundary")
                             .build_def(ctx),
                         ctx.style()
                             .btn_solid_primary

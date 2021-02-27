@@ -10,7 +10,7 @@ use map_gui::tools::PopupMsg;
 use sim::TripMode;
 use widgetry::{
     Choice, Color, CompareTimes, DrawBaselayer, DrawWithTooltips, EventCtx, GeomBatch, GfxCtx,
-    Line, Outcome, Panel, State, StyledButtons, Text, TextExt, Toggle, Widget,
+    Line, Outcome, Panel, State, Text, TextExt, Toggle, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -45,7 +45,8 @@ impl TripSummaries {
         ));
         filters.push(
             ctx.style()
-                .btn_plain_text("Export to CSV")
+                .btn_plain
+                .text("Export to CSV")
                 .build_def(ctx)
                 .align_bottom(),
         );

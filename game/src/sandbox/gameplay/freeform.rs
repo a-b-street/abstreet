@@ -11,7 +11,7 @@ use map_model::{BuildingID, IntersectionID, Position, NORMAL_LANE_THICKNESS};
 use sim::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 use widgetry::{
     lctrl, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    SimpleState, Spinner, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
+    SimpleState, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -135,7 +135,8 @@ impl GameplayState for Freeform {
                     .build_widget(ctx, "change scenario")
                     .margin_right(8),
                 ctx.style()
-                    .btn_outline_icon_text("system/assets/tools/pencil.svg", "Edit map")
+                    .btn_outline
+                    .icon_text("system/assets/tools/pencil.svg", "Edit map")
                     .hotkey(lctrl(Key::E))
                     .build_widget(ctx, "edit map")
                     .margin_right(8),
@@ -143,10 +144,12 @@ impl GameplayState for Freeform {
             .centered(),
             Widget::row(vec![
                 ctx.style()
-                    .btn_outline_text("Start a new trip")
+                    .btn_outline
+                    .text("Start a new trip")
                     .build_def(ctx),
                 ctx.style()
-                    .btn_outline_text("Record trips as a scenario")
+                    .btn_outline
+                    .text("Record trips as a scenario")
                     .build_def(ctx),
             ])
             .centered(),
@@ -242,7 +245,8 @@ impl ChangeScenario {
         }
         col.push(
             ctx.style()
-                .btn_outline_text("Import your own data")
+                .btn_outline
+                .text("Import your own data")
                 .build_def(ctx),
         );
 

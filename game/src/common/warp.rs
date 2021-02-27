@@ -5,10 +5,7 @@ use map_gui::tools::{grey_out_map, PopupMsg};
 use map_gui::ID;
 use map_model::{AreaID, BuildingID, BusRouteID, IntersectionID, LaneID, ParkingLotID, RoadID};
 use sim::{PedestrianID, PersonID, TripID};
-use widgetry::{
-    EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, StyledButtons, Text, TextExt, Warper,
-    Widget,
-};
+use widgetry::{EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Warper, Widget};
 
 use crate::app::{App, PerMap, Transition};
 use crate::info::{OpenTrip, Tab};
@@ -120,7 +117,8 @@ impl DebugWarp {
                 .draw(ctx),
                 Widget::text_entry(ctx, String::new(), true).named("input"),
                 ctx.style()
-                    .btn_outline_text("Go!")
+                    .btn_outline
+                    .text("Go!")
                     .hotkey(Key::Enter)
                     .build_def(ctx),
             ]))

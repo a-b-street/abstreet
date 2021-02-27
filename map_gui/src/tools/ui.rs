@@ -2,7 +2,7 @@
 
 use widgetry::{
     hotkeys, Choice, DrawBaselayer, Drawable, EventCtx, GfxCtx, Key, Line, Menu, Outcome, Panel,
-    State, StyledButtons, Text, Transition, Widget,
+    State, Text, Transition, Widget,
 };
 
 use crate::tools::grey_out_map;
@@ -84,7 +84,8 @@ impl<A: AppLike + 'static> PromptInput<A> {
                 ]),
                 Widget::text_entry(ctx, String::new(), true).named("input"),
                 ctx.style()
-                    .btn_outline_text("confirm")
+                    .btn_outline
+                    .text("confirm")
                     .hotkey(Key::Enter)
                     .build_def(ctx),
             ]))

@@ -2,8 +2,8 @@ use abstutil::prettyprint_usize;
 use geom::Polygon;
 
 use crate::{
-    include_labeled_bytes, Color, ControlState, EventCtx, GeomBatch, Key, Line, Panel,
-    StyledButtons, Text, TextExt, Widget,
+    include_labeled_bytes, Color, ControlState, EventCtx, GeomBatch, Key, Line, Panel, Text,
+    TextExt, Widget,
 };
 
 const ROWS: usize = 8;
@@ -101,7 +101,8 @@ impl<A, T, F> Table<A, T, F> {
             .map(|col| {
                 if self.sort_by == col.name {
                     ctx.style()
-                        .btn_outline_icon_text("tmp", &col.name)
+                        .btn_outline
+                        .icon_text("tmp", &col.name)
                         .image_bytes(if self.descending {
                             include_labeled_bytes!("../../icons/arrow_down.svg")
                         } else {
@@ -110,7 +111,7 @@ impl<A, T, F> Table<A, T, F> {
                         .label_first()
                         .build_widget(ctx, &col.name)
                 } else if let Col::Sortable(_) = col.col {
-                    ctx.style().btn_outline_text(&col.name).build_def(ctx)
+                    ctx.style().btn_outline.text(&col.name).build_def(ctx)
                 } else {
                     Line(&col.name).draw(ctx).centered_vert()
                 }
@@ -270,7 +271,8 @@ fn make_table(
 
         col.push(
             ctx.style()
-                .btn_plain()
+                .btn_plain
+                .btn()
                 .custom_batch(batch, ControlState::Default)
                 .custom_batch(hovered, ControlState::Hovered)
                 .no_tooltip()

@@ -6,7 +6,7 @@ use map_model::{PathRequest, RoadID, RoutingParams, Traversable, NORMAL_LANE_THI
 use sim::{TripEndpoint, TripMode};
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    Spinner, State, StyledButtons, Text, TextExt, TextSpan, VerticalAlignment, Widget,
+    Spinner, State, Text, TextExt, TextSpan, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -31,7 +31,8 @@ impl RouteExplorer {
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 ctx.style()
-                    .btn_outline_text("All routes")
+                    .btn_outline
+                    .text("All routes")
                     .hotkey(Key::A)
                     .build_def(ctx),
                 params_to_controls(ctx, TripMode::Bike, &app.primary.map.routing_params())
@@ -178,15 +179,18 @@ impl State<App> for RouteExplorer {
 fn params_to_controls(ctx: &mut EventCtx, mode: TripMode, params: &RoutingParams) -> Widget {
     let mut rows = vec![Widget::custom_row(vec![
         ctx.style()
-            .btn_plain_icon("system/assets/meters/bike.svg")
+            .btn_plain
+            .icon("system/assets/meters/bike.svg")
             .disabled(mode == TripMode::Bike)
             .build_widget(ctx, "bikes"),
         ctx.style()
-            .btn_plain_icon("system/assets/meters/car.svg")
+            .btn_plain
+            .icon("system/assets/meters/car.svg")
             .disabled(mode == TripMode::Drive)
             .build_widget(ctx, "cars"),
         ctx.style()
-            .btn_plain_icon("system/assets/meters/pedestrian.svg")
+            .btn_plain
+            .icon("system/assets/meters/pedestrian.svg")
             .disabled(mode == TripMode::Walk)
             .build_widget(ctx, "pedestrians"),
     ])
@@ -289,7 +293,8 @@ impl AllRoutesExplorer {
                 params_to_controls(ctx, TripMode::Bike, app.primary.map.routing_params())
                     .named("params"),
                 ctx.style()
-                    .btn_outline_text("Calculate differential demand")
+                    .btn_outline
+                    .text("Calculate differential demand")
                     .build_def(ctx),
                 ctx.style()
                     .btn_solid_destructive

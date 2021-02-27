@@ -8,7 +8,7 @@ use map_model::{IntersectionID, IntersectionType, StageType};
 use sim::AgentType;
 use widgetry::{
     Color, DrawWithTooltips, EventCtx, FanChart, GeomBatch, Line, PlotOptions, ScatterPlot, Series,
-    StyledButtons, Text, Toggle, Widget,
+    Text, Toggle, Widget,
 };
 
 use crate::app::App;
@@ -37,7 +37,8 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID
     if app.opts.dev {
         rows.push(
             ctx.style()
-                .btn_outline_text("Open OSM node")
+                .btn_outline
+                .text("Open OSM node")
                 .build_widget(ctx, &format!("open {}", i.orig_id)),
         );
     }
@@ -216,13 +217,15 @@ pub fn current_demand(
     );
     rows.push(
         ctx.style()
-            .btn_outline_text("Explore demand across all traffic signals")
+            .btn_outline
+            .text("Explore demand across all traffic signals")
             .build_def(ctx),
     );
     if app.opts.dev {
         rows.push(
             ctx.style()
-                .btn_outline_text("Where are these agents headed?")
+                .btn_outline
+                .text("Where are these agents headed?")
                 .build_widget(ctx, &format!("routes across {}", id)),
         );
     }

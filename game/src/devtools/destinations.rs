@@ -5,7 +5,7 @@ use map_model::{AmenityType, BuildingID};
 use sim::{Scenario, TripEndpoint};
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, State,
-    StyledButtons, Text, Toggle, VerticalAlignment, Widget,
+    Text, Toggle, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};

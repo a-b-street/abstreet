@@ -8,7 +8,7 @@ use map_model::{IntersectionID, Map, RoadID};
 use sim::{AgentType, TripMode, TripPhaseType};
 use widgetry::{
     lctrl, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel, ScreenDims,
-    ScreenPt, ScreenRectangle, StyledButtons, Text, TextSpan, Toggle, VerticalAlignment, Widget,
+    ScreenPt, ScreenRectangle, Text, TextSpan, Toggle, VerticalAlignment, Widget,
 };
 
 pub use self::minimap::MinimapController;
@@ -291,11 +291,13 @@ impl CommonState {
 pub fn tool_panel(ctx: &mut EventCtx) -> Panel {
     Panel::new(Widget::row(vec![
         ctx.style()
-            .btn_plain_icon("system/assets/tools/home.svg")
+            .btn_plain
+            .icon("system/assets/tools/home.svg")
             .hotkey(Key::Escape)
             .build_widget(ctx, "back"),
         ctx.style()
-            .btn_plain_icon("system/assets/tools/settings.svg")
+            .btn_plain
+            .icon("system/assets/tools/settings.svg")
             .build_widget(ctx, "settings"),
     ]))
     .aligned(HorizontalAlignment::Left, VerticalAlignment::BottomAboveOSD)

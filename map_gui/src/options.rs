@@ -1,8 +1,8 @@
 use abstutil::CmdArgs;
 use geom::{Duration, UnitFmt};
 use widgetry::{
-    Choice, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, Spinner, State, StyledButtons,
-    TextExt, Toggle, Widget,
+    Choice, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, Spinner, State, TextExt,
+    Toggle, Widget,
 };
 
 use crate::colors::ColorSchemeChoice;

@@ -1,5 +1,5 @@
 use map_model::AreaID;
-use widgetry::{EventCtx, Line, StyledButtons, Widget};
+use widgetry::{EventCtx, Line, Widget};
 
 use crate::app::App;
 use crate::info::{header_btns, make_table, Details};
@@ -17,7 +17,8 @@ pub fn area(ctx: &EventCtx, app: &App, _: &mut Details, id: AreaID) -> Vec<Widge
     if let Some(osm_id) = area.osm_id {
         rows.push(
             ctx.style()
-                .btn_outline_text("Open in OSM")
+                .btn_outline
+                .text("Open in OSM")
                 .build_widget(ctx, &format!("open {}", osm_id)),
         );
     }

@@ -2,7 +2,7 @@ pub use commuter::CommuterPatterns;
 pub use traffic_signals::TrafficSignalDemand;
 pub use trip_table::FinishedTripTable;
 
-use widgetry::{Choice, EventCtx, Image, Line, Panel, StyledButtons, TextExt, Widget};
+use widgetry::{Choice, EventCtx, Image, Line, Panel, TextExt, Widget};
 
 use crate::app::App;
 use crate::app::Transition;

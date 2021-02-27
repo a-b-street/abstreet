@@ -12,7 +12,7 @@ use map_gui::{AppLike, ID};
 use sim::{Analytics, Scenario};
 use widgetry::{
     lctrl, Choice, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Image, Key, Line,
-    Outcome, Panel, State, StyledButtons, Text, TextExt, UpdateType, VerticalAlignment, Widget,
+    Outcome, Panel, State, Text, TextExt, UpdateType, VerticalAlignment, Widget,
 };
 
 pub use self::gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};
@@ -417,7 +417,8 @@ impl AgentMeter {
                 },
                 if app.primary.dirty_from_edits {
                     ctx.style()
-                        .btn_plain_icon("system/assets/tools/warning.svg")
+                        .btn_plain
+                        .icon("system/assets/tools/warning.svg")
                         .build_widget(ctx, "see why results are tentative")
                         .centered_vert()
                         .align_right()
@@ -425,7 +426,8 @@ impl AgentMeter {
                     Widget::nothing()
                 },
                 ctx.style()
-                    .btn_plain_icon("system/assets/meters/trip_histogram.svg")
+                    .btn_plain
+                    .icon("system/assets/meters/trip_histogram.svg")
                     .hotkey(Key::Q)
                     .build_widget(ctx, "more data")
                     .align_right(),

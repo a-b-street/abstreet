@@ -7,7 +7,7 @@ use map_gui::tools::{grey_out_map, PopupMsg};
 use map_gui::ID;
 use widgetry::{
     Choice, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, Slider,
-    State, StyledButtons, Text, Toggle, UpdateType, Widget,
+    State, Text, Toggle, UpdateType, Widget,
 };
 
 use crate::app::{App, FindDelayedIntersections, ShowEverything, Transition};
@@ -299,7 +299,8 @@ impl TimeWarpScreen {
                 Widget::col(vec![
                     Text::new().draw(ctx).named("text"),
                     ctx.style()
-                        .btn_outline_text("stop now")
+                        .btn_outline
+                        .text("stop now")
                         .hotkey(Key::Escape)
                         .build_def(ctx)
                         .centered_horiz(),

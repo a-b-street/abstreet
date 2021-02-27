@@ -3,7 +3,7 @@ use geom::Time;
 use map_model::BusRouteID;
 use widgetry::{
     Autocomplete, DrawBaselayer, EventCtx, GfxCtx, Image, Line, LinePlot, Outcome, Panel,
-    PlotOptions, Series, State, StyledButtons, TextExt, Widget,
+    PlotOptions, Series, State, TextExt, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -173,7 +173,8 @@ impl TransitRoutes {
                     .map(|(boardings, alightings, waiting, name, id)| {
                         Widget::row(vec![
                             ctx.style()
-                                .btn_outline_text(&name)
+                                .btn_outline
+                                .text(&name)
                                 .build_widget(ctx, &id.to_string()),
                             format!(
                                 "{} boardings, {} alightings, {} currently waiting",

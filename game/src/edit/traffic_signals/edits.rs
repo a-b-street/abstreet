@@ -4,8 +4,8 @@ use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, StageType,
 };
 use widgetry::{
-    Choice, DrawBaselayer, EventCtx, Key, Line, Panel, SimpleState, Spinner, State, StyledButtons,
-    TextExt, Toggle, Widget,
+    Choice, DrawBaselayer, EventCtx, Key, Line, Panel, SimpleState, Spinner, State, TextExt,
+    Toggle, Widget,
 };
 
 use crate::app::{App, Transition};

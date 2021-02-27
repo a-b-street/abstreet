@@ -12,7 +12,7 @@ use map_model::{
 use widgetry::{
     include_labeled_bytes, lctrl, Color, ControlState, DrawBaselayer, Drawable, EventCtx,
     GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, MultiButton, Outcome, Panel, RewriteColor,
-    State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
+    State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, ShowEverything, Transition};
@@ -499,16 +499,19 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
             .hotkey(Key::Enter)
             .build_def(ctx),
         ctx.style()
-            .btn_outline_text("Preview")
+            .btn_outline
+            .text("Preview")
             .hotkey(lctrl(Key::P))
             .build_def(ctx),
         ctx.style()
-            .btn_plain_icon("system/assets/tools/undo.svg")
+            .btn_plain
+            .icon("system/assets/tools/undo.svg")
             .disabled(!can_undo)
             .hotkey(lctrl(Key::Z))
             .build_widget(ctx, "undo"),
         ctx.style()
-            .btn_plain_icon("system/assets/tools/redo.svg")
+            .btn_plain
+            .icon("system/assets/tools/redo.svg")
             .disabled(!can_redo)
             // TODO ctrl+shift+Z!
             .hotkey(lctrl(Key::Y))
@@ -524,7 +527,8 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
         Widget::row(vec![
             Line("Traffic signal editor").small_heading().draw(ctx),
             ctx.style()
-                .btn_plain_text("+ Edit multiple")
+                .btn_plain
+                .text("+ Edit multiple")
                 .label_color(Color::hex("#4CA7E9"), ControlState::Default)
                 .hotkey(Key::M)
                 .build_widget(ctx, "Edit multiple signals"),
@@ -532,7 +536,8 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
         Widget::row(row),
         if app.opts.dev {
             ctx.style()
-                .btn_outline_text("Export")
+                .btn_outline
+                .text("Export")
                 .tooltip(Text::from_multiline(vec![
                     Line("This will create a JSON file in traffic_signal_data/.").small(),
                     Line(
@@ -605,14 +610,16 @@ fn make_side_panel(
     if members.len() == 1 {
         col.push(
             ctx.style()
-                .btn_outline_text("Edit entire signal")
+                .btn_outline
+                .text("Edit entire signal")
                 .hotkey(Key::E)
                 .build_def(ctx),
         );
     } else {
         col.push(
             ctx.style()
-                .btn_outline_text("Tune offsets between signals")
+                .btn_outline
+                .text("Tune offsets between signals")
                 .hotkey(Key::O)
                 .build_def(ctx),
         );
@@ -666,7 +673,7 @@ fn make_side_panel(
                     .centered_vert(),
                     {
                         let mut button =
-                            ctx.style().btn_plain_icon("system/assets/tools/pencil.svg");
+                            ctx.style().btn_plain.icon("system/assets/tools/pencil.svg");
                         if selected == idx {
                             button = button.hotkey(Key::X);
                         }
@@ -699,7 +706,8 @@ fn make_side_panel(
 
     col.push(
         ctx.style()
-            .btn_outline_text("Add a new stage")
+            .btn_outline
+            .text("Add a new stage")
             .build_def(ctx)
             .centered_horiz(),
     );

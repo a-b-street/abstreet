@@ -11,8 +11,7 @@ use map_gui::ID;
 use map_model::{EditCmd, IntersectionID, LaneID, LaneType, MapEdits};
 use widgetry::{
     lctrl, Choice, Color, ControlState, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Image,
-    Key, Line, Menu, Outcome, Panel, State, StyledButtons, Text, TextExt, VerticalAlignment,
-    Widget,
+    Key, Line, Menu, Outcome, Panel, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub use self::cluster_traffic_signals::ClusterTrafficSignalEditor;
@@ -414,7 +413,8 @@ impl SaveEdits {
                     },
                     if cancel.is_some() {
                         ctx.style()
-                            .btn_outline_text("Cancel")
+                            .btn_outline
+                            .text("Cancel")
                             .hotkey(Key::Escape)
                             .build_def(ctx)
                     } else {
@@ -550,7 +550,7 @@ impl LoadEdits {
         for name in abstio::list_all_objects(abstio::path("system/proposals")) {
             let path = abstio::path(format!("system/proposals/{}.json", name));
             if MapEdits::load(&app.primary.map, path.clone(), &mut Timer::throwaway()).is_ok() {
-                proposals.push(ctx.style().btn_outline_text(&name).build_widget(ctx, &path));
+                proposals.push(ctx.style().btn_outline.text(&name).build_widget(ctx, &path));
             }
         }
 
@@ -562,7 +562,8 @@ impl LoadEdits {
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 ctx.style()
-                    .btn_outline_text("Start over with blank proposal")
+                    .btn_outline
+                    .text("Start over with blank proposal")
                     .build_def(ctx),
                 Widget::row(vec![Widget::col(your_edits), Widget::col(proposals)]).evenly_spaced(),
             ]))
@@ -785,7 +786,8 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Panel {
     let mut col = vec![
         Widget::row(vec![
             ctx.style()
-                .btn_outline_popup(&edits.edits_name)
+                .btn_outline
+                .popup(&edits.edits_name)
                 .hotkey(lctrl(Key::P))
                 .build_widget(ctx, "manage proposals"),
             "autosaved"
@@ -816,7 +818,8 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Panel {
         }
         let btn = ctx
             .style()
-            .btn_plain()
+            .btn_plain
+            .btn()
             .label_styled_text(txt, ControlState::Default)
             .build_widget(ctx, &format!("change #{}", idx + 1));
         if idx == edits.commands.len() - 1 {
@@ -871,7 +874,8 @@ impl ConfirmDiscard {
                 "Are you sure you want to discard changes you made?".draw_text(ctx),
                 Widget::row(vec![
                     ctx.style()
-                        .btn_outline_text("Cancel")
+                        .btn_outline
+                        .text("Cancel")
                         .hotkey(Key::Escape)
                         .build_def(ctx),
                     ctx.style()

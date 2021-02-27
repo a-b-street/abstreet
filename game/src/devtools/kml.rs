@@ -12,7 +12,7 @@ use map_gui::tools::{ChooseSomething, PopupMsg};
 use map_model::BuildingID;
 use widgetry::{
     lctrl, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
+    Outcome, Panel, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -79,7 +79,8 @@ impl ViewKML {
                     )
                     .draw_text(ctx),
                     ctx.style()
-                        .btn_outline_text("load KML file")
+                        .btn_outline
+                        .text("load KML file")
                         .hotkey(lctrl(Key::L))
                         .build_def(ctx),
                     Widget::row(vec![

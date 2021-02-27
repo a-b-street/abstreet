@@ -8,8 +8,8 @@ use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, RoadID,
 };
 use widgetry::{
-    EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel, SimpleState, State,
-    StyledButtons, Text, VerticalAlignment, Widget,
+    EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel, SimpleState, State, Text,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -52,7 +52,8 @@ impl StopSignEditor {
         let panel = Panel::new(Widget::col(vec![
             Line("Stop sign editor").small_heading().draw(ctx),
             ctx.style()
-                .btn_outline_text("reset to default")
+                .btn_outline
+                .text("reset to default")
                 .hotkey(Key::R)
                 .disabled(
                     &ControlStopSign::new(&app.primary.map, id)
@@ -60,11 +61,13 @@ impl StopSignEditor {
                 )
                 .build_def(ctx),
             ctx.style()
-                .btn_outline_text("close intersection for construction")
+                .btn_outline
+                .text("close intersection for construction")
                 .hotkey(Key::C)
                 .build_def(ctx),
             ctx.style()
-                .btn_outline_text("convert to traffic signal")
+                .btn_outline
+                .text("convert to traffic signal")
                 .build_def(ctx),
             ctx.style()
                 .btn_solid_primary

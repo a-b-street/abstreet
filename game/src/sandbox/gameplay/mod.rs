@@ -10,8 +10,7 @@ use geom::Duration;
 use map_model::{EditCmd, EditIntersection, MapEdits};
 use sim::{OrigPersonID, Scenario, ScenarioGenerator, ScenarioModifier};
 use widgetry::{
-    lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, StyledButtons,
-    TextExt, Widget,
+    lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, TextExt, Widget,
 };
 
 pub use self::freeform::spawn_agents_around;
@@ -230,12 +229,14 @@ fn challenge_header(ctx: &mut EventCtx, title: &str) -> Widget {
     Widget::row(vec![
         Line(title).small_heading().draw(ctx).centered_vert(),
         ctx.style()
-            .btn_plain_icon("system/assets/tools/info.svg")
+            .btn_plain
+            .icon("system/assets/tools/info.svg")
             .build_widget(ctx, "instructions")
             .centered_vert(),
         Widget::vert_separator(ctx, 50.0),
         ctx.style()
-            .btn_outline_icon_text("system/assets/tools/pencil.svg", "Edit map")
+            .btn_outline
+            .icon_text("system/assets/tools/pencil.svg", "Edit map")
             .hotkey(lctrl(Key::E))
             .build_widget(ctx, "edit map")
             .centered_vert(),
@@ -276,9 +277,10 @@ impl FinalScore {
                         msg.draw_text(ctx),
                         // TODO Adjust wording
                         ctx.style()
-                            .btn_outline_text("Keep simulating")
+                            .btn_outline
+                            .text("Keep simulating")
                             .build_def(ctx),
-                        ctx.style().btn_outline_text("Try again").build_def(ctx),
+                        ctx.style().btn_outline.text("Try again").build_def(ctx),
                         if next_mode.is_some() {
                             ctx.style()
                                 .btn_solid_primary
@@ -288,7 +290,8 @@ impl FinalScore {
                             Widget::nothing()
                         },
                         ctx.style()
-                            .btn_outline_text("Back to challenges")
+                            .btn_outline
+                            .text("Back to challenges")
                             .build_def(ctx),
                     ])
                     .outline((10.0, Color::BLACK))

@@ -2,8 +2,8 @@ use geom::{CornerRadii, Distance, Polygon, Pt2D};
 
 use crate::{
     include_labeled_bytes, text, Button, Drawable, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Line,
-    Outcome, OutlineStyle, Prerender, ScreenDims, ScreenPt, ScreenRectangle, Style, StyledButtons,
-    Text, Widget, WidgetImpl, WidgetOutput,
+    Outcome, OutlineStyle, Prerender, ScreenDims, ScreenPt, ScreenRectangle, Style, Text, Widget,
+    WidgetImpl, WidgetOutput,
 };
 
 // TODO MAX_CHAR_WIDTH is a hardcoded nonsense value
@@ -34,7 +34,8 @@ impl Spinner {
     pub fn new(ctx: &EventCtx, (low, high): (isize, isize), mut current: isize) -> Self {
         let button_builder = ctx
             .style()
-            .btn_plain()
+            .btn_plain
+            .btn()
             .padding(EdgeInsets {
                 top: 2.0,
                 bottom: 2.0,

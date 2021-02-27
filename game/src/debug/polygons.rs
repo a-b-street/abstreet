@@ -1,8 +1,8 @@
 use geom::{Polygon, Pt2D, Triangle};
 use map_gui::tools::PopupMsg;
 use widgetry::{
-    EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
-    StyledButtons, Text, TextExt, VerticalAlignment, Widget,
+    EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
+    TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};

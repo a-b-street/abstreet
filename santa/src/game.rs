@@ -6,7 +6,7 @@ use map_gui::tools::{ChooseSomething, ColorLegend, Minimap, MinimapControls};
 use map_model::BuildingID;
 use widgetry::{
     Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Image, Key, Line,
-    Outcome, Panel, State, StyledButtons, Text, TextExt, UpdateType, VerticalAlignment, Widget,
+    Outcome, Panel, State, Text, TextExt, UpdateType, VerticalAlignment, Widget,
 };
 
 use crate::after_level::{RecordPath, Results, Strategize};
@@ -76,7 +76,8 @@ impl Game {
 
         let pause_panel = Panel::new(
             ctx.style()
-                .btn_plain_icon_text("system/assets/speed/pause.svg", "Pause")
+                .btn_plain
+                .icon_text("system/assets/speed/pause.svg", "Pause")
                 .hotkey(Key::Escape)
                 .build_widget(ctx, "pause")
                 .container(),

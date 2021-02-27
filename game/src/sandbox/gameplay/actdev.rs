@@ -5,7 +5,7 @@ use map_gui::tools::{grey_out_map, nice_map_name, open_browser, PopupMsg};
 use sim::{AgentType, PersonID, TripID};
 use widgetry::{
     lctrl, ControlState, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    SimpleState, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
+    SimpleState, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -82,7 +82,7 @@ impl GameplayState for Actdev {
                         .draw(ctx),
                         "This is a simplified version. Check out the full version below."
                             .draw_text(ctx),
-                        ctx.style().btn_outline_text("abstreet.org").build_def(ctx),
+                        ctx.style().btn_outline.text("abstreet.org").build_def(ctx),
                     ]))
                     .build(ctx);
                     Some(Transition::Push(SimpleState::new(panel, Box::new(About))))
@@ -134,7 +134,8 @@ impl GameplayState for Actdev {
         let col = Widget::col(vec![
             Widget::row(vec![
                 ctx.style()
-                    .btn_plain()
+                    .btn_plain
+                    .btn()
                     .image_path("system/assets/pregame/logo.svg")
                     .image_dims(50.0)
                     .build_widget(ctx, "about A/B Street")
@@ -161,20 +162,24 @@ impl GameplayState for Actdev {
                     )
                     .build_widget(ctx, "change scenario"),
                 ctx.style()
-                    .btn_outline_icon_text("system/assets/tools/pencil.svg", "Edit map")
+                    .btn_outline
+                    .icon_text("system/assets/tools/pencil.svg", "Edit map")
                     .hotkey(lctrl(Key::E))
                     .build_def(ctx),
             ])
             .centered(),
             Widget::row(vec![
                 ctx.style()
-                    .btn_plain_icon_text("system/assets/tools/location.svg", "Follow someone")
+                    .btn_plain
+                    .icon_text("system/assets/tools/location.svg", "Follow someone")
                     .build_def(ctx),
                 ctx.style()
-                    .btn_plain_icon_text("system/assets/meters/bike.svg", "Cycling activity")
+                    .btn_plain
+                    .icon_text("system/assets/meters/bike.svg", "Cycling activity")
                     .build_def(ctx),
                 ctx.style()
-                    .btn_plain_icon_text("system/assets/meters/pedestrian.svg", "Walking activity")
+                    .btn_plain
+                    .icon_text("system/assets/meters/pedestrian.svg", "Walking activity")
                     .build_def(ctx),
             ]),
         ]);

@@ -3,8 +3,8 @@ use map_gui::tools::{ColorLegend, ColorNetwork};
 use map_gui::ID;
 use map_model::{IntersectionID, PathStep, RoadID, Traversable};
 use widgetry::{
-    Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, State,
-    StyledButtons, Text, VerticalAlignment, Widget,
+    Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, State, Text,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::App;

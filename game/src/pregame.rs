@@ -12,7 +12,7 @@ use map_model::PermanentMapEdits;
 use sim::{AlertHandler, ScenarioGenerator, Sim, SimOptions};
 use widgetry::{
     hotkeys, Color, ContentMode, DrawBaselayer, EdgeInsets, EventCtx, Font, GfxCtx, Image, Key,
-    Line, Outcome, Panel, ScreenDims, State, StyledButtons, Text, UpdateType, Widget,
+    Line, Outcome, Panel, ScreenDims, State, Text, UpdateType, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -156,7 +156,8 @@ impl MainMenu {
             .centered(),
             Widget::row(vec![
                 ctx.style()
-                    .btn_outline_text("Community Proposals")
+                    .btn_outline
+                    .text("Community Proposals")
                     .tooltip({
                         let mut txt = Text::tooltip(ctx, Key::P, "Community Proposals");
                         txt.add(Line("See existing ideas for improving traffic").small());
@@ -165,15 +166,16 @@ impl MainMenu {
                     .hotkey(Key::P)
                     .build_widget(ctx, "Community Proposals"),
                 ctx.style()
-                    .btn_outline_text("Internal Dev Tools")
+                    .btn_outline
+                    .text("Internal Dev Tools")
                     .hotkey(Key::D)
                     .build_widget(ctx, "Internal Dev Tools"),
             ])
             .centered(),
             Widget::col(vec![
                 Widget::row(vec![
-                    ctx.style().btn_outline_text("About").build_def(ctx),
-                    ctx.style().btn_outline_text("Feedback").build_def(ctx),
+                    ctx.style().btn_outline.text("About").build_def(ctx),
+                    ctx.style().btn_outline.text("Feedback").build_def(ctx),
                 ]),
                 built_info::time().draw(ctx),
             ])
@@ -288,7 +290,8 @@ impl About {
                 .padding(16)
             },
             ctx.style()
-                .btn_outline_text("See full credits")
+                .btn_outline
+                .text("See full credits")
                 .build_def(ctx)
                 .centered_horiz(),
         ];
@@ -362,7 +365,8 @@ impl Proposals {
                 if edits.proposal_link.is_some() {
                     current_tab.push(
                         ctx.style()
-                            .btn_plain()
+                            .btn_plain
+                            .btn()
                             .label_underlined_text("Read detailed write-up")
                             .build_def(ctx)
                             .margin_below(10),

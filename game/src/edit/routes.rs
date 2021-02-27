@@ -1,8 +1,8 @@
 use geom::{Duration, Time};
 use map_model::{BusRouteID, EditCmd};
 use widgetry::{
-    EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Spinner, State,
-    StyledButtons, TextExt, VerticalAlignment, Widget,
+    EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Spinner, State, TextExt,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::App;

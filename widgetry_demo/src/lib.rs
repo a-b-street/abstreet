@@ -7,8 +7,7 @@ use geom::{Angle, Duration, Percent, Polygon, Pt2D, Time};
 use widgetry::{
     lctrl, Choice, Color, Drawable, EventCtx, Fill, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, LinePlot, Outcome, Panel, PersistentSplit, PlotOptions, Series, SharedAppState, State,
-    StyledButtons, Text, TextExt, Texture, Toggle, Transition, UpdateType, VerticalAlignment,
-    Widget,
+    Text, TextExt, Texture, Toggle, Transition, UpdateType, VerticalAlignment, Widget,
 };
 
 pub fn main() {
@@ -303,7 +302,7 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
 }
 
 fn make_controls(ctx: &mut EventCtx) -> Panel {
-    let btn = ctx.style();
+    let style = ctx.style();
     Panel::new(Widget::col(vec![
         Text::from_multiline(vec![
             Line("widgetry demo").big_heading_styled(),
@@ -322,36 +321,49 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
         // TODO might be nice to have this in separate tabs or something.
         Text::from(Line("Buttons").big_heading_styled().size(18)).draw(ctx),
         Widget::row(vec![Widget::col(vec![
-            btn.btn_solid_primary
+            style
+                .btn_solid_primary
                 .text("Primary")
                 .build_widget(ctx, "btn_primary_text"),
             Widget::row(vec![
-                btn.btn_plain_primary
+                style
+                    .btn_solid_primary
                     .icon("system/assets/tools/map.svg")
                     .build_widget(ctx, "btn_primary_icon_1"),
-                btn.btn_plain_primary
+                style
+                    .btn_plain_primary
                     .icon("system/assets/tools/map.svg")
                     .build_widget(ctx, "btn_primary_icon_2"),
             ]),
-            btn.btn_solid_primary
+            style
+                .btn_solid_primary
                 .icon_text("system/assets/tools/location.svg", "Primary")
                 .build_widget(ctx, "btn_primary_icon_text"),
-            btn.btn_outline_text("Secondary")
+            style
+                .btn_outline
+                .text("Secondary")
                 .build_widget(ctx, "btn_outline_dark_text"),
             Widget::row(vec![
-                btn.btn_outline_icon("system/assets/tools/map.svg")
+                style
+                    .btn_outline
+                    .icon("system/assets/tools/map.svg")
                     .build_widget(ctx, "btn_outline_dark_icon_1"),
-                btn.btn_plain_icon("system/assets/tools/map.svg")
+                style
+                    .btn_plain
+                    .icon("system/assets/tools/map.svg")
                     .build_widget(ctx, "btn_outline_dark_icon_2"),
             ]),
-            btn.btn_outline_icon_text("system/assets/tools/home.svg", "Secondary")
-                .build_widget(ctx, "btn_outline_icon_text"),
+            style
+                .btn_outline
+                .icon_text("system/assets/tools/home.svg", "Secondary")
+                .build_widget(ctx, "btn_outline.icon_text"),
         ])]),
         Text::from(Line("Spinner").big_heading_styled().size(18)).draw(ctx),
         widgetry::Spinner::widget(ctx, (0, 11), 1),
         Widget::row(vec![
             ctx.style()
-                .btn_outline_text("New faces")
+                .btn_outline
+                .text("New faces")
                 .hotkey(Key::F)
                 .build_widget(ctx, "generate new faces"),
             Toggle::switch(ctx, "Draw scrollable canvas", None, true),
@@ -387,7 +399,8 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 ],
             ),
             ctx.style()
-                .btn_outline_text("Reset Timer")
+                .btn_outline
+                .text("Reset Timer")
                 .build_widget(ctx, "reset the stopwatch"),
         ])
         .evenly_spaced(),
@@ -448,20 +461,24 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 Widget::col(
                     (0..row_height)
                         .map(|_| {
-                            btn.btn_outline_icon("system/assets/tools/layers.svg")
+                            style
+                                .btn_outline
+                                .icon("system/assets/tools/layers.svg")
                                 .build_widget(ctx, &next_id())
                         })
                         .collect::<Vec<_>>(),
                 ),
                 Widget::col(
                     (0..row_height)
-                        .map(|_| btn.btn_outline.text("text").build_widget(ctx, &next_id()))
+                        .map(|_| style.btn_outline.text("text").build_widget(ctx, &next_id()))
                         .collect::<Vec<_>>(),
                 ),
                 Widget::col(
                     (0..row_height)
                         .map(|_| {
-                            btn.btn_outline_icon_text("system/assets/tools/layers.svg", "icon+text")
+                            style
+                                .btn_outline
+                                .icon_text("system/assets/tools/layers.svg", "icon+text")
                                 .build_widget(ctx, &next_id())
                         })
                         .collect::<Vec<_>>(),
@@ -469,14 +486,20 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 Widget::col(
                     (0..row_height)
                         .map(|_| {
-                            btn.btn_popup_icon_text("system/assets/tools/layers.svg", "icon+text")
+                            style
+                                .btn_popup_icon_text("system/assets/tools/layers.svg", "icon+text")
                                 .build_widget(ctx, &next_id())
                         })
                         .collect::<Vec<_>>(),
                 ),
                 Widget::col(
                     (0..row_height)
-                        .map(|_| btn.btn_outline_popup("popup").build_widget(ctx, &next_id()))
+                        .map(|_| {
+                            style
+                                .btn_outline
+                                .popup("popup")
+                                .build_widget(ctx, &next_id())
+                        })
                         .collect::<Vec<_>>(),
                 ),
                 Widget::col(

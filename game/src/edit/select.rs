@@ -2,9 +2,7 @@ use std::collections::BTreeSet;
 
 use map_gui::ID;
 use map_model::{IntersectionID, RoadID};
-use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, RewriteColor, StyledButtons, Widget,
-};
+use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, RewriteColor, Widget};
 
 use crate::app::App;
 use crate::common::{intersections_from_roads, CommonState};
@@ -51,22 +49,26 @@ impl RoadSelector {
     pub fn make_controls(&self, ctx: &mut EventCtx) -> Widget {
         Widget::custom_row(vec![
             ctx.style()
-                .btn_plain_icon("system/assets/tools/pencil.svg")
+                .btn_plain
+                .icon("system/assets/tools/pencil.svg")
                 .disabled(matches!(self.mode, Mode::Paint))
                 .hotkey(Key::P)
                 .build_widget(ctx, "paint"),
             ctx.style()
-                .btn_plain_icon("system/assets/tools/eraser.svg")
+                .btn_plain
+                .icon("system/assets/tools/eraser.svg")
                 .hotkey(Key::Backspace)
                 .disabled(matches!(self.mode, Mode::Erase))
                 .build_widget(ctx, "erase"),
             ctx.style()
-                .btn_plain_icon("system/assets/timeline/start_pos.svg")
+                .btn_plain
+                .icon("system/assets/timeline/start_pos.svg")
                 .hotkey(Key::R)
                 .disabled(matches!(self.mode, Mode::Route { .. }))
                 .build_widget(ctx, "select along route"),
             ctx.style()
-                .btn_plain_icon("system/assets/tools/pan.svg")
+                .btn_plain
+                .icon("system/assets/tools/pan.svg")
                 .hotkey(Key::Escape)
                 .disabled(matches!(self.mode, Mode::Pan))
                 .build_widget(ctx, "pan"),

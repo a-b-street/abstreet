@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use abstutil::prettyprint_usize;
 use map_model::ParkingLotID;
-use widgetry::{EventCtx, Line, LinePlot, PlotOptions, Series, StyledButtons, TextExt, Widget};
+use widgetry::{EventCtx, Line, LinePlot, PlotOptions, Series, TextExt, Widget};
 
 use crate::app::App;
 use crate::info::{header_btns, make_tabs, Details, Tab};
@@ -63,7 +63,8 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: ParkingLot
     if app.opts.dev {
         rows.push(
             ctx.style()
-                .btn_outline_text("Open OSM")
+                .btn_outline
+                .text("Open OSM")
                 .build_widget(ctx, &format!("open {}", pl.osm_id)),
         );
     }

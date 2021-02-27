@@ -4,7 +4,7 @@ use map_gui::tools::ColorNetwork;
 use map_gui::ID;
 use map_model::{BusRoute, BusRouteID, BusStopID, PathStep};
 use sim::{AgentID, CarID};
-use widgetry::{Color, EventCtx, Key, Line, StyledButtons, Text, TextExt, Widget};
+use widgetry::{Color, EventCtx, Key, Line, Text, TextExt, Widget};
 
 use crate::app::App;
 use crate::info::{header_btns, make_tabs, Details, Tab};
@@ -27,7 +27,8 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
         let label = format!("{} ({})", r.full_name, r.id);
         rows.push(
             ctx.style()
-                .btn_outline_text(&format!("Route {}", r.short_name))
+                .btn_outline
+                .text(&format!("Route {}", r.short_name))
                 .build_widget(ctx, &label),
         );
         details.hyperlinks.insert(label, Tab::BusRoute(r.id));
@@ -107,7 +108,8 @@ pub fn bus_status(ctx: &mut EventCtx, app: &App, details: &mut Details, id: CarI
 
     rows.push(
         ctx.style()
-            .btn_outline_text(&format!("Serves route {}", route.short_name))
+            .btn_outline
+            .text(&format!("Serves route {}", route.short_name))
             .build_def(ctx),
     );
     details.hyperlinks.insert(
@@ -184,7 +186,8 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
     if app.opts.dev {
         rows.push(
             ctx.style()
-                .btn_outline_text("Open OSM relation")
+                .btn_outline
+                .text("Open OSM relation")
                 .build_widget(ctx, &format!("open {}", route.osm_rel_id)),
         );
     }
@@ -197,7 +200,8 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
         for (bus, _, _, pt) in buses {
             rows.push(
                 ctx.style()
-                    .btn_outline_text(&bus.to_string())
+                    .btn_outline
+                    .text(&bus.to_string())
                     .build_def(ctx),
             );
             details
@@ -253,7 +257,8 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
         let name = format!("Starts at {}", i.name(app.opts.language.as_ref(), map));
         rows.push(Widget::row(vec![
             ctx.style()
-                .btn_plain_icon("system/assets/timeline/goal_pos.svg")
+                .btn_plain
+                .icon("system/assets/timeline/goal_pos.svg")
                 .build_widget(ctx, &name),
             name.clone().draw_text(ctx),
         ]));
@@ -264,7 +269,8 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
         let name = format!("Stop {}: {}", idx + 1, bs.name);
         rows.push(Widget::row(vec![
             ctx.style()
-                .btn_plain_icon("system/assets/tools/pin.svg")
+                .btn_plain
+                .icon("system/assets/tools/pin.svg")
                 .build_widget(ctx, &name),
             Text::from_all(vec![
                 Line(&bs.name),
@@ -285,7 +291,8 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
         let name = format!("Ends at {}", i.name(app.opts.language.as_ref(), map));
         rows.push(Widget::row(vec![
             ctx.style()
-                .btn_plain_icon("system/assets/timeline/goal_pos.svg")
+                .btn_plain
+                .icon("system/assets/timeline/goal_pos.svg")
                 .build_widget(ctx, &name),
             name.clone().draw_text(ctx),
         ]));
@@ -296,7 +303,8 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
     {
         rows.push(
             ctx.style()
-                .btn_outline_text("Edit schedule")
+                .btn_outline
+                .text("Edit schedule")
                 .hotkey(Key::E)
                 .build_widget(ctx, &format!("edit {}", route.id)),
         );

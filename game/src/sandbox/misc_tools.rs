@@ -6,7 +6,7 @@ use map_model::IntersectionID;
 use sim::AgentID;
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    State, StyledButtons, VerticalAlignment, Widget,
+    State, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};

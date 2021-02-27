@@ -2,8 +2,7 @@ use geom::{ArrowCap, Distance};
 use map_model::raw::OriginalRoad;
 use widgetry::{
     Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Panel, SimpleState, Spinner, State, StyledButtons, Text, TextExt, Transition,
-    VerticalAlignment, Widget,
+    Line, Panel, SimpleState, Spinner, State, Text, TextExt, Transition, VerticalAlignment, Widget,
 };
 
 use crate::App;
