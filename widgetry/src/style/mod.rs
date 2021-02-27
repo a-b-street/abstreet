@@ -16,12 +16,13 @@ pub struct Style {
     pub section_bg: Color,
     pub section_outline: OutlineStyle,
     pub btn_tab: ButtonStyle,
+    pub btn_plain: ButtonStyle,
     pub btn_outline: ButtonStyle,
     pub btn_floating: ButtonStyle,
     pub btn_solid_destructive: ButtonStyle,
-    pub btn_outline_destructive: ButtonStyle,
+    pub btn_plain_destructive: ButtonStyle,
     pub btn_solid_primary: ButtonStyle,
-    pub btn_outline_primary: ButtonStyle,
+    pub btn_plain_primary: ButtonStyle,
 }
 
 pub type OutlineStyle = (f64, Color);
@@ -61,6 +62,17 @@ impl ButtonStyle {
         }
     }
 
+    pub fn plain_dark_fg() -> Self {
+        ButtonStyle {
+            fg: hex("#4C4C4C"),
+            fg_disabled: hex("#4C4C4C").alpha(0.3),
+            bg: Color::CLEAR,
+            bg_hover: hex("#4C4C4C").alpha(0.1),
+            bg_disabled: Color::CLEAR,
+            outline: (0.0, Color::CLEAR),
+        }
+    }
+
     pub fn solid_light_fg() -> Self {
         ButtonStyle {
             fg: hex("#F2F2F2"),
@@ -82,6 +94,61 @@ impl ButtonStyle {
             outline: (DEFAULT_OUTLINE_THICKNESS, hex("#F2F2F2")),
         }
     }
+
+    pub fn plain_light_fg() -> Self {
+        ButtonStyle {
+            fg: hex("#F2F2F2"),
+            fg_disabled: hex("#F2F2F2").alpha(0.3),
+            bg: Color::CLEAR,
+            bg_hover: hex("#F2F2F2").alpha(0.1),
+            bg_disabled: Color::CLEAR,
+            outline: (0.0, Color::CLEAR),
+        }
+    }
+
+    pub fn solid_primary() -> Self {
+        Self {
+            fg: hex("#F2F2F2"),
+            fg_disabled: hex("#F2F2F2").alpha(0.3),
+            bg: hex("#EE702E").alpha(0.8),
+            bg_hover: hex("#EE702E"),
+            bg_disabled: hex("#EE702E").alpha(0.3),
+            outline: (DEFAULT_OUTLINE_THICKNESS, hex("#EE702E").alpha(0.6)),
+        }
+    }
+
+    pub fn plain_primary() -> Self {
+        Self {
+            fg: hex("#EE702E"),
+            fg_disabled: hex("#EE702E").alpha(0.3),
+            bg: Color::CLEAR,
+            bg_hover: hex("#EE702E").alpha(0.1),
+            bg_disabled: Color::CLEAR,
+            outline: (0.0, Color::CLEAR),
+        }
+    }
+
+    fn solid_destructive() -> Self {
+        Self {
+            fg: hex("#F2F2F2"),
+            fg_disabled: hex("#F2F2F2").alpha(0.3),
+            bg: hex("#FF5E5E").alpha(0.8),
+            bg_hover: hex("#FF5E5E"),
+            bg_disabled: Color::grey(0.1),
+            outline: (DEFAULT_OUTLINE_THICKNESS, hex("#FF5E5E").alpha(0.6)),
+        }
+    }
+
+    fn plain_destructive() -> ButtonStyle {
+        Self {
+            fg: hex("#FF5E5E"),
+            fg_disabled: hex("#FF5E5E").alpha(0.3),
+            bg: Color::CLEAR,
+            bg_hover: hex("#FF5E5E").alpha(0.1),
+            bg_disabled: Color::grey(0.1),
+            outline: (0.0, Color::CLEAR),
+        }
+    }
 }
 
 impl Style {
@@ -100,6 +167,7 @@ impl Style {
             text_tooltip_color: Color::WHITE,
             text_destructive_color: hex("#FF5E5E"),
             btn_outline: ButtonStyle::outline_dark_fg(),
+            btn_plain: ButtonStyle::plain_dark_fg(),
             btn_tab: ButtonStyle {
                 fg: Color::WHITE,
                 fg_disabled: Color::WHITE.alpha(0.3),
@@ -109,38 +177,10 @@ impl Style {
                 outline: (DEFAULT_OUTLINE_THICKNESS, hex("#4C4C4C").alpha(0.6)),
             },
             btn_floating: ButtonStyle::solid_dark_fg(),
-            btn_solid_destructive: ButtonStyle {
-                fg: hex("#F2F2F2"),
-                fg_disabled: hex("#F2F2F2").alpha(0.3),
-                bg: hex("#FF5E5E").alpha(0.8),
-                bg_hover: hex("#FF5E5E"),
-                bg_disabled: Color::grey(0.1),
-                outline: (DEFAULT_OUTLINE_THICKNESS, hex("#FF5E5E").alpha(0.6)),
-            },
-            btn_outline_destructive: ButtonStyle {
-                fg: hex("#FF5E5E"),
-                fg_disabled: hex("#FF5E5E").alpha(0.3),
-                bg: Color::CLEAR,
-                bg_hover: hex("#FF5E5E").alpha(0.1),
-                bg_disabled: Color::CLEAR,
-                outline: (DEFAULT_OUTLINE_THICKNESS, hex("#FF5E5E")),
-            },
-            btn_solid_primary: ButtonStyle {
-                fg: hex("#F2F2F2"),
-                fg_disabled: hex("#F2F2F2").alpha(0.3),
-                bg: hex("#EE702E").alpha(0.8),
-                bg_hover: hex("#EE702E"),
-                bg_disabled: hex("#EE702E").alpha(0.3),
-                outline: (DEFAULT_OUTLINE_THICKNESS, hex("#EE702E").alpha(0.6)),
-            },
-            btn_outline_primary: ButtonStyle {
-                fg: hex("#EE702E"),
-                fg_disabled: hex("#EE702E").alpha(0.3),
-                bg: Color::CLEAR,
-                bg_hover: hex("#EE702E").alpha(0.1),
-                bg_disabled: Color::CLEAR,
-                outline: (DEFAULT_OUTLINE_THICKNESS, hex("#EE702E")),
-            },
+            btn_solid_destructive: ButtonStyle::solid_destructive(),
+            btn_plain_destructive: ButtonStyle::plain_destructive(),
+            btn_solid_primary: ButtonStyle::solid_primary(),
+            btn_plain_primary: ButtonStyle::plain_primary(),
         }
     }
 
@@ -157,41 +197,14 @@ impl Style {
             text_hotkey_color: Color::GREEN,
             text_tooltip_color: Color::WHITE,
             text_destructive_color: hex("#EB3223"),
-            btn_outline: ButtonStyle::outline_light_fg(),
             btn_tab: ButtonStyle::solid_dark_fg(),
+            btn_outline: ButtonStyle::outline_light_fg(),
+            btn_plain: ButtonStyle::plain_light_fg(),
             btn_floating: ButtonStyle::solid_light_fg(),
-            btn_solid_destructive: ButtonStyle {
-                fg: hex("#F2F2F2"),
-                fg_disabled: hex("#F2F2F2").alpha(0.3),
-                bg: hex("#FF5E5E").alpha(0.8),
-                bg_hover: hex("#FF5E5E"),
-                bg_disabled: Color::grey(0.1),
-                outline: (DEFAULT_OUTLINE_THICKNESS, hex("#FF5E5E").alpha(0.6)),
-            },
-            btn_outline_destructive: ButtonStyle {
-                fg: hex("#FF5E5E"),
-                fg_disabled: hex("#FF5E5E").alpha(0.3),
-                bg: Color::CLEAR,
-                bg_hover: hex("#FF5E5E").alpha(0.1),
-                bg_disabled: Color::grey(0.1),
-                outline: (DEFAULT_OUTLINE_THICKNESS, hex("#FF5E5E")),
-            },
-            btn_solid_primary: ButtonStyle {
-                fg: hex("#F2F2F2"),
-                fg_disabled: hex("#F2F2F2").alpha(0.3),
-                bg: hex("#EE702E").alpha(0.8),
-                bg_hover: hex("#EE702E"),
-                bg_disabled: hex("#EE702E").alpha(0.3),
-                outline: (DEFAULT_OUTLINE_THICKNESS, hex("#EE702E").alpha(0.6)),
-            },
-            btn_outline_primary: ButtonStyle {
-                fg: hex("#EE702E"),
-                fg_disabled: hex("#EE702E").alpha(0.3),
-                bg: Color::CLEAR,
-                bg_hover: hex("#EE702E").alpha(0.1),
-                bg_disabled: Color::grey(0.1),
-                outline: (DEFAULT_OUTLINE_THICKNESS, hex("#EE702E")),
-            },
+            btn_solid_destructive: ButtonStyle::solid_destructive(),
+            btn_plain_destructive: ButtonStyle::plain_destructive(),
+            btn_solid_primary: ButtonStyle::solid_primary(),
+            btn_plain_primary: ButtonStyle::plain_primary(),
         }
     }
 
@@ -203,6 +216,7 @@ impl Style {
         style.section_bg = navy;
         style.field_bg = navy.shade(0.2);
         style.btn_outline = ButtonStyle::outline_light_fg();
+        style.btn_plain = ButtonStyle::plain_light_fg();
         style.btn_tab = ButtonStyle::solid_dark_fg();
         style.btn_floating = ButtonStyle::solid_light_fg();
         style.text_fg_color = Color::WHITE;

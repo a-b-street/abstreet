@@ -108,12 +108,12 @@ impl Inner {
             Toggle::new(
                 play_music,
                 ctx.style()
-                    .btn_outline
-                    .plain_icon("system/assets/tools/volume_off.svg")
+                    .btn_plain
+                    .icon("system/assets/tools/volume_off.svg")
                     .build(ctx, "play music"),
                 ctx.style()
-                    .btn_outline
-                    .plain_icon("system/assets/tools/volume_on.svg")
+                    .btn_plain
+                    .icon("system/assets/tools/volume_on.svg")
                     .build(ctx, "mute music"),
             )
             .named("play music")
