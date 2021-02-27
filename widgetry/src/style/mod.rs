@@ -92,7 +92,7 @@ impl Style {
             field_bg: hex("#F2F2F2"),
             dropdown_border: hex("#4C4C4C"),
             outline_thickness: 2.0,
-            outline_color: Color::WHITE,
+            outline_color: hex("#4C4C4C"),
             loading_tips: Text::new(),
             icon_fg: hex("#4C4C4C"),
             text_fg_color: hex("#4C4C4C"),
@@ -206,6 +206,7 @@ impl Style {
 
     pub fn dark_bg() -> Style {
         let mut style = Self::light_bg();
+        style.outline_color = Color::WHITE;
         style.panel_bg = hex("#003046").alpha(0.9);
         style.field_bg = style.panel_bg.shade(0.2);
         style.btn_outline = ButtonStyle::outline_light_fg();
