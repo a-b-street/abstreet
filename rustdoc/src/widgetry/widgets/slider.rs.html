@@ -274,12 +274,45 @@
 <span id="271">271</span>
 <span id="272">272</span>
 <span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Widget</span>,
-    <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
+    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>,
+    <span class="ident">ScreenRectangle</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Slider</span> {
@@ -301,7 +334,34 @@
     <span class="ident">Area</span> { <span class="ident">width</span>: <span class="ident">f64</span> },
 }
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">BG_CROSS_AXIS_LEN</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">20.0</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SCROLLBAR_BG_WIDTH</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">4.0</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">AREA_SLIDER_BG_WIDTH</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">10.0</span>;
+
+<span class="kw">impl</span> <span class="ident">Style</span> {
+    <span class="kw">fn</span> <span class="ident">padding</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">EdgeInsets</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">Style</span>::<span class="ident">Horizontal</span> { .. } <span class="op">|</span> <span class="ident">Style</span>::<span class="ident">Vertical</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">EdgeInsets</span>::<span class="ident">zero</span>(),
+            <span class="ident">Style</span>::<span class="ident">Area</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">EdgeInsets</span> {
+                <span class="ident">top</span>: <span class="number">10.0</span>,
+                <span class="ident">bottom</span>: <span class="number">10.0</span>,
+                <span class="ident">left</span>: <span class="number">20.0</span>,
+                <span class="ident">right</span>: <span class="number">20.0</span>,
+            },
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">inner_dims</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ScreenDims</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">Style</span>::<span class="ident">Horizontal</span> { <span class="ident">main_bg_len</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="kw-2">*</span><span class="ident">main_bg_len</span>, <span class="ident">SCROLLBAR_BG_WIDTH</span>)
+            }
+            <span class="ident">Style</span>::<span class="ident">Vertical</span> { <span class="ident">main_bg_len</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="ident">SCROLLBAR_BG_WIDTH</span>, <span class="kw-2">*</span><span class="ident">main_bg_len</span>)
+            }
+            <span class="ident">Style</span>::<span class="ident">Area</span> { <span class="ident">width</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="kw-2">*</span><span class="ident">width</span>, <span class="ident">AREA_SLIDER_BG_WIDTH</span>),
+        }
+    }
+}
 
 <span class="kw">impl</span> <span class="ident">Slider</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">horizontal</span>(
@@ -340,9 +400,7 @@
             <span class="ident">current_percent</span>,
             <span class="ident">mouse_on_slider</span>: <span class="bool-val">false</span>,
             <span class="ident">dragging</span>: <span class="bool-val">false</span>,
-
             <span class="ident">style</span>,
-
             <span class="ident">draw</span>: <span class="ident">Drawable</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>),
 
             <span class="ident">top_left</span>: <span class="ident">ScreenPt</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
@@ -357,95 +415,97 @@
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">style</span> {
             <span class="ident">Style</span>::<span class="ident">Horizontal</span> { .. } <span class="op">|</span> <span class="ident">Style</span>::<span class="ident">Vertical</span> { .. } <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="comment">// Full dims</span>
-                <span class="self">self</span>.<span class="ident">dims</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">style</span> {
-                    <span class="ident">Style</span>::<span class="ident">Horizontal</span> { <span class="ident">main_bg_len</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="ident">main_bg_len</span>, <span class="ident">BG_CROSS_AXIS_LEN</span>)
-                    }
-                    <span class="ident">Style</span>::<span class="ident">Vertical</span> { <span class="ident">main_bg_len</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="ident">BG_CROSS_AXIS_LEN</span>, <span class="ident">main_bg_len</span>)
-                    }
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-                };
-
+                <span class="kw">let</span> <span class="ident">inner_dims</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">style</span>.<span class="ident">inner_dims</span>();
                 <span class="comment">// The background</span>
                 <span class="ident">batch</span>.<span class="ident">push</span>(
-                    <span class="ident">Color</span>::<span class="ident">WHITE</span>,
-                    <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">width</span>, <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span>),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">field_bg</span>,
+                    <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="ident">inner_dims</span>.<span class="ident">width</span>, <span class="ident">inner_dims</span>.<span class="ident">height</span>),
                 );
 
                 <span class="comment">// The draggy thing</span>
                 <span class="ident">batch</span>.<span class="ident">push</span>(
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">mouse_on_slider</span> {
-                        <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.7</span>).<span class="ident">alpha</span>(<span class="number">0.7</span>)
+                        <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">btn_solid</span>.<span class="ident">bg_hover</span>
                     } <span class="kw">else</span> {
-                        <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.7</span>)
+                        <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">btn_solid</span>.<span class="ident">bg</span>
                     },
-                    <span class="self">self</span>.<span class="ident">slider_geom</span>(),
+                    <span class="self">self</span>.<span class="ident">button_geom</span>(),
                 );
             }
-            <span class="ident">Style</span>::<span class="ident">Area</span> { <span class="ident">width</span> } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Style</span>::<span class="ident">Area</span> { .. } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// Full dims</span>
-                <span class="self">self</span>.<span class="ident">dims</span> <span class="op">=</span> <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="ident">width</span>, <span class="ident">BG_CROSS_AXIS_LEN</span>);
-
+                <span class="kw">let</span> <span class="ident">inner_dims</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">style</span>.<span class="ident">inner_dims</span>();
                 <span class="comment">// The background</span>
                 <span class="ident">batch</span>.<span class="ident">push</span>(
-                    <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>),
-                    <span class="ident">Polygon</span>::<span class="ident">pill</span>(<span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">width</span>, <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span>),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">field_bg</span>.<span class="ident">dull</span>(<span class="number">0.5</span>),
+                    <span class="ident">Polygon</span>::<span class="ident">pill</span>(<span class="ident">inner_dims</span>.<span class="ident">width</span>, <span class="ident">inner_dims</span>.<span class="ident">height</span>),
                 );
+
                 <span class="comment">// So far</span>
                 <span class="ident">batch</span>.<span class="ident">push</span>(
                     <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#F4DF4D&quot;</span>),
-                    <span class="ident">Polygon</span>::<span class="ident">pill</span>(<span class="self">self</span>.<span class="ident">current_percent</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">width</span>, <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span>),
+                    <span class="ident">Polygon</span>::<span class="ident">pill</span>(<span class="self">self</span>.<span class="ident">current_percent</span> <span class="op">*</span> <span class="ident">inner_dims</span>.<span class="ident">width</span>, <span class="ident">inner_dims</span>.<span class="ident">height</span>),
                 );
 
                 <span class="comment">// The circle dragger</span>
                 <span class="ident">batch</span>.<span class="ident">push</span>(
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">mouse_on_slider</span> {
-                        <span class="ident">Color</span>::<span class="ident">WHITE</span>.<span class="ident">alpha</span>(<span class="number">0.7</span>)
+                        <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">btn_solid</span>.<span class="ident">bg_hover</span>
                     } <span class="kw">else</span> {
-                        <span class="ident">Color</span>::<span class="ident">WHITE</span>
+                        <span class="comment">// we don&#39;t want to use `ctx.style.btn_solid.bg` because it achieves it&#39;s</span>
+                        <span class="comment">// &quot;dulling&quot; with opacity, which causes the slider to &quot;peak through&quot; and</span>
+                        <span class="comment">// looks weird.</span>
+                        <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">btn_solid</span>.<span class="ident">bg_hover</span>.<span class="ident">dull</span>(<span class="number">0.2</span>)
                     },
-                    <span class="self">self</span>.<span class="ident">slider_geom</span>(),
+                    <span class="self">self</span>.<span class="ident">button_geom</span>(),
                 );
             }
         }
 
+        <span class="kw">let</span> <span class="ident">padding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">style</span>.<span class="ident">padding</span>();
+        <span class="ident">batch</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">translate</span>(<span class="ident">padding</span>.<span class="ident">left</span> <span class="kw">as</span> <span class="ident">f64</span>, <span class="ident">padding</span>.<span class="ident">top</span> <span class="kw">as</span> <span class="ident">f64</span>);
+        <span class="self">self</span>.<span class="ident">dims</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">style</span>.<span class="ident">inner_dims</span>().<span class="ident">pad</span>(<span class="ident">padding</span>);
         <span class="self">self</span>.<span class="ident">draw</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
     }
 
     <span class="comment">// Doesn&#39;t touch self.top_left</span>
-    <span class="kw">fn</span> <span class="ident">slider_geom</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
+    <span class="kw">fn</span> <span class="ident">button_geom</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">style</span> {
             <span class="ident">Style</span>::<span class="ident">Horizontal</span> {
                 <span class="ident">main_bg_len</span>,
                 <span class="ident">dragger_len</span>,
-            } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="ident">dragger_len</span>, <span class="ident">BG_CROSS_AXIS_LEN</span>)
+            } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Polygon</span>::<span class="ident">pill</span>(<span class="ident">dragger_len</span>, <span class="ident">SCROLLBAR_BG_WIDTH</span>)
                 .<span class="ident">translate</span>(<span class="self">self</span>.<span class="ident">current_percent</span> <span class="op">*</span> (<span class="ident">main_bg_len</span> <span class="op">-</span> <span class="ident">dragger_len</span>), <span class="number">0.0</span>),
             <span class="ident">Style</span>::<span class="ident">Vertical</span> {
                 <span class="ident">main_bg_len</span>,
                 <span class="ident">dragger_len</span>,
-            } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="ident">BG_CROSS_AXIS_LEN</span>, <span class="ident">dragger_len</span>)
+            } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Polygon</span>::<span class="ident">pill</span>(<span class="ident">SCROLLBAR_BG_WIDTH</span>, <span class="ident">dragger_len</span>)
                 .<span class="ident">translate</span>(<span class="number">0.0</span>, <span class="self">self</span>.<span class="ident">current_percent</span> <span class="op">*</span> (<span class="ident">main_bg_len</span> <span class="op">-</span> <span class="ident">dragger_len</span>)),
             <span class="ident">Style</span>::<span class="ident">Area</span> { <span class="ident">width</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Circle</span>::<span class="ident">new</span>(
-                <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">current_percent</span> <span class="op">*</span> <span class="ident">width</span>, <span class="ident">BG_CROSS_AXIS_LEN</span> <span class="op">/</span> <span class="number">2.0</span>),
-                <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="ident">BG_CROSS_AXIS_LEN</span>),
+                <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">current_percent</span> <span class="op">*</span> <span class="ident">width</span>, <span class="ident">AREA_SLIDER_BG_WIDTH</span> <span class="op">/</span> <span class="number">2.0</span>),
+                <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">16.0</span>),
             )
             .<span class="ident">to_polygon</span>(),
         }
     }
 
     <span class="kw">fn</span> <span class="ident">pt_to_percent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">ScreenPt</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+        <span class="kw">let</span> <span class="ident">padding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">style</span>.<span class="ident">padding</span>();
+        <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">pt</span>.<span class="ident">translated</span>(
+            <span class="op">-</span><span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">x</span> <span class="op">-</span> <span class="ident">padding</span>.<span class="ident">left</span> <span class="kw">as</span> <span class="ident">f64</span>,
+            <span class="op">-</span><span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">y</span> <span class="op">-</span> <span class="ident">padding</span>.<span class="ident">top</span> <span class="kw">as</span> <span class="ident">f64</span>,
+        );
+
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">style</span> {
             <span class="ident">Style</span>::<span class="ident">Horizontal</span> {
                 <span class="ident">main_bg_len</span>,
                 <span class="ident">dragger_len</span>,
-            } <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">pt</span>.<span class="ident">x</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">x</span> <span class="op">-</span> (<span class="ident">dragger_len</span> <span class="op">/</span> <span class="number">2.0</span>)) <span class="op">/</span> (<span class="ident">main_bg_len</span> <span class="op">-</span> <span class="ident">dragger_len</span>),
+            } <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">pt</span>.<span class="ident">x</span> <span class="op">-</span> (<span class="ident">dragger_len</span> <span class="op">/</span> <span class="number">2.0</span>)) <span class="op">/</span> (<span class="ident">main_bg_len</span> <span class="op">-</span> <span class="ident">dragger_len</span>),
             <span class="ident">Style</span>::<span class="ident">Vertical</span> {
                 <span class="ident">main_bg_len</span>,
                 <span class="ident">dragger_len</span>,
-            } <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">pt</span>.<span class="ident">y</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">y</span> <span class="op">-</span> (<span class="ident">dragger_len</span> <span class="op">/</span> <span class="number">2.0</span>)) <span class="op">/</span> (<span class="ident">main_bg_len</span> <span class="op">-</span> <span class="ident">dragger_len</span>),
-            <span class="ident">Style</span>::<span class="ident">Area</span> { <span class="ident">width</span> } <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">pt</span>.<span class="ident">x</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">x</span>) <span class="op">/</span> <span class="ident">width</span>,
+            } <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">pt</span>.<span class="ident">y</span> <span class="op">-</span> (<span class="ident">dragger_len</span> <span class="op">/</span> <span class="number">2.0</span>)) <span class="op">/</span> (<span class="ident">main_bg_len</span> <span class="op">-</span> <span class="ident">dragger_len</span>),
+            <span class="ident">Style</span>::<span class="ident">Area</span> { <span class="ident">width</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">pt</span>.<span class="ident">x</span> <span class="op">/</span> <span class="ident">width</span>,
         }
     }
 
@@ -463,7 +523,7 @@
         <span class="self">self</span>.<span class="ident">recalc</span>(<span class="ident">ctx</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_screen_space</span>() {
             <span class="self">self</span>.<span class="ident">mouse_on_slider</span> <span class="op">=</span> <span class="self">self</span>
-                .<span class="ident">slider_geom</span>()
+                .<span class="ident">button_geom</span>()
                 .<span class="ident">translate</span>(<span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">x</span>, <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">y</span>)
                 .<span class="ident">contains_pt</span>(<span class="ident">pt</span>.<span class="ident">to_pt</span>());
         } <span class="kw">else</span> {
@@ -486,13 +546,16 @@
             }
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
-
+        <span class="kw">let</span> <span class="ident">padding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">style</span>.<span class="ident">padding</span>();
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
             <span class="kw">let</span> <span class="ident">old</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">mouse_on_slider</span>;
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_screen_space</span>() {
                 <span class="self">self</span>.<span class="ident">mouse_on_slider</span> <span class="op">=</span> <span class="self">self</span>
-                    .<span class="ident">slider_geom</span>()
-                    .<span class="ident">translate</span>(<span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">x</span>, <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">y</span>)
+                    .<span class="ident">button_geom</span>()
+                    .<span class="ident">translate</span>(
+                        <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">x</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">left</span> <span class="kw">as</span> <span class="ident">f64</span>,
+                        <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">y</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">top</span> <span class="kw">as</span> <span class="ident">f64</span>,
+                    )
                     .<span class="ident">contains_pt</span>(<span class="ident">pt</span>.<span class="ident">to_pt</span>());
             } <span class="kw">else</span> {
                 <span class="self">self</span>.<span class="ident">mouse_on_slider</span> <span class="op">=</span> <span class="bool-val">false</span>;
@@ -508,7 +571,10 @@
             <span class="comment">// Did we click somewhere else on the bar?</span>
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_screen_space</span>() {
                 <span class="kw">if</span> <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">width</span>, <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span>)
-                    .<span class="ident">translate</span>(<span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">x</span>, <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">y</span>)
+                    .<span class="ident">translate</span>(
+                        <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">x</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">left</span> <span class="kw">as</span> <span class="ident">f64</span>,
+                        <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">y</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">top</span> <span class="kw">as</span> <span class="ident">f64</span>,
+                    )
                     .<span class="ident">contains_pt</span>(<span class="ident">pt</span>.<span class="ident">to_pt</span>())
                 {
                     <span class="self">self</span>.<span class="ident">current_percent</span> <span class="op">=</span> <span class="self">self</span>

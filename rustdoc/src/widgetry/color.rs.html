@@ -237,6 +237,11 @@
 <span id="234">234</span>
 <span id="235">235</span>
 <span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
@@ -387,6 +392,11 @@
     <span class="comment">// Mix the color with white</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tint</span>(<span class="self">self</span>, <span class="ident">white_ratio</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Color</span> {
         <span class="self">self</span>.<span class="ident">lerp</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">white_ratio</span>)
+    }
+
+    <span class="comment">// A theme agnostic way to get a more/less intense color without affecting alpha.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dull</span>(<span class="self">self</span>, <span class="ident">ratio</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Color</span> {
+        <span class="self">self</span>.<span class="ident">lerp</span>(<span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.5</span>), <span class="ident">ratio</span>)
     }
 }
 

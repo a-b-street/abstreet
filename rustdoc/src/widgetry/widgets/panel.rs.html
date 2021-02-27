@@ -680,7 +680,7 @@
         <span class="comment">// TODO Handle making room for a horizontal scrollbar on the bottom. The equivalent change</span>
         <span class="comment">// to container_dims.height doesn&#39;t work as expected.</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scrollable_y</span> {
-            <span class="ident">container_dims</span>.<span class="ident">width</span> <span class="op">+</span><span class="op">=</span> <span class="ident">slider</span>::<span class="ident">BG_CROSS_AXIS_LEN</span>;
+            <span class="ident">container_dims</span>.<span class="ident">width</span> <span class="op">+</span><span class="op">=</span> <span class="ident">slider</span>::<span class="ident">SCROLLBAR_BG_WIDTH</span>;
         }
         <span class="kw">let</span> <span class="ident">top_left</span> <span class="op">=</span> <span class="ident">ctx</span>
             .<span class="ident">canvas</span>
