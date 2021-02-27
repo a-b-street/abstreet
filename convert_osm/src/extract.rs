@@ -447,7 +447,9 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
     if (highway == "footway" || highway == "path" || highway == "steps")
         && opts.map_config.inferred_sidewalks
     {
-        return false;
+        if !tags.is("bicycle", "yes") {
+            return false;
+        }
     }
     // Import most service roads. Always ignore driveways, and always reserve parking_aisles for
     // parking lots.

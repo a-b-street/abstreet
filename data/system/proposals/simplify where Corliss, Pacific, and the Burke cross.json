@@ -1,20 +1,20 @@
 {
   "map_name": {
     "city": {
-	    "country": "us",
-	    "city": "seattle"
+      "country": "us",
+      "city": "seattle"
     },
     "map": "udistrict"
   },
   "edits_name": "simplify where Corliss, Pacific, and the Burke cross",
-  "version": 3,
+  "version": 8,
   "commands": [
     {
       "ChangeRoad": {
         "r": {
           "osm_way_id": 8026175,
-          "i1": 30101211,
-          "i2": 1752970097
+          "i1": 59997807,
+          "i2": 1752970096
         },
         "new": {
           "lanes_ltr": [
@@ -56,8 +56,8 @@
       "ChangeRoad": {
         "r": {
           "osm_way_id": 8111823,
-          "i1": 1752970097,
-          "i2": 53155632
+          "i1": 1752970094,
+          "i2": 5788793501
         },
         "new": {
           "lanes_ltr": [

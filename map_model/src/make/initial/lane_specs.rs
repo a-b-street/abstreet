@@ -45,7 +45,25 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
     if tags.is_any("railway", vec!["light_rail", "rail"]) {
         return vec![fwd(LaneType::LightRail)];
     }
-    if tags.is_any(osm::HIGHWAY, vec!["cycleway", "track"]) {
+    if tags.is(osm::HIGHWAY, "steps") {
+        return vec![fwd(LaneType::Sidewalk)];
+    }
+    // Eventually, we should have some kind of special LaneType for shared walking/cycling paths of
+    // different kinds. Until then, model by making a narrow bike lane and a shoulder for walking.
+    if tags.is_any(
+        osm::HIGHWAY,
+        vec!["cycleway", "footway", "path", "pedestrian", "track"],
+    ) {
+        // If it just allows foot traffic, simply make it a sidewalk. For most of the above highway
+        // types, assume bikes are allowed, except for footways, where they must be explicitly
+        // allowed.
+        if tags.is("bicycle", "no")
+            || (tags.is(osm::HIGHWAY, "footway") && !tags.is("bicycle", "yes"))
+        {
+            return vec![fwd(LaneType::Sidewalk)];
+        }
+        // Otherwise, there'll always be a bike lane.
+
         let half_width = |mut spec: LaneSpec| {
             spec.width = spec.width / 2.0;
             spec
@@ -56,8 +74,7 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
         } else {
             vec![half_width(back(LaneType::Biking))]
         };
-        // Cycleways in the UK allow foot traffic by default. Until we have a LaneType for
-        // shared-use trails, just stick a tiny shoulder on one or both sides.
+
         if !tags.is("foot", "no") {
             fwd_side.push(fwd(LaneType::Shoulder));
             if !back_side.is_empty() {
@@ -65,32 +82,6 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
             }
         }
         return assemble_ltr(fwd_side, back_side, cfg.driving_side);
-    }
-    if tags.is(osm::HIGHWAY, "pedestrian") {
-        if tags.is("bicycle", "no") {
-            return vec![fwd(LaneType::Sidewalk)];
-        }
-
-        let half_width = |mut spec: LaneSpec| {
-            spec.width = spec.width / 2.0;
-            spec
-        };
-        let mut fwd_side = vec![half_width(fwd(LaneType::Biking))];
-        let mut back_side = if tags.is("oneway", "yes") {
-            vec![]
-        } else {
-            vec![half_width(back(LaneType::Biking))]
-        };
-        fwd_side.push(fwd(LaneType::Shoulder));
-        back_side.push(back(LaneType::Shoulder));
-        return assemble_ltr(fwd_side, back_side, cfg.driving_side);
-    }
-
-    if tags.is_any(
-        osm::HIGHWAY,
-        vec!["cycleway", "footway", "path", "steps", "track"],
-    ) {
-        return vec![fwd(LaneType::Sidewalk)];
     }
 
     // TODO Reversible roads should be handled differently?
