@@ -2,7 +2,8 @@ use geom::CornerRadii;
 
 use super::ButtonStyle;
 use crate::{
-    include_labeled_bytes, ButtonBuilder, ControlState, EventCtx, Key, ScreenDims, Style, Widget,
+    include_labeled_bytes, ButtonBuilder, Color, ControlState, EventCtx, Key, ScreenDims, Style,
+    Widget,
 };
 
 pub trait StyledButtons<'a> {
@@ -77,21 +78,31 @@ pub trait StyledButtons<'a> {
 
 impl<'a> StyledButtons<'a> for Style {
     fn btn_outline(&self) -> ButtonBuilder<'a> {
-        basic_button(&self.btn_outline, true)
+        self.btn_outline.btn()
     }
     fn btn_plain(&self) -> ButtonBuilder<'a> {
-        basic_button(&self.btn_outline, false)
+        self.btn_outline.btn_plain()
     }
 }
 
 impl<'a> ButtonStyle {
+    fn basic(&self) -> ButtonBuilder<'a> {
+        ButtonBuilder::new()
+            .label_color(self.fg, ControlState::Default)
+            .label_color(self.fg_disabled, ControlState::Disabled)
+            .image_color(self.fg, ControlState::Default)
+            .image_color(self.fg_disabled, ControlState::Disabled)
+            .bg_color(self.bg, ControlState::Default)
+            .bg_color(self.bg_hover, ControlState::Hovered)
+            .bg_color(self.bg_disabled, ControlState::Disabled)
+    }
+
     pub fn btn_plain(&self) -> ButtonBuilder<'a> {
-        basic_button(self, false)
+        self.basic().bg_color(Color::CLEAR, ControlState::Default)
     }
 
     pub fn btn(&self) -> ButtonBuilder<'a> {
-        self.btn_plain()
-            .outline(self.outline, ControlState::Default)
+        self.basic().outline(self.outline, ControlState::Default)
     }
 
     pub fn plain_text(&self, text: &'a str) -> ButtonBuilder<'a> {
@@ -139,12 +150,11 @@ impl<'a> ButtonStyle {
 
 impl<'a> Style {
     pub fn btn_popup_icon_text(&self, icon_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
-        let outline_style = &self.btn_outline;
-        let solid_style = &self.btn_tab;
-
         // The text is styled like an "outline" button, while the image is styled like a "solid"
         // button.
-        basic_button(outline_style, true)
+        let solid_style = &self.btn_tab;
+        self.btn_outline
+            .btn()
             .label_text(text)
             .image_path(icon_path)
             .image_dims(25.0)
@@ -190,22 +200,4 @@ fn dropdown_button<'a>(builder: ButtonBuilder<'a>) -> ButtonBuilder<'a> {
         .image_dims(12.0)
         .stack_spacing(12.0)
         .label_first()
-}
-
-// TODO: Inline?
-fn basic_button<'a>(button_style: &ButtonStyle, outline: bool) -> ButtonBuilder<'a> {
-    let builder = ButtonBuilder::new()
-        .label_color(button_style.fg, ControlState::Default)
-        .label_color(button_style.fg_disabled, ControlState::Disabled)
-        .image_color(button_style.fg, ControlState::Default)
-        .image_color(button_style.fg_disabled, ControlState::Disabled)
-        .bg_color(button_style.bg, ControlState::Default)
-        .bg_color(button_style.bg_hover, ControlState::Hovered)
-        .bg_color(button_style.bg_disabled, ControlState::Disabled);
-
-    if outline {
-        builder.outline(button_style.outline, ControlState::Default)
-    } else {
-        builder
-    }
 }
