@@ -319,7 +319,7 @@
             <span class="comment">// TODO Display the value...</span>
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="string">&quot;Resolution (meters)&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                <span class="ident">Spinner</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, (<span class="number">1</span>, <span class="number">100</span>), <span class="self">self</span>.<span class="ident">resolution</span> <span class="kw">as</span> <span class="ident">isize</span>)
+                <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">1</span>, <span class="number">100</span>), <span class="self">self</span>.<span class="ident">resolution</span> <span class="kw">as</span> <span class="ident">isize</span>)
                     .<span class="ident">named</span>(<span class="string">&quot;resolution&quot;</span>)
                     .<span class="ident">align_right</span>(),
             ]),
@@ -327,7 +327,7 @@
                 <span class="string">&quot;Radius (resolution multiplier)&quot;</span>
                     .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
                     .<span class="ident">centered_vert</span>(),
-                <span class="ident">Spinner</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, (<span class="number">0</span>, <span class="number">10</span>), <span class="self">self</span>.<span class="ident">radius</span> <span class="kw">as</span> <span class="ident">isize</span>)
+                <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">0</span>, <span class="number">10</span>), <span class="self">self</span>.<span class="ident">radius</span> <span class="kw">as</span> <span class="ident">isize</span>)
                     .<span class="ident">named</span>(<span class="string">&quot;radius&quot;</span>)
                     .<span class="ident">align_right</span>(),
             ]),

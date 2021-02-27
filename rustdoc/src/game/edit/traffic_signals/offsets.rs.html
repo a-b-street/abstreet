@@ -559,7 +559,7 @@
             .<span class="ident">draw</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="string">&quot;Offset (seconds):&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                <span class="ident">Spinner</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, (<span class="number">0</span>, <span class="number">90</span>), (<span class="ident">offset2</span> <span class="op">-</span> <span class="ident">offset1</span>).<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">isize</span>)
+                <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">0</span>, <span class="number">90</span>), (<span class="ident">offset2</span> <span class="op">-</span> <span class="ident">offset1</span>).<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">isize</span>)
                     .<span class="ident">named</span>(<span class="string">&quot;offset&quot;</span>),
             ]),
             <span class="ident">ctx</span>.<span class="ident">style</span>()

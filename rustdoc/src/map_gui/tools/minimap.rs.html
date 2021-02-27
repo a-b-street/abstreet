@@ -460,6 +460,10 @@
 <span id="457">457</span>
 <span id="458">458</span>
 <span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>;
 
@@ -607,8 +611,12 @@
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">has_zorder</span>(<span class="ident">app</span>) {
                     <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">Line</span>(<span class="string">&quot;Z-order:&quot;</span>).<span class="ident">small</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                        <span class="ident">Spinner</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">draw_map</span>().<span class="ident">zorder_range</span>, <span class="ident">app</span>.<span class="ident">draw_map</span>().<span class="ident">show_zorder</span>)
-                            .<span class="ident">named</span>(<span class="string">&quot;zorder&quot;</span>),
+                        <span class="ident">Spinner</span>::<span class="ident">widget</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="ident">app</span>.<span class="ident">draw_map</span>().<span class="ident">zorder_range</span>,
+                            <span class="ident">app</span>.<span class="ident">draw_map</span>().<span class="ident">show_zorder</span>,
+                        )
+                        .<span class="ident">named</span>(<span class="string">&quot;zorder&quot;</span>),
                     ])
                     .<span class="ident">margin_above</span>(<span class="number">10</span>)
                 } <span class="kw">else</span> {

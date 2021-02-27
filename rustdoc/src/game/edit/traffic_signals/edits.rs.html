@@ -333,7 +333,7 @@
             ]),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="string">&quot;Seconds:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                <span class="ident">Spinner</span>::<span class="ident">new</span>(
+                <span class="ident">Spinner</span>::<span class="ident">widget</span>(
                     <span class="ident">ctx</span>,
                     (
                         <span class="ident">signal</span>.<span class="ident">get_min_crossing_time</span>(<span class="ident">idx</span>).<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">isize</span>,
@@ -365,7 +365,7 @@
                 .<span class="ident">draw</span>(<span class="ident">ctx</span>)]),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="string">&quot;Seconds:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                <span class="ident">Spinner</span>::<span class="ident">new</span>(
+                <span class="ident">Spinner</span>::<span class="ident">widget</span>(
                     <span class="ident">ctx</span>,
                     (<span class="number">1</span>, <span class="number">300</span>),
                     <span class="kw">match</span> <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">stage_type</span> {
@@ -382,7 +382,7 @@
                 .<span class="ident">draw</span>(<span class="ident">ctx</span>)]),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="string">&quot;Seconds:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                <span class="ident">Spinner</span>::<span class="ident">new</span>(
+                <span class="ident">Spinner</span>::<span class="ident">widget</span>(
                     <span class="ident">ctx</span>,
                     (<span class="number">1</span>, <span class="number">300</span>),
                     <span class="kw">match</span> <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">stage_type</span> {

@@ -293,7 +293,7 @@
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="string">&quot;Limit the number of vehicles passing through per hour (0 = unlimited):&quot;</span>
                         .<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Spinner</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, (<span class="number">0</span>, <span class="number">1000</span>), <span class="ident">cap_vehicles_per_hour</span>.<span class="ident">unwrap_or</span>(<span class="number">0</span>) <span class="kw">as</span> <span class="ident">isize</span>)
+                    <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">0</span>, <span class="number">1000</span>), <span class="ident">cap_vehicles_per_hour</span>.<span class="ident">unwrap_or</span>(<span class="number">0</span>) <span class="kw">as</span> <span class="ident">isize</span>)
                         .<span class="ident">named</span>(<span class="string">&quot;cap_vehicles&quot;</span>),
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
