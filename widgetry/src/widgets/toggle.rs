@@ -48,16 +48,16 @@ impl Toggle {
             let (label, bytes) = include_labeled_bytes!("../../icons/switch_off.svg");
             let (batch, bounds) = load_svg_bytes(ctx.prerender, label, bytes).expect("invalid SVG");
             let batch = batch
-                .color(RewriteColor::Change(Color::WHITE, ctx.style.btn_solid.bg))
-                .color(RewriteColor::Change(Color::BLACK, ctx.style.btn_solid.fg));
+                .color(RewriteColor::Change(Color::WHITE, ctx.style.btn_tab.bg))
+                .color(RewriteColor::Change(Color::BLACK, ctx.style.btn_tab.fg));
             (batch, bounds)
         };
         let (on_batch, on_bounds) = {
             let (label, bytes) = include_labeled_bytes!("../../icons/switch_on.svg");
             let (batch, bounds) = load_svg_bytes(ctx.prerender, label, bytes).expect("invalid SVG");
             let batch = batch
-                .color(RewriteColor::Change(Color::WHITE, ctx.style.btn_solid.bg))
-                .color(RewriteColor::Change(Color::BLACK, ctx.style.btn_solid.fg));
+                .color(RewriteColor::Change(Color::WHITE, ctx.style.btn_tab.bg))
+                .color(RewriteColor::Change(Color::BLACK, ctx.style.btn_tab.fg));
             (batch, bounds)
         };
 
@@ -205,16 +205,16 @@ impl Toggle {
             let (label, bytes) = include_labeled_bytes!("../../icons/toggle_left.svg");
             let (batch, bounds) = load_svg_bytes(ctx.prerender, label, bytes).expect("invalid SVG");
             let batch = batch
-                .color(RewriteColor::Change(Color::WHITE, ctx.style.btn_solid.bg))
-                .color(RewriteColor::Change(Color::BLACK, ctx.style.btn_solid.fg));
+                .color(RewriteColor::Change(Color::WHITE, ctx.style.btn_tab.bg))
+                .color(RewriteColor::Change(Color::BLACK, ctx.style.btn_tab.fg));
             (batch, bounds)
         };
         let (right_batch, right_bounds) = {
             let (label, bytes) = include_labeled_bytes!("../../icons/toggle_right.svg");
             let (batch, bounds) = load_svg_bytes(ctx.prerender, label, bytes).expect("invalid SVG");
             let batch = batch
-                .color(RewriteColor::Change(Color::WHITE, ctx.style.btn_solid.bg))
-                .color(RewriteColor::Change(Color::BLACK, ctx.style.btn_solid.fg));
+                .color(RewriteColor::Change(Color::WHITE, ctx.style.btn_tab.bg))
+                .color(RewriteColor::Change(Color::BLACK, ctx.style.btn_tab.fg));
             (batch, bounds)
         };
 

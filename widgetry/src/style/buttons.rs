@@ -37,25 +37,6 @@ pub trait StyledButtons<'a> {
             .image_dims(ScreenDims::square(18.0))
     }
 
-    fn btn_solid(&self) -> ButtonBuilder<'a>;
-    fn btn_solid_floating(&self) -> ButtonBuilder<'a>;
-
-    fn btn_solid_text(&self, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_solid().label_text(text)
-    }
-    fn btn_solid_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
-        icon_button(self.btn_solid().image_path(image_path))
-    }
-    fn btn_solid_icon_bytes(&self, labeled_bytes: (&'a str, &'a [u8])) -> ButtonBuilder<'a> {
-        icon_button(self.btn_solid().image_bytes(labeled_bytes))
-    }
-    fn btn_solid_icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_solid()
-            .label_text(text)
-            .image_path(image_path)
-            .image_dims(ScreenDims::square(18.0))
-    }
-
     // Specific UI Elements
 
     /// title: name of previous screen, which you'll return to
@@ -65,10 +46,6 @@ pub trait StyledButtons<'a> {
 
     fn btn_outline_dropdown(&self) -> ButtonBuilder<'a> {
         dropdown_button(self.btn_outline())
-    }
-
-    fn btn_solid_dropdown(&self) -> ButtonBuilder<'a> {
-        dropdown_button(self.btn_solid())
     }
 
     fn btn_outline_popup(&self, text: &'a str) -> ButtonBuilder<'a> {
@@ -99,18 +76,9 @@ pub trait StyledButtons<'a> {
 }
 
 impl<'a> StyledButtons<'a> for Style {
-    fn btn_solid(&self) -> ButtonBuilder<'a> {
-        basic_button(&self.btn_solid, true)
-    }
-
     fn btn_outline(&self) -> ButtonBuilder<'a> {
         basic_button(&self.btn_outline, true)
     }
-
-    fn btn_solid_floating(&self) -> ButtonBuilder<'a> {
-        basic_button(&self.btn_solid_floating, true)
-    }
-
     fn btn_plain(&self) -> ButtonBuilder<'a> {
         basic_button(&self.btn_outline, false)
     }
@@ -163,12 +131,16 @@ impl<'a> ButtonStyle {
             .image_path(image_path)
             .image_dims(ScreenDims::square(18.0))
     }
+
+    pub fn dropdown(&self) -> ButtonBuilder<'a> {
+        dropdown_button(self.btn())
+    }
 }
 
 impl<'a> Style {
     pub fn btn_popup_icon_text(&self, icon_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
         let outline_style = &self.btn_outline;
-        let solid_style = &self.btn_solid;
+        let solid_style = &self.btn_tab;
 
         // The text is styled like an "outline" button, while the image is styled like a "solid"
         // button.
@@ -211,6 +183,7 @@ fn back_button<'a>(builder: ButtonBuilder<'a>, title: &'a str) -> ButtonBuilder<
         .font_size(30)
 }
 
+// TODO: Inline?
 fn dropdown_button<'a>(builder: ButtonBuilder<'a>) -> ButtonBuilder<'a> {
     builder
         .image_bytes(include_labeled_bytes!("../../icons/arrow_drop_down.svg"))
@@ -219,6 +192,7 @@ fn dropdown_button<'a>(builder: ButtonBuilder<'a>) -> ButtonBuilder<'a> {
         .label_first()
 }
 
+// TODO: Inline?
 fn basic_button<'a>(button_style: &ButtonStyle, outline: bool) -> ButtonBuilder<'a> {
     let builder = ButtonBuilder::new()
         .label_color(button_style.fg, ControlState::Default)

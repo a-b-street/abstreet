@@ -630,14 +630,16 @@ fn make_side_panel(
 
         let up_button = ctx
             .style()
-            .btn_solid_icon_bytes(include_labeled_bytes!(
+            .btn_outline
+            .plain_icon_bytes(include_labeled_bytes!(
                 "../../../../widgetry/icons/arrow_up.svg"
             ))
             .disabled(idx == 0);
 
         let down_button = ctx
             .style()
-            .btn_solid_icon_bytes(include_labeled_bytes!(
+            .btn_outline
+            .plain_icon_bytes(include_labeled_bytes!(
                 "../../../../widgetry/icons/arrow_down.svg"
             ))
             .disabled(idx == canonical_signal.stages.len() - 1);

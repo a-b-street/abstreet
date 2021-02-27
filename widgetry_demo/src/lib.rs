@@ -322,22 +322,26 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
         // TODO might be nice to have this in separate tabs or something.
         Text::from(Line("Buttons").big_heading_styled().size(18)).draw(ctx),
         Widget::row(vec![Widget::col(vec![
-            btn.btn_solid_text("Primary")
-                .build_widget(ctx, "btn_solid_text"),
+            btn.btn_solid_primary
+                .text("Primary")
+                .build_widget(ctx, "btn_primary_text"),
             Widget::row(vec![
-                btn.btn_solid_icon("system/assets/tools/map.svg")
-                    .build_widget(ctx, "btn_solid_icon_1"),
-                btn.btn_solid_icon("system/assets/tools/layers.svg")
-                    .build_widget(ctx, "btn_solid_icon_2"),
+                btn.btn_solid_primary
+                    .icon("system/assets/tools/map.svg")
+                    .build_widget(ctx, "btn_primary_icon_1"),
+                btn.btn_solid_primary
+                    .plain_icon("system/assets/tools/map.svg")
+                    .build_widget(ctx, "btn_primary_icon_2"),
             ]),
-            btn.btn_solid_icon_text("system/assets/tools/location.svg", "Primary")
-                .build_widget(ctx, "btn_solid_icon_text"),
+            btn.btn_solid_primary
+                .icon_text("system/assets/tools/location.svg", "Primary")
+                .build_widget(ctx, "btn_primary_icon_text"),
             btn.btn_outline_text("Secondary")
                 .build_widget(ctx, "btn_outline_dark_text"),
             Widget::row(vec![
                 btn.btn_outline_icon("system/assets/tools/map.svg")
                     .build_widget(ctx, "btn_outline_dark_icon_1"),
-                btn.btn_outline_icon("system/assets/tools/layers.svg")
+                btn.btn_plain_icon("system/assets/tools/map.svg")
                     .build_widget(ctx, "btn_outline_dark_icon_2"),
             ]),
             btn.btn_outline_icon_text("system/assets/tools/home.svg", "Secondary")
@@ -361,11 +365,13 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
             Toggle::new(
                 false,
                 ctx.style()
-                    .btn_solid_text("Pause")
+                    .btn_outline
+                    .text("Pause")
                     .hotkey(Key::Space)
                     .build(ctx, "pause the stopwatch"),
                 ctx.style()
-                    .btn_solid_text("Resume")
+                    .btn_outline
+                    .text("Resume")
                     .hotkey(Key::Space)
                     .build(ctx, "resume the stopwatch"),
             )
@@ -420,7 +426,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 ],
             ),
             ctx.style()
-                .btn_outline_primary
+                .btn_solid_primary
                 .text("Apply")
                 .build_widget(ctx, "apply"),
         ])
@@ -442,14 +448,14 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 Widget::col(
                     (0..row_height)
                         .map(|_| {
-                            btn.btn_solid_icon("system/assets/tools/layers.svg")
+                            btn.btn_outline_icon("system/assets/tools/layers.svg")
                                 .build_widget(ctx, &next_id())
                         })
                         .collect::<Vec<_>>(),
                 ),
                 Widget::col(
                     (0..row_height)
-                        .map(|_| btn.btn_solid_text("text").build_widget(ctx, &next_id()))
+                        .map(|_| btn.btn_outline.text("text").build_widget(ctx, &next_id()))
                         .collect::<Vec<_>>(),
                 ),
                 Widget::col(

@@ -149,7 +149,7 @@ impl ChallengesPicker {
                 .centered_horiz()
                 .bg(app.cs.panel_bg)
                 .padding(16)
-                .outline(ctx.style().btn_solid.outline),
+                .outline(ctx.style().btn_tab.outline),
         ];
 
         // First list challenges
@@ -173,7 +173,7 @@ impl ChallengesPicker {
                 .flex_wrap(ctx, Percent::int(80))
                 .bg(app.cs.panel_bg)
                 .padding(16)
-                .outline(ctx.style().btn_solid.outline),
+                .outline(ctx.style().btn_tab.outline),
         );
 
         let mut main_row = Vec::new();
@@ -199,7 +199,7 @@ impl ChallengesPicker {
                 Widget::col(col)
                     .bg(app.cs.panel_bg)
                     .padding(16)
-                    .outline(ctx.style().btn_solid.outline),
+                    .outline(ctx.style().btn_tab.outline),
             );
         }
 
@@ -240,7 +240,7 @@ impl ChallengesPicker {
                 Widget::col(inner_col)
                     .bg(app.cs.panel_bg)
                     .padding(16)
-                    .outline(ctx.style().btn_solid.outline),
+                    .outline(ctx.style().btn_tab.outline),
             );
             current_challenge = Some(challenge);
         }

@@ -36,11 +36,13 @@ impl JumpToTime {
                 ctx.style().btn_close_widget(ctx),
                 Widget::custom_row(vec![
                     ctx.style()
-                        .btn_solid_text("Jump to time")
+                        .btn_tab
+                        .text("Jump to time")
                         .disabled(true)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_solid_text("Jump to delay")
+                        .btn_tab
+                        .text("Jump to delay")
                         .hotkey(Key::D)
                         .build_def(ctx),
                 ])
@@ -170,11 +172,13 @@ impl JumpToDelay {
                 ctx.style().btn_close_widget(ctx),
                 Widget::custom_row(vec![
                     ctx.style()
-                        .btn_solid_text("Jump to time")
+                        .btn_tab
+                        .text("Jump to time")
                         .hotkey(Key::T)
                         .build_def(ctx),
                     ctx.style()
-                        .btn_solid_text("Jump to delay")
+                        .btn_tab
+                        .text("Jump to delay")
                         .disabled(true)
                         .build_def(ctx),
                 ])
