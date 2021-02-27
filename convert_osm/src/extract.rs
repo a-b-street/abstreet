@@ -447,7 +447,7 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
     if (highway == "footway" || highway == "path" || highway == "steps")
         && opts.map_config.inferred_sidewalks
     {
-        if !tags.is("bicycle", "yes") {
+        if !tags.is_any("bicycle", vec!["designated", "yes"]) {
             return false;
         }
     }
