@@ -24,7 +24,8 @@ enum Style {
     Area { width: f64 },
 }
 
-pub const BG_CROSS_AXIS_LEN: f64 = 4.0;
+pub const SCROLLBAR_WIDTH: f64 = 4.0;
+pub const AREA_SLIDER_WIDTH: f64 = 10.0;
 
 impl Slider {
     pub fn horizontal(
@@ -83,10 +84,10 @@ impl Slider {
                 // Full dims
                 self.dims = match self.style {
                     Style::Horizontal { main_bg_len, .. } => {
-                        ScreenDims::new(main_bg_len, BG_CROSS_AXIS_LEN)
+                        ScreenDims::new(main_bg_len, SCROLLBAR_WIDTH)
                     }
                     Style::Vertical { main_bg_len, .. } => {
-                        ScreenDims::new(BG_CROSS_AXIS_LEN, main_bg_len)
+                        ScreenDims::new(SCROLLBAR_WIDTH, main_bg_len)
                     }
                     _ => unreachable!(),
                 };
@@ -109,11 +110,11 @@ impl Slider {
             }
             Style::Area { width } => {
                 // Full dims
-                self.dims = ScreenDims::new(width, BG_CROSS_AXIS_LEN);
+                self.dims = ScreenDims::new(width, AREA_SLIDER_WIDTH);
 
                 // The background
                 batch.push(
-                    ctx.style.field_bg,
+                    ctx.style.field_bg.dull(0.5),
                     Polygon::pill(self.dims.width, self.dims.height),
                 );
 
@@ -147,16 +148,16 @@ impl Slider {
             Style::Horizontal {
                 main_bg_len,
                 dragger_len,
-            } => Polygon::pill(dragger_len, BG_CROSS_AXIS_LEN)
+            } => Polygon::pill(dragger_len, SCROLLBAR_WIDTH)
                 .translate(self.current_percent * (main_bg_len - dragger_len), 0.0),
             Style::Vertical {
                 main_bg_len,
                 dragger_len,
-            } => Polygon::pill(BG_CROSS_AXIS_LEN, dragger_len)
+            } => Polygon::pill(SCROLLBAR_WIDTH, dragger_len)
                 .translate(0.0, self.current_percent * (main_bg_len - dragger_len)),
             Style::Area { width } => Circle::new(
-                Pt2D::new(self.current_percent * width, BG_CROSS_AXIS_LEN / 2.0),
-                Distance::meters(BG_CROSS_AXIS_LEN),
+                Pt2D::new(self.current_percent * width, AREA_SLIDER_WIDTH / 2.0),
+                Distance::meters(20.0),
             )
             .to_polygon(),
         }
