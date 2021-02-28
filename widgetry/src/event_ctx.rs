@@ -186,7 +186,8 @@ impl<'a> EventCtx<'a> {
             .centered_vert(),
             Widget::draw_batch(
                 self,
-                txt.inner_render(&self.prerender.assets, svg::LOW_QUALITY),
+                txt.change_fg(Color::WHITE)
+                    .inner_render(&self.prerender.assets, svg::LOW_QUALITY),
             )
             .container()
             .fill_width()

@@ -208,7 +208,7 @@ pub fn draw_stage_number(
         Circle::new(center, radius).to_polygon(),
     );
     batch.append(
-        Text::from(Line(format!("{}", idx + 1)))
+        Text::from(Line(format!("{}", idx + 1)).fg(Color::WHITE))
             .render_autocropped(prerender)
             .scale(0.075)
             .centered_on(center),

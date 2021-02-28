@@ -24,7 +24,7 @@ enum Style {
     Area { width: f64 },
 }
 
-pub const SCROLLBAR_BG_WIDTH: f64 = 4.0;
+pub const SCROLLBAR_BG_WIDTH: f64 = 8.0;
 pub const AREA_SLIDER_BG_WIDTH: f64 = 10.0;
 
 impl Style {
