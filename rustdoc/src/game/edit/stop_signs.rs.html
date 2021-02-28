@@ -230,6 +230,10 @@
 <span id="227">227</span>
 <span id="228">228</span>
 <span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -241,8 +245,8 @@
     <span class="ident">ControlStopSign</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">EditCmd</span>, <span class="ident">EditIntersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">RoadID</span>,
 };
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">SimpleState</span>, <span class="ident">State</span>,
-    <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">SimpleState</span>, <span class="ident">State</span>, <span class="ident">Text</span>,
+    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
@@ -285,7 +289,8 @@
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;Stop sign editor&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_text</span>(<span class="string">&quot;reset to default&quot;</span>)
+                .<span class="ident">btn_outline</span>
+                .<span class="ident">text</span>(<span class="string">&quot;reset to default&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">R</span>)
                 .<span class="ident">disabled</span>(
                     <span class="kw-2">&amp;</span><span class="ident">ControlStopSign</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">id</span>)
@@ -293,14 +298,17 @@
                 )
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_text</span>(<span class="string">&quot;close intersection for construction&quot;</span>)
+                .<span class="ident">btn_outline</span>
+                .<span class="ident">text</span>(<span class="string">&quot;close intersection for construction&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">C</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_text</span>(<span class="string">&quot;convert to traffic signal&quot;</span>)
+                .<span class="ident">btn_outline</span>
+                .<span class="ident">text</span>(<span class="string">&quot;convert to traffic signal&quot;</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_primary_text</span>(<span class="string">&quot;Finish&quot;</span>)
+                .<span class="ident">btn_solid_primary</span>
+                .<span class="ident">text</span>(<span class="string">&quot;Finish&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         ]))

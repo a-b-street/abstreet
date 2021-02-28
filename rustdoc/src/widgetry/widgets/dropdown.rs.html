@@ -203,12 +203,13 @@
 <span id="200">200</span>
 <span id="201">201</span>
 <span id="202">202</span>
+<span id="203">203</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">CornerRadii</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">Button</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">CornerRounding</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
-    <span class="ident">Menu</span>, <span class="ident">Outcome</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">StyledButtons</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
+    <span class="ident">Menu</span>, <span class="ident">Outcome</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Dropdown</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Clone</span><span class="op">&gt;</span> {
@@ -385,7 +386,8 @@
         <span class="comment">// It&#39;s not ideal, but we only use one persistent split in the whole app</span>
         <span class="comment">// and it&#39;s front and center - we&#39;ll notice if something breaks.</span>
         <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_solid_dropdown</span>()
+            .<span class="ident">btn_tab</span>
+            .<span class="ident">dropdown</span>()
             .<span class="ident">padding</span>(<span class="ident">EdgeInsets</span> {
                 <span class="ident">top</span>: <span class="number">15.0</span>,
                 <span class="ident">bottom</span>: <span class="number">15.0</span>,
@@ -401,7 +403,7 @@
             <span class="comment">// override any outline element within persistent split</span>
             .<span class="ident">outline</span>((<span class="number">0.0</span>, <span class="ident">Color</span>::<span class="ident">CLEAR</span>), <span class="ident">ControlState</span>::<span class="ident">Default</span>)
     } <span class="kw">else</span> {
-        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline_dropdown</span>().<span class="ident">label_text</span>(<span class="ident">label</span>)
+        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">dropdown</span>().<span class="ident">label_text</span>(<span class="ident">label</span>)
     };
 
     <span class="ident">builder</span>.<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">tooltip</span>)

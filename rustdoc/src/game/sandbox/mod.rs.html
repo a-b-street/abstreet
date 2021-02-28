@@ -954,6 +954,9 @@
 <span id="951">951</span>
 <span id="952">952</span>
 <span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
@@ -969,7 +972,7 @@
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">Analytics</span>, <span class="ident">Scenario</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
-    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">gameplay</span>::{<span class="ident">spawn_agents_around</span>, <span class="ident">GameplayMode</span>, <span class="ident">TutorialPointer</span>, <span class="ident">TutorialState</span>};
@@ -1374,7 +1377,8 @@
                 },
                 <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">dirty_from_edits</span> {
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/tools/warning.svg&quot;</span>)
+                        .<span class="ident">btn_plain</span>
+                        .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/warning.svg&quot;</span>)
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;see why results are tentative&quot;</span>)
                         .<span class="ident">centered_vert</span>()
                         .<span class="ident">align_right</span>()
@@ -1382,7 +1386,8 @@
                     <span class="ident">Widget</span>::<span class="ident">nothing</span>()
                 },
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/meters/trip_histogram.svg&quot;</span>)
+                    .<span class="ident">btn_plain</span>
+                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/meters/trip_histogram.svg&quot;</span>)
                     .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Q</span>)
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;more data&quot;</span>)
                     .<span class="ident">align_right</span>(),
@@ -1402,7 +1407,8 @@
                 .<span class="ident">centered_vert</span>(),
                 <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} trips captured&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">n</span>)).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_solid_primary_text</span>(<span class="string">&quot;Finish Capture&quot;</span>)
+                    .<span class="ident">btn_solid_primary</span>
+                    .<span class="ident">text</span>(<span class="string">&quot;Finish Capture&quot;</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                     .<span class="ident">align_right</span>(),
             ]));

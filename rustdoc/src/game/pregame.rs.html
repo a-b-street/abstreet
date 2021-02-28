@@ -583,6 +583,15 @@
 <span id="580">580</span>
 <span id="581">581</span>
 <span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -598,7 +607,7 @@
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AlertHandler</span>, <span class="ident">ScenarioGenerator</span>, <span class="ident">Sim</span>, <span class="ident">SimOptions</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">hotkeys</span>, <span class="ident">Color</span>, <span class="ident">ContentMode</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">Font</span>, <span class="ident">GfxCtx</span>, <span class="ident">Image</span>, <span class="ident">Key</span>,
-    <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenDims</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">UpdateType</span>, <span class="ident">Widget</span>,
+    <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenDims</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">UpdateType</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
@@ -632,7 +641,8 @@
                     <span class="comment">// TODO that nicer font</span>
                     <span class="comment">// TODO Any key</span>
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_solid_primary_text</span>(<span class="string">&quot;Play&quot;</span>)
+                        .<span class="ident">btn_solid_primary</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;Play&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">hotkeys</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Key</span>::<span class="ident">Space</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>]))
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;start game&quot;</span>),
                 ])
@@ -686,7 +696,8 @@
             <span class="ident">Widget</span>::<span class="ident">row</span>({
                 <span class="kw">let</span> <span class="ident">btn_builder</span> <span class="op">=</span> <span class="ident">ctx</span>
                     .<span class="ident">style</span>()
-                    .<span class="ident">btn_solid</span>()
+                    .<span class="ident">btn_tab</span>
+                    .<span class="ident">btn</span>()
                     .<span class="ident">image_dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="number">200.0</span>, <span class="number">100.0</span>))
                     .<span class="ident">font_size</span>(<span class="number">40</span>)
                     .<span class="ident">font</span>(<span class="ident">Font</span>::<span class="ident">OverpassBold</span>)
@@ -740,7 +751,8 @@
             .<span class="ident">centered</span>(),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Community Proposals&quot;</span>)
+                    .<span class="ident">btn_outline</span>
+                    .<span class="ident">text</span>(<span class="string">&quot;Community Proposals&quot;</span>)
                     .<span class="ident">tooltip</span>({
                         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">tooltip</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">P</span>, <span class="string">&quot;Community Proposals&quot;</span>);
                         <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;See existing ideas for improving traffic&quot;</span>).<span class="ident">small</span>());
@@ -749,15 +761,16 @@
                     .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">P</span>)
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;Community Proposals&quot;</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Internal Dev Tools&quot;</span>)
+                    .<span class="ident">btn_outline</span>
+                    .<span class="ident">text</span>(<span class="string">&quot;Internal Dev Tools&quot;</span>)
                     .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">D</span>)
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;Internal Dev Tools&quot;</span>),
             ])
             .<span class="ident">centered</span>(),
             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline_text</span>(<span class="string">&quot;About&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline_text</span>(<span class="string">&quot;Feedback&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;About&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Feedback&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="ident">built_info</span>::<span class="ident">time</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
             ])
@@ -872,7 +885,8 @@
                 .<span class="ident">padding</span>(<span class="number">16</span>)
             },
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_text</span>(<span class="string">&quot;See full credits&quot;</span>)
+                .<span class="ident">btn_outline</span>
+                .<span class="ident">text</span>(<span class="string">&quot;See full credits&quot;</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                 .<span class="ident">centered_horiz</span>(),
         ];
@@ -946,7 +960,8 @@
                 <span class="kw">if</span> <span class="ident">edits</span>.<span class="ident">proposal_link</span>.<span class="ident">is_some</span>() {
                     <span class="ident">current_tab</span>.<span class="ident">push</span>(
                         <span class="ident">ctx</span>.<span class="ident">style</span>()
-                            .<span class="ident">btn_plain</span>()
+                            .<span class="ident">btn_plain</span>
+                            .<span class="ident">btn</span>()
                             .<span class="ident">label_underlined_text</span>(<span class="string">&quot;Read detailed write-up&quot;</span>)
                             .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                             .<span class="ident">margin_below</span>(<span class="number">10</span>),
@@ -954,13 +969,15 @@
                 }
                 <span class="ident">current_tab</span>.<span class="ident">push</span>(
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_solid_primary_text</span>(<span class="string">&quot;Try out this proposal&quot;</span>)
+                        .<span class="ident">btn_solid_primary</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;Try out this proposal&quot;</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 );
 
                 <span class="ident">buttons</span>.<span class="ident">push</span>(
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_solid_text</span>(<span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">proposal_description</span>[<span class="number">0</span>])
+                        .<span class="ident">btn_tab</span>
+                        .<span class="ident">text</span>(<span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">proposal_description</span>[<span class="number">0</span>])
                         .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                         .<span class="ident">margin_below</span>(<span class="number">10</span>),
@@ -968,7 +985,8 @@
             } <span class="kw">else</span> {
                 <span class="ident">buttons</span>.<span class="ident">push</span>(
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_solid_text</span>(<span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">proposal_description</span>[<span class="number">0</span>])
+                        .<span class="ident">btn_tab</span>
+                        .<span class="ident">text</span>(<span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">proposal_description</span>[<span class="number">0</span>])
                         .<span class="ident">no_tooltip</span>()
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>)
                         .<span class="ident">margin_below</span>(<span class="number">10</span>),

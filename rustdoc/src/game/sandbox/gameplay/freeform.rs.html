@@ -617,6 +617,14 @@
 <span id="614">614</span>
 <span id="615">615</span>
 <span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">seq</span>::<span class="ident">SliceRandom</span>;
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">Rng</span>;
@@ -631,7 +639,7 @@
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">IndividTrip</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
-    <span class="ident">SimpleState</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">SimpleState</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
@@ -755,7 +763,8 @@
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change scenario&quot;</span>)
                     .<span class="ident">margin_right</span>(<span class="number">8</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline_icon_text</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>, <span class="string">&quot;Edit map&quot;</span>)
+                    .<span class="ident">btn_outline</span>
+                    .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>, <span class="string">&quot;Edit map&quot;</span>)
                     .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">E</span>))
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit map&quot;</span>)
                     .<span class="ident">margin_right</span>(<span class="number">8</span>),
@@ -763,10 +772,12 @@
             .<span class="ident">centered</span>(),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Start a new trip&quot;</span>)
+                    .<span class="ident">btn_outline</span>
+                    .<span class="ident">text</span>(<span class="string">&quot;Start a new trip&quot;</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Record trips as a scenario&quot;</span>)
+                    .<span class="ident">btn_outline</span>
+                    .<span class="ident">text</span>(<span class="string">&quot;Record trips as a scenario&quot;</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             ])
             .<span class="ident">centered</span>(),
@@ -846,7 +857,8 @@
         <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">label</span>, <span class="ident">description</span>) <span class="kw">in</span> <span class="ident">choices</span> {
             <span class="kw">let</span> <span class="ident">btn</span> <span class="op">=</span> <span class="ident">ctx</span>
                 .<span class="ident">style</span>()
-                .<span class="ident">btn_solid_text</span>(<span class="kw-2">&amp;</span><span class="ident">label</span>)
+                .<span class="ident">btn_tab</span>
+                .<span class="ident">text</span>(<span class="kw-2">&amp;</span><span class="ident">label</span>)
                 .<span class="ident">disabled</span>(<span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="ident">current_scenario</span>);
             <span class="ident">col</span>.<span class="ident">push</span>(
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -861,7 +873,8 @@
         }
         <span class="ident">col</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Import your own data&quot;</span>)
+                .<span class="ident">btn_outline</span>
+                .<span class="ident">text</span>(<span class="string">&quot;Import your own data&quot;</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         );
 
@@ -943,7 +956,8 @@
                     <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">1</span>, <span class="number">1000</span>), <span class="number">1</span>).<span class="ident">named</span>(<span class="string">&quot;number&quot;</span>),
                 ]),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_solid_primary_text</span>(<span class="string">&quot;Confirm&quot;</span>)
+                    .<span class="ident">btn_solid_primary</span>
+                    .<span class="ident">text</span>(<span class="string">&quot;Confirm&quot;</span>)
                     .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             ]))
@@ -1029,7 +1043,8 @@
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;Confirm&quot;</span>,
                             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                                .<span class="ident">btn_solid_primary_text</span>(<span class="string">&quot;Confirm&quot;</span>)
+                                .<span class="ident">btn_solid_primary</span>
+                                .<span class="ident">text</span>(<span class="string">&quot;Confirm&quot;</span>)
                                 .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
                                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                         );
@@ -1105,7 +1120,8 @@
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Confirm&quot;</span>,
                         <span class="ident">ctx</span>.<span class="ident">style</span>()
-                            .<span class="ident">btn_solid_primary_text</span>(<span class="string">&quot;Confirm&quot;</span>)
+                            .<span class="ident">btn_solid_primary</span>
+                            .<span class="ident">text</span>(<span class="string">&quot;Confirm&quot;</span>)
                             .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)
                             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     );

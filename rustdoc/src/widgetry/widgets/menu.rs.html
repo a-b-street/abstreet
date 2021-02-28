@@ -248,7 +248,7 @@
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">choice</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">choices</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
             <span class="kw">let</span> <span class="ident">is_hovered</span> <span class="op">=</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">current_idx</span>;
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">text_color</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">is_hovered</span> {
-                <span class="ident">choice</span>.<span class="ident">fg</span>.<span class="ident">unwrap_or</span>(<span class="ident">style</span>.<span class="ident">btn_solid</span>.<span class="ident">fg</span>)
+                <span class="ident">choice</span>.<span class="ident">fg</span>.<span class="ident">unwrap_or</span>(<span class="ident">style</span>.<span class="ident">btn_tab</span>.<span class="ident">fg</span>)
             } <span class="kw">else</span> {
                 <span class="ident">choice</span>.<span class="ident">fg</span>.<span class="ident">unwrap_or</span>(<span class="ident">style</span>.<span class="ident">text_fg_color</span>)
             };
@@ -278,7 +278,7 @@
 
             <span class="comment">// TODO BG color should be on the TextSpan, so this isn&#39;t so terrible?</span>
             <span class="kw">if</span> <span class="ident">is_hovered</span> {
-                <span class="ident">txt</span>.<span class="ident">highlight_last_line</span>(<span class="ident">style</span>.<span class="ident">btn_solid</span>.<span class="ident">bg</span>);
+                <span class="ident">txt</span>.<span class="ident">highlight_last_line</span>(<span class="ident">style</span>.<span class="ident">btn_tab</span>.<span class="ident">bg</span>);
             }
         }
         <span class="ident">txt</span>

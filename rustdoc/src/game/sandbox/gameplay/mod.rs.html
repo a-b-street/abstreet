@@ -379,6 +379,10 @@
 <span id="376">376</span>
 <span id="377">377</span>
 <span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">future</span>::<span class="ident">Future</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">pin</span>::<span class="ident">Pin</span>;
@@ -392,8 +396,7 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">EditCmd</span>, <span class="ident">EditIntersection</span>, <span class="ident">MapEdits</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">OrigPersonID</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioGenerator</span>, <span class="ident">ScenarioModifier</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>,
-    <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
+    <span class="ident">lctrl</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">freeform</span>::<span class="ident">spawn_agents_around</span>;
@@ -612,12 +615,14 @@
     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Line</span>(<span class="ident">title</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
         <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/tools/info.svg&quot;</span>)
+            .<span class="ident">btn_plain</span>
+            .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/info.svg&quot;</span>)
             .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;instructions&quot;</span>)
             .<span class="ident">centered_vert</span>(),
         <span class="ident">Widget</span>::<span class="ident">vert_separator</span>(<span class="ident">ctx</span>, <span class="number">50.0</span>),
         <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_outline_icon_text</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>, <span class="string">&quot;Edit map&quot;</span>)
+            .<span class="ident">btn_outline</span>
+            .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>, <span class="string">&quot;Edit map&quot;</span>)
             .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">E</span>))
             .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit map&quot;</span>)
             .<span class="ident">centered_vert</span>(),
@@ -658,18 +663,21 @@
                         <span class="ident">msg</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                         <span class="comment">// TODO Adjust wording</span>
                         <span class="ident">ctx</span>.<span class="ident">style</span>()
-                            .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Keep simulating&quot;</span>)
+                            .<span class="ident">btn_outline</span>
+                            .<span class="ident">text</span>(<span class="string">&quot;Keep simulating&quot;</span>)
                             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline_text</span>(<span class="string">&quot;Try again&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Try again&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                         <span class="kw">if</span> <span class="ident">next_mode</span>.<span class="ident">is_some</span>() {
                             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                                .<span class="ident">btn_solid_primary_text</span>(<span class="string">&quot;Next challenge&quot;</span>)
+                                .<span class="ident">btn_solid_primary</span>
+                                .<span class="ident">text</span>(<span class="string">&quot;Next challenge&quot;</span>)
                                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                         } <span class="kw">else</span> {
                             <span class="ident">Widget</span>::<span class="ident">nothing</span>()
                         },
                         <span class="ident">ctx</span>.<span class="ident">style</span>()
-                            .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Back to challenges&quot;</span>)
+                            .<span class="ident">btn_outline</span>
+                            .<span class="ident">text</span>(<span class="string">&quot;Back to challenges&quot;</span>)
                             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     ])
                     .<span class="ident">outline</span>((<span class="number">10.0</span>, <span class="ident">Color</span>::<span class="ident">BLACK</span>))

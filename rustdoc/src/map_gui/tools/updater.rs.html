@@ -215,8 +215,7 @@
 <span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">DataPacks</span>, <span class="ident">Manifest</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Transition</span>,
-    <span class="ident">Widget</span>,
+    <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Transition</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tools</span>::<span class="ident">PopupMsg</span>;
@@ -259,7 +258,8 @@
         }
         <span class="ident">col</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_primary_text</span>(<span class="string">&quot;Sync files&quot;</span>)
+                .<span class="ident">btn_solid_primary</span>
+                .<span class="ident">text</span>(<span class="string">&quot;Sync files&quot;</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         );
 

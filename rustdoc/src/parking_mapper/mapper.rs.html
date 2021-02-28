@@ -692,8 +692,7 @@
 <span class="kw">use</span> <span class="ident">osm</span>::<span class="ident">WayID</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
-    <span class="ident">Menu</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Transition</span>,
-    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Menu</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Transition</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">type</span> <span class="ident">App</span> <span class="op">=</span> <span class="ident">SimpleApp</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
@@ -860,7 +859,8 @@
                 ]),
                 <span class="ident">Toggle</span>::<span class="ident">checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;max 3 days parking (default in Seattle)&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">false</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Generate OsmChange file&quot;</span>)
+                    .<span class="ident">btn_outline</span>
+                    .<span class="ident">text</span>(<span class="string">&quot;Generate OsmChange file&quot;</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 <span class="string">&quot;Select a road&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;info&quot;</span>),
             ]))

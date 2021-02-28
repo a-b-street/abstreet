@@ -425,9 +425,9 @@
                 <span class="comment">// The draggy thing</span>
                 <span class="ident">batch</span>.<span class="ident">push</span>(
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">mouse_on_slider</span> {
-                        <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">btn_solid</span>.<span class="ident">bg_hover</span>
+                        <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">btn_tab</span>.<span class="ident">bg_hover</span>
                     } <span class="kw">else</span> {
-                        <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">btn_solid</span>.<span class="ident">bg</span>
+                        <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">btn_tab</span>.<span class="ident">bg</span>
                     },
                     <span class="self">self</span>.<span class="ident">button_geom</span>(),
                 );
@@ -450,12 +450,12 @@
                 <span class="comment">// The circle dragger</span>
                 <span class="ident">batch</span>.<span class="ident">push</span>(
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">mouse_on_slider</span> {
-                        <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">btn_solid</span>.<span class="ident">bg_hover</span>
+                        <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">btn_tab</span>.<span class="ident">bg_hover</span>
                     } <span class="kw">else</span> {
                         <span class="comment">// we don&#39;t want to use `ctx.style.btn_solid.bg` because it achieves it&#39;s</span>
                         <span class="comment">// &quot;dulling&quot; with opacity, which causes the slider to &quot;peak through&quot; and</span>
                         <span class="comment">// looks weird.</span>
-                        <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">btn_solid</span>.<span class="ident">bg_hover</span>.<span class="ident">dull</span>(<span class="number">0.2</span>)
+                        <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">btn_tab</span>.<span class="ident">bg_hover</span>.<span class="ident">dull</span>(<span class="number">0.2</span>)
                     },
                     <span class="self">self</span>.<span class="ident">button_geom</span>(),
                 );

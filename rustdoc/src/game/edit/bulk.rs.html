@@ -375,6 +375,14 @@
 <span id="372">372</span>
 <span id="373">373</span>
 <span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -385,7 +393,7 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">LaneType</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">hotkeys</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>,
-    <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
@@ -411,24 +419,29 @@
         <span class="ident">selector</span>.<span class="ident">make_controls</span>(<span class="ident">ctx</span>),
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Edit {} roads&quot;</span>, <span class="ident">selector</span>.<span class="ident">roads</span>.<span class="ident">len</span>()))
+                .<span class="ident">btn_outline</span>
+                .<span class="ident">text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Edit {} roads&quot;</span>, <span class="ident">selector</span>.<span class="ident">roads</span>.<span class="ident">len</span>()))
                 .<span class="ident">disabled</span>(<span class="ident">selector</span>.<span class="ident">roads</span>.<span class="ident">is_empty</span>())
                 .<span class="ident">hotkey</span>(<span class="ident">hotkeys</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Key</span>::<span class="ident">E</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>]))
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit roads&quot;</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(
+                .<span class="ident">btn_outline</span>
+                .<span class="ident">text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(
                     <span class="string">&quot;Export {} roads to shared-row&quot;</span>,
                     <span class="ident">selector</span>.<span class="ident">roads</span>.<span class="ident">len</span>()
                 ))
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;export roads to shared-row&quot;</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_text</span>(<span class="string">&quot;export one road to Streetmix&quot;</span>)
+                .<span class="ident">btn_outline</span>
+                .<span class="ident">text</span>(<span class="string">&quot;export one road to Streetmix&quot;</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_text</span>(<span class="string">&quot;export list of roads&quot;</span>)
+                .<span class="ident">btn_outline</span>
+                .<span class="ident">text</span>(<span class="string">&quot;export list of roads&quot;</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Cancel&quot;</span>)
+                .<span class="ident">btn_outline</span>
+                .<span class="ident">text</span>(<span class="string">&quot;Cancel&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         ])
@@ -546,11 +559,13 @@
                 },
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_solid_primary_text</span>(<span class="string">&quot;Finish&quot;</span>)
+                        .<span class="ident">btn_solid_primary</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;Finish&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_plain_destructive_text</span>(<span class="string">&quot;Cancel&quot;</span>)
+                        .<span class="ident">btn_plain_destructive</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;Cancel&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                         .<span class="ident">align_right</span>(),
@@ -663,7 +678,8 @@
                 ],
             ),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain_text</span>(<span class="string">&quot;+ Add&quot;</span>)
+                .<span class="ident">btn_plain</span>
+                .<span class="ident">text</span>(<span class="string">&quot;+ Add&quot;</span>)
                 .<span class="ident">label_color</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#4CA7E9&quot;</span>), <span class="ident">ControlState</span>::<span class="ident">Default</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;add another lane type transformation&quot;</span>),
         ]));

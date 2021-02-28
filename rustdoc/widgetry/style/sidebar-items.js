@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["hex",""]],"mod":[["buttons",""]],"static":[["DEFAULT_OUTLINE_THICKNESS",""]],"struct":[["ButtonStyle",""],["Style",""]],"type":[["OutlineStyle",""]]});
+initSidebarItems({"fn":[["hex",""]],"mod":[["button_style",""]],"static":[["DEFAULT_OUTLINE_THICKNESS",""]],"struct":[["Style",""]],"type":[["OutlineStyle",""]]});

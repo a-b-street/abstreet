@@ -386,6 +386,12 @@
 <span id="383">383</span>
 <span id="384">384</span>
 <span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>};
 
@@ -401,8 +407,8 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">BuildingID</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">ButtonBuilder</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>,
-    <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>,
-    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>,
+    <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">buildings</span>::{<span class="ident">BldgState</span>, <span class="ident">Buildings</span>};
@@ -698,7 +704,8 @@
     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">upzones_unlocked</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
         <span class="kw">return</span> <span class="ident">Panel</span>::<span class="ident">new</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_primary_text</span>(<span class="string">&quot;Start game&quot;</span>)
+                .<span class="ident">btn_solid_primary</span>
+                .<span class="ident">text</span>(<span class="string">&quot;Start game&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                 .<span class="ident">container</span>(),
@@ -714,7 +721,8 @@
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;Upzoning&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/tools/info.svg&quot;</span>)
+                .<span class="ident">btn_plain</span>
+                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/info.svg&quot;</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;help&quot;</span>)
                 .<span class="ident">align_right</span>(),
         ]),
@@ -730,23 +738,27 @@
         ]),
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Randomly choose upzones&quot;</span>)
+                .<span class="ident">btn_outline</span>
+                .<span class="ident">text</span>(<span class="string">&quot;Randomly choose upzones&quot;</span>)
                 .<span class="ident">disabled</span>(<span class="ident">num_picked</span> <span class="op">=</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">upzones_unlocked</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Clear upzones&quot;</span>)
+                .<span class="ident">btn_outline</span>
+                .<span class="ident">text</span>(<span class="string">&quot;Clear upzones&quot;</span>)
                 .<span class="ident">disabled</span>(<span class="ident">num_picked</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                 .<span class="ident">align_right</span>(),
         ]),
         <span class="kw">if</span> <span class="ident">num_picked</span> <span class="op">=</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">upzones_unlocked</span> {
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_primary_text</span>(<span class="string">&quot;Start game&quot;</span>)
+                .<span class="ident">btn_solid_primary</span>
+                .<span class="ident">text</span>(<span class="string">&quot;Start game&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
         } <span class="kw">else</span> {
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_primary_text</span>(<span class="string">&quot;Finish upzoning before playing&quot;</span>)
+                .<span class="ident">btn_solid_primary</span>
+                .<span class="ident">text</span>(<span class="string">&quot;Finish upzoning before playing&quot;</span>)
                 .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
         },

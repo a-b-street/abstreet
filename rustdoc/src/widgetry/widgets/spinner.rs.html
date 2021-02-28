@@ -184,13 +184,14 @@
 <span id="181">181</span>
 <span id="182">182</span>
 <span id="183">183</span>
+<span id="184">184</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">CornerRadii</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">include_labeled_bytes</span>, <span class="ident">text</span>, <span class="ident">Button</span>, <span class="ident">Drawable</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>,
-    <span class="ident">Outcome</span>, <span class="ident">OutlineStyle</span>, <span class="ident">Prerender</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Style</span>, <span class="ident">StyledButtons</span>,
-    <span class="ident">Text</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
+    <span class="ident">Outcome</span>, <span class="ident">OutlineStyle</span>, <span class="ident">Prerender</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Style</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
+    <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
 };
 
 <span class="comment">// TODO MAX_CHAR_WIDTH is a hardcoded nonsense value</span>
@@ -221,7 +222,8 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, (<span class="ident">low</span>, <span class="ident">high</span>): (<span class="ident">isize</span>, <span class="ident">isize</span>), <span class="kw-2">mut</span> <span class="ident">current</span>: <span class="ident">isize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">button_builder</span> <span class="op">=</span> <span class="ident">ctx</span>
             .<span class="ident">style</span>()
-            .<span class="ident">btn_plain</span>()
+            .<span class="ident">btn_plain</span>
+            .<span class="ident">btn</span>()
             .<span class="ident">padding</span>(<span class="ident">EdgeInsets</span> {
                 <span class="ident">top</span>: <span class="number">2.0</span>,
                 <span class="ident">bottom</span>: <span class="number">2.0</span>,

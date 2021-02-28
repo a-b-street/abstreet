@@ -584,6 +584,8 @@
 <span id="581">581</span>
 <span id="582">582</span>
 <span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -595,7 +597,7 @@
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentType</span>, <span class="ident">TripMode</span>, <span class="ident">TripPhaseType</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">ScreenDims</span>,
-    <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextSpan</span>, <span class="ident">Toggle</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>, <span class="ident">TextSpan</span>, <span class="ident">Toggle</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">minimap</span>::<span class="ident">MinimapController</span>;
@@ -878,11 +880,13 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tool_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
     <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>)
+            .<span class="ident">btn_plain</span>
+            .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>)
             .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
             .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;back&quot;</span>),
         <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/tools/settings.svg&quot;</span>)
+            .<span class="ident">btn_plain</span>
+            .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/settings.svg&quot;</span>)
             .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;settings&quot;</span>),
     ]))
     .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Left</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">BottomAboveOSD</span>)

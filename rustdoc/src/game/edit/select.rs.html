@@ -305,14 +305,14 @@
 <span id="302">302</span>
 <span id="303">303</span>
 <span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">RoadID</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">RewriteColor</span>, <span class="ident">StyledButtons</span>, <span class="ident">Widget</span>,
-};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">RewriteColor</span>, <span class="ident">Widget</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">intersections_from_roads</span>, <span class="ident">CommonState</span>};
@@ -359,22 +359,26 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_controls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>)
+                .<span class="ident">btn_plain</span>
+                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>)
                 .<span class="ident">disabled</span>(<span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">mode</span>, <span class="ident">Mode</span>::<span class="ident">Paint</span>))
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">P</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;paint&quot;</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/tools/eraser.svg&quot;</span>)
+                .<span class="ident">btn_plain</span>
+                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/eraser.svg&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Backspace</span>)
                 .<span class="ident">disabled</span>(<span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">mode</span>, <span class="ident">Mode</span>::<span class="ident">Erase</span>))
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;erase&quot;</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/timeline/start_pos.svg&quot;</span>)
+                .<span class="ident">btn_plain</span>
+                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/timeline/start_pos.svg&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">R</span>)
                 .<span class="ident">disabled</span>(<span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">mode</span>, <span class="ident">Mode</span>::<span class="ident">Route</span> { .. }))
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;select along route&quot;</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/tools/pan.svg&quot;</span>)
+                .<span class="ident">btn_plain</span>
+                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/pan.svg&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
                 .<span class="ident">disabled</span>(<span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">mode</span>, <span class="ident">Mode</span>::<span class="ident">Pan</span>))
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;pan&quot;</span>),

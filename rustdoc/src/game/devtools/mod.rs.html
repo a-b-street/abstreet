@@ -181,6 +181,13 @@
 <span id="178">178</span>
 <span id="179">179</span>
 <span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! This directory contains extra/experimental tools not directly related to A/B Street the game.</span>
 <span class="doccomment">//! Eventually some might be split into separate crates.</span>
@@ -192,7 +199,7 @@
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">AppLike</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
-    <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">State</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
@@ -221,36 +228,43 @@
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="string">&quot;Change map:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline_popup</span>(<span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()))
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">popup</span>(<span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()))
                         .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">L</span>))
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change map&quot;</span>),
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline_text</span>(<span class="string">&quot;edit a polygon&quot;</span>)
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;edit a polygon&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">E</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline_text</span>(<span class="string">&quot;draw a polygon&quot;</span>)
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;draw a polygon&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">P</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline_text</span>(<span class="string">&quot;load scenario&quot;</span>)
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;load scenario&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">W</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline_text</span>(<span class="string">&quot;view KML&quot;</span>)
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;view KML&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">K</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline_text</span>(<span class="string">&quot;story maps&quot;</span>)
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;story maps&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">S</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="kw">if</span> <span class="ident">abstio</span>::<span class="ident">file_exists</span>(
                         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_city_name</span>().<span class="ident">input_path</span>(<span class="string">&quot;collisions.bin&quot;</span>),
                     ) {
                         <span class="ident">ctx</span>.<span class="ident">style</span>()
-                            .<span class="ident">btn_outline_text</span>(<span class="string">&quot;collisions&quot;</span>)
+                            .<span class="ident">btn_outline</span>
+                            .<span class="ident">text</span>(<span class="string">&quot;collisions&quot;</span>)
                             .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">C</span>)
                             .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                     } <span class="kw">else</span> {

@@ -923,6 +923,22 @@
 <span id="920">920</span>
 <span id="921">921</span>
 <span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -941,8 +957,8 @@
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">Sim</span>, <span class="ident">TripEndpoint</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Cached</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
-    <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenDims</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">Toggle</span>,
-    <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenDims</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">Toggle</span>, <span class="ident">UpdateType</span>,
+    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">ShowLayers</span>, <span class="ident">ShowObject</span>, <span class="ident">Transition</span>};
@@ -989,60 +1005,76 @@
                 <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show route for all agents&quot;</span>, <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">R</span>), <span class="bool-val">false</span>),
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline_text</span>(<span class="string">&quot;unhide everything&quot;</span>)
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;unhide everything&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">H</span>))
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline_text</span>(<span class="string">&quot;screenshot everything (for leaflet)&quot;</span>)
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;screenshot everything (for leaflet)&quot;</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline_text</span>(<span class="string">&quot;screenshot all of the everything&quot;</span>)
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;screenshot all of the everything&quot;</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline_text</span>(<span class="string">&quot;search OSM metadata&quot;</span>)
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;search OSM metadata&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Slash</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline_text</span>(<span class="string">&quot;clear OSM search results&quot;</span>)
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;clear OSM search results&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Slash</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline_text</span>(<span class="string">&quot;save sim state&quot;</span>)
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;save sim state&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">O</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline_text</span>(<span class="string">&quot;load previous sim state&quot;</span>)
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;load previous sim state&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Y</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline_text</span>(<span class="string">&quot;load next sim state&quot;</span>)
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;load next sim state&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">U</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline_text</span>(<span class="string">&quot;pick a savestate to load&quot;</span>)
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;pick a savestate to load&quot;</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline_text</span>(<span class="string">&quot;find bad traffic signals&quot;</span>)
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;find bad traffic signals&quot;</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline_text</span>(<span class="string">&quot;find degenerate roads&quot;</span>)
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;find degenerate roads&quot;</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline_text</span>(<span class="string">&quot;find large intersections&quot;</span>)
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;find large intersections&quot;</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline_text</span>(<span class="string">&quot;sim internal stats&quot;</span>)
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;sim internal stats&quot;</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline_text</span>(<span class="string">&quot;blocked-by graph&quot;</span>)
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;blocked-by graph&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">B</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline_text</span>(<span class="string">&quot;render to GeoJSON&quot;</span>)
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;render to GeoJSON&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">G</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline_text</span>(<span class="string">&quot;draw banned turns&quot;</span>)
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;draw banned turns&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">T</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 ]),

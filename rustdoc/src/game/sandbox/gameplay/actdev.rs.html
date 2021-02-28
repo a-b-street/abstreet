@@ -220,6 +220,11 @@
 <span id="217">217</span>
 <span id="218">218</span>
 <span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
 
@@ -228,7 +233,7 @@
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentType</span>, <span class="ident">PersonID</span>, <span class="ident">TripID</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">ControlState</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
-    <span class="ident">SimpleState</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">SimpleState</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
@@ -305,7 +310,7 @@
                         .<span class="ident">draw</span>(<span class="ident">ctx</span>),
                         <span class="string">&quot;This is a simplified version. Check out the full version below.&quot;</span>
                             .<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline_text</span>(<span class="string">&quot;abstreet.org&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;abstreet.org&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     ]))
                     .<span class="ident">build</span>(<span class="ident">ctx</span>);
                     <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">SimpleState</span>::<span class="ident">new</span>(<span class="ident">panel</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">About</span>))))
@@ -357,7 +362,8 @@
         <span class="kw">let</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>()
+                    .<span class="ident">btn_plain</span>
+                    .<span class="ident">btn</span>()
                     .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/pregame/logo.svg&quot;</span>)
                     .<span class="ident">image_dims</span>(<span class="number">50.0</span>)
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;about A/B Street&quot;</span>)
@@ -384,20 +390,24 @@
                     )
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change scenario&quot;</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline_icon_text</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>, <span class="string">&quot;Edit map&quot;</span>)
+                    .<span class="ident">btn_outline</span>
+                    .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>, <span class="string">&quot;Edit map&quot;</span>)
                     .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">E</span>))
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             ])
             .<span class="ident">centered</span>(),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain_icon_text</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>, <span class="string">&quot;Follow someone&quot;</span>)
+                    .<span class="ident">btn_plain</span>
+                    .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>, <span class="string">&quot;Follow someone&quot;</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain_icon_text</span>(<span class="string">&quot;system/assets/meters/bike.svg&quot;</span>, <span class="string">&quot;Cycling activity&quot;</span>)
+                    .<span class="ident">btn_plain</span>
+                    .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/meters/bike.svg&quot;</span>, <span class="string">&quot;Cycling activity&quot;</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain_icon_text</span>(<span class="string">&quot;system/assets/meters/pedestrian.svg&quot;</span>, <span class="string">&quot;Walking activity&quot;</span>)
+                    .<span class="ident">btn_plain</span>
+                    .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/meters/pedestrian.svg&quot;</span>, <span class="string">&quot;Walking activity&quot;</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             ]),
         ]);

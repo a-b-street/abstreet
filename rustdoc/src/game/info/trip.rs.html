@@ -913,6 +913,12 @@
 <span id="910">910</span>
 <span id="911">911</span>
 <span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -924,7 +930,7 @@
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentID</span>, <span class="ident">PersonID</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripID</span>, <span class="ident">TripPhase</span>, <span class="ident">TripPhaseType</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">PlotOptions</span>,
-    <span class="ident">RewriteColor</span>, <span class="ident">Series</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
+    <span class="ident">RewriteColor</span>, <span class="ident">Series</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
@@ -1169,7 +1175,8 @@
         );
         <span class="ident">col</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_floating</span>()
+                .<span class="ident">btn_floating</span>
+                .<span class="ident">btn</span>()
                 .<span class="ident">label_styled_text</span>(
                     <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">Line</span>(<span class="string">&quot;After / &quot;</span>),
@@ -1190,7 +1197,8 @@
         );
         <span class="ident">col</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_floating</span>()
+                .<span class="ident">btn_floating</span>
+                .<span class="ident">btn</span>()
                 .<span class="ident">label_styled_text</span>(
                     <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">Line</span>(<span class="string">&quot;After / &quot;</span>).<span class="ident">secondary</span>(),
@@ -1610,7 +1618,8 @@
         );
 
         <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/timeline/start_pos.svg&quot;</span>)
+            .<span class="ident">btn_plain</span>
+            .<span class="ident">icon</span>(<span class="string">&quot;system/assets/timeline/start_pos.svg&quot;</span>)
             .<span class="ident">tooltip</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">name</span>)))
             .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;jump to start of {}&quot;</span>, <span class="ident">trip_id</span>))
     };
@@ -1642,7 +1651,8 @@
         );
 
         <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
+            .<span class="ident">btn_plain</span>
+            .<span class="ident">icon</span>(<span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
             .<span class="ident">tooltip</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">name</span>)))
             .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;jump to goal of {}&quot;</span>, <span class="ident">trip_id</span>))
     };
@@ -1715,7 +1725,8 @@
                     (<span class="ident">trip_id</span>, <span class="ident">trip</span>.<span class="ident">departure</span>),
                 );
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/speed/jump_to_time.svg&quot;</span>)
+                    .<span class="ident">btn_plain</span>
+                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/speed/jump_to_time.svg&quot;</span>)
                     .<span class="ident">tooltip</span>({
                         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;This will jump to &quot;</span>));
                         <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">trip</span>.<span class="ident">departure</span>.<span class="ident">ampm_tostring</span>()).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#F9EC51&quot;</span>)));
@@ -1733,7 +1744,8 @@
                         .<span class="ident">time_warpers</span>
                         .<span class="ident">insert</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;jump to {}&quot;</span>, <span class="ident">t</span>), (<span class="ident">trip_id</span>, <span class="ident">t</span>));
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/speed/jump_to_time.svg&quot;</span>)
+                        .<span class="ident">btn_plain</span>
+                        .<span class="ident">icon</span>(<span class="string">&quot;system/assets/speed/jump_to_time.svg&quot;</span>)
                         .<span class="ident">tooltip</span>({
                             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;This will jump to &quot;</span>));
                             <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">t</span>.<span class="ident">ampm_tostring</span>()).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#F9EC51&quot;</span>)));

@@ -474,6 +474,16 @@
 <span id="471">471</span>
 <span id="472">472</span>
 <span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -483,7 +493,7 @@
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">ScenarioModifier</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Slider</span>,
-    <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
@@ -617,7 +627,8 @@
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change scenario&quot;</span>)
                     .<span class="ident">margin_right</span>(<span class="number">8</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline_icon_text</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>, <span class="string">&quot;Edit map&quot;</span>)
+                    .<span class="ident">btn_outline</span>
+                    .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>, <span class="string">&quot;Edit map&quot;</span>)
                     .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">E</span>))
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit map&quot;</span>)
                     .<span class="ident">margin_right</span>(<span class="number">8</span>),
@@ -626,7 +637,8 @@
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scenario_name</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;empty&quot;</span> {
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_plain_icon</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>)
+                        .<span class="ident">btn_plain</span>
+                        .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>)
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit traffic patterns&quot;</span>)
                         .<span class="ident">centered_vert</span>(),
                     <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} modifications to traffic patterns&quot;</span>, <span class="self">self</span>.<span class="ident">modifiers</span>.<span class="ident">len</span>())
@@ -676,7 +688,8 @@
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">m</span>.<span class="ident">describe</span>().<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_solid_destructive_icon</span>(<span class="string">&quot;system/assets/tools/trash.svg&quot;</span>)
+                        .<span class="ident">btn_solid_destructive</span>
+                        .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/trash.svg&quot;</span>)
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;delete modifier {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>))
                         .<span class="ident">align_right</span>(),
                 ])
@@ -686,29 +699,34 @@
         }
         <span class="ident">rows</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Change trip mode&quot;</span>)
+                .<span class="ident">btn_outline</span>
+                .<span class="ident">text</span>(<span class="string">&quot;Change trip mode&quot;</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         );
         <span class="ident">rows</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Add extra new trips&quot;</span>)
+                .<span class="ident">btn_outline</span>
+                .<span class="ident">text</span>(<span class="string">&quot;Add extra new trips&quot;</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         );
         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">2</span>, <span class="number">14</span>), <span class="number">2</span>).<span class="ident">named</span>(<span class="string">&quot;repeat_days&quot;</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline_text</span>(<span class="string">&quot;Repeat schedule multiple days&quot;</span>)
+                .<span class="ident">btn_outline</span>
+                .<span class="ident">text</span>(<span class="string">&quot;Repeat schedule multiple days&quot;</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         ]));
         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.5</span>));
         <span class="ident">rows</span>.<span class="ident">push</span>(
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_solid_primary_text</span>(<span class="string">&quot;Apply&quot;</span>)
+                    .<span class="ident">btn_solid_primary</span>
+                    .<span class="ident">text</span>(<span class="string">&quot;Apply&quot;</span>)
                     .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_solid_destructive_text</span>(<span class="string">&quot;Discard changes&quot;</span>)
+                    .<span class="ident">btn_solid_destructive</span>
+                    .<span class="ident">text</span>(<span class="string">&quot;Discard changes&quot;</span>)
                     .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             ])
@@ -866,11 +884,13 @@
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_solid_primary_text</span>(<span class="string">&quot;Apply&quot;</span>)
+                        .<span class="ident">btn_solid_primary</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;Apply&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_solid_destructive_text</span>(<span class="string">&quot;Discard changes&quot;</span>)
+                        .<span class="ident">btn_solid_destructive</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;Discard changes&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 ])
