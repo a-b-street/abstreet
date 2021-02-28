@@ -101,10 +101,10 @@ impl ButtonStyle {
     pub fn solid_primary() -> Self {
         Self {
             fg: hex("#F2F2F2"),
-            fg_disabled: hex("#F2F2F2").alpha(0.3),
-            bg: hex("#EE702E").alpha(0.8),
+            fg_disabled: hex("#F2F2F2"),
+            bg: hex("#EE702E").tint(0.1),
             bg_hover: hex("#EE702E"),
-            bg_disabled: hex("#EE702E").alpha(0.3),
+            bg_disabled: hex("#EE702E").tint(0.3),
             outline: (DEFAULT_OUTLINE_THICKNESS, hex("#EE702E").alpha(0.6)),
         }
     }
@@ -112,9 +112,9 @@ impl ButtonStyle {
     pub fn plain_primary() -> Self {
         Self {
             fg: hex("#EE702E"),
-            fg_disabled: hex("#EE702E").alpha(0.3),
+            fg_disabled: hex("#EE702E").tint(0.3),
             bg: Color::CLEAR,
-            bg_hover: hex("#EE702E").alpha(0.1),
+            bg_hover: hex("#EE702E").tint(0.1),
             bg_disabled: Color::CLEAR,
             outline: (0.0, Color::CLEAR),
         }
