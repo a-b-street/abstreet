@@ -289,6 +289,7 @@
 <span id="286">286</span>
 <span id="287">287</span>
 <span id="288">288</span>
+<span id="289">289</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">VecDeque</span>;
 
@@ -478,7 +479,8 @@
             .<span class="ident">centered_vert</span>(),
             <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(
                 <span class="self">self</span>,
-                <span class="ident">txt</span>.<span class="ident">inner_render</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">assets</span>, <span class="ident">svg</span>::<span class="ident">LOW_QUALITY</span>),
+                <span class="ident">txt</span>.<span class="ident">change_fg</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>)
+                    .<span class="ident">inner_render</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">assets</span>, <span class="ident">svg</span>::<span class="ident">LOW_QUALITY</span>),
             )
             .<span class="ident">container</span>()
             .<span class="ident">fill_width</span>()
