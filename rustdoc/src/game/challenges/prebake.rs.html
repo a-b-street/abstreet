@@ -119,7 +119,7 @@
     <span class="kw">for</span> <span class="ident">name</span> <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;lakeslice&quot;</span>),
         <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;phinney&quot;</span>),
-        <span class="comment">//MapName::seattle(&quot;rainier_valley&quot;),   // TODO Broken by service road change</span>
+        <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;rainier_valley&quot;</span>),
     ] {
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">map_model</span>::<span class="ident">Map</span>::<span class="ident">new</span>(<span class="ident">name</span>.<span class="ident">path</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
         <span class="kw">let</span> <span class="ident">scenario</span>: <span class="ident">Scenario</span> <span class="op">=</span>

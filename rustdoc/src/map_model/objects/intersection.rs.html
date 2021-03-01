@@ -170,6 +170,20 @@
 <span id="167">167</span>
 <span id="168">168</span>
 <span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -316,6 +330,20 @@
             };
             <span class="ident">endpt</span>.<span class="ident">angle_to</span>(<span class="ident">center</span>).<span class="ident">normalized_degrees</span>() <span class="kw">as</span> <span class="ident">i64</span>
         });
+        <span class="ident">roads</span>
+    }
+
+    <span class="doccomment">/// Return all incoming roads to an intersection, sorted by angle. This skips one-way roads</span>
+    <span class="doccomment">/// outbound from the intersection, since no turns originate from those anyway. This allows</span>
+    <span class="doccomment">/// heuristics for a 3-way intersection to not care if one of the roads happens to be a dual</span>
+    <span class="doccomment">/// carriageway (split into two one-ways).</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_sorted_incoming_roads</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">get_roads_sorted_by_incoming_angle</span>(<span class="ident">map</span>.<span class="ident">all_roads</span>()) {
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">incoming_lanes</span>(<span class="self">self</span>.<span class="ident">id</span>).<span class="ident">is_empty</span>() {
+                <span class="ident">roads</span>.<span class="ident">push</span>(<span class="ident">r</span>);
+            }
+        }
         <span class="ident">roads</span>
     }
 

@@ -500,23 +500,6 @@
 <span id="497">497</span>
 <span id="498">498</span>
 <span id="499">499</span>
-<span id="500">500</span>
-<span id="501">501</span>
-<span id="502">502</span>
-<span id="503">503</span>
-<span id="504">504</span>
-<span id="505">505</span>
-<span id="506">506</span>
-<span id="507">507</span>
-<span id="508">508</span>
-<span id="509">509</span>
-<span id="510">510</span>
-<span id="511">511</span>
-<span id="512">512</span>
-<span id="513">513</span>
-<span id="514">514</span>
-<span id="515">515</span>
-<span id="516">516</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The various traffic signal generators live in the traffic signal module. Eventually, we</span>
 <span class="doccomment">//! might want to move to a trait. For now, there&#39;s a single make_traffic_signal static method</span>
@@ -667,7 +650,7 @@
 }
 
 <span class="kw">fn</span> <span class="ident">degenerate</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ControlTrafficSignal</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">get_sorted_incoming_roads</span>(<span class="ident">i</span>, <span class="ident">map</span>);
+    <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">get_sorted_incoming_roads</span>(<span class="ident">map</span>);
     <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">2</span> {
         <span class="kw">return</span> <span class="prelude-val">None</span>;
     }
@@ -705,7 +688,7 @@
 }
 
 <span class="kw">fn</span> <span class="ident">three_way</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ControlTrafficSignal</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">get_sorted_incoming_roads</span>(<span class="ident">i</span>, <span class="ident">map</span>);
+    <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">get_sorted_incoming_roads</span>(<span class="ident">map</span>);
     <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">3</span> {
         <span class="kw">return</span> <span class="prelude-val">None</span>;
     }
@@ -746,7 +729,7 @@
 }
 
 <span class="kw">fn</span> <span class="ident">four_way_four_stage</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ControlTrafficSignal</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">get_sorted_incoming_roads</span>(<span class="ident">i</span>, <span class="ident">map</span>);
+    <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">get_sorted_incoming_roads</span>(<span class="ident">map</span>);
     <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">4</span> {
         <span class="kw">return</span> <span class="prelude-val">None</span>;
     }
@@ -779,7 +762,7 @@
 }
 
 <span class="kw">fn</span> <span class="ident">four_way_two_stage</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ControlTrafficSignal</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">get_sorted_incoming_roads</span>(<span class="ident">i</span>, <span class="ident">map</span>);
+    <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">get_sorted_incoming_roads</span>(<span class="ident">map</span>);
     <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">4</span> {
         <span class="kw">return</span> <span class="prelude-val">None</span>;
     }
@@ -1016,23 +999,6 @@
             <span class="ident">map</span>.<span class="ident">traffic_signals</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">i1</span>).<span class="ident">unwrap</span>().<span class="ident">stages</span>.<span class="ident">swap</span>(<span class="number">0</span>, <span class="number">1</span>);
         }
     }
-}
-
-<span class="doccomment">/// Return all incoming roads to an intersection, sorted by angle. This skips one-way roads</span>
-<span class="doccomment">/// outbound from the intersection, since no turns originate from those anyway. This allows</span>
-<span class="doccomment">/// heuristics for a 3-way intersection to not care if one of the roads happens to be a dual</span>
-<span class="doccomment">/// carriageway (split into two one-ways).</span>
-<span class="kw">fn</span> <span class="ident">get_sorted_incoming_roads</span>(<span class="ident">i</span>: <span class="ident">IntersectionID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>
-        .<span class="ident">get_i</span>(<span class="ident">i</span>)
-        .<span class="ident">get_roads_sorted_by_incoming_angle</span>(<span class="ident">map</span>.<span class="ident">all_roads</span>())
-    {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">incoming_lanes</span>(<span class="ident">i</span>).<span class="ident">is_empty</span>() {
-            <span class="ident">roads</span>.<span class="ident">push</span>(<span class="ident">r</span>);
-        }
-    }
-    <span class="ident">roads</span>
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../../";window.currentCrate = "map_model";</script><script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script><script defer src="../../../../search-index.js"></script></body></html>

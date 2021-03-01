@@ -417,6 +417,47 @@
 <span id="414">414</span>
 <span id="415">415</span>
 <span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -604,6 +645,8 @@
 <span class="kw">fn</span> <span class="ident">make_vehicle_turns</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">turns</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
 
+    <span class="kw">let</span> <span class="ident">expected_turn_types</span> <span class="op">=</span> <span class="ident">expected_turn_types_for_four_way</span>(<span class="ident">i</span>, <span class="ident">map</span>);
+
     <span class="comment">// Just generate every possible combination of turns between incoming and outgoing lanes.</span>
     <span class="kw">let</span> <span class="ident">is_deadend</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span>;
     <span class="kw">for</span> <span class="ident">src</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">incoming_lanes</span> {
@@ -654,7 +697,21 @@
                     <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Skipping U-turn at tiny deadend on {}&quot;</span>, <span class="ident">src</span>.<span class="ident">id</span>);
                     <span class="kw">continue</span>;
                 }
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">expected_type</span>) <span class="op">=</span> <span class="ident">expected_turn_types</span>
+                .<span class="ident">as_ref</span>()
+                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span>(<span class="ident">src</span>.<span class="ident">parent</span>, <span class="ident">dst</span>.<span class="ident">parent</span>)))
+            {
+                <span class="comment">// At some 4-way intersections, roads meet at strange angles, throwing off</span>
+                <span class="comment">// turn_type_from_angles. Correct it based on relative ordering.</span>
+                <span class="kw">if</span> <span class="ident">turn_type</span> <span class="op">!</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">expected_type</span> {
+                    <span class="macro">warn</span><span class="macro">!</span>(
+                        <span class="string">&quot;Turn from {} to {} looks like {:?} by angle, but is {:?} by ordering&quot;</span>,
+                        <span class="ident">src</span>.<span class="ident">parent</span>, <span class="ident">dst</span>.<span class="ident">parent</span>, <span class="ident">turn_type</span>, <span class="ident">expected_type</span>
+                    );
+                    <span class="ident">turn_type</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">expected_type</span>;
+                }
             }
+
             <span class="kw">let</span> <span class="ident">geom</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TurnType</span>::<span class="ident">Straight</span> {
                 <span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">src</span>.<span class="ident">last_pt</span>(), <span class="ident">dst</span>.<span class="ident">first_pt</span>()])
             } <span class="kw">else</span> {
@@ -833,6 +890,31 @@
         <span class="comment">// Counter-clockwise rotation</span>
         <span class="ident">TurnType</span>::<span class="ident">Left</span>
     }
+}
+
+<span class="kw">fn</span> <span class="ident">expected_turn_types_for_four_way</span>(
+    <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>,
+    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span>(<span class="ident">RoadID</span>, <span class="ident">RoadID</span>), <span class="ident">TurnType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">get_sorted_incoming_roads</span>(<span class="ident">map</span>);
+    <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">4</span> {
+        <span class="kw">return</span> <span class="prelude-val">None</span>;
+    }
+
+    <span class="comment">// Just based on relative ordering around the intersection, turns (from road, to road, should</span>
+    <span class="comment">// have this type)</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expected_turn_types</span>: <span class="ident">HashMap</span><span class="op">&lt;</span>(<span class="ident">RoadID</span>, <span class="ident">RoadID</span>), <span class="ident">TurnType</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
+    <span class="kw">for</span> (<span class="ident">offset</span>, <span class="ident">turn_type</span>) <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[
+        (<span class="number">1</span>, <span class="ident">TurnType</span>::<span class="ident">Left</span>),
+        (<span class="number">2</span>, <span class="ident">TurnType</span>::<span class="ident">Straight</span>),
+        (<span class="number">3</span>, <span class="ident">TurnType</span>::<span class="ident">Right</span>),
+    ] {
+        <span class="kw">for</span> <span class="ident">from_idx</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">roads</span>.<span class="ident">len</span>() {
+            <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">abstutil</span>::<span class="ident">wraparound_get</span>(<span class="kw-2">&amp;</span><span class="ident">roads</span>, (<span class="ident">from_idx</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">+</span> <span class="ident">offset</span>);
+            <span class="ident">expected_turn_types</span>.<span class="ident">insert</span>((<span class="ident">roads</span>[<span class="ident">from_idx</span>], <span class="ident">to</span>), <span class="ident">turn_type</span>);
+        }
+    }
+    <span class="prelude-val">Some</span>(<span class="ident">expected_turn_types</span>)
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "map_model";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>
