@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["add_lunch_trips",""],["add_return_trips",""],["main",""],["rand_duration",""]]});
+initSidebarItems({"fn":[["add_lunch_trips",""],["add_return_trips",""],["main",""],["pick_lunch_spot",""],["rand_duration",""]]});
