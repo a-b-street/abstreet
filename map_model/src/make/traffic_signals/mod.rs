@@ -147,7 +147,7 @@ fn greedy_assignment(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
 }
 
 fn degenerate(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
-    let roads = get_sorted_incoming_roads(i, map);
+    let roads = map.get_i(i).get_sorted_incoming_roads(map);
     if roads.len() != 2 {
         return None;
     }
@@ -185,7 +185,7 @@ fn half_signal(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
 }
 
 fn three_way(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
-    let roads = get_sorted_incoming_roads(i, map);
+    let roads = map.get_i(i).get_sorted_incoming_roads(map);
     if roads.len() != 3 {
         return None;
     }
@@ -226,7 +226,7 @@ fn three_way(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
 }
 
 fn four_way_four_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
-    let roads = get_sorted_incoming_roads(i, map);
+    let roads = map.get_i(i).get_sorted_incoming_roads(map);
     if roads.len() != 4 {
         return None;
     }
@@ -259,7 +259,7 @@ fn four_way_four_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSig
 }
 
 fn four_way_two_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
-    let roads = get_sorted_incoming_roads(i, map);
+    let roads = map.get_i(i).get_sorted_incoming_roads(map);
     if roads.len() != 4 {
         return None;
     }
@@ -496,21 +496,4 @@ pub fn synchronize(map: &mut Map) {
             map.traffic_signals.get_mut(&i1).unwrap().stages.swap(0, 1);
         }
     }
-}
-
-/// Return all incoming roads to an intersection, sorted by angle. This skips one-way roads
-/// outbound from the intersection, since no turns originate from those anyway. This allows
-/// heuristics for a 3-way intersection to not care if one of the roads happens to be a dual
-/// carriageway (split into two one-ways).
-fn get_sorted_incoming_roads(i: IntersectionID, map: &Map) -> Vec<RoadID> {
-    let mut roads = Vec::new();
-    for r in map
-        .get_i(i)
-        .get_roads_sorted_by_incoming_angle(map.all_roads())
-    {
-        if !map.get_r(r).incoming_lanes(i).is_empty() {
-            roads.push(r);
-        }
-    }
-    roads
 }

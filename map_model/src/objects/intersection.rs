@@ -146,6 +146,20 @@ impl Intersection {
         roads
     }
 
+    /// Return all incoming roads to an intersection, sorted by angle. This skips one-way roads
+    /// outbound from the intersection, since no turns originate from those anyway. This allows
+    /// heuristics for a 3-way intersection to not care if one of the roads happens to be a dual
+    /// carriageway (split into two one-ways).
+    pub fn get_sorted_incoming_roads(&self, map: &Map) -> Vec<RoadID> {
+        let mut roads = Vec::new();
+        for r in self.get_roads_sorted_by_incoming_angle(map.all_roads()) {
+            if !map.get_r(r).incoming_lanes(self.id).is_empty() {
+                roads.push(r);
+            }
+        }
+        roads
+    }
+
     pub fn some_outgoing_road(&self, map: &Map) -> Option<DirectedRoadID> {
         self.outgoing_lanes
             .get(0)

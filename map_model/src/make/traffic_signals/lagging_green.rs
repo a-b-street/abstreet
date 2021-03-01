@@ -264,7 +264,7 @@ fn remove_movement(from: &RoadID, to: &RoadID, turns: &mut Vec<MovementID>) -> O
 }
 
 fn three_way_three_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
-    let roads = get_sorted_incoming_roads(i, map);
+    let roads = map.get_i(i).get_sorted_incoming_roads(map);
     if roads.len() != 3 {
         return None;
     }
@@ -308,7 +308,7 @@ fn three_way_three_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficS
 }
 
 fn four_way_four_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
-    let roads = get_sorted_incoming_roads(i, map);
+    let roads = map.get_i(i).get_sorted_incoming_roads(map);
     if roads.len() != 4 {
         return None;
     }

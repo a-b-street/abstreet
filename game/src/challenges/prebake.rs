@@ -30,7 +30,7 @@ pub fn prebake_all() {
     for name in vec![
         MapName::seattle("lakeslice"),
         MapName::seattle("phinney"),
-        //MapName::seattle("rainier_valley"),   // TODO Broken by service road change
+        MapName::seattle("rainier_valley"),
     ] {
         let map = map_model::Map::new(name.path(), &mut timer);
         let scenario: Scenario =

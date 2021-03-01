@@ -184,6 +184,8 @@ fn does_turn_pass_restrictions(turn: &Turn, i: &Intersection, map: &Map) -> bool
 fn make_vehicle_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
     let mut turns = Vec::new();
 
+    let expected_turn_types = expected_turn_types_for_four_way(i, map);
+
     // Just generate every possible combination of turns between incoming and outgoing lanes.
     let is_deadend = i.roads.len() == 1;
     for src in &i.incoming_lanes {
@@ -234,7 +236,21 @@ fn make_vehicle_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
                     warn!("Skipping U-turn at tiny deadend on {}", src.id);
                     continue;
                 }
+            } else if let Some(expected_type) = expected_turn_types
+                .as_ref()
+                .and_then(|e| e.get(&(src.parent, dst.parent)))
+            {
+                // At some 4-way intersections, roads meet at strange angles, throwing off
+                // turn_type_from_angles. Correct it based on relative ordering.
+                if turn_type != *expected_type {
+                    warn!(
+                        "Turn from {} to {} looks like {:?} by angle, but is {:?} by ordering",
+                        src.parent, dst.parent, turn_type, expected_type
+                    );
+                    turn_type = *expected_type;
+                }
             }
+
             let geom = if turn_type == TurnType::Straight {
                 PolyLine::must_new(vec![src.last_pt(), dst.first_pt()])
             } else {
@@ -413,4 +429,29 @@ fn turn_type_from_angles(from: Angle, to: Angle) -> TurnType {
         // Counter-clockwise rotation
         TurnType::Left
     }
+}
+
+fn expected_turn_types_for_four_way(
+    i: &Intersection,
+    map: &Map,
+) -> Option<HashMap<(RoadID, RoadID), TurnType>> {
+    let roads = i.get_sorted_incoming_roads(map);
+    if roads.len() != 4 {
+        return None;
+    }
+
+    // Just based on relative ordering around the intersection, turns (from road, to road, should
+    // have this type)
+    let mut expected_turn_types: HashMap<(RoadID, RoadID), TurnType> = HashMap::new();
+    for (offset, turn_type) in vec![
+        (1, TurnType::Left),
+        (2, TurnType::Straight),
+        (3, TurnType::Right),
+    ] {
+        for from_idx in 0..roads.len() {
+            let to = *abstutil::wraparound_get(&roads, (from_idx as isize) + offset);
+            expected_turn_types.insert((roads[from_idx], to), turn_type);
+        }
+    }
+    Some(expected_turn_types)
 }
