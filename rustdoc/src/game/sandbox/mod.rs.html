@@ -977,7 +977,7 @@
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">gameplay</span>::{<span class="ident">spawn_agents_around</span>, <span class="ident">GameplayMode</span>, <span class="ident">TutorialPointer</span>, <span class="ident">TutorialState</span>};
 <span class="kw">use</span> <span class="self">self</span>::<span class="ident">misc_tools</span>::{<span class="ident">RoutePreview</span>, <span class="ident">TrafficRecorder</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">speed</span>::{<span class="ident">SpeedControls</span>, <span class="ident">TimePanel</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">speed</span>::{<span class="ident">SpeedControls</span>, <span class="ident">SpeedSetting</span>, <span class="ident">TimePanel</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">time_warp</span>::<span class="ident">TimeWarpScreen</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">tool_panel</span>, <span class="ident">update_url_cam</span>, <span class="ident">CommonState</span>, <span class="ident">MinimapController</span>};
@@ -1568,7 +1568,7 @@
                     <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">SandboxMode</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
                     <span class="kw">let</span> <span class="ident">speed</span> <span class="op">=</span> <span class="ident">mode</span>.<span class="ident">controls</span>.<span class="ident">speed</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>();
                     <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">speed</span>.<span class="ident">is_paused</span>());
-                    <span class="ident">speed</span>.<span class="ident">resume_realtime</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                    <span class="ident">speed</span>.<span class="ident">resume</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">SpeedSetting</span>::<span class="ident">Realtime</span>);
                 }))
             }
             (<span class="kw">_</span>, <span class="string">&quot;unfollow (pause the simulation)&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {

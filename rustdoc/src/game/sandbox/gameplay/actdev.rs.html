@@ -225,6 +225,17 @@
 <span id="222">222</span>
 <span id="223">223</span>
 <span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
 
@@ -241,13 +252,14 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">EditMode</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">info</span>::{<span class="ident">OpenTrip</span>, <span class="ident">Tab</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">gameplay</span>::{<span class="ident">GameplayMode</span>, <span class="ident">GameplayState</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::{<span class="ident">Actions</span>, <span class="ident">SandboxControls</span>, <span class="ident">SandboxMode</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::{<span class="ident">Actions</span>, <span class="ident">SandboxControls</span>, <span class="ident">SandboxMode</span>, <span class="ident">SpeedSetting</span>};
 
 <span class="doccomment">/// A gameplay mode with specific controls for integration with</span>
 <span class="doccomment">/// https://cyipt.github.io/acton/articles/the-actdev-project.html.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Actdev</span> {
     <span class="ident">top_center</span>: <span class="ident">Panel</span>,
     <span class="ident">scenario_name</span>: <span class="ident">String</span>,
+    <span class="ident">once</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Actdev</span> {
@@ -255,6 +267,7 @@
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Actdev</span> {
             <span class="ident">top_center</span>: <span class="ident">Panel</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>),
             <span class="ident">scenario_name</span>,
+            <span class="ident">once</span>: <span class="bool-val">true</span>,
         })
     }
 }
@@ -267,6 +280,15 @@
         <span class="ident">controls</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SandboxControls</span>,
         <span class="ident">actions</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Actions</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">once</span> {
+            <span class="self">self</span>.<span class="ident">once</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            <span class="ident">controls</span>
+                .<span class="ident">speed</span>
+                .<span class="ident">as_mut</span>()
+                .<span class="ident">unwrap</span>()
+                .<span class="ident">resume</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">SpeedSetting</span>::<span class="ident">Faster</span>);
+        }
+
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">top_center</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;change scenario&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -403,11 +425,11 @@
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_plain</span>
-                    .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/meters/bike.svg&quot;</span>, <span class="string">&quot;Cycling activity&quot;</span>)
+                    .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/meters/pedestrian.svg&quot;</span>, <span class="string">&quot;Walking activity&quot;</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_plain</span>
-                    .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/meters/pedestrian.svg&quot;</span>, <span class="string">&quot;Walking activity&quot;</span>)
+                    .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/meters/bike.svg&quot;</span>, <span class="string">&quot;Cycling activity&quot;</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             ]),
         ]);
