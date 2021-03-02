@@ -105,7 +105,11 @@ pub fn main() {
         // Parking data in the actdev maps is nonexistent, so many people have convoluted walking
         // routes just to fetch their car. Just disable parking entirely.
         flags.sim_flags.opts.infinite_parking = true;
-        mode = Some(sandbox::GameplayMode::Actdev(name, "base".to_string()));
+        mode = Some(sandbox::GameplayMode::Actdev(
+            name,
+            "base".to_string(),
+            false,
+        ));
     }
 
     args.done();
@@ -277,7 +281,7 @@ fn finish_app_setup(
     let states: Vec<Box<dyn State<App>>> = if title {
         vec![Box::new(TitleScreen::new(ctx, app))]
     } else if let Some(mode) = maybe_mode {
-        if let GameplayMode::Actdev(_, _) = mode {
+        if let GameplayMode::Actdev(_, _, _) = mode {
             vec![SandboxMode::async_new(
                 app,
                 mode,

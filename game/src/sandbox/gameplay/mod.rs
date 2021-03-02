@@ -38,8 +38,8 @@ pub enum GameplayMode {
     PlayScenario(MapName, String, Vec<ScenarioModifier>),
     FixTrafficSignals,
     OptimizeCommute(OrigPersonID, Duration),
-    // Map name, scenario name
-    Actdev(MapName, String),
+    // Map name, scenario name, background traffic
+    Actdev(MapName, String, bool),
 
     // current
     Tutorial(TutorialPointer),
@@ -104,7 +104,7 @@ impl GameplayMode {
             GameplayMode::FixTrafficSignals => MapName::seattle("downtown"),
             GameplayMode::OptimizeCommute(_, _) => MapName::seattle("montlake"),
             GameplayMode::Tutorial(_) => MapName::seattle("montlake"),
-            GameplayMode::Actdev(ref name, _) => name.clone(),
+            GameplayMode::Actdev(ref name, _, _) => name.clone(),
         }
     }
 
@@ -125,7 +125,8 @@ impl GameplayMode {
                     None => LoadScenario::Nothing,
                 };
             }
-            GameplayMode::Actdev(_, ref scenario) => scenario.to_string(),
+            // TODO We'll need to load two files... and cache both?
+            GameplayMode::Actdev(_, ref scenario, _) => scenario.to_string(),
             GameplayMode::FixTrafficSignals | GameplayMode::OptimizeCommute(_, _) => {
                 "weekday".to_string()
             }
@@ -220,7 +221,9 @@ impl GameplayMode {
                 commute::OptimizeCommute::new(ctx, app, *p, *goal)
             }
             GameplayMode::Tutorial(current) => Tutorial::make_gameplay(ctx, app, *current),
-            GameplayMode::Actdev(_, ref scenario) => actdev::Actdev::new(ctx, scenario.clone()),
+            GameplayMode::Actdev(_, ref scenario, bg_traffic) => {
+                actdev::Actdev::new(ctx, scenario.clone(), *bg_traffic)
+            }
         }
     }
 }

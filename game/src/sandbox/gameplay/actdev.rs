@@ -5,7 +5,7 @@ use map_gui::tools::{grey_out_map, nice_map_name, open_browser, PopupMsg};
 use sim::{AgentType, PersonID, TripID};
 use widgetry::{
     lctrl, ControlState, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    SimpleState, Text, TextExt, VerticalAlignment, Widget,
+    SimpleState, Text, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -20,14 +20,20 @@ use crate::sandbox::{Actions, SandboxControls, SandboxMode, SpeedSetting};
 pub struct Actdev {
     top_center: Panel,
     scenario_name: String,
+    bg_traffic: bool,
     once: bool,
 }
 
 impl Actdev {
-    pub fn new(ctx: &mut EventCtx, scenario_name: String) -> Box<dyn GameplayState> {
+    pub fn new(
+        ctx: &mut EventCtx,
+        scenario_name: String,
+        bg_traffic: bool,
+    ) -> Box<dyn GameplayState> {
         Box::new(Actdev {
             top_center: Panel::empty(ctx),
             scenario_name,
+            bg_traffic,
             once: true,
         })
     }
@@ -63,6 +69,7 @@ impl GameplayState for Actdev {
                         GameplayMode::Actdev(
                             app.primary.map.get_name().clone(),
                             scenario.to_string(),
+                            self.bg_traffic,
                         ),
                         jump_to_time_upon_startup(Duration::hours(8)),
                     )));
@@ -73,6 +80,7 @@ impl GameplayState for Actdev {
                     GameplayMode::Actdev(
                         app.primary.map.get_name().clone(),
                         self.scenario_name.clone(),
+                        self.bg_traffic,
                     ),
                 ))),
                 "about A/B Street" => {
@@ -133,6 +141,18 @@ impl GameplayState for Actdev {
                 }
                 _ => unreachable!(),
             },
+            Outcome::Changed => {
+                // Background traffic was toggled
+                return Some(Transition::Replace(SandboxMode::async_new(
+                    app,
+                    GameplayMode::Actdev(
+                        app.primary.map.get_name().clone(),
+                        self.scenario_name.clone(),
+                        !self.bg_traffic,
+                    ),
+                    jump_to_time_upon_startup(Duration::hours(8)),
+                )));
+            }
             _ => None,
         }
     }
@@ -192,6 +212,8 @@ impl GameplayState for Actdev {
                     .btn_plain
                     .icon_text("system/assets/meters/bike.svg", "Cycling activity")
                     .build_def(ctx),
+                // TODO Layout pending.
+                Toggle::checkbox(ctx, "background traffic", None, self.bg_traffic),
             ]),
         ]);
 
