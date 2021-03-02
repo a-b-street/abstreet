@@ -473,6 +473,13 @@
 <span id="470">470</span>
 <span id="471">471</span>
 <span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The map_editor renders and lets you edit RawMaps, which are a format in between OSM and the</span>
 <span class="doccomment">//! full Map. It&#39;s useful for debugging maps imported from OSM, and for drawing synthetic maps for</span>
@@ -593,6 +600,10 @@
                         <span class="ident">ctx</span>.<span class="ident">style</span>()
                             .<span class="ident">btn_solid_primary</span>
                             .<span class="ident">text</span>(<span class="string">&quot;export to OSM&quot;</span>)
+                            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                        <span class="ident">ctx</span>.<span class="ident">style</span>()
+                            .<span class="ident">btn_solid_destructive</span>
+                            .<span class="ident">text</span>(<span class="string">&quot;overwrite RawMap&quot;</span>)
                             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     ]),
                 ]))
@@ -781,6 +792,9 @@
                                 }
                                 <span class="string">&quot;export to OSM&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                                     <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">export_to_osm</span>();
+                                }
+                                <span class="string">&quot;overwrite RawMap&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                                    <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">save</span>();
                                 }
                                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
                             },
