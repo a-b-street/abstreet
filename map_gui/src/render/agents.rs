@@ -59,12 +59,12 @@ impl AgentCache {
 
         let mut list: Vec<Box<dyn Renderable>> = Vec::new();
         for c in sim.get_draw_cars(on, map).into_iter() {
-            list.push(draw_vehicle(c, map, prerender, cs));
+            list.push(draw_vehicle(c, map, sim, prerender, cs));
         }
         let (loners, crowds) = sim.get_draw_peds(on, map);
         for p in loners {
             list.push(Box::new(DrawPedestrian::new(
-                p, step_count, map, prerender, cs,
+                p, step_count, map, sim, prerender, cs,
             )));
         }
         for c in crowds {
@@ -146,7 +146,7 @@ impl AgentCache {
             let mut cnt = 0;
             for input in app.sim().get_all_draw_cars(app.map()) {
                 cnt += 1;
-                draw_vehicle(input, app.map(), g.prerender, app.cs());
+                draw_vehicle(input, app.map(), app.sim(), g.prerender, app.cs());
             }
             println!(
                 "At {}, debugged {} cars",

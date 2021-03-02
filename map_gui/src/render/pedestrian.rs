@@ -1,10 +1,10 @@
 use geom::{ArrowCap, Circle, Distance, PolyLine, Polygon, Pt2D};
 use map_model::{DrivingSide, Map, SIDEWALK_THICKNESS};
-use sim::{DrawPedCrowdInput, DrawPedestrianInput, PedCrowdLocation, PedestrianID};
+use sim::{DrawPedCrowdInput, DrawPedestrianInput, PedCrowdLocation, PedestrianID, Sim};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 
 use crate::colors::ColorScheme;
-use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
+use crate::render::{grey_out_unhighlighted_people, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use crate::{AppLike, ID};
 
 pub struct DrawPedestrian {
@@ -20,11 +20,12 @@ impl DrawPedestrian {
         input: DrawPedestrianInput,
         step_count: usize,
         map: &Map,
+        sim: &Sim,
         prerender: &Prerender,
         cs: &ColorScheme,
     ) -> DrawPedestrian {
         let mut draw_default = GeomBatch::new();
-        DrawPedestrian::geometry(&mut draw_default, cs, &input, step_count);
+        DrawPedestrian::geometry(&mut draw_default, sim, cs, &input, step_count);
 
         let radius = SIDEWALK_THICKNESS / 4.0; // TODO make const after const fn is better
         let body_circle = Circle::new(input.pos, radius);
@@ -52,6 +53,7 @@ impl DrawPedestrian {
 
     pub fn geometry(
         batch: &mut GeomBatch,
+        sim: &Sim,
         cs: &ColorScheme,
         input: &DrawPedestrianInput,
         step_count: usize,
@@ -156,11 +158,15 @@ impl DrawPedestrian {
 
         let head_circle = Circle::new(input.pos, 0.5 * radius);
         batch.push(
-            if input.preparing_bike {
-                cs.ped_preparing_bike_body
-            } else {
-                cs.rotating_color_agents(input.id.0)
-            },
+            grey_out_unhighlighted_people(
+                if input.preparing_bike {
+                    cs.ped_preparing_bike_body
+                } else {
+                    cs.rotating_color_agents(input.id.0)
+                },
+                &Some(input.person),
+                sim,
+            ),
             body_circle.to_polygon(),
         );
         batch.push(cs.ped_head, head_circle.to_polygon());

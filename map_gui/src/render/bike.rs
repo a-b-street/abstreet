@@ -1,10 +1,10 @@
 use geom::{ArrowCap, Circle, Distance, Line, PolyLine, Polygon, Pt2D};
 use map_model::{Map, SIDEWALK_THICKNESS};
-use sim::{CarID, DrawCarInput};
+use sim::{CarID, DrawCarInput, Sim};
 use widgetry::{Drawable, GeomBatch, GfxCtx, Prerender};
 
 use crate::colors::ColorScheme;
-use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
+use crate::render::{grey_out_unhighlighted_people, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use crate::{AppLike, ID};
 
 pub struct DrawBike {
@@ -20,6 +20,7 @@ impl DrawBike {
     pub fn new(
         input: DrawCarInput,
         map: &Map,
+        sim: &Sim,
         prerender: &Prerender,
         cs: &ColorScheme,
     ) -> DrawBike {
@@ -27,7 +28,8 @@ impl DrawBike {
 
         // TODO Share constants with DrawPedestrian
         let body_radius = SIDEWALK_THICKNESS / 4.0;
-        let body_color = cs.rotating_color_agents(input.id.0);
+        let body_color =
+            grey_out_unhighlighted_people(cs.rotating_color_agents(input.id.0), &input.person, sim);
         draw_default.push(
             cs.bike_frame,
             input.body.make_polygons(Distance::meters(0.4)),

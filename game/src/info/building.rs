@@ -289,10 +289,12 @@ pub fn draw_occupants(details: &mut Details, app: &App, id: BuildingID, focus: O
 
             DrawPedestrian::geometry(
                 &mut details.zoomed,
+                &app.primary.sim,
                 &app.cs,
                 &DrawPedestrianInput {
                     // Lies
                     id: PedestrianID(person.0),
+                    person,
                     pos,
                     facing: Angle::degrees(90.0),
                     waiting_for_turn: None,

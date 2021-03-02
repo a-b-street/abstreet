@@ -1,10 +1,10 @@
 use geom::{Angle, ArrowCap, Distance, PolyLine, Polygon, Pt2D, Ring};
 use map_model::{Map, TurnType};
-use sim::{CarID, CarStatus, DrawCarInput, VehicleType};
+use sim::{CarID, CarStatus, DrawCarInput, Sim, VehicleType};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 
 use crate::colors::ColorScheme;
-use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
+use crate::render::{grey_out_unhighlighted_people, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use crate::{AppLike, ID};
 
 const CAR_WIDTH: Distance = Distance::const_meters(1.75);
@@ -19,7 +19,13 @@ pub struct DrawCar {
 }
 
 impl DrawCar {
-    pub fn new(input: DrawCarInput, map: &Map, prerender: &Prerender, cs: &ColorScheme) -> DrawCar {
+    pub fn new(
+        input: DrawCarInput,
+        map: &Map,
+        sim: &Sim,
+        prerender: &Prerender,
+        cs: &ColorScheme,
+    ) -> DrawCar {
         let mut draw_default = GeomBatch::new();
 
         // Wheels
@@ -75,7 +81,7 @@ impl DrawCar {
             }
         };
 
-        draw_default.push(zoomed_color_car(&input, cs), body_polygon.clone());
+        draw_default.push(zoomed_color_car(&input, sim, cs), body_polygon.clone());
         if input.status == CarStatus::Parked {
             draw_default.append(
                 GeomBatch::load_svg(prerender, "system/assets/map/parked_car.svg")
@@ -234,15 +240,16 @@ fn thick_line_from_angle(
     PolyLine::must_new(vec![pt, pt2]).make_polygons(thickness)
 }
 
-fn zoomed_color_car(input: &DrawCarInput, cs: &ColorScheme) -> Color {
+fn zoomed_color_car(input: &DrawCarInput, sim: &Sim, cs: &ColorScheme) -> Color {
     if input.id.1 == VehicleType::Bus {
         cs.bus_body
     } else if input.id.1 == VehicleType::Train {
         cs.train_body
     } else {
-        match input.status {
+        let color = match input.status {
             CarStatus::Moving => cs.rotating_color_agents(input.id.0),
             CarStatus::Parked => cs.parked_car,
-        }
+        };
+        grey_out_unhighlighted_people(color, &input.person, sim)
     }
 }

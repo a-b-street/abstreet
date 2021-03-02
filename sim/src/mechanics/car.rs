@@ -241,6 +241,7 @@ impl Car {
                 None
             },
             body,
+            person: self.trip_and_person.map(|(_, p)| p),
         }
     }
 

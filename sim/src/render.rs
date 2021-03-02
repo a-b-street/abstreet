@@ -14,6 +14,7 @@ pub struct DrawPedestrianInput {
     pub preparing_bike: bool,
     pub waiting_for_bus: bool,
     pub on: Traversable,
+    pub person: PersonID,
 }
 
 pub struct DrawPedCrowdInput {
@@ -42,6 +43,8 @@ pub struct DrawCarInput {
     /// Possibly the rest
     pub partly_on: Vec<Traversable>,
     pub label: Option<String>,
+    /// None means a bus or parked car. Note parked cars do NOT express their owner here!
+    pub person: Option<PersonID>,
 
     // Starts at the BACK of the car.
     pub body: PolyLine,

@@ -751,6 +751,7 @@ impl Pedestrian {
             ),
             waiting_for_bus: matches!(self.state, PedState::WaitingForBus(_, _)),
             on,
+            person: self.person,
         }
     }
 

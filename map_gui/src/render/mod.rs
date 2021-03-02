@@ -2,8 +2,8 @@
 
 use geom::{Distance, Polygon, Pt2D};
 use map_model::{IntersectionID, Map, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS};
-use sim::{DrawCarInput, VehicleType};
-use widgetry::{GfxCtx, Prerender};
+use sim::{DrawCarInput, PersonID, Sim, VehicleType};
+use widgetry::{Color, GfxCtx, Prerender};
 
 use crate::colors::ColorScheme;
 pub use crate::render::agents::{AgentCache, UnzoomedAgents};
@@ -61,13 +61,14 @@ pub trait Renderable {
 fn draw_vehicle(
     input: DrawCarInput,
     map: &Map,
+    sim: &Sim,
     prerender: &Prerender,
     cs: &ColorScheme,
 ) -> Box<dyn Renderable> {
     if input.id.1 == VehicleType::Bike {
-        Box::new(DrawBike::new(input, map, prerender, cs))
+        Box::new(DrawBike::new(input, map, sim, prerender, cs))
     } else {
-        Box::new(DrawCar::new(input, map, prerender, cs))
+        Box::new(DrawCar::new(input, map, sim, prerender, cs))
     }
 }
 
@@ -100,4 +101,18 @@ pub fn unzoomed_agent_radius(vt: Option<VehicleType>) -> Distance {
     } else {
         4.0 * SIDEWALK_THICKNESS
     }
+}
+
+/// If the sim has highlighted people, then fade all others out.
+fn grey_out_unhighlighted_people(color: Color, person: &Option<PersonID>, sim: &Sim) -> Color {
+    if let Some(ref highlighted) = sim.get_highlighted_people() {
+        if person
+            .as_ref()
+            .map(|p| !highlighted.contains(p))
+            .unwrap_or(false)
+        {
+            return color.tint(0.5);
+        }
+    }
+    color
 }

@@ -356,6 +356,7 @@ impl ParkingSim for NormalParkingSimState {
                     on: Traversable::Lane(lane),
                     partly_on: Vec::new(),
                     label: None,
+                    person: None,
 
                     body: map
                         .get_l(lane)
@@ -378,6 +379,7 @@ impl ParkingSim for NormalParkingSimState {
                     on: Traversable::Lane(pl.driving_pos.lane()),
                     partly_on: Vec::new(),
                     label: None,
+                    person: None,
 
                     body: PolyLine::must_new(vec![
                         pt.project_away(buffer, *angle),
