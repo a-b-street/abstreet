@@ -1032,6 +1032,8 @@
 <span id="1029">1029</span>
 <span id="1030">1030</span>
 <span id="1031">1031</span>
+<span id="1032">1032</span>
+<span id="1033">1033</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">BinaryHeap</span>, <span class="ident">HashMap</span>};
 
@@ -1391,6 +1393,7 @@
                     <span class="ident">on</span>: <span class="ident">Traversable</span>::<span class="ident">Lane</span>(<span class="ident">lane</span>),
                     <span class="ident">partly_on</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
                     <span class="ident">label</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">person</span>: <span class="prelude-val">None</span>,
 
                     <span class="ident">body</span>: <span class="ident">map</span>
                         .<span class="ident">get_l</span>(<span class="ident">lane</span>)
@@ -1413,6 +1416,7 @@
                     <span class="ident">on</span>: <span class="ident">Traversable</span>::<span class="ident">Lane</span>(<span class="ident">pl</span>.<span class="ident">driving_pos</span>.<span class="ident">lane</span>()),
                     <span class="ident">partly_on</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
                     <span class="ident">label</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">person</span>: <span class="prelude-val">None</span>,
 
                     <span class="ident">body</span>: <span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">buffer</span>, <span class="kw-2">*</span><span class="ident">angle</span>),

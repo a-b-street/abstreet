@@ -274,14 +274,20 @@
 <span id="271">271</span>
 <span id="272">272</span>
 <span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">DrivingSide</span>, <span class="ident">Map</span>, <span class="ident">SIDEWALK_THICKNESS</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">DrawPedCrowdInput</span>, <span class="ident">DrawPedestrianInput</span>, <span class="ident">PedCrowdLocation</span>, <span class="ident">PedestrianID</span>};
+<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">DrawPedCrowdInput</span>, <span class="ident">DrawPedestrianInput</span>, <span class="ident">PedCrowdLocation</span>, <span class="ident">PedestrianID</span>, <span class="ident">Sim</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Prerender</span>, <span class="ident">Text</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">colors</span>::<span class="ident">ColorScheme</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::{<span class="ident">DrawOptions</span>, <span class="ident">Renderable</span>, <span class="ident">OUTLINE_THICKNESS</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::{<span class="ident">grey_out_unhighlighted_people</span>, <span class="ident">DrawOptions</span>, <span class="ident">Renderable</span>, <span class="ident">OUTLINE_THICKNESS</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AppLike</span>, <span class="ident">ID</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DrawPedestrian</span> {
@@ -297,11 +303,12 @@
         <span class="ident">input</span>: <span class="ident">DrawPedestrianInput</span>,
         <span class="ident">step_count</span>: <span class="ident">usize</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+        <span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="ident">Sim</span>,
         <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>,
         <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DrawPedestrian</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_default</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-        <span class="ident">DrawPedestrian</span>::<span class="ident">geometry</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">draw_default</span>, <span class="ident">cs</span>, <span class="kw-2">&amp;</span><span class="ident">input</span>, <span class="ident">step_count</span>);
+        <span class="ident">DrawPedestrian</span>::<span class="ident">geometry</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">draw_default</span>, <span class="ident">sim</span>, <span class="ident">cs</span>, <span class="kw-2">&amp;</span><span class="ident">input</span>, <span class="ident">step_count</span>);
 
         <span class="kw">let</span> <span class="ident">radius</span> <span class="op">=</span> <span class="ident">SIDEWALK_THICKNESS</span> <span class="op">/</span> <span class="number">4.0</span>; <span class="comment">// TODO make const after const fn is better</span>
         <span class="kw">let</span> <span class="ident">body_circle</span> <span class="op">=</span> <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">input</span>.<span class="ident">pos</span>, <span class="ident">radius</span>);
@@ -329,6 +336,7 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">geometry</span>(
         <span class="ident">batch</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GeomBatch</span>,
+        <span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="ident">Sim</span>,
         <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>,
         <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">DrawPedestrianInput</span>,
         <span class="ident">step_count</span>: <span class="ident">usize</span>,
@@ -433,11 +441,15 @@
 
         <span class="kw">let</span> <span class="ident">head_circle</span> <span class="op">=</span> <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">input</span>.<span class="ident">pos</span>, <span class="number">0.5</span> <span class="op">*</span> <span class="ident">radius</span>);
         <span class="ident">batch</span>.<span class="ident">push</span>(
-            <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">preparing_bike</span> {
-                <span class="ident">cs</span>.<span class="ident">ped_preparing_bike_body</span>
-            } <span class="kw">else</span> {
-                <span class="ident">cs</span>.<span class="ident">rotating_color_agents</span>(<span class="ident">input</span>.<span class="ident">id</span>.<span class="number">0</span>)
-            },
+            <span class="ident">grey_out_unhighlighted_people</span>(
+                <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">preparing_bike</span> {
+                    <span class="ident">cs</span>.<span class="ident">ped_preparing_bike_body</span>
+                } <span class="kw">else</span> {
+                    <span class="ident">cs</span>.<span class="ident">rotating_color_agents</span>(<span class="ident">input</span>.<span class="ident">id</span>.<span class="number">0</span>)
+                },
+                <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="ident">input</span>.<span class="ident">person</span>),
+                <span class="ident">sim</span>,
+            ),
             <span class="ident">body_circle</span>.<span class="ident">to_polygon</span>(),
         );
         <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">cs</span>.<span class="ident">ped_head</span>, <span class="ident">head_circle</span>.<span class="ident">to_polygon</span>());

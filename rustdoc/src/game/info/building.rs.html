@@ -309,6 +309,8 @@
 <span id="306">306</span>
 <span id="307">307</span>
 <span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -601,10 +603,12 @@
 
             <span class="ident">DrawPedestrian</span>::<span class="ident">geometry</span>(
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>.<span class="ident">zoomed</span>,
+                <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>,
                 <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>,
                 <span class="kw-2">&amp;</span><span class="ident">DrawPedestrianInput</span> {
                     <span class="comment">// Lies</span>
                     <span class="ident">id</span>: <span class="ident">PedestrianID</span>(<span class="ident">person</span>.<span class="number">0</span>),
+                    <span class="ident">person</span>,
                     <span class="ident">pos</span>,
                     <span class="ident">facing</span>: <span class="ident">Angle</span>::<span class="ident">degrees</span>(<span class="number">90.0</span>),
                     <span class="ident">waiting_for_turn</span>: <span class="prelude-val">None</span>,

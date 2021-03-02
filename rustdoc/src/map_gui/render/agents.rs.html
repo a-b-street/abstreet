@@ -310,12 +310,12 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="ident">sim</span>.<span class="ident">get_draw_cars</span>(<span class="ident">on</span>, <span class="ident">map</span>).<span class="ident">into_iter</span>() {
-            <span class="ident">list</span>.<span class="ident">push</span>(<span class="ident">draw_vehicle</span>(<span class="ident">c</span>, <span class="ident">map</span>, <span class="ident">prerender</span>, <span class="ident">cs</span>));
+            <span class="ident">list</span>.<span class="ident">push</span>(<span class="ident">draw_vehicle</span>(<span class="ident">c</span>, <span class="ident">map</span>, <span class="ident">sim</span>, <span class="ident">prerender</span>, <span class="ident">cs</span>));
         }
         <span class="kw">let</span> (<span class="ident">loners</span>, <span class="ident">crowds</span>) <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">get_draw_peds</span>(<span class="ident">on</span>, <span class="ident">map</span>);
         <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">loners</span> {
             <span class="ident">list</span>.<span class="ident">push</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">DrawPedestrian</span>::<span class="ident">new</span>(
-                <span class="ident">p</span>, <span class="ident">step_count</span>, <span class="ident">map</span>, <span class="ident">prerender</span>, <span class="ident">cs</span>,
+                <span class="ident">p</span>, <span class="ident">step_count</span>, <span class="ident">map</span>, <span class="ident">sim</span>, <span class="ident">prerender</span>, <span class="ident">cs</span>,
             )));
         }
         <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="ident">crowds</span> {
@@ -397,7 +397,7 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="number">0</span>;
             <span class="kw">for</span> <span class="ident">input</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">sim</span>().<span class="ident">get_all_draw_cars</span>(<span class="ident">app</span>.<span class="ident">map</span>()) {
                 <span class="ident">cnt</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                <span class="ident">draw_vehicle</span>(<span class="ident">input</span>, <span class="ident">app</span>.<span class="ident">map</span>(), <span class="ident">g</span>.<span class="ident">prerender</span>, <span class="ident">app</span>.<span class="ident">cs</span>());
+                <span class="ident">draw_vehicle</span>(<span class="ident">input</span>, <span class="ident">app</span>.<span class="ident">map</span>(), <span class="ident">app</span>.<span class="ident">sim</span>(), <span class="ident">g</span>.<span class="ident">prerender</span>, <span class="ident">app</span>.<span class="ident">cs</span>());
             }
             <span class="macro">println</span><span class="macro">!</span>(
                 <span class="string">&quot;At {}, debugged {} cars&quot;</span>,
