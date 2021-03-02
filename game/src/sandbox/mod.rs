@@ -4,7 +4,7 @@ use maplit::btreeset;
 use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Pt2D, Time};
 use map_gui::colors::ColorSchemeChoice;
-use map_gui::load::{FileLoader, MapLoader};
+use map_gui::load::{FileLoader, FutureLoader, MapLoader};
 use map_gui::options::OptionsPanel;
 use map_gui::render::{unzoomed_agent_radius, UnzoomedAgents};
 use map_gui::tools::{ChooseSomething, Minimap, PopupMsg, TurnExplorer};
@@ -699,7 +699,6 @@ impl State<App> for SandboxLoader {
                             continue;
                         }
                         gameplay::LoadScenario::Future(future) => {
-                            use map_gui::load::FutureLoader;
                             return Transition::Push(FutureLoader::<App, Scenario>::new(
                                 ctx,
                                 Box::pin(future),

@@ -54,6 +54,7 @@ pub struct Sim {
     // TODO Maybe get rid of this, now that savestates aren't used
     run_name: String,
     step_count: usize,
+    highlighted_people: Option<BTreeSet<PersonID>>,
 
     analytics: Analytics,
     // This is created interactively, and there's no reason to preserve one for savestates.
@@ -222,6 +223,7 @@ impl Sim {
             edits_name: map.get_edits().edits_name.clone(),
             run_name: opts.run_name,
             step_count: 0,
+            highlighted_people: None,
             alerts: opts.alerts,
 
             analytics: Analytics::new(!opts.skip_analytics),
@@ -1019,5 +1021,12 @@ impl Sim {
 
     pub fn save_recorded_traffic(&mut self, map: &Map) {
         self.recorder.take().unwrap().save(map);
+    }
+}
+
+// Managing highlighted people
+impl Sim {
+    pub fn set_highlighted_people(&mut self, people: BTreeSet<PersonID>) {
+        self.highlighted_people = Some(people);
     }
 }

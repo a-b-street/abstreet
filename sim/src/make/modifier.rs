@@ -70,6 +70,7 @@ impl ScenarioModifier {
                 }
                 s
             }
+            // TODO This doesn't work on web!
             ScenarioModifier::AddExtraTrips(name) => {
                 let other: Scenario = abstio::must_read_object(
                     abstio::path_scenario(map.get_name(), name),

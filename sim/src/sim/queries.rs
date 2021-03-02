@@ -2,7 +2,7 @@
 
 use anyhow::Result;
 use serde::Serialize;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use abstutil::Counter;
 use geom::{Distance, Duration, PolyLine, Pt2D, Time};
@@ -442,6 +442,10 @@ impl Sim {
                 info.mode.ongoing_verb()
             ),
         }
+    }
+
+    pub fn get_highlighted_people(&self) -> &Option<BTreeSet<PersonID>> {
+        &self.highlighted_people
     }
 }
 

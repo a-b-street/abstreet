@@ -1,3 +1,5 @@
+use std::collections::BTreeSet;
+
 use maplit::btreeset;
 
 use geom::Duration;
@@ -48,6 +50,18 @@ impl GameplayState for Actdev {
         actions: &mut Actions,
     ) -> Option<Transition> {
         if self.once {
+            if self.bg_traffic {
+                let mut highlight = BTreeSet::new();
+                for person in app.primary.sim.get_all_people() {
+                    // TODO Once we have real bg traffic, base this on whether home is in the study
+                    // area or not
+                    if person.id.0 % 2 == 0 {
+                        highlight.insert(person.id);
+                    }
+                }
+                app.primary.sim.set_highlighted_people(highlight);
+            }
+
             self.once = false;
             controls
                 .speed

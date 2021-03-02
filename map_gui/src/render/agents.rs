@@ -95,6 +95,8 @@ impl AgentCache {
         }
 
         if recalc {
+            let highlighted = app.sim().get_highlighted_people();
+
             let mut batch = GeomBatch::new();
             let mut quadtree = QuadTree::default(app.map().get_bounds().as_bbox());
             // It's quite silly to produce triangles for the same circle over and over again. ;)
@@ -107,7 +109,17 @@ impl AgentCache {
                 Circle::new(Pt2D::new(0.0, 0.0), unzoomed_agent_radius(None)).to_polygon();
 
             for agent in app.sim().get_unzoomed_agents(app.map()) {
-                if let Some(color) = self.unzoomed_agents.color(&agent) {
+                if let Some(mut color) = self.unzoomed_agents.color(&agent) {
+                    // If the sim has highlighted people, then fade all others out.
+                    if highlighted
+                        .as_ref()
+                        .and_then(|h| agent.person.as_ref().map(|p| !h.contains(p)))
+                        .unwrap_or(false)
+                    {
+                        // TODO Tune. How's this look at night?
+                        color = color.tint(0.5);
+                    }
+
                     let circle = if agent.id.to_vehicle_type().is_some() {
                         car_circle.translate(agent.pos.x(), agent.pos.y())
                     } else {
