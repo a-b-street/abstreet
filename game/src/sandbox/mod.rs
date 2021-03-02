@@ -17,7 +17,7 @@ use widgetry::{
 
 pub use self::gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};
 use self::misc_tools::{RoutePreview, TrafficRecorder};
-pub use self::speed::{SpeedControls, TimePanel};
+pub use self::speed::{SpeedControls, SpeedSetting, TimePanel};
 pub use self::time_warp::TimeWarpScreen;
 use crate::app::{App, Transition};
 use crate::common::{tool_panel, update_url_cam, CommonState, MinimapController};
@@ -608,7 +608,7 @@ impl ContextualActions for Actions {
                     let mode = state.downcast_mut::<SandboxMode>().unwrap();
                     let speed = mode.controls.speed.as_mut().unwrap();
                     assert!(speed.is_paused());
-                    speed.resume_realtime(ctx, app);
+                    speed.resume(ctx, app, SpeedSetting::Realtime);
                 }))
             }
             (_, "unfollow (pause the simulation)") => {

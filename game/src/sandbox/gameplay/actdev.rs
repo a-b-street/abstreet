@@ -13,13 +13,14 @@ use crate::common::jump_to_time_upon_startup;
 use crate::edit::EditMode;
 use crate::info::{OpenTrip, Tab};
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
-use crate::sandbox::{Actions, SandboxControls, SandboxMode};
+use crate::sandbox::{Actions, SandboxControls, SandboxMode, SpeedSetting};
 
 /// A gameplay mode with specific controls for integration with
 /// https://cyipt.github.io/acton/articles/the-actdev-project.html.
 pub struct Actdev {
     top_center: Panel,
     scenario_name: String,
+    once: bool,
 }
 
 impl Actdev {
@@ -27,6 +28,7 @@ impl Actdev {
         Box::new(Actdev {
             top_center: Panel::empty(ctx),
             scenario_name,
+            once: true,
         })
     }
 }
@@ -39,6 +41,15 @@ impl GameplayState for Actdev {
         controls: &mut SandboxControls,
         actions: &mut Actions,
     ) -> Option<Transition> {
+        if self.once {
+            self.once = false;
+            controls
+                .speed
+                .as_mut()
+                .unwrap()
+                .resume(ctx, app, SpeedSetting::Faster);
+        }
+
         match self.top_center.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "change scenario" => {
@@ -175,11 +186,11 @@ impl GameplayState for Actdev {
                     .build_def(ctx),
                 ctx.style()
                     .btn_plain
-                    .icon_text("system/assets/meters/bike.svg", "Cycling activity")
+                    .icon_text("system/assets/meters/pedestrian.svg", "Walking activity")
                     .build_def(ctx),
                 ctx.style()
                     .btn_plain
-                    .icon_text("system/assets/meters/pedestrian.svg", "Walking activity")
+                    .icon_text("system/assets/meters/bike.svg", "Cycling activity")
                     .build_def(ctx),
             ]),
         ]);

@@ -20,14 +20,14 @@ pub struct SpeedControls {
 }
 
 #[derive(Clone, Copy, PartialEq, PartialOrd)]
-enum SpeedSetting {
-    // 1 sim second per real second
+pub enum SpeedSetting {
+    /// 1 sim second per real second
     Realtime,
-    // 5 sim seconds per real second
+    /// 5 sim seconds per real second
     Fast,
-    // 30 sim seconds per real second
+    /// 30 sim seconds per real second
     Faster,
-    // 1 sim hour per real second
+    /// 1 sim hour per real second
     Fastest,
 }
 
@@ -344,10 +344,10 @@ impl SpeedControls {
         }
     }
 
-    pub fn resume_realtime(&mut self, ctx: &mut EventCtx, app: &App) {
-        if self.paused || self.setting != SpeedSetting::Realtime {
+    pub fn resume(&mut self, ctx: &mut EventCtx, app: &App, setting: SpeedSetting) {
+        if self.paused || self.setting != setting {
             self.paused = false;
-            self.setting = SpeedSetting::Realtime;
+            self.setting = setting;
             self.recreate_panel(ctx, app);
         }
     }
