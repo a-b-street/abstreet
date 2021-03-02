@@ -3,7 +3,7 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use anyhow::Result;
 use nbez::{Bez3o, BezCurve, Point2d};
 
-use geom::{Angle, Distance, PolyLine, Pt2D};
+use geom::{Angle, Distance, Line, PolyLine, Pt2D};
 
 use crate::raw::RestrictionType;
 use crate::{Intersection, Lane, LaneID, Map, RoadID, Turn, TurnID, TurnType};
@@ -281,11 +281,26 @@ fn curvey_turn(src: &Lane, dst: &Lane) -> Result<PolyLine> {
     let dst_line = dst.first_line().reverse();
 
     // TODO Tune the 5.0 and pieces
+    let pt1 = src.last_pt();
+    let control_pt1 = src_line.unbounded_dist_along(src_line.length() + Distance::meters(5.0));
+    let control_pt2 = dst_line.unbounded_dist_along(dst_line.length() + Distance::meters(5.0));
+    let pt2 = dst.first_pt();
+
+    // If the intersection is too small, the endpoints and control points squish together, and
+    // they'll overlap. In that case, just use the straight line for the turn.
+    if let (Some(l1), Some(l2)) = (Line::new(pt1, control_pt1), Line::new(control_pt2, pt2)) {
+        if l1.crosses(&l2) {
+            // TODO Make this bail!, so we use the straight line. But it gridlocked two maps, so
+            // resolve that first.
+            warn!("intersection is too small for a Bezier curve");
+        }
+    }
+
     let curve = Bez3o::new(
-        to_pt(src.last_pt()),
-        to_pt(src_line.unbounded_dist_along(src_line.length() + Distance::meters(5.0))),
-        to_pt(dst_line.unbounded_dist_along(dst_line.length() + Distance::meters(5.0))),
-        to_pt(dst.first_pt()),
+        to_pt(pt1),
+        to_pt(control_pt1),
+        to_pt(control_pt2),
+        to_pt(pt2),
     );
     let pieces = 5;
     let mut curve: Vec<Pt2D> = (0..=pieces)

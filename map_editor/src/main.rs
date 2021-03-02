@@ -118,6 +118,10 @@ impl MainState {
                             .btn_solid_primary
                             .text("export to OSM")
                             .build_def(ctx),
+                        ctx.style()
+                            .btn_solid_destructive
+                            .text("overwrite RawMap")
+                            .build_def(ctx),
                     ]),
                 ]))
                 .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
@@ -305,6 +309,9 @@ impl State<App> for MainState {
                                 }
                                 "export to OSM" => {
                                     app.model.export_to_osm();
+                                }
+                                "overwrite RawMap" => {
+                                    app.model.map.save();
                                 }
                                 _ => unreachable!(),
                             },
