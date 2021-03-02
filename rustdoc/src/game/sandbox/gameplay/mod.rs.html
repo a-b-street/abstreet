@@ -383,6 +383,9 @@
 <span id="380">380</span>
 <span id="381">381</span>
 <span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">future</span>::<span class="ident">Future</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">pin</span>::<span class="ident">Pin</span>;
@@ -424,8 +427,8 @@
     <span class="ident">PlayScenario</span>(<span class="ident">MapName</span>, <span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ScenarioModifier</span><span class="op">&gt;</span>),
     <span class="ident">FixTrafficSignals</span>,
     <span class="ident">OptimizeCommute</span>(<span class="ident">OrigPersonID</span>, <span class="ident">Duration</span>),
-    <span class="comment">// Map name, scenario name</span>
-    <span class="ident">Actdev</span>(<span class="ident">MapName</span>, <span class="ident">String</span>),
+    <span class="comment">// Map name, scenario name, background traffic</span>
+    <span class="ident">Actdev</span>(<span class="ident">MapName</span>, <span class="ident">String</span>, <span class="ident">bool</span>),
 
     <span class="comment">// current</span>
     <span class="ident">Tutorial</span>(<span class="ident">TutorialPointer</span>),
@@ -490,7 +493,7 @@
             <span class="ident">GameplayMode</span>::<span class="ident">FixTrafficSignals</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;downtown&quot;</span>),
             <span class="ident">GameplayMode</span>::<span class="ident">OptimizeCommute</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;montlake&quot;</span>),
             <span class="ident">GameplayMode</span>::<span class="ident">Tutorial</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;montlake&quot;</span>),
-            <span class="ident">GameplayMode</span>::<span class="ident">Actdev</span>(<span class="kw-2">ref</span> <span class="ident">name</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">name</span>.<span class="ident">clone</span>(),
+            <span class="ident">GameplayMode</span>::<span class="ident">Actdev</span>(<span class="kw-2">ref</span> <span class="ident">name</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">name</span>.<span class="ident">clone</span>(),
         }
     }
 
@@ -511,7 +514,8 @@
                     <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">LoadScenario</span>::<span class="ident">Nothing</span>,
                 };
             }
-            <span class="ident">GameplayMode</span>::<span class="ident">Actdev</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">scenario</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">scenario</span>.<span class="ident">to_string</span>(),
+            <span class="comment">// TODO We&#39;ll need to load two files... and cache both?</span>
+            <span class="ident">GameplayMode</span>::<span class="ident">Actdev</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">scenario</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">scenario</span>.<span class="ident">to_string</span>(),
             <span class="ident">GameplayMode</span>::<span class="ident">FixTrafficSignals</span> <span class="op">|</span> <span class="ident">GameplayMode</span>::<span class="ident">OptimizeCommute</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="string">&quot;weekday&quot;</span>.<span class="ident">to_string</span>()
             }
@@ -606,7 +610,9 @@
                 <span class="ident">commute</span>::<span class="ident">OptimizeCommute</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">*</span><span class="ident">p</span>, <span class="kw-2">*</span><span class="ident">goal</span>)
             }
             <span class="ident">GameplayMode</span>::<span class="ident">Tutorial</span>(<span class="ident">current</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Tutorial</span>::<span class="ident">make_gameplay</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">*</span><span class="ident">current</span>),
-            <span class="ident">GameplayMode</span>::<span class="ident">Actdev</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">scenario</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">actdev</span>::<span class="ident">Actdev</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">scenario</span>.<span class="ident">clone</span>()),
+            <span class="ident">GameplayMode</span>::<span class="ident">Actdev</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">scenario</span>, <span class="ident">bg_traffic</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">actdev</span>::<span class="ident">Actdev</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">scenario</span>.<span class="ident">clone</span>(), <span class="kw-2">*</span><span class="ident">bg_traffic</span>)
+            }
         }
     }
 }

@@ -351,6 +351,10 @@
 <span id="348">348</span>
 <span id="349">349</span>
 <span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
@@ -459,7 +463,11 @@
         <span class="comment">// Parking data in the actdev maps is nonexistent, so many people have convoluted walking</span>
         <span class="comment">// routes just to fetch their car. Just disable parking entirely.</span>
         <span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">opts</span>.<span class="ident">infinite_parking</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="ident">mode</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">sandbox</span>::<span class="ident">GameplayMode</span>::<span class="ident">Actdev</span>(<span class="ident">name</span>, <span class="string">&quot;base&quot;</span>.<span class="ident">to_string</span>()));
+        <span class="ident">mode</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">sandbox</span>::<span class="ident">GameplayMode</span>::<span class="ident">Actdev</span>(
+            <span class="ident">name</span>,
+            <span class="string">&quot;base&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="bool-val">false</span>,
+        ));
     }
 
     <span class="ident">args</span>.<span class="ident">done</span>();
@@ -631,7 +639,7 @@
     <span class="kw">let</span> <span class="ident">states</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">title</span> {
         <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">TitleScreen</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))]
     } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">mode</span>) <span class="op">=</span> <span class="ident">maybe_mode</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">GameplayMode</span>::<span class="ident">Actdev</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">mode</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">GameplayMode</span>::<span class="ident">Actdev</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">mode</span> {
             <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">SandboxMode</span>::<span class="ident">async_new</span>(
                 <span class="ident">app</span>,
                 <span class="ident">mode</span>,
