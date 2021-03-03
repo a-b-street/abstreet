@@ -357,6 +357,20 @@ pub fn bio(
         rows.push("Owns a bike".draw_text(ctx));
     }
 
+    // Debug info about their simulation state
+    if app.opts.dev {
+        if let Some(AgentID::Car(car)) = app.primary.sim.person_to_agent(id) {
+            rows.push(
+                Text::from(Line(format!(
+                    "State: {:?}",
+                    app.primary.sim.debug_car_ui(car)
+                )))
+                .wrap_to_pct(ctx, 20)
+                .draw(ctx),
+            );
+        }
+    }
+
     rows
 }
 

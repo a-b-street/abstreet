@@ -59,6 +59,11 @@ impl Sim {
         self.trips.debug_trip(AgentID::Car(id));
     }
 
+    /// Return a short string to debug a car in the UI.
+    pub fn debug_car_ui(&self, id: CarID) -> String {
+        self.driving.debug_car_ui(id)
+    }
+
     pub fn debug_intersection(&self, id: IntersectionID, map: &Map) {
         self.intersections.debug(id, map);
     }

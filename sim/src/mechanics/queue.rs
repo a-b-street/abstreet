@@ -290,6 +290,19 @@ impl Queue {
 
         (num_vehicles, bike_cost)
     }
+
+    /// Find the vehicle in front of the specified input. None if this vehicle isn't in the queue
+    /// at all, or they're the front (with or without a laggy head).
+    pub fn get_leader(&self, id: CarID) -> Option<CarID> {
+        let mut leader = None;
+        for car in &self.cars {
+            if *car == id {
+                return leader;
+            }
+            leader = Some(*car);
+        }
+        None
+    }
 }
 
 fn validate_positions(

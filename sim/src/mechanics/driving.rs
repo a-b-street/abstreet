@@ -10,10 +10,10 @@ use crate::mechanics::car::{Car, CarState};
 use crate::mechanics::Queue;
 use crate::sim::Ctx;
 use crate::{
-    ActionAtEnd, AgentID, AgentProperties, CarID, Command, CreateCar, DelayCause, DistanceInterval,
-    DrawCarInput, Event, IntersectionSimState, ParkedCar, ParkingSim, ParkingSpot, PersonID,
-    SimOptions, TimeInterval, TransitSimState, TripID, TripManager, UnzoomedAgent, Vehicle,
-    WalkingSimState, FOLLOWING_DISTANCE,
+    ActionAtEnd, AgentID, AgentProperties, AlertLocation, CarID, Command, CreateCar, DelayCause,
+    DistanceInterval, DrawCarInput, Event, IntersectionSimState, ParkedCar, ParkingSim,
+    ParkingSpot, PersonID, SimOptions, TimeInterval, TransitSimState, TripID, TripManager,
+    UnzoomedAgent, Vehicle, WalkingSimState, FOLLOWING_DISTANCE,
 };
 
 const TIME_TO_WAIT_AT_BUS_STOP: Duration = Duration::const_seconds(10.0);
@@ -309,6 +309,18 @@ impl DrivingSimState {
                         );
                     }
                     ctx.scheduler.push(now, Command::UpdateCar(car.vehicle.id));
+                } else if let Some(slow_leader) = self.wants_to_overtake(&car) {
+                    // TODO This entire check kicks in a little late; we only enter Queued after
+                    // spending the freeflow time possibly moving very slowly.
+
+                    // TODO The alert is temporary, just for debugging. So not firing it for a bus
+                    // is fine.
+                    if let Some((_, person)) = car.trip_and_person {
+                        self.events.push(Event::Alert(
+                            AlertLocation::Person(person),
+                            format!("{} wants to over-take {}", car.vehicle.id, slow_leader),
+                        ));
+                    }
                 }
             }
             CarState::Unparking(front, _, _) => {
@@ -1024,6 +1036,14 @@ impl DrivingSimState {
         }
     }
 
+    pub fn debug_car_ui(&self, id: CarID) -> String {
+        if let Some(ref car) = self.cars.get(&id) {
+            format!("{:?}", car.state)
+        } else {
+            format!("{} isn't in DrivingSimState", id)
+        }
+    }
+
     pub fn debug_lane(&self, id: LaneID) {
         if let Some(ref queue) = self.queues.get(&Traversable::Lane(id)) {
             println!("{}", abstutil::to_json(queue));
@@ -1206,6 +1226,45 @@ impl DrivingSimState {
             .find(|(c, _)| *c == car.vehicle.id)
             .unwrap()
             .1
+    }
+
+    /// Does the given car want to over-take the vehicle in front of it?
+    fn wants_to_overtake(&self, car: &Car) -> Option<CarID> {
+        let queue = &self.queues[&car.router.head()];
+        let leader = queue.get_leader(car.vehicle.id)?;
+        let leader = &self.cars[&leader];
+
+        // Are we faster than them?
+        // TODO This shouldn't be a blocking check; we also want to pass parking cars and buses
+        // waiting at stops.
+        let their_speed = leader.vehicle.max_speed?;
+        if car
+            .vehicle
+            .max_speed
+            .map(|s| s <= their_speed)
+            .unwrap_or(false)
+        {
+            return None;
+        }
+
+        // Are they moving slowly or also stuck behind someone?
+        match leader.state {
+            // TODO Maybe we want to pass someone queued, if they're too slow to pass their own
+            // leader?
+            CarState::WaitingToAdvance { .. } | CarState::Queued { .. } => {
+                return None;
+            }
+            // In all other cases, we may want to pass them.
+            _ => {}
+        }
+
+        // TODO Check if there's room in front of them to pass. Handle passing two bikes?
+        // TODO Check remaining distance before next intersection
+        // TODO Check relative speed difference, and time to pass them
+        // TODO Eventually, check if there's room to do the maneuever (lane-changing to
+        // the left only, or popping into an oncoming lane!
+
+        Some(leader.vehicle.id)
     }
 }
 
