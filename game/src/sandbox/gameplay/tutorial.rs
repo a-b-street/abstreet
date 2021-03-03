@@ -24,7 +24,7 @@ use crate::edit::EditMode;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{
     maybe_exit_sandbox, spawn_agents_around, Actions, AgentMeter, MinimapController,
-    SandboxControls, SandboxMode, SpeedControls, TimePanel,
+    SandboxControls, SandboxMode, TimePanel,
 };
 
 const ESCORT: CarID = CarID(0, VehicleType::Car);
@@ -226,7 +226,7 @@ impl Tutorial {
                 return Some(transition(app, tut));
             }
         } else if tut.interaction() == Task::PauseResume {
-            let is_paused = controls.speed.as_ref().unwrap().is_paused();
+            let is_paused = controls.time_panel.as_ref().unwrap().is_paused();
             if tut.was_paused && !is_paused {
                 tut.was_paused = false;
             }
@@ -437,9 +437,6 @@ impl GameplayState for Tutorial {
         true
     }
     fn has_time_panel(&self) -> bool {
-        self.last_finished_task >= Task::InspectObjects
-    }
-    fn has_speed(&self) -> bool {
         self.last_finished_task >= Task::InspectObjects
     }
     fn has_agent_meter(&self) -> bool {
@@ -890,7 +887,6 @@ impl TutorialState {
 
         let tool_panel = tool_panel(ctx);
         let time = TimePanel::new(ctx, app);
-        let speed = SpeedControls::new(ctx, app);
         let agent_meter = AgentMeter::new(ctx, app);
         // The minimap is hidden at low zoom levels
         let orig_zoom = ctx.canvas.cam_zoom;
@@ -974,7 +970,7 @@ impl TutorialState {
                 )
                 .msg(
                     vec!["You can pause or resume time"],
-                    arrow(speed.panel.center_of("pause")),
+                    arrow(time.panel.center_of("pause")),
                 )
                 .msg(
                     vec![
@@ -982,15 +978,15 @@ impl TutorialState {
                         "",
                         "(The keyboard shortcuts are very helpful here!)",
                     ],
-                    arrow(speed.panel.center_of("30x speed")),
+                    arrow(time.panel.center_of("30x speed")),
                 )
                 .msg(
                     vec!["Advance time by certain amounts"],
-                    arrow(speed.panel.center_of("step forwards")),
+                    arrow(time.panel.center_of("step forwards")),
                 )
                 .msg(
                     vec!["And jump to the beginning of the day"],
-                    arrow(speed.panel.center_of("reset to midnight")),
+                    arrow(time.panel.center_of("reset to midnight")),
                 )
                 .msg(
                     vec!["Let's try these controls out. Wait until 5pm or later."],
@@ -1009,7 +1005,7 @@ impl TutorialState {
                         "You might've figured it out already,",
                         "But you'll be pausing/resuming time VERY frequently",
                     ],
-                    arrow(speed.panel.center_of("pause")),
+                    arrow(time.panel.center_of("pause")),
                 )
                 .msg(
                     vec!["Just reassure me and pause/resume time a few times, alright?"],
@@ -1134,7 +1130,7 @@ impl TutorialState {
                         "",
                         "(If you do lose track of them, just reset)",
                     ],
-                    arrow(speed.panel.center_of("reset to midnight")),
+                    arrow(time.panel.center_of("reset to midnight")),
                 ),
         );
 

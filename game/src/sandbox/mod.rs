@@ -18,7 +18,7 @@ use widgetry::{
 pub use self::gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};
 pub use self::minimap::MinimapController;
 use self::misc_tools::{RoutePreview, TrafficRecorder};
-pub use self::speed::{SpeedControls, SpeedSetting, TimePanel};
+pub use self::speed::{SpeedSetting, TimePanel};
 pub use self::time_warp::TimeWarpScreen;
 use crate::app::{App, Transition};
 use crate::common::{tool_panel, CommonState};
@@ -53,7 +53,6 @@ pub struct SandboxControls {
     route_preview: Option<RoutePreview>,
     tool_panel: Option<Panel>,
     time_panel: Option<TimePanel>,
-    speed: Option<SpeedControls>,
     pub agent_meter: Option<AgentMeter>,
     minimap: Option<Minimap<App, MinimapController>>,
 }
@@ -86,7 +85,7 @@ impl SandboxMode {
         Actions {
             is_paused: self
                 .controls
-                .speed
+                .time_panel
                 .as_ref()
                 .map(|s| s.is_paused())
                 .unwrap_or(true),
@@ -147,8 +146,8 @@ impl State<App> for SandboxMode {
             }
         }
 
-        if let Some(ref mut s) = self.controls.speed {
-            if let Some(t) = s.event(ctx, app, Some(&self.gameplay_mode)) {
+        if let Some(ref mut tp) = self.controls.time_panel {
+            if let Some(t) = tp.event(ctx, app, Some(&self.gameplay_mode)) {
                 return t;
             }
         }
@@ -182,10 +181,6 @@ impl State<App> for SandboxMode {
             }
         }
 
-        if let Some(ref mut tp) = self.controls.time_panel {
-            tp.event(ctx, app);
-        }
-
         if let Some(ref mut tp) = self.controls.tool_panel {
             match tp.event(ctx) {
                 Outcome::Clicked(x) => match x.as_ref() {
@@ -208,7 +203,7 @@ impl State<App> for SandboxMode {
 
         if self
             .controls
-            .speed
+            .time_panel
             .as_ref()
             .map(|s| s.is_paused())
             .unwrap_or(true)
@@ -232,9 +227,6 @@ impl State<App> for SandboxMode {
         }
         if let Some(ref tp) = self.controls.tool_panel {
             tp.draw(g);
-        }
-        if let Some(ref s) = self.controls.speed {
-            s.draw(g);
         }
         if let Some(ref tp) = self.controls.time_panel {
             tp.draw(g);
@@ -601,18 +593,18 @@ impl ContextualActions for Actions {
                 *close_panel = false;
                 Transition::ModifyState(Box::new(|state, ctx, app| {
                     let mode = state.downcast_mut::<SandboxMode>().unwrap();
-                    let speed = mode.controls.speed.as_mut().unwrap();
-                    assert!(speed.is_paused());
-                    speed.resume(ctx, app, SpeedSetting::Realtime);
+                    let time_panel = mode.controls.time_panel.as_mut().unwrap();
+                    assert!(time_panel.is_paused());
+                    time_panel.resume(ctx, app, SpeedSetting::Realtime);
                 }))
             }
             (_, "unfollow (pause the simulation)") => {
                 *close_panel = false;
                 Transition::ModifyState(Box::new(|state, ctx, app| {
                     let mode = state.downcast_mut::<SandboxMode>().unwrap();
-                    let speed = mode.controls.speed.as_mut().unwrap();
-                    assert!(!speed.is_paused());
-                    speed.pause(ctx, app);
+                    let time_panel = mode.controls.time_panel.as_mut().unwrap();
+                    assert!(!time_panel.is_paused());
+                    time_panel.pause(ctx, app);
                 }))
             }
             (id, action) => match self.gameplay {
@@ -900,11 +892,6 @@ impl SandboxControls {
             } else {
                 None
             },
-            speed: if gameplay.has_speed() {
-                Some(SpeedControls::new(ctx, app))
-            } else {
-                None
-            },
             agent_meter: if gameplay.has_agent_meter() {
                 Some(AgentMeter::new(ctx, app))
             } else {
@@ -922,7 +909,7 @@ impl SandboxControls {
         if self.tool_panel.is_some() {
             self.tool_panel = Some(tool_panel(ctx));
         }
-        if let Some(ref mut speed) = self.speed {
+        if let Some(ref mut speed) = self.time_panel {
             speed.recreate_panel(ctx, app);
         }
         if let Some(ref mut minimap) = self.minimap {
