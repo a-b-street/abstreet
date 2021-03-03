@@ -2231,9 +2231,9 @@
       "compressed_size_bytes": 3764333
     },
     "data/system/us/seattle/maps/qa.bin": {
-      "checksum": "78badbd72cbecd43e0047165a4e5b2bd",
+      "checksum": "648bed705446e2d999859986b2f82ad0",
       "uncompressed_size_bytes": 3899807,
-      "compressed_size_bytes": 1295310
+      "compressed_size_bytes": 1298081
     },
     "data/system/us/seattle/maps/rainier_valley.bin": {
       "checksum": "fcbd214960d34e56d077d6b506cde941",
@@ -2261,9 +2261,9 @@
       "compressed_size_bytes": 1794419
     },
     "data/system/us/seattle/maps/wallingford.bin": {
-      "checksum": "c120c7435931a6e0f99bbb65c868f6b2",
+      "checksum": "7848368da38cd71eb81e1141ef85b4d2",
       "uncompressed_size_bytes": 8007565,
-      "compressed_size_bytes": 2718630
+      "compressed_size_bytes": 2723473
     },
     "data/system/us/seattle/maps/west_seattle.bin": {
       "checksum": "27d734267309c7496ebf94a240e5d57a",
@@ -2290,10 +2290,20 @@
       "uncompressed_size_bytes": 32908498,
       "compressed_size_bytes": 12132205
     },
+    "data/system/us/seattle/prebaked_results/qa/weekday.bin": {
+      "checksum": "108e6a31d54224c94cc4aeef5dfcacda",
+      "uncompressed_size_bytes": 9023201,
+      "compressed_size_bytes": 3184508
+    },
     "data/system/us/seattle/prebaked_results/rainier_valley/weekday.bin": {
       "checksum": "8ba69393f7ffb6cec24e167e75d6e3a4",
       "uncompressed_size_bytes": 14025458,
       "compressed_size_bytes": 4913233
+    },
+    "data/system/us/seattle/prebaked_results/wallingford/weekday.bin": {
+      "checksum": "5e458a90d8182367b115aa05d0b0a2e9",
+      "uncompressed_size_bytes": 29218871,
+      "compressed_size_bytes": 10392642
     },
     "data/system/us/seattle/scenarios/ballard/weekday.bin": {
       "checksum": "0c8064177260e67c872997445e36f106",

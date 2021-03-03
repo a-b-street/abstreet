@@ -252,7 +252,11 @@ impl Job {
                     timer.stop(format!("scenario for {}", name.describe()));
 
                     // This is a strange ordering.
-                    if name.map == "downtown" || name.map == "south_seattle" {
+                    if name.map == "downtown"
+                        || name.map == "qa"
+                        || name.map == "south_seattle"
+                        || name.map == "wallingford"
+                    {
                         timer.start(format!("adjust parking for {}", name.describe()));
                         seattle::adjust_private_parking(maybe_map.as_mut().unwrap(), &scenario);
                         timer.stop(format!("adjust parking for {}", name.describe()));

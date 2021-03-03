@@ -13,10 +13,6 @@ pub fn prebake_all() {
 
     {
         let map = map_model::Map::new(MapName::seattle("montlake").path(), &mut timer);
-        let scenario: Scenario =
-            abstio::read_binary(abstio::path_scenario(map.get_name(), "weekday"), &mut timer);
-        prebake(&map, scenario, None, &mut timer);
-
         for generator in TutorialState::scenarios_to_prebake(&map) {
             let scenario = generator.generate(
                 &map,
@@ -28,9 +24,12 @@ pub fn prebake_all() {
     }
 
     for name in vec![
+        MapName::seattle("montlake"),
         MapName::seattle("lakeslice"),
         MapName::seattle("phinney"),
+        MapName::seattle("qa"),
         MapName::seattle("rainier_valley"),
+        MapName::seattle("wallingford"),
     ] {
         let map = map_model::Map::new(name.path(), &mut timer);
         let scenario: Scenario =
