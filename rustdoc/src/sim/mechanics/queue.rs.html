@@ -348,6 +348,19 @@
 <span id="345">345</span>
 <span id="346">346</span>
 <span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">VecDeque</span>};
 
@@ -640,6 +653,19 @@
         };
 
         (<span class="ident">num_vehicles</span>, <span class="ident">bike_cost</span>)
+    }
+
+    <span class="doccomment">/// Find the vehicle in front of the specified input. None if this vehicle isn&#39;t in the queue</span>
+    <span class="doccomment">/// at all, or they&#39;re the front (with or without a laggy head).</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_leader</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">leader</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="kw">for</span> <span class="ident">car</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cars</span> {
+            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">car</span> <span class="op">=</span><span class="op">=</span> <span class="ident">id</span> {
+                <span class="kw">return</span> <span class="ident">leader</span>;
+            }
+            <span class="ident">leader</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">car</span>);
+        }
+        <span class="prelude-val">None</span>
     }
 }
 

@@ -693,6 +693,20 @@
 <span id="690">690</span>
 <span id="691">691</span>
 <span id="692">692</span>
+<span id="693">693</span>
+<span id="694">694</span>
+<span id="695">695</span>
+<span id="696">696</span>
+<span id="697">697</span>
+<span id="698">698</span>
+<span id="699">699</span>
+<span id="700">700</span>
+<span id="701">701</span>
+<span id="702">702</span>
+<span id="703">703</span>
+<span id="704">704</span>
+<span id="705">705</span>
+<span id="706">706</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -1051,6 +1065,20 @@
     }
     <span class="kw">if</span> <span class="ident">has_bike</span> {
         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="string">&quot;Owns a bike&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>));
+    }
+
+    <span class="comment">// Debug info about their simulation state</span>
+    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">car</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">person_to_agent</span>(<span class="ident">id</span>) {
+            <span class="ident">rows</span>.<span class="ident">push</span>(
+                <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                    <span class="string">&quot;State: {:?}&quot;</span>,
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">debug_car_ui</span>(<span class="ident">car</span>)
+                )))
+                .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">20</span>)
+                .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+            );
+        }
     }
 
     <span class="ident">rows</span>
