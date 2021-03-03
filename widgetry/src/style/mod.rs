@@ -146,7 +146,7 @@ impl ButtonStyle {
 impl Style {
     pub fn light_bg() -> Style {
         Style {
-            panel_bg: Color::WHITE.alpha(0.8),
+            panel_bg: Color::WHITE.alpha(0.95),
             field_bg: hex("#F2F2F2"),
             dropdown_border: hex("#4C4C4C"),
             // TODO: replace inner_panel_bg with this

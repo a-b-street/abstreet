@@ -77,7 +77,7 @@ impl GameplayState for Actdev {
 
             self.once = false;
             controls
-                .speed
+                .time_panel
                 .as_mut()
                 .unwrap()
                 .resume(ctx, app, SpeedSetting::Faster);

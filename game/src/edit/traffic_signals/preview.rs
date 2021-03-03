@@ -10,13 +10,12 @@ use widgetry::{
 };
 
 use crate::app::{App, Transition};
-use crate::sandbox::{spawn_agents_around, SpeedControls, TimePanel};
+use crate::sandbox::{spawn_agents_around, TimePanel};
 
 // TODO Show diagram, auto-sync the stage.
 // TODO Auto quit after things are gone?
 struct PreviewTrafficSignal {
     panel: Panel,
-    speed: SpeedControls,
     time_panel: TimePanel,
 }
 
@@ -33,7 +32,6 @@ impl PreviewTrafficSignal {
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
-            speed: SpeedControls::new(ctx, app),
             time_panel: TimePanel::new(ctx, app),
         })
     }
@@ -54,12 +52,11 @@ impl State<App> for PreviewTrafficSignal {
             _ => {}
         }
 
-        self.time_panel.event(ctx, app);
         // TODO Ideally here reset to midnight would jump back to when the preview started?
-        if let Some(t) = self.speed.event(ctx, app, None) {
+        if let Some(t) = self.time_panel.event(ctx, app, None) {
             return t;
         }
-        if self.speed.is_paused() {
+        if self.time_panel.is_paused() {
             Transition::Keep
         } else {
             ctx.request_update(UpdateType::Game);
@@ -69,7 +66,6 @@ impl State<App> for PreviewTrafficSignal {
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.panel.draw(g);
-        self.speed.draw(g);
         self.time_panel.draw(g);
     }
 }

@@ -3,8 +3,8 @@ use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use sim::AlertLocation;
 use widgetry::{
-    Choice, Color, ControlState, EdgeInsets, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Image, Key, Line, Outcome, Panel, PersistentSplit, ScreenDims, Text, VerticalAlignment, Widget,
+    Choice, Color, ControlState, EdgeInsets, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Panel, PersistentSplit, ScreenDims, Text, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -12,9 +12,10 @@ use crate::common::Warping;
 use crate::sandbox::time_warp::JumpToTime;
 use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 
-pub struct SpeedControls {
+pub struct TimePanel {
     pub panel: Panel,
 
+    time: Time,
     paused: bool,
     setting: SpeedSetting,
 }
@@ -31,15 +32,16 @@ pub enum SpeedSetting {
     Fastest,
 }
 
-impl SpeedControls {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> SpeedControls {
-        let mut speed = SpeedControls {
+impl TimePanel {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> TimePanel {
+        let mut time = TimePanel {
             panel: Panel::empty(ctx),
+            time: app.primary.sim.time(),
             paused: false,
             setting: SpeedSetting::Realtime,
         };
-        speed.recreate_panel(ctx, app);
-        speed
+        time.recreate_panel(ctx, app);
+        time
     }
 
     pub fn recreate_panel(&mut self, ctx: &mut EventCtx, app: &App) {
@@ -140,12 +142,51 @@ impl SpeedControls {
                 .build_widget(ctx, "reset to midnight"),
         );
 
-        self.panel = Panel::new(Widget::custom_row(row))
-            .aligned(
-                HorizontalAlignment::Center,
-                VerticalAlignment::BottomAboveOSD,
-            )
-            .build(ctx);
+        self.panel = Panel::new(Widget::col(vec![
+            self.create_time_panel(ctx, app).named("time"),
+            Widget::custom_row(row),
+        ]))
+        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
+        .build(ctx);
+    }
+
+    fn create_time_panel(&mut self, ctx: &EventCtx, app: &App) -> Widget {
+        Widget::col(vec![
+            Text::from(Line(self.time.ampm_tostring()).big_monospaced())
+                .draw(ctx)
+                .centered_horiz(),
+            {
+                let mut batch = GeomBatch::new();
+                // This is manually tuned
+                let width = 300.0;
+                let height = 15.0;
+                // Just clamp if we simulate past the expected end
+                let percent = self
+                    .time
+                    .to_percent(app.primary.sim.get_end_of_day())
+                    .min(1.0);
+
+                // TODO Why is the rounding so hard? The white background is always rounded
+                // at both ends. The moving bar should always be rounded on the left, flat
+                // on the right, except at the very end (for the last 'radius' pixels). And
+                // when the width is too small for the radius, this messes up.
+
+                batch.push(Color::WHITE, Polygon::rectangle(width, height));
+
+                if percent != 0.0 {
+                    batch.push(
+                        if percent < 0.25 || percent > 0.75 {
+                            app.cs.night_time_slider
+                        } else {
+                            app.cs.day_time_slider
+                        },
+                        Polygon::rectangle(percent * width, height),
+                    );
+                }
+
+                Widget::draw_batch(ctx, batch)
+            },
+        ])
     }
 
     pub fn event(
@@ -154,6 +195,12 @@ impl SpeedControls {
         app: &mut App,
         maybe_mode: Option<&GameplayMode>,
     ) -> Option<Transition> {
+        if self.time != app.primary.sim.time() {
+            self.time = app.primary.sim.time();
+            let time = self.create_time_panel(ctx, app);
+            self.panel.replace(ctx, "time", time);
+        }
+
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "real-time speed" => {
@@ -354,77 +401,5 @@ impl SpeedControls {
 
     pub fn is_paused(&self) -> bool {
         self.paused
-    }
-}
-
-pub struct TimePanel {
-    time: Time,
-    pub panel: Panel,
-}
-
-impl TimePanel {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> TimePanel {
-        TimePanel {
-            time: app.primary.sim.time(),
-            panel: Panel::new(Widget::col(vec![
-                Text::from(Line(app.primary.sim.time().ampm_tostring()).big_monospaced())
-                    .into_widget(ctx)
-                    .centered_horiz(),
-                {
-                    let mut batch = GeomBatch::new();
-                    // This is manually tuned
-                    let width = 300.0;
-                    let height = 15.0;
-                    // Just clamp if we simulate past the expected end
-                    let percent = app
-                        .primary
-                        .sim
-                        .time()
-                        .to_percent(app.primary.sim.get_end_of_day())
-                        .min(1.0);
-
-                    // TODO Why is the rounding so hard? The white background is always rounded
-                    // at both ends. The moving bar should always be rounded on the left, flat
-                    // on the right, except at the very end (for the last 'radius' pixels). And
-                    // when the width is too small for the radius, this messes up.
-
-                    batch.push(Color::WHITE, Polygon::rectangle(width, height));
-
-                    if percent != 0.0 {
-                        batch.push(
-                            if percent < 0.25 || percent > 0.75 {
-                                app.cs.night_time_slider
-                            } else {
-                                app.cs.day_time_slider
-                            },
-                            Polygon::rectangle(percent * width, height),
-                        );
-                    }
-
-                    batch.into_widget(ctx)
-                },
-                Widget::custom_row(vec![
-                    Line("00:00").small_monospaced().into_widget(ctx),
-                    Image::icon("system/assets/speed/sunrise.svg").into_widget(ctx),
-                    Line("12:00").small_monospaced().into_widget(ctx),
-                    Image::icon("system/assets/speed/sunset.svg").into_widget(ctx),
-                    Line("24:00").small_monospaced().into_widget(ctx),
-                ])
-                .evenly_spaced(),
-            ]))
-            .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
-            .build(ctx),
-        }
-    }
-
-    pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App) {
-        if self.time != app.primary.sim.time() {
-            *self = TimePanel::new(ctx, app);
-        }
-        self.panel.event(ctx);
-    }
-
-    pub fn draw(&self, g: &mut GfxCtx) {
-        self.panel.draw(g);
     }
 }

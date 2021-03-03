@@ -252,10 +252,10 @@ impl ColorScheme {
             study_area: hex("#96830C").into(),
 
             // Unzoomed dynamic elements
-            unzoomed_car: hex("#A32015"),
-            unzoomed_bike: hex("#5D9630"),
-            unzoomed_bus: hex("#12409D"),
-            unzoomed_pedestrian: hex("#DF8C3D"),
+            unzoomed_car: hex("#FE5f55"),
+            unzoomed_bike: hex("#90BE6D"),
+            unzoomed_bus: hex("#FFD166"),
+            unzoomed_pedestrian: hex("#457B9D"),
 
             // Agents
             agent_colors: vec![
@@ -402,7 +402,7 @@ impl ColorScheme {
         cs.map_background = Color::BLACK.into();
         cs.grass = hex("#243A1F").into();
         cs.water = hex("#21374E").into();
-        cs.residential_building = hex("#5E8962");
+        cs.residential_building = hex("#2C422E");
         cs.commercial_building = hex("#5D5F97");
 
         cs.driving_lane = hex("#404040");
