@@ -334,6 +334,10 @@
 <span id="331">331</span>
 <span id="332">332</span>
 <span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! It&#39;s assumed that the importer is run with the current directory as the project repository; aka</span>
 <span class="doccomment">//! `./data/` and `./importer/config` must exist.</span>
@@ -589,7 +593,11 @@
                     <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;scenario for {}&quot;</span>, <span class="ident">name</span>.<span class="ident">describe</span>()));
 
                     <span class="comment">// This is a strange ordering.</span>
-                    <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">map</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;downtown&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">map</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;south_seattle&quot;</span> {
+                    <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">map</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;downtown&quot;</span>
+                        <span class="op">|</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">map</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;qa&quot;</span>
+                        <span class="op">|</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">map</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;south_seattle&quot;</span>
+                        <span class="op">|</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">map</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;wallingford&quot;</span>
+                    {
                         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;adjust parking for {}&quot;</span>, <span class="ident">name</span>.<span class="ident">describe</span>()));
                         <span class="ident">seattle</span>::<span class="ident">adjust_private_parking</span>(<span class="ident">maybe_map</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">scenario</span>);
                         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;adjust parking for {}&quot;</span>, <span class="ident">name</span>.<span class="ident">describe</span>()));
