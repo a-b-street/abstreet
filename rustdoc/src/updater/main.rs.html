@@ -362,9 +362,6 @@
 <span id="359">359</span>
 <span id="360">360</span>
 <span id="361">361</span>
-<span id="362">362</span>
-<span id="363">363</span>
-<span id="364">364</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
@@ -559,10 +556,7 @@
         <span class="ident">input</span>: <span class="ident">BTreeSet</span>::<span class="ident">new</span>(),
     };
     <span class="kw">for</span> <span class="ident">path</span> <span class="kw">in</span> <span class="ident">Manifest</span>::<span class="ident">load</span>().<span class="ident">entries</span>.<span class="ident">keys</span>() {
-        <span class="comment">// TODO Some hardcoded weird exceptions</span>
-        <span class="kw">if</span> <span class="ident">path</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;data/system/us/seattle/maps/huge_seattle.bin&quot;</span>
-            <span class="op">|</span><span class="op">|</span> <span class="ident">path</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;data/system/us/seattle/scenarios/huge_seattle/weekday.bin&quot;</span>
-        {
+        <span class="kw">if</span> <span class="ident">Manifest</span>::<span class="ident">is_file_part_of_huge_seattle</span>(<span class="ident">path</span>) {
             <span class="ident">data_packs</span>.<span class="ident">runtime</span>.<span class="ident">insert</span>(<span class="string">&quot;us/huge_seattle&quot;</span>.<span class="ident">to_string</span>());
             <span class="kw">continue</span>;
         }
