@@ -951,11 +951,6 @@
 <span id="948">948</span>
 <span id="949">949</span>
 <span id="950">950</span>
-<span id="951">951</span>
-<span id="952">952</span>
-<span id="953">953</span>
-<span id="954">954</span>
-<span id="955">955</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
@@ -994,7 +989,6 @@
 <span class="kw">mod</span> <span class="ident">misc_tools</span>;
 <span class="kw">mod</span> <span class="ident">speed</span>;
 <span class="kw">mod</span> <span class="ident">time_warp</span>;
-<span class="kw">mod</span> <span class="ident">uber_turns</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SandboxMode</span> {
     <span class="ident">gameplay</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">gameplay</span>::<span class="ident">GameplayState</span><span class="op">&gt;</span>,
@@ -1485,7 +1479,6 @@
                         <span class="ident">actions</span>.<span class="ident">push</span>((<span class="ident">Key</span>::<span class="ident">E</span>, <span class="string">&quot;edit stop sign&quot;</span>.<span class="ident">to_string</span>()));
                     }
                     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
-                        <span class="ident">actions</span>.<span class="ident">push</span>((<span class="ident">Key</span>::<span class="ident">U</span>, <span class="string">&quot;explore uber-turns&quot;</span>.<span class="ident">to_string</span>()));
                         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">num_recorded_trips</span>().<span class="ident">is_none</span>() {
                             <span class="ident">actions</span>.<span class="ident">push</span>((<span class="ident">Key</span>::<span class="ident">R</span>, <span class="string">&quot;record traffic here&quot;</span>.<span class="ident">to_string</span>()));
                         }
@@ -1538,9 +1531,6 @@
                 <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">EditMode</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">gameplay</span>.<span class="ident">clone</span>())),
                 <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">StopSignEditor</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">i</span>, <span class="self">self</span>.<span class="ident">gameplay</span>.<span class="ident">clone</span>())),
             ]),
-            (<span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>), <span class="string">&quot;explore uber-turns&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">uber_turns</span>::<span class="ident">UberTurnPicker</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">i</span>))
-            }
             (<span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>), <span class="string">&quot;record traffic here&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">TrafficRecorder</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="macro">btreeset</span><span class="macro">!</span> {<span class="ident">i</span>}))
             }
