@@ -1,6 +1,9 @@
 use std::collections::BTreeSet;
 
 use maplit::btreeset;
+use rand::seq::SliceRandom;
+use rand::SeedableRng;
+use rand_xorshift::XorShiftRng;
 
 use geom::Duration;
 use map_gui::tools::{grey_out_map, nice_map_name, open_browser, PopupMsg};
@@ -260,12 +263,13 @@ impl SimpleState<App> for About {
 }
 
 fn find_active_trip(app: &App) -> Option<(PersonID, TripID)> {
+    let mut all = Vec::new();
     for agent in app.primary.sim.active_agents() {
         if let Some(trip) = app.primary.sim.agent_to_trip(agent) {
             if let Some(person) = app.primary.sim.trip_to_person(trip) {
-                return Some((person, trip));
+                all.push((person, trip));
             }
         }
     }
-    None
+    all.choose(&mut XorShiftRng::from_entropy()).cloned()
 }
