@@ -86,7 +86,7 @@ fn smoke_test() -> Result<()> {
     let mut timer = Timer::new("run a smoke-test for all maps");
     for name in MapName::list_all_maps() {
         let map = map_model::Map::new(name.path(), &mut timer);
-        let scenario = if map.get_city_name() == &CityName::new("us", "seattle") {
+        let scenario = if map.get_city_name() == &CityName::seattle() {
             abstio::read_binary(abstio::path_scenario(&name, "weekday"), &mut timer)
         } else {
             let mut rng = sim::SimFlags::for_test("smoke_test").make_rng();
@@ -101,7 +101,7 @@ fn smoke_test() -> Result<()> {
         scenario.instantiate(&mut sim, &map, &mut rng, &mut timer);
         sim.timed_step(&map, Duration::hours(1), &mut None, &mut timer);
 
-        if (name.city == CityName::new("us", "seattle")
+        if (name.city == CityName::seattle()
             && vec!["downtown", "lakeslice", "montlake", "udistrict"].contains(&name.map.as_str()))
             || name == MapName::new("pl", "krakow", "center")
         {

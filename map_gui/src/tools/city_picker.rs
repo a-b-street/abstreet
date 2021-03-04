@@ -195,7 +195,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
         // districts, but the player might be missing a necessary data pack!
         #[cfg(not(target_arch = "wasm32"))]
         {
-            if !abstio::file_exists(name.path()) && name.city == CityName::new("us", "seattle") {
+            if !abstio::file_exists(name.path()) && name.city == CityName::seattle() {
                 return Transition::Push(crate::tools::ChooseSomething::new(
                     ctx,
                     "Download the larger Seattle maps?",

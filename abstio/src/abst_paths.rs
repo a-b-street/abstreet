@@ -82,6 +82,11 @@ impl CityName {
         }
     }
 
+    /// Convenient constructor for the main city of the game.
+    pub fn seattle() -> CityName {
+        CityName::new("us", "seattle")
+    }
+
     /// Returns all city names based on system data.
     pub fn list_all_cities_from_system_data() -> Vec<CityName> {
         let mut cities = Vec::new();

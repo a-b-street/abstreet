@@ -15,7 +15,7 @@ use crate::configuration::ImporterConfiguration;
 use crate::utils::{download, download_kml, osmconvert};
 
 fn input(config: &ImporterConfiguration, timer: &mut Timer) {
-    let city = CityName::new("us", "seattle");
+    let city = CityName::seattle();
 
     download(
         config,
@@ -94,7 +94,7 @@ fn input(config: &ImporterConfiguration, timer: &mut Timer) {
 }
 
 pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration) {
-    let city = CityName::new("us", "seattle");
+    let city = CityName::seattle();
 
     input(config, timer);
     osmconvert(
@@ -183,7 +183,7 @@ pub fn adjust_private_parking(map: &mut Map, scenario: &Scenario) {
 /// - is specific to Seattle, whose files don't seem to match https://developers.google.com/transit/gtfs/reference
 /// - is probably wrong
 pub fn add_gtfs_schedules(map: &mut Map) {
-    let city = CityName::new("us", "seattle");
+    let city = CityName::seattle();
     // https://www.openstreetmap.org/relation/8616968 as an example, mapping to
     // https://kingcounty.gov/depts/transportation/metro/schedules-maps/route/048.aspx
 
@@ -259,10 +259,8 @@ struct StopTimeRecord {
 /// Match OSM buildings to parcels, scraping the number of housing units.
 // TODO It's expensive to load the huge zoning_parcels.bin file for every map.
 pub fn match_parcels_to_buildings(map: &mut Map, timer: &mut Timer) {
-    let shapes: ExtraShapes = abstio::read_binary(
-        CityName::new("us", "seattle").input_path("zoning_parcels.bin"),
-        timer,
-    );
+    let shapes: ExtraShapes =
+        abstio::read_binary(CityName::seattle().input_path("zoning_parcels.bin"), timer);
     let mut parcels_with_housing: Vec<(Polygon, usize)> = Vec::new();
     // TODO We should refactor something like FindClosest, but for polygon containment
     // The quadtree's ID is just an index into parcels_with_housing.

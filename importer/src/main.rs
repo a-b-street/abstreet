@@ -57,7 +57,7 @@ fn main() {
     let job = Job {
         city: match args.optional("--city") {
             Some(x) => CityName::parse(&x).unwrap(),
-            None => CityName::new("us", "seattle"),
+            None => CityName::seattle(),
         },
         // Download all raw input files, then convert OSM to the intermediate RawMap.
         osm_to_raw: args.enabled("--raw"),
@@ -91,8 +91,8 @@ fn regenerate_everything(config: ImporterConfiguration) {
     // Discover all cities by looking at config. But always operate on Seattle first. Special
     // treatment ;)
     let mut all_cities = CityName::list_all_cities_from_importer_config();
-    all_cities.retain(|x| x != &CityName::new("us", "seattle"));
-    all_cities.insert(0, CityName::new("us", "seattle"));
+    all_cities.retain(|x| x != &CityName::seattle());
+    all_cities.insert(0, CityName::seattle());
 
     let mut timer = Timer::new("regenerate all maps");
     for city in all_cities {
@@ -105,7 +105,7 @@ fn regenerate_everything(config: ImporterConfiguration) {
             only_map: None,
         };
         // Only some maps run extra tasks
-        if city == CityName::new("us", "seattle") {
+        if city == CityName::seattle() {
             job.scenario = true;
         }
         // TODO Autodetect this based on number of maps per city?
@@ -159,7 +159,7 @@ impl Job {
         };
 
         let (maybe_popdat, maybe_huge_map) = if self.scenario {
-            assert_eq!(self.city, CityName::new("us", "seattle"));
+            assert_eq!(self.city, CityName::seattle());
 
             #[cfg(feature = "scenarios")]
             {
@@ -180,7 +180,7 @@ impl Job {
         for name in names {
             if self.osm_to_raw {
                 // Still special-cased
-                if self.city == CityName::new("us", "seattle") {
+                if self.city == CityName::seattle() {
                     seattle::osm_to_raw(&name, timer, config);
                 } else {
                     let raw = match abstio::maybe_read_json::<generic::GenericCityImporter>(
@@ -225,7 +225,7 @@ impl Job {
                         "distribute residents from planning areas for {}",
                         name.describe()
                     ));
-                } else if name.city == CityName::new("us", "seattle") {
+                } else if name.city == CityName::seattle() {
                     timer.start(format!("add GTFS schedules for {}", name.describe()));
                     seattle::add_gtfs_schedules(&mut map);
                     timer.stop(format!("add GTFS schedules for {}", name.describe()));
@@ -240,7 +240,7 @@ impl Job {
 
             if self.scenario {
                 #[cfg(feature = "scenarios")]
-                if self.city == CityName::new("us", "seattle") {
+                if self.city == CityName::seattle() {
                     timer.start(format!("scenario for {}", name.describe()));
                     let scenario = soundcast::make_weekday_scenario(
                         maybe_map.as_ref().unwrap(),
