@@ -40,6 +40,7 @@ version = "0.3.47"
 optional = true
 features = [
   "Headers",
+  "History",
   "Request",
   "RequestInit",
   "RequestMode",

@@ -2,7 +2,9 @@ use std::collections::BTreeSet;
 
 use maplit::btreeset;
 
-use map_gui::tools::{grey_out_map, nice_map_name, ChooseSomething, CityPicker, PopupMsg};
+use map_gui::tools::{
+    grey_out_map, nice_map_name, ChooseSomething, CityPicker, PopupMsg, URLManager,
+};
 use sim::{ScenarioModifier, TripMode};
 use widgetry::{
     lctrl, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Slider,
@@ -10,7 +12,7 @@ use widgetry::{
 };
 
 use crate::app::{App, Transition};
-use crate::common::{checkbox_per_mode, update_url_free_param};
+use crate::common::checkbox_per_mode;
 use crate::edit::EditMode;
 use crate::sandbox::gameplay::freeform::ChangeScenario;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
@@ -29,7 +31,7 @@ impl PlayScenario {
         name: &String,
         modifiers: Vec<ScenarioModifier>,
     ) -> Box<dyn GameplayState> {
-        if let Err(err) = update_url_free_param(
+        if let Err(err) = URLManager::update_url_free_param(
             // For dynamiclly generated scenarios like "random" and "home_to_work", this winds up
             // making up a filename that doesn't actually exist. But if you pass that in, it winds
             // up working, because we call abstio::parse_scenario_path() on the other side.

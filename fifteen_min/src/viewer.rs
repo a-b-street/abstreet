@@ -6,7 +6,9 @@
 
 use abstutil::prettyprint_usize;
 use geom::{Distance, Duration};
-use map_gui::tools::{nice_map_name, open_browser, CityPicker, ColorLegend, Navigator, PopupMsg};
+use map_gui::tools::{
+    nice_map_name, open_browser, CityPicker, ColorLegend, Navigator, PopupMsg, URLManager,
+};
 use map_gui::ID;
 use map_model::connectivity::WalkingOptions;
 use map_model::{AmenityType, Building, BuildingID, LaneType};
@@ -41,6 +43,17 @@ impl Viewer {
     }
 
     pub fn new(ctx: &mut EventCtx, app: &App, start: BuildingID) -> Box<dyn State<App>> {
+        if let Err(err) = URLManager::update_url_free_param(
+            app.map
+                .get_name()
+                .path()
+                .strip_prefix(&abstio::path(""))
+                .unwrap()
+                .to_string(),
+        ) {
+            warn!("Couldn't update URL: {}", err);
+        }
+
         let options = Options::Walking(WalkingOptions::default());
         let start = app.map.get_b(start);
         let isochrone = Isochrone::new(ctx, app, start.id, options);
@@ -62,7 +75,11 @@ impl Viewer {
 impl State<App> for Viewer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition<App> {
         // Allow panning and zooming
-        ctx.canvas_movement();
+        if ctx.canvas_movement() {
+            if let Err(err) = URLManager::update_url_cam(ctx, app) {
+                warn!("Couldn't update URL: {}", err);
+            }
+        }
 
         if ctx.redo_mouseover() {
             let isochrone = &self.isochrone;

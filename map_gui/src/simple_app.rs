@@ -10,7 +10,7 @@ use crate::load::MapLoader;
 use crate::options::Options;
 use crate::render::DrawMap;
 use crate::render::{DrawOptions, Renderable};
-use crate::tools::CameraState;
+use crate::tools::{CameraState, URLManager};
 use crate::{AppLike, ID};
 
 /// Simple app state that just renders a static map, without any dynamic agents on the map.
@@ -41,6 +41,7 @@ impl<T: 'static> SimpleApp<T> {
             .optional_free()
             .map(|path| MapName::from_path(&path).expect(&format!("bad map path: {}", path)))
             .unwrap_or(MapName::seattle("montlake"));
+        let center_camera = args.optional("--cam");
         args.done();
 
         let cs = ColorScheme::new(ctx, opts.color_scheme);
@@ -61,7 +62,15 @@ impl<T: 'static> SimpleApp<T> {
             ctx,
             &app,
             map_name,
-            Box::new(move |ctx, app| Transition::Clear(init_states(ctx, app))),
+            Box::new(move |ctx, app| {
+                if let Some((pt, zoom)) =
+                    center_camera.and_then(|cam| URLManager::parse_center_camera(app, cam))
+                {
+                    ctx.canvas.cam_zoom = zoom;
+                    ctx.canvas.center_on_map_pt(pt);
+                }
+                Transition::Clear(init_states(ctx, app))
+            }),
         )];
         (app, states)
     }

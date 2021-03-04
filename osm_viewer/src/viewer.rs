@@ -6,7 +6,7 @@ use map_gui::options::OptionsPanel;
 use map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
 use map_gui::tools::{
     nice_map_name, open_browser, CityPicker, Minimap, MinimapControls, Navigator, PopupMsg,
-    TurnExplorer,
+    TurnExplorer, URLManager,
 };
 use map_gui::{SimpleApp, ID};
 use map_model::osm;
@@ -26,6 +26,17 @@ pub struct Viewer {
 
 impl Viewer {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+        if let Err(err) = URLManager::update_url_free_param(
+            app.map
+                .get_name()
+                .path()
+                .strip_prefix(&abstio::path(""))
+                .unwrap()
+                .to_string(),
+        ) {
+            warn!("Couldn't update URL: {}", err);
+        }
+
         let mut viewer = Viewer {
             fixed_object_outline: None,
             minimap: Minimap::new(ctx, app, MinimapController),
@@ -220,7 +231,12 @@ impl Viewer {
 
 impl State<App> for Viewer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition<App> {
-        ctx.canvas_movement();
+        if ctx.canvas_movement() {
+            if let Err(err) = URLManager::update_url_cam(ctx, app) {
+                warn!("Couldn't update URL: {}", err);
+            }
+        }
+
         if ctx.redo_mouseover() {
             let old_id = app.current_selection.clone();
             app.recalculate_current_selection(ctx);

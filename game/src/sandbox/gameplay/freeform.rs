@@ -4,7 +4,7 @@ use rand::Rng;
 use abstutil::Timer;
 use geom::{Distance, Duration, Polygon};
 use map_gui::tools::{
-    grey_out_map, nice_map_name, open_browser, CityPicker, PopupMsg, PromptInput,
+    grey_out_map, nice_map_name, open_browser, CityPicker, PopupMsg, PromptInput, URLManager,
 };
 use map_gui::ID;
 use map_model::{BuildingID, IntersectionID, Position, NORMAL_LANE_THICKNESS};
@@ -15,7 +15,7 @@ use widgetry::{
 };
 
 use crate::app::{App, Transition};
-use crate::common::{jump_to_time_upon_startup, update_url_free_param, CommonState};
+use crate::common::{jump_to_time_upon_startup, CommonState};
 use crate::edit::EditMode;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{Actions, SandboxControls, SandboxMode};
@@ -27,7 +27,7 @@ pub struct Freeform {
 
 impl Freeform {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn GameplayState> {
-        if let Err(err) = update_url_free_param(
+        if let Err(err) = URLManager::update_url_free_param(
             app.primary
                 .map
                 .get_name()

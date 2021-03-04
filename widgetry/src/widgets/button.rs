@@ -500,7 +500,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     ///     let red_builder = ButtonBuilder::new()
     ///         .bg_color(Color::RED, ControlState::Default)
     ///         .bg_color(Color::RED.alpha(0.3), ControlState::Disabled)
-    ///         .outline(2.0, Color::WHITE, ControlState::Default);
+    ///         .outline((2.0, Color::WHITE), ControlState::Default);
     ///
     ///     let red_button_1 = red_builder.clone().label_text("First red button").build(ctx, "first");
     ///     let red_button_2 = red_builder.clone().label_text("Second red button").build(ctx, "second");

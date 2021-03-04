@@ -1264,7 +1264,6 @@ dependencies = [
  "sim",
  "svg_face",
  "wasm-bindgen",
- "web-sys",
  "widgetry",
 ]
 
@@ -2588,6 +2587,7 @@ dependencies = [
  "abstutil",
  "geom",
  "getrandom",
+ "log",
  "map_gui",
  "map_model",
  "wasm-bindgen",

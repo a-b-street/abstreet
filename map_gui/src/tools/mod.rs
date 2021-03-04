@@ -12,6 +12,7 @@ pub use self::minimap::{Minimap, MinimapControls};
 pub use self::navigate::Navigator;
 pub use self::turn_explorer::TurnExplorer;
 pub use self::ui::{ChooseSomething, PopupMsg, PromptInput};
+pub use self::url::URLManager;
 use crate::AppLike;
 
 mod camera;
@@ -24,6 +25,7 @@ mod turn_explorer;
 mod ui;
 #[cfg(not(target_arch = "wasm32"))]
 mod updater;
+mod url;
 
 // TODO This is A/B Street specific
 pub fn loading_tips() -> Text {

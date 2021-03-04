@@ -7,7 +7,7 @@ use map_gui::colors::ColorSchemeChoice;
 use map_gui::load::{FileLoader, FutureLoader, MapLoader};
 use map_gui::options::OptionsPanel;
 use map_gui::render::{unzoomed_agent_radius, UnzoomedAgents};
-use map_gui::tools::{ChooseSomething, Minimap, PopupMsg, TurnExplorer};
+use map_gui::tools::{ChooseSomething, Minimap, PopupMsg, TurnExplorer, URLManager};
 use map_gui::{AppLike, ID};
 use sim::{Analytics, Scenario};
 use widgetry::{
@@ -20,7 +20,7 @@ use self::misc_tools::{RoutePreview, TrafficRecorder};
 pub use self::speed::{SpeedControls, SpeedSetting, TimePanel};
 pub use self::time_warp::TimeWarpScreen;
 use crate::app::{App, Transition};
-use crate::common::{tool_panel, update_url_cam, CommonState, MinimapController};
+use crate::common::{tool_panel, CommonState, MinimapController};
 use crate::debug::DebugMode;
 use crate::edit::{
     can_edit_lane, EditMode, LaneEditor, SaveEdits, StopSignEditor, TrafficSignalEditor,
@@ -113,7 +113,7 @@ impl State<App> for SandboxMode {
         // Do this before gameplay
         if self.gameplay.can_move_canvas() {
             if ctx.canvas_movement() {
-                if let Err(err) = update_url_cam(calculate_camera_center(ctx, app)) {
+                if let Err(err) = URLManager::update_url_cam(ctx, app) {
                     warn!("Couldn't update URL: {}", err);
                 }
             }
@@ -929,22 +929,4 @@ impl SandboxControls {
             minimap.recreate_panel(ctx, app);
         }
     }
-}
-
-/// Calculates an OSM-style `zoom/lat/lon` string
-/// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks) based on the current viewport.
-// TODO Lift to map_gui along with parse_center_camera.
-fn calculate_camera_center(ctx: &EventCtx, app: &App) -> String {
-    let center = ctx
-        .canvas
-        .center_to_map_pt()
-        .to_gps(app.primary.map.get_gps_bounds());
-
-    // To calculate zoom, just solve for the inverse of the code in parse_center_camera.
-    let earth_circumference_equator = 40_075_016.686;
-    let log_arg = earth_circumference_equator * center.y().to_radians().cos() * ctx.canvas.cam_zoom;
-    let zoom_lvl = log_arg.log2() - 8.0;
-
-    // Trim precision
-    format!("{:.2}/{:.5}/{:.5}", zoom_lvl, center.y(), center.x())
 }

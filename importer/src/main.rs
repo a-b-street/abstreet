@@ -7,7 +7,6 @@ extern crate log;
 use abstio::{CityName, MapName};
 use abstutil::{basename, Timer};
 use geom::Distance;
-use kml::ExtraShapes;
 
 use configuration::{load_configuration, ImporterConfiguration};
 use dependencies::are_dependencies_callable;
@@ -166,7 +165,7 @@ impl Job {
             {
                 let (popdat, huge_map) = seattle::ensure_popdat_exists(timer, config);
                 // Just assume --raw has been called...
-                let shapes: ExtraShapes = abstio::read_binary(
+                let shapes: kml::ExtraShapes = abstio::read_binary(
                     CityName::seattle().input_path("zoning_parcels.bin"),
                     timer,
                 );
@@ -177,7 +176,7 @@ impl Job {
             {
                 panic!("Can't do --scenario without the scenarios feature compiled in");
                 // Nonsense to make the type-checker work
-                (None, None, None)
+                (Some(true), Some(true), Some(true))
             }
         } else {
             (None, None, None)
