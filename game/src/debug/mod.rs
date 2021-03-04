@@ -32,6 +32,7 @@ mod polygons;
 mod routes;
 pub mod shared_row;
 pub mod streetmix;
+mod uber_turns;
 
 pub struct DebugMode {
     panel: Panel,
@@ -88,17 +89,14 @@ impl DebugMode {
                     ctx.style()
                         .btn_outline
                         .text("save sim state")
-                        .hotkey(Key::O)
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
                         .text("load previous sim state")
-                        .hotkey(Key::Y)
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
                         .text("load next sim state")
-                        .hotkey(Key::U)
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
@@ -560,6 +558,7 @@ impl ContextualActions for Actions {
                 if app.primary.map.get_i(i).is_border() {
                     actions.push((Key::R, "route from here".to_string()));
                 }
+                actions.push((Key::U, "explore uber-turns".to_string()));
             }
             ID::Car(_) => {
                 actions.push((Key::Backspace, "forcibly delete this car".to_string()));
@@ -654,6 +653,9 @@ impl ContextualActions for Actions {
             (ID::Intersection(i), "route from here") => Transition::Push(
                 routes::RouteExplorer::new(ctx, app, TripEndpoint::Border(i)),
             ),
+            (ID::Intersection(i), "explore uber-turns") => {
+                Transition::Push(uber_turns::UberTurnPicker::new(ctx, app, i))
+            }
             (ID::Lane(l), "debug lane geometry") => {
                 Transition::Push(polygons::PolygonDebugger::new(
                     ctx,

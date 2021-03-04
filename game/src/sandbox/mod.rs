@@ -35,7 +35,6 @@ pub mod gameplay;
 mod misc_tools;
 mod speed;
 mod time_warp;
-mod uber_turns;
 
 pub struct SandboxMode {
     gameplay: Box<dyn gameplay::GameplayState>,
@@ -526,7 +525,6 @@ impl ContextualActions for Actions {
                         actions.push((Key::E, "edit stop sign".to_string()));
                     }
                     if app.opts.dev {
-                        actions.push((Key::U, "explore uber-turns".to_string()));
                         if app.primary.sim.num_recorded_trips().is_none() {
                             actions.push((Key::R, "record traffic here".to_string()));
                         }
@@ -579,9 +577,6 @@ impl ContextualActions for Actions {
                 Transition::Push(EditMode::new(ctx, app, self.gameplay.clone())),
                 Transition::Push(StopSignEditor::new(ctx, app, i, self.gameplay.clone())),
             ]),
-            (ID::Intersection(i), "explore uber-turns") => {
-                Transition::Push(uber_turns::UberTurnPicker::new(ctx, app, i))
-            }
             (ID::Intersection(i), "record traffic here") => {
                 Transition::Push(TrafficRecorder::new(ctx, btreeset! {i}))
             }
