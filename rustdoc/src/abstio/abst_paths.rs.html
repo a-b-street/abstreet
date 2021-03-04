@@ -327,6 +327,11 @@
 <span id="324">324</span>
 <span id="325">325</span>
 <span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Generate paths for different A/B Street files</span>
 
@@ -410,6 +415,11 @@
             <span class="ident">country</span>: <span class="ident">country</span>.<span class="ident">to_string</span>(),
             <span class="ident">city</span>: <span class="ident">city</span>.<span class="ident">to_string</span>(),
         }
+    }
+
+    <span class="doccomment">/// Convenient constructor for the main city of the game.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">seattle</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CityName</span> {
+        <span class="ident">CityName</span>::<span class="ident">new</span>(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;seattle&quot;</span>)
     }
 
     <span class="doccomment">/// Returns all city names based on system data.</span>
