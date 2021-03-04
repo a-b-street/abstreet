@@ -7,6 +7,7 @@ extern crate log;
 use abstio::{CityName, MapName};
 use abstutil::{basename, Timer};
 use geom::Distance;
+use kml::ExtraShapes;
 
 use configuration::{load_configuration, ImporterConfiguration};
 use dependencies::are_dependencies_callable;
@@ -158,23 +159,28 @@ impl Job {
             .collect()
         };
 
-        let (maybe_popdat, maybe_huge_map) = if self.scenario {
+        let (maybe_popdat, maybe_huge_map, maybe_zoning_parcels) = if self.scenario {
             assert_eq!(self.city, CityName::seattle());
 
             #[cfg(feature = "scenarios")]
             {
                 let (popdat, huge_map) = seattle::ensure_popdat_exists(timer, config);
-                (Some(popdat), Some(huge_map))
+                // Just assume --raw has been called...
+                let shapes: ExtraShapes = abstio::read_binary(
+                    CityName::seattle().input_path("zoning_parcels.bin"),
+                    timer,
+                );
+                (Some(popdat), Some(huge_map), Some(shapes))
             }
 
             #[cfg(not(feature = "scenarios"))]
             {
                 panic!("Can't do --scenario without the scenarios feature compiled in");
                 // Nonsense to make the type-checker work
-                (Some(true), Some(true))
+                (None, None, None)
             }
         } else {
-            (None, None)
+            (None, None, None)
         };
 
         for name in names {
@@ -263,7 +269,11 @@ impl Job {
                     }
 
                     timer.start("match parcels to buildings");
-                    seattle::match_parcels_to_buildings(maybe_map.as_mut().unwrap(), timer);
+                    seattle::match_parcels_to_buildings(
+                        maybe_map.as_mut().unwrap(),
+                        maybe_zoning_parcels.as_ref().unwrap(),
+                        timer,
+                    );
                     timer.stop("match parcels to buildings");
                 }
             }

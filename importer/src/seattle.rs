@@ -258,15 +258,13 @@ struct StopTimeRecord {
 
 /// Match OSM buildings to parcels, scraping the number of housing units.
 // TODO It's expensive to load the huge zoning_parcels.bin file for every map.
-pub fn match_parcels_to_buildings(map: &mut Map, timer: &mut Timer) {
-    let shapes: ExtraShapes =
-        abstio::read_binary(CityName::seattle().input_path("zoning_parcels.bin"), timer);
+pub fn match_parcels_to_buildings(map: &mut Map, shapes: &ExtraShapes, timer: &mut Timer) {
     let mut parcels_with_housing: Vec<(Polygon, usize)> = Vec::new();
     // TODO We should refactor something like FindClosest, but for polygon containment
     // The quadtree's ID is just an index into parcels_with_housing.
     let mut quadtree: QuadTree<usize> = QuadTree::default(map.get_bounds().as_bbox());
     timer.start_iter("index all parcels", shapes.shapes.len());
-    for shape in shapes.shapes {
+    for shape in &shapes.shapes {
         timer.next();
         if let Some(units) = shape
             .attributes
