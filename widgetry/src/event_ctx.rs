@@ -145,26 +145,23 @@ impl<'a> EventCtx<'a> {
 
     pub fn make_loading_screen(&mut self, txt: Text) -> Panel {
         let border = Color::hex("#F4DA22");
+        let (label, bytes) = crate::include_labeled_bytes!("../icons/loading.svg");
         Panel::new(Widget::row(vec![
             Widget::custom_col(vec![
-                Widget::draw_batch(self, {
-                    let (label, bytes) = crate::include_labeled_bytes!("../icons/loading.svg");
-                    svg::load_svg_bytes(self.prerender, label, bytes)
-                        .unwrap()
-                        .0
-                        .scale(5.0)
-                })
-                .container()
-                .bg(Color::BLACK)
-                .padding(15)
-                .outline((5.0, border))
-                .centered_horiz()
-                .margin_below(5),
-                Widget::draw_batch(
-                    self,
-                    GeomBatch::from(vec![(Color::grey(0.5), Polygon::rectangle(10.0, 30.0))]),
-                )
-                .centered_horiz(),
+                svg::load_svg_bytes(self.prerender, label, bytes)
+                    .unwrap()
+                    .0
+                    .scale(5.0)
+                    .into_widget(self)
+                    .container()
+                    .bg(Color::BLACK)
+                    .padding(15)
+                    .outline((5.0, border))
+                    .centered_horiz()
+                    .margin_below(5),
+                GeomBatch::from(vec![(Color::grey(0.5), Polygon::rectangle(10.0, 30.0))])
+                    .into_widget(self)
+                    .centered_horiz(),
                 self.style
                     .loading_tips
                     .clone()
@@ -177,22 +174,18 @@ impl<'a> EventCtx<'a> {
                     .outline((5.0, Color::YELLOW))
                     .force_width_pct(self, Percent::int(30))
                     .margin_below(5),
-                Widget::draw_batch(
-                    self,
-                    GeomBatch::from(vec![(Color::grey(0.5), Polygon::rectangle(10.0, 100.0))]),
-                )
-                .centered_horiz(),
+                GeomBatch::from(vec![(Color::grey(0.5), Polygon::rectangle(10.0, 100.0))])
+                    .into_widget(self)
+                    .centered_horiz(),
             ])
             .centered_vert(),
-            Widget::draw_batch(
-                self,
-                txt.change_fg(Color::WHITE)
-                    .inner_render(&self.prerender.assets, svg::LOW_QUALITY),
-            )
-            .container()
-            .fill_width()
-            .padding(16)
-            .bg(text::BG_COLOR),
+            txt.change_fg(Color::WHITE)
+                .inner_render(&self.prerender.assets, svg::LOW_QUALITY)
+                .into_widget(self)
+                .container()
+                .fill_width()
+                .padding(16)
+                .bg(text::BG_COLOR),
         ]))
         .exact_size_percent(80, 80)
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Center)

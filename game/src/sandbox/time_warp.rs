@@ -49,18 +49,16 @@ impl JumpToTime {
                 .bg(Color::WHITE),
                 Line("Jump to what time?").small_heading().draw(ctx),
                 if app.has_prebaked().is_some() {
-                    Widget::draw_batch(
-                        ctx,
-                        GeomBatch::from(vec![(
-                            Color::WHITE.alpha(0.7),
-                            area_under_curve(
-                                app.prebaked().active_agents(end_of_day),
-                                // TODO Auto fill width
-                                500.0,
-                                50.0,
-                            ),
-                        )]),
-                    )
+                    GeomBatch::from(vec![(
+                        Color::WHITE.alpha(0.7),
+                        area_under_curve(
+                            app.prebaked().active_agents(end_of_day),
+                            // TODO Auto fill width
+                            500.0,
+                            50.0,
+                        ),
+                    )])
+                    .into_widget(ctx)
                 } else {
                     Widget::nothing()
                 },

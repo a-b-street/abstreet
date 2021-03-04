@@ -437,13 +437,11 @@ impl AgentMeter {
         // the panel for all gameplay modes
         if let Some(n) = app.primary.sim.num_recorded_trips() {
             rows.push(Widget::row(vec![
-                Widget::draw_batch(
-                    ctx,
-                    GeomBatch::from(vec![(
-                        Color::RED,
-                        Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(10.0)).to_polygon(),
-                    )]),
-                )
+                GeomBatch::from(vec![(
+                    Color::RED,
+                    Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(10.0)).to_polygon(),
+                )])
+                .into_widget(ctx)
                 .centered_vert(),
                 format!("{} trips captured", prettyprint_usize(n)).draw_text(ctx),
                 ctx.style()

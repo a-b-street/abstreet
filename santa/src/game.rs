@@ -60,15 +60,15 @@ impl Game {
             .padding(10)
             .bg(Color::hex("#003046")),
             "Complete Deliveries".draw_text(ctx).named("score label"),
-            Widget::draw_batch(ctx, GeomBatch::new()).named("score"),
+            GeomBatch::new().into_widget(ctx).named("score"),
             "Blood sugar".draw_text(ctx).named("energy label"),
-            Widget::draw_batch(ctx, GeomBatch::new()).named("energy"),
+            GeomBatch::new().into_widget(ctx).named("energy"),
         ]))
         .aligned(HorizontalAlignment::RightInset, VerticalAlignment::TopInset)
         .build(ctx);
 
         let time_panel = Panel::new(Widget::row(vec![
-            Widget::draw_batch(ctx, GeomBatch::new()).named("time circle"),
+            GeomBatch::new().into_widget(ctx).named("time circle"),
             "Time".draw_text(ctx).centered_vert().named("time label"),
         ]))
         .aligned(HorizontalAlignment::LeftInset, VerticalAlignment::TopInset)
@@ -135,17 +135,15 @@ impl Game {
         // TODO I couldn't quite work out how to get the partial outline from Figma working
         let center = Pt2D::new(0.0, 0.0);
         let outer = Distance::meters(30.0);
-        let draw = Widget::draw_batch(
-            ctx,
-            GeomBatch::from(vec![
-                (Color::WHITE, Circle::new(center, outer).to_polygon()),
-                (
-                    Color::hex("#5D92C2"),
-                    Circle::new(center, outer).to_partial_polygon(pct),
-                ),
-            ])
-            .autocrop(),
-        );
+        let draw = GeomBatch::from(vec![
+            (Color::WHITE, Circle::new(center, outer).to_polygon()),
+            (
+                Color::hex("#5D92C2"),
+                Circle::new(center, outer).to_partial_polygon(pct),
+            ),
+        ])
+        .autocrop()
+        .into_widget(ctx);
         self.time_panel.replace(ctx, "time circle", draw);
     }
 
@@ -692,7 +690,8 @@ impl MinimapControls<App> for MinimapController {
             // so fine with this for now.
             Widget::row(vec![
                 "Boost".draw_text(ctx),
-                Widget::draw_batch(ctx, GeomBatch::new())
+                GeomBatch::new()
+                    .into_widget(ctx)
                     .named("boost")
                     .align_right(),
             ]),

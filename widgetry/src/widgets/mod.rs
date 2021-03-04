@@ -352,13 +352,7 @@ impl Widget {
         }
     }
 
-    // TODO These are literally just convenient APIs to avoid importing JustDraw. Do we want this
-    // or not?
-    pub fn draw_batch(ctx: &EventCtx, batch: GeomBatch) -> Widget {
-        JustDraw::wrap(ctx, batch)
-    }
-
-    // TODO Likewise
+    // TODO TextBox::widget is a better API
     pub fn text_entry(ctx: &EventCtx, prefilled: String, exclusive_focus: bool) -> Widget {
         // TODO Hardcoded style, max chars
         Widget::new(Box::new(TextBox::new(ctx, 50, prefilled, exclusive_focus)))
@@ -472,24 +466,20 @@ impl Widget {
     }
 
     pub fn horiz_separator(ctx: &mut EventCtx, pct_width: f64) -> Widget {
-        Widget::draw_batch(
-            ctx,
-            GeomBatch::from(vec![(
-                ctx.style().btn_outline.fg,
-                Polygon::rectangle(pct_width * ctx.canvas.window_width, 2.0),
-            )]),
-        )
+        GeomBatch::from(vec![(
+            ctx.style().btn_outline.fg,
+            Polygon::rectangle(pct_width * ctx.canvas.window_width, 2.0),
+        )])
+        .into_widget(ctx)
         .centered_horiz()
     }
 
     pub fn vert_separator(ctx: &mut EventCtx, height_px: f64) -> Widget {
-        Widget::draw_batch(
-            ctx,
-            GeomBatch::from(vec![(
-                ctx.style().btn_outline.fg,
-                Polygon::rectangle(2.0, height_px),
-            )]),
-        )
+        GeomBatch::from(vec![(
+            ctx.style().btn_outline.fg,
+            Polygon::rectangle(2.0, height_px),
+        )])
+        .into_widget(ctx)
     }
 }
 

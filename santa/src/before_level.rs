@@ -75,15 +75,11 @@ impl Picker {
                 let instructions_panel = Panel::new(Widget::col(vec![
                     txt.draw(ctx),
                     Widget::row(vec![
-                        Widget::draw_batch(
-                            ctx,
-                            GeomBatch::load_svg_bytes(
-                                &ctx.prerender,
-                                widgetry::include_labeled_bytes!(
-                                    "../../widgetry/icons/arrow_keys.svg"
-                                ),
-                            ),
-                        ),
+                        GeomBatch::load_svg_bytes(
+                            &ctx.prerender,
+                            widgetry::include_labeled_bytes!("../../widgetry/icons/arrow_keys.svg"),
+                        )
+                        .into_widget(ctx),
                         Text::from_all(vec![
                             Line("arrow keys").fg(ctx.style().text_hotkey_color),
                             Line(" to move (or "),
@@ -254,7 +250,8 @@ fn make_vehicle_panel(ctx: &mut EventCtx, app: &App) -> Panel {
 
         buttons.push(
             if name == &app.session.current_vehicle {
-                Widget::draw_batch(ctx, batch)
+                batch
+                    .into_widget(ctx)
                     .container()
                     .padding(5)
                     .outline((2.0, Color::WHITE))

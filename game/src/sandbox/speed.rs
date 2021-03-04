@@ -401,7 +401,7 @@ impl TimePanel {
                         );
                     }
 
-                    Widget::draw_batch(ctx, batch)
+                    batch.into_widget(ctx)
                 },
                 Widget::custom_row(vec![
                     Line("00:00").small_monospaced().draw(ctx),

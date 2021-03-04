@@ -326,7 +326,7 @@ pub fn traffic_signal(
                     .scale(zoom),
             );
 
-            rows.push(Widget::draw_batch(ctx, normal));
+            rows.push(normal.into_widget(ctx));
         }
     }
 

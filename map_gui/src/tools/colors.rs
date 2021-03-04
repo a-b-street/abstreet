@@ -103,13 +103,11 @@ impl ColorLegend {
     pub fn row<S: Into<String>>(ctx: &mut EventCtx, color: Color, label: S) -> Widget {
         let radius = 15.0;
         Widget::row(vec![
-            Widget::draw_batch(
-                ctx,
-                GeomBatch::from(vec![(
-                    color,
-                    Circle::new(Pt2D::new(radius, radius), Distance::meters(radius)).to_polygon(),
-                )]),
-            )
+            GeomBatch::from(vec![(
+                color,
+                Circle::new(Pt2D::new(radius, radius), Distance::meters(radius)).to_polygon(),
+            )])
+            .into_widget(ctx)
             .centered_vert(),
             Text::from(Line(label)).wrap_to_pct(ctx, 35).draw(ctx),
         ])
@@ -146,7 +144,7 @@ impl ColorLegend {
         // Extra wrapping to make the labels stretch against just the scale, not everything else
         // TODO Long labels aren't nicely lined up with the boundaries between buckets
         Widget::col(vec![
-            Widget::draw_batch(ctx, batch),
+            batch.into_widget(ctx),
             Widget::custom_row(
                 labels
                     .into_iter()
@@ -173,7 +171,7 @@ impl ColorLegend {
         // Extra wrapping to make the labels stretch against just the scale, not everything else
         // TODO Long labels aren't nicely lined up with the boundaries between buckets
         Widget::col(vec![
-            Widget::draw_batch(ctx, batch),
+            batch.into_widget(ctx),
             Widget::custom_row(
                 pairs
                     .into_iter()
