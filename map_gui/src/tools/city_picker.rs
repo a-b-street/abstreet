@@ -189,6 +189,44 @@ impl<A: AppLike + 'static> CityPicker<A> {
             }),
         )
     }
+
+    fn chose_city(&mut self, ctx: &mut EventCtx, app: &mut A, name: MapName) -> Transition<A> {
+        // There's a weird exception with Seattle where the city.bin lists all
+        // districts, but the player might be missing a necessary data pack!
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            if !abstio::file_exists(name.path()) && name.city == CityName::new("us", "seattle") {
+                return Transition::Push(crate::tools::ChooseSomething::new(
+                    ctx,
+                    "Download the larger Seattle maps?",
+                    vec![
+                        widgetry::Choice::string("Yes, download"),
+                        widgetry::Choice::string("Never mind").key(Key::Escape),
+                    ],
+                    Box::new(|resp, ctx, _| {
+                        if resp == "Never mind" {
+                            return Transition::Pop;
+                        }
+
+                        let mut data_packs = abstio::DataPacks::load_or_create();
+                        data_packs.runtime.insert("us/huge_seattle".to_string());
+                        abstio::write_json(abstio::path_player("data.json"), &data_packs);
+
+                        let messages = ctx.loading_screen("sync files", |_, timer| {
+                            crate::tools::updater::sync(timer)
+                        });
+                        Transition::Replace(crate::tools::PopupMsg::new(
+                            ctx,
+                            "Download complete. Please try again",
+                            messages,
+                        ))
+                    }),
+                ));
+            }
+        }
+
+        Transition::Replace(MapLoader::new(ctx, app, name, self.on_load.take().unwrap()))
+    }
 }
 
 impl<A: AppLike + 'static> State<A> for CityPicker<A> {
@@ -219,12 +257,7 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
                 }
                 x => {
                     if let Some(name) = MapName::from_path(x) {
-                        return Transition::Replace(MapLoader::new(
-                            ctx,
-                            app,
-                            name,
-                            self.on_load.take().unwrap(),
-                        ));
+                        return self.chose_city(ctx, app, name);
                     }
                     // Browse cities for another country
                     return Transition::Replace(CitiesInCountryPicker::new(
@@ -261,14 +294,8 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
             }
         }
         if let Some(idx) = self.selected {
-            let name = &self.districts[idx].0;
             if ctx.normal_left_click() {
-                return Transition::Replace(MapLoader::new(
-                    ctx,
-                    app,
-                    name.clone(),
-                    self.on_load.take().unwrap(),
-                ));
+                return self.chose_city(ctx, app, self.districts[idx].0.clone());
             }
         }
 

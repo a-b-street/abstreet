@@ -191,10 +191,7 @@ fn opt_into_all() {
         input: BTreeSet::new(),
     };
     for path in Manifest::load().entries.keys() {
-        // TODO Some hardcoded weird exceptions
-        if path == "data/system/us/seattle/maps/huge_seattle.bin"
-            || path == "data/system/us/seattle/scenarios/huge_seattle/weekday.bin"
-        {
+        if Manifest::is_file_part_of_huge_seattle(path) {
             data_packs.runtime.insert("us/huge_seattle".to_string());
             continue;
         }

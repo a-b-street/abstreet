@@ -41,10 +41,8 @@ impl Manifest {
     pub fn filter(mut self, data_packs: DataPacks) -> Manifest {
         let mut remove = Vec::new();
         for path in self.entries.keys() {
-            // TODO Some hardcoded weird exceptions
-            if !data_packs.runtime.contains("us/huge_seattle")
-                && (path == "data/system/us/seattle/maps/huge_seattle.bin"
-                    || path == "data/system/us/seattle/scenarios/huge_seattle/weekday.bin")
+            if Manifest::is_file_part_of_huge_seattle(path)
+                && !data_packs.runtime.contains("us/huge_seattle")
             {
                 remove.push(path.clone());
                 continue;
@@ -73,6 +71,27 @@ impl Manifest {
             self.entries.remove(&path).unwrap();
         }
         self
+    }
+
+    /// Because there are so many Seattle maps and they're included in the weekly release, managing
+    /// the total file size is important. The "us/seattle" data pack only contains small maps; the
+    /// "us/huge_seattle" pack has the rest. This returns true for files belonging to
+    /// "us/huge_seattle".
+    pub fn is_file_part_of_huge_seattle(path: &str) -> bool {
+        let name = if let Some(x) = path.strip_prefix("data/system/us/seattle/maps/") {
+            x.strip_suffix(".bin").unwrap()
+        } else if let Some(x) = path.strip_prefix("data/system/us/seattle/scenarios/") {
+            x.split("/").next().unwrap()
+        } else if let Some(x) = path.strip_prefix("data/system/us/seattle/prebaked_results/") {
+            x.split("/").next().unwrap()
+        } else {
+            return false;
+        };
+        name == "huge_seattle"
+            || name == "north_seattle"
+            || name == "south_seattle"
+            || name == "west_seattle"
+            || name == "udistrict"
     }
 }
 

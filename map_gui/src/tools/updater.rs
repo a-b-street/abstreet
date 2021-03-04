@@ -107,14 +107,14 @@ impl<A: AppLike + 'static> State<A> for Picker<A> {
 fn size_per_city(manifest: &Manifest) -> BTreeMap<String, usize> {
     let mut per_city = BTreeMap::new();
     for (path, entry) in &manifest.entries {
+        if Manifest::is_file_part_of_huge_seattle(path) {
+            *per_city.entry("us/huge_seattle".to_string()).or_insert(0) +=
+                entry.compressed_size_bytes;
+            continue;
+        }
         let parts = path.split("/").collect::<Vec<_>>();
         if parts[1] == "system" {
-            // The map and scenario for huge_seattle should count as a separate data pack.
-            let city = if parts.get(5) == Some(&"huge_seattle") {
-                "us/huge_seattle".to_string()
-            } else {
-                format!("{}/{}", parts[2], parts[3])
-            };
+            let city = format!("{}/{}", parts[2], parts[3]);
             *per_city.entry(city).or_insert(0) += entry.compressed_size_bytes;
         }
     }
@@ -135,7 +135,7 @@ fn prettyprint_bytes(bytes: usize) -> String {
 
 // TODO This only downloads files that don't exist but should. It doesn't remove or update
 // anything. Not sure if everything the updater does should also be done here.
-fn sync(timer: &mut Timer) -> Vec<String> {
+pub fn sync(timer: &mut Timer) -> Vec<String> {
     let truth = Manifest::load().filter(DataPacks::load_or_create());
     let version = if cfg!(feature = "release_s3") {
         NEXT_RELEASE
