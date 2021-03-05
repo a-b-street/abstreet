@@ -113,6 +113,9 @@ impl ExternalPerson {
     }
 }
 
+/// Lists all border intersections of the map, broken down by mode and whether they support
+/// incoming or outgoing traffic.
+#[derive(Clone)]
 pub struct MapBorders {
     pub incoming_walking: Vec<(IntersectionID, LonLat)>,
     pub incoming_driving: Vec<(IntersectionID, LonLat)>,
