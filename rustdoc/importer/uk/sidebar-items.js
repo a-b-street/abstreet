@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["import_collision_data",""]]});
+initSidebarItems({"fn":[["generate_scenario",""],["import_collision_data",""]]});

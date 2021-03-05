@@ -347,6 +347,9 @@
 <span id="344">344</span>
 <span id="345">345</span>
 <span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! It&#39;s assumed that the importer is run with the current directory as the project repository; aka</span>
 <span class="doccomment">//! `./data/` and `./importer/config` must exist.</span>
@@ -455,7 +458,7 @@
             <span class="ident">only_map</span>: <span class="prelude-val">None</span>,
         };
         <span class="comment">// Only some maps run extra tasks</span>
-        <span class="kw">if</span> <span class="ident">city</span> <span class="op">=</span><span class="op">=</span> <span class="ident">CityName</span>::<span class="ident">seattle</span>() {
+        <span class="kw">if</span> <span class="ident">city</span> <span class="op">=</span><span class="op">=</span> <span class="ident">CityName</span>::<span class="ident">seattle</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">city</span>.<span class="ident">country</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;gb&quot;</span> {
             <span class="ident">job</span>.<span class="ident">scenario</span> <span class="op">=</span> <span class="bool-val">true</span>;
         }
         <span class="comment">// TODO Autodetect this based on number of maps per city?</span>
@@ -508,29 +511,28 @@
             .<span class="ident">collect</span>()
         };
 
-        <span class="kw">let</span> (<span class="ident">maybe_popdat</span>, <span class="ident">maybe_huge_map</span>, <span class="ident">maybe_zoning_parcels</span>) <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scenario</span> {
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">city</span>, <span class="ident">CityName</span>::<span class="ident">seattle</span>());
+        <span class="kw">let</span> (<span class="ident">maybe_popdat</span>, <span class="ident">maybe_huge_map</span>, <span class="ident">maybe_zoning_parcels</span>) <span class="op">=</span>
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scenario</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">city</span> <span class="op">=</span><span class="op">=</span> <span class="ident">CityName</span>::<span class="ident">seattle</span>() {
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;scenarios&quot;</span>)]</span>
+                {
+                    <span class="kw">let</span> (<span class="ident">popdat</span>, <span class="ident">huge_map</span>) <span class="op">=</span> <span class="ident">seattle</span>::<span class="ident">ensure_popdat_exists</span>(<span class="ident">timer</span>, <span class="ident">config</span>);
+                    <span class="comment">// Just assume --raw has been called...</span>
+                    <span class="kw">let</span> <span class="ident">shapes</span>: <span class="ident">kml</span>::<span class="ident">ExtraShapes</span> <span class="op">=</span> <span class="ident">abstio</span>::<span class="ident">read_binary</span>(
+                        <span class="ident">CityName</span>::<span class="ident">seattle</span>().<span class="ident">input_path</span>(<span class="string">&quot;zoning_parcels.bin&quot;</span>),
+                        <span class="ident">timer</span>,
+                    );
+                    (<span class="prelude-val">Some</span>(<span class="ident">popdat</span>), <span class="prelude-val">Some</span>(<span class="ident">huge_map</span>), <span class="prelude-val">Some</span>(<span class="ident">shapes</span>))
+                }
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;scenarios&quot;</span>)]</span>
-            {
-                <span class="kw">let</span> (<span class="ident">popdat</span>, <span class="ident">huge_map</span>) <span class="op">=</span> <span class="ident">seattle</span>::<span class="ident">ensure_popdat_exists</span>(<span class="ident">timer</span>, <span class="ident">config</span>);
-                <span class="comment">// Just assume --raw has been called...</span>
-                <span class="kw">let</span> <span class="ident">shapes</span>: <span class="ident">kml</span>::<span class="ident">ExtraShapes</span> <span class="op">=</span> <span class="ident">abstio</span>::<span class="ident">read_binary</span>(
-                    <span class="ident">CityName</span>::<span class="ident">seattle</span>().<span class="ident">input_path</span>(<span class="string">&quot;zoning_parcels.bin&quot;</span>),
-                    <span class="ident">timer</span>,
-                );
-                (<span class="prelude-val">Some</span>(<span class="ident">popdat</span>), <span class="prelude-val">Some</span>(<span class="ident">huge_map</span>), <span class="prelude-val">Some</span>(<span class="ident">shapes</span>))
-            }
-
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;scenarios&quot;</span>))]</span>
-            {
-                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t do --scenario without the scenarios feature compiled in&quot;</span>);
-                <span class="comment">// Nonsense to make the type-checker work</span>
-                (<span class="prelude-val">Some</span>(<span class="bool-val">true</span>), <span class="prelude-val">Some</span>(<span class="bool-val">true</span>), <span class="prelude-val">Some</span>(<span class="bool-val">true</span>))
-            }
-        } <span class="kw">else</span> {
-            (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>)
-        };
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;scenarios&quot;</span>))]</span>
+                {
+                    <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t do --scenario without the scenarios feature compiled in&quot;</span>);
+                    <span class="comment">// Nonsense to make the type-checker work</span>
+                    (<span class="prelude-val">Some</span>(<span class="bool-val">true</span>), <span class="prelude-val">Some</span>(<span class="bool-val">true</span>), <span class="prelude-val">Some</span>(<span class="bool-val">true</span>))
+                }
+            } <span class="kw">else</span> {
+                (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>)
+            };
 
         <span class="kw">for</span> <span class="ident">name</span> <span class="kw">in</span> <span class="ident">names</span> {
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">osm_to_raw</span> {
@@ -624,6 +626,10 @@
                         <span class="ident">timer</span>,
                     );
                     <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;match parcels to buildings&quot;</span>);
+                }
+
+                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">city</span>.<span class="ident">country</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;gb&quot;</span> {
+                    <span class="ident">uk</span>::<span class="ident">generate_scenario</span>(<span class="ident">maybe_map</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>(), <span class="ident">config</span>, <span class="ident">timer</span>);
                 }
             }
         }
