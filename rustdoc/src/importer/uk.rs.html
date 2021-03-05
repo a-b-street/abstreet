@@ -179,6 +179,12 @@
 <span id="176">176</span>
 <span id="177">177</span>
 <span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
@@ -231,6 +237,8 @@
         <span class="ident">config</span>,
         <span class="ident">path_shared_input</span>(<span class="string">&quot;wu03uk_v3.csv&quot;</span>),
         <span class="string">&quot;https://s3-eu-west-1.amazonaws.com/statistics.digitalresources.jisc.ac.uk/dkan/files/FLOW/wu03uk_v3/wu03uk_v3.csv&quot;</span>);
+    <span class="comment">// https://mapit.mysociety.org/area/45350.html (for geocode) E02004277 is an example place to</span>
+    <span class="comment">// debug where these zones are.</span>
     <span class="ident">download</span>(
         <span class="ident">config</span>,
         <span class="ident">path_shared_input</span>(<span class="string">&quot;zones_core.geojson&quot;</span>),
@@ -251,6 +259,10 @@
     <span class="comment">// Include all buses/trains</span>
     <span class="ident">scenario</span>.<span class="ident">only_seed_buses</span> <span class="op">=</span> <span class="prelude-val">None</span>;
     <span class="ident">scenario</span>.<span class="ident">people</span> <span class="op">=</span> <span class="ident">popdat</span>::<span class="ident">od</span>::<span class="ident">disaggregate</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">zones</span>, <span class="ident">desire_lines</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>, <span class="ident">timer</span>);
+    <span class="macro">info</span><span class="macro">!</span>(
+        <span class="string">&quot;Created scenario with {} people&quot;</span>,
+        <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>(<span class="ident">scenario</span>.<span class="ident">people</span>.<span class="ident">len</span>())
+    );
     <span class="ident">scenario</span>.<span class="ident">save</span>();
     <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;disaggregate&quot;</span>);
 
