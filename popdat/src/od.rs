@@ -58,19 +58,12 @@ pub fn disaggregate(
     // First decide which zones are relevant for our map. Find all homes and shops for each zone,
     // and make it easy to repeatedly ask for a good random choice of home/work.
     timer.start("match zones");
-    let mut zones = create_zones(map, zones);
-    for z in zones.values_mut() {
-        represent_homes_proportionally(&mut z.homes, map);
-        represent_workplaces_proportionally(&mut z.workplaces, map);
-        // Make it easy to grab a random home or workplace.
-        z.homes.shuffle(rng);
-        z.workplaces.shuffle(rng);
-    }
+    let zones = create_zones(map, zones);
     timer.stop("match zones");
 
     let mut people = Vec::new();
     timer.start("create people");
-    'DESIRE: for desire in desire_lines {
+    for desire in desire_lines {
         // Skip if we filtered out either zone.
         if !zones.contains_key(&desire.home_zone) || !zones.contains_key(&desire.work_zone) {
             continue;
@@ -82,20 +75,16 @@ pub fn disaggregate(
             (zones[&desire.home_zone].pct_overlap * (desire.number_commuters as f64)) as usize;
         for _ in 0..num_commuters {
             // Pick a specific home and workplace.
-            let home = match zones.get_mut(&desire.home_zone).unwrap().homes.pop() {
-                Some(b) => b,
-                None => {
-                    warn!("Ran out of homes in {}", desire.home_zone);
-                    continue 'DESIRE;
-                }
-            };
-            let work = match zones.get_mut(&desire.work_zone).unwrap().workplaces.pop() {
-                Some(b) => b,
-                None => {
-                    warn!("Ran out of workplaces in {}", desire.work_zone);
-                    continue 'DESIRE;
-                }
-            };
+            let home = zones[&desire.home_zone]
+                .homes
+                .choose_weighted(rng, |(_, n)| *n)
+                .unwrap()
+                .0;
+            let work = zones[&desire.work_zone]
+                .workplaces
+                .choose_weighted(rng, |(_, n)| *n)
+                .unwrap()
+                .0;
 
             // Create their schedule
             let goto_work = Time::START_OF_DAY + opts.departure_time.sample(rng);
@@ -127,8 +116,11 @@ pub fn disaggregate(
 struct Zone {
     polygon: Polygon,
     pct_overlap: f64,
-    homes: Vec<BuildingID>,
-    workplaces: Vec<BuildingID>,
+    // For each building, have a value describing how many people live or work there. The exact
+    // value doesn't matter; it's just a relative weighting. This way, we can use a weighted sample
+    // and match more people to larger homes/stores.
+    homes: Vec<(BuildingID, usize)>,
+    workplaces: Vec<(BuildingID, usize)>,
 }
 
 fn create_zones(map: &Map, input: HashMap<String, Polygon>) -> HashMap<String, Zone> {
@@ -164,15 +156,18 @@ fn create_zones(map: &Map, input: HashMap<String, Polygon>) -> HashMap<String, Z
             .find(|(_, z)| z.polygon.contains_pt(center))
         {
             match b.bldg_type {
-                BuildingType::Residential { .. } => {
-                    zone.homes.push(b.id);
+                BuildingType::Residential { num_residents, .. } => {
+                    zone.homes.push((b.id, num_residents));
                 }
-                BuildingType::ResidentialCommercial(_, _) => {
-                    zone.homes.push(b.id);
-                    zone.workplaces.push(b.id);
+                BuildingType::ResidentialCommercial(num_residents, _) => {
+                    zone.homes.push((b.id, num_residents));
+                    // We know how many different stores are located in each building, according to
+                    // OSM. A big mall might have 10 amenities, while standalone
+                    // shops just have 1.
+                    zone.workplaces.push((b.id, b.amenities.len()));
                 }
                 BuildingType::Commercial(_) => {
-                    zone.workplaces.push(b.id);
+                    zone.workplaces.push((b.id, b.amenities.len()));
                 }
                 BuildingType::Empty => {}
             }
@@ -180,37 +175,6 @@ fn create_zones(map: &Map, input: HashMap<String, Polygon>) -> HashMap<String, Z
     }
 
     zones
-}
-
-/// Repeat each residential building based on a guess of how many people live there. That way,
-/// we're more likely to allocate more people to larger homes.
-///
-/// The heuristic for people per building is unfortunately very primitive right now, though.
-fn represent_homes_proportionally(input: &mut Vec<BuildingID>, map: &Map) {
-    let mut output = Vec::new();
-    for b in input.drain(..) {
-        let n = match map.get_b(b).bldg_type {
-            BuildingType::Residential { num_residents, .. }
-            | BuildingType::ResidentialCommercial(num_residents, _) => num_residents,
-            _ => unreachable!(),
-        };
-        output.extend(std::iter::repeat(b).take(n));
-    }
-    *input = output;
-}
-
-/// Repeat each commercial building based on a guess of how many people work there. That way,
-/// we're more likely to allocate more employees to larger stores.
-fn represent_workplaces_proportionally(input: &mut Vec<BuildingID>, map: &Map) {
-    let mut output = Vec::new();
-    for b in input.drain(..) {
-        // We know how many different stores are located in each building, according to OSM. A big
-        // mall might have 10 amenities, while standalone shops just have 1. For now, assume 1
-        // worker per store.
-        let n = map.get_b(b).amenities.len();
-        output.extend(std::iter::repeat(b).take(n));
-    }
-    *input = output;
 }
 
 /// A normal distribution of Durations.
