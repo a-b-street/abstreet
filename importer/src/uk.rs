@@ -78,6 +78,9 @@ pub fn generate_scenario(
         &mut rng,
         timer,
     );
+    // Some zones have very few buildings, and people wind up with a home and workplace that's the
+    // same!
+    scenario = scenario.remove_weird_schedules();
     info!(
         "Created scenario with {} people",
         abstutil::prettyprint_usize(scenario.people.len())
