@@ -49,6 +49,8 @@ pub fn generate_scenario(
         config,
         path_shared_input("wu03uk_v3.csv"),
         "https://s3-eu-west-1.amazonaws.com/statistics.digitalresources.jisc.ac.uk/dkan/files/FLOW/wu03uk_v3/wu03uk_v3.csv");
+    // https://mapit.mysociety.org/area/45350.html (for geocode) E02004277 is an example place to
+    // debug where these zones are.
     download(
         config,
         path_shared_input("zones_core.geojson"),
@@ -69,6 +71,10 @@ pub fn generate_scenario(
     // Include all buses/trains
     scenario.only_seed_buses = None;
     scenario.people = popdat::od::disaggregate(map, &zones, desire_lines, &mut rng, timer);
+    info!(
+        "Created scenario with {} people",
+        abstutil::prettyprint_usize(scenario.people.len())
+    );
     scenario.save();
     timer.stop("disaggregate");
 
