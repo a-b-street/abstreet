@@ -2,6 +2,8 @@
 //! `./data/` and `./importer/config` must exist.
 
 #[macro_use]
+extern crate anyhow;
+#[macro_use]
 extern crate log;
 
 use abstio::{CityName, MapName};
@@ -276,7 +278,7 @@ impl Job {
                 }
 
                 if self.city.country == "gb" {
-                    uk::generate_scenario(maybe_map.as_ref().unwrap(), config, timer);
+                    uk::generate_scenario(maybe_map.as_ref().unwrap(), config, timer).unwrap();
                 }
             }
         }

@@ -67,6 +67,12 @@ impl Polygon {
         }
     }
 
+    pub fn from_rings(mut rings: Vec<Ring>) -> Polygon {
+        assert!(!rings.is_empty());
+        let outer = rings.remove(0);
+        Polygon::with_holes(outer, rings)
+    }
+
     // TODO Doesn't remember rings yet
     pub fn from_geojson(raw: &Vec<Vec<Vec<f64>>>) -> Polygon {
         let (vertices, holes, dims) = earcutr::flatten(raw);
