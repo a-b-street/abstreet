@@ -25,13 +25,33 @@ pub struct DesireLine {
     pub number_commuters: usize,
 }
 
+pub struct Options {
+    /// When should somebody depart from home to work?
+    pub departure_time: NormalDistribution,
+    /// How long should somebody work before returning home?
+    pub work_duration: NormalDistribution,
+}
+
+impl Options {
+    pub fn default() -> Options {
+        Options {
+            departure_time: NormalDistribution::new(
+                Duration::hours(8) + Duration::minutes(30),
+                Duration::minutes(30),
+            ),
+            work_duration: NormalDistribution::new(Duration::hours(9), Duration::hours(1)),
+        }
+    }
+}
+
 /// TODO Describe. In particular, how are polygons partly or fully outside the map's boundary
 /// handled?
 /// TODO Add an options struct to specify AM/PM time distribution, lunch trips, etc.
 pub fn disaggregate(
     map: &Map,
-    zones: &HashMap<String, Polygon>,
+    zones: HashMap<String, Polygon>,
     desire_lines: Vec<DesireLine>,
+    opts: Options,
     rng: &mut XorShiftRng,
     timer: &mut Timer,
 ) -> Vec<PersonSpec> {
@@ -78,18 +98,20 @@ pub fn disaggregate(
             };
 
             // Create their schedule
+            let goto_work = Time::START_OF_DAY + opts.departure_time.sample(rng);
+            let return_home = goto_work + opts.work_duration.sample(rng);
             people.push(PersonSpec {
                 orig_id: None,
                 origin: TripEndpoint::Bldg(home),
                 trips: vec![
                     IndividTrip::new(
-                        Time::START_OF_DAY + Duration::hours(7),
+                        goto_work,
                         TripPurpose::Work,
                         TripEndpoint::Bldg(work),
                         desire.mode,
                     ),
                     IndividTrip::new(
-                        Time::START_OF_DAY + Duration::hours(17),
+                        return_home,
                         TripPurpose::Home,
                         TripEndpoint::Bldg(home),
                         desire.mode,
@@ -109,7 +131,7 @@ struct Zone {
     workplaces: Vec<BuildingID>,
 }
 
-fn create_zones(map: &Map, input: &HashMap<String, Polygon>) -> HashMap<String, Zone> {
+fn create_zones(map: &Map, input: HashMap<String, Polygon>) -> HashMap<String, Zone> {
     let mut zones = HashMap::new();
     for (name, polygon) in input {
         let mut overlapping_area = 0.0;
@@ -123,9 +145,9 @@ fn create_zones(map: &Map, input: &HashMap<String, Polygon>) -> HashMap<String, 
             continue;
         }
         zones.insert(
-            name.clone(),
+            name,
             Zone {
-                polygon: polygon.clone(),
+                polygon,
                 pct_overlap,
                 homes: Vec::new(),
                 workplaces: Vec::new(),
@@ -189,4 +211,32 @@ fn represent_workplaces_proportionally(input: &mut Vec<BuildingID>, map: &Map) {
         output.extend(std::iter::repeat(b).take(n));
     }
     *input = output;
+}
+
+/// A normal distribution of Durations.
+pub struct NormalDistribution {
+    pub mean: Duration,
+    pub std_deviation: Duration,
+}
+
+impl NormalDistribution {
+    pub fn new(mean: Duration, std_deviation: Duration) -> NormalDistribution {
+        NormalDistribution {
+            mean,
+            std_deviation,
+        }
+    }
+
+    pub fn sample(&self, rng: &mut XorShiftRng) -> Duration {
+        use rand_distr::{Distribution, Normal};
+
+        Duration::seconds(
+            Normal::new(
+                self.mean.inner_seconds(),
+                self.std_deviation.inner_seconds(),
+            )
+            .unwrap()
+            .sample(rng),
+        )
+    }
 }

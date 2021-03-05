@@ -2806,6 +2806,7 @@ dependencies = [
  "log",
  "map_model",
  "rand",
+ "rand_distr",
  "rand_xorshift",
  "serde_json",
  "sim",

@@ -70,7 +70,14 @@ pub fn generate_scenario(
     let mut scenario = Scenario::empty(map, "background");
     // Include all buses/trains
     scenario.only_seed_buses = None;
-    scenario.people = popdat::od::disaggregate(map, &zones, desire_lines, &mut rng, timer);
+    scenario.people = popdat::od::disaggregate(
+        map,
+        zones,
+        desire_lines,
+        popdat::od::Options::default(),
+        &mut rng,
+        timer,
+    );
     info!(
         "Created scenario with {} people",
         abstutil::prettyprint_usize(scenario.people.len())
