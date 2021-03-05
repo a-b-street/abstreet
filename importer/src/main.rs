@@ -105,7 +105,7 @@ fn regenerate_everything(config: ImporterConfiguration) {
             only_map: None,
         };
         // Only some maps run extra tasks
-        if city == CityName::seattle() {
+        if city == CityName::seattle() || city.country == "gb" {
             job.scenario = true;
         }
         // TODO Autodetect this based on number of maps per city?
@@ -158,29 +158,28 @@ impl Job {
             .collect()
         };
 
-        let (maybe_popdat, maybe_huge_map, maybe_zoning_parcels) = if self.scenario {
-            assert_eq!(self.city, CityName::seattle());
+        let (maybe_popdat, maybe_huge_map, maybe_zoning_parcels) =
+            if self.scenario && self.city == CityName::seattle() {
+                #[cfg(feature = "scenarios")]
+                {
+                    let (popdat, huge_map) = seattle::ensure_popdat_exists(timer, config);
+                    // Just assume --raw has been called...
+                    let shapes: kml::ExtraShapes = abstio::read_binary(
+                        CityName::seattle().input_path("zoning_parcels.bin"),
+                        timer,
+                    );
+                    (Some(popdat), Some(huge_map), Some(shapes))
+                }
 
-            #[cfg(feature = "scenarios")]
-            {
-                let (popdat, huge_map) = seattle::ensure_popdat_exists(timer, config);
-                // Just assume --raw has been called...
-                let shapes: kml::ExtraShapes = abstio::read_binary(
-                    CityName::seattle().input_path("zoning_parcels.bin"),
-                    timer,
-                );
-                (Some(popdat), Some(huge_map), Some(shapes))
-            }
-
-            #[cfg(not(feature = "scenarios"))]
-            {
-                panic!("Can't do --scenario without the scenarios feature compiled in");
-                // Nonsense to make the type-checker work
-                (Some(true), Some(true), Some(true))
-            }
-        } else {
-            (None, None, None)
-        };
+                #[cfg(not(feature = "scenarios"))]
+                {
+                    panic!("Can't do --scenario without the scenarios feature compiled in");
+                    // Nonsense to make the type-checker work
+                    (Some(true), Some(true), Some(true))
+                }
+            } else {
+                (None, None, None)
+            };
 
         for name in names {
             if self.osm_to_raw {
@@ -274,6 +273,10 @@ impl Job {
                         timer,
                     );
                     timer.stop("match parcels to buildings");
+                }
+
+                if self.city.country == "gb" {
+                    uk::generate_scenario(maybe_map.as_ref().unwrap(), config, timer);
                 }
             }
         }
