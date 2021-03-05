@@ -51,6 +51,10 @@ impl Manifest {
                 // Always grab all of these
                 continue;
             }
+            if path.starts_with("data/input/shared") && !data_packs.input.is_empty() {
+                // Grab all of these if the user has opted into any input data at all
+                continue;
+            }
 
             let parts = path.split("/").collect::<Vec<_>>();
             let city = format!("{}/{}", parts[2], parts[3]);

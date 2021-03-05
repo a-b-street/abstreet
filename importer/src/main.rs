@@ -208,9 +208,9 @@ impl Job {
                     if self.city == CityName::new("de", "berlin") {
                         berlin::import_extra_data(&raw, config, timer);
                     } else if self.city == CityName::new("gb", "leeds") && name == "huge" {
-                        uk::import_extra_data(&raw, config, timer);
+                        uk::import_collision_data(&raw, config, timer);
                     } else if self.city == CityName::new("gb", "london") {
-                        uk::import_extra_data(&raw, config, timer);
+                        uk::import_collision_data(&raw, config, timer);
                     }
                 }
             }

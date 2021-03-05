@@ -635,11 +635,6 @@
       "uncompressed_size_bytes": 15673814,
       "compressed_size_bytes": 3295589
     },
-    "data/input/gb/leeds/Road Safety Data - Accidents 2019.csv": {
-      "checksum": "ce30e6f7743be7b451e298583c65f99a",
-      "uncompressed_size_bytes": 16138801,
-      "compressed_size_bytes": 4011139
-    },
     "data/input/gb/leeds/collisions.bin": {
       "checksum": "7d478dc42993c71bea4eacf70ffa244a",
       "uncompressed_size_bytes": 28899,
@@ -699,11 +694,6 @@
       "checksum": "3cf87136025a2530822fc17209d6dc4d",
       "uncompressed_size_bytes": 16322302,
       "compressed_size_bytes": 3652034
-    },
-    "data/input/gb/london/Road Safety Data - Accidents 2019.csv": {
-      "checksum": "ce30e6f7743be7b451e298583c65f99a",
-      "uncompressed_size_bytes": 16138801,
-      "compressed_size_bytes": 4011139
     },
     "data/input/gb/london/collisions.bin": {
       "checksum": "f206f015c8d70b0a5185229b8d4656df",
@@ -1034,6 +1024,11 @@
       "checksum": "53c5d0bd8dcab7faace332be99ca4f96",
       "uncompressed_size_bytes": 36005701,
       "compressed_size_bytes": 7741009
+    },
+    "data/input/shared/Road Safety Data - Accidents 2019.csv": {
+      "checksum": "ce30e6f7743be7b451e298583c65f99a",
+      "uncompressed_size_bytes": 16138801,
+      "compressed_size_bytes": 4011139
     },
     "data/input/tw/taipei/osm/center.osm": {
       "checksum": "81824933e147997b3b67e6653f0606de",

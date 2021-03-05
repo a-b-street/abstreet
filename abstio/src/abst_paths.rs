@@ -329,3 +329,7 @@ pub fn path_raw_map(name: &MapName) -> String {
         name.city.country, name.city.city, name.map
     ))
 }
+
+pub fn path_shared_input<I: Into<String>>(i: I) -> String {
+    path(format!("input/shared/{}", i.into()))
+}
