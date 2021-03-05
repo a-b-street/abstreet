@@ -332,6 +332,10 @@
 <span id="329">329</span>
 <span id="330">330</span>
 <span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Generate paths for different A/B Street files</span>
 
@@ -663,6 +667,10 @@
         <span class="string">&quot;input/{}/{}/raw_maps/{}.bin&quot;</span>,
         <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span>, <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>
     ))
+}
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_shared_input</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">i</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;input/shared/{}&quot;</span>, <span class="ident">i</span>.<span class="ident">into</span>()))
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "abstio";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

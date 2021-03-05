@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["import_extra_data",""]]});
+initSidebarItems({"fn":[["import_collision_data",""]]});

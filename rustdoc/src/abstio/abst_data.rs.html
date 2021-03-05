@@ -132,6 +132,10 @@
 <span id="129">129</span>
 <span id="130">130</span>
 <span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
@@ -184,6 +188,10 @@
             }
             <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">starts_with</span>(<span class="string">&quot;data/system/extra_fonts&quot;</span>) {
                 <span class="comment">// Always grab all of these</span>
+                <span class="kw">continue</span>;
+            }
+            <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">starts_with</span>(<span class="string">&quot;data/input/shared&quot;</span>) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">data_packs</span>.<span class="ident">input</span>.<span class="ident">is_empty</span>() {
+                <span class="comment">// Grab all of these if the user has opted into any input data at all</span>
                 <span class="kw">continue</span>;
             }
 
