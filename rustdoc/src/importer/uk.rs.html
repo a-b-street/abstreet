@@ -242,8 +242,8 @@
     <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;prepare input&quot;</span>);
     <span class="ident">download</span>(
         <span class="ident">config</span>,
-        <span class="ident">path_shared_input</span>(<span class="string">&quot;wu03uk_v3.csv&quot;</span>),
-        <span class="string">&quot;https://s3-eu-west-1.amazonaws.com/statistics.digitalresources.jisc.ac.uk/dkan/files/FLOW/wu03uk_v3/wu03uk_v3.csv&quot;</span>);
+        <span class="ident">path_shared_input</span>(<span class="string">&quot;wu03ew_v2.csv&quot;</span>),
+        <span class="string">&quot;https://s3-eu-west-1.amazonaws.com/statistics.digitalresources.jisc.ac.uk/dkan/files/FLOW/wu03ew_v2/wu03ew_v2.csv&quot;</span>);
     <span class="comment">// https://mapit.mysociety.org/area/45350.html (for geocode) E02004277 is an example place to</span>
     <span class="comment">// debug where these zones are.</span>
     <span class="ident">download</span>(
@@ -252,7 +252,7 @@
         <span class="string">&quot;https://github.com/cyipt/actdev/releases/download/0.1.13/zones_core.geojson&quot;</span>,
     );
 
-    <span class="kw">let</span> <span class="ident">desire_lines</span> <span class="op">=</span> <span class="ident">parse_desire_lines</span>(<span class="ident">path_shared_input</span>(<span class="string">&quot;wu03uk_v3.csv&quot;</span>))<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">desire_lines</span> <span class="op">=</span> <span class="ident">parse_desire_lines</span>(<span class="ident">path_shared_input</span>(<span class="string">&quot;wu03ew_v2.csv&quot;</span>))<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">zones</span> <span class="op">=</span> <span class="ident">parse_zones</span>(
         <span class="ident">map</span>.<span class="ident">get_gps_bounds</span>(),
         <span class="ident">path_shared_input</span>(<span class="string">&quot;zones_core.geojson&quot;</span>),
@@ -309,11 +309,11 @@
     <span class="prelude-val">Ok</span>(<span class="ident">output</span>)
 }
 
-<span class="comment">// An entry in wu03uk_v3.csv. For now, ignores people who work from home, take a taxi, motorcycle,</span>
+<span class="comment">// An entry in wu03ew_v2.csv. For now, ignores people who work from home, take a taxi, motorcycle,</span>
 <span class="comment">// are a passenger in a car, or use &quot;another method of travel&quot;.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">struct</span> <span class="ident">Record</span> {
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;Area of usual residence&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;Area of residence&quot;</span>)]</span>
     <span class="ident">home_zone</span>: <span class="ident">String</span>,
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;Area of workplace&quot;</span>)]</span>
     <span class="ident">work_zone</span>: <span class="ident">String</span>,
