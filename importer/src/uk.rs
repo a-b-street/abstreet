@@ -47,8 +47,8 @@ pub fn generate_scenario(
     timer.start("prepare input");
     download(
         config,
-        path_shared_input("wu03uk_v3.csv"),
-        "https://s3-eu-west-1.amazonaws.com/statistics.digitalresources.jisc.ac.uk/dkan/files/FLOW/wu03uk_v3/wu03uk_v3.csv");
+        path_shared_input("wu03ew_v2.csv"),
+        "https://s3-eu-west-1.amazonaws.com/statistics.digitalresources.jisc.ac.uk/dkan/files/FLOW/wu03ew_v2/wu03ew_v2.csv");
     // https://mapit.mysociety.org/area/45350.html (for geocode) E02004277 is an example place to
     // debug where these zones are.
     download(
@@ -57,7 +57,7 @@ pub fn generate_scenario(
         "https://github.com/cyipt/actdev/releases/download/0.1.13/zones_core.geojson",
     );
 
-    let desire_lines = parse_desire_lines(path_shared_input("wu03uk_v3.csv"))?;
+    let desire_lines = parse_desire_lines(path_shared_input("wu03ew_v2.csv"))?;
     let zones = parse_zones(
         map.get_gps_bounds(),
         path_shared_input("zones_core.geojson"),
@@ -114,11 +114,11 @@ fn parse_desire_lines(path: String) -> Result<Vec<DesireLine>> {
     Ok(output)
 }
 
-// An entry in wu03uk_v3.csv. For now, ignores people who work from home, take a taxi, motorcycle,
+// An entry in wu03ew_v2.csv. For now, ignores people who work from home, take a taxi, motorcycle,
 // are a passenger in a car, or use "another method of travel".
 #[derive(Debug, Deserialize)]
 struct Record {
-    #[serde(rename = "Area of usual residence")]
+    #[serde(rename = "Area of residence")]
     home_zone: String,
     #[serde(rename = "Area of workplace")]
     work_zone: String,

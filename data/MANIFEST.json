@@ -1030,10 +1030,10 @@
       "uncompressed_size_bytes": 16138801,
       "compressed_size_bytes": 4011139
     },
-    "data/input/shared/wu03uk_v3.csv": {
-      "checksum": "bd1c99fc494ed83ea1978ce26ab6dbcf",
-      "uncompressed_size_bytes": 5062333,
-      "compressed_size_bytes": 767070
+    "data/input/shared/wu03ew_v2.csv": {
+      "checksum": "6614880a64e448b4e9a7255ab5355d00",
+      "uncompressed_size_bytes": 108977615,
+      "compressed_size_bytes": 12464205
     },
     "data/input/shared/zones_core.geojson": {
       "checksum": "4309469097bcc9c8e528914a72d55f75",
