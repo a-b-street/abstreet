@@ -2,6 +2,8 @@ use std::collections::HashMap;
 use std::fs::File;
 
 use anyhow::Result;
+use rand::SeedableRng;
+use rand_xorshift::XorShiftRng;
 use serde::Deserialize;
 
 use abstio::path_shared_input;
@@ -10,7 +12,7 @@ use geom::{GPSBounds, LonLat, Polygon, Ring};
 use map_model::raw::RawMap;
 use map_model::Map;
 use popdat::od::DesireLine;
-use sim::TripMode;
+use sim::{Scenario, TripMode};
 
 use crate::configuration::ImporterConfiguration;
 use crate::utils::download;
@@ -42,6 +44,7 @@ pub fn generate_scenario(
     config: &ImporterConfiguration,
     timer: &mut Timer,
 ) -> Result<()> {
+    timer.start("prepare input");
     download(
         config,
         path_shared_input("wu03uk_v3.csv"),
@@ -57,7 +60,17 @@ pub fn generate_scenario(
         map.get_gps_bounds(),
         path_shared_input("zones_core.geojson"),
     )?;
-    println!("{} zones", zones.len());
+    timer.stop("prepare input");
+
+    timer.start("disaggregate");
+    // TODO Plumb this in
+    let mut rng = XorShiftRng::seed_from_u64(42);
+    let mut scenario = Scenario::empty(map, "background");
+    // Include all buses/trains
+    scenario.only_seed_buses = None;
+    scenario.people = popdat::od::disaggregate(map, &zones, desire_lines, &mut rng, timer);
+    scenario.save();
+    timer.stop("disaggregate");
 
     Ok(())
 }

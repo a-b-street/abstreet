@@ -7,8 +7,11 @@
 
 use std::collections::HashMap;
 
+use rand_xorshift::XorShiftRng;
+
+use abstutil::Timer;
 use geom::Polygon;
-use map_model::Map;
+use map_model::{BuildingID, BuildingType, Map};
 use sim::{PersonSpec, TripMode};
 
 /// This describes some number of commuters living in some named zone, working in another (or the
@@ -28,6 +31,69 @@ pub fn disaggregate(
     map: &Map,
     zones: &HashMap<String, Polygon>,
     desire_lines: Vec<DesireLine>,
+    rng: &mut XorShiftRng,
+    timer: &mut Timer,
 ) -> Vec<PersonSpec> {
+    timer.start("match zones");
+    let zones = create_zones(map, zones);
+    timer.stop("match zones");
     Vec::new()
+}
+
+struct Zone {
+    polygon: Polygon,
+    pct_overlap: f64,
+    homes: Vec<BuildingID>,
+    workplaces: Vec<BuildingID>,
+}
+
+fn create_zones(map: &Map, input: &HashMap<String, Polygon>) -> HashMap<String, Zone> {
+    let mut zones = HashMap::new();
+    for (name, polygon) in input {
+        let mut overlapping_area = 0.0;
+        for p in polygon.intersection(map.get_boundary_polygon()) {
+            overlapping_area += p.area();
+        }
+        let pct_overlap = overlapping_area / polygon.area();
+
+        // If the zone doesn't intersect our map at all, totally skip it.
+        if pct_overlap == 0.0 {
+            continue;
+        }
+        zones.insert(
+            name.clone(),
+            Zone {
+                polygon: polygon.clone(),
+                pct_overlap,
+                homes: Vec::new(),
+                workplaces: Vec::new(),
+            },
+        );
+    }
+
+    // Match all buildings to a zone.
+    for b in map.all_buildings() {
+        let center = b.polygon.center();
+        // We're assuming zones don't overlap each other, so just look for the first match.
+        if let Some((_, zone)) = zones
+            .iter_mut()
+            .find(|(_, z)| z.polygon.contains_pt(center))
+        {
+            match b.bldg_type {
+                BuildingType::Residential { .. } => {
+                    zone.homes.push(b.id);
+                }
+                BuildingType::ResidentialCommercial(_, _) => {
+                    zone.homes.push(b.id);
+                    zone.workplaces.push(b.id);
+                }
+                BuildingType::Commercial(_) => {
+                    zone.workplaces.push(b.id);
+                }
+                BuildingType::Empty => {}
+            }
+        }
+    }
+
+    zones
 }
