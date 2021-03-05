@@ -174,6 +174,19 @@ fn create_zones(map: &Map, input: HashMap<String, Polygon>) -> HashMap<String, Z
         }
     }
 
+    // Remove empty zones.
+    zones.retain(|name, zone| {
+        if zone.homes.is_empty() {
+            warn!("{} has no homes", name);
+            false
+        } else if zone.workplaces.is_empty() {
+            warn!("{} has no workplaces", name);
+            false
+        } else {
+            true
+        }
+    });
+
     zones
 }
 
