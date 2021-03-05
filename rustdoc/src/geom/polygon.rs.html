@@ -602,6 +602,12 @@
 <span id="599">599</span>
 <span id="600">600</span>
 <span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -670,6 +676,12 @@
             <span class="ident">indices</span>,
             <span class="ident">rings</span>: <span class="kw">if</span> <span class="ident">inner</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> { <span class="prelude-val">None</span> } <span class="kw">else</span> { <span class="prelude-val">Some</span>(<span class="ident">inner</span>) },
         }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_rings</span>(<span class="kw-2">mut</span> <span class="ident">rings</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ring</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">rings</span>.<span class="ident">is_empty</span>());
+        <span class="kw">let</span> <span class="ident">outer</span> <span class="op">=</span> <span class="ident">rings</span>.<span class="ident">remove</span>(<span class="number">0</span>);
+        <span class="ident">Polygon</span>::<span class="ident">with_holes</span>(<span class="ident">outer</span>, <span class="ident">rings</span>)
     }
 
     <span class="comment">// TODO Doesn&#39;t remember rings yet</span>

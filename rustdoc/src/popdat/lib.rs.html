@@ -133,6 +133,7 @@
 <span id="130">130</span>
 <span id="131">131</span>
 <span id="132">132</span>
+<span id="133">133</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! popdat (&quot;population data&quot;) generates `Scenarios` given a map and some external census data.</span>
 <span class="doccomment">//! Some of this functionality should maybe be reorganized or incorporated into the importer crate,</span>
@@ -171,6 +172,7 @@
 <span class="kw">mod</span> <span class="ident">distribute_people</span>;
 <span class="kw">mod</span> <span class="ident">import_census</span>;
 <span class="kw">mod</span> <span class="ident">make_person</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">od</span>;
 
 <span class="doccomment">/// Represents aggregate demographic data for some part of a city. These could be census tracts or</span>
 <span class="doccomment">/// blocks, depending what data we find. All of the areas should roughly partition the map -- we</span>
