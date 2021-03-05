@@ -207,42 +207,6 @@
 <span id="204">204</span>
 <span id="205">205</span>
 <span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
-<span id="216">216</span>
-<span id="217">217</span>
-<span id="218">218</span>
-<span id="219">219</span>
-<span id="220">220</span>
-<span id="221">221</span>
-<span id="222">222</span>
-<span id="223">223</span>
-<span id="224">224</span>
-<span id="225">225</span>
-<span id="226">226</span>
-<span id="227">227</span>
-<span id="228">228</span>
-<span id="229">229</span>
-<span id="230">230</span>
-<span id="231">231</span>
-<span id="232">232</span>
-<span id="233">233</span>
-<span id="234">234</span>
-<span id="235">235</span>
-<span id="236">236</span>
-<span id="237">237</span>
-<span id="238">238</span>
-<span id="239">239</span>
-<span id="240">240</span>
-<span id="241">241</span>
-<span id="242">242</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! This is an alternative pipeline for generating a Scenario, starting from origin-destination</span>
 <span class="doccomment">//! data (also called desire lines), which gives a count of commuters between two zones, breaking</span>
@@ -304,19 +268,12 @@
     <span class="comment">// First decide which zones are relevant for our map. Find all homes and shops for each zone,</span>
     <span class="comment">// and make it easy to repeatedly ask for a good random choice of home/work.</span>
     <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;match zones&quot;</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">zones</span> <span class="op">=</span> <span class="ident">create_zones</span>(<span class="ident">map</span>, <span class="ident">zones</span>);
-    <span class="kw">for</span> <span class="ident">z</span> <span class="kw">in</span> <span class="ident">zones</span>.<span class="ident">values_mut</span>() {
-        <span class="ident">represent_homes_proportionally</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">z</span>.<span class="ident">homes</span>, <span class="ident">map</span>);
-        <span class="ident">represent_workplaces_proportionally</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">z</span>.<span class="ident">workplaces</span>, <span class="ident">map</span>);
-        <span class="comment">// Make it easy to grab a random home or workplace.</span>
-        <span class="ident">z</span>.<span class="ident">homes</span>.<span class="ident">shuffle</span>(<span class="ident">rng</span>);
-        <span class="ident">z</span>.<span class="ident">workplaces</span>.<span class="ident">shuffle</span>(<span class="ident">rng</span>);
-    }
+    <span class="kw">let</span> <span class="ident">zones</span> <span class="op">=</span> <span class="ident">create_zones</span>(<span class="ident">map</span>, <span class="ident">zones</span>);
     <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;match zones&quot;</span>);
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">people</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;create people&quot;</span>);
-    <span class="lifetime">&#39;DESIRE</span>: <span class="kw">for</span> <span class="ident">desire</span> <span class="kw">in</span> <span class="ident">desire_lines</span> {
+    <span class="kw">for</span> <span class="ident">desire</span> <span class="kw">in</span> <span class="ident">desire_lines</span> {
         <span class="comment">// Skip if we filtered out either zone.</span>
         <span class="kw">if</span> <span class="op">!</span><span class="ident">zones</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">desire</span>.<span class="ident">home_zone</span>) <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">zones</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">desire</span>.<span class="ident">work_zone</span>) {
             <span class="kw">continue</span>;
@@ -328,20 +285,16 @@
             (<span class="ident">zones</span>[<span class="kw-2">&amp;</span><span class="ident">desire</span>.<span class="ident">home_zone</span>].<span class="ident">pct_overlap</span> <span class="op">*</span> (<span class="ident">desire</span>.<span class="ident">number_commuters</span> <span class="kw">as</span> <span class="ident">f64</span>)) <span class="kw">as</span> <span class="ident">usize</span>;
         <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">num_commuters</span> {
             <span class="comment">// Pick a specific home and workplace.</span>
-            <span class="kw">let</span> <span class="ident">home</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">zones</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">desire</span>.<span class="ident">home_zone</span>).<span class="ident">unwrap</span>().<span class="ident">homes</span>.<span class="ident">pop</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">b</span>,
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Ran out of homes in {}&quot;</span>, <span class="ident">desire</span>.<span class="ident">home_zone</span>);
-                    <span class="kw">continue</span> <span class="lifetime">&#39;DESIRE</span>;
-                }
-            };
-            <span class="kw">let</span> <span class="ident">work</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">zones</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">desire</span>.<span class="ident">work_zone</span>).<span class="ident">unwrap</span>().<span class="ident">workplaces</span>.<span class="ident">pop</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">b</span>,
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Ran out of workplaces in {}&quot;</span>, <span class="ident">desire</span>.<span class="ident">work_zone</span>);
-                    <span class="kw">continue</span> <span class="lifetime">&#39;DESIRE</span>;
-                }
-            };
+            <span class="kw">let</span> <span class="ident">home</span> <span class="op">=</span> <span class="ident">zones</span>[<span class="kw-2">&amp;</span><span class="ident">desire</span>.<span class="ident">home_zone</span>]
+                .<span class="ident">homes</span>
+                .<span class="ident">choose_weighted</span>(<span class="ident">rng</span>, <span class="op">|</span>(<span class="kw">_</span>, <span class="ident">n</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">n</span>)
+                .<span class="ident">unwrap</span>()
+                .<span class="number">0</span>;
+            <span class="kw">let</span> <span class="ident">work</span> <span class="op">=</span> <span class="ident">zones</span>[<span class="kw-2">&amp;</span><span class="ident">desire</span>.<span class="ident">work_zone</span>]
+                .<span class="ident">workplaces</span>
+                .<span class="ident">choose_weighted</span>(<span class="ident">rng</span>, <span class="op">|</span>(<span class="kw">_</span>, <span class="ident">n</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">n</span>)
+                .<span class="ident">unwrap</span>()
+                .<span class="number">0</span>;
 
             <span class="comment">// Create their schedule</span>
             <span class="kw">let</span> <span class="ident">goto_work</span> <span class="op">=</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">opts</span>.<span class="ident">departure_time</span>.<span class="ident">sample</span>(<span class="ident">rng</span>);
@@ -373,8 +326,11 @@
 <span class="kw">struct</span> <span class="ident">Zone</span> {
     <span class="ident">polygon</span>: <span class="ident">Polygon</span>,
     <span class="ident">pct_overlap</span>: <span class="ident">f64</span>,
-    <span class="ident">homes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>,
-    <span class="ident">workplaces</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>,
+    <span class="comment">// For each building, have a value describing how many people live or work there. The exact</span>
+    <span class="comment">// value doesn&#39;t matter; it&#39;s just a relative weighting. This way, we can use a weighted sample</span>
+    <span class="comment">// and match more people to larger homes/stores.</span>
+    <span class="ident">homes</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">BuildingID</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>,
+    <span class="ident">workplaces</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">BuildingID</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>,
 }
 
 <span class="kw">fn</span> <span class="ident">create_zones</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">input</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Polygon</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Zone</span><span class="op">&gt;</span> {
@@ -410,15 +366,18 @@
             .<span class="ident">find</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">z</span>)<span class="op">|</span> <span class="ident">z</span>.<span class="ident">polygon</span>.<span class="ident">contains_pt</span>(<span class="ident">center</span>))
         {
             <span class="kw">match</span> <span class="ident">b</span>.<span class="ident">bldg_type</span> {
-                <span class="ident">BuildingType</span>::<span class="ident">Residential</span> { .. } <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">zone</span>.<span class="ident">homes</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
+                <span class="ident">BuildingType</span>::<span class="ident">Residential</span> { <span class="ident">num_residents</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">zone</span>.<span class="ident">homes</span>.<span class="ident">push</span>((<span class="ident">b</span>.<span class="ident">id</span>, <span class="ident">num_residents</span>));
                 }
-                <span class="ident">BuildingType</span>::<span class="ident">ResidentialCommercial</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">zone</span>.<span class="ident">homes</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
-                    <span class="ident">zone</span>.<span class="ident">workplaces</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
+                <span class="ident">BuildingType</span>::<span class="ident">ResidentialCommercial</span>(<span class="ident">num_residents</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">zone</span>.<span class="ident">homes</span>.<span class="ident">push</span>((<span class="ident">b</span>.<span class="ident">id</span>, <span class="ident">num_residents</span>));
+                    <span class="comment">// We know how many different stores are located in each building, according to</span>
+                    <span class="comment">// OSM. A big mall might have 10 amenities, while standalone</span>
+                    <span class="comment">// shops just have 1.</span>
+                    <span class="ident">zone</span>.<span class="ident">workplaces</span>.<span class="ident">push</span>((<span class="ident">b</span>.<span class="ident">id</span>, <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">len</span>()));
                 }
                 <span class="ident">BuildingType</span>::<span class="ident">Commercial</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">zone</span>.<span class="ident">workplaces</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
+                    <span class="ident">zone</span>.<span class="ident">workplaces</span>.<span class="ident">push</span>((<span class="ident">b</span>.<span class="ident">id</span>, <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">len</span>()));
                 }
                 <span class="ident">BuildingType</span>::<span class="ident">Empty</span> <span class="op">=</span><span class="op">&gt;</span> {}
             }
@@ -426,37 +385,6 @@
     }
 
     <span class="ident">zones</span>
-}
-
-<span class="doccomment">/// Repeat each residential building based on a guess of how many people live there. That way,</span>
-<span class="doccomment">/// we&#39;re more likely to allocate more people to larger homes.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The heuristic for people per building is unfortunately very primitive right now, though.</span>
-<span class="kw">fn</span> <span class="ident">represent_homes_proportionally</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">input</span>.<span class="ident">drain</span>(..) {
-        <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">bldg_type</span> {
-            <span class="ident">BuildingType</span>::<span class="ident">Residential</span> { <span class="ident">num_residents</span>, .. }
-            <span class="op">|</span> <span class="ident">BuildingType</span>::<span class="ident">ResidentialCommercial</span>(<span class="ident">num_residents</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">num_residents</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-        };
-        <span class="ident">output</span>.<span class="ident">extend</span>(<span class="ident">std</span>::<span class="ident">iter</span>::<span class="ident">repeat</span>(<span class="ident">b</span>).<span class="ident">take</span>(<span class="ident">n</span>));
-    }
-    <span class="kw-2">*</span><span class="ident">input</span> <span class="op">=</span> <span class="ident">output</span>;
-}
-
-<span class="doccomment">/// Repeat each commercial building based on a guess of how many people work there. That way,</span>
-<span class="doccomment">/// we&#39;re more likely to allocate more employees to larger stores.</span>
-<span class="kw">fn</span> <span class="ident">represent_workplaces_proportionally</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">input</span>.<span class="ident">drain</span>(..) {
-        <span class="comment">// We know how many different stores are located in each building, according to OSM. A big</span>
-        <span class="comment">// mall might have 10 amenities, while standalone shops just have 1. For now, assume 1</span>
-        <span class="comment">// worker per store.</span>
-        <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">amenities</span>.<span class="ident">len</span>();
-        <span class="ident">output</span>.<span class="ident">extend</span>(<span class="ident">std</span>::<span class="ident">iter</span>::<span class="ident">repeat</span>(<span class="ident">b</span>).<span class="ident">take</span>(<span class="ident">n</span>));
-    }
-    <span class="kw-2">*</span><span class="ident">input</span> <span class="op">=</span> <span class="ident">output</span>;
 }
 
 <span class="doccomment">/// A normal distribution of Durations.</span>
