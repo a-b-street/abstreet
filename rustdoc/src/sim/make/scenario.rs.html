@@ -522,6 +522,11 @@
 <span id="519">519</span>
 <span id="520">520</span>
 <span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -677,11 +682,16 @@
 
             <span class="kw">let</span> (<span class="ident">vehicle_specs</span>, <span class="ident">cars_initially_parked_at</span>, <span class="ident">vehicle_foreach_trip</span>) <span class="op">=</span>
                 <span class="ident">p</span>.<span class="ident">get_vehicles</span>(<span class="ident">rng</span>);
-            <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">new_person</span>(<span class="ident">p</span>.<span class="ident">orig_id</span>, <span class="ident">Scenario</span>::<span class="ident">rand_ped_speed</span>(<span class="ident">rng</span>), <span class="ident">vehicle_specs</span>);
+            <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">new_person</span>(
+                <span class="ident">p</span>.<span class="ident">orig_id</span>,
+                <span class="ident">p</span>.<span class="ident">origin</span>,
+                <span class="ident">Scenario</span>::<span class="ident">rand_ped_speed</span>(<span class="ident">rng</span>),
+                <span class="ident">vehicle_specs</span>,
+            );
             <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">b</span>) <span class="kw">in</span> <span class="ident">cars_initially_parked_at</span> {
                 <span class="ident">parked_cars</span>.<span class="ident">push</span>((<span class="ident">person</span>.<span class="ident">vehicles</span>[<span class="ident">idx</span>].<span class="ident">clone</span>(), <span class="ident">b</span>));
             }
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">from</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">origin</span>.<span class="ident">clone</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">from</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">origin</span>;
             <span class="kw">for</span> (<span class="ident">trip</span>, <span class="ident">maybe_idx</span>) <span class="kw">in</span> <span class="ident">p</span>.<span class="ident">trips</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">vehicle_foreach_trip</span>) {
                 <span class="ident">schedule_trips</span>.<span class="ident">push</span>((
                     <span class="ident">person</span>.<span class="ident">id</span>,

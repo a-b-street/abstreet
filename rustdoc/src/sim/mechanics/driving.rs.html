@@ -1276,6 +1276,8 @@
 <span id="1273">1273</span>
 <span id="1274">1274</span>
 <span id="1275">1275</span>
+<span id="1276">1276</span>
+<span id="1277">1277</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
@@ -1595,10 +1597,12 @@
                     <span class="comment">// TODO The alert is temporary, just for debugging. So not firing it for a bus</span>
                     <span class="comment">// is fine.</span>
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">person</span>)) <span class="op">=</span> <span class="ident">car</span>.<span class="ident">trip_and_person</span> {
-                        <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">Alert</span>(
-                            <span class="ident">AlertLocation</span>::<span class="ident">Person</span>(<span class="ident">person</span>),
-                            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} wants to over-take {}&quot;</span>, <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">slow_leader</span>),
-                        ));
+                        <span class="kw">if</span> <span class="bool-val">false</span> {
+                            <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">Alert</span>(
+                                <span class="ident">AlertLocation</span>::<span class="ident">Person</span>(<span class="ident">person</span>),
+                                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} wants to over-take {}&quot;</span>, <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">slow_leader</span>),
+                            ));
+                        }
                     }
                 }
             }

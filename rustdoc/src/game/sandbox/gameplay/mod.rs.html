@@ -386,6 +386,11 @@
 <span id="383">383</span>
 <span id="384">384</span>
 <span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">future</span>::<span class="ident">Future</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">pin</span>::<span class="ident">Pin</span>;
@@ -514,8 +519,13 @@
                     <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">LoadScenario</span>::<span class="ident">Nothing</span>,
                 };
             }
-            <span class="comment">// TODO We&#39;ll need to load two files... and cache both?</span>
-            <span class="ident">GameplayMode</span>::<span class="ident">Actdev</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">scenario</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">scenario</span>.<span class="ident">to_string</span>(),
+            <span class="ident">GameplayMode</span>::<span class="ident">Actdev</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">scenario</span>, <span class="ident">bg_traffic</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">bg_traffic</span> {
+                    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}_with_bg&quot;</span>, <span class="ident">scenario</span>)
+                } <span class="kw">else</span> {
+                    <span class="ident">scenario</span>.<span class="ident">to_string</span>()
+                }
+            }
             <span class="ident">GameplayMode</span>::<span class="ident">FixTrafficSignals</span> <span class="op">|</span> <span class="ident">GameplayMode</span>::<span class="ident">OptimizeCommute</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="string">&quot;weekday&quot;</span>.<span class="ident">to_string</span>()
             }
