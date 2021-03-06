@@ -586,6 +586,9 @@
 <span id="583">583</span>
 <span id="584">584</span>
 <span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! This is a tool to experiment with the concept of 15-minute neighborhoods. Can you access your</span>
 <span class="doccomment">//! daily needs (like groceries, a cafe, a library) within a 15-minute walk, bike ride, or public</span>
@@ -1012,6 +1015,7 @@
 
 <span class="kw">struct</span> <span class="ident">Entry</span> {
     <span class="ident">bldg</span>: <span class="ident">BuildingID</span>,
+    <span class="ident">amenity_idx</span>: <span class="ident">usize</span>,
     <span class="ident">name</span>: <span class="ident">String</span>,
     <span class="ident">amenity_type</span>: <span class="ident">String</span>,
     <span class="ident">address</span>: <span class="ident">String</span>,
@@ -1031,10 +1035,11 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">entries</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">isochrone</span>.<span class="ident">amenities_reachable</span>.<span class="ident">get</span>(<span class="ident">category</span>) {
             <span class="kw">let</span> <span class="ident">bldg</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">b</span>);
-            <span class="kw">for</span> <span class="ident">amenity</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">bldg</span>.<span class="ident">amenities</span> {
+            <span class="kw">for</span> (<span class="ident">amenity_idx</span>, <span class="ident">amenity</span>) <span class="kw">in</span> <span class="ident">bldg</span>.<span class="ident">amenities</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
                 <span class="kw">if</span> <span class="ident">AmenityType</span>::<span class="ident">categorize</span>(<span class="kw-2">&amp;</span><span class="ident">amenity</span>.<span class="ident">amenity_type</span>) <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">category</span>) {
                     <span class="ident">entries</span>.<span class="ident">push</span>(<span class="ident">Entry</span> {
                         <span class="ident">bldg</span>: <span class="ident">bldg</span>.<span class="ident">id</span>,
+                        <span class="ident">amenity_idx</span>,
                         <span class="ident">name</span>: <span class="ident">amenity</span>.<span class="ident">names</span>.<span class="ident">get</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>()).<span class="ident">to_string</span>(),
                         <span class="ident">amenity_type</span>: <span class="ident">amenity</span>.<span class="ident">amenity_type</span>.<span class="ident">clone</span>(),
                         <span class="ident">address</span>: <span class="ident">bldg</span>.<span class="ident">address</span>.<span class="ident">clone</span>(),
@@ -1048,8 +1053,9 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">table</span>: <span class="ident">Table</span><span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">Entry</span>, ()<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Table</span>::<span class="ident">new</span>(
             <span class="ident">entries</span>,
-            <span class="comment">// The label has extra junk to avoid crashing when one building has two stores</span>
-            <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}: {}&quot;</span>, <span class="ident">x</span>.<span class="ident">bldg</span>.<span class="number">0</span>, <span class="ident">x</span>.<span class="ident">name</span>)),
+            <span class="comment">// The label has extra junk to avoid crashing when one building has two stores,</span>
+            <span class="comment">// possibly with the same name in the current language</span>
+            <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}: {} ({})&quot;</span>, <span class="ident">x</span>.<span class="ident">bldg</span>.<span class="number">0</span>, <span class="ident">x</span>.<span class="ident">name</span>, <span class="ident">x</span>.<span class="ident">amenity_idx</span>)),
             <span class="string">&quot;Time to reach&quot;</span>,
             <span class="ident">Filter</span>::<span class="ident">empty</span>(),
         );
