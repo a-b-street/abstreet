@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["ExternalTripEndpoint",""]],"struct":[["ExternalPerson",""],["ExternalTrip",""],["MapBorders",""]]});
+initSidebarItems({"enum":[["ExternalTripEndpoint",""]],"struct":[["ExternalPerson",""],["ExternalTrip",""],["MapBorders","Lists all border intersections of the map, broken down by mode and whether they support incoming or outgoing traffic."]]});
