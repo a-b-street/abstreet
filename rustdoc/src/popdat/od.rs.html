@@ -274,6 +274,16 @@
 <span id="271">271</span>
 <span id="272">272</span>
 <span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! This is an alternative pipeline for generating a Scenario, starting from origin-destination</span>
 <span class="doccomment">//! data (also called desire lines), which gives a count of commuters between two zones, breaking</span>
@@ -324,9 +334,19 @@
     }
 }
 
-<span class="doccomment">/// TODO Describe. In particular, how are polygons partly or fully outside the map&#39;s boundary</span>
-<span class="doccomment">/// handled?</span>
-<span class="doccomment">/// TODO Add an options struct to specify AM/PM time distribution, lunch trips, etc.</span>
+<span class="doccomment">/// Generates a scenario from aggregated origin/destination data (DesireLines). The input describes</span>
+<span class="doccomment">/// an exact number of people, who live in one zone and work in another (possibly the same) and</span>
+<span class="doccomment">/// commute using some mode. For each of them, we just need to pick a specific home and workplace</span>
+<span class="doccomment">/// from the zones, and use the Options to pick departure times. We&#39;ll wind up creating people who</span>
+<span class="doccomment">/// just take two trips daily: home -&gt; work -&gt; home.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The home and workplace may be a specific building, or they&#39;re snapped to a map border,</span>
+<span class="doccomment">/// resulting in trips that begin and/or end off-map. The amount of the zone that overlaps with the</span>
+<span class="doccomment">/// map boundary determines this. If the zone and map boundary overlap 50% by area, then half of</span>
+<span class="doccomment">/// the people to/from this zone will pick buildings, and half will pick borders.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Currently, zones with no overlap with the map at all are totally filtered out. We could adjust</span>
+<span class="doccomment">/// this in the future to create more highway through-traffic.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disaggregate</span>(
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     <span class="ident">zones</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Polygon</span><span class="op">&gt;</span>,

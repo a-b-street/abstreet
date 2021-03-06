@@ -252,6 +252,8 @@
 <span id="249">249</span>
 <span id="250">250</span>
 <span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
@@ -320,7 +322,7 @@
     <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;prepare input&quot;</span>);
 
     <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;disaggregate&quot;</span>);
-    <span class="comment">// TODO Plumb this in</span>
+    <span class="comment">// Could plumb this in as a flag to the importer, but it&#39;s not critical.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">XorShiftRng</span>::<span class="ident">seed_from_u64</span>(<span class="number">42</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">Scenario</span>::<span class="ident">empty</span>(<span class="ident">map</span>, <span class="string">&quot;background&quot;</span>);
     <span class="comment">// Include all buses/trains</span>
@@ -333,7 +335,7 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>,
         <span class="ident">timer</span>,
     );
-    <span class="comment">// Some zones have very few buildings, and people wind up with a home and workplace that&#39;s the</span>
+    <span class="comment">// Some zones have very few buildings, and people wind up with a home and workplace that&#39;re the</span>
     <span class="comment">// same!</span>
     <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">scenario</span>.<span class="ident">remove_weird_schedules</span>();
     <span class="macro">info</span><span class="macro">!</span>(
@@ -342,6 +344,7 @@
     );
     <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;disaggregate&quot;</span>);
 
+    <span class="comment">// Does this map belong to the actdev project?</span>
     <span class="kw">match</span> <span class="ident">load_study_area</span>(<span class="ident">map</span>) {
         <span class="prelude-val">Ok</span>(<span class="ident">study_area</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="comment">// Remove people from the scenario we just generated that live in the study area. The</span>
@@ -374,8 +377,8 @@
             <span class="ident">go_active</span>.<span class="ident">save</span>();
         }
         <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;{} has no study area: {}&quot;</span>, <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">describe</span>(), <span class="ident">err</span>);
             <span class="comment">// We&#39;re a &quot;normal&quot; city -- just save the background traffic.</span>
+            <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;{} has no study area: {}&quot;</span>, <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">describe</span>(), <span class="ident">err</span>);
             <span class="ident">scenario</span>.<span class="ident">save</span>();
         }
     }
@@ -472,6 +475,7 @@
     <span class="prelude-val">Ok</span>(<span class="ident">zones</span>)
 }
 
+<span class="comment">// TODO Clean up the exploding number of geojson readers everywhere.</span>
 <span class="kw">fn</span> <span class="ident">parse_polygon</span>(<span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">gps_bounds</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rings</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="kw">for</span> <span class="ident">ring</span> <span class="kw">in</span> <span class="ident">input</span> {
