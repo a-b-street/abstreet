@@ -423,6 +423,7 @@ struct ExploreAmenities {
 
 struct Entry {
     bldg: BuildingID,
+    amenity_idx: usize,
     name: String,
     amenity_type: String,
     address: String,
@@ -442,10 +443,11 @@ impl ExploreAmenities {
         let mut entries = Vec::new();
         for b in isochrone.amenities_reachable.get(category) {
             let bldg = app.map.get_b(*b);
-            for amenity in &bldg.amenities {
+            for (amenity_idx, amenity) in bldg.amenities.iter().enumerate() {
                 if AmenityType::categorize(&amenity.amenity_type) == Some(category) {
                     entries.push(Entry {
                         bldg: bldg.id,
+                        amenity_idx,
                         name: amenity.names.get(app.opts.language.as_ref()).to_string(),
                         amenity_type: amenity.amenity_type.clone(),
                         address: bldg.address.clone(),
@@ -459,8 +461,9 @@ impl ExploreAmenities {
 
         let mut table: Table<App, Entry, ()> = Table::new(
             entries,
-            // The label has extra junk to avoid crashing when one building has two stores
-            Box::new(|x| format!("{}: {}", x.bldg.0, x.name)),
+            // The label has extra junk to avoid crashing when one building has two stores,
+            // possibly with the same name in the current language
+            Box::new(|x| format!("{}: {} ({})", x.bldg.0, x.name, x.amenity_idx)),
             "Time to reach",
             Filter::empty(),
         );
