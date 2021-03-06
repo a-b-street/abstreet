@@ -47,9 +47,19 @@ impl Options {
     }
 }
 
-/// TODO Describe. In particular, how are polygons partly or fully outside the map's boundary
-/// handled?
-/// TODO Add an options struct to specify AM/PM time distribution, lunch trips, etc.
+/// Generates a scenario from aggregated origin/destination data (DesireLines). The input describes
+/// an exact number of people, who live in one zone and work in another (possibly the same) and
+/// commute using some mode. For each of them, we just need to pick a specific home and workplace
+/// from the zones, and use the Options to pick departure times. We'll wind up creating people who
+/// just take two trips daily: home -> work -> home.
+///
+/// The home and workplace may be a specific building, or they're snapped to a map border,
+/// resulting in trips that begin and/or end off-map. The amount of the zone that overlaps with the
+/// map boundary determines this. If the zone and map boundary overlap 50% by area, then half of
+/// the people to/from this zone will pick buildings, and half will pick borders.
+///
+/// Currently, zones with no overlap with the map at all are totally filtered out. We could adjust
+/// this in the future to create more highway through-traffic.
 pub fn disaggregate(
     map: &Map,
     zones: HashMap<String, Polygon>,

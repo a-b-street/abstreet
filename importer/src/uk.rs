@@ -65,7 +65,7 @@ pub fn generate_scenario(
     timer.stop("prepare input");
 
     timer.start("disaggregate");
-    // TODO Plumb this in
+    // Could plumb this in as a flag to the importer, but it's not critical.
     let mut rng = XorShiftRng::seed_from_u64(42);
     let mut scenario = Scenario::empty(map, "background");
     // Include all buses/trains
@@ -78,7 +78,7 @@ pub fn generate_scenario(
         &mut rng,
         timer,
     );
-    // Some zones have very few buildings, and people wind up with a home and workplace that's the
+    // Some zones have very few buildings, and people wind up with a home and workplace that're the
     // same!
     scenario = scenario.remove_weird_schedules();
     info!(
@@ -87,6 +87,7 @@ pub fn generate_scenario(
     );
     timer.stop("disaggregate");
 
+    // Does this map belong to the actdev project?
     match load_study_area(map) {
         Ok(study_area) => {
             // Remove people from the scenario we just generated that live in the study area. The
@@ -119,8 +120,8 @@ pub fn generate_scenario(
             go_active.save();
         }
         Err(err) => {
-            info!("{} has no study area: {}", map.get_name().describe(), err);
             // We're a "normal" city -- just save the background traffic.
+            info!("{} has no study area: {}", map.get_name().describe(), err);
             scenario.save();
         }
     }
@@ -217,6 +218,7 @@ fn parse_zones(gps_bounds: &GPSBounds, path: String) -> Result<HashMap<String, P
     Ok(zones)
 }
 
+// TODO Clean up the exploding number of geojson readers everywhere.
 fn parse_polygon(input: Vec<Vec<Vec<f64>>>, gps_bounds: &GPSBounds) -> Result<Polygon> {
     let mut rings = Vec::new();
     for ring in input {
