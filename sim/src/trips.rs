@@ -60,6 +60,7 @@ impl TripManager {
     pub fn new_person(
         &mut self,
         orig_id: Option<OrigPersonID>,
+        home: TripEndpoint,
         ped_speed: Speed,
         vehicle_specs: Vec<VehicleSpec>,
     ) -> &Person {
@@ -74,6 +75,7 @@ impl TripManager {
         self.people.push(Person {
             id,
             orig_id,
+            home,
             trips: Vec::new(),
             // The first new_trip will set this properly.
             state: PersonState::OffMap,
@@ -1506,8 +1508,8 @@ impl<T> TripResult<T> {
 pub struct Person {
     pub id: PersonID,
     pub orig_id: Option<OrigPersonID>,
+    pub home: TripEndpoint,
     pub trips: Vec<TripID>,
-    // TODO home
     pub state: PersonState,
 
     pub ped: PedestrianID,

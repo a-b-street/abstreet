@@ -22,9 +22,9 @@ use crate::{
     AgentID, AlertLocation, Analytics, CapSimState, CarID, Command, CreateCar, DrivingSimState,
     Event, IntersectionSimState, OrigPersonID, PandemicModel, ParkedCar, ParkingSim,
     ParkingSimState, ParkingSpot, Person, PersonID, Router, Scheduler, SidewalkPOI, SidewalkSpot,
-    StartTripArgs, TrafficRecorder, TransitSimState, TripID, TripInfo, TripManager, TripPhaseType,
-    Vehicle, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH, LIGHT_RAIL_LENGTH,
-    MIN_CAR_LENGTH,
+    StartTripArgs, TrafficRecorder, TransitSimState, TripEndpoint, TripID, TripInfo, TripManager,
+    TripPhaseType, Vehicle, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
+    LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH,
 };
 
 mod queries;
@@ -318,10 +318,12 @@ impl Sim {
     pub(crate) fn new_person(
         &mut self,
         orig_id: Option<OrigPersonID>,
+        home: TripEndpoint,
         ped_speed: Speed,
         vehicle_specs: Vec<VehicleSpec>,
     ) -> &Person {
-        self.trips.new_person(orig_id, ped_speed, vehicle_specs)
+        self.trips
+            .new_person(orig_id, home, ped_speed, vehicle_specs)
     }
     pub(crate) fn seed_parked_car(&mut self, vehicle: Vehicle, spot: ParkingSpot) {
         self.parking.reserve_spot(spot, vehicle.id);

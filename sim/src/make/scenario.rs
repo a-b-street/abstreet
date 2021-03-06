@@ -152,11 +152,16 @@ impl Scenario {
 
             let (vehicle_specs, cars_initially_parked_at, vehicle_foreach_trip) =
                 p.get_vehicles(rng);
-            let person = sim.new_person(p.orig_id, Scenario::rand_ped_speed(rng), vehicle_specs);
+            let person = sim.new_person(
+                p.orig_id,
+                p.origin,
+                Scenario::rand_ped_speed(rng),
+                vehicle_specs,
+            );
             for (idx, b) in cars_initially_parked_at {
                 parked_cars.push((person.vehicles[idx].clone(), b));
             }
-            let mut from = p.origin.clone();
+            let mut from = p.origin;
             for (trip, maybe_idx) in p.trips.iter().zip(vehicle_foreach_trip) {
                 schedule_trips.push((
                     person.id,

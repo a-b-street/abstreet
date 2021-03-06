@@ -7,7 +7,8 @@ use rand_xorshift::XorShiftRng;
 
 use geom::Duration;
 use map_gui::tools::{grey_out_map, nice_map_name, open_browser, PopupMsg};
-use sim::{AgentType, PersonID, TripID};
+use map_model::AreaType;
+use sim::{AgentType, PersonID, TripEndpoint, TripID};
 use widgetry::{
     lctrl, ControlState, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
     SimpleState, Text, TextExt, Toggle, VerticalAlignment, Widget,
@@ -55,11 +56,20 @@ impl GameplayState for Actdev {
         if self.once {
             if self.bg_traffic {
                 let mut highlight = BTreeSet::new();
+                let study_area = &app
+                    .primary
+                    .map
+                    .all_areas()
+                    .into_iter()
+                    .find(|a| a.area_type == AreaType::StudyArea)
+                    .unwrap()
+                    .polygon;
+
                 for person in app.primary.sim.get_all_people() {
-                    // TODO Once we have real bg traffic, base this on whether home is in the study
-                    // area or not
-                    if person.id.0 % 2 == 0 {
-                        highlight.insert(person.id);
+                    if let TripEndpoint::Bldg(b) = person.home {
+                        if study_area.contains_pt(app.primary.map.get_b(b).polygon.center()) {
+                            highlight.insert(person.id);
+                        }
                     }
                 }
                 app.primary.sim.set_highlighted_people(highlight);

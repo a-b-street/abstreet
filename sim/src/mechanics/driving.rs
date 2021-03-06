@@ -316,10 +316,12 @@ impl DrivingSimState {
                     // TODO The alert is temporary, just for debugging. So not firing it for a bus
                     // is fine.
                     if let Some((_, person)) = car.trip_and_person {
-                        self.events.push(Event::Alert(
-                            AlertLocation::Person(person),
-                            format!("{} wants to over-take {}", car.vehicle.id, slow_leader),
-                        ));
+                        if false {
+                            self.events.push(Event::Alert(
+                                AlertLocation::Person(person),
+                                format!("{} wants to over-take {}", car.vehicle.id, slow_leader),
+                            ));
+                        }
                     }
                 }
             }

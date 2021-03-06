@@ -125,8 +125,13 @@ impl GameplayMode {
                     None => LoadScenario::Nothing,
                 };
             }
-            // TODO We'll need to load two files... and cache both?
-            GameplayMode::Actdev(_, ref scenario, _) => scenario.to_string(),
+            GameplayMode::Actdev(_, ref scenario, bg_traffic) => {
+                if *bg_traffic {
+                    format!("{}_with_bg", scenario)
+                } else {
+                    scenario.to_string()
+                }
+            }
             GameplayMode::FixTrafficSignals | GameplayMode::OptimizeCommute(_, _) => {
                 "weekday".to_string()
             }
