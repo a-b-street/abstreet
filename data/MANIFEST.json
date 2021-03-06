@@ -536,9 +536,9 @@
       "compressed_size_bytes": 3295106
     },
     "data/input/gb/great_kneighton/screenshots/center.zip": {
-      "checksum": "9db3dc4cd2ccc166c7bd83f439cd87f6",
-      "uncompressed_size_bytes": 40267144,
-      "compressed_size_bytes": 40251874
+      "checksum": "062fac78a9375d6b28ed581e7a448dfa",
+      "uncompressed_size_bytes": 40008937,
+      "compressed_size_bytes": 39993519
     },
     "data/input/gb/halsnead/osm/center.osm": {
       "checksum": "9b4aedf25220e29e11d0970cf7c70a26",

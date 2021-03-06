@@ -8,7 +8,7 @@ use geom::{Distance, PolyLine, Polygon, Speed};
 
 use crate::raw::{OriginalRoad, RestrictionType};
 use crate::{
-    osm, AccessRestrictions, BusStopID, IntersectionID, Lane, LaneID, LaneType, Map,
+    osm, AccessRestrictions, BusStopID, DrivingSide, IntersectionID, Lane, LaneID, LaneType, Map,
     PathConstraints, Zone,
 };
 
@@ -223,12 +223,16 @@ impl Road {
             }
         }
         let lane = map.get_l(found.unwrap_or(self.lanes_ltr()[0].0));
-        if self.dir(lane.id) == Direction::Fwd {
+        // There's a weird edge case with single lane light rail on left-handed maps...
+        let shifted = if map.get_config().driving_side == DrivingSide::Right || found.is_none() {
             lane.lane_center_pts.must_shift_left(lane.width / 2.0)
         } else {
-            lane.lane_center_pts
-                .must_shift_left(lane.width / 2.0)
-                .reversed()
+            lane.lane_center_pts.must_shift_right(lane.width / 2.0)
+        };
+        if self.dir(lane.id) == Direction::Fwd {
+            shifted
+        } else {
+            shifted.reversed()
         }
     }
 
