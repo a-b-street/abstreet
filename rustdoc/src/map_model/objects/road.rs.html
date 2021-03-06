@@ -480,6 +480,10 @@
 <span id="477">477</span>
 <span id="478">478</span>
 <span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
@@ -491,7 +495,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RestrictionType</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">osm</span>, <span class="ident">AccessRestrictions</span>, <span class="ident">BusStopID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>,
+    <span class="ident">osm</span>, <span class="ident">AccessRestrictions</span>, <span class="ident">BusStopID</span>, <span class="ident">DrivingSide</span>, <span class="ident">IntersectionID</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>,
     <span class="ident">PathConstraints</span>, <span class="ident">Zone</span>,
 };
 
@@ -706,12 +710,16 @@
             }
         }
         <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">found</span>.<span class="ident">unwrap_or</span>(<span class="self">self</span>.<span class="ident">lanes_ltr</span>()[<span class="number">0</span>].<span class="number">0</span>));
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">dir</span>(<span class="ident">lane</span>.<span class="ident">id</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span> {
+        <span class="comment">// There&#39;s a weird edge case with single lane light rail on left-handed maps...</span>
+        <span class="kw">let</span> <span class="ident">shifted</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide</span>::<span class="ident">Right</span> <span class="op">|</span><span class="op">|</span> <span class="ident">found</span>.<span class="ident">is_none</span>() {
             <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>.<span class="ident">must_shift_left</span>(<span class="ident">lane</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>)
         } <span class="kw">else</span> {
-            <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>
-                .<span class="ident">must_shift_left</span>(<span class="ident">lane</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>)
-                .<span class="ident">reversed</span>()
+            <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>.<span class="ident">must_shift_right</span>(<span class="ident">lane</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>)
+        };
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">dir</span>(<span class="ident">lane</span>.<span class="ident">id</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span> {
+            <span class="ident">shifted</span>
+        } <span class="kw">else</span> {
+            <span class="ident">shifted</span>.<span class="ident">reversed</span>()
         }
     }
 
