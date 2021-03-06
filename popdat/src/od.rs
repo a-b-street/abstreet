@@ -26,6 +26,8 @@ pub struct DesireLine {
     pub number_commuters: usize,
 }
 
+// TODO Percentage of taking a lunch trip, when to do it, how far to venture out, what mode to
+// use...
 pub struct Options {
     /// When should somebody depart from home to work?
     pub departure_time: NormalDistribution,
@@ -150,11 +152,13 @@ fn create_zones(map: &Map, input: HashMap<String, Polygon>) -> HashMap<String, Z
             .find(|(_, z)| z.polygon.contains_pt(center))
         {
             match b.bldg_type {
+                // The current heuristics for num_residents sometimes assign 0 people to a
+                // building. We never want that, so just scale them all up.
                 BuildingType::Residential { num_residents, .. } => {
-                    zone.homes.push((b.id, num_residents));
+                    zone.homes.push((b.id, num_residents + 1));
                 }
                 BuildingType::ResidentialCommercial(num_residents, _) => {
-                    zone.homes.push((b.id, num_residents));
+                    zone.homes.push((b.id, num_residents + 1));
                     // We know how many different stores are located in each building, according to
                     // OSM. A big mall might have 10 amenities, while standalone
                     // shops just have 1.

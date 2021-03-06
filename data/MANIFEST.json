@@ -1580,10 +1580,20 @@
       "uncompressed_size_bytes": 12496,
       "compressed_size_bytes": 2722
     },
+    "data/system/gb/allerton_bywater/scenarios/center/base_with_bg.bin": {
+      "checksum": "518a9d5d6dc03c4e33221095f189607a",
+      "uncompressed_size_bytes": 4155747,
+      "compressed_size_bytes": 1211868
+    },
     "data/system/gb/allerton_bywater/scenarios/center/go_active.bin": {
       "checksum": "e079f29529c095308d618357831a406b",
       "uncompressed_size_bytes": 12501,
       "compressed_size_bytes": 2789
+    },
+    "data/system/gb/allerton_bywater/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "9b633a6601f37b124e34a67620dc22b7",
+      "uncompressed_size_bytes": 4155752,
+      "compressed_size_bytes": 1211957
     },
     "data/system/gb/ashton_park/maps/center.bin": {
       "checksum": "75b6136500b38b392a2798c547ad93d0",
@@ -1595,10 +1605,20 @@
       "uncompressed_size_bytes": 111262,
       "compressed_size_bytes": 21603
     },
+    "data/system/gb/ashton_park/scenarios/center/base_with_bg.bin": {
+      "checksum": "e09e27d5e4128f75185c8843439def2e",
+      "uncompressed_size_bytes": 821763,
+      "compressed_size_bytes": 226613
+    },
     "data/system/gb/ashton_park/scenarios/center/go_active.bin": {
       "checksum": "96f66bed4f8329e7085b5be12dc7b83a",
       "uncompressed_size_bytes": 110794,
       "compressed_size_bytes": 21925
+    },
+    "data/system/gb/ashton_park/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "e1816b4e3b016b3698ac80cc4b8d09d8",
+      "uncompressed_size_bytes": 821295,
+      "compressed_size_bytes": 226946
     },
     "data/system/gb/aylesbury/maps/center.bin": {
       "checksum": "27800ec3382006dd85bc7aefa3fe5215",
@@ -1610,10 +1630,20 @@
       "uncompressed_size_bytes": 110056,
       "compressed_size_bytes": 21592
     },
+    "data/system/gb/aylesbury/scenarios/center/base_with_bg.bin": {
+      "checksum": "eacf7c27f46e41dfe8c03a038ae7ee70",
+      "uncompressed_size_bytes": 1380009,
+      "compressed_size_bytes": 387752
+    },
     "data/system/gb/aylesbury/scenarios/center/go_active.bin": {
       "checksum": "a73db0d44313b916837c5a27e1a3b5df",
       "uncompressed_size_bytes": 110129,
       "compressed_size_bytes": 22067
+    },
+    "data/system/gb/aylesbury/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "7ac1bf6cc3c021e8acc7264fab0e46d4",
+      "uncompressed_size_bytes": 1380082,
+      "compressed_size_bytes": 388269
     },
     "data/system/gb/aylesham/maps/center.bin": {
       "checksum": "1ea146d869b56cb83e1f860e44bb57e7",
@@ -1625,10 +1655,20 @@
       "uncompressed_size_bytes": 39277,
       "compressed_size_bytes": 8245
     },
+    "data/system/gb/aylesham/scenarios/center/base_with_bg.bin": {
+      "checksum": "14b330c10eef6f1d8dd1442dc6f3a6f3",
+      "uncompressed_size_bytes": 1293084,
+      "compressed_size_bytes": 372796
+    },
     "data/system/gb/aylesham/scenarios/center/go_active.bin": {
       "checksum": "f4c72b2cbfcb80925d1aae4283646482",
       "uncompressed_size_bytes": 39282,
       "compressed_size_bytes": 8309
+    },
+    "data/system/gb/aylesham/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "d75a07e354998333f2b8fe9c5e90c895",
+      "uncompressed_size_bytes": 1293089,
+      "compressed_size_bytes": 372885
     },
     "data/system/gb/bailrigg/maps/center.bin": {
       "checksum": "e5da5625b7d4c7e508ed6401ee8c39fc",
@@ -1640,10 +1680,20 @@
       "uncompressed_size_bytes": 85975,
       "compressed_size_bytes": 15962
     },
+    "data/system/gb/bailrigg/scenarios/center/base_with_bg.bin": {
+      "checksum": "e0f2f1899d497667ad6d1b95dc14a331",
+      "uncompressed_size_bytes": 685731,
+      "compressed_size_bytes": 196169
+    },
     "data/system/gb/bailrigg/scenarios/center/go_active.bin": {
       "checksum": "8ea090cc7abc1dcb56c7925c5408dfa5",
       "uncompressed_size_bytes": 87528,
       "compressed_size_bytes": 16371
+    },
+    "data/system/gb/bailrigg/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "5fa578125bd738cf8d5eefdda2438841",
+      "uncompressed_size_bytes": 687284,
+      "compressed_size_bytes": 196621
     },
     "data/system/gb/bath_riverside/maps/center.bin": {
       "checksum": "0282cf33d6521b47502122876b6d7f15",
@@ -1655,10 +1705,20 @@
       "uncompressed_size_bytes": 90582,
       "compressed_size_bytes": 17693
     },
+    "data/system/gb/bath_riverside/scenarios/center/base_with_bg.bin": {
+      "checksum": "5d3a913b28143ca6141ded95ada9bf74",
+      "uncompressed_size_bytes": 1749143,
+      "compressed_size_bytes": 523587
+    },
     "data/system/gb/bath_riverside/scenarios/center/go_active.bin": {
       "checksum": "9e6889d3d62041ef83246c74feaa0a79",
       "uncompressed_size_bytes": 90587,
       "compressed_size_bytes": 17515
+    },
+    "data/system/gb/bath_riverside/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "7fcf06b282a1d505e84f8cc7d6eccbfd",
+      "uncompressed_size_bytes": 1749148,
+      "compressed_size_bytes": 523313
     },
     "data/system/gb/bicester/maps/center.bin": {
       "checksum": "d0a012e987fd0fac0ec09e779c44dd16",
@@ -1670,10 +1730,20 @@
       "uncompressed_size_bytes": 271588,
       "compressed_size_bytes": 53479
     },
+    "data/system/gb/bicester/scenarios/center/base_with_bg.bin": {
+      "checksum": "f2507cd999cf9527ddeba44ef9ed28ec",
+      "uncompressed_size_bytes": 3201612,
+      "compressed_size_bytes": 909224
+    },
     "data/system/gb/bicester/scenarios/center/go_active.bin": {
       "checksum": "d537c730d62111be473a87da651c1e42",
       "uncompressed_size_bytes": 271611,
       "compressed_size_bytes": 54316
+    },
+    "data/system/gb/bicester/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "1c738fec939c1928d9f72cca5c4907ca",
+      "uncompressed_size_bytes": 3201635,
+      "compressed_size_bytes": 910071
     },
     "data/system/gb/castlemead/maps/center.bin": {
       "checksum": "a60f0e10fe7cbca37957e84a476af476",
@@ -1685,10 +1755,20 @@
       "uncompressed_size_bytes": 24573,
       "compressed_size_bytes": 5112
     },
+    "data/system/gb/castlemead/scenarios/center/base_with_bg.bin": {
+      "checksum": "ba72808d8aeef0ba204db39b847ec0cf",
+      "uncompressed_size_bytes": 722033,
+      "compressed_size_bytes": 205920
+    },
     "data/system/gb/castlemead/scenarios/center/go_active.bin": {
       "checksum": "117815989601f29691fb0e677c15d15a",
       "uncompressed_size_bytes": 24578,
       "compressed_size_bytes": 5182
+    },
+    "data/system/gb/castlemead/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "c0b143d86cf304d6e61f2f9799968746",
+      "uncompressed_size_bytes": 722038,
+      "compressed_size_bytes": 206024
     },
     "data/system/gb/chapelford/maps/center.bin": {
       "checksum": "99578c797f9476e2a40b7088997bf28c",
@@ -1700,10 +1780,20 @@
       "uncompressed_size_bytes": 95695,
       "compressed_size_bytes": 20110
     },
+    "data/system/gb/chapelford/scenarios/center/base_with_bg.bin": {
+      "checksum": "9e4532cb64dfedb8cc36cd3cdc7c7425",
+      "uncompressed_size_bytes": 2762829,
+      "compressed_size_bytes": 802688
+    },
     "data/system/gb/chapelford/scenarios/center/go_active.bin": {
       "checksum": "f8018d54661a96b112257f7a6b9c1184",
       "uncompressed_size_bytes": 95743,
       "compressed_size_bytes": 20521
+    },
+    "data/system/gb/chapelford/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "bfdf981c26f56c17891e101c0e255729",
+      "uncompressed_size_bytes": 2762877,
+      "compressed_size_bytes": 803184
     },
     "data/system/gb/clackers_brook/maps/center.bin": {
       "checksum": "bd25012ceb4eaa96b1dbbc43b859246d",
@@ -1715,10 +1805,20 @@
       "uncompressed_size_bytes": 28464,
       "compressed_size_bytes": 5931
     },
+    "data/system/gb/clackers_brook/scenarios/center/base_with_bg.bin": {
+      "checksum": "7b8b23f1c4111b764b15291c1be2c7fe",
+      "uncompressed_size_bytes": 1405298,
+      "compressed_size_bytes": 406471
+    },
     "data/system/gb/clackers_brook/scenarios/center/go_active.bin": {
       "checksum": "83f3e392dbf44830cba869143dc32811",
       "uncompressed_size_bytes": 28495,
       "compressed_size_bytes": 6041
+    },
+    "data/system/gb/clackers_brook/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "9c635f82e08ef44d823e2064fe8d370a",
+      "uncompressed_size_bytes": 1405329,
+      "compressed_size_bytes": 406629
     },
     "data/system/gb/culm/maps/center.bin": {
       "checksum": "2714d46480a39ec3d4b1d0a58e27065a",
@@ -1730,10 +1830,20 @@
       "uncompressed_size_bytes": 75135,
       "compressed_size_bytes": 13276
     },
+    "data/system/gb/culm/scenarios/center/base_with_bg.bin": {
+      "checksum": "d97118c3074e2a52eb7f040c5bfdf916",
+      "uncompressed_size_bytes": 3764297,
+      "compressed_size_bytes": 1132492
+    },
     "data/system/gb/culm/scenarios/center/go_active.bin": {
       "checksum": "ef9c34d18650819ae8a9cda7f84e4755",
       "uncompressed_size_bytes": 74581,
       "compressed_size_bytes": 13282
+    },
+    "data/system/gb/culm/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "03a2032832c4dcbddc9f702d88589125",
+      "uncompressed_size_bytes": 3763743,
+      "compressed_size_bytes": 1132495
     },
     "data/system/gb/dickens_heath/maps/center.bin": {
       "checksum": "f28efcd6f9a95826f42ad634367f62e2",
@@ -1745,10 +1855,20 @@
       "uncompressed_size_bytes": 63276,
       "compressed_size_bytes": 13568
     },
+    "data/system/gb/dickens_heath/scenarios/center/base_with_bg.bin": {
+      "checksum": "9accda218baf58e3734ef8e70dca4b4e",
+      "uncompressed_size_bytes": 2340560,
+      "compressed_size_bytes": 692787
+    },
     "data/system/gb/dickens_heath/scenarios/center/go_active.bin": {
       "checksum": "3209ae767cc12c8d8ac5eda63eece173",
       "uncompressed_size_bytes": 63281,
       "compressed_size_bytes": 13909
+    },
+    "data/system/gb/dickens_heath/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "ee5c553931191ab1abadf786036764a8",
+      "uncompressed_size_bytes": 2340565,
+      "compressed_size_bytes": 693235
     },
     "data/system/gb/didcot/maps/center.bin": {
       "checksum": "49f7e7a4069055c030d9d50e62aec897",
@@ -1760,10 +1880,20 @@
       "uncompressed_size_bytes": 135423,
       "compressed_size_bytes": 26878
     },
+    "data/system/gb/didcot/scenarios/center/base_with_bg.bin": {
+      "checksum": "54c523b0f30d56e7bb3dc30a71ef9537",
+      "uncompressed_size_bytes": 694400,
+      "compressed_size_bytes": 187130
+    },
     "data/system/gb/didcot/scenarios/center/go_active.bin": {
       "checksum": "1716bf313a308f04301d3f18d8b7d89c",
       "uncompressed_size_bytes": 135471,
       "compressed_size_bytes": 27158
+    },
+    "data/system/gb/didcot/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "15033b0da380be90aa7741e3d257bab1",
+      "uncompressed_size_bytes": 694448,
+      "compressed_size_bytes": 187407
     },
     "data/system/gb/dunton_hills/maps/center.bin": {
       "checksum": "d02916ea552604eafcb98242f6068d88",
@@ -1775,10 +1905,20 @@
       "uncompressed_size_bytes": 8579,
       "compressed_size_bytes": 1506
     },
+    "data/system/gb/dunton_hills/scenarios/center/base_with_bg.bin": {
+      "checksum": "67a0f6d6dd792790f0519f025469d35e",
+      "uncompressed_size_bytes": 2461606,
+      "compressed_size_bytes": 716870
+    },
     "data/system/gb/dunton_hills/scenarios/center/go_active.bin": {
       "checksum": "57f634a72eba2ab5f69d334ab8637bf7",
       "uncompressed_size_bytes": 7999,
       "compressed_size_bytes": 1439
+    },
+    "data/system/gb/dunton_hills/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "4ed4327fed161f7ee24f38a2ed9486ea",
+      "uncompressed_size_bytes": 2461026,
+      "compressed_size_bytes": 716800
     },
     "data/system/gb/ebbsfleet/maps/center.bin": {
       "checksum": "c07422d171af8f795feb605ecb70b9c8",
@@ -1790,10 +1930,20 @@
       "uncompressed_size_bytes": 184436,
       "compressed_size_bytes": 28798
     },
+    "data/system/gb/ebbsfleet/scenarios/center/base_with_bg.bin": {
+      "checksum": "a06edbdbe472e9a3fd890057ca10815d",
+      "uncompressed_size_bytes": 697252,
+      "compressed_size_bytes": 175147
+    },
     "data/system/gb/ebbsfleet/scenarios/center/go_active.bin": {
       "checksum": "516f66cd01ced14d171ad65581857aad",
       "uncompressed_size_bytes": 184252,
       "compressed_size_bytes": 29579
+    },
+    "data/system/gb/ebbsfleet/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "bb73d8534a11e1ba760cf1fb5c5a43c4",
+      "uncompressed_size_bytes": 697068,
+      "compressed_size_bytes": 175796
     },
     "data/system/gb/great_kneighton/maps/center.bin": {
       "checksum": "3be32a3cc73f7c2a358a0b56fee67405",
@@ -1805,10 +1955,20 @@
       "uncompressed_size_bytes": 113347,
       "compressed_size_bytes": 23606
     },
+    "data/system/gb/great_kneighton/scenarios/center/base_with_bg.bin": {
+      "checksum": "131686fd398fb5e720c3164b60cf2f78",
+      "uncompressed_size_bytes": 2394219,
+      "compressed_size_bytes": 700394
+    },
     "data/system/gb/great_kneighton/scenarios/center/go_active.bin": {
       "checksum": "d942a33d08f30fb912686c8bba6d8327",
       "uncompressed_size_bytes": 113378,
       "compressed_size_bytes": 23484
+    },
+    "data/system/gb/great_kneighton/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "275364a3bc0640a67e9c940c76ee0832",
+      "uncompressed_size_bytes": 2394250,
+      "compressed_size_bytes": 700251
     },
     "data/system/gb/halsnead/maps/center.bin": {
       "checksum": "d6058ae44eb66e977739256f4c4e1cfa",
@@ -1820,10 +1980,20 @@
       "uncompressed_size_bytes": 49339,
       "compressed_size_bytes": 8342
     },
+    "data/system/gb/halsnead/scenarios/center/base_with_bg.bin": {
+      "checksum": "833e895182044cfed4ab7aec9d04bbbd",
+      "uncompressed_size_bytes": 1729635,
+      "compressed_size_bytes": 505273
+    },
     "data/system/gb/halsnead/scenarios/center/go_active.bin": {
       "checksum": "78693552f6faab94fc80c3bc10e713d3",
       "uncompressed_size_bytes": 49292,
       "compressed_size_bytes": 8504
+    },
+    "data/system/gb/halsnead/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "f2cc14b445947a2e48cb5d09983711aa",
+      "uncompressed_size_bytes": 1729588,
+      "compressed_size_bytes": 505498
     },
     "data/system/gb/hampton/maps/center.bin": {
       "checksum": "c13488296699ecbf7064caec91f47562",
@@ -1835,10 +2005,20 @@
       "uncompressed_size_bytes": 334359,
       "compressed_size_bytes": 69932
     },
+    "data/system/gb/hampton/scenarios/center/base_with_bg.bin": {
+      "checksum": "c4660227ec2240e1ba32d4d1c064bcbb",
+      "uncompressed_size_bytes": 3039581,
+      "compressed_size_bytes": 850135
+    },
     "data/system/gb/hampton/scenarios/center/go_active.bin": {
       "checksum": "dff5d430c5f59f7fb2c0c965ab012e76",
       "uncompressed_size_bytes": 334562,
       "compressed_size_bytes": 70906
+    },
+    "data/system/gb/hampton/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "32b1b023e34eb547aa4d211371ca9654",
+      "uncompressed_size_bytes": 3039784,
+      "compressed_size_bytes": 851337
     },
     "data/system/gb/handforth/maps/center.bin": {
       "checksum": "5de53eaf98d16fa9736242c253ed73f8",
@@ -1850,10 +2030,20 @@
       "uncompressed_size_bytes": 18212,
       "compressed_size_bytes": 2367
     },
+    "data/system/gb/handforth/scenarios/center/base_with_bg.bin": {
+      "checksum": "e388283182fe04fb6cf9caa8f817231a",
+      "uncompressed_size_bytes": 489145,
+      "compressed_size_bytes": 138588
+    },
     "data/system/gb/handforth/scenarios/center/go_active.bin": {
       "checksum": "758291297ced405ceecfcd7beafbc488",
       "uncompressed_size_bytes": 17163,
       "compressed_size_bytes": 2275
+    },
+    "data/system/gb/handforth/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "1f4d66a432438f75b9863151ab91efd5",
+      "uncompressed_size_bytes": 488096,
+      "compressed_size_bytes": 138467
     },
     "data/system/gb/kidbrooke_village/maps/center.bin": {
       "checksum": "186258ce20a15b43c8fdfef709adc046",
@@ -1865,10 +2055,20 @@
       "uncompressed_size_bytes": 56486,
       "compressed_size_bytes": 11824
     },
+    "data/system/gb/kidbrooke_village/scenarios/center/base_with_bg.bin": {
+      "checksum": "22ca37152ff2037d2ff81ed94a0e3864",
+      "uncompressed_size_bytes": 677701,
+      "compressed_size_bytes": 196295
+    },
     "data/system/gb/kidbrooke_village/scenarios/center/go_active.bin": {
       "checksum": "4c42a481fc706eda66539cc4b08cbc82",
       "uncompressed_size_bytes": 56491,
       "compressed_size_bytes": 11915
+    },
+    "data/system/gb/kidbrooke_village/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "a98b49421a9c9e5d41709390394458aa",
+      "uncompressed_size_bytes": 677706,
+      "compressed_size_bytes": 196404
     },
     "data/system/gb/lcid/maps/center.bin": {
       "checksum": "3499bfbaf3f39887bf8a3861a8a008f4",
@@ -1880,10 +2080,20 @@
       "uncompressed_size_bytes": 19295,
       "compressed_size_bytes": 3421
     },
+    "data/system/gb/lcid/scenarios/center/base_with_bg.bin": {
+      "checksum": "0a84c64f61117570f3f5bb342c77ff6b",
+      "uncompressed_size_bytes": 2615290,
+      "compressed_size_bytes": 756675
+    },
     "data/system/gb/lcid/scenarios/center/go_active.bin": {
       "checksum": "fcee298d13176dafd0411350c74195e5",
       "uncompressed_size_bytes": 19326,
       "compressed_size_bytes": 3381
+    },
+    "data/system/gb/lcid/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "73a111f9f28376e1203f913370917a3a",
+      "uncompressed_size_bytes": 2615321,
+      "compressed_size_bytes": 756692
     },
     "data/system/gb/leeds/city.bin": {
       "checksum": "75592c57694d8b0eb505e75fc212e158",
@@ -1910,10 +2120,35 @@
       "uncompressed_size_bytes": 59610900,
       "compressed_size_bytes": 20290105
     },
+    "data/system/gb/leeds/scenarios/central/background.bin": {
+      "checksum": "3a7e8f94499a8d2b1c69091454b0cce9",
+      "uncompressed_size_bytes": 2528570,
+      "compressed_size_bytes": 709509
+    },
+    "data/system/gb/leeds/scenarios/huge/background.bin": {
+      "checksum": "22fc5f20cf0ba95729a370b30d7042d1",
+      "uncompressed_size_bytes": 7798994,
+      "compressed_size_bytes": 2346005
+    },
+    "data/system/gb/leeds/scenarios/north/background.bin": {
+      "checksum": "d3df4dc4bef16afc8adc0e2d65194219",
+      "uncompressed_size_bytes": 3839016,
+      "compressed_size_bytes": 1121257
+    },
+    "data/system/gb/leeds/scenarios/west/background.bin": {
+      "checksum": "0227a26c1ea2ab48f9f8632445daa2c8",
+      "uncompressed_size_bytes": 3139424,
+      "compressed_size_bytes": 907194
+    },
     "data/system/gb/london/maps/southbank.bin": {
       "checksum": "0350e2cbe6a6ca982e4fb6b51b9e8435",
       "uncompressed_size_bytes": 11929340,
       "compressed_size_bytes": 3940394
+    },
+    "data/system/gb/london/scenarios/southbank/background.bin": {
+      "checksum": "c59236235eeebe14d75e4e3fe4c983cd",
+      "uncompressed_size_bytes": 821444,
+      "compressed_size_bytes": 221413
     },
     "data/system/gb/long_marston/maps/center.bin": {
       "checksum": "341d253a739d5e3deab7be0fe7273aeb",
@@ -1925,10 +2160,20 @@
       "uncompressed_size_bytes": 54804,
       "compressed_size_bytes": 8692
     },
+    "data/system/gb/long_marston/scenarios/center/base_with_bg.bin": {
+      "checksum": "2049227d5d8eb141eb63c6add991333a",
+      "uncompressed_size_bytes": 825611,
+      "compressed_size_bytes": 234700
+    },
     "data/system/gb/long_marston/scenarios/center/go_active.bin": {
       "checksum": "a3237f5a35fd00b53c46bc1df07388b5",
       "uncompressed_size_bytes": 53949,
       "compressed_size_bytes": 8653
+    },
+    "data/system/gb/long_marston/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "890a2c32cf5d30a53df1661f051079f2",
+      "uncompressed_size_bytes": 824756,
+      "compressed_size_bytes": 234692
     },
     "data/system/gb/micklefield/maps/center.bin": {
       "checksum": "0886f3c6288c2ba0f0f9eeb382699d5d",
@@ -1940,10 +2185,20 @@
       "uncompressed_size_bytes": 3203,
       "compressed_size_bytes": 782
     },
+    "data/system/gb/micklefield/scenarios/center/base_with_bg.bin": {
+      "checksum": "947dc9c257f1dba66d37d658625e0921",
+      "uncompressed_size_bytes": 3459628,
+      "compressed_size_bytes": 1005741
+    },
     "data/system/gb/micklefield/scenarios/center/go_active.bin": {
       "checksum": "dd0df284519403887d6b46049172f532",
       "uncompressed_size_bytes": 3079,
       "compressed_size_bytes": 773
+    },
+    "data/system/gb/micklefield/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "e81b533c02cd7a75000b290b3c8a35e6",
+      "uncompressed_size_bytes": 3459504,
+      "compressed_size_bytes": 1005790
     },
     "data/system/gb/newcastle_great_park/maps/center.bin": {
       "checksum": "f14246cb8ea83121c711d980e3829d2f",
@@ -1955,10 +2210,20 @@
       "uncompressed_size_bytes": 155776,
       "compressed_size_bytes": 31243
     },
+    "data/system/gb/newcastle_great_park/scenarios/center/base_with_bg.bin": {
+      "checksum": "fdce6b5d37425cb9efacd956c045fa2f",
+      "uncompressed_size_bytes": 3155007,
+      "compressed_size_bytes": 923643
+    },
     "data/system/gb/newcastle_great_park/scenarios/center/go_active.bin": {
       "checksum": "ba7be64f048c5a6d2acce93afc174695",
       "uncompressed_size_bytes": 155695,
       "compressed_size_bytes": 31887
+    },
+    "data/system/gb/newcastle_great_park/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "bac8262ae30018d296568742c5f2c96f",
+      "uncompressed_size_bytes": 3154926,
+      "compressed_size_bytes": 924414
     },
     "data/system/gb/poundbury/maps/center.bin": {
       "checksum": "a79ad9b89fad117e0607ceeb4e19611f",
@@ -1970,10 +2235,20 @@
       "uncompressed_size_bytes": 94619,
       "compressed_size_bytes": 19168
     },
+    "data/system/gb/poundbury/scenarios/center/base_with_bg.bin": {
+      "checksum": "3d6877e2eda82cbb05305c122f01e4ea",
+      "uncompressed_size_bytes": 628135,
+      "compressed_size_bytes": 175582
+    },
     "data/system/gb/poundbury/scenarios/center/go_active.bin": {
       "checksum": "498bd0e9d101026d25a70da42db0201b",
       "uncompressed_size_bytes": 94624,
       "compressed_size_bytes": 19323
+    },
+    "data/system/gb/poundbury/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "cbfc6b6bea9344f66d40dd6173b91719",
+      "uncompressed_size_bytes": 628140,
+      "compressed_size_bytes": 175761
     },
     "data/system/gb/priors_hall/maps/center.bin": {
       "checksum": "1024d786f69bf6b90f9e77df721d7c73",
@@ -1985,10 +2260,20 @@
       "uncompressed_size_bytes": 181885,
       "compressed_size_bytes": 35928
     },
+    "data/system/gb/priors_hall/scenarios/center/base_with_bg.bin": {
+      "checksum": "2e00dda3e6cf693afd44e26cd325cfbc",
+      "uncompressed_size_bytes": 1343991,
+      "compressed_size_bytes": 374733
+    },
     "data/system/gb/priors_hall/scenarios/center/go_active.bin": {
       "checksum": "523e29d6f3f1355faeff8ddd83030cc9",
       "uncompressed_size_bytes": 182191,
       "compressed_size_bytes": 36564
+    },
+    "data/system/gb/priors_hall/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "f189d02d34907b56f1fe70ac3501ee20",
+      "uncompressed_size_bytes": 1344297,
+      "compressed_size_bytes": 375307
     },
     "data/system/gb/taunton_firepool/maps/center.bin": {
       "checksum": "31780265a40c1d1664834c11b43ce384",
@@ -2000,10 +2285,20 @@
       "uncompressed_size_bytes": 49046,
       "compressed_size_bytes": 10264
     },
+    "data/system/gb/taunton_firepool/scenarios/center/base_with_bg.bin": {
+      "checksum": "f01a490cba1d221cbf6df49120097515",
+      "uncompressed_size_bytes": 1616044,
+      "compressed_size_bytes": 472483
+    },
     "data/system/gb/taunton_firepool/scenarios/center/go_active.bin": {
       "checksum": "35f7c7aa703ce9ea40cc612b11008a00",
       "uncompressed_size_bytes": 49051,
       "compressed_size_bytes": 10281
+    },
+    "data/system/gb/taunton_firepool/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "9333771d592ed1b2ef14ecc505045bfd",
+      "uncompressed_size_bytes": 1616049,
+      "compressed_size_bytes": 472523
     },
     "data/system/gb/taunton_garden/maps/center.bin": {
       "checksum": "14e1fa3328de39441716872073cde3fc",
@@ -2015,10 +2310,20 @@
       "uncompressed_size_bytes": 247919,
       "compressed_size_bytes": 52352
     },
+    "data/system/gb/taunton_garden/scenarios/center/base_with_bg.bin": {
+      "checksum": "a1e3cf597a8d986ec68df7aad4f20d2a",
+      "uncompressed_size_bytes": 1857835,
+      "compressed_size_bytes": 530150
+    },
     "data/system/gb/taunton_garden/scenarios/center/go_active.bin": {
       "checksum": "5e8b244290f4b7f8660ad7e538f80bda",
       "uncompressed_size_bytes": 247924,
       "compressed_size_bytes": 52947
+    },
+    "data/system/gb/taunton_garden/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "daebd165033cb1400e2c76f088f00b6f",
+      "uncompressed_size_bytes": 1857840,
+      "compressed_size_bytes": 530843
     },
     "data/system/gb/tresham/maps/center.bin": {
       "checksum": "ff76dd609684f23479f06b636799d623",
@@ -2030,10 +2335,20 @@
       "uncompressed_size_bytes": 31794,
       "compressed_size_bytes": 5290
     },
+    "data/system/gb/tresham/scenarios/center/base_with_bg.bin": {
+      "checksum": "362402f284de9d522a88ae3733bf0d85",
+      "uncompressed_size_bytes": 2903789,
+      "compressed_size_bytes": 851212
+    },
     "data/system/gb/tresham/scenarios/center/go_active.bin": {
       "checksum": "cc029c79c648f499c0054d7a731ae521",
       "uncompressed_size_bytes": 31111,
       "compressed_size_bytes": 5115
+    },
+    "data/system/gb/tresham/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "e945df3eb70a5e43037376a78021daed",
+      "uncompressed_size_bytes": 2903106,
+      "compressed_size_bytes": 850950
     },
     "data/system/gb/trumpington_meadows/maps/center.bin": {
       "checksum": "36898f8dadafab65f448ca7081fd23c0",
@@ -2045,10 +2360,20 @@
       "uncompressed_size_bytes": 50554,
       "compressed_size_bytes": 10682
     },
+    "data/system/gb/trumpington_meadows/scenarios/center/base_with_bg.bin": {
+      "checksum": "8765a36841758ee58a2abcd2352599cd",
+      "uncompressed_size_bytes": 2373516,
+      "compressed_size_bytes": 687978
+    },
     "data/system/gb/trumpington_meadows/scenarios/center/go_active.bin": {
       "checksum": "8649b80866c8a3533932a126bc3d09b6",
       "uncompressed_size_bytes": 50559,
       "compressed_size_bytes": 10759
+    },
+    "data/system/gb/trumpington_meadows/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "10d50ff0a306a1c6ff22cc8cf03eee1f",
+      "uncompressed_size_bytes": 2373521,
+      "compressed_size_bytes": 688120
     },
     "data/system/gb/tyersal_lane/maps/center.bin": {
       "checksum": "66002f263596e6026f0a5a90a15970d6",
@@ -2060,10 +2385,20 @@
       "uncompressed_size_bytes": 1613,
       "compressed_size_bytes": 474
     },
+    "data/system/gb/tyersal_lane/scenarios/center/base_with_bg.bin": {
+      "checksum": "297a1268caab8c8a6125f72ccc7eb787",
+      "uncompressed_size_bytes": 1714546,
+      "compressed_size_bytes": 492228
+    },
     "data/system/gb/tyersal_lane/scenarios/center/go_active.bin": {
       "checksum": "f9f47dcf648d825b4cf96655a486fad6",
       "uncompressed_size_bytes": 1618,
       "compressed_size_bytes": 485
+    },
+    "data/system/gb/tyersal_lane/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "5ec6ecb38c72c9ba23a3e2c64920a4ce",
+      "uncompressed_size_bytes": 1714551,
+      "compressed_size_bytes": 492231
     },
     "data/system/gb/upton/maps/center.bin": {
       "checksum": "2d53d2337fb1fb6d6af17c23cac99b8e",
@@ -2075,10 +2410,20 @@
       "uncompressed_size_bytes": 64531,
       "compressed_size_bytes": 13013
     },
+    "data/system/gb/upton/scenarios/center/base_with_bg.bin": {
+      "checksum": "dc12283d4520b706004d980118eaee1e",
+      "uncompressed_size_bytes": 3775428,
+      "compressed_size_bytes": 1086185
+    },
     "data/system/gb/upton/scenarios/center/go_active.bin": {
       "checksum": "ed43108b1842064d9bf442089df94a08",
       "uncompressed_size_bytes": 64484,
       "compressed_size_bytes": 13379
+    },
+    "data/system/gb/upton/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "38986e0f37617bcbf515fed118d782f1",
+      "uncompressed_size_bytes": 3775381,
+      "compressed_size_bytes": 1086674
     },
     "data/system/gb/wichelstowe/maps/center.bin": {
       "checksum": "0ebf78c79a7fecd1ea647f38a813a9b0",
@@ -2090,10 +2435,20 @@
       "uncompressed_size_bytes": 185050,
       "compressed_size_bytes": 36010
     },
+    "data/system/gb/wichelstowe/scenarios/center/base_with_bg.bin": {
+      "checksum": "0116e54091565ba2424734d7c5534f26",
+      "uncompressed_size_bytes": 3175794,
+      "compressed_size_bytes": 885464
+    },
     "data/system/gb/wichelstowe/scenarios/center/go_active.bin": {
       "checksum": "9310deb0bd840ec9c526edd86e7dd8b7",
       "uncompressed_size_bytes": 184969,
       "compressed_size_bytes": 36794
+    },
+    "data/system/gb/wichelstowe/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "9b6861b2e5f88ee53eeee78ffe4f396e",
+      "uncompressed_size_bytes": 3175713,
+      "compressed_size_bytes": 886241
     },
     "data/system/gb/wixams/maps/center.bin": {
       "checksum": "cc10aef02afedeaf2923db9f42c065e9",
@@ -2105,10 +2460,20 @@
       "uncompressed_size_bytes": 162642,
       "compressed_size_bytes": 32877
     },
+    "data/system/gb/wixams/scenarios/center/base_with_bg.bin": {
+      "checksum": "153ea745ab9c4eec1eb05ccbc2675818",
+      "uncompressed_size_bytes": 2232029,
+      "compressed_size_bytes": 633626
+    },
     "data/system/gb/wixams/scenarios/center/go_active.bin": {
       "checksum": "77b6888c406ab261c4dda9beafbc7185",
       "uncompressed_size_bytes": 162432,
       "compressed_size_bytes": 33337
+    },
+    "data/system/gb/wixams/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "3dedee4acf15d795c6dbf204cd26f5ae",
+      "uncompressed_size_bytes": 2231819,
+      "compressed_size_bytes": 633946
     },
     "data/system/gb/wynyard/maps/center.bin": {
       "checksum": "6b9f73feec800c028c35753402d77d3f",
@@ -2120,10 +2485,20 @@
       "uncompressed_size_bytes": 121493,
       "compressed_size_bytes": 23025
     },
+    "data/system/gb/wynyard/scenarios/center/base_with_bg.bin": {
+      "checksum": "3e94e8afc9ef42071092a0f7e0fdd16f",
+      "uncompressed_size_bytes": 3062074,
+      "compressed_size_bytes": 891358
+    },
     "data/system/gb/wynyard/scenarios/center/go_active.bin": {
       "checksum": "aefdf409bdbbbd2a0518e81f45b0a88f",
       "uncompressed_size_bytes": 121747,
       "compressed_size_bytes": 23351
+    },
+    "data/system/gb/wynyard/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "488dc3c09fe49b6e985a9b14b101397a",
+      "uncompressed_size_bytes": 3062328,
+      "compressed_size_bytes": 891640
     },
     "data/system/il/tel_aviv/maps/center.bin": {
       "checksum": "7c1c6112ce6414f3845b8743079a9951",

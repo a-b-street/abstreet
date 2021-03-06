@@ -7,12 +7,12 @@ use rand_xorshift::XorShiftRng;
 use serde::Deserialize;
 
 use abstio::path_shared_input;
-use abstutil::Timer;
+use abstutil::{prettyprint_usize, Timer};
 use geom::{GPSBounds, LonLat, Polygon, Ring};
 use map_model::raw::RawMap;
 use map_model::Map;
 use popdat::od::DesireLine;
-use sim::{Scenario, TripMode};
+use sim::{Scenario, TripEndpoint, TripMode};
 
 use crate::configuration::ImporterConfiguration;
 use crate::utils::download;
@@ -82,11 +82,48 @@ pub fn generate_scenario(
     // same!
     scenario = scenario.remove_weird_schedules();
     info!(
-        "Created scenario with {} people",
-        abstutil::prettyprint_usize(scenario.people.len())
+        "Generated background traffic scenario with {} people",
+        prettyprint_usize(scenario.people.len())
     );
-    scenario.save();
     timer.stop("disaggregate");
+
+    match load_study_area(map) {
+        Ok(study_area) => {
+            // Remove people from the scenario we just generated that live in the study area. The
+            // data imported using importer/actdev_scenarios.sh already covers them.
+            let before = scenario.people.len();
+            scenario.people.retain(|p| match p.origin {
+                TripEndpoint::Bldg(b) => !study_area.contains_pt(map.get_b(b).polygon.center()),
+                _ => true,
+            });
+            info!(
+                "Removed {} people from the background scenario that live in the study area",
+                prettyprint_usize(before - scenario.people.len())
+            );
+
+            // Create two scenarios, merging the background traffic with the base/active scenarios.
+            let mut base: Scenario = abstio::maybe_read_binary::<Scenario>(
+                abstio::path_scenario(map.get_name(), "base"),
+                timer,
+            )?;
+            base.people.extend(scenario.people.clone());
+            base.scenario_name = "base_with_bg".to_string();
+            base.save();
+
+            let mut go_active: Scenario = abstio::maybe_read_binary(
+                abstio::path_scenario(map.get_name(), "go_active"),
+                timer,
+            )?;
+            go_active.people.extend(scenario.people);
+            go_active.scenario_name = "go_active_with_bg".to_string();
+            go_active.save();
+        }
+        Err(err) => {
+            info!("{} has no study area: {}", map.get_name().describe(), err);
+            // We're a "normal" city -- just save the background traffic.
+            scenario.save();
+        }
+    }
 
     Ok(())
 }
@@ -191,4 +228,24 @@ fn parse_polygon(input: Vec<Vec<Vec<f64>>>, gps_bounds: &GPSBounds) -> Result<Po
         rings.push(Ring::new(pts)?);
     }
     Ok(Polygon::from_rings(rings))
+}
+
+fn load_study_area(map: &Map) -> Result<Polygon> {
+    let bytes = abstio::slurp_file(abstio::path(format!(
+        "system/study_areas/{}.geojson",
+        map.get_name().city.city.replace("_", "-")
+    )))?;
+    let raw_string = std::str::from_utf8(&bytes)?;
+    let geojson = raw_string.parse::<geojson::GeoJson>()?;
+
+    if let geojson::GeoJson::FeatureCollection(collection) = geojson {
+        for feature in collection.features {
+            if let Some(geom) = feature.geometry {
+                if let geojson::Value::Polygon(raw_pts) = geom.value {
+                    return parse_polygon(raw_pts, map.get_gps_bounds());
+                }
+            }
+        }
+    }
+    bail!("no study area");
 }
