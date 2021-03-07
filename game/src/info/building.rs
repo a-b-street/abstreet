@@ -69,34 +69,36 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
         }
     }
 
-    txt.add(Line(""));
-    if let Some(pl) = app
-        .primary
-        .sim
-        .walking_path_to_nearest_parking_spot(&app.primary.map, id)
-        .and_then(|path| path.trace(&app.primary.map))
-    {
-        let color = app.cs.parking_trip;
-        // TODO But this color doesn't show up well against the info panel...
-        txt.add(Line("Nearest parking").fg(color));
-        txt.append(Line(format!(
-            " is ~{} away by foot",
-            pl.length() / Speed::miles_per_hour(3.0)
-        )));
+    if !app.primary.sim.infinite_parking() {
+        txt.add(Line(""));
+        if let Some(pl) = app
+            .primary
+            .sim
+            .walking_path_to_nearest_parking_spot(&app.primary.map, id)
+            .and_then(|path| path.trace(&app.primary.map))
+        {
+            let color = app.cs.parking_trip;
+            // TODO But this color doesn't show up well against the info panel...
+            txt.add(Line("Nearest parking").fg(color));
+            txt.append(Line(format!(
+                " is ~{} away by foot",
+                pl.length() / Speed::miles_per_hour(3.0)
+            )));
 
-        details
-            .unzoomed
-            .push(color, pl.make_polygons(Distance::meters(10.0)));
-        details.zoomed.extend(
-            color,
-            pl.dashed_lines(
-                Distance::meters(0.75),
-                Distance::meters(1.0),
-                Distance::meters(0.4),
-            ),
-        );
-    } else {
-        txt.add(Line("No nearby parking available"))
+            details
+                .unzoomed
+                .push(color, pl.make_polygons(Distance::meters(10.0)));
+            details.zoomed.extend(
+                color,
+                pl.dashed_lines(
+                    Distance::meters(0.75),
+                    Distance::meters(1.0),
+                    Distance::meters(0.4),
+                ),
+            );
+        } else {
+            txt.add(Line("No nearby parking available"))
+        }
     }
 
     if !txt.is_empty() {
