@@ -54,6 +54,8 @@ impl GameplayState for Actdev {
         actions: &mut Actions,
     ) -> Option<Transition> {
         if self.once {
+            self.once = false;
+
             if self.bg_traffic {
                 let mut highlight = BTreeSet::new();
                 let study_area = &app
@@ -75,31 +77,15 @@ impl GameplayState for Actdev {
                 app.primary.sim.set_highlighted_people(highlight);
             }
 
-            self.once = false;
+            // The top-right panel never changes height, so we can set this just once.
+            controls.time_panel.as_mut().unwrap().override_height =
+                Some(self.top_right.panel_dims().height);
+
             controls
                 .time_panel
                 .as_mut()
                 .unwrap()
                 .resume(ctx, app, SpeedSetting::Faster);
-        }
-
-        // TODO This is quite a hack, particularly with how frequently this is done. We could plumb
-        // SandboxControls into recreate_panels if we decide to go with this approach.
-        let top_right_height = self.top_right.panel_dims().height;
-        if controls
-            .time_panel
-            .as_ref()
-            .unwrap()
-            .panel
-            .panel_dims()
-            .height
-            != top_right_height
-        {
-            controls
-                .time_panel
-                .as_mut()
-                .unwrap()
-                .recreate_panel_forcing_height(ctx, app, Some(top_right_height));
         }
 
         match self.top_right.event(ctx) {
