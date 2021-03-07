@@ -54,6 +54,9 @@ impl Panel {
             Dims::ExactPercent(w, h) => {
                 ScreenDims::new(w * canvas_dims.width, h * canvas_dims.height)
             }
+            Dims::ExactHeight(h) => {
+                ScreenDims::new(self.contents_dims.width.min(canvas_dims.width), h)
+            }
         };
         self.container_dims = new_container_dims;
     }
@@ -444,6 +447,9 @@ impl Panel {
     pub fn center_of_panel(&self) -> ScreenPt {
         self.top_level.rect.center()
     }
+    pub fn panel_dims(&self) -> ScreenDims {
+        self.top_level.rect.dims()
+    }
 
     pub fn align(&mut self, horiz: HorizontalAlignment, vert: VerticalAlignment) {
         self.horiz = horiz;
@@ -507,6 +513,7 @@ pub struct PanelBuilder {
 enum Dims {
     MaxPercent(Percent, Percent),
     ExactPercent(f64, f64),
+    ExactHeight(f64),
 }
 
 impl PanelBuilder {
@@ -536,6 +543,9 @@ impl PanelBuilder {
                 width: Dimension::Points((w * ctx.canvas.window_width) as f32),
                 height: Dimension::Points((h * ctx.canvas.window_height) as f32),
             };
+        }
+        if let Dims::ExactHeight(h) = panel.dims {
+            panel.top_level.layout.style.min_size.height = Dimension::Points(h as f32);
         }
 
         // There is a dependency cycle in our layout logic. As a consequence:
@@ -578,6 +588,11 @@ impl PanelBuilder {
 
     pub fn exact_size_percent(mut self, pct_width: usize, pct_height: usize) -> PanelBuilder {
         self.dims = Dims::ExactPercent((pct_width as f64) / 100.0, (pct_height as f64) / 100.0);
+        self
+    }
+
+    pub fn exact_height(mut self, height: f64) -> PanelBuilder {
+        self.dims = Dims::ExactHeight(height);
         self
     }
 }

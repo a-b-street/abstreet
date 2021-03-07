@@ -1,3 +1,6 @@
+// TODO I've considered moving this out of map_gui completely, to remove all dependencies on the
+// sim crate. If that's desirable, get_obj in DrawMap is the only dependency.
+
 use std::borrow::Borrow;
 use std::collections::HashMap;
 
