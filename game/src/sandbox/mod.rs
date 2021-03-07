@@ -2,17 +2,17 @@ use anyhow::Result;
 use maplit::btreeset;
 
 use abstutil::prettyprint_usize;
-use geom::{Circle, Distance, Pt2D, Time};
+use geom::{Circle, Distance, Time};
 use map_gui::colors::ColorSchemeChoice;
 use map_gui::load::{FileLoader, FutureLoader, MapLoader};
 use map_gui::options::OptionsPanel;
 use map_gui::render::{unzoomed_agent_radius, UnzoomedAgents};
-use map_gui::tools::{ChooseSomething, Minimap, PopupMsg, TurnExplorer, URLManager};
+use map_gui::tools::{ChooseSomething, Minimap, TurnExplorer, URLManager};
 use map_gui::{AppLike, ID};
 use sim::{Analytics, Scenario};
 use widgetry::{
-    lctrl, Choice, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Image, Key, Line,
-    Outcome, Panel, State, Text, TextExt, UpdateType, VerticalAlignment, Widget,
+    lctrl, Choice, EventCtx, GfxCtx, HorizontalAlignment, Image, Key, Line, Outcome, Panel, State,
+    Text, TextExt, UpdateType, VerticalAlignment, Widget,
 };
 
 pub use self::gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};
@@ -302,7 +302,6 @@ pub struct AgentMeter {
 impl AgentMeter {
     pub fn new(ctx: &mut EventCtx, app: &App) -> AgentMeter {
         let mut row = Vec::new();
-        let (finished, unfinished) = app.primary.sim.num_trips();
         let counts = app.primary.sim.num_commuters_vehicles();
 
         row.push(Widget::custom_row(vec![
@@ -389,61 +388,10 @@ impl AgentMeter {
             prettyprint_usize(counts.bus_riders + counts.train_riders).text_widget(ctx),
         ]));
 
-        let mut rows = vec![
-            "Active trips".text_widget(ctx),
+        let rows = vec![
+            "Active trips".draw_text(ctx),
             Widget::custom_row(row).centered(),
-            Widget::horiz_separator(ctx, 0.2),
-            Widget::row(vec![
-                {
-                    let mut txt = Text::new();
-                    let pct = if unfinished == 0 {
-                        100.0
-                    } else {
-                        100.0 * (finished as f64) / ((finished + unfinished) as f64)
-                    };
-                    txt.add(Line(format!(
-                        "Finished trips: {} ({}%)",
-                        prettyprint_usize(finished),
-                        pct as usize
-                    )));
-                    txt.into_widget(ctx).centered_vert()
-                },
-                if app.primary.dirty_from_edits {
-                    ctx.style()
-                        .btn_plain
-                        .icon("system/assets/tools/warning.svg")
-                        .build_widget(ctx, "see why results are tentative")
-                        .centered_vert()
-                        .align_right()
-                } else {
-                    Widget::nothing()
-                },
-                ctx.style()
-                    .btn_plain
-                    .icon("system/assets/meters/trip_histogram.svg")
-                    .hotkey(Key::Q)
-                    .build_widget(ctx, "more data")
-                    .align_right(),
-            ]),
         ];
-        // TODO This likely fits better in the top center panel, but no easy way to squeeze it into
-        // the panel for all gameplay modes
-        if let Some(n) = app.primary.sim.num_recorded_trips() {
-            rows.push(Widget::row(vec![
-                GeomBatch::from(vec![(
-                    Color::RED,
-                    Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(10.0)).to_polygon(),
-                )])
-                .into_widget(ctx)
-                .centered_vert(),
-                format!("{} trips captured", prettyprint_usize(n)).text_widget(ctx),
-                ctx.style()
-                    .btn_solid_primary
-                    .text("Finish Capture")
-                    .build_def(ctx)
-                    .align_right(),
-            ]));
-        }
 
         let panel = Panel::new(Widget::col(rows))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
@@ -458,36 +406,7 @@ impl AgentMeter {
     pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
         if self.time != app.primary.sim.time() {
             *self = AgentMeter::new(ctx, app);
-            return self.event(ctx, app);
         }
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
-                "more data" => {
-                    return Some(Transition::Push(dashboards::FinishedTripTable::new(
-                        ctx, app,
-                    )));
-                }
-                "see why results are tentative" => {
-                    return Some(Transition::Push(PopupMsg::new(
-                        ctx,
-                        "Simulation results not finalized",
-                        vec![
-                            "You edited the map in the middle of the day.",
-                            "Some trips may have been interrupted, and others might have made \
-                             different decisions if they saw the new map from the start.",
-                            "To get final results, reset to midnight and test your proposal over \
-                             a full day.",
-                        ],
-                    )));
-                }
-                "Finish Capture" => {
-                    app.primary.sim.save_recorded_traffic(&app.primary.map);
-                }
-                _ => unreachable!(),
-            },
-            _ => {}
-        }
-
         None
     }
 

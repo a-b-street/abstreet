@@ -1,10 +1,11 @@
-use geom::{Duration, Polygon, Time};
+use abstutil::prettyprint_usize;
+use geom::{Circle, Distance, Duration, Polygon, Pt2D, Time};
 use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use sim::AlertLocation;
 use widgetry::{
     Choice, Color, ControlState, EdgeInsets, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Panel, PersistentSplit, ScreenDims, Text, VerticalAlignment, Widget,
+    Line, Outcome, Panel, PersistentSplit, ScreenDims, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -151,41 +152,95 @@ impl TimePanel {
     }
 
     fn create_time_panel(&mut self, ctx: &EventCtx, app: &App) -> Widget {
+        let (finished, unfinished) = app.primary.sim.num_trips();
+        let trip_results = Widget::row(vec![
+            {
+                let mut txt = Text::new();
+                let pct = if unfinished == 0 {
+                    100.0
+                } else {
+                    100.0 * (finished as f64) / ((finished + unfinished) as f64)
+                };
+                txt.add(Line(format!(
+                    "Finished trips: {} ({}%)",
+                    prettyprint_usize(finished),
+                    pct as usize
+                )));
+                txt.draw(ctx).centered_vert()
+            },
+            if app.primary.dirty_from_edits {
+                ctx.style()
+                    .btn_plain
+                    .icon("system/assets/tools/warning.svg")
+                    .build_widget(ctx, "see why results are tentative")
+                    .centered_vert()
+                    .align_right()
+            } else {
+                Widget::nothing()
+            },
+        ]);
+        // TODO This likely fits better in the top center panel, but no easy way to squeeze it
+        // into the panel for all gameplay modes
+        let record_trips = if let Some(n) = app.primary.sim.num_recorded_trips() {
+            Widget::row(vec![
+                Widget::draw_batch(
+                    ctx,
+                    GeomBatch::from(vec![(
+                        Color::RED,
+                        Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(10.0)).to_polygon(),
+                    )]),
+                )
+                .centered_vert(),
+                format!("{} trips captured", prettyprint_usize(n)).draw_text(ctx),
+                ctx.style()
+                    .btn_solid_primary
+                    .text("Finish Capture")
+                    .build_def(ctx)
+                    .align_right(),
+            ])
+        } else {
+            Widget::nothing()
+        };
+
+        let time_bar = {
+            let mut batch = GeomBatch::new();
+            // This is manually tuned
+            let width = 300.0;
+            let height = 15.0;
+            // Just clamp if we simulate past the expected end
+            let percent = self
+                .time
+                .to_percent(app.primary.sim.get_end_of_day())
+                .min(1.0);
+
+            // TODO Why is the rounding so hard? The white background is always rounded
+            // at both ends. The moving bar should always be rounded on the left, flat
+            // on the right, except at the very end (for the last 'radius' pixels). And
+            // when the width is too small for the radius, this messes up.
+
+            batch.push(Color::WHITE, Polygon::rectangle(width, height));
+
+            if percent != 0.0 {
+                batch.push(
+                    if percent < 0.25 || percent > 0.75 {
+                        app.cs.night_time_slider
+                    } else {
+                        app.cs.day_time_slider
+                    },
+                    Polygon::rectangle(percent * width, height),
+                );
+            }
+
+            Widget::draw_batch(ctx, batch)
+        };
+
         Widget::col(vec![
             Text::from(Line(self.time.ampm_tostring()).big_monospaced())
                 .draw(ctx)
                 .centered_horiz(),
-            {
-                let mut batch = GeomBatch::new();
-                // This is manually tuned
-                let width = 300.0;
-                let height = 15.0;
-                // Just clamp if we simulate past the expected end
-                let percent = self
-                    .time
-                    .to_percent(app.primary.sim.get_end_of_day())
-                    .min(1.0);
-
-                // TODO Why is the rounding so hard? The white background is always rounded
-                // at both ends. The moving bar should always be rounded on the left, flat
-                // on the right, except at the very end (for the last 'radius' pixels). And
-                // when the width is too small for the radius, this messes up.
-
-                batch.push(Color::WHITE, Polygon::rectangle(width, height));
-
-                if percent != 0.0 {
-                    batch.push(
-                        if percent < 0.25 || percent > 0.75 {
-                            app.cs.night_time_slider
-                        } else {
-                            app.cs.day_time_slider
-                        },
-                        Polygon::rectangle(percent * width, height),
-                    );
-                }
-
-                Widget::draw_batch(ctx, batch)
-            },
+            trip_results,
+            record_trips,
+            time_bar,
         ])
     }
 
@@ -267,6 +322,22 @@ impl TimePanel {
                         app.primary.sim.time() + dt,
                         None,
                     )));
+                }
+                "see why results are tentative" => {
+                    return Some(Transition::Push(PopupMsg::new(
+                        ctx,
+                        "Simulation results not finalized",
+                        vec![
+                            "You edited the map in the middle of the day.",
+                            "Some trips may have been interrupted, and others might have made \
+                             different decisions if they saw the new map from the start.",
+                            "To get final results, reset to midnight and test your proposal over \
+                             a full day.",
+                        ],
+                    )));
+                }
+                "Finish Capture" => {
+                    app.primary.sim.save_recorded_traffic(&app.primary.map);
                 }
                 _ => unreachable!(),
             },
