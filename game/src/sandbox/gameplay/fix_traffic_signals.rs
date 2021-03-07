@@ -93,7 +93,7 @@ impl GameplayState for FixTrafficSignals {
     ) -> Option<Transition> {
         self.meter.align_below(
             ctx,
-            &controls.agent_meter.as_ref().unwrap().panel,
+            &controls.time_panel.as_ref().unwrap().panel,
             METER_HACK,
         );
 
@@ -144,7 +144,7 @@ impl GameplayState for FixTrafficSignals {
             }
             self.meter.align_below(
                 ctx,
-                &controls.agent_meter.as_ref().unwrap().panel,
+                &controls.time_panel.as_ref().unwrap().panel,
                 METER_HACK,
             );
 
@@ -329,7 +329,7 @@ fn make_meter(ctx: &mut EventCtx, app: &App, worst: Option<(IntersectionID, Dura
             ])
         },
     ]))
-    .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
+    .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
     .build(ctx)
 }
 

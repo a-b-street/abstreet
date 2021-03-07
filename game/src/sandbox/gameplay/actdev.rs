@@ -24,7 +24,7 @@ use crate::sandbox::{Actions, SandboxControls, SandboxMode, SpeedSetting};
 /// A gameplay mode with specific controls for integration with
 /// https://cyipt.github.io/acton/articles/the-actdev-project.html.
 pub struct Actdev {
-    top_center: Panel,
+    top_right: Panel,
     scenario_name: String,
     bg_traffic: bool,
     once: bool,
@@ -37,7 +37,7 @@ impl Actdev {
         bg_traffic: bool,
     ) -> Box<dyn GameplayState> {
         Box::new(Actdev {
-            top_center: Panel::empty(ctx),
+            top_right: Panel::empty(ctx),
             scenario_name,
             bg_traffic,
             once: true,
@@ -83,7 +83,7 @@ impl GameplayState for Actdev {
                 .resume(ctx, app, SpeedSetting::Faster);
         }
 
-        match self.top_center.event(ctx) {
+        match self.top_right.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "change scenario" => {
                     let scenario = if self.scenario_name == "base" {
@@ -185,7 +185,7 @@ impl GameplayState for Actdev {
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
-        self.top_center.draw(g);
+        self.top_right.draw(g);
     }
 
     fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
@@ -244,8 +244,8 @@ impl GameplayState for Actdev {
             ]),
         ]);
 
-        self.top_center = Panel::new(col)
-            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+        self.top_right = Panel::new(col)
+            .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx);
     }
 

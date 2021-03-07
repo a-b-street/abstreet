@@ -1,7 +1,6 @@
 use anyhow::Result;
 use maplit::btreeset;
 
-use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Time};
 use map_gui::colors::ColorSchemeChoice;
 use map_gui::load::{FileLoader, FutureLoader, MapLoader};
@@ -10,10 +9,7 @@ use map_gui::render::{unzoomed_agent_radius, UnzoomedAgents};
 use map_gui::tools::{ChooseSomething, Minimap, TurnExplorer, URLManager};
 use map_gui::{AppLike, ID};
 use sim::{Analytics, Scenario};
-use widgetry::{
-    lctrl, Choice, EventCtx, GfxCtx, HorizontalAlignment, Image, Key, Line, Outcome, Panel, State,
-    Text, TextExt, UpdateType, VerticalAlignment, Widget,
-};
+use widgetry::{lctrl, Choice, EventCtx, GfxCtx, Key, Outcome, Panel, State, UpdateType};
 
 pub use self::gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};
 pub use self::minimap::MinimapController;
@@ -52,8 +48,7 @@ pub struct SandboxControls {
     pub common: Option<CommonState>,
     route_preview: Option<RoutePreview>,
     tool_panel: Option<Panel>,
-    time_panel: Option<TimePanel>,
-    pub agent_meter: Option<AgentMeter>,
+    pub time_panel: Option<TimePanel>,
     minimap: Option<Minimap<App, MinimapController>>,
 }
 
@@ -195,11 +190,6 @@ impl State<App> for SandboxMode {
                 _ => {}
             }
         }
-        if let Some(ref mut am) = self.controls.agent_meter {
-            if let Some(t) = am.event(ctx, app) {
-                return t;
-            }
-        }
 
         if self
             .controls
@@ -230,9 +220,6 @@ impl State<App> for SandboxMode {
         }
         if let Some(ref tp) = self.controls.time_panel {
             tp.draw(g);
-        }
-        if let Some(ref am) = self.controls.agent_meter {
-            am.draw(g);
         }
         if let Some(ref m) = self.controls.minimap {
             m.draw(g, app);
@@ -292,127 +279,6 @@ impl State<App> for BackToMainMenu {
     }
 
     fn draw(&self, _: &mut GfxCtx, _: &App) {}
-}
-
-pub struct AgentMeter {
-    time: Time,
-    pub panel: Panel,
-}
-
-impl AgentMeter {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> AgentMeter {
-        let mut row = Vec::new();
-        let counts = app.primary.sim.num_commuters_vehicles();
-
-        row.push(Widget::custom_row(vec![
-            Image::icon("system/assets/meters/pedestrian.svg")
-                .tooltip(Text::from_multiline(vec![
-                    Line("Pedestrians"),
-                    Line(format!(
-                        "Walking commuters: {}",
-                        prettyprint_usize(counts.walking_commuters)
-                    ))
-                    .secondary(),
-                    Line(format!(
-                        "To/from public transit: {}",
-                        prettyprint_usize(counts.walking_to_from_transit)
-                    ))
-                    .secondary(),
-                    Line(format!(
-                        "To/from a car: {}",
-                        prettyprint_usize(counts.walking_to_from_car)
-                    ))
-                    .secondary(),
-                    Line(format!(
-                        "To/from a bike: {}",
-                        prettyprint_usize(counts.walking_to_from_bike)
-                    ))
-                    .secondary(),
-                ]))
-                .into_widget(ctx)
-                .margin_right(5),
-            prettyprint_usize(
-                counts.walking_commuters
-                    + counts.walking_to_from_transit
-                    + counts.walking_to_from_car
-                    + counts.walking_to_from_bike,
-            )
-            .text_widget(ctx),
-        ]));
-
-        row.push(Widget::custom_row(vec![
-            Image::icon("system/assets/meters/bike.svg")
-                .tooltip(Text::from_multiline(vec![
-                    Line("Cyclists"),
-                    Line(prettyprint_usize(counts.cyclists)).secondary(),
-                ]))
-                .into_widget(ctx)
-                .margin_right(5),
-            prettyprint_usize(counts.cyclists).text_widget(ctx),
-        ]));
-
-        row.push(Widget::custom_row(vec![
-            Image::icon("system/assets/meters/car.svg")
-                .tooltip(Text::from_multiline(vec![
-                    Line("Cars"),
-                    Line(format!(
-                        "Single-occupancy vehicles: {}",
-                        prettyprint_usize(counts.sov_drivers)
-                    ))
-                    .secondary(),
-                ]))
-                .into_widget(ctx)
-                .margin_right(5),
-            prettyprint_usize(counts.sov_drivers).text_widget(ctx),
-        ]));
-
-        row.push(Widget::custom_row(vec![
-            Image::icon("system/assets/meters/bus.svg")
-                .tooltip(Text::from_multiline(vec![
-                    Line("Public transit"),
-                    Line(format!(
-                        "{} passengers on {} buses",
-                        prettyprint_usize(counts.bus_riders),
-                        prettyprint_usize(counts.buses)
-                    ))
-                    .secondary(),
-                    Line(format!(
-                        "{} passengers on {} trains",
-                        prettyprint_usize(counts.train_riders),
-                        prettyprint_usize(counts.trains)
-                    ))
-                    .secondary(),
-                ]))
-                .into_widget(ctx)
-                .margin_right(5),
-            prettyprint_usize(counts.bus_riders + counts.train_riders).text_widget(ctx),
-        ]));
-
-        let rows = vec![
-            "Active trips".draw_text(ctx),
-            Widget::custom_row(row).centered(),
-        ];
-
-        let panel = Panel::new(Widget::col(rows))
-            .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
-            .build(ctx);
-
-        AgentMeter {
-            time: app.primary.sim.time(),
-            panel,
-        }
-    }
-
-    pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
-        if self.time != app.primary.sim.time() {
-            *self = AgentMeter::new(ctx, app);
-        }
-        None
-    }
-
-    pub fn draw(&self, g: &mut GfxCtx) {
-        self.panel.draw(g);
-    }
 }
 
 // pub for Warping
@@ -808,11 +674,6 @@ impl SandboxControls {
             },
             time_panel: if gameplay.has_time_panel() {
                 Some(TimePanel::new(ctx, app))
-            } else {
-                None
-            },
-            agent_meter: if gameplay.has_agent_meter() {
-                Some(AgentMeter::new(ctx, app))
             } else {
                 None
             },

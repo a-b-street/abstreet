@@ -219,22 +219,61 @@ impl UnzoomedAgents {
         }
     }
 
-    pub fn make_horiz_viz_panel(&self, ctx: &mut EventCtx) -> Widget {
+    /// The details are (car, bike, bus, pedestrian)
+    pub fn make_horiz_viz_panel(
+        &self,
+        ctx: &mut EventCtx,
+        details: (Widget, Widget, Widget, Widget),
+    ) -> Widget {
+        let (car_details, bike_details, bus_details, pedestrian_details) = details;
         Widget::custom_row(vec![
-            Toggle::colored_checkbox(ctx, "Car", self.car_color, self.cars).margin_right(24),
-            Toggle::colored_checkbox(ctx, "Bike", self.bike_color, self.bikes).margin_right(24),
-            Toggle::colored_checkbox(ctx, "Bus", self.bus_color, self.buses_and_trains)
-                .margin_right(24),
-            Toggle::colored_checkbox(ctx, "Walk", self.ped_color, self.peds).margin_right(8),
+            Widget::col(vec![
+                Toggle::colored_checkbox(ctx, "Car", self.car_color, self.cars),
+                car_details,
+            ])
+            .margin_right(24),
+            Widget::col(vec![
+                Toggle::colored_checkbox(ctx, "Bike", self.bike_color, self.bikes),
+                bike_details,
+            ])
+            .margin_right(24),
+            Widget::col(vec![
+                Toggle::colored_checkbox(ctx, "Bus", self.bus_color, self.buses_and_trains),
+                bus_details,
+            ])
+            .margin_right(24),
+            Widget::col(vec![
+                Toggle::colored_checkbox(ctx, "Walk", self.ped_color, self.peds),
+                pedestrian_details,
+            ])
+            .margin_right(8),
         ])
     }
 
-    pub fn make_vert_viz_panel(&self, ctx: &mut EventCtx) -> Widget {
+    /// The details are (car, bike, bus, pedestrian)
+    pub fn make_vert_viz_panel(
+        &self,
+        ctx: &mut EventCtx,
+        details: (Widget, Widget, Widget, Widget),
+    ) -> Widget {
+        let (car_details, bike_details, bus_details, pedestrian_details) = details;
         Widget::col(vec![
-            Toggle::colored_checkbox(ctx, "Car", self.car_color, self.cars),
-            Toggle::colored_checkbox(ctx, "Bike", self.bike_color, self.bikes),
-            Toggle::colored_checkbox(ctx, "Bus", self.bus_color, self.buses_and_trains),
-            Toggle::colored_checkbox(ctx, "Walk", self.ped_color, self.peds),
+            Widget::row(vec![
+                Toggle::colored_checkbox(ctx, "Car", self.car_color, self.cars),
+                car_details.align_right(),
+            ]),
+            Widget::row(vec![
+                Toggle::colored_checkbox(ctx, "Bike", self.bike_color, self.bikes),
+                bike_details.align_right(),
+            ]),
+            Widget::row(vec![
+                Toggle::colored_checkbox(ctx, "Bus", self.bus_color, self.buses_and_trains),
+                bus_details.align_right(),
+            ]),
+            Widget::row(vec![
+                Toggle::colored_checkbox(ctx, "Walk", self.ped_color, self.peds),
+                pedestrian_details.align_right(),
+            ]),
         ])
     }
 

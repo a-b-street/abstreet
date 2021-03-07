@@ -1,7 +1,8 @@
+use abstutil::prettyprint_usize;
 use map_gui::tools::{MinimapControls, Navigator};
 use widgetry::{
-    ControlState, EventCtx, GfxCtx, HorizontalAlignment, Key, Panel, ScreenDims, VerticalAlignment,
-    Widget,
+    ControlState, EventCtx, GfxCtx, HorizontalAlignment, Image, Key, Line, Panel, ScreenDims, Text,
+    TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -36,7 +37,7 @@ impl MinimapControls<App> for MinimapController {
                 .agents
                 .borrow()
                 .unzoomed_agents
-                .make_vert_viz_panel(ctx)
+                .make_vert_viz_panel(ctx, agent_counters(ctx, app))
                 .bg(app.cs.panel_bg)
                 .padding(16),
         ]))
@@ -51,7 +52,7 @@ impl MinimapControls<App> for MinimapController {
             .agents
             .borrow()
             .unzoomed_agents
-            .make_horiz_viz_panel(ctx)
+            .make_horiz_viz_panel(ctx, agent_counters(ctx, app))
     }
     fn make_zoomed_side_panel(&self, ctx: &mut EventCtx, app: &App) -> Widget {
         make_tool_panel(ctx, app)
@@ -98,6 +99,96 @@ impl MinimapControls<App> for MinimapController {
                 .update(panel);
         }
     }
+}
+
+fn agent_counters(ctx: &EventCtx, app: &App) -> (Widget, Widget, Widget, Widget) {
+    let counts = app.primary.sim.num_commuters_vehicles();
+
+    let pedestrian_details = Widget::custom_row(vec![
+        Image::icon("system/assets/meters/pedestrian.svg")
+            .tooltip(Text::from_multiline(vec![
+                Line("Pedestrians"),
+                Line(format!(
+                    "Walking commuters: {}",
+                    prettyprint_usize(counts.walking_commuters)
+                ))
+                .secondary(),
+                Line(format!(
+                    "To/from public transit: {}",
+                    prettyprint_usize(counts.walking_to_from_transit)
+                ))
+                .secondary(),
+                Line(format!(
+                    "To/from a car: {}",
+                    prettyprint_usize(counts.walking_to_from_car)
+                ))
+                .secondary(),
+                Line(format!(
+                    "To/from a bike: {}",
+                    prettyprint_usize(counts.walking_to_from_bike)
+                ))
+                .secondary(),
+            ]))
+            .into_widget(ctx)
+            .margin_right(5),
+        prettyprint_usize(
+            counts.walking_commuters
+                + counts.walking_to_from_transit
+                + counts.walking_to_from_car
+                + counts.walking_to_from_bike,
+        )
+        .draw_text(ctx),
+    ]);
+
+    let bike_details = Widget::custom_row(vec![
+        Image::icon("system/assets/meters/bike.svg")
+            .tooltip(Text::from_multiline(vec![
+                Line("Cyclists"),
+                Line(prettyprint_usize(counts.cyclists)).secondary(),
+            ]))
+            .into_widget(ctx)
+            .margin_right(5),
+        prettyprint_usize(counts.cyclists).draw_text(ctx),
+    ]);
+
+    let car_details = Widget::custom_row(vec![
+        Image::icon("system/assets/meters/car.svg")
+            .tooltip(Text::from_multiline(vec![
+                Line("Cars"),
+                Line(format!(
+                    "Single-occupancy vehicles: {}",
+                    prettyprint_usize(counts.sov_drivers)
+                ))
+                .secondary(),
+            ]))
+            .into_widget(ctx)
+            .margin_right(5),
+        prettyprint_usize(counts.sov_drivers).draw_text(ctx),
+    ]);
+
+    let bus_details = Widget::custom_row(vec![
+        Image::icon("system/assets/meters/bus.svg")
+            .tooltip(Text::from_multiline(vec![
+                Line("Public transit"),
+                Line(format!(
+                    "{} passengers on {} buses",
+                    prettyprint_usize(counts.bus_riders),
+                    prettyprint_usize(counts.buses)
+                ))
+                .secondary(),
+                Line(format!(
+                    "{} passengers on {} trains",
+                    prettyprint_usize(counts.train_riders),
+                    prettyprint_usize(counts.trains)
+                ))
+                .secondary(),
+            ]))
+            .into_widget(ctx)
+            .margin_right(5),
+        prettyprint_usize(counts.bus_riders + counts.train_riders).draw_text(ctx),
+    ]);
+
+    (car_details, bike_details, bus_details, pedestrian_details)
 }
 
 fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {

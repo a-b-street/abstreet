@@ -23,8 +23,8 @@ use crate::common::{tool_panel, Warping};
 use crate::edit::EditMode;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{
-    maybe_exit_sandbox, spawn_agents_around, Actions, AgentMeter, MinimapController,
-    SandboxControls, SandboxMode, TimePanel,
+    maybe_exit_sandbox, spawn_agents_around, Actions, MinimapController, SandboxControls,
+    SandboxMode, TimePanel,
 };
 
 const ESCORT: CarID = CarID(0, VehicleType::Car);
@@ -438,9 +438,6 @@ impl GameplayState for Tutorial {
     }
     fn has_time_panel(&self) -> bool {
         self.last_finished_task >= Task::InspectObjects
-    }
-    fn has_agent_meter(&self) -> bool {
-        self.last_finished_task >= Task::PauseResume
     }
     fn has_minimap(&self) -> bool {
         self.last_finished_task >= Task::Escort
@@ -887,7 +884,6 @@ impl TutorialState {
 
         let tool_panel = tool_panel(ctx);
         let time = TimePanel::new(ctx, app);
-        let agent_meter = AgentMeter::new(ctx, app);
         // The minimap is hidden at low zoom levels
         let orig_zoom = ctx.canvas.cam_zoom;
         ctx.canvas.cam_zoom = 100.0;
@@ -1104,10 +1100,6 @@ impl TutorialState {
                     ],
                     None,
                 )
-                .msg(
-                    vec!["You can see the number of them here."],
-                    arrow(agent_meter.panel.center_of_panel()),
-                )
                 .left_aligned_msg(
                     vec![
                         "Why don't you follow this car to their destination,",
@@ -1251,7 +1243,7 @@ impl TutorialState {
                          you'll get your final score."
                             .to_string(),
                     ],
-                    arrow(agent_meter.panel.center_of("more data")),
+                    arrow(minimap.get_panel().center_of("more data")),
                 ),
         );
 
