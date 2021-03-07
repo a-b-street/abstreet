@@ -72,9 +72,6 @@ pub trait GameplayState: downcast_rs::Downcast {
     fn has_time_panel(&self) -> bool {
         true
     }
-    fn has_agent_meter(&self) -> bool {
-        true
-    }
     fn has_minimap(&self) -> bool {
         true
     }

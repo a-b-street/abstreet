@@ -123,7 +123,7 @@ impl GameplayState for OptimizeCommute {
 
         self.meter.align_below(
             ctx,
-            &controls.agent_meter.as_ref().unwrap().panel,
+            &controls.time_panel.as_ref().unwrap().panel,
             METER_HACK,
         );
 
@@ -134,7 +134,7 @@ impl GameplayState for OptimizeCommute {
             self.meter = make_meter(ctx, app, before, after, done, self.trips.len());
             self.meter.align_below(
                 ctx,
-                &controls.agent_meter.as_ref().unwrap().panel,
+                &controls.time_panel.as_ref().unwrap().panel,
                 METER_HACK,
             );
 
@@ -257,7 +257,7 @@ fn make_meter(
             txt.into_widget(ctx),
         ]),
     ]))
-    .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
+    .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
     .build(ctx)
 }
 
