@@ -325,10 +325,15 @@ impl Path {
     /// Traces along the path from its originally requested start. This is only valid to call for
     /// an umodified path.
     pub fn trace(&self, map: &Map) -> Option<PolyLine> {
-        assert_eq!(
-            self.steps[0].as_traversable(),
-            Traversable::Lane(self.orig_req.start.lane())
-        );
+        let t1 = self.steps[0].as_traversable();
+        let t2 = Traversable::Lane(self.orig_req.start.lane());
+        if t1 != t2 {
+            warn!(
+                "Can't trace modified path; first step is {}, but requested started from {}",
+                t1, t2
+            );
+            return None;
+        }
         self.trace_from_start(map, self.orig_req.start.dist_along())
     }
 
