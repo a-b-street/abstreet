@@ -19,12 +19,12 @@ use widgetry::{
 
 use crate::app::{App, Transition};
 use crate::challenges::cutscene::CutsceneBuilder;
-use crate::common::{tool_panel, MinimapController, Warping};
+use crate::common::{tool_panel, Warping};
 use crate::edit::EditMode;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{
-    maybe_exit_sandbox, spawn_agents_around, Actions, AgentMeter, SandboxControls, SandboxMode,
-    SpeedControls, TimePanel,
+    maybe_exit_sandbox, spawn_agents_around, Actions, AgentMeter, MinimapController,
+    SandboxControls, SandboxMode, SpeedControls, TimePanel,
 };
 
 const ESCORT: CarID = CarID(0, VehicleType::Car);

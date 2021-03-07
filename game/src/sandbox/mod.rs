@@ -16,11 +16,12 @@ use widgetry::{
 };
 
 pub use self::gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};
+pub use self::minimap::MinimapController;
 use self::misc_tools::{RoutePreview, TrafficRecorder};
 pub use self::speed::{SpeedControls, SpeedSetting, TimePanel};
 pub use self::time_warp::TimeWarpScreen;
 use crate::app::{App, Transition};
-use crate::common::{tool_panel, CommonState, MinimapController};
+use crate::common::{tool_panel, CommonState};
 use crate::debug::DebugMode;
 use crate::edit::{
     can_edit_lane, EditMode, LaneEditor, SaveEdits, StopSignEditor, TrafficSignalEditor,
@@ -32,6 +33,7 @@ use crate::pregame::MainMenu;
 
 pub mod dashboards;
 pub mod gameplay;
+mod minimap;
 mod misc_tools;
 mod speed;
 mod time_warp;

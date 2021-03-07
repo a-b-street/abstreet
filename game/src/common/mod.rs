@@ -9,13 +9,11 @@ use widgetry::{
     ScreenPt, ScreenRectangle, Text, TextSpan, Toggle, VerticalAlignment, Widget,
 };
 
-pub use self::minimap::MinimapController;
 pub use self::warp::Warping;
 use crate::app::App;
 use crate::app::Transition;
 use crate::info::{ContextualActions, InfoPanel, Tab};
 
-mod minimap;
 mod warp;
 
 // TODO This is now just used in two modes...
