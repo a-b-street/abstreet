@@ -8,6 +8,7 @@ use crate::app::App;
 use crate::app::Transition;
 use crate::common::Warping;
 use crate::layer::PickLayer;
+use crate::sandbox::dashboards::FinishedTripTable;
 
 pub struct MinimapController;
 
@@ -58,10 +59,10 @@ impl MinimapControls<App> for MinimapController {
 
     fn panel_clicked(&self, ctx: &mut EventCtx, app: &mut App, action: &str) -> Option<Transition> {
         match action {
-            x if x == "search" => {
+            "search" => {
                 return Some(Transition::Push(Navigator::new(ctx, app)));
             }
-            x if x == "zoom out fully" => {
+            "zoom out fully" => {
                 return Some(Transition::Push(Warping::new(
                     ctx,
                     app.primary.map.get_bounds().get_rectangle().center(),
@@ -70,7 +71,7 @@ impl MinimapControls<App> for MinimapController {
                     &mut app.primary,
                 )));
             }
-            x if x == "zoom in fully" => {
+            "zoom in fully" => {
                 return Some(Transition::Push(Warping::new(
                     ctx,
                     ctx.canvas.center_to_map_pt(),
@@ -79,8 +80,11 @@ impl MinimapControls<App> for MinimapController {
                     &mut app.primary,
                 )));
             }
-            x if x == "change layers" => {
+            "change layers" => {
                 return Some(Transition::Push(PickLayer::pick(ctx, app)));
+            }
+            "more data" => {
+                return Some(Transition::Push(FinishedTripTable::new(ctx, app)));
             }
             _ => unreachable!(),
         }
@@ -125,8 +129,13 @@ fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {
             .hotkey(Key::L)
             .build_widget(ctx, "change layers"),
         buttons
+            .clone()
             .image_path("system/assets/tools/search.svg")
             .hotkey(Key::K)
             .build_widget(ctx, "search"),
+        buttons
+            .image_path("system/assets/meters/trip_histogram.svg")
+            .hotkey(Key::Q)
+            .build_widget(ctx, "more data"),
     ])
 }
