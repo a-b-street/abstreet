@@ -15,6 +15,7 @@ use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 
 pub struct TimePanel {
     pub panel: Panel,
+    pub override_height: Option<f64>,
 
     time: Time,
     paused: bool,
@@ -37,6 +38,7 @@ impl TimePanel {
     pub fn new(ctx: &mut EventCtx, app: &App) -> TimePanel {
         let mut time = TimePanel {
             panel: Panel::empty(ctx),
+            override_height: None,
             time: app.primary.sim.time(),
             paused: false,
             setting: SpeedSetting::Realtime,
@@ -46,15 +48,6 @@ impl TimePanel {
     }
 
     pub fn recreate_panel(&mut self, ctx: &mut EventCtx, app: &App) {
-        self.recreate_panel_forcing_height(ctx, app, None);
-    }
-
-    pub fn recreate_panel_forcing_height(
-        &mut self,
-        ctx: &mut EventCtx,
-        app: &App,
-        override_height: Option<f64>,
-    ) {
         let mut row = Vec::new();
         row.push({
             let button = ctx
@@ -157,7 +150,7 @@ impl TimePanel {
             Widget::custom_row(row),
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top);
-        if let Some(h) = override_height {
+        if let Some(h) = self.override_height {
             panel = panel.exact_height(h);
         }
         self.panel = panel.build(ctx);
