@@ -1449,12 +1449,12 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">challenges</span>::<span class="ident">cutscene</span>::<span class="ident">CutsceneBuilder</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">tool_panel</span>, <span class="ident">MinimapController</span>, <span class="ident">Warping</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">tool_panel</span>, <span class="ident">Warping</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">EditMode</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">gameplay</span>::{<span class="ident">GameplayMode</span>, <span class="ident">GameplayState</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::{
-    <span class="ident">maybe_exit_sandbox</span>, <span class="ident">spawn_agents_around</span>, <span class="ident">Actions</span>, <span class="ident">AgentMeter</span>, <span class="ident">SandboxControls</span>, <span class="ident">SandboxMode</span>,
-    <span class="ident">SpeedControls</span>, <span class="ident">TimePanel</span>,
+    <span class="ident">maybe_exit_sandbox</span>, <span class="ident">spawn_agents_around</span>, <span class="ident">Actions</span>, <span class="ident">AgentMeter</span>, <span class="ident">MinimapController</span>,
+    <span class="ident">SandboxControls</span>, <span class="ident">SandboxMode</span>, <span class="ident">SpeedControls</span>, <span class="ident">TimePanel</span>,
 };
 
 <span class="kw">const</span> <span class="ident">ESCORT</span>: <span class="ident">CarID</span> <span class="op">=</span> <span class="ident">CarID</span>(<span class="number">0</span>, <span class="ident">VehicleType</span>::<span class="ident">Car</span>);

@@ -933,6 +933,8 @@
 <span id="930">930</span>
 <span id="931">931</span>
 <span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
@@ -952,11 +954,12 @@
 };
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">gameplay</span>::{<span class="ident">spawn_agents_around</span>, <span class="ident">GameplayMode</span>, <span class="ident">TutorialPointer</span>, <span class="ident">TutorialState</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">minimap</span>::<span class="ident">MinimapController</span>;
 <span class="kw">use</span> <span class="self">self</span>::<span class="ident">misc_tools</span>::{<span class="ident">RoutePreview</span>, <span class="ident">TrafficRecorder</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">speed</span>::{<span class="ident">SpeedControls</span>, <span class="ident">SpeedSetting</span>, <span class="ident">TimePanel</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">time_warp</span>::<span class="ident">TimeWarpScreen</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">tool_panel</span>, <span class="ident">CommonState</span>, <span class="ident">MinimapController</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">tool_panel</span>, <span class="ident">CommonState</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">debug</span>::<span class="ident">DebugMode</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::{
     <span class="ident">can_edit_lane</span>, <span class="ident">EditMode</span>, <span class="ident">LaneEditor</span>, <span class="ident">SaveEdits</span>, <span class="ident">StopSignEditor</span>, <span class="ident">TrafficSignalEditor</span>,
@@ -968,6 +971,7 @@
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">dashboards</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">gameplay</span>;
+<span class="kw">mod</span> <span class="ident">minimap</span>;
 <span class="kw">mod</span> <span class="ident">misc_tools</span>;
 <span class="kw">mod</span> <span class="ident">speed</span>;
 <span class="kw">mod</span> <span class="ident">time_warp</span>;
