@@ -83,6 +83,25 @@ impl GameplayState for Actdev {
                 .resume(ctx, app, SpeedSetting::Faster);
         }
 
+        // TODO This is quite a hack, particularly with how frequently this is done. We could plumb
+        // SandboxControls into recreate_panels if we decide to go with this approach.
+        let top_right_height = self.top_right.panel_dims().height;
+        if controls
+            .time_panel
+            .as_ref()
+            .unwrap()
+            .panel
+            .panel_dims()
+            .height
+            != top_right_height
+        {
+            controls
+                .time_panel
+                .as_mut()
+                .unwrap()
+                .recreate_panel_forcing_height(ctx, app, Some(top_right_height));
+        }
+
         match self.top_right.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "change scenario" => {

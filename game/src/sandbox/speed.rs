@@ -46,6 +46,15 @@ impl TimePanel {
     }
 
     pub fn recreate_panel(&mut self, ctx: &mut EventCtx, app: &App) {
+        self.recreate_panel_forcing_height(ctx, app, None);
+    }
+
+    pub fn recreate_panel_forcing_height(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &App,
+        override_height: Option<f64>,
+    ) {
         let mut row = Vec::new();
         row.push({
             let button = ctx
@@ -143,12 +152,15 @@ impl TimePanel {
                 .build_widget(ctx, "reset to midnight"),
         );
 
-        self.panel = Panel::new(Widget::col(vec![
+        let mut panel = Panel::new(Widget::col(vec![
             self.create_time_panel(ctx, app).named("time"),
             Widget::custom_row(row),
         ]))
-        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
-        .build(ctx);
+        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top);
+        if let Some(h) = override_height {
+            panel = panel.exact_height(h);
+        }
+        self.panel = panel.build(ctx);
     }
 
     fn create_time_panel(&mut self, ctx: &EventCtx, app: &App) -> Widget {
