@@ -153,12 +153,12 @@ impl GameplayState for Actdev {
                         )));
                     }
                 }
-                "Cycling activity" => {
+                "Cycling" => {
                     app.primary.layer =
                         Some(Box::new(crate::layer::map::BikeActivity::new(ctx, app)));
                     None
                 }
-                "Walking activity" => {
+                "Walking" => {
                     app.primary.layer = Some(Box::new(crate::layer::traffic::Throughput::new(
                         ctx,
                         app,
@@ -196,12 +196,18 @@ impl GameplayState for Actdev {
                     .btn()
                     .image_path("system/assets/pregame/logo.svg")
                     .image_dims(50.0)
-                    .build_widget(ctx, "about A/B Street")
-                    .centered_vert(),
+                    .build_widget(ctx, "about A/B Street"),
                 Line(nice_map_name(app.primary.map.get_name()))
                     .small_heading()
                     .into_widget(ctx),
-                Widget::vert_separator(ctx, 50.0),
+                ctx.style()
+                    .btn_outline
+                    .icon_text("system/assets/tools/pencil.svg", "Edit map")
+                    .hotkey(lctrl(Key::E))
+                    .build_def(ctx),
+            ])
+            .centered(),
+            Widget::row(vec![
                 ctx.style()
                     .btn_popup_icon_text("system/assets/tools/calendar.svg", "scenario")
                     .label_styled_text(
@@ -219,13 +225,8 @@ impl GameplayState for Actdev {
                         ControlState::Default,
                     )
                     .build_widget(ctx, "change scenario"),
-                ctx.style()
-                    .btn_outline
-                    .icon_text("system/assets/tools/pencil.svg", "Edit map")
-                    .hotkey(lctrl(Key::E))
-                    .build_def(ctx),
-            ])
-            .centered(),
+                Toggle::checkbox(ctx, "background traffic", None, self.bg_traffic),
+            ]),
             Widget::row(vec![
                 ctx.style()
                     .btn_plain
@@ -233,14 +234,12 @@ impl GameplayState for Actdev {
                     .build_def(ctx),
                 ctx.style()
                     .btn_plain
-                    .icon_text("system/assets/meters/pedestrian.svg", "Walking activity")
+                    .icon_text("system/assets/meters/pedestrian.svg", "Walking")
                     .build_def(ctx),
                 ctx.style()
                     .btn_plain
-                    .icon_text("system/assets/meters/bike.svg", "Cycling activity")
+                    .icon_text("system/assets/meters/bike.svg", "Cycling")
                     .build_def(ctx),
-                // TODO Layout pending.
-                Toggle::checkbox(ctx, "background traffic", None, self.bg_traffic),
             ]),
         ]);
 
