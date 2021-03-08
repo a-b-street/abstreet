@@ -94,6 +94,7 @@ pub fn main() {
     }
     let start_with_edits = args.optional("--edits");
     let center_camera = args.optional("--cam");
+    let start_time = args.optional_parse("--time", |t| Duration::parse(t));
 
     if let Some(site) = args.optional("--actdev") {
         // Handle if the site was accidentally passed in with underscores. Otherwise, some study
@@ -124,6 +125,7 @@ pub fn main() {
             mode,
             initialize_tutorial,
             center_camera,
+            start_time,
         )
     });
 }
@@ -136,6 +138,7 @@ fn setup_app(
     maybe_mode: Option<GameplayMode>,
     initialize_tutorial: bool,
     center_camera: Option<String>,
+    start_time: Option<Duration>,
 ) -> (App, Vec<Box<dyn State<App>>>) {
     let title = !opts.dev
         && !flags.sim_flags.load.contains("player/save")
@@ -193,6 +196,7 @@ fn setup_app(
                     maybe_mode,
                     initialize_tutorial,
                     center_camera,
+                    start_time,
                 ))
             }),
         )];
@@ -220,6 +224,7 @@ fn setup_app(
             maybe_mode,
             initialize_tutorial,
             center_camera,
+            start_time,
         );
         (app, states)
     }
@@ -233,6 +238,7 @@ fn finish_app_setup(
     maybe_mode: Option<GameplayMode>,
     initialize_tutorial: bool,
     center_camera: Option<String>,
+    start_time: Option<Duration>,
 ) -> Vec<Box<dyn State<App>>> {
     if let Some((pt, zoom)) =
         center_camera.and_then(|cam| URLManager::parse_center_camera(app, cam))
@@ -287,6 +293,12 @@ fn finish_app_setup(
                 app,
                 mode,
                 jump_to_time_upon_startup(Duration::hours(8), Some(Duration::seconds(0.5))),
+            )]
+        } else if let Some(t) = start_time {
+            vec![SandboxMode::async_new(
+                app,
+                mode,
+                jump_to_time_upon_startup(t, None),
             )]
         } else {
             vec![SandboxMode::simple_new(app, mode)]
