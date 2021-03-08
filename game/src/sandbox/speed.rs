@@ -210,7 +210,7 @@ impl TimePanel {
         let time_bar = {
             let mut batch = GeomBatch::new();
             // This is manually tuned
-            let width = 300.0;
+            let width = 400.0;
             let height = 15.0;
             // Just clamp if we simulate past the expected end
             let percent = self
@@ -243,9 +243,9 @@ impl TimePanel {
             Text::from(Line(self.time.ampm_tostring()).big_monospaced())
                 .draw(ctx)
                 .centered_horiz(),
+            time_bar,
             trip_results,
             record_trips,
-            time_bar,
         ])
     }
 
