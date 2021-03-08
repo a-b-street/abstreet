@@ -136,15 +136,7 @@ impl State<App> for DebugWarp {
                 }
                 "Go!" => {
                     let input = self.panel.text_box("input");
-                    if let Some(t) = warp_to_id(ctx, app, &input) {
-                        t
-                    } else {
-                        Transition::Replace(PopupMsg::new(
-                            ctx,
-                            "Bad warp ID",
-                            vec![format!("{} isn't a valid ID", input)],
-                        ))
-                    }
+                    warp_to_id(ctx, app, &input)
                 }
                 _ => unreachable!(),
             },
@@ -158,7 +150,19 @@ impl State<App> for DebugWarp {
     }
 }
 
-fn warp_to_id(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Transition> {
+pub fn warp_to_id(ctx: &mut EventCtx, app: &mut App, input: &str) -> Transition {
+    if let Some(t) = inner_warp_to_id(ctx, app, input) {
+        t
+    } else {
+        Transition::Replace(PopupMsg::new(
+            ctx,
+            "Bad warp ID",
+            vec![format!("{} isn't a valid ID", input)],
+        ))
+    }
+}
+
+fn inner_warp_to_id(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Transition> {
     if line.is_empty() {
         return None;
     }

@@ -9,7 +9,7 @@ use widgetry::{
     ScreenPt, ScreenRectangle, Text, TextSpan, Toggle, VerticalAlignment, Widget,
 };
 
-pub use self::warp::Warping;
+pub use self::warp::{warp_to_id, Warping};
 use crate::app::App;
 use crate::app::Transition;
 use crate::info::{ContextualActions, InfoPanel, Tab};

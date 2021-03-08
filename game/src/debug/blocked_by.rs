@@ -2,15 +2,16 @@ use std::collections::{BTreeMap, HashSet};
 
 use abstutil::Counter;
 use geom::{ArrowCap, Circle, Distance, Duration, PolyLine, Polygon, Pt2D};
-use sim::{AgentID, DelayCause};
+use map_gui::tools::PopupMsg;
+use sim::{AgentID, DelayCause, VehicleType};
 use widgetry::{
     Cached, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome,
-    Panel, State, Text, VerticalAlignment, Widget,
+    Panel, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
 use crate::app::Transition;
-use crate::common::CommonState;
+use crate::common::{warp_to_id, CommonState};
 
 /// Visualize the graph of what agents are blocked by others.
 pub struct Viewer {
@@ -57,9 +58,9 @@ impl Viewer {
                 arrows.push(color.alpha(0.5), arrow);
             }
         }
-        let (batch, txt) = viewer.find_worst_problems(app);
+        let (batch, col) = viewer.find_worst_problems(ctx, app);
         arrows.append(batch);
-        viewer.panel.replace(ctx, "root causes", txt.draw(ctx));
+        viewer.panel.replace(ctx, "root causes", col);
 
         viewer.arrows = ctx.upload(arrows);
         Box::new(viewer)
@@ -121,25 +122,52 @@ impl Viewer {
 
     /// Trace the root cause for everyone, find the most common sources, highlight them, and
     /// describe them.
-    fn find_worst_problems(&self, app: &App) -> (GeomBatch, Text) {
+    fn find_worst_problems(&self, ctx: &EventCtx, app: &App) -> (GeomBatch, Widget) {
         let mut problems: Counter<DelayCause> = Counter::new();
         for start in self.graph.keys() {
             problems.inc(self.simple_root_cause(*start));
         }
 
         let mut batch = GeomBatch::new();
-        let mut txt = Text::from(Line("Root causes"));
+        let mut col = vec!["Root causes".draw_text(ctx)];
         for (cause, cnt) in problems.highest_n(3) {
-            txt.add(Line(format!("{:?} is blocking {} agents", cause, cnt)));
             let pt = match cause {
                 DelayCause::Agent(a) => {
+                    let warp_id = match a {
+                        AgentID::Car(c) => match c.1 {
+                            VehicleType::Bike => format!("b{}", c.0),
+                            _ => format!("c{}", c.0),
+                        },
+                        AgentID::Pedestrian(p) => format!("p{}", p.0),
+                        // There's always that ONE passenger lugging some inappropriate amount of
+                        // furniture, somehow causing gridlock, right?
+                        AgentID::BusPassenger(_, c) => format!("c{}", c.0),
+                    };
+                    col.push(
+                        ctx.style()
+                            .btn_plain
+                            .icon("system/assets/tools/location.svg")
+                            .label_text(&format!("{} is blocking {} agents", a, cnt))
+                            .build_widget(ctx, &warp_id),
+                    );
+
                     if let Some(pt) = self.agent_positions.get(&a) {
                         *pt
                     } else {
                         continue;
                     }
                 }
-                DelayCause::Intersection(i) => app.primary.map.get_i(i).polygon.center(),
+                DelayCause::Intersection(i) => {
+                    col.push(
+                        ctx.style()
+                            .btn_plain
+                            .icon("system/assets/tools/location.svg")
+                            .label_text(&format!("{} is blocking {} agents", i, cnt))
+                            .build_widget(ctx, &format!("i{}", i.0)),
+                    );
+
+                    app.primary.map.get_i(i).polygon.center()
+                }
             };
             batch.push(
                 Color::YELLOW,
@@ -149,7 +177,7 @@ impl Viewer {
             );
         }
 
-        (batch, txt)
+        (batch, Widget::col(col))
     }
 
     fn simple_root_cause(&self, start: AgentID) -> DelayCause {
@@ -211,7 +239,14 @@ impl State<App> for Viewer {
                 "close" => {
                     return Transition::Pop;
                 }
-                _ => unreachable!(),
+                x => {
+                    // warp_to_id always replaces the current state, so insert a dummy one for it
+                    // to clobber
+                    return Transition::Multi(vec![
+                        Transition::Push(PopupMsg::new(ctx, "Warping", vec![""])),
+                        warp_to_id(ctx, app, x),
+                    ]);
+                }
             },
             _ => {}
         }
