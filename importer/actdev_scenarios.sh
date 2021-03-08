@@ -18,4 +18,7 @@ wget https://raw.githubusercontent.com/cyipt/actdev/main/data-small/$SITE/scenar
 cargo run --release --bin import_traffic -- --map=data/system/gb/$CITY/maps/center.bin --input=scenario_base.json --skip_problems
 cargo run --release --bin import_traffic -- --map=data/system/gb/$CITY/maps/center.bin --input=scenario_go_active.json --skip_problems
 rm -fv *.json
+cargo run --release --bin augment_scenario -- --input=data/system/gb/$CITY/scenarios/center/base.bin --add_return_trips --add_lunch_trips
+cargo run --release --bin augment_scenario -- --input=data/system/gb/$CITY/scenarios/center/go_active.bin --add_return_trips --add_lunch_trips
+# Generate the background traffic from OD data, and mix it in with the two actdev scenarios
 ./import.sh --scenario --city=gb/$CITY

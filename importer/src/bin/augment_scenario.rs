@@ -92,7 +92,7 @@ fn add_lunch_trips(scenario: &mut Scenario, map: &Map, rng: &mut XorShiftRng, ti
         timer.next();
         let num_trips = person.trips.len();
         // Only handle people with their final trip going back home.
-        if num_trips == 1 || person.trips[num_trips - 1].destination != person.origin {
+        if num_trips <= 1 || person.trips[num_trips - 1].destination != person.origin {
             continue;
         }
 
