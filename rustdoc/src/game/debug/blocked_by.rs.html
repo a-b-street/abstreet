@@ -267,16 +267,13 @@
 <span id="264">264</span>
 <span id="265">265</span>
 <span id="266">266</span>
-<span id="267">267</span>
-<span id="268">268</span>
-<span id="269">269</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Counter</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">PopupMsg</span>;
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentID</span>, <span class="ident">DelayCause</span>, <span class="ident">VehicleType</span>};
+<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentID</span>, <span class="ident">DelayCause</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Cached</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
     <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
@@ -407,10 +404,7 @@
             <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">cause</span> {
                 <span class="ident">DelayCause</span>::<span class="ident">Agent</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">warp_id</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">a</span> {
-                        <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">c</span>.<span class="number">1</span> {
-                            <span class="ident">VehicleType</span>::<span class="ident">Bike</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;b{}&quot;</span>, <span class="ident">c</span>.<span class="number">0</span>),
-                            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;c{}&quot;</span>, <span class="ident">c</span>.<span class="number">0</span>),
-                        },
+                        <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;c{}&quot;</span>, <span class="ident">c</span>.<span class="number">0</span>),
                         <span class="ident">AgentID</span>::<span class="ident">Pedestrian</span>(<span class="ident">p</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;p{}&quot;</span>, <span class="ident">p</span>.<span class="number">0</span>),
                         <span class="comment">// There&#39;s always that ONE passenger lugging some inappropriate amount of</span>
                         <span class="comment">// furniture, somehow causing gridlock, right?</span>
