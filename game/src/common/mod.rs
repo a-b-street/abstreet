@@ -408,14 +408,25 @@ pub fn checkbox_per_mode(
 /// If you want a simulation to start after midnight, pass the result of this to
 /// `SandboxMode::async_new`. It's less visually overwhelming and more performant to continue with a
 /// loading screen than launching the jump-to-time UI.
+///
+/// If a deadline is specified, after this real amount of time passes, we stop simulating and begin
+/// the mode. If this isn't used and advancing time takes a long time, it'll feel like the app is
+/// frozen.
 pub fn jump_to_time_upon_startup(
     dt: Duration,
+    deadline: Option<Duration>,
 ) -> Box<dyn FnOnce(&mut EventCtx, &mut App) -> Vec<Transition>> {
     Box::new(move |ctx, app| {
         ctx.loading_screen(format!("jump forward {}", dt), |_, mut timer| {
-            app.primary
-                .sim
-                .timed_step(&app.primary.map, dt, &mut None, &mut timer);
+            if let Some(deadline) = deadline {
+                app.primary
+                    .sim
+                    .time_limited_step(&app.primary.map, dt, deadline, &mut None);
+            } else {
+                app.primary
+                    .sim
+                    .timed_step(&app.primary.map, dt, &mut None, &mut timer);
+            }
         });
         vec![Transition::Keep]
     })

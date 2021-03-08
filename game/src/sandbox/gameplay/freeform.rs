@@ -63,7 +63,7 @@ impl GameplayState for Freeform {
                             SandboxMode::async_new(
                                 app,
                                 GameplayMode::Freeform(app.primary.map.get_name().clone()),
-                                jump_to_time_upon_startup(Duration::hours(6)),
+                                jump_to_time_upon_startup(Duration::hours(6), None),
                             )
                         } else {
                             SandboxMode::simple_new(

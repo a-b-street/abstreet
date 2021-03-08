@@ -286,7 +286,7 @@ fn finish_app_setup(
             vec![SandboxMode::async_new(
                 app,
                 mode,
-                jump_to_time_upon_startup(Duration::hours(8)),
+                jump_to_time_upon_startup(Duration::hours(8), Some(Duration::seconds(0.5))),
             )]
         } else {
             vec![SandboxMode::simple_new(app, mode)]
@@ -297,7 +297,7 @@ fn finish_app_setup(
         vec![SandboxMode::async_new(
             app,
             GameplayMode::Freeform(app.primary.map.get_name().clone()),
-            jump_to_time_upon_startup(Duration::hours(6)),
+            jump_to_time_upon_startup(Duration::hours(6), None),
         )]
     };
     if let Some(ss) = savestate {
