@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use geom::{Distance, Pt2D, Ring};
+use geom::{Distance, Pt2D, Ring, Time};
 use widgetry::{
     ControlState, Drawable, EventCtx, Filler, GfxCtx, HorizontalAlignment, Line, Outcome, Panel,
     ScreenPt, Spinner, Transition, VerticalAlignment, Widget,
@@ -11,6 +11,7 @@ use crate::AppLike;
 // TODO Some of the math in here might assume map bound minimums start at (0, 0).
 pub struct Minimap<A: AppLike, T: MinimapControls<A>> {
     controls: T,
+    time: Time,
     app_type: PhantomData<A>,
 
     dragging: bool,
@@ -72,6 +73,7 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
         let layer = controls.has_layer(app);
         let mut m = Minimap {
             controls,
+            time: Time::START_OF_DAY,
             app_type: PhantomData,
 
             dragging: false,
@@ -251,6 +253,11 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Option<Transition<A>> {
+        if self.time != app.sim_time() {
+            self.time = app.sim_time();
+            self.recreate_panel(ctx, app);
+        }
+
         let zoomed = ctx.canvas.cam_zoom >= app.opts().min_zoom_for_detail;
         let layer = self.controls.has_layer(app);
         if zoomed != self.zoomed || layer != self.layer {
