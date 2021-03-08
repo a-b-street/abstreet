@@ -5,7 +5,7 @@ set -e;
 
 os=$1;
 case $os in
-	ubuntu-latest)
+	ubuntu-18.04)
 		output="abst_linux";
 		suffix="";
 		runner="play_abstreet.sh";

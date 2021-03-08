@@ -14,7 +14,7 @@ jobs:
         build: [linux, macos, windows]
         include:
           - build: linux
-            os: ubuntu-latest
+            os: ubuntu-18.04
           - build: macos
             os: macos-latest
           - build: windows
@@ -39,7 +39,7 @@ jobs:
         run: if [[ `git log -1 --pretty=format:"%s"` == *"[release]"* ]]; then echo 'features=--features=map_gui/release_s3' >> $GITHUB_ENV; else echo 'features=' >> $GITHUB_ENV; fi
 
       - name: Install dependencies
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-18.04'
         run: sudo apt-get install libasound2-dev
 
       - name: Build game
@@ -71,7 +71,7 @@ jobs:
         shell: bash
 
       - name: Upload release for Linux
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-18.04'
         uses: actions/upload-artifact@v2
         with:
           name: abst_linux
