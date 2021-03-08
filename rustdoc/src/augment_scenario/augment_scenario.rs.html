@@ -253,7 +253,7 @@
         <span class="ident">timer</span>.<span class="ident">next</span>();
         <span class="kw">let</span> <span class="ident">num_trips</span> <span class="op">=</span> <span class="ident">person</span>.<span class="ident">trips</span>.<span class="ident">len</span>();
         <span class="comment">// Only handle people with their final trip going back home.</span>
-        <span class="kw">if</span> <span class="ident">num_trips</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span> <span class="op">|</span><span class="op">|</span> <span class="ident">person</span>.<span class="ident">trips</span>[<span class="ident">num_trips</span> <span class="op">-</span> <span class="number">1</span>].<span class="ident">destination</span> <span class="op">!</span><span class="op">=</span> <span class="ident">person</span>.<span class="ident">origin</span> {
+        <span class="kw">if</span> <span class="ident">num_trips</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">1</span> <span class="op">|</span><span class="op">|</span> <span class="ident">person</span>.<span class="ident">trips</span>[<span class="ident">num_trips</span> <span class="op">-</span> <span class="number">1</span>].<span class="ident">destination</span> <span class="op">!</span><span class="op">=</span> <span class="ident">person</span>.<span class="ident">origin</span> {
             <span class="kw">continue</span>;
         }
 
