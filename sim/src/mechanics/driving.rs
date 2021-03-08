@@ -976,7 +976,12 @@ impl DrivingSimState {
     }
 
     pub fn does_car_exist(&self, id: CarID) -> bool {
-        self.cars.contains_key(&id)
+        // Because of the shortcut IndexableKey takes with ignoring the VehicleType part of the ID,
+        // we have to double-check that it matches!
+        match self.cars.get(&id) {
+            Some(car) => car.vehicle.id == id,
+            None => false,
+        }
     }
 
     /// Note the ordering of results is non-deterministic!
@@ -1270,6 +1275,8 @@ impl DrivingSimState {
     }
 }
 
+// This implementation relies on the fact that car IDs are unique just by their number. Vehicle
+// type is also in there, but during lookup, it'll be ignored!
 impl IndexableKey for CarID {
     fn index(&self) -> usize {
         self.0

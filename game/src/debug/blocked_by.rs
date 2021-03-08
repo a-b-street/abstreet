@@ -3,7 +3,7 @@ use std::collections::{BTreeMap, HashSet};
 use abstutil::Counter;
 use geom::{ArrowCap, Circle, Distance, Duration, PolyLine, Polygon, Pt2D};
 use map_gui::tools::PopupMsg;
-use sim::{AgentID, DelayCause, VehicleType};
+use sim::{AgentID, DelayCause};
 use widgetry::{
     Cached, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome,
     Panel, State, Text, TextExt, VerticalAlignment, Widget,
@@ -134,10 +134,7 @@ impl Viewer {
             let pt = match cause {
                 DelayCause::Agent(a) => {
                     let warp_id = match a {
-                        AgentID::Car(c) => match c.1 {
-                            VehicleType::Bike => format!("b{}", c.0),
-                            _ => format!("c{}", c.0),
-                        },
+                        AgentID::Car(c) => format!("c{}", c.0),
                         AgentID::Pedestrian(p) => format!("p{}", p.0),
                         // There's always that ONE passenger lugging some inappropriate amount of
                         // furniture, somehow causing gridlock, right?
