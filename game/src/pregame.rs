@@ -471,14 +471,20 @@ impl State<App> for Proposals {
                             } else {
                                 app.primary.layer =
                                     Some(Box::new(crate::layer::map::Static::edits(ctx, app)));
-                                Transition::Replace(SandboxMode::simple_new(
-                                    app,
+
+                                let mode = if abstio::file_exists(abstio::path_scenario(
+                                    app.primary.map.get_name(),
+                                    "weekday",
+                                )) {
                                     GameplayMode::PlayScenario(
                                         app.primary.map.get_name().clone(),
                                         "weekday".to_string(),
                                         Vec::new(),
-                                    ),
-                                ))
+                                    )
+                                } else {
+                                    GameplayMode::Freeform(app.primary.map.get_name().clone())
+                                };
+                                Transition::Replace(SandboxMode::simple_new(app, mode))
                             }
                         }),
                     ));
