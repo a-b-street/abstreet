@@ -933,8 +933,6 @@
 <span id="930">930</span>
 <span id="931">931</span>
 <span id="932">932</span>
-<span id="933">933</span>
-<span id="934">934</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
@@ -1376,13 +1374,11 @@
         <span class="comment">// the panel for all gameplay modes</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">num_recorded_trips</span>() {
             <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(
-                        <span class="ident">Color</span>::<span class="ident">RED</span>,
-                        <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>), <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">10.0</span>)).<span class="ident">to_polygon</span>(),
-                    )]),
-                )
+                <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(
+                    <span class="ident">Color</span>::<span class="ident">RED</span>,
+                    <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>), <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">10.0</span>)).<span class="ident">to_polygon</span>(),
+                )])
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                 .<span class="ident">centered_vert</span>(),
                 <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} trips captured&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">n</span>)).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()

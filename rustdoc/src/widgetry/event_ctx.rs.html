@@ -283,13 +283,6 @@
 <span id="280">280</span>
 <span id="281">281</span>
 <span id="282">282</span>
-<span id="283">283</span>
-<span id="284">284</span>
-<span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">VecDeque</span>;
 
@@ -438,26 +431,23 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_loading_screen</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">txt</span>: <span class="ident">Text</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
         <span class="kw">let</span> <span class="ident">border</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#F4DA22&quot;</span>);
+        <span class="kw">let</span> (<span class="ident">label</span>, <span class="ident">bytes</span>) <span class="op">=</span> <span class="kw">crate</span>::<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../icons/loading.svg&quot;</span>);
         <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="self">self</span>, {
-                    <span class="kw">let</span> (<span class="ident">label</span>, <span class="ident">bytes</span>) <span class="op">=</span> <span class="kw">crate</span>::<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../icons/loading.svg&quot;</span>);
-                    <span class="ident">svg</span>::<span class="ident">load_svg_bytes</span>(<span class="self">self</span>.<span class="ident">prerender</span>, <span class="ident">label</span>, <span class="ident">bytes</span>)
-                        .<span class="ident">unwrap</span>()
-                        .<span class="number">0</span>
-                        .<span class="ident">scale</span>(<span class="number">5.0</span>)
-                })
-                .<span class="ident">container</span>()
-                .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)
-                .<span class="ident">padding</span>(<span class="number">15</span>)
-                .<span class="ident">outline</span>((<span class="number">5.0</span>, <span class="ident">border</span>))
-                .<span class="ident">centered_horiz</span>()
-                .<span class="ident">margin_below</span>(<span class="number">5</span>),
-                <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(
-                    <span class="self">self</span>,
-                    <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.5</span>), <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="number">10.0</span>, <span class="number">30.0</span>))]),
-                )
-                .<span class="ident">centered_horiz</span>(),
+                <span class="ident">svg</span>::<span class="ident">load_svg_bytes</span>(<span class="self">self</span>.<span class="ident">prerender</span>, <span class="ident">label</span>, <span class="ident">bytes</span>)
+                    .<span class="ident">unwrap</span>()
+                    .<span class="number">0</span>
+                    .<span class="ident">scale</span>(<span class="number">5.0</span>)
+                    .<span class="ident">into_widget</span>(<span class="self">self</span>)
+                    .<span class="ident">container</span>()
+                    .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)
+                    .<span class="ident">padding</span>(<span class="number">15</span>)
+                    .<span class="ident">outline</span>((<span class="number">5.0</span>, <span class="ident">border</span>))
+                    .<span class="ident">centered_horiz</span>()
+                    .<span class="ident">margin_below</span>(<span class="number">5</span>),
+                <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.5</span>), <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="number">10.0</span>, <span class="number">30.0</span>))])
+                    .<span class="ident">into_widget</span>(<span class="self">self</span>)
+                    .<span class="ident">centered_horiz</span>(),
                 <span class="self">self</span>.<span class="ident">style</span>
                     .<span class="ident">loading_tips</span>
                     .<span class="ident">clone</span>()
@@ -470,22 +460,18 @@
                     .<span class="ident">outline</span>((<span class="number">5.0</span>, <span class="ident">Color</span>::<span class="ident">YELLOW</span>))
                     .<span class="ident">force_width_pct</span>(<span class="self">self</span>, <span class="ident">Percent</span>::<span class="ident">int</span>(<span class="number">30</span>))
                     .<span class="ident">margin_below</span>(<span class="number">5</span>),
-                <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(
-                    <span class="self">self</span>,
-                    <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.5</span>), <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="number">10.0</span>, <span class="number">100.0</span>))]),
-                )
-                .<span class="ident">centered_horiz</span>(),
+                <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.5</span>), <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="number">10.0</span>, <span class="number">100.0</span>))])
+                    .<span class="ident">into_widget</span>(<span class="self">self</span>)
+                    .<span class="ident">centered_horiz</span>(),
             ])
             .<span class="ident">centered_vert</span>(),
-            <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(
-                <span class="self">self</span>,
-                <span class="ident">txt</span>.<span class="ident">change_fg</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>)
-                    .<span class="ident">inner_render</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">assets</span>, <span class="ident">svg</span>::<span class="ident">LOW_QUALITY</span>),
-            )
-            .<span class="ident">container</span>()
-            .<span class="ident">fill_width</span>()
-            .<span class="ident">padding</span>(<span class="number">16</span>)
-            .<span class="ident">bg</span>(<span class="ident">text</span>::<span class="ident">BG_COLOR</span>),
+            <span class="ident">txt</span>.<span class="ident">change_fg</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>)
+                .<span class="ident">inner_render</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">assets</span>, <span class="ident">svg</span>::<span class="ident">LOW_QUALITY</span>)
+                .<span class="ident">into_widget</span>(<span class="self">self</span>)
+                .<span class="ident">container</span>()
+                .<span class="ident">fill_width</span>()
+                .<span class="ident">padding</span>(<span class="number">16</span>)
+                .<span class="ident">bg</span>(<span class="ident">text</span>::<span class="ident">BG_COLOR</span>),
         ]))
         .<span class="ident">exact_size_percent</span>(<span class="number">80</span>, <span class="number">80</span>)
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Center</span>)

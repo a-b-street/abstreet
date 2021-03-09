@@ -390,10 +390,6 @@
 <span id="387">387</span>
 <span id="388">388</span>
 <span id="389">389</span>
-<span id="390">390</span>
-<span id="391">391</span>
-<span id="392">392</span>
-<span id="393">393</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -404,8 +400,8 @@
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">JustDraw</span>, <span class="ident">Line</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>,
-    <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
+    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>,
+    <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
 };
 
 <span class="comment">// The X is always time</span>
@@ -577,8 +573,7 @@
                 .<span class="ident">render</span>(<span class="ident">ctx</span>)
                 .<span class="ident">rotate</span>(<span class="ident">Angle</span>::<span class="ident">degrees</span>(<span class="op">-</span><span class="number">15.0</span>))
                 .<span class="ident">autocrop</span>();
-            <span class="comment">// The text is already scaled; don&#39;t use Widget::draw_batch and scale it again.</span>
-            <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">JustDraw</span>::<span class="ident">wrap</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>));
+            <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">batch</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
         }
         <span class="kw">let</span> <span class="ident">x_axis</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">row</span>).<span class="ident">padding</span>(<span class="number">10</span>).<span class="ident">evenly_spaced</span>();
 
@@ -738,14 +733,11 @@
         } <span class="kw">else</span> {
             <span class="kw">let</span> <span class="ident">radius</span> <span class="op">=</span> <span class="number">15.0</span>;
             <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(
-                        <span class="ident">s</span>.<span class="ident">color</span>,
-                        <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">radius</span>, <span class="ident">radius</span>), <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="ident">radius</span>))
-                            .<span class="ident">to_polygon</span>(),
-                    )]),
-                ),
+                <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(
+                    <span class="ident">s</span>.<span class="ident">color</span>,
+                    <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">radius</span>, <span class="ident">radius</span>), <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="ident">radius</span>)).<span class="ident">to_polygon</span>(),
+                )])
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">s</span>.<span class="ident">label</span>.<span class="ident">clone</span>().<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
             ]));
         }

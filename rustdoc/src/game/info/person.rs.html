@@ -990,7 +990,7 @@
     <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">load_svg_bytes_uncached</span>(<span class="kw-2">&amp;</span><span class="ident">svg_data</span>).<span class="ident">autocrop</span>();
     <span class="kw">let</span> <span class="ident">dims</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">get_dims</span>();
     <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">scale</span>((<span class="number">200.0</span> <span class="op">/</span> <span class="ident">dims</span>.<span class="ident">width</span>).<span class="ident">min</span>(<span class="number">200.0</span> <span class="op">/</span> <span class="ident">dims</span>.<span class="ident">height</span>));
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>).<span class="ident">centered_horiz</span>());
+    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">batch</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_horiz</span>());
 
     <span class="kw">let</span> <span class="ident">nickname</span> <span class="op">=</span> <span class="ident">petname</span>::<span class="ident">Petnames</span>::<span class="ident">default</span>().<span class="ident">generate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>, <span class="number">2</span>, <span class="string">&quot; &quot;</span>);
     <span class="kw">let</span> <span class="ident">age</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">5</span>..<span class="number">100</span>);
@@ -1336,7 +1336,7 @@
                 .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#A3A3A3&quot;</span>)))
                 .<span class="ident">autocrop</span>();
             <span class="kw">let</span> <span class="ident">y_factor</span> <span class="op">=</span> <span class="number">20.0</span> <span class="op">/</span> <span class="ident">batch</span>.<span class="ident">get_dims</span>().<span class="ident">height</span>;
-            <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>.<span class="ident">scale</span>(<span class="ident">y_factor</span>)).<span class="ident">margin_left</span>(<span class="number">28</span>)
+            <span class="ident">batch</span>.<span class="ident">scale</span>(<span class="ident">y_factor</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_left</span>(<span class="number">28</span>)
         } <span class="kw">else</span> {
             <span class="ident">Widget</span>::<span class="ident">nothing</span>()
         }

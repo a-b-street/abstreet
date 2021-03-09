@@ -835,7 +835,7 @@
                         );
                     }
 
-                    <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>)
+                    <span class="ident">batch</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                 },
                 <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;00:00&quot;</span>).<span class="ident">small_monospaced</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),

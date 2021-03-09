@@ -767,7 +767,7 @@
                     .<span class="ident">scale</span>(<span class="ident">zoom</span>),
             );
 
-            <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">normal</span>));
+            <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">normal</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
         }
     }
 

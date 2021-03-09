@@ -701,7 +701,6 @@
 <span id="698">698</span>
 <span id="699">699</span>
 <span id="700">700</span>
-<span id="701">701</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -765,15 +764,15 @@
             .<span class="ident">padding</span>(<span class="number">10</span>)
             .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#003046&quot;</span>)),
             <span class="string">&quot;Complete Deliveries&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;score label&quot;</span>),
-            <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">GeomBatch</span>::<span class="ident">new</span>()).<span class="ident">named</span>(<span class="string">&quot;score&quot;</span>),
+            <span class="ident">GeomBatch</span>::<span class="ident">new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;score&quot;</span>),
             <span class="string">&quot;Blood sugar&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;energy label&quot;</span>),
-            <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">GeomBatch</span>::<span class="ident">new</span>()).<span class="ident">named</span>(<span class="string">&quot;energy&quot;</span>),
+            <span class="ident">GeomBatch</span>::<span class="ident">new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;energy&quot;</span>),
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">RightInset</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">TopInset</span>)
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
 
         <span class="kw">let</span> <span class="ident">time_panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">GeomBatch</span>::<span class="ident">new</span>()).<span class="ident">named</span>(<span class="string">&quot;time circle&quot;</span>),
+            <span class="ident">GeomBatch</span>::<span class="ident">new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;time circle&quot;</span>),
             <span class="string">&quot;Time&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>().<span class="ident">named</span>(<span class="string">&quot;time label&quot;</span>),
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">LeftInset</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">TopInset</span>)
@@ -840,17 +839,15 @@
         <span class="comment">// TODO I couldn&#39;t quite work out how to get the partial outline from Figma working</span>
         <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>);
         <span class="kw">let</span> <span class="ident">outer</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">30.0</span>);
-        <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                (<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">center</span>, <span class="ident">outer</span>).<span class="ident">to_polygon</span>()),
-                (
-                    <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#5D92C2&quot;</span>),
-                    <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">center</span>, <span class="ident">outer</span>).<span class="ident">to_partial_polygon</span>(<span class="ident">pct</span>),
-                ),
-            ])
-            .<span class="ident">autocrop</span>(),
-        );
+        <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            (<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">center</span>, <span class="ident">outer</span>).<span class="ident">to_polygon</span>()),
+            (
+                <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#5D92C2&quot;</span>),
+                <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">center</span>, <span class="ident">outer</span>).<span class="ident">to_partial_polygon</span>(<span class="ident">pct</span>),
+            ),
+        ])
+        .<span class="ident">autocrop</span>()
+        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
         <span class="self">self</span>.<span class="ident">time_panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;time circle&quot;</span>, <span class="ident">draw</span>);
     }
 
@@ -1397,7 +1394,8 @@
             <span class="comment">// so fine with this for now.</span>
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="string">&quot;Boost&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">GeomBatch</span>::<span class="ident">new</span>())
+                <span class="ident">GeomBatch</span>::<span class="ident">new</span>()
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                     .<span class="ident">named</span>(<span class="string">&quot;boost&quot;</span>)
                     .<span class="ident">align_right</span>(),
             ]),

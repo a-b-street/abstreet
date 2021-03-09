@@ -230,7 +230,6 @@
 <span id="227">227</span>
 <span id="228">228</span>
 <span id="229">229</span>
-<span id="230">230</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">VecDeque</span>;
 
@@ -240,8 +239,8 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">line_plot</span>::{<span class="ident">make_legend</span>, <span class="ident">thick_lineseries</span>, <span class="ident">Yvalue</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">JustDraw</span>, <span class="ident">Line</span>, <span class="ident">PlotOptions</span>, <span class="ident">ScreenDims</span>,
-    <span class="ident">ScreenPt</span>, <span class="ident">Series</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
+    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">PlotOptions</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">Series</span>,
+    <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
 };
 
 <span class="comment">// The X is always time</span>
@@ -390,8 +389,7 @@
                 .<span class="ident">render</span>(<span class="ident">ctx</span>)
                 .<span class="ident">rotate</span>(<span class="ident">Angle</span>::<span class="ident">degrees</span>(<span class="op">-</span><span class="number">15.0</span>))
                 .<span class="ident">autocrop</span>();
-            <span class="comment">// The text is already scaled; don&#39;t use Widget::draw_batch and scale it again.</span>
-            <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">JustDraw</span>::<span class="ident">wrap</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>));
+            <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">batch</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
         }
         <span class="kw">let</span> <span class="ident">x_axis</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">row</span>).<span class="ident">padding</span>(<span class="number">10</span>).<span class="ident">evenly_spaced</span>();
 

@@ -389,8 +389,6 @@
 <span id="386">386</span>
 <span id="387">387</span>
 <span id="388">388</span>
-<span id="389">389</span>
-<span id="390">390</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">future</span>::<span class="ident">Future</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">pin</span>::<span class="ident">Pin</span>;
@@ -666,15 +664,13 @@
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">FinalScore</span> {
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(
                 <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/characters/boss.svg.gz&quot;</span>)
-                            .<span class="ident">scale</span>(<span class="number">0.75</span>)
-                            .<span class="ident">autocrop</span>(),
-                    )
-                    .<span class="ident">container</span>()
-                    .<span class="ident">outline</span>((<span class="number">10.0</span>, <span class="ident">Color</span>::<span class="ident">BLACK</span>))
-                    .<span class="ident">padding</span>(<span class="number">10</span>),
+                    <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/characters/boss.svg.gz&quot;</span>)
+                        .<span class="ident">scale</span>(<span class="number">0.75</span>)
+                        .<span class="ident">autocrop</span>()
+                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
+                        .<span class="ident">container</span>()
+                        .<span class="ident">outline</span>((<span class="number">10.0</span>, <span class="ident">Color</span>::<span class="ident">BLACK</span>))
+                        .<span class="ident">padding</span>(<span class="number">10</span>),
                     <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">msg</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                         <span class="comment">// TODO Adjust wording</span>

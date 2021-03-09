@@ -309,11 +309,18 @@
 <span id="306">306</span>
 <span id="307">307</span>
 <span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">svg</span>, <span class="ident">Color</span>, <span class="ident">DeferDraw</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Fill</span>, <span class="ident">GfxCtx</span>, <span class="ident">Prerender</span>, <span class="ident">ScreenDims</span>, <span class="ident">Widget</span>,
+    <span class="ident">svg</span>, <span class="ident">Color</span>, <span class="ident">DeferDraw</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Fill</span>, <span class="ident">GfxCtx</span>, <span class="ident">JustDraw</span>, <span class="ident">Prerender</span>, <span class="ident">ScreenDims</span>,
+    <span class="ident">Widget</span>,
 };
 
 <span class="doccomment">/// A mutable builder for a group of colored polygons.</span>
@@ -396,6 +403,11 @@
     <span class="doccomment">/// Wrap in a Widget for layouting, so this batch can become part of a larger one.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">batch</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">DeferDraw</span>::<span class="ident">new</span>(<span class="self">self</span>)
+    }
+
+    <span class="doccomment">/// Wrap in a Widget, so the batch can be drawn as part of a Panel.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_widget</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+        <span class="ident">JustDraw</span>::<span class="ident">wrap</span>(<span class="ident">ctx</span>, <span class="self">self</span>)
     }
 
     <span class="doccomment">/// Compute the bounds of all polygons in this batch.</span>

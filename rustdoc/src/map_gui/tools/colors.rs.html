@@ -414,8 +414,6 @@
 <span id="411">411</span>
 <span id="412">412</span>
 <span id="413">413</span>
-<span id="414">414</span>
-<span id="415">415</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -522,13 +520,11 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">row</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">label</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="kw">let</span> <span class="ident">radius</span> <span class="op">=</span> <span class="number">15.0</span>;
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(
-                <span class="ident">ctx</span>,
-                <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(
-                    <span class="ident">color</span>,
-                    <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">radius</span>, <span class="ident">radius</span>), <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="ident">radius</span>)).<span class="ident">to_polygon</span>(),
-                )]),
-            )
+            <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(
+                <span class="ident">color</span>,
+                <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">radius</span>, <span class="ident">radius</span>), <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="ident">radius</span>)).<span class="ident">to_polygon</span>(),
+            )])
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
             .<span class="ident">centered_vert</span>(),
             <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">label</span>)).<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">35</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>),
         ])
@@ -565,7 +561,7 @@
         <span class="comment">// Extra wrapping to make the labels stretch against just the scale, not everything else</span>
         <span class="comment">// TODO Long labels aren&#39;t nicely lined up with the boundaries between buckets</span>
         <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>),
+            <span class="ident">batch</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">custom_row</span>(
                 <span class="ident">labels</span>
                     .<span class="ident">into_iter</span>()
@@ -592,7 +588,7 @@
         <span class="comment">// Extra wrapping to make the labels stretch against just the scale, not everything else</span>
         <span class="comment">// TODO Long labels aren&#39;t nicely lined up with the boundaries between buckets</span>
         <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>),
+            <span class="ident">batch</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">custom_row</span>(
                 <span class="ident">pairs</span>
                     .<span class="ident">into_iter</span>()

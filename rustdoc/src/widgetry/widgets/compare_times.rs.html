@@ -196,13 +196,12 @@
 <span id="193">193</span>
 <span id="194">194</span>
 <span id="195">195</span>
-<span id="196">196</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Pt2D</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">JustDraw</span>, <span class="ident">Line</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>,
-    <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
+    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>,
+    <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
 };
 
 <span class="comment">// TODO This is tuned for the trip time comparison right now.</span>
@@ -300,14 +299,13 @@
                 .<span class="ident">collect</span>(),
         )
         .<span class="ident">evenly_spaced</span>();
-        <span class="kw">let</span> <span class="ident">y_label</span> <span class="op">=</span> {
-            <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} (minutes)&quot;</span>, <span class="ident">y_name</span>.<span class="ident">into</span>())))
-                .<span class="ident">render</span>(<span class="ident">ctx</span>)
-                .<span class="ident">rotate</span>(<span class="ident">Angle</span>::<span class="ident">degrees</span>(<span class="number">90.0</span>))
-                .<span class="ident">autocrop</span>();
-            <span class="comment">// The text is already scaled; don&#39;t use Widget::draw_batch and scale it again.</span>
-            <span class="ident">JustDraw</span>::<span class="ident">wrap</span>(<span class="ident">ctx</span>, <span class="ident">label</span>).<span class="ident">centered_vert</span>().<span class="ident">margin_right</span>(<span class="number">5</span>)
-        };
+        <span class="kw">let</span> <span class="ident">y_label</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} (minutes)&quot;</span>, <span class="ident">y_name</span>.<span class="ident">into</span>())))
+            .<span class="ident">render</span>(<span class="ident">ctx</span>)
+            .<span class="ident">rotate</span>(<span class="ident">Angle</span>::<span class="ident">degrees</span>(<span class="number">90.0</span>))
+            .<span class="ident">autocrop</span>()
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
+            .<span class="ident">centered_vert</span>()
+            .<span class="ident">margin_right</span>(<span class="number">5</span>);
 
         <span class="kw">let</span> <span class="ident">x_axis</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">custom_row</span>(
             <span class="ident">labels</span>

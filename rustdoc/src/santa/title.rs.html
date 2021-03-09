@@ -341,7 +341,7 @@
     <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">hitbox</span>.<span class="ident">center</span>();
     <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">fade_map_dark</span>, <span class="ident">hitbox</span>);
     <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/tools/locked.svg&quot;</span>).<span class="ident">centered_on</span>(<span class="ident">center</span>));
-    <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>)
+    <span class="ident">batch</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
 }
 
 <span class="kw">fn</span> <span class="ident">unlocked_level</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">level</span>: <span class="kw-2">&amp;</span><span class="ident">Level</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
