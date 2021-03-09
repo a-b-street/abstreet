@@ -18,7 +18,7 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: ParkingLot
             prettyprint_usize(app.primary.sim.get_free_lot_spots(pl.id).len()),
             prettyprint_usize(capacity)
         )
-        .draw_text(ctx),
+        .text_widget(ctx),
     );
 
     let mut series = vec![Series {

@@ -31,7 +31,7 @@ impl ChangeDuration {
                 ctx.style().btn_close_widget(ctx),
             ]),
             Widget::row(vec![
-                "Seconds:".draw_text(ctx).centered_vert(),
+                "Seconds:".text_widget(ctx).centered_vert(),
                 Spinner::widget(
                     ctx,
                     (
@@ -46,7 +46,7 @@ impl ChangeDuration {
                 .named("duration"),
             ]),
             Widget::row(vec![
-                "Type:".draw_text(ctx),
+                "Type:".text_widget(ctx),
                 Toggle::choice(
                     ctx,
                     "stage type",
@@ -63,7 +63,7 @@ impl ChangeDuration {
                 .small_heading()
                 .draw(ctx)]),
             Widget::row(vec![
-                "Seconds:".draw_text(ctx).centered_vert(),
+                "Seconds:".text_widget(ctx).centered_vert(),
                 Spinner::widget(
                     ctx,
                     (1, 300),
@@ -80,7 +80,7 @@ impl ChangeDuration {
                 .small_heading()
                 .draw(ctx)]),
             Widget::row(vec![
-                "Seconds:".draw_text(ctx).centered_vert(),
+                "Seconds:".text_widget(ctx).centered_vert(),
                 Spinner::widget(
                     ctx,
                     (1, 300),

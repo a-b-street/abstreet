@@ -99,7 +99,7 @@ pub fn ongoing(
                 .container()
                 .force_width_pct(ctx, col_width),
             Widget::col(vec![
-                format!("{} here", props.waiting_here.to_string(&app.opts.units)).draw_text(ctx),
+                format!("{} here", props.waiting_here.to_string(&app.opts.units)).text_widget(ctx),
                 Text::from_all(vec![
                     if props.total_waiting != Duration::ZERO {
                         Line(format!(
@@ -299,13 +299,13 @@ pub fn finished(
                     .force_width_pct(ctx, col_width),
                 (end_time - trip.departure)
                     .to_string(&app.opts.units)
-                    .draw_text(ctx),
+                    .text_widget(ctx),
             ]));
         } else {
             col.push(Widget::custom_row(vec![
                 Widget::custom_row(vec![Line("Trip time").secondary().draw(ctx)])
                     .force_width_pct(ctx, col_width),
-                "Trip didn't complete before map changes".draw_text(ctx),
+                "Trip didn't complete before map changes".text_widget(ctx),
             ]));
         }
 
@@ -315,7 +315,7 @@ pub fn finished(
         col.push(Widget::custom_row(vec![
             Widget::custom_row(vec![Line("Total waiting time").secondary().draw(ctx)])
                 .force_width_pct(ctx, col_width),
-            waiting.to_string(&app.opts.units).draw_text(ctx),
+            waiting.to_string(&app.opts.units).text_widget(ctx),
         ]));
 
         col.push(Widget::custom_row(vec![
@@ -789,9 +789,9 @@ fn make_trip_details(
         ])
         .evenly_spaced(),
         Widget::row(vec![
-            trip.departure.ampm_tostring().draw_text(ctx),
+            trip.departure.ampm_tostring().text_widget(ctx),
             if let Some(t) = end_time {
-                t.ampm_tostring().draw_text(ctx).align_right()
+                t.ampm_tostring().text_widget(ctx).align_right()
             } else {
                 Widget::nothing()
             },
@@ -842,7 +842,7 @@ fn make_trip_details(
         ]),
     ];
     if path_impossible {
-        col.push("Map edits have disconnected the path taken before".draw_text(ctx));
+        col.push("Map edits have disconnected the path taken before".text_widget(ctx));
     }
     // TODO This just needs too much more work
     if false {

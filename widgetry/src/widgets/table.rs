@@ -216,7 +216,7 @@ fn make_pagination(ctx: &mut EventCtx, total: usize, skip: usize) -> Widget {
             prettyprint_usize((skip + 1 + ROWS).min(total)),
             prettyprint_usize(total)
         )
-        .draw_text(ctx)
+        .text_widget(ctx)
         .centered_vert(),
         next.build_widget(ctx, "next"),
     ])

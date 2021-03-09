@@ -33,7 +33,7 @@ impl<A: AppLike + 'static> Picker<A> {
                 Line("Download more cities").small_heading().draw(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
-            "Select the cities you want to include".draw_text(ctx),
+            "Select the cities you want to include".text_widget(ctx),
             Line(
                 "The file sizes shown are compressed; after downloading, the files stored on disk \
                  will be larger",
@@ -44,7 +44,7 @@ impl<A: AppLike + 'static> Picker<A> {
         for (city, bytes) in size_per_city(&manifest) {
             col.push(Widget::row(vec![
                 Toggle::checkbox(ctx, &city, None, data_packs.runtime.contains(&city)),
-                prettyprint_bytes(bytes).draw_text(ctx).centered_vert(),
+                prettyprint_bytes(bytes).text_widget(ctx).centered_vert(),
             ]));
         }
         col.push(

@@ -179,7 +179,7 @@ impl TurnExplorer {
                      slow lane, {} for vehicles, {} for slow bikes",
                     lt, lc, slow_lane, vehicles, bike
                 )
-                .draw_text(ctx),
+                .text_widget(ctx),
             );
             col.push(ColorLegend::row(ctx, CURRENT_TURN, "current turn"));
             col.push(ColorLegend::row(ctx, CONFLICTING_TURN, "conflicting turn"));

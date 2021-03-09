@@ -54,10 +54,10 @@ impl Floodfiller {
                     Line(title).small_heading().draw(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                format!("{} unreachable lanes", num_unreachable).draw_text(ctx),
+                format!("{} unreachable lanes", num_unreachable).text_widget(ctx),
                 legend,
                 Widget::row(vec![
-                    "Connectivity type:".draw_text(ctx),
+                    "Connectivity type:".text_widget(ctx),
                     Widget::dropdown(
                         ctx,
                         "constraints",

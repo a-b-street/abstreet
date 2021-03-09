@@ -182,7 +182,7 @@ impl TransitRoutes {
                                 prettyprint_usize(-alightings as usize),
                                 prettyprint_usize(-waiting as usize)
                             )
-                            .draw_text(ctx),
+                            .text_widget(ctx),
                         ])
                     })
                     .collect(),

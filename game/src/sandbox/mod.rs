@@ -346,7 +346,7 @@ impl AgentMeter {
                     + counts.walking_to_from_car
                     + counts.walking_to_from_bike,
             )
-            .draw_text(ctx),
+            .text_widget(ctx),
         ]));
 
         row.push(Widget::custom_row(vec![
@@ -357,7 +357,7 @@ impl AgentMeter {
                 ]))
                 .into_widget(ctx)
                 .margin_right(5),
-            prettyprint_usize(counts.cyclists).draw_text(ctx),
+            prettyprint_usize(counts.cyclists).text_widget(ctx),
         ]));
 
         row.push(Widget::custom_row(vec![
@@ -372,7 +372,7 @@ impl AgentMeter {
                 ]))
                 .into_widget(ctx)
                 .margin_right(5),
-            prettyprint_usize(counts.sov_drivers).draw_text(ctx),
+            prettyprint_usize(counts.sov_drivers).text_widget(ctx),
         ]));
 
         row.push(Widget::custom_row(vec![
@@ -394,11 +394,11 @@ impl AgentMeter {
                 ]))
                 .into_widget(ctx)
                 .margin_right(5),
-            prettyprint_usize(counts.bus_riders + counts.train_riders).draw_text(ctx),
+            prettyprint_usize(counts.bus_riders + counts.train_riders).text_widget(ctx),
         ]));
 
         let mut rows = vec![
-            "Active trips".draw_text(ctx),
+            "Active trips".text_widget(ctx),
             Widget::custom_row(row).centered(),
             Widget::horiz_separator(ctx, 0.2),
             Widget::row(vec![
@@ -444,7 +444,7 @@ impl AgentMeter {
                 )])
                 .into_widget(ctx)
                 .centered_vert(),
-                format!("{} trips captured", prettyprint_usize(n)).draw_text(ctx),
+                format!("{} trips captured", prettyprint_usize(n)).text_widget(ctx),
                 ctx.style()
                     .btn_solid_primary
                     .text("Finish Capture")

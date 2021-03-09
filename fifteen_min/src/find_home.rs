@@ -26,7 +26,7 @@ impl FindHome {
                 ctx.style().btn_close_widget(ctx),
             ]),
             // TODO Adjust text to say bikeshed, or otherwise reflect the options chosen
-            "Select the types of businesses you want within a 15 minute walkshed.".draw_text(ctx),
+            "Select the types of businesses you want within a 15 minute walkshed.".text_widget(ctx),
             Widget::custom_row(
                 AmenityType::all()
                     .into_iter()
@@ -143,7 +143,7 @@ impl Results {
                 .small_heading()
                 .draw(ctx),
             // TODO Adjust text to say bikeshed, or otherwise reflect the options chosen
-            "Here are all of the matching houses.".draw_text(ctx),
+            "Here are all of the matching houses.".text_widget(ctx),
             format!(
                 "Containing at least 1 of each: {}",
                 amenities
@@ -152,7 +152,7 @@ impl Results {
                     .collect::<Vec<_>>()
                     .join(", ")
             )
-            .draw_text(ctx),
+            .text_widget(ctx),
             ctx.style()
                 .btn_outline
                 .text("Back")

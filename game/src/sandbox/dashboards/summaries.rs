@@ -23,7 +23,7 @@ pub struct TripSummaries {
 
 impl TripSummaries {
     pub fn new(ctx: &mut EventCtx, app: &App, filter: Filter) -> Box<dyn State<App>> {
-        let mut filters = vec!["Filters".draw_text(ctx)];
+        let mut filters = vec!["Filters".text_widget(ctx)];
         for mode in TripMode::all() {
             filters.push(Toggle::colored_checkbox(
                 ctx,

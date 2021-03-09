@@ -48,7 +48,7 @@ impl DashTab {
             Line("Data").big_heading_plain().draw(ctx),
             Widget::dropdown(ctx, "tab", self, choices),
             format!("By {}", app.primary.sim.time().ampm_tostring())
-                .draw_text(ctx)
+                .text_widget(ctx)
                 .centered_vert(),
             ctx.style().btn_close_widget(ctx),
         ])

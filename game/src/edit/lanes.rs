@@ -77,7 +77,7 @@ impl LaneEditor {
                     .hotkey(Key::M)
                     .build_widget(ctx, "Edit multiple lanes"),
             ]),
-            "Type of lane".draw_text(ctx),
+            "Type of lane".text_widget(ctx),
             Widget::custom_row(row).centered(),
             ctx.style()
                 .btn_outline
@@ -93,7 +93,7 @@ impl LaneEditor {
                     ));
                 }
                 Widget::row(vec![
-                    "Change speed limit:".draw_text(ctx).centered_vert(),
+                    "Change speed limit:".text_widget(ctx).centered_vert(),
                     Widget::dropdown(ctx, "speed limit", parent.speed_limit, choices),
                 ])
             },

@@ -55,7 +55,7 @@ impl TrafficSignalDemand {
                 ])
                 .draw(ctx),
                 Widget::row(vec![
-                    "Hour:".draw_text(ctx),
+                    "Hour:".text_widget(ctx),
                     Spinner::widget(ctx, (0, 24), 7).named("hour"),
                 ]),
             ]))

@@ -604,7 +604,7 @@ fn make_side_panel(
             "One full cycle lasts {}",
             canonical_signal.simple_cycle_duration()
         )
-        .draw_text(ctx),
+        .text_widget(ctx),
     );
 
     if members.len() == 1 {
@@ -669,7 +669,7 @@ fn make_side_panel(
                             additional
                         ),
                     }
-                    .draw_text(ctx)
+                    .text_widget(ctx)
                     .centered_vert(),
                     {
                         let mut button =

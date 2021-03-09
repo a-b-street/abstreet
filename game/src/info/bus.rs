@@ -195,7 +195,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
     let buses = app.primary.sim.status_of_buses(id, map);
     let mut bus_locations = Vec::new();
     if buses.is_empty() {
-        rows.push(format!("No {} running", route.plural_noun()).draw_text(ctx));
+        rows.push(format!("No {} running", route.plural_noun()).text_widget(ctx));
     } else {
         for (bus, _, _, pt) in buses {
             rows.push(
@@ -251,7 +251,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
         .draw(ctx),
     );
 
-    rows.push(format!("{} stops", route.stops.len()).draw_text(ctx));
+    rows.push(format!("{} stops", route.stops.len()).text_widget(ctx));
     {
         let i = map.get_i(map.get_l(route.start).src_i);
         let name = format!("Starts at {}", i.name(app.opts.language.as_ref(), map));
@@ -260,7 +260,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
                 .btn_plain
                 .icon("system/assets/timeline/goal_pos.svg")
                 .build_widget(ctx, &name),
-            name.clone().draw_text(ctx),
+            name.clone().text_widget(ctx),
         ]));
         details.warpers.insert(name, ID::Intersection(i.id));
     }
@@ -294,7 +294,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
                 .btn_plain
                 .icon("system/assets/timeline/goal_pos.svg")
                 .build_widget(ctx, &name),
-            name.clone().draw_text(ctx),
+            name.clone().text_widget(ctx),
         ]));
         details.warpers.insert(name, ID::Intersection(i.id));
     }

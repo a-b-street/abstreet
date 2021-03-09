@@ -191,7 +191,7 @@ impl UberTurnViewer {
                     .build_widget(ctx, "next uber-turn"),
                 ctx.style().btn_close_widget(ctx),
             ]),
-            format!("driving_cost for a Car: {}", sum_cost).draw_text(ctx),
+            format!("driving_cost for a Car: {}", sum_cost).text_widget(ctx),
             Widget::row(vec![
                 Toggle::choice(
                     ctx,
@@ -201,7 +201,7 @@ impl UberTurnViewer {
                     None,
                     legal_turns,
                 ),
-                "movements".draw_text(ctx),
+                "movements".text_widget(ctx),
             ]),
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)

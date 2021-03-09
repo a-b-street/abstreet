@@ -129,7 +129,7 @@ impl Viewer {
         }
 
         let mut batch = GeomBatch::new();
-        let mut col = vec!["Root causes".draw_text(ctx)];
+        let mut col = vec!["Root causes".text_widget(ctx)];
         for (cause, cnt) in problems.highest_n(3) {
             let pt = match cause {
                 DelayCause::Agent(a) => {

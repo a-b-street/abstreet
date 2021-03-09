@@ -48,7 +48,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                 let mut batch = GeomBatch::new();
                 let mut districts = Vec::new();
                 let mut this_city =
-                    vec![format!("More districts in {}", city_name.describe()).draw_text(ctx)];
+                    vec![format!("More districts in {}", city_name.describe()).text_widget(ctx)];
 
                 if let Ok(city) = maybe_city {
                     let bounds = city.boundary.get_bounds();
@@ -160,7 +160,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                         ]),
                         Widget::custom_row(vec![
                             "Don't see the city you want?"
-                                .draw_text(ctx)
+                                .text_widget(ctx)
                                 .centered_vert(),
                             ctx.style()
                                 .btn_plain

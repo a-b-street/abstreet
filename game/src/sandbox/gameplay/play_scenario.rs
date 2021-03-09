@@ -157,7 +157,7 @@ impl GameplayState for PlayScenario {
                         .build_widget(ctx, "edit traffic patterns")
                         .centered_vert(),
                     format!("{} modifications to traffic patterns", self.modifiers.len())
-                        .draw_text(ctx)
+                        .text_widget(ctx)
                         .centered_vert(),
                 ])
                 .centered_horiz()
@@ -201,7 +201,7 @@ impl EditScenarioModifiers {
         for (idx, m) in modifiers.iter().enumerate() {
             rows.push(
                 Widget::row(vec![
-                    m.describe().draw_text(ctx).centered_vert(),
+                    m.describe().text_widget(ctx).centered_vert(),
                     ctx.style()
                         .btn_solid_destructive
                         .icon("system/assets/tools/trash.svg")
@@ -372,23 +372,23 @@ impl ChangeMode {
                 Line("Change trip mode").small_heading().draw(ctx),
                 Widget::row(vec![
                     "Percent of people to modify:"
-                        .draw_text(ctx)
+                        .text_widget(ctx)
                         .centered_vert(),
                     Spinner::widget(ctx, (1, 100), 50).named("pct_ppl"),
                 ]),
-                "Types of trips to convert:".draw_text(ctx),
+                "Types of trips to convert:".text_widget(ctx),
                 checkbox_per_mode(ctx, app, &btreeset! { TripMode::Drive }),
                 Widget::row(vec![
-                    "Departing from:".draw_text(ctx),
+                    "Departing from:".text_widget(ctx),
                     Slider::area(ctx, 0.25 * ctx.canvas.window_width, 0.0).named("depart from"),
                 ]),
                 Widget::row(vec![
-                    "Departing until:".draw_text(ctx),
+                    "Departing until:".text_widget(ctx),
                     Slider::area(ctx, 0.25 * ctx.canvas.window_width, 0.3).named("depart to"),
                 ]),
                 Widget::horiz_separator(ctx, 0.5),
                 Widget::row(vec![
-                    "Change to trip type:".draw_text(ctx),
+                    "Change to trip type:".text_widget(ctx),
                     Widget::dropdown(ctx, "to_mode", Some(TripMode::Bike), {
                         let mut choices = vec![Choice::new("cancel trip", None)];
                         for m in TripMode::all() {

@@ -127,7 +127,7 @@ impl GameplayState for Actdev {
                         .wrap_to_pct(ctx, 50)
                         .draw(ctx),
                         "This is a simplified version. Check out the full version below."
-                            .draw_text(ctx),
+                            .text_widget(ctx),
                         ctx.style().btn_outline.text("abstreet.org").build_def(ctx),
                     ]))
                     .build(ctx);

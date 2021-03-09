@@ -236,7 +236,7 @@ impl ChallengesPicker {
                 }
                 inner_col.push(txt.draw(ctx));
             } else {
-                inner_col.push("No attempts yet".draw_text(ctx));
+                inner_col.push("No attempts yet".text_widget(ctx));
             }
 
             main_row.push(

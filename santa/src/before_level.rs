@@ -277,7 +277,7 @@ fn make_vehicle_panel(ctx: &mut EventCtx, app: &App) -> Panel {
         Widget::row(buttons),
         Line(&vehicle.name).small_heading().draw(ctx),
         Widget::row(vec![
-            "Speed:".draw_text(ctx),
+            "Speed:".text_widget(ctx),
             custom_bar(
                 ctx,
                 app.session.colors.boost,
@@ -287,7 +287,7 @@ fn make_vehicle_panel(ctx: &mut EventCtx, app: &App) -> Panel {
             .align_right(),
         ]),
         Widget::row(vec![
-            "Energy:".draw_text(ctx),
+            "Energy:".text_widget(ctx),
             custom_bar(
                 ctx,
                 app.session.colors.energy,
@@ -335,7 +335,7 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
                 .draw(ctx),
         ]),
         Widget::row(vec![
-            "Upzones chosen:".draw_text(ctx),
+            "Upzones chosen:".text_widget(ctx),
             make_bar(ctx, Color::PINK, num_picked, app.session.upzones_unlocked),
         ]),
         Widget::row(vec![

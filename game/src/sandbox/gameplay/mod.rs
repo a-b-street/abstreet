@@ -280,7 +280,7 @@ impl FinalScore {
                         .outline((10.0, Color::BLACK))
                         .padding(10),
                     Widget::col(vec![
-                        msg.draw_text(ctx),
+                        msg.text_widget(ctx),
                         // TODO Adjust wording
                         ctx.style()
                             .btn_outline

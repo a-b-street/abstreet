@@ -131,7 +131,7 @@ impl OptionsPanel {
                     Line("Settings").small_heading().draw(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                "Camera controls".draw_text(ctx),
+                "Camera controls".text_widget(ctx),
                 Widget::col(vec![
                     Toggle::checkbox(
                         ctx,
@@ -159,17 +159,17 @@ impl OptionsPanel {
                         ctx.canvas.keys_to_pan,
                     ),
                     Widget::row(vec![
-                        "Scroll speed for menus".draw_text(ctx).centered_vert(),
+                        "Scroll speed for menus".text_widget(ctx).centered_vert(),
                         Spinner::widget(ctx, (1, 50), ctx.canvas.gui_scroll_speed as isize)
                             .named("gui_scroll_speed"),
                     ]),
                 ])
                 .bg(app.cs().inner_panel_bg)
                 .padding(8),
-                "Appearance".draw_text(ctx),
+                "Appearance".text_widget(ctx),
                 Widget::col(vec![
                     Widget::row(vec![
-                        "Traffic signal rendering:".draw_text(ctx),
+                        "Traffic signal rendering:".text_widget(ctx),
                         Widget::dropdown(
                             ctx,
                             "Traffic signal rendering",
@@ -185,7 +185,7 @@ impl OptionsPanel {
                         ),
                     ]),
                     Widget::row(vec![
-                        "Camera angle:".draw_text(ctx),
+                        "Camera angle:".text_widget(ctx),
                         Widget::dropdown(
                             ctx,
                             "Camera angle",
@@ -201,7 +201,7 @@ impl OptionsPanel {
                         ),
                     ]),
                     Widget::row(vec![
-                        "Color scheme:".draw_text(ctx),
+                        "Color scheme:".text_widget(ctx),
                         Widget::dropdown(
                             ctx,
                             "Color scheme",
@@ -210,7 +210,7 @@ impl OptionsPanel {
                         ),
                     ]),
                     Widget::row(vec![
-                        "Camera zoom to switch to unzoomed view".draw_text(ctx),
+                        "Camera zoom to switch to unzoomed view".text_widget(ctx),
                         Widget::dropdown(
                             ctx,
                             "min zoom",
@@ -226,7 +226,7 @@ impl OptionsPanel {
                         ),
                     ]),
                     Widget::row(vec![
-                        "Language".draw_text(ctx),
+                        "Language".text_widget(ctx),
                         Widget::dropdown(ctx, "language", app.opts().language.clone(), {
                             let mut choices = Vec::new();
                             choices.push(Choice::new("Map native language", None));
@@ -247,7 +247,7 @@ impl OptionsPanel {
                 ])
                 .bg(app.cs().inner_panel_bg)
                 .padding(8),
-                "Debug".draw_text(ctx),
+                "Debug".text_widget(ctx),
                 Widget::col(vec![
                     Toggle::checkbox(ctx, "Enable developer mode", None, app.opts().dev),
                     Toggle::checkbox(

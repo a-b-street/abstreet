@@ -116,7 +116,7 @@ impl CompareTimes {
         )
         .evenly_spaced();
         let x_label = format!("{} (minutes)", x_name.into())
-            .draw_text(ctx)
+            .text_widget(ctx)
             .centered_horiz();
 
         // It's a bit of work to make both the x and y axis line up with the plot. :)

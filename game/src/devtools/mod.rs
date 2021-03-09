@@ -35,7 +35,7 @@ impl DevToolsMode {
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 Widget::row(vec![
-                    "Change map:".draw_text(ctx),
+                    "Change map:".text_widget(ctx),
                     ctx.style()
                         .btn_outline
                         .popup(nice_map_name(app.primary.map.get_name()))

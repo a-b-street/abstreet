@@ -77,21 +77,21 @@ impl ViewKML {
                         dataset_name,
                         prettyprint_usize(objects.len())
                     )
-                    .draw_text(ctx),
+                    .text_widget(ctx),
                     ctx.style()
                         .btn_outline
                         .text("load KML file")
                         .hotkey(lctrl(Key::L))
                         .build_def(ctx),
                     Widget::row(vec![
-                        "Query:".draw_text(ctx),
+                        "Query:".text_widget(ctx),
                         Widget::dropdown(ctx, "query", "None".to_string(), choices),
                     ]),
                     Widget::row(vec![
-                        "Key=value filter:".draw_text(ctx),
+                        "Key=value filter:".text_widget(ctx),
                         Widget::text_entry(ctx, String::new(), false).named("filter"),
                     ]),
-                    "Query matches 0 objects".draw_text(ctx).named("matches"),
+                    "Query matches 0 objects".text_widget(ctx).named("matches"),
                 ]))
                 .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
                 .build(ctx),
@@ -179,7 +179,7 @@ impl State<App> for ViewKML {
                 self.panel.replace(
                     ctx,
                     "matches",
-                    format!("Query matches {} objects", cnt).draw_text(ctx),
+                    format!("Query matches {} objects", cnt).text_widget(ctx),
                 );
             }
             _ => {}

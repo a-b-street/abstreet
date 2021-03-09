@@ -435,7 +435,7 @@ impl CongestionCaps {
 
         let panel = Panel::new(Widget::col(vec![
             header(ctx, "Congestion caps"),
-            format!("{} roads have caps", prettyprint_usize(num_roads)).draw_text(ctx),
+            format!("{} roads have caps", prettyprint_usize(num_roads)).text_widget(ctx),
             ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["available", "full"]),
         ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)

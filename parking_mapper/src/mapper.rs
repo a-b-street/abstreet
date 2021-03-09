@@ -141,7 +141,7 @@ impl ParkingMapper {
                     prettyprint_usize(done.len() + todo.len()),
                     data.len()
                 )
-                .draw_text(ctx),
+                .text_widget(ctx),
                 Widget::row(vec![
                     Widget::dropdown(
                         ctx,
@@ -180,7 +180,7 @@ impl ParkingMapper {
                     .btn_outline
                     .text("Generate OsmChange file")
                     .build_def(ctx),
-                "Select a road".draw_text(ctx).named("info"),
+                "Select a road".text_widget(ctx).named("info"),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
@@ -265,7 +265,7 @@ impl State<App> for ParkingMapper {
             } else if self.selected.is_some() {
                 self.selected = None;
                 self.panel
-                    .replace(ctx, "info", "Select a road".draw_text(ctx));
+                    .replace(ctx, "info", "Select a road".text_widget(ctx));
             }
         }
         if self.selected.is_some() && ctx.normal_left_click() {

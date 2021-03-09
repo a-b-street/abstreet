@@ -342,19 +342,21 @@ pub fn bio(
             } else if let PersonState::Trip(t) = person.state {
                 match app.primary.sim.trip_to_agent(t) {
                     TripResult::Ok(AgentID::Car(x)) if x == v.id => {
-                        rows.push(format!("Owner of {} (currently driving)", v.id).draw_text(ctx));
+                        rows.push(
+                            format!("Owner of {} (currently driving)", v.id).text_widget(ctx),
+                        );
                     }
                     _ => {
-                        rows.push(format!("Owner of {} (off-map)", v.id).draw_text(ctx));
+                        rows.push(format!("Owner of {} (off-map)", v.id).text_widget(ctx));
                     }
                 }
             } else {
-                rows.push(format!("Owner of {} (off-map)", v.id).draw_text(ctx));
+                rows.push(format!("Owner of {} (off-map)", v.id).text_widget(ctx));
             }
         }
     }
     if has_bike {
-        rows.push("Owns a bike".draw_text(ctx));
+        rows.push("Owns a bike".text_widget(ctx));
     }
 
     // Debug info about their simulation state
@@ -469,7 +471,7 @@ pub fn crowd(
             .unwrap();
         // TODO What other info is useful to summarize?
         rows.push(Widget::row(vec![
-            format!("{})", idx + 1).draw_text(ctx).centered_vert(),
+            format!("{})", idx + 1).text_widget(ctx).centered_vert(),
             ctx.style()
                 .btn_outline
                 .text(&person.to_string())
@@ -556,7 +558,7 @@ pub fn parked_car(
                 ctx.canvas
                     .center_on_map_pt(app.primary.map.get_b(b).polygon.center());
                 rows.push(
-                    format!("Parked inside {}", app.primary.map.get_b(b).address).draw_text(ctx),
+                    format!("Parked inside {}", app.primary.map.get_b(b).address).text_widget(ctx),
                 );
             }
         }
@@ -566,10 +568,10 @@ pub fn parked_car(
                 "Parked here for {}",
                 app.primary.sim.time() - p.parked_since
             )
-            .draw_text(ctx),
+            .text_widget(ctx),
         );
     } else {
-        rows.push("No longer parked".draw_text(ctx));
+        rows.push("No longer parked".text_widget(ctx));
     }
 
     rows
@@ -680,10 +682,10 @@ fn current_status(ctx: &EventCtx, person: &Person, map: &Map) -> Widget {
     (match person.state {
         PersonState::Inside(b) => {
             // TODO hyperlink
-            format!("Currently inside {}", map.get_b(b).address).draw_text(ctx)
+            format!("Currently inside {}", map.get_b(b).address).text_widget(ctx)
         }
         PersonState::Trip(_) => unreachable!(),
-        PersonState::OffMap => "Currently outside the map boundaries".draw_text(ctx),
+        PersonState::OffMap => "Currently outside the map boundaries".text_widget(ctx),
     })
     .margin_vert(16)
 }

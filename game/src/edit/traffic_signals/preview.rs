@@ -24,7 +24,7 @@ impl PreviewTrafficSignal {
     fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         Box::new(PreviewTrafficSignal {
             panel: Panel::new(Widget::col(vec![
-                "Previewing traffic signal".draw_text(ctx),
+                "Previewing traffic signal".text_widget(ctx),
                 ctx.style()
                     .btn_outline
                     .text("back to editing")

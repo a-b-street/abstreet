@@ -128,7 +128,7 @@ impl Demo {
         self.controls.replace(
             ctx,
             "stopwatch",
-            format!("Stopwatch: {}", self.elapsed).draw_text(ctx),
+            format!("Stopwatch: {}", self.elapsed).text_widget(ctx),
         );
     }
 }
@@ -370,7 +370,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
             Toggle::switch(ctx, "Show timeseries", lctrl(Key::T), false),
         ]),
         "Stopwatch: ..."
-            .draw_text(ctx)
+            .text_widget(ctx)
             .named("stopwatch")
             .margin_above(30),
         Widget::row(vec![

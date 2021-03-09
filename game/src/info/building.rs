@@ -114,7 +114,7 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
         );
 
         if !b.osm_tags.is_empty() {
-            rows.push("Raw OpenStreetMap data".draw_text(ctx));
+            rows.push("Raw OpenStreetMap data".text_widget(ctx));
             rows.extend(make_table(
                 ctx,
                 b.osm_tags
@@ -189,9 +189,9 @@ pub fn people(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Building
                     t - app.primary.sim.time(),
                     mode.verb()
                 )
-                .draw_text(ctx)
+                .text_widget(ctx)
             } else {
-                "Staying inside".draw_text(ctx)
+                "Staying inside".text_widget(ctx)
             },
         ]);
         ppl.push((
@@ -205,14 +205,14 @@ pub fn people(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Building
     // Sort by time to next trip
     ppl.sort_by_key(|(t, _)| *t);
     if ppl.is_empty() {
-        rows.push("Nobody's inside right now".draw_text(ctx));
+        rows.push("Nobody's inside right now".text_widget(ctx));
     } else {
         rows.push(
             format!(
                 "{} drivers, {} cyclists, {} others",
                 drivers, cyclists, others
             )
-            .draw_text(ctx),
+            .text_widget(ctx),
         );
 
         for (_, w) in ppl {

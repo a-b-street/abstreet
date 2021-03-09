@@ -197,7 +197,9 @@ fn params_to_controls(ctx: &mut EventCtx, mode: TripMode, params: &RoutingParams
     .evenly_spaced()];
     if mode == TripMode::Drive || mode == TripMode::Bike {
         rows.push(Widget::row(vec![
-            "Unprotected turn penalty:".draw_text(ctx).margin_right(20),
+            "Unprotected turn penalty:"
+                .text_widget(ctx)
+                .margin_right(20),
             Spinner::widget(
                 ctx,
                 (1, 100),
@@ -209,17 +211,17 @@ fn params_to_controls(ctx: &mut EventCtx, mode: TripMode, params: &RoutingParams
     if mode == TripMode::Bike {
         // TODO Spinners that natively understand a floating point range with a given precision
         rows.push(Widget::row(vec![
-            "Bike lane penalty:".draw_text(ctx).margin_right(20),
+            "Bike lane penalty:".text_widget(ctx).margin_right(20),
             Spinner::widget(ctx, (0, 20), (params.bike_lane_penalty * 10.0) as isize)
                 .named("bike lane penalty"),
         ]));
         rows.push(Widget::row(vec![
-            "Bus lane penalty:".draw_text(ctx).margin_right(20),
+            "Bus lane penalty:".text_widget(ctx).margin_right(20),
             Spinner::widget(ctx, (0, 20), (params.bus_lane_penalty * 10.0) as isize)
                 .named("bus lane penalty"),
         ]));
         rows.push(Widget::row(vec![
-            "Driving lane penalty:".draw_text(ctx).margin_right(20),
+            "Driving lane penalty:".text_widget(ctx).margin_right(20),
             Spinner::widget(ctx, (0, 20), (params.driving_lane_penalty * 10.0) as isize)
                 .named("driving lane penalty"),
         ]));
@@ -289,7 +291,7 @@ impl AllRoutesExplorer {
                     Line("All routes explorer").small_heading().draw(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                format!("{} total requests", prettyprint_usize(requests.len())).draw_text(ctx),
+                format!("{} total requests", prettyprint_usize(requests.len())).text_widget(ctx),
                 params_to_controls(ctx, TripMode::Bike, app.primary.map.routing_params())
                     .named("params"),
                 ctx.style()

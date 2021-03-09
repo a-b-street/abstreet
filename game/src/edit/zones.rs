@@ -58,7 +58,7 @@ impl ZoneEditor {
                 checkbox_per_mode(ctx, app, &allow_through_traffic),
                 Widget::row(vec![
                     "Limit the number of vehicles passing through per hour (0 = unlimited):"
-                        .draw_text(ctx),
+                        .text_widget(ctx),
                     Spinner::widget(ctx, (0, 1000), cap_vehicles_per_hour.unwrap_or(0) as isize)
                         .named("cap_vehicles"),
                 ]),

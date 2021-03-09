@@ -77,7 +77,7 @@ impl DebugWarp {
                     Line("Warp to an object by ID").small_heading().draw(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                "Example: r42 is Road #42".draw_text(ctx),
+                "Example: r42 is Road #42".text_widget(ctx),
                 // T
                 // his
                 //

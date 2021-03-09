@@ -331,7 +331,7 @@ impl CommuterPatterns {
             self.panel.replace(ctx, "scale", new_scale);
         } else {
             self.panel
-                .replace(ctx, "current", "None selected".draw_text(ctx));
+                .replace(ctx, "current", "None selected".text_widget(ctx));
         }
     }
 }
@@ -687,16 +687,16 @@ fn make_panel(ctx: &mut EventCtx, app: &App) -> Panel {
         Toggle::choice(ctx, "from / to this block", "from", "to", Key::Space, true),
         Toggle::switch(ctx, "include borders", None, true),
         Widget::row(vec![
-            "Departing from:".draw_text(ctx).margin_right(20),
+            "Departing from:".text_widget(ctx).margin_right(20),
             Slider::area(ctx, 0.15 * ctx.canvas.window_width, 0.0).named("depart from"),
         ]),
         Widget::row(vec![
-            "Departing until:".draw_text(ctx).margin_right(20),
+            "Departing until:".text_widget(ctx).margin_right(20),
             Slider::area(ctx, 0.15 * ctx.canvas.window_width, 1.0).named("depart until"),
         ]),
         checkbox_per_mode(ctx, app, &TripMode::all().into_iter().collect()),
         ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0", "0"]).named("scale"),
-        "None selected".draw_text(ctx).named("current"),
+        "None selected".text_widget(ctx).named("current"),
     ]))
     .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
     .build(ctx)

@@ -309,10 +309,10 @@ impl AgentSpawner {
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 "Click a building or border to specify start"
-                    .draw_text(ctx)
+                    .text_widget(ctx)
                     .named("instructions"),
                 Widget::row(vec![
-                    "Type of trip:".draw_text(ctx),
+                    "Type of trip:".text_widget(ctx),
                     Widget::dropdown(
                         ctx,
                         "mode",
@@ -324,7 +324,7 @@ impl AgentSpawner {
                     ),
                 ]),
                 Widget::row(vec![
-                    "Number of trips:".draw_text(ctx),
+                    "Number of trips:".text_widget(ctx),
                     Spinner::widget(ctx, (1, 1000), 1).named("number"),
                 ]),
                 ctx.style()
@@ -341,7 +341,7 @@ impl AgentSpawner {
             spawner.panel.replace(
                 ctx,
                 "instructions",
-                "Click a building or border to specify end".draw_text(ctx),
+                "Click a building or border to specify end".text_widget(ctx),
             );
         }
         Box::new(spawner)
@@ -409,7 +409,7 @@ impl State<App> for AgentSpawner {
                         self.panel.replace(
                             ctx,
                             "instructions",
-                            "Click a building or border to specify end".draw_text(ctx),
+                            "Click a building or border to specify end".text_widget(ctx),
                         );
                         self.panel.replace(
                             ctx,
@@ -453,7 +453,7 @@ impl State<App> for AgentSpawner {
                 self.panel.replace(
                     ctx,
                     "instructions",
-                    "Click a building or border to specify end".draw_text(ctx),
+                    "Click a building or border to specify end".text_widget(ctx),
                 );
             } else if self.source.is_some() && self.source != Some(hovering.clone()) {
                 if self
@@ -486,7 +486,7 @@ impl State<App> for AgentSpawner {
                     self.panel.replace(
                         ctx,
                         "instructions",
-                        "Confirm the trip settings".draw_text(ctx),
+                        "Confirm the trip settings".text_widget(ctx),
                     );
                     self.panel.replace(
                         ctx,

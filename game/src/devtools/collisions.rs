@@ -42,7 +42,7 @@ impl CollisionsViewer {
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 format!("{} collisions", prettyprint_usize(count))
-                    .draw_text(ctx)
+                    .text_widget(ctx)
                     .named("count"),
                 Filters::to_controls(ctx).named("controls"),
             ]))
@@ -97,15 +97,15 @@ impl Filters {
                 false,
             ),
             Widget::row(vec![
-                "Between:".draw_text(ctx).margin_right(20),
+                "Between:".text_widget(ctx).margin_right(20),
                 Slider::area(ctx, 0.1 * ctx.canvas.window_width, 0.0).named("time1"),
             ]),
             Widget::row(vec![
-                "and:".draw_text(ctx).margin_right(20),
+                "and:".text_widget(ctx).margin_right(20),
                 Slider::area(ctx, 0.1 * ctx.canvas.window_width, 1.0).named("time2"),
             ]),
             Widget::row(vec![
-                "Severity:".draw_text(ctx).margin_right(20),
+                "Severity:".text_widget(ctx).margin_right(20),
                 Widget::dropdown(
                     ctx,
                     "severity",
@@ -290,7 +290,7 @@ impl State<App> for CollisionsViewer {
             };
             self.dataviz = dataviz;
             self.tooltips = tooltips;
-            let count = format!("{} collisions", prettyprint_usize(count)).draw_text(ctx);
+            let count = format!("{} collisions", prettyprint_usize(count)).text_widget(ctx);
             self.panel.replace(ctx, "count", count);
         }
 

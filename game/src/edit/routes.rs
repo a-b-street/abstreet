@@ -28,7 +28,7 @@ impl RouteEditor {
                 Line(&route.full_name).draw(ctx),
                 // TODO This UI needs design, just something to start plumbing the edits
                 Widget::row(vec![
-                    "Frequency in minutes".draw_text(ctx),
+                    "Frequency in minutes".text_widget(ctx),
                     Spinner::widget(ctx, (1, 120), 60).named("freq_mins"),
                 ]),
                 ctx.style()

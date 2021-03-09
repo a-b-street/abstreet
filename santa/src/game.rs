@@ -49,7 +49,7 @@ impl Game {
         app.session.music.specify_volume(crate::music::IN_GAME);
 
         let status_panel = Panel::new(Widget::col(vec![
-            "15-min Santa".draw_text(ctx).centered_vert(),
+            "15-min Santa".text_widget(ctx).centered_vert(),
             Widget::row(vec![
                 // TODO The blur is messed up
                 Image::icon("system/assets/tools/map.svg")
@@ -59,9 +59,9 @@ impl Game {
             ])
             .padding(10)
             .bg(Color::hex("#003046")),
-            "Complete Deliveries".draw_text(ctx).named("score label"),
+            "Complete Deliveries".text_widget(ctx).named("score label"),
             GeomBatch::new().into_widget(ctx).named("score"),
-            "Blood sugar".draw_text(ctx).named("energy label"),
+            "Blood sugar".text_widget(ctx).named("energy label"),
             GeomBatch::new().into_widget(ctx).named("energy"),
         ]))
         .aligned(HorizontalAlignment::RightInset, VerticalAlignment::TopInset)
@@ -69,7 +69,7 @@ impl Game {
 
         let time_panel = Panel::new(Widget::row(vec![
             GeomBatch::new().into_widget(ctx).named("time circle"),
-            "Time".draw_text(ctx).centered_vert().named("time label"),
+            "Time".text_widget(ctx).centered_vert().named("time label"),
         ]))
         .aligned(HorizontalAlignment::LeftInset, VerticalAlignment::TopInset)
         .build(ctx);
@@ -274,7 +274,7 @@ impl Game {
         if !met_goal && self.state.met_goal() {
             // TODO What should we say here? Should we add some kind of animation to call this
             // out?
-            let label = "Goal met! Keep going".draw_text(ctx);
+            let label = "Goal met! Keep going".text_widget(ctx);
             self.status_panel.replace(ctx, "score label", label);
         }
 
@@ -288,7 +288,7 @@ impl Game {
         if self.state.has_energy() {
             if self.state.energyless_arrow.is_some() {
                 self.state.energyless_arrow = None;
-                let label = "Blood sugar".draw_text(ctx);
+                let label = "Blood sugar".text_widget(ctx);
                 self.status_panel.replace(ctx, "energy label", label);
             }
         } else {
@@ -689,7 +689,7 @@ impl MinimapControls<App> for MinimapController {
             // update_boost_panel here. It's not super common to actually mess with those controls,
             // so fine with this for now.
             Widget::row(vec![
-                "Boost".draw_text(ctx),
+                "Boost".text_widget(ctx),
                 GeomBatch::new()
                     .into_widget(ctx)
                     .named("boost")

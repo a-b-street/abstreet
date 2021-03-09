@@ -105,14 +105,14 @@ impl PickLayer {
         col.push(
             Widget::custom_row(vec![
                 Widget::col(vec![
-                    "Traffic".draw_text(ctx),
+                    "Traffic".text_widget(ctx),
                     btn("delay", Key::D),
                     btn("throughput", Key::T),
                     btn("traffic jams", Key::J),
                     btn("cycling activity", Key::B),
                 ]),
                 Widget::col(vec![
-                    "Map".draw_text(ctx),
+                    "Map".text_widget(ctx),
                     btn("map edits", Key::E),
                     btn("parking occupancy", Key::P),
                     btn("transit network", Key::U),
@@ -127,7 +127,7 @@ impl PickLayer {
         col.push(
             Widget::custom_row(vec![
                 Widget::col(vec![
-                    "Experimental".draw_text(ctx),
+                    "Experimental".text_widget(ctx),
                     btn("amenities", Key::A),
                     btn("backpressure", Key::Z),
                     btn("elevation", Key::V),
@@ -141,7 +141,7 @@ impl PickLayer {
                     },
                 ]),
                 Widget::col(vec![
-                    "Data".draw_text(ctx),
+                    "Data".text_widget(ctx),
                     btn("traffic signal demand", Key::M),
                     btn("commuter patterns", Key::R),
                 ]),
@@ -271,7 +271,7 @@ pub fn header(ctx: &mut EventCtx, name: &str) -> Widget {
         Image::icon("system/assets/tools/layers.svg")
             .into_widget(ctx)
             .centered_vert(),
-        name.draw_text(ctx).centered_vert(),
+        name.text_widget(ctx).centered_vert(),
         ctx.style().btn_close_widget(ctx),
     ])
 }

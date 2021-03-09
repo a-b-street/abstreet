@@ -97,9 +97,9 @@ impl Viewer {
     fn calculate_tags(&self, ctx: &EventCtx, app: &App) -> Widget {
         let mut col = Vec::new();
         if self.fixed_object_outline.is_some() {
-            col.push("Click something else to examine it".draw_text(ctx));
+            col.push("Click something else to examine it".text_widget(ctx));
         } else {
-            col.push("Click to examine".draw_text(ctx));
+            col.push("Click to examine".text_widget(ctx));
         }
 
         match app.current_selection {
@@ -218,11 +218,11 @@ impl Viewer {
                         "Estimated parking spots: {}",
                         prettyprint_usize(pl.capacity())
                     )
-                    .draw_text(ctx),
+                    .text_widget(ctx),
                 );
             }
             _ => {
-                col = vec!["Zoom in and select something to begin".draw_text(ctx)];
+                col = vec!["Zoom in and select something to begin".text_widget(ctx)];
             }
         }
         Widget::col(col)
@@ -463,7 +463,7 @@ impl BusinessSearch {
                 .build_def(ctx),
         );
         col.push(
-            format!("{} businesses total", prettyprint_usize(self.counts.sum())).draw_text(ctx),
+            format!("{} businesses total", prettyprint_usize(self.counts.sum())).text_widget(ctx),
         );
         for (amenity, cnt) in self.counts.borrow() {
             col.push(Toggle::custom_checkbox(

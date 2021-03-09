@@ -488,12 +488,12 @@ fn render_line(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
 }
 
 pub trait TextExt {
-    fn draw_text(self, ctx: &EventCtx) -> Widget;
+    fn text_widget(self, ctx: &EventCtx) -> Widget;
     fn batch_text(self, ctx: &EventCtx) -> Widget;
 }
 
 impl TextExt for &str {
-    fn draw_text(self, ctx: &EventCtx) -> Widget {
+    fn text_widget(self, ctx: &EventCtx) -> Widget {
         Line(self).draw(ctx)
     }
     fn batch_text(self, ctx: &EventCtx) -> Widget {
@@ -502,7 +502,7 @@ impl TextExt for &str {
 }
 
 impl TextExt for String {
-    fn draw_text(self, ctx: &EventCtx) -> Widget {
+    fn text_widget(self, ctx: &EventCtx) -> Widget {
         Line(self).draw(ctx)
     }
     fn batch_text(self, ctx: &EventCtx) -> Widget {

@@ -202,7 +202,7 @@ impl GameplayState for OptimizeCommute {
             challenge_header(ctx, "Optimize the VIP's commute"),
             Widget::row(vec![
                 format!("Speed up the VIP's trips by {}", self.goal)
-                    .draw_text(ctx)
+                    .text_widget(ctx)
                     .centered_vert(),
                 ctx.style()
                     .btn_plain
@@ -253,7 +253,7 @@ fn make_meter(
                 .btn_plain
                 .icon("system/assets/tools/location.svg")
                 .build_widget(ctx, "locate VIP"),
-            format!("{}/{} trips done", done, trips).draw_text(ctx),
+            format!("{}/{} trips done", done, trips).text_widget(ctx),
             txt.draw(ctx),
         ]),
     ]))

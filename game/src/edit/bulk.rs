@@ -159,7 +159,7 @@ impl BulkEdit {
                 Line(format!("Editing {} roads", roads.len()))
                     .small_heading()
                     .draw(ctx),
-                "Lane types".draw_text(ctx),
+                "Lane types".text_widget(ctx),
                 make_lt_switcher(ctx, vec![(None, None)]).named("lt transformations"),
                 {
                     let mut choices = vec![Choice::new("don't change", None)];
@@ -167,7 +167,7 @@ impl BulkEdit {
                         choices.push(Choice::new(c.label, Some(c.data)));
                     }
                     Widget::row(vec![
-                        "Change speed limit:".draw_text(ctx).centered_vert(),
+                        "Change speed limit:".text_widget(ctx).centered_vert(),
                         Widget::dropdown(ctx, "speed limit", None, choices),
                     ])
                 },
@@ -263,7 +263,7 @@ fn make_lt_switcher(
     let mut col = Vec::new();
     for (idx, (from, to)) in pairs.into_iter().enumerate() {
         col.push(Widget::row(vec![
-            "Change all".draw_text(ctx).centered_vert(),
+            "Change all".text_widget(ctx).centered_vert(),
             Widget::dropdown(
                 ctx,
                 format!("from lt #{}", idx),
@@ -277,7 +277,7 @@ fn make_lt_switcher(
                     Choice::new("construction", Some(LaneType::Construction)),
                 ],
             ),
-            "lanes to".draw_text(ctx).centered_vert(),
+            "lanes to".text_widget(ctx).centered_vert(),
             Widget::dropdown(
                 ctx,
                 format!("to lt #{}", idx),

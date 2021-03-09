@@ -50,7 +50,7 @@ impl ShowAbsolute {
                     .draw(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
-            "Select an intersection as the base".draw_text(ctx),
+            "Select an intersection as the base".text_widget(ctx),
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);
@@ -139,7 +139,7 @@ impl ShowRelative {
                     .draw(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
-            "Select a second intersection to tune offset between the two".draw_text(ctx),
+            "Select a second intersection to tune offset between the two".text_widget(ctx),
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);
@@ -248,7 +248,7 @@ impl TuneRelative {
             ])
             .draw(ctx),
             Widget::row(vec![
-                "Offset (seconds):".draw_text(ctx),
+                "Offset (seconds):".text_widget(ctx),
                 Spinner::widget(ctx, (0, 90), (offset2 - offset1).inner_seconds() as isize)
                     .named("offset"),
             ]),

@@ -396,7 +396,7 @@ impl SaveEdits {
             panel: Panel::new(Widget::col(vec![
                 Line(title).small_heading().draw(ctx),
                 Widget::row(vec![
-                    "Name:".draw_text(ctx).centered_vert(),
+                    "Name:".text_widget(ctx).centered_vert(),
                     Widget::text_entry(ctx, initial_name, true).named("filename"),
                 ]),
                 // TODO Want this to always consistently be one line high, but it isn't for a blank
@@ -791,7 +791,7 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Panel {
                 .hotkey(lctrl(Key::P))
                 .build_widget(ctx, "manage proposals"),
             "autosaved"
-                .draw_text(ctx)
+                .text_widget(ctx)
                 .container()
                 .padding(10)
                 .bg(Color::hex("#5D9630")),
@@ -808,7 +808,7 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Panel {
     ];
 
     if edits.commands.len() > 5 {
-        col.push(format!("{} more...", edits.commands.len() - 5).draw_text(ctx));
+        col.push(format!("{} more...", edits.commands.len() - 5).text_widget(ctx));
     }
     for idx in edits.commands.len().max(5) - 5..edits.commands.len() {
         let (summary, details) = edits.commands[idx].describe(&app.primary.map);
@@ -871,7 +871,7 @@ impl ConfirmDiscard {
                     Line("Alert").small_heading().draw(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                "Are you sure you want to discard changes you made?".draw_text(ctx),
+                "Are you sure you want to discard changes you made?".text_widget(ctx),
                 Widget::row(vec![
                     ctx.style()
                         .btn_outline

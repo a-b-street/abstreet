@@ -456,7 +456,7 @@ impl TrafficJams {
             )
             .wrap_to_pct(ctx, 15)
             .draw(ctx),
-            format!("{} jams detected", cnt).draw_text(ctx),
+            format!("{} jams detected", cnt).text_widget(ctx),
         ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx);

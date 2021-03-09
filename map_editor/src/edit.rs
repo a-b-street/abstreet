@@ -32,7 +32,7 @@ impl EditRoad {
 
         let controls = Widget::col(vec![
             Widget::row(vec![
-                "lanes:forward".draw_text(ctx).margin_right(20),
+                "lanes:forward".text_widget(ctx).margin_right(20),
                 Spinner::widget(
                     ctx,
                     (1, 5),
@@ -44,7 +44,7 @@ impl EditRoad {
                 .named("lanes:forward"),
             ]),
             Widget::row(vec![
-                "lanes:backward".draw_text(ctx).margin_right(20),
+                "lanes:backward".text_widget(ctx).margin_right(20),
                 Spinner::widget(
                     ctx,
                     (0, 5),
@@ -56,7 +56,7 @@ impl EditRoad {
                 .named("lanes:backward"),
             ]),
             Widget::row(vec![
-                "sidewalk".draw_text(ctx).margin_right(20),
+                "sidewalk".text_widget(ctx).margin_right(20),
                 Widget::dropdown(
                     ctx,
                     "sidewalk",
@@ -76,7 +76,7 @@ impl EditRoad {
                 ),
             ]),
             Widget::row(vec![
-                "parking".draw_text(ctx).margin_right(20),
+                "parking".text_widget(ctx).margin_right(20),
                 Widget::dropdown(
                     ctx,
                     "parking",

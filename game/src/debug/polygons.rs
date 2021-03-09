@@ -45,7 +45,7 @@ impl PolygonDebugger {
                         .btn_prev()
                         .hotkey(Key::LeftArrow)
                         .build_widget(ctx, "previous"),
-                    "noun X/Y".draw_text(ctx).named("pointer"),
+                    "noun X/Y".text_widget(ctx).named("pointer"),
                     ctx.style()
                         .btn_next()
                         .hotkey(Key::RightArrow)
@@ -89,7 +89,7 @@ impl State<App> for PolygonDebugger {
         self.panel.replace(
             ctx,
             "pointer",
-            format!("{} {}/{}", self.noun, self.idx + 1, self.items.len()).draw_text(ctx),
+            format!("{} {}/{}", self.noun, self.idx + 1, self.items.len()).text_widget(ctx),
         );
 
         Transition::Keep

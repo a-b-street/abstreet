@@ -835,7 +835,7 @@ impl TutorialState {
                         .hotkey(Key::LeftArrow)
                         .build_widget(ctx, "previous message"),
                     format!("{}/{}", self.current.part + 1, self.stage().messages.len())
-                        .draw_text(ctx)
+                        .text_widget(ctx)
                         .centered_vert(),
                     ctx.style()
                         .btn_next()

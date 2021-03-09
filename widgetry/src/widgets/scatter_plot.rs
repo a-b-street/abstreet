@@ -162,7 +162,7 @@ impl ScatterPlot {
         let mut col = Vec::new();
         for i in 0..num_y_labels {
             let percent_y = (i as f64) / ((num_y_labels - 1) as f64);
-            col.push(max_y.from_percent(percent_y).prettyprint().draw_text(ctx));
+            col.push(max_y.from_percent(percent_y).prettyprint().text_widget(ctx));
         }
         col.reverse();
         let y_axis = Widget::custom_col(col).padding(10).evenly_spaced();

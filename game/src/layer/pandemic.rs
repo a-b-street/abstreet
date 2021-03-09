@@ -207,7 +207,7 @@ fn make_controls(ctx: &mut EventCtx, app: &App, opts: &Options, legend: Option<W
         ])
         .draw(ctx),
         Widget::row(vec![
-            "Filter:".draw_text(ctx),
+            "Filter:".text_widget(ctx),
             Widget::dropdown(
                 ctx,
                 "seir",
