@@ -154,6 +154,15 @@
 <span id="151">151</span>
 <span id="152">152</span>
 <span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
 
@@ -248,8 +257,10 @@
             }
         }
 
-        <span class="kw">if</span> <span class="ident">ss</span>.<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="number">2</span> {
-            <span class="comment">// Degenerate roads and deadends don&#39;t need any stop signs.</span>
+        <span class="comment">// Degenerate roads and deadends don&#39;t need any stop signs. But be careful with</span>
+        <span class="comment">// counting the number of roads; a roundabout with 3 might only have 2 in ss.roads, because</span>
+        <span class="comment">// one is outgoing. Nonetheless, we want to consider stop signs for it.</span>
+        <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>).<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="number">2</span> {
             <span class="kw">return</span> <span class="ident">ss</span>;
         }
         <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>).<span class="ident">is_cycleway</span>(<span class="ident">map</span>) {
@@ -258,12 +269,19 @@
         }
 
         <span class="comment">// Rank each road based on OSM highway type, and additionally treat cycleways as lower</span>
-        <span class="comment">// priority than local roads. (Sad but typical reality.)</span>
+        <span class="comment">// priority than local roads. (Sad but typical reality.) Prioritize roundabouts, so they</span>
+        <span class="comment">// clear out faster than people enter them.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rank</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">RoadID</span>, (<span class="ident">osm</span>::<span class="ident">RoadRank</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">ss</span>.<span class="ident">roads</span>.<span class="ident">keys</span>() {
             <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
             <span class="comment">// Lower number is lower priority</span>
-            <span class="kw">let</span> <span class="ident">priority</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_cycleway</span>() { <span class="number">0</span> } <span class="kw">else</span> { <span class="number">1</span> };
+            <span class="kw">let</span> <span class="ident">priority</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_cycleway</span>() {
+                <span class="number">0</span>
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;junction&quot;</span>, <span class="string">&quot;roundabout&quot;</span>) {
+                <span class="number">2</span>
+            } <span class="kw">else</span> {
+                <span class="number">1</span>
+            };
             <span class="ident">rank</span>.<span class="ident">insert</span>(<span class="ident">r</span>.<span class="ident">id</span>, (<span class="ident">r</span>.<span class="ident">get_rank</span>(), <span class="ident">priority</span>));
         }
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ranks</span> <span class="op">=</span> <span class="ident">rank</span>.<span class="ident">values</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
