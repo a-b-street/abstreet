@@ -91,8 +91,10 @@ impl ControlStopSign {
             }
         }
 
-        if ss.roads.len() <= 2 {
-            // Degenerate roads and deadends don't need any stop signs.
+        // Degenerate roads and deadends don't need any stop signs. But be careful with
+        // counting the number of roads; a roundabout with 3 might only have 2 in ss.roads, because
+        // one is outgoing. Nonetheless, we want to consider stop signs for it.
+        if map.get_i(id).roads.len() <= 2 {
             return ss;
         }
         if map.get_i(id).is_cycleway(map) {
@@ -101,12 +103,19 @@ impl ControlStopSign {
         }
 
         // Rank each road based on OSM highway type, and additionally treat cycleways as lower
-        // priority than local roads. (Sad but typical reality.)
+        // priority than local roads. (Sad but typical reality.) Prioritize roundabouts, so they
+        // clear out faster than people enter them.
         let mut rank: HashMap<RoadID, (osm::RoadRank, usize)> = HashMap::new();
         for r in ss.roads.keys() {
             let r = map.get_r(*r);
             // Lower number is lower priority
-            let priority = if r.is_cycleway() { 0 } else { 1 };
+            let priority = if r.is_cycleway() {
+                0
+            } else if r.osm_tags.is("junction", "roundabout") {
+                2
+            } else {
+                1
+            };
             rank.insert(r.id, (r.get_rank(), priority));
         }
         let mut ranks = rank.values().cloned().collect::<Vec<_>>();
