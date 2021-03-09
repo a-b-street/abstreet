@@ -137,7 +137,7 @@ fn agent_counters(ctx: &EventCtx, app: &App) -> (Widget, Widget, Widget, Widget)
                 + counts.walking_to_from_car
                 + counts.walking_to_from_bike,
         )
-        .draw_text(ctx),
+        .text_widget(ctx),
     ]);
 
     let bike_details = Widget::custom_row(vec![
@@ -148,7 +148,7 @@ fn agent_counters(ctx: &EventCtx, app: &App) -> (Widget, Widget, Widget, Widget)
             ]))
             .into_widget(ctx)
             .margin_right(5),
-        prettyprint_usize(counts.cyclists).draw_text(ctx),
+        prettyprint_usize(counts.cyclists).text_widget(ctx),
     ]);
 
     let car_details = Widget::custom_row(vec![
@@ -163,7 +163,7 @@ fn agent_counters(ctx: &EventCtx, app: &App) -> (Widget, Widget, Widget, Widget)
             ]))
             .into_widget(ctx)
             .margin_right(5),
-        prettyprint_usize(counts.sov_drivers).draw_text(ctx),
+        prettyprint_usize(counts.sov_drivers).text_widget(ctx),
     ]);
 
     let bus_details = Widget::custom_row(vec![
@@ -185,7 +185,7 @@ fn agent_counters(ctx: &EventCtx, app: &App) -> (Widget, Widget, Widget, Widget)
             ]))
             .into_widget(ctx)
             .margin_right(5),
-        prettyprint_usize(counts.bus_riders + counts.train_riders).draw_text(ctx),
+        prettyprint_usize(counts.bus_riders + counts.train_riders).text_widget(ctx),
     ]);
 
     (car_details, bike_details, bus_details, pedestrian_details)
