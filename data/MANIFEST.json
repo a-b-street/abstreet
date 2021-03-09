@@ -2226,9 +2226,29 @@
       "compressed_size_bytes": 1028117
     },
     "data/system/gb/poundbury/maps/center.bin": {
-      "checksum": "34456496c1d8603c2d2b1268ea9c44ce",
-      "uncompressed_size_bytes": 12869266,
-      "compressed_size_bytes": 4495684
+      "checksum": "eec407412e0e3771b4497a38dae250b4",
+      "uncompressed_size_bytes": 12869238,
+      "compressed_size_bytes": 4495690
+    },
+    "data/system/gb/poundbury/prebaked_results/center/base.bin": {
+      "checksum": "79affd9b8c16c8fb9c68556bc3f39336",
+      "uncompressed_size_bytes": 2949065,
+      "compressed_size_bytes": 859458
+    },
+    "data/system/gb/poundbury/prebaked_results/center/base_with_bg.bin": {
+      "checksum": "1ecb0205ddeb82338d16b8d33ddfb564",
+      "uncompressed_size_bytes": 7014071,
+      "compressed_size_bytes": 2232718
+    },
+    "data/system/gb/poundbury/prebaked_results/center/go_active.bin": {
+      "checksum": "ae1cb282cacb64a12ba15afc52d9fc38",
+      "uncompressed_size_bytes": 2896550,
+      "compressed_size_bytes": 830474
+    },
+    "data/system/gb/poundbury/prebaked_results/center/go_active_with_bg.bin": {
+      "checksum": "f519662be57ef87b37ce55d795745e28",
+      "uncompressed_size_bytes": 6957567,
+      "compressed_size_bytes": 2206627
     },
     "data/system/gb/poundbury/scenarios/center/base.bin": {
       "checksum": "0dc5e7cedeeda0e18704fcf0c9eb8f75",

@@ -1095,5 +1095,9 @@ fn allow_block_the_box(i: &Intersection) -> bool {
     {
         return true;
     }
+    // poundbury
+    if id == 18030505 || id == 2124133018 || id == 30024649 {
+        return true;
+    }
     false
 }

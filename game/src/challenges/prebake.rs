@@ -1,6 +1,6 @@
 use abstio::MapName;
 use abstutil::{prettyprint_usize, Timer};
-use geom::{Duration, Time};
+use geom::Time;
 use map_model::Map;
 use sim::{AlertHandler, Scenario, Sim, SimFlags, SimOptions};
 
@@ -36,31 +36,42 @@ pub fn prebake_all() {
             abstio::read_binary(abstio::path_scenario(map.get_name(), "weekday"), &mut timer);
         prebake(&map, scenario, None, &mut timer);
     }
+
+    for scenario_name in vec!["base", "go_active", "base_with_bg", "go_active_with_bg"] {
+        let map = map_model::Map::new(MapName::new("gb", "poundbury", "center").path(), &mut timer);
+        let scenario: Scenario = abstio::read_binary(
+            abstio::path_scenario(map.get_name(), scenario_name),
+            &mut timer,
+        );
+        let mut opts = SimOptions::new("prebaked");
+        opts.alerts = AlertHandler::Silence;
+        opts.infinite_parking = true;
+        prebake(&map, scenario, Some(opts), &mut timer);
+    }
 }
 
-fn prebake(map: &Map, scenario: Scenario, time_limit: Option<Duration>, timer: &mut Timer) {
+fn prebake(map: &Map, scenario: Scenario, opts: Option<SimOptions>, timer: &mut Timer) {
     timer.start(format!(
         "prebake for {} / {}",
         scenario.map_name.describe(),
         scenario.scenario_name
     ));
 
-    let mut opts = SimOptions::new("prebaked");
-    opts.alerts = AlertHandler::Silence;
+    let opts = opts.unwrap_or_else(|| {
+        let mut opts = SimOptions::new("prebaked");
+        opts.alerts = AlertHandler::Silence;
+        opts
+    });
     let mut sim = Sim::new(&map, opts);
     // Bit of an abuse of this, but just need to fix the rng seed.
     let mut rng = SimFlags::for_test("prebaked").make_rng();
     scenario.instantiate(&mut sim, &map, &mut rng, timer);
-    if let Some(dt) = time_limit {
-        sim.timed_step(&map, dt, &mut None, timer);
-    } else {
-        sim.timed_step(
-            &map,
-            sim.get_end_of_day() - Time::START_OF_DAY,
-            &mut None,
-            timer,
-        );
-    }
+    sim.timed_step(
+        &map,
+        sim.get_end_of_day() - Time::START_OF_DAY,
+        &mut None,
+        timer,
+    );
 
     abstio::write_binary(
         abstio::path_prebaked_results(&scenario.map_name, &scenario.scenario_name),
