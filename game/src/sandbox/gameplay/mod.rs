@@ -272,15 +272,13 @@ impl FinalScore {
         Box::new(FinalScore {
             panel: Panel::new(
                 Widget::custom_row(vec![
-                    Widget::draw_batch(
-                        ctx,
-                        GeomBatch::load_svg(ctx, "system/assets/characters/boss.svg.gz")
-                            .scale(0.75)
-                            .autocrop(),
-                    )
-                    .container()
-                    .outline((10.0, Color::BLACK))
-                    .padding(10),
+                    GeomBatch::load_svg(ctx, "system/assets/characters/boss.svg.gz")
+                        .scale(0.75)
+                        .autocrop()
+                        .into_widget(ctx)
+                        .container()
+                        .outline((10.0, Color::BLACK))
+                        .padding(10),
                     Widget::col(vec![
                         msg.draw_text(ctx),
                         // TODO Adjust wording

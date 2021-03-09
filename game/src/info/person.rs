@@ -280,7 +280,7 @@ pub fn bio(
     let batch = GeomBatch::load_svg_bytes_uncached(&svg_data).autocrop();
     let dims = batch.get_dims();
     let batch = batch.scale((200.0 / dims.width).min(200.0 / dims.height));
-    rows.push(Widget::draw_batch(ctx, batch).centered_horiz());
+    rows.push(batch.into_widget(ctx).centered_horiz());
 
     let nickname = petname::Petnames::default().generate(&mut rng, 2, " ");
     let age = rng.gen_range(5..100);
@@ -626,7 +626,7 @@ fn header(
                 .color(RewriteColor::ChangeAll(Color::hex("#A3A3A3")))
                 .autocrop();
             let y_factor = 20.0 / batch.get_dims().height;
-            Widget::draw_batch(ctx, batch.scale(y_factor)).margin_left(28)
+            batch.scale(y_factor).into_widget(ctx).margin_left(28)
         } else {
             Widget::nothing()
         }

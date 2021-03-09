@@ -1,8 +1,8 @@
 use geom::{Angle, Circle, Distance, Duration, Pt2D};
 
 use crate::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, ScreenDims, ScreenPt,
-    ScreenRectangle, Text, TextExt, Widget, WidgetImpl, WidgetOutput,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ScreenDims, ScreenPt, ScreenRectangle,
+    Text, TextExt, Widget, WidgetImpl, WidgetOutput,
 };
 
 // TODO This is tuned for the trip time comparison right now.
@@ -100,14 +100,13 @@ impl CompareTimes {
                 .collect(),
         )
         .evenly_spaced();
-        let y_label = {
-            let label = Text::from(Line(format!("{} (minutes)", y_name.into())))
-                .render(ctx)
-                .rotate(Angle::degrees(90.0))
-                .autocrop();
-            // The text is already scaled; don't use Widget::draw_batch and scale it again.
-            JustDraw::wrap(ctx, label).centered_vert().margin_right(5)
-        };
+        let y_label = Text::from(Line(format!("{} (minutes)", y_name.into())))
+            .render(ctx)
+            .rotate(Angle::degrees(90.0))
+            .autocrop()
+            .into_widget(ctx)
+            .centered_vert()
+            .margin_right(5);
 
         let x_axis = Widget::custom_row(
             labels

@@ -1,7 +1,8 @@
 use geom::{Angle, Bounds, GPSBounds, Polygon, Pt2D};
 
 use crate::{
-    svg, Color, DeferDraw, Drawable, EventCtx, Fill, GfxCtx, Prerender, ScreenDims, Widget,
+    svg, Color, DeferDraw, Drawable, EventCtx, Fill, GfxCtx, JustDraw, Prerender, ScreenDims,
+    Widget,
 };
 
 /// A mutable builder for a group of colored polygons.
@@ -84,6 +85,11 @@ impl GeomBatch {
     /// Wrap in a Widget for layouting, so this batch can become part of a larger one.
     pub fn batch(self) -> Widget {
         DeferDraw::new(self)
+    }
+
+    /// Wrap in a Widget, so the batch can be drawn as part of a Panel.
+    pub fn into_widget(self, ctx: &EventCtx) -> Widget {
+        JustDraw::wrap(ctx, self)
     }
 
     /// Compute the bounds of all polygons in this batch.

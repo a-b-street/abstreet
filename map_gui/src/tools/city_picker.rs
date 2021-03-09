@@ -155,7 +155,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                         ]),
                         Widget::row(vec![
                             Widget::col(other_places).centered_vert(),
-                            Widget::draw_batch(ctx, batch).named("picker"),
+                            batch.into_widget(ctx).named("picker"),
                             Widget::col(this_city).centered_vert(),
                         ]),
                         Widget::custom_row(vec![
@@ -447,7 +447,7 @@ impl<A: AppLike + 'static> CitiesInCountryPicker<A> {
         let draw_flag = if abstio::file_exists(abstio::path(&flag_path)) {
             let flag = GeomBatch::load_svg(ctx, &format!("system/assets/flags/{}.svg", country));
             let y_factor = 30.0 / flag.get_dims().height;
-            Widget::draw_batch(ctx, flag.scale(y_factor))
+            flag.scale(y_factor).into_widget(ctx)
         } else {
             Widget::nothing()
         };

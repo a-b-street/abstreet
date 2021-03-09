@@ -6,8 +6,8 @@ use geom::{
 
 use crate::widgets::line_plot::{make_legend, thick_lineseries, Yvalue};
 use crate::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, PlotOptions, ScreenDims,
-    ScreenPt, Series, Text, TextExt, Widget, WidgetImpl, WidgetOutput,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, PlotOptions, ScreenDims, ScreenPt, Series,
+    Text, TextExt, Widget, WidgetImpl, WidgetOutput,
 };
 
 // The X is always time
@@ -156,8 +156,7 @@ impl FanChart {
                 .render(ctx)
                 .rotate(Angle::degrees(-15.0))
                 .autocrop();
-            // The text is already scaled; don't use Widget::draw_batch and scale it again.
-            row.push(JustDraw::wrap(ctx, batch));
+            row.push(batch.into_widget(ctx));
         }
         let x_axis = Widget::custom_row(row).padding(10).evenly_spaced();
 

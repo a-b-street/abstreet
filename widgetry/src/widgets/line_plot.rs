@@ -7,8 +7,8 @@ use geom::{
 };
 
 use crate::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, ScreenDims, ScreenPt,
-    ScreenRectangle, Text, TextExt, Toggle, Widget, WidgetImpl, WidgetOutput,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ScreenDims, ScreenPt, ScreenRectangle,
+    Text, TextExt, Toggle, Widget, WidgetImpl, WidgetOutput,
 };
 
 // The X is always time
@@ -180,8 +180,7 @@ impl<T: Yvalue<T>> LinePlot<T> {
                 .render(ctx)
                 .rotate(Angle::degrees(-15.0))
                 .autocrop();
-            // The text is already scaled; don't use Widget::draw_batch and scale it again.
-            row.push(JustDraw::wrap(ctx, batch));
+            row.push(batch.into_widget(ctx));
         }
         let x_axis = Widget::custom_row(row).padding(10).evenly_spaced();
 
@@ -341,14 +340,11 @@ pub fn make_legend<T: Yvalue<T>>(
         } else {
             let radius = 15.0;
             row.push(Widget::row(vec![
-                Widget::draw_batch(
-                    ctx,
-                    GeomBatch::from(vec![(
-                        s.color,
-                        Circle::new(Pt2D::new(radius, radius), Distance::meters(radius))
-                            .to_polygon(),
-                    )]),
-                ),
+                GeomBatch::from(vec![(
+                    s.color,
+                    Circle::new(Pt2D::new(radius, radius), Distance::meters(radius)).to_polygon(),
+                )])
+                .into_widget(ctx),
                 s.label.clone().draw_text(ctx),
             ]));
         }
