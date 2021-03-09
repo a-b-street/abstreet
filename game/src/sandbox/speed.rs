@@ -171,7 +171,7 @@ impl TimePanel {
                     prettyprint_usize(finished),
                     pct as usize
                 )));
-                txt.draw(ctx).centered_vert()
+                txt.into_widget(ctx).centered_vert()
             },
             if app.primary.dirty_from_edits {
                 ctx.style()
@@ -188,15 +188,13 @@ impl TimePanel {
         // into the panel for all gameplay modes
         let record_trips = if let Some(n) = app.primary.sim.num_recorded_trips() {
             Widget::row(vec![
-                Widget::draw_batch(
-                    ctx,
-                    GeomBatch::from(vec![(
-                        Color::RED,
-                        Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(10.0)).to_polygon(),
-                    )]),
-                )
+                GeomBatch::from(vec![(
+                    Color::RED,
+                    Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(10.0)).to_polygon(),
+                )])
+                .into_widget(ctx)
                 .centered_vert(),
-                format!("{} trips captured", prettyprint_usize(n)).draw_text(ctx),
+                format!("{} trips captured", prettyprint_usize(n)).text_widget(ctx),
                 ctx.style()
                     .btn_solid_primary
                     .text("Finish Capture")
@@ -236,12 +234,12 @@ impl TimePanel {
                 );
             }
 
-            Widget::draw_batch(ctx, batch)
+            batch.into_widget(ctx)
         };
 
         Widget::col(vec![
             Text::from(Line(self.time.ampm_tostring()).big_monospaced())
-                .draw(ctx)
+                .into_widget(ctx)
                 .centered_horiz(),
             time_bar,
             trip_results,
