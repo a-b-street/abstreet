@@ -98,7 +98,7 @@ impl GameplayState for Actdev {
                             scenario.to_string(),
                             self.bg_traffic,
                         ),
-                        jump_to_time_upon_startup(Duration::hours(8), Some(Duration::seconds(0.5))),
+                        jump_to_time_upon_startup(Duration::hours(8)),
                     )));
                 }
                 "Edit map" => Some(Transition::Push(EditMode::new(
@@ -177,7 +177,7 @@ impl GameplayState for Actdev {
                         self.scenario_name.clone(),
                         !self.bg_traffic,
                     ),
-                    jump_to_time_upon_startup(Duration::hours(8), Some(Duration::seconds(0.5))),
+                    jump_to_time_upon_startup(Duration::hours(8)),
                 )));
             }
             _ => None,

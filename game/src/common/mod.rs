@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
 
-use geom::{Duration, Polygon};
+use geom::{Duration, Polygon, Time};
 use map_gui::ID;
 use map_model::{IntersectionID, Map, RoadID};
 use sim::{AgentType, TripMode, TripPhaseType};
@@ -13,6 +13,7 @@ pub use self::warp::{warp_to_id, Warping};
 use crate::app::App;
 use crate::app::Transition;
 use crate::info::{ContextualActions, InfoPanel, Tab};
+use crate::sandbox::TimeWarpScreen;
 
 mod warp;
 
@@ -407,27 +408,25 @@ pub fn checkbox_per_mode(
 
 /// If you want a simulation to start after midnight, pass the result of this to
 /// `SandboxMode::async_new`. It's less visually overwhelming and more performant to continue with a
-/// loading screen than launching the jump-to-time UI.
-///
-/// If a deadline is specified, after this real amount of time passes, we stop simulating and begin
-/// the mode. If this isn't used and advancing time takes a long time, it'll feel like the app is
-/// frozen.
+/// loading screen than launching the jump-to-time UI. After a deadline of 0.5s, we will switch
+/// over to the jump-to-time UI so the user can cancel.
 pub fn jump_to_time_upon_startup(
     dt: Duration,
-    deadline: Option<Duration>,
 ) -> Box<dyn FnOnce(&mut EventCtx, &mut App) -> Vec<Transition>> {
     Box::new(move |ctx, app| {
-        ctx.loading_screen(format!("jump forward {}", dt), |_, mut timer| {
-            if let Some(deadline) = deadline {
-                app.primary
-                    .sim
-                    .time_limited_step(&app.primary.map, dt, deadline, &mut None);
+        ctx.loading_screen(format!("jump forward {}", dt), |ctx, _| {
+            let deadline = Duration::seconds(0.5);
+            app.primary
+                .sim
+                .time_limited_step(&app.primary.map, dt, deadline, &mut None);
+            let target = Time::START_OF_DAY + dt;
+            if app.primary.sim.time() != target {
+                vec![Transition::Push(TimeWarpScreen::new(
+                    ctx, app, target, None,
+                ))]
             } else {
-                app.primary
-                    .sim
-                    .timed_step(&app.primary.map, dt, &mut None, &mut timer);
+                vec![Transition::Keep]
             }
-        });
-        vec![Transition::Keep]
+        })
     })
 }
