@@ -472,6 +472,12 @@
 <span id="469">469</span>
 <span id="470">470</span>
 <span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
@@ -654,7 +660,7 @@
             .<span class="ident">small</span>(),
             <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Saved {} in total&quot;</span>, <span class="ident">sum_faster</span>)).<span class="ident">small</span>(),
         ])
-        .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
         .<span class="ident">container</span>()
         .<span class="ident">padding</span>(<span class="number">20</span>)
         .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#72CE36&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.5</span>))
@@ -677,7 +683,7 @@
             .<span class="ident">small</span>(),
             <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Lost {} in total&quot;</span>, <span class="ident">sum_slower</span>)).<span class="ident">small</span>(),
         ])
-        .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
         .<span class="ident">container</span>()
         .<span class="ident">padding</span>(<span class="number">20</span>)
         .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#EB3223&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.5</span>))
@@ -690,7 +696,7 @@
             ))
             .<span class="ident">small</span>(),
         ])
-        .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
         .<span class="ident">container</span>()
         .<span class="ident">padding</span>(<span class="number">20</span>)
         .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#F4DA22&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.5</span>))
@@ -710,7 +716,9 @@
     }
 
     <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Line</span>(<span class="string">&quot;Trip time before and after&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+        <span class="ident">Line</span>(<span class="string">&quot;Trip time before and after&quot;</span>)
+            .<span class="ident">small_heading</span>()
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="ident">CompareTimes</span>::<span class="ident">new</span>(
             <span class="ident">ctx</span>,
             <span class="macro">format</span><span class="macro">!</span>(
@@ -868,10 +876,14 @@
             <span class="ident">Line</span>(<span class="string">&quot;Number of slower/faster trips&quot;</span>).<span class="ident">small_heading</span>(),
             <span class="ident">Line</span>(<span class="string">&quot;by ranges of trip time (after)&quot;</span>).<span class="ident">small_heading</span>(),
         ])
-        .<span class="ident">draw</span>(<span class="ident">ctx</span>),
-        <span class="ident">Line</span>(<span class="string">&quot;number of trips (faster)&quot;</span>).<span class="ident">secondary</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+        <span class="ident">Line</span>(<span class="string">&quot;number of trips (faster)&quot;</span>)
+            .<span class="ident">secondary</span>()
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="ident">DrawWithTooltips</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>, <span class="ident">tooltips</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>())),
-        <span class="ident">Line</span>(<span class="string">&quot;number of trips (slower)&quot;</span>).<span class="ident">secondary</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+        <span class="ident">Line</span>(<span class="string">&quot;number of trips (slower)&quot;</span>)
+            .<span class="ident">secondary</span>()
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
     ])
     .<span class="ident">padding</span>(<span class="number">16</span>)
     .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_outline</span>)

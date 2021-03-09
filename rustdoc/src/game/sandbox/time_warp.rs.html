@@ -547,7 +547,7 @@
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 ])
                 .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>),
-                <span class="ident">Line</span>(<span class="string">&quot;Jump to what time?&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                <span class="ident">Line</span>(<span class="string">&quot;Jump to what time?&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">has_prebaked</span>().<span class="ident">is_some</span>() {
                     <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(
                         <span class="ident">Color</span>::<span class="ident">WHITE</span>.<span class="ident">alpha</span>(<span class="number">0.7</span>),
@@ -682,7 +682,7 @@
                 ])
                 .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;Jump to next&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Line</span>(<span class="string">&quot;Jump to next&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;delay&quot;</span>,
@@ -694,7 +694,7 @@
                             <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;10&quot;</span>, <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">10</span>)),
                         ],
                     ),
-                    <span class="ident">Line</span>(<span class="string">&quot;minute delay&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Line</span>(<span class="string">&quot;minute delay&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="ident">Toggle</span>::<span class="ident">checkbox</span>(
                     <span class="ident">ctx</span>,
@@ -795,7 +795,7 @@
             <span class="ident">halt_upon_delay</span>,
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Text</span>::<span class="ident">new</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;text&quot;</span>),
+                    <span class="ident">Text</span>::<span class="ident">new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;text&quot;</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_outline</span>
                         .<span class="ident">text</span>(<span class="string">&quot;stop now&quot;</span>)
@@ -892,7 +892,7 @@
                 },
             ]);
 
-            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;text&quot;</span>, <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>));
+            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;text&quot;</span>, <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
         }
         <span class="comment">// &gt;= because of the case of resetting to midnight. GameplayMode::initialize takes a tiny</span>
         <span class="comment">// step past midnight after spawning things, so that agents initially appear on the map.</span>

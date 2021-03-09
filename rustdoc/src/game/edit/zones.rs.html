@@ -287,7 +287,7 @@
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;Editing restricted access zone&quot;</span>)
                     .<span class="ident">small_heading</span>()
-                    .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">selector</span>.<span class="ident">make_controls</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;selector&quot;</span>),
                 <span class="ident">legend</span>,
                 <span class="ident">make_instructions</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">allow_through_traffic</span>).<span class="ident">named</span>(<span class="string">&quot;instructions&quot;</span>),
@@ -460,10 +460,10 @@
              Would you like to restrict it?&quot;</span>,
         ))
         .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">30</span>)
-        .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
     } <span class="kw">else</span> {
         <span class="ident">Line</span>(<span class="string">&quot;Trips may start or end in this zone, but through-traffic is only allowed for:&quot;</span>)
-            .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
     }
 }
 </pre></div>

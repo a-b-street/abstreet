@@ -655,8 +655,8 @@
         <span class="self">self</span>.<span class="ident">fg_color</span>.<span class="ident">unwrap_or</span>(<span class="ident">style</span>.<span class="ident">text_fg_color</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-        <span class="ident">Text</span>::<span class="ident">from</span>(<span class="self">self</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_widget</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+        <span class="ident">Text</span>::<span class="ident">from</span>(<span class="self">self</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">batch</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">Text</span>::<span class="ident">from</span>(<span class="self">self</span>).<span class="ident">batch</span>(<span class="ident">ctx</span>)
@@ -957,7 +957,7 @@
         <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:x}&quot;</span>, <span class="ident">hasher</span>.<span class="ident">finish</span>())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_widget</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">JustDraw</span>::<span class="ident">wrap</span>(<span class="ident">ctx</span>, <span class="self">self</span>.<span class="ident">render</span>(<span class="ident">ctx</span>))
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">batch</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
@@ -1081,7 +1081,7 @@
 
 <span class="kw">impl</span> <span class="ident">TextExt</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
     <span class="kw">fn</span> <span class="ident">text_widget</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-        <span class="ident">Line</span>(<span class="self">self</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>)
+        <span class="ident">Line</span>(<span class="self">self</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
     }
     <span class="kw">fn</span> <span class="ident">batch_text</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">Line</span>(<span class="self">self</span>).<span class="ident">batch</span>(<span class="ident">ctx</span>)
@@ -1090,7 +1090,7 @@
 
 <span class="kw">impl</span> <span class="ident">TextExt</span> <span class="kw">for</span> <span class="ident">String</span> {
     <span class="kw">fn</span> <span class="ident">text_widget</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-        <span class="ident">Line</span>(<span class="self">self</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>)
+        <span class="ident">Line</span>(<span class="self">self</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
     }
     <span class="kw">fn</span> <span class="ident">batch_text</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">Line</span>(<span class="self">self</span>).<span class="ident">batch</span>(<span class="ident">ctx</span>)

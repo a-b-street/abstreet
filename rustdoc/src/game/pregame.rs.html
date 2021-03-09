@@ -691,7 +691,7 @@
             {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;A/B STREET&quot;</span>).<span class="ident">display_title</span>());
                 <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;Created by Dustin Carlino, Yuwen Li, &amp; Michael Kirk&quot;</span>));
-                <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">centered_horiz</span>()
+                <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_horiz</span>()
             },
             <span class="ident">Widget</span>::<span class="ident">row</span>({
                 <span class="kw">let</span> <span class="ident">btn_builder</span> <span class="op">=</span> <span class="ident">ctx</span>
@@ -772,7 +772,7 @@
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;About&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Feedback&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 ]),
-                <span class="ident">built_info</span>::<span class="ident">time</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                <span class="ident">built_info</span>::<span class="ident">time</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             ])
             .<span class="ident">centered</span>(),
         ];
@@ -878,7 +878,7 @@
                     ),
                 ])
                 .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">50</span>)
-                .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                 .<span class="ident">centered_horiz</span>()
                 .<span class="ident">align_vert_center</span>()
                 .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>)
@@ -952,7 +952,7 @@
                 }
                 <span class="ident">current_tab</span>.<span class="ident">push</span>(
                     <span class="ident">txt</span>.<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">70</span>)
-                        .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                         .<span class="ident">margin_below</span>(<span class="number">15</span>)
                         .<span class="ident">margin_above</span>(<span class="number">15</span>),
                 );
@@ -1005,7 +1005,7 @@
                     <span class="string">&quot;These are proposed changes to Seattle made by community members.&quot;</span>,
                 ));
                 <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;Contact dabreegster@gmail.com to add your idea here!&quot;</span>));
-                <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">centered_horiz</span>().<span class="ident">margin_below</span>(<span class="number">20</span>)
+                <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_horiz</span>().<span class="ident">margin_below</span>(<span class="number">20</span>)
             },
             <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">buttons</span>).<span class="ident">flex_wrap</span>(<span class="ident">ctx</span>, <span class="ident">Percent</span>::<span class="ident">int</span>(<span class="number">80</span>)),
         ];

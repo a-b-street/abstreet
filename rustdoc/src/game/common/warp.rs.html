@@ -277,6 +277,8 @@
 <span id="274">274</span>
 <span id="275">275</span>
 <span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -354,7 +356,9 @@
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">DebugWarp</span> {
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;Warp to an object by ID&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Line</span>(<span class="string">&quot;Warp to an object by ID&quot;</span>)
+                        .<span class="ident">small_heading</span>()
+                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="string">&quot;Example: r42 is Road #42&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
@@ -388,13 +392,13 @@
                     <span class="ident">Line</span>(<span class="string">&quot;L&quot;</span>).<span class="ident">fg</span>(<span class="ident">c</span>),
                     <span class="ident">Line</span>(<span class="string">&quot;ot&quot;</span>),
                 ])
-                .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Or &quot;</span>),
                     <span class="ident">Line</span>(<span class="string">&quot;j&quot;</span>).<span class="ident">fg</span>(<span class="ident">c</span>),
                     <span class="ident">Line</span>(<span class="string">&quot;ump to the previous position&quot;</span>),
                 ])
-                .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">text_entry</span>(<span class="ident">ctx</span>, <span class="ident">String</span>::<span class="ident">new</span>(), <span class="bool-val">true</span>).<span class="ident">named</span>(<span class="string">&quot;input&quot;</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_outline</span>

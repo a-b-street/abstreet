@@ -1350,7 +1350,7 @@
                         <span class="ident">prettyprint_usize</span>(<span class="ident">finished</span>),
                         <span class="ident">pct</span> <span class="kw">as</span> <span class="ident">usize</span>
                     )));
-                    <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>()
+                    <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>()
                 },
                 <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">dirty_from_edits</span> {
                     <span class="ident">ctx</span>.<span class="ident">style</span>()

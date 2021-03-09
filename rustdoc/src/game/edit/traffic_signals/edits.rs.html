@@ -329,7 +329,7 @@
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;How long should this stage last?&quot;</span>)
                     .<span class="ident">small_heading</span>()
-                    .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
             ]),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -363,7 +363,7 @@
             ]),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Line</span>(<span class="string">&quot;Additional time this stage can last?&quot;</span>)
                 .<span class="ident">small_heading</span>()
-                .<span class="ident">draw</span>(<span class="ident">ctx</span>)]),
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)]),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="string">&quot;Seconds:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
                 <span class="ident">Spinner</span>::<span class="ident">widget</span>(
@@ -380,7 +380,7 @@
             ]),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Line</span>(<span class="string">&quot;How long with no demand to end stage?&quot;</span>)
                 .<span class="ident">small_heading</span>()
-                .<span class="ident">draw</span>(<span class="ident">ctx</span>)]),
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)]),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="string">&quot;Seconds:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
                 <span class="ident">Spinner</span>::<span class="ident">widget</span>(
@@ -395,7 +395,7 @@
             ]),
             <span class="ident">Line</span>(<span class="string">&quot;Minimum time is set by the time required for crosswalk&quot;</span>)
                 .<span class="ident">secondary</span>()
-                .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_solid_primary</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Apply&quot;</span>)

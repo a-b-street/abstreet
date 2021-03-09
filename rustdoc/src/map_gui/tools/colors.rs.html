@@ -414,6 +414,8 @@
 <span id="411">411</span>
 <span id="412">412</span>
 <span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -526,7 +528,9 @@
             )])
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
             .<span class="ident">centered_vert</span>(),
-            <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">label</span>)).<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">35</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>),
+            <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">label</span>))
+                .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">35</span>)
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         ])
     }
 
@@ -565,7 +569,7 @@
             <span class="ident">Widget</span>::<span class="ident">custom_row</span>(
                 <span class="ident">labels</span>
                     .<span class="ident">into_iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">lbl</span><span class="op">|</span> <span class="ident">Line</span>(<span class="ident">lbl</span>).<span class="ident">small</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>))
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">lbl</span><span class="op">|</span> <span class="ident">Line</span>(<span class="ident">lbl</span>).<span class="ident">small</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>))
                     .<span class="ident">collect</span>(),
             )
             .<span class="ident">evenly_spaced</span>(),
@@ -592,7 +596,7 @@
             <span class="ident">Widget</span>::<span class="ident">custom_row</span>(
                 <span class="ident">pairs</span>
                     .<span class="ident">into_iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">lbl</span>)<span class="op">|</span> <span class="ident">Line</span>(<span class="ident">lbl</span>).<span class="ident">small</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>))
+                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">lbl</span>)<span class="op">|</span> <span class="ident">Line</span>(<span class="ident">lbl</span>).<span class="ident">small</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>))
                     .<span class="ident">collect</span>(),
             )
             .<span class="ident">evenly_spaced</span>(),

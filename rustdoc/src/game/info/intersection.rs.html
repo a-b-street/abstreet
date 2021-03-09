@@ -438,6 +438,8 @@
 <span id="435">435</span>
 <span id="436">436</span>
 <span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
@@ -473,7 +475,7 @@
     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">road_names</span> {
         <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;  {}&quot;</span>, <span class="ident">r</span>)));
     }
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>));
+    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
 
     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
         <span class="ident">rows</span>.<span class="ident">push</span>(
@@ -514,7 +516,7 @@
                 .<span class="ident">total_for</span>(<span class="ident">id</span>)
         )
     )));
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>));
+    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
 
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">opts</span>.<span class="ident">to_controls</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
 
@@ -638,7 +640,7 @@
 
     <span class="ident">rows</span>.<span class="ident">push</span>(
         <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>),
+            <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">DrawWithTooltips</span>::<span class="ident">new</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">batch</span>,
@@ -728,7 +730,7 @@
             <span class="comment">// TODO Say &quot;normally&quot; or something?</span>
             <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;One cycle lasts {}&quot;</span>, <span class="ident">total</span>)));
         }
-        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>));
+        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
     }
 
     <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">stage</span>) <span class="kw">in</span> <span class="ident">signal</span>.<span class="ident">stages</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
@@ -743,7 +745,7 @@
                     <span class="ident">additional</span>
                 )),
             }
-            .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         );
 
         {
@@ -818,7 +820,9 @@
         <span class="ident">disabled</span>: <span class="ident">opts</span>.<span class="ident">disabled_series</span>(),
     };
     <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Line</span>(<span class="string">&quot;Delay through intersection&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+        <span class="ident">Line</span>(<span class="string">&quot;Delay through intersection&quot;</span>)
+            .<span class="ident">small_heading</span>()
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="kw">if</span> <span class="ident">fan_chart</span> {
             <span class="ident">FanChart</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">series</span>, <span class="ident">plot_opts</span>)
         } <span class="kw">else</span> {
@@ -848,7 +852,7 @@
         <span class="ident">IntersectionType</span>::<span class="ident">Construction</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} (under construction)&quot;</span>, <span class="ident">id</span>),
     };
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Line</span>(<span class="ident">label</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+        <span class="ident">Line</span>(<span class="ident">label</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="ident">header_btns</span>(<span class="ident">ctx</span>),
     ]));
 

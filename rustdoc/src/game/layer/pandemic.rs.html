@@ -448,7 +448,7 @@
                 (<span class="ident">model</span>.<span class="ident">count_dead</span>() <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">pct</span>
             )),
         ])
-        .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="string">&quot;Filter:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">dropdown</span>(

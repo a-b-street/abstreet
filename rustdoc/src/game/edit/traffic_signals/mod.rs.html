@@ -933,6 +933,8 @@
 <span id="930">930</span>
 <span id="931">931</span>
 <span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 
@@ -1461,7 +1463,9 @@
     ];
     <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Traffic signal editor&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+            <span class="ident">Line</span>(<span class="string">&quot;Traffic signal editor&quot;</span>)
+                .<span class="ident">small_heading</span>()
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_plain</span>
                 .<span class="ident">text</span>(<span class="string">&quot;+ Edit multiple&quot;</span>)
@@ -1531,7 +1535,7 @@
             .<span class="ident">secondary</span>(),
         );
     }
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>)];
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>)];
     <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.2</span>));
 
     <span class="comment">// TODO Say &quot;normally&quot; to account for variable stages?</span>

@@ -625,6 +625,10 @@
 <span id="622">622</span>
 <span id="623">623</span>
 <span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">seq</span>::<span class="ident">SliceRandom</span>;
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">Rng</span>;
@@ -748,7 +752,10 @@
     <span class="kw">fn</span> <span class="ident">recreate_panels</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="kw">let</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Sandbox&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">18</span>),
+                <span class="ident">Line</span>(<span class="string">&quot;Sandbox&quot;</span>)
+                    .<span class="ident">small_heading</span>()
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">margin_right</span>(<span class="number">18</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_popup_icon_text</span>(
                         <span class="string">&quot;system/assets/tools/map.svg&quot;</span>,
@@ -786,7 +793,7 @@
                 <span class="ident">Key</span>::<span class="ident">Z</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
                 <span class="ident">Line</span>(<span class="string">&quot; to start traffic nearby&quot;</span>),
             ])
-            .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         ];
 
         <span class="self">self</span>.<span class="ident">top_center</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">rows</span>))
@@ -849,10 +856,11 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Pick your scenario&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                <span class="ident">Line</span>(<span class="string">&quot;Pick your scenario&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
             ]),
-            <span class="ident">Line</span>(<span class="string">&quot;Each scenario determines what people live and travel around this map&quot;</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>),
+            <span class="ident">Line</span>(<span class="string">&quot;Each scenario determines what people live and travel around this map&quot;</span>)
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         ];
         <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">label</span>, <span class="ident">description</span>) <span class="kw">in</span> <span class="ident">choices</span> {
             <span class="kw">let</span> <span class="ident">btn</span> <span class="op">=</span> <span class="ident">ctx</span>
@@ -865,7 +873,7 @@
                     <span class="ident">btn</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>),
                     <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">description</span>).<span class="ident">secondary</span>())
                         .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">40</span>)
-                        .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                         .<span class="ident">align_right</span>(),
                 ])
                 .<span class="ident">margin_above</span>(<span class="number">30</span>),
@@ -933,7 +941,7 @@
             <span class="ident">confirmed</span>: <span class="bool-val">false</span>,
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;New trip&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Line</span>(<span class="string">&quot;New trip&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="string">&quot;Click a building or border to specify start&quot;</span>

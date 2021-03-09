@@ -408,6 +408,9 @@
 <span id="405">405</span>
 <span id="406">406</span>
 <span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
@@ -593,7 +596,7 @@
                         <span class="ident">Key</span>::<span class="ident">J</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
                         <span class="ident">Line</span>(<span class="string">&quot;ams&quot;</span>),
                     ]);
-                    <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>);
+                    <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">FYI</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">contents</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>)));
                 }
                 <span class="string">&quot;try again&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -638,7 +641,7 @@
                             ),
                             <span class="ident">Line</span>(<span class="string">&quot;Then you should check if your changes work from midnight.&quot;</span>),
                         ])
-                        .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                         <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>,
                     )));
                 }
@@ -662,7 +665,7 @@
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Delay exceeded {} at {}&quot;</span>, <span class="ident">THRESHOLD</span>, <span class="ident">time</span>))
                         .<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">RED</span>)
-                        .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                         .<span class="ident">centered_vert</span>(),
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;try again&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 ]),
@@ -677,7 +680,7 @@
                         <span class="string">&quot;Keep delay at all intersections under {}&quot;</span>,
                         <span class="ident">THRESHOLD</span>
                     ))
-                    .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_plain</span>
                         .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/lightbulb.svg&quot;</span>, <span class="string">&quot;Hint&quot;</span>)
@@ -714,7 +717,7 @@
                         <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#EB3223&quot;</span>)
                     }),
                 ])
-                .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_plain</span>
                     .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
@@ -731,7 +734,8 @@
                 } <span class="kw">else</span> {
                     <span class="ident">Widget</span>::<span class="ident">nothing</span>()
                 },
-                <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Line</span>(<span class="string">&quot;Worst delay: &quot;</span>), <span class="ident">Line</span>(<span class="string">&quot;none!&quot;</span>).<span class="ident">secondary</span>()]).<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Line</span>(<span class="string">&quot;Worst delay: &quot;</span>), <span class="ident">Line</span>(<span class="string">&quot;none!&quot;</span>).<span class="ident">secondary</span>()])
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
                     .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAlpha</span>(<span class="number">0.5</span>))
                     .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
@@ -784,18 +788,18 @@
             <span class="ident">Line</span>(<span class="string">&quot;Survive as long as possible through 24 hours of a busy weekday.&quot;</span>)
                 .<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>),
         ])
-        .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
         .<span class="ident">margin_below</span>(<span class="number">30</span>),
         <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Time&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                <span class="ident">Line</span>(<span class="string">&quot;Time&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/time.svg&quot;</span>)
                     .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)
                     .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">Line</span>(<span class="string">&quot;24 hours&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                <span class="ident">Line</span>(<span class="string">&quot;24 hours&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             ]),
             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Goal&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                <span class="ident">Line</span>(<span class="string">&quot;Goal&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
                     .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)
                     .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
@@ -803,14 +807,16 @@
                     <span class="ident">Line</span>(<span class="string">&quot;Keep delay at all intersections&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>),
                     <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;under {}&quot;</span>, <span class="ident">THRESHOLD</span>)).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>),
                 ])
-                .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             ]),
             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Score&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                <span class="ident">Line</span>(<span class="string">&quot;Score&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/star.svg&quot;</span>)
                     .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)
                     .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">Line</span>(<span class="string">&quot;How long you survive&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                <span class="ident">Line</span>(<span class="string">&quot;How long you survive&quot;</span>)
+                    .<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             ]),
         ])
         .<span class="ident">evenly_spaced</span>(),

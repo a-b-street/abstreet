@@ -2165,7 +2165,7 @@
 
     <span class="kw">fn</span> <span class="ident">make_top_center</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">edit_map</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Tutorial&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+            <span class="ident">Line</span>(<span class="string">&quot;Tutorial&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">vert_separator</span>(<span class="ident">ctx</span>, <span class="number">50.0</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_prev</span>()
@@ -2175,7 +2175,7 @@
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Task {}&quot;</span>, <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">stage</span> <span class="op">+</span> <span class="number">1</span>)));
                 <span class="comment">// TODO Smaller font and use alpha for the &quot;/9&quot; part</span>
                 <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;/{}&quot;</span>, <span class="self">self</span>.<span class="ident">stages</span>.<span class="ident">len</span>())).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.7</span>)));
-                <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>)
+                <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
             },
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_next</span>()
@@ -2196,7 +2196,7 @@
                         ))
                         .<span class="ident">small_heading</span>(),
                     )
-                    .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="comment">// TODO also text saying &quot;instructions&quot;... can we layout two things easily to</span>
                     <span class="comment">// make a button?</span>
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
@@ -2206,7 +2206,7 @@
                         .<span class="ident">centered_vert</span>()
                         .<span class="ident">align_right</span>(),
                 ]));
-                <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">task</span>.<span class="ident">top_txt</span>(<span class="self">self</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>));
+                <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">task</span>.<span class="ident">top_txt</span>(<span class="self">self</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
             }
         }
         <span class="kw">if</span> <span class="ident">edit_map</span> {
@@ -2256,7 +2256,7 @@
                     <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">lines</span> {
                         <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="ident">l</span>));
                     }
-                    <span class="ident">txt</span>.<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">30</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>)
+                    <span class="ident">txt</span>.<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">30</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                 }];
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">controls</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
@@ -2845,7 +2845,7 @@
             <span class="ident">ctx</span>,
             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
                 <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Use the tutorial to learn the basic controls.&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>))
-                    .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
             }),
         )
 }

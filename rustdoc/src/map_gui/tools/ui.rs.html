@@ -235,7 +235,7 @@
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">ChooseSomething</span> {
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Line</span>(<span class="ident">query</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Line</span>(<span class="ident">query</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="ident">Menu</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="ident">choices</span>).<span class="ident">named</span>(<span class="string">&quot;menu&quot;</span>),
@@ -290,7 +290,7 @@
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">PromptInput</span> {
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Line</span>(<span class="ident">query</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Line</span>(<span class="ident">query</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">text_entry</span>(<span class="ident">ctx</span>, <span class="ident">String</span>::<span class="ident">new</span>(), <span class="bool-val">true</span>).<span class="ident">named</span>(<span class="string">&quot;input&quot;</span>),
@@ -372,7 +372,7 @@
         }
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">PopupMsg</span> {
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_solid_primary</span>
                     .<span class="ident">text</span>(<span class="string">&quot;OK&quot;</span>)

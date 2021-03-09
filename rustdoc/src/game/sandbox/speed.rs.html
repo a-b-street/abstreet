@@ -802,7 +802,7 @@
             <span class="ident">time</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(),
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>().<span class="ident">ampm_tostring</span>()).<span class="ident">big_monospaced</span>())
-                    .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                     .<span class="ident">centered_horiz</span>(),
                 {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
@@ -838,11 +838,11 @@
                     <span class="ident">batch</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                 },
                 <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;00:00&quot;</span>).<span class="ident">small_monospaced</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Line</span>(<span class="string">&quot;00:00&quot;</span>).<span class="ident">small_monospaced</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/speed/sunrise.svg&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Line</span>(<span class="string">&quot;12:00&quot;</span>).<span class="ident">small_monospaced</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Line</span>(<span class="string">&quot;12:00&quot;</span>).<span class="ident">small_monospaced</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/speed/sunset.svg&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Line</span>(<span class="string">&quot;24:00&quot;</span>).<span class="ident">small_monospaced</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Line</span>(<span class="string">&quot;24:00&quot;</span>).<span class="ident">small_monospaced</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 ])
                 .<span class="ident">evenly_spaced</span>(),
             ]))

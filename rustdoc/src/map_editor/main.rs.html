@@ -587,10 +587,10 @@
                 <span class="ident">mode</span>: <span class="ident">Mode</span>::<span class="ident">Viewing</span>,
                 <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="ident">Line</span>(<span class="string">&quot;Map Editor&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                        <span class="ident">Line</span>(<span class="string">&quot;Map Editor&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                         <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                     ]),
-                    <span class="ident">Text</span>::<span class="ident">new</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;instructions&quot;</span>),
+                    <span class="ident">Text</span>::<span class="ident">new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;instructions&quot;</span>),
                     <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;intersection geometry&quot;</span>, <span class="ident">Key</span>::<span class="ident">G</span>, <span class="bool-val">false</span>),
                         <span class="ident">ctx</span>.<span class="ident">style</span>()
@@ -689,7 +689,7 @@
                             <span class="ident">Key</span>::<span class="ident">T</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
                             <span class="ident">Line</span>(<span class="string">&quot; to toggle stop sign / traffic signal&quot;</span>),
                         ]);
-                        <span class="kw">let</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>);
+                        <span class="kw">let</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
                         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;instructions&quot;</span>, <span class="ident">instructions</span>);
                     }
                     <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">b</span>)) <span class="op">=</span><span class="op">&gt;</span> {
@@ -711,7 +711,7 @@
                             <span class="ident">Key</span>::<span class="ident">LeftControl</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
                             <span class="ident">Line</span>(<span class="string">&quot; to move&quot;</span>),
                         ]);
-                        <span class="kw">let</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>);
+                        <span class="kw">let</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
                         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;instructions&quot;</span>, <span class="ident">instructions</span>);
                     }
                     <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Road</span>(<span class="ident">r</span>)) <span class="op">=</span><span class="op">&gt;</span> {
@@ -756,7 +756,7 @@
                             <span class="ident">Key</span>::<span class="ident">M</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
                             <span class="ident">Line</span>(<span class="string">&quot; to merge&quot;</span>),
                         ]);
-                        <span class="kw">let</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>);
+                        <span class="kw">let</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
                         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;instructions&quot;</span>, <span class="ident">instructions</span>);
                     }
                     <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">RoadPoint</span>(<span class="ident">r</span>, <span class="ident">idx</span>)) <span class="op">=</span><span class="op">&gt;</span> {
@@ -778,7 +778,7 @@
                             <span class="ident">Key</span>::<span class="ident">LeftControl</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
                             <span class="ident">Line</span>(<span class="string">&quot; to move&quot;</span>),
                         ]);
-                        <span class="kw">let</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>);
+                        <span class="kw">let</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
                         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;instructions&quot;</span>, <span class="ident">instructions</span>);
                     }
                     <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -831,7 +831,7 @@
                                     <span class="ident">Key</span>::<span class="ident">B</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
                                     <span class="ident">Line</span>(<span class="string">&quot; to create a building&quot;</span>),
                                 ]);
-                                <span class="kw">let</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>);
+                                <span class="kw">let</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
                                 <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;instructions&quot;</span>, <span class="ident">instructions</span>);
                             }
                         }
@@ -880,7 +880,7 @@
                     <span class="ident">Line</span>(<span class="string">&quot;Click&quot;</span>).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
                     <span class="ident">Line</span>(<span class="string">&quot; the top-left corner of this map&quot;</span>),
                 ]);
-                <span class="kw">let</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>);
+                <span class="kw">let</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
                 <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;instructions&quot;</span>, <span class="ident">instructions</span>);
 
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">cursor</span> {
@@ -895,7 +895,7 @@
                     <span class="ident">Line</span>(<span class="string">&quot;Click&quot;</span>).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
                     <span class="ident">Line</span>(<span class="string">&quot; the bottom-right corner of this map&quot;</span>),
                 ]);
-                <span class="kw">let</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>);
+                <span class="kw">let</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
                 <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;instructions&quot;</span>, <span class="ident">instructions</span>);
 
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt2</span>) <span class="op">=</span> <span class="ident">cursor</span> {

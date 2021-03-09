@@ -1032,7 +1032,7 @@
                 <span class="ident">Line</span>(<span class="string">&quot;Pandemic model state: &quot;</span>).<span class="ident">secondary</span>(),
                 <span class="ident">Line</span>(<span class="ident">status</span>),
             ])
-            .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         );
     }
 
@@ -1080,7 +1080,7 @@
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">debug_car_ui</span>(<span class="ident">car</span>)
                 )))
                 .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">20</span>)
-                .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             );
         }
     }
@@ -1126,7 +1126,7 @@
                 <span class="ident">trip</span>.<span class="ident">departure</span> <span class="op">-</span> <span class="ident">last_t</span>,
                 <span class="ident">at</span>
             )))
-            .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         );
         <span class="comment">// TODO Ideally end time if we know</span>
         <span class="ident">last_t</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">departure</span>;
@@ -1156,7 +1156,7 @@
             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_end_of_day</span>() <span class="op">-</span> <span class="ident">last_trip</span>.<span class="ident">departure</span>,
             <span class="ident">at</span>
         )))
-        .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
     );
 
     <span class="ident">rows</span>
@@ -1171,7 +1171,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
 
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Line</span>(<span class="string">&quot;Pedestrian crowd&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+        <span class="ident">Line</span>(<span class="string">&quot;Pedestrian crowd&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="ident">header_btns</span>(<span class="ident">ctx</span>),
     ]));
 
@@ -1218,7 +1218,7 @@
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Parked car #{}&quot;</span>, <span class="ident">id</span>.<span class="number">0</span>))
             .<span class="ident">small_heading</span>()
-            .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="comment">// Little indirect, but the handler of this action is actually the ContextualActions</span>
             <span class="comment">// for SandboxMode.</span>
@@ -1334,7 +1334,7 @@
     };
 
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">id</span>)).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+        <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">id</span>)).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">icon</span>) <span class="op">=</span> <span class="ident">maybe_icon</span> {
             <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>, <span class="ident">icon</span>)
                 .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#A3A3A3&quot;</span>)))
@@ -1348,7 +1348,7 @@
         <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">descr</span>))
             .<span class="ident">small_heading</span>()
             .<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#A3A3A3&quot;</span>))
-            .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
             .<span class="ident">margin_horiz</span>(<span class="number">10</span>),
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="comment">// Little indirect, but the handler of this action is actually the ContextualActions</span>

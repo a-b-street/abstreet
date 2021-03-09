@@ -809,7 +809,7 @@
             <span class="ident">draw_layer</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
             <span class="ident">show</span>,
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Parking mapper&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                <span class="ident">Line</span>(<span class="string">&quot;Parking mapper&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_popup_icon_text</span>(
                         <span class="string">&quot;system/assets/tools/map.svg&quot;</span>,
@@ -942,7 +942,7 @@
                             <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} = {}&quot;</span>, <span class="ident">k</span>, <span class="ident">v</span>)).<span class="ident">secondary</span>());
                         }
                     }
-                    <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;info&quot;</span>, <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>));
+                    <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;info&quot;</span>, <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
                 }
             } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">selected</span>.<span class="ident">is_some</span>() {
                 <span class="self">self</span>.<span class="ident">selected</span> <span class="op">=</span> <span class="prelude-val">None</span>;
@@ -1105,7 +1105,7 @@
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;What kind of parking does this road have?&quot;</span>)
                         .<span class="ident">small_heading</span>()
-                        .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="ident">Menu</span>::<span class="ident">widget</span>(

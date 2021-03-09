@@ -585,17 +585,17 @@
 
     <span class="kw">fn</span> <span class="ident">make_timeseries_panel</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
         <span class="comment">// Make a table with 3 columns.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col1</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Line</span>(<span class="string">&quot;Time&quot;</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>)];
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Line</span>(<span class="string">&quot;Linear&quot;</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>)];
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col3</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Line</span>(<span class="string">&quot;Quadratic&quot;</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>)];
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col1</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Line</span>(<span class="string">&quot;Time&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>)];
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Line</span>(<span class="string">&quot;Linear&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>)];
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col3</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Line</span>(<span class="string">&quot;Quadratic&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>)];
         <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="number">0</span>..(<span class="self">self</span>.<span class="ident">elapsed</span>.<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">usize</span>) {
             <span class="ident">col1</span>.<span class="ident">push</span>(
                 <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="ident">s</span> <span class="kw">as</span> <span class="ident">f64</span>)))
                     .<span class="ident">secondary</span>()
-                    .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             );
-            <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Line</span>(<span class="ident">s</span>.<span class="ident">to_string</span>()).<span class="ident">secondary</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>));
-            <span class="ident">col3</span>.<span class="ident">push</span>(<span class="ident">Line</span>(<span class="ident">s</span>.<span class="ident">pow</span>(<span class="number">2</span>).<span class="ident">to_string</span>()).<span class="ident">secondary</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>));
+            <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Line</span>(<span class="ident">s</span>.<span class="ident">to_string</span>()).<span class="ident">secondary</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
+            <span class="ident">col3</span>.<span class="ident">push</span>(<span class="ident">Line</span>(<span class="ident">s</span>.<span class="ident">pow</span>(<span class="number">2</span>).<span class="ident">to_string</span>()).<span class="ident">secondary</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -607,7 +607,7 @@
                 )
                 .<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">RED</span>),
             ])
-            .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="comment">// Examples of styling widgets</span>
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col1</span>).<span class="ident">outline</span>((<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">BLACK</span>)).<span class="ident">padding</span>(<span class="number">5</span>),
@@ -843,7 +843,7 @@
             <span class="ident">Line</span>(<span class="string">&quot;widgetry demo&quot;</span>).<span class="ident">big_heading_styled</span>(),
             <span class="ident">Line</span>(<span class="string">&quot;Click and drag the background to pan, use touchpad or scroll wheel to zoom&quot;</span>),
         ])
-        .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;You can &quot;</span>),
             <span class="ident">Line</span>(<span class="string">&quot;change fonts &quot;</span>).<span class="ident">big_heading_plain</span>(),
@@ -851,10 +851,10 @@
             <span class="ident">Line</span>(<span class="string">&quot;line!&quot;</span>).<span class="ident">small_heading</span>(),
         ])
         .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">PURPLE</span>)
-        .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="comment">// Button Style Gallery</span>
         <span class="comment">// TODO might be nice to have this in separate tabs or something.</span>
-        <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Buttons&quot;</span>).<span class="ident">big_heading_styled</span>().<span class="ident">size</span>(<span class="number">18</span>)).<span class="ident">draw</span>(<span class="ident">ctx</span>),
+        <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Buttons&quot;</span>).<span class="ident">big_heading_styled</span>().<span class="ident">size</span>(<span class="number">18</span>)).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">style</span>
                 .<span class="ident">btn_solid_primary</span>
@@ -893,7 +893,7 @@
                 .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>, <span class="string">&quot;Secondary&quot;</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;btn_outline.icon_text&quot;</span>),
         ])]),
-        <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Spinner&quot;</span>).<span class="ident">big_heading_styled</span>().<span class="ident">size</span>(<span class="number">18</span>)).<span class="ident">draw</span>(<span class="ident">ctx</span>),
+        <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Spinner&quot;</span>).<span class="ident">big_heading_styled</span>().<span class="ident">size</span>(<span class="number">18</span>)).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="ident">widgetry</span>::<span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">0</span>, <span class="number">11</span>), <span class="number">1</span>),
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">ctx</span>.<span class="ident">style</span>()
@@ -984,7 +984,7 @@
                 .<span class="ident">big_heading_styled</span>()
                 .<span class="ident">size</span>(<span class="number">18</span>),
         )
-        .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         {
             <span class="kw">let</span> <span class="ident">row_height</span> <span class="op">=</span> <span class="number">10</span>;
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">id</span> <span class="op">=</span> <span class="number">0</span>;

@@ -177,7 +177,7 @@
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Scenario {}&quot;</span>, <span class="ident">scenario</span>.<span class="ident">scenario_name</span>))
                         .<span class="ident">small_heading</span>()
-                        .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
@@ -201,7 +201,7 @@
                     <span class="ident">Line</span>(<span class="string">&quot;&quot;</span>),
                     <span class="ident">Line</span>(<span class="string">&quot;Parked cars per building&quot;</span>),
                 ])
-                .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">legend</span>,
             ]))
             .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)

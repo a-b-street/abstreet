@@ -358,7 +358,7 @@
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Tuning offset for {} signals&quot;</span>, <span class="ident">members</span>.<span class="ident">len</span>()))
                     .<span class="ident">small_heading</span>()
-                    .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
             ]),
             <span class="string">&quot;Select an intersection as the base&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
@@ -447,7 +447,7 @@
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Tuning offset for {} signals&quot;</span>, <span class="ident">members</span>.<span class="ident">len</span>()))
                     .<span class="ident">small_heading</span>()
-                    .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
             ]),
             <span class="string">&quot;Select a second intersection to tune offset between the two&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
@@ -539,7 +539,7 @@
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Tuning offset between {} and {}&quot;</span>, <span class="ident">i1</span>, <span class="ident">i2</span>))
                     .<span class="ident">small_heading</span>()
-                    .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
             ]),
             <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -557,7 +557,7 @@
                     <span class="ident">dist_btwn</span> <span class="op">/</span> <span class="ident">Scenario</span>::<span class="ident">max_ped_speed</span>()
                 )),
             ])
-            .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="string">&quot;Offset (seconds):&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">0</span>, <span class="number">90</span>), (<span class="ident">offset2</span> <span class="op">-</span> <span class="ident">offset1</span>).<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">isize</span>)

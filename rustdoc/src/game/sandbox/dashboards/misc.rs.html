@@ -412,7 +412,7 @@
             <span class="ident">DashTab</span>::<span class="ident">TransitRoutes</span>.<span class="ident">picker</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} Transit routes&quot;</span>, <span class="ident">routes</span>.<span class="ident">len</span>()))
                 .<span class="ident">small_heading</span>()
-                .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/search.svg&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Autocomplete</span>::<span class="ident">new</span>(

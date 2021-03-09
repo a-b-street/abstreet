@@ -616,7 +616,7 @@
                     .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">inner_panel_bg</span>),
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">has_zorder</span>(<span class="ident">app</span>) {
                     <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="ident">Line</span>(<span class="string">&quot;Z-order:&quot;</span>).<span class="ident">small</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                        <span class="ident">Line</span>(<span class="string">&quot;Z-order:&quot;</span>).<span class="ident">small</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                         <span class="ident">Spinner</span>::<span class="ident">widget</span>(
                             <span class="ident">ctx</span>,
                             <span class="ident">app</span>.<span class="ident">draw_map</span>().<span class="ident">zorder_range</span>,

@@ -241,7 +241,7 @@
             <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;15-minute Santa&quot;</span>)
                     .<span class="ident">display_title</span>()
-                    .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                     .<span class="ident">container</span>()
                     .<span class="ident">padding</span>(<span class="number">16</span>)
                     .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">fade_map_dark</span>)
@@ -257,7 +257,7 @@
                     .<span class="ident">small_heading</span>(),
                 )
                 .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">50</span>)
-                .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                 .<span class="ident">container</span>()
                 .<span class="ident">padding</span>(<span class="number">16</span>)
                 .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">fade_map_dark</span>)
@@ -363,7 +363,7 @@
         <span class="ident">SimpleState</span>::<span class="ident">new</span>(
             <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;15-minute Santa&quot;</span>).<span class="ident">big_heading_plain</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Line</span>(<span class="string">&quot;15-minute Santa&quot;</span>).<span class="ident">big_heading_plain</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="ident">link</span>(
@@ -375,7 +375,7 @@
                     <span class="ident">Line</span>(<span class="string">&quot;Lead: Dustin Carlino&quot;</span>),
                     <span class="ident">Line</span>(<span class="string">&quot;Programming &amp; game design: Michael Kirk&quot;</span>),
                     <span class="ident">Line</span>(<span class="string">&quot;UI/UX: Yuwen Li&quot;</span>),
-                ]).<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                ]).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">link</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;Santa made by @parallaxcreativedesign&quot;</span>,

@@ -356,7 +356,7 @@
         <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">CYAN</span>, <span class="ident">path</span>.<span class="ident">render</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">2.0</span>)));
 
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>),
+            <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_outline</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Back to title screen&quot;</span>)
@@ -458,7 +458,7 @@
 
         <span class="ident">SimpleState</span>::<span class="ident">new</span>(
             <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_solid_primary</span>
                     .<span class="ident">text</span>(<span class="string">&quot;OK&quot;</span>)

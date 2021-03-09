@@ -486,6 +486,11 @@
 <span id="483">483</span>
 <span id="484">484</span>
 <span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -616,7 +621,10 @@
     <span class="kw">fn</span> <span class="ident">recreate_panels</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="kw">let</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Sandbox&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">18</span>),
+                <span class="ident">Line</span>(<span class="string">&quot;Sandbox&quot;</span>)
+                    .<span class="ident">small_heading</span>()
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">margin_right</span>(<span class="number">18</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_popup_icon_text</span>(
                         <span class="string">&quot;system/assets/tools/map.svg&quot;</span>,
@@ -674,7 +682,9 @@
         <span class="ident">modifiers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ScenarioModifier</span><span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Modify traffic patterns&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+            <span class="ident">Line</span>(<span class="string">&quot;Modify traffic patterns&quot;</span>)
+                .<span class="ident">small_heading</span>()
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(
                     <span class="string">&quot;Data for all of the people in this simulation comes from PSRC&#39;s 2014 \
@@ -685,7 +695,7 @@
                 <span class="ident">Line</span>(<span class="string">&quot;You can modify those patterns here. The modifications apply in order.&quot;</span>),
             ])
             .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">50</span>)
-            .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         ];
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">m</span>) <span class="kw">in</span> <span class="ident">modifiers</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
             <span class="ident">rows</span>.<span class="ident">push</span>(
@@ -858,7 +868,7 @@
             <span class="ident">scenario_name</span>,
             <span class="ident">modifiers</span>,
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Change trip mode&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                <span class="ident">Line</span>(<span class="string">&quot;Change trip mode&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="string">&quot;Percent of people to modify:&quot;</span>
                         .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)

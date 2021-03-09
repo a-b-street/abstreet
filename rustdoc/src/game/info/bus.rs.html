@@ -428,10 +428,10 @@
     <span class="kw">let</span> <span class="ident">sim</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>;
 
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Line</span>(<span class="string">&quot;Bus stop&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+        <span class="ident">Line</span>(<span class="string">&quot;Bus stop&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="ident">header_btns</span>(<span class="ident">ctx</span>),
     ]));
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">bs</span>.<span class="ident">name</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>));
+    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">bs</span>.<span class="ident">name</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
 
     <span class="kw">let</span> <span class="ident">all_arrivals</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">bus_arrivals</span>;
     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_routes_serving_stop</span>(<span class="ident">id</span>) {
@@ -457,7 +457,7 @@
         } <span class="kw">else</span> {
             <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;  No arrivals yet&quot;</span>).<span class="ident">secondary</span>());
         }
-        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>));
+        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
     }
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">boardings</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">BusRouteID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Counter</span>::<span class="ident">new</span>();
@@ -499,7 +499,7 @@
             .<span class="ident">secondary</span>(),
         );
     }
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>));
+    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
 
     <span class="comment">// Draw where the bus/train stops</span>
     <span class="ident">details</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(
@@ -534,7 +534,7 @@
             <span class="string">&quot;Currently has {} passengers&quot;</span>,
             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">num_transit_passengers</span>(<span class="ident">id</span>),
         ))
-        .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
     );
 
     <span class="ident">rows</span>
@@ -565,7 +565,7 @@
             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_br</span>(<span class="ident">route</span>).<span class="ident">short_name</span>
         ))
         .<span class="ident">small_heading</span>()
-        .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="ident">header_btns</span>(<span class="ident">ctx</span>),
     ]));
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">make_tabs</span>(
@@ -586,13 +586,13 @@
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Route {}&quot;</span>, <span class="ident">route</span>.<span class="ident">short_name</span>))
             .<span class="ident">small_heading</span>()
-            .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="ident">header_btns</span>(<span class="ident">ctx</span>),
     ]));
     <span class="ident">rows</span>.<span class="ident">push</span>(
         <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">route</span>.<span class="ident">full_name</span>))
             .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">20</span>)
-            .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
     );
 
     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
@@ -660,7 +660,7 @@
             ))
             .<span class="ident">secondary</span>(),
         ])
-        .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
     );
 
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} stops&quot;</span>, <span class="ident">route</span>.<span class="ident">stops</span>.<span class="ident">len</span>()).<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
@@ -694,7 +694,7 @@
                 ))
                 .<span class="ident">secondary</span>(),
             ])
-            .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         ]));
         <span class="ident">details</span>.<span class="ident">warpers</span>.<span class="ident">insert</span>(<span class="ident">name</span>, <span class="ident">ID</span>::<span class="ident">BusStop</span>(<span class="ident">bs</span>.<span class="ident">id</span>));
     }
@@ -720,7 +720,7 @@
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">E</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;edit {}&quot;</span>, <span class="ident">route</span>.<span class="ident">id</span>)),
         );
-        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">describe_schedule</span>(<span class="ident">route</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>));
+        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">describe_schedule</span>(<span class="ident">route</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
     }
 
     <span class="comment">// Draw the route, label stops, and show location of buses</span>

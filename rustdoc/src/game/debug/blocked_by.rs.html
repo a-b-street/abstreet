@@ -309,11 +309,11 @@
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;What agents are blocked by others?&quot;</span>)
                         .<span class="ident">small_heading</span>()
-                        .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Root causes&quot;</span>))
-                    .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                     .<span class="ident">named</span>(<span class="string">&quot;root causes&quot;</span>),
             ]))
             .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)

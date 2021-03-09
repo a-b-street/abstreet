@@ -941,6 +941,7 @@
 <span id="938">938</span>
 <span id="939">939</span>
 <span id="940">940</span>
+<span id="941">941</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -996,10 +997,10 @@
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">DebugMode</span> {
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;Debug Mode&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Line</span>(<span class="string">&quot;Debug Mode&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                 ]),
-                <span class="ident">Text</span>::<span class="ident">new</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;current info&quot;</span>),
+                <span class="ident">Text</span>::<span class="ident">new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;current info&quot;</span>),
                 <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show buildings&quot;</span>, <span class="ident">Key</span>::<span class="ident">Num1</span>, <span class="bool-val">true</span>),
                 <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show intersections&quot;</span>, <span class="ident">Key</span>::<span class="ident">Num2</span>, <span class="bool-val">true</span>),
                 <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show lanes&quot;</span>, <span class="ident">Key</span>::<span class="ident">Num3</span>, <span class="bool-val">true</span>),
@@ -1083,7 +1084,7 @@
                     <span class="ident">Key</span>::<span class="ident">LeftControl</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
                     <span class="ident">Line</span>(<span class="string">&quot; to show position&quot;</span>),
                 ])
-                .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             ]))
             .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
@@ -1115,7 +1116,8 @@
                 <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>(<span class="ident">n</span>)
             )));
         }
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;current info&quot;</span>, <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>));
+        <span class="self">self</span>.<span class="ident">panel</span>
+            .<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;current info&quot;</span>, <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
     }
 }
 

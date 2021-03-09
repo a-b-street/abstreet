@@ -297,7 +297,7 @@
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Traffic signal demand over time&quot;</span>)
                         .<span class="ident">small_heading</span>()
-                        .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -307,7 +307,7 @@
                     <span class="ident">Key</span>::<span class="ident">RightArrow</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
                     <span class="ident">Line</span>(<span class="string">&quot; to adjust the hour&quot;</span>),
                 ])
-                .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="string">&quot;Hour:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">0</span>, <span class="number">24</span>), <span class="number">7</span>).<span class="ident">named</span>(<span class="string">&quot;hour&quot;</span>),

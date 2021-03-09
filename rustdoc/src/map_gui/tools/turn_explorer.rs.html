@@ -329,7 +329,7 @@
                 ))
                 .<span class="ident">small_heading</span>(),
             )
-            .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">vert_separator</span>(<span class="ident">ctx</span>, <span class="number">50.0</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_prev</span>()
@@ -337,7 +337,7 @@
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">LeftArrow</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;previous turn&quot;</span>),
             <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/{}&quot;</span>, <span class="ident">idx</span>, <span class="ident">turns</span>.<span class="ident">len</span>())).<span class="ident">secondary</span>())
-                .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                 .<span class="ident">centered_vert</span>(),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_next</span>()

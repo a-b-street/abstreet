@@ -189,6 +189,8 @@
 <span id="186">186</span>
 <span id="187">187</span>
 <span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -355,11 +357,13 @@
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">Line</span>(<span class="ident">prettyprint_usize</span>(<span class="ident">ppl_in_bldg</span>)).<span class="ident">small</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                <span class="ident">Line</span>(<span class="ident">prettyprint_usize</span>(<span class="ident">ppl_in_bldg</span>))
+                    .<span class="ident">small</span>()
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             ]),
             <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Off-map: {}&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">ppl_off_map</span>)))
                 .<span class="ident">small</span>()
-                .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         ])
         .<span class="ident">centered</span>(),
     ];
