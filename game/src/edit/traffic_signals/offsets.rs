@@ -47,7 +47,7 @@ impl ShowAbsolute {
             Widget::row(vec![
                 Line(format!("Tuning offset for {} signals", members.len()))
                     .small_heading()
-                    .draw(ctx),
+                    .into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
             "Select an intersection as the base".text_widget(ctx),
@@ -136,7 +136,7 @@ impl ShowRelative {
             Widget::row(vec![
                 Line(format!("Tuning offset for {} signals", members.len()))
                     .small_heading()
-                    .draw(ctx),
+                    .into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
             "Select a second intersection to tune offset between the two".text_widget(ctx),
@@ -228,7 +228,7 @@ impl TuneRelative {
             Widget::row(vec![
                 Line(format!("Tuning offset between {} and {}", i1, i2))
                     .small_heading()
-                    .draw(ctx),
+                    .into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
             Text::from_multiline(vec![
@@ -246,7 +246,7 @@ impl TuneRelative {
                     dist_btwn / Scenario::max_ped_speed()
                 )),
             ])
-            .draw(ctx),
+            .into_widget(ctx),
             Widget::row(vec![
                 "Offset (seconds):".text_widget(ctx),
                 Spinner::widget(ctx, (0, 90), (offset2 - offset1).inner_seconds() as isize)

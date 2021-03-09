@@ -29,7 +29,7 @@ impl PolygonEditor {
         Box::new(PolygonEditor {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
-                    Line("Polygon editor").small_heading().draw(ctx),
+                    Line("Polygon editor").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 ctx.style()

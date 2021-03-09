@@ -31,7 +31,7 @@ impl UberTurnPicker {
             Widget::row(vec![
                 Line("Select multiple intersections")
                     .small_heading()
-                    .draw(ctx),
+                    .into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
             ctx.style()
@@ -174,7 +174,7 @@ impl UberTurnViewer {
 
         let panel = Panel::new(Widget::col(vec![
             Widget::row(vec![
-                Line("Uber-turn viewer").small_heading().draw(ctx),
+                Line("Uber-turn viewer").small_heading().into_widget(ctx),
                 Widget::vert_separator(ctx, 50.0),
                 ctx.style()
                     .btn_prev()
@@ -182,7 +182,7 @@ impl UberTurnViewer {
                     .hotkey(Key::LeftArrow)
                     .build_widget(ctx, "previous uber-turn"),
                 Text::from(Line(format!("{}/{}", idx + 1, ic.uber_turns.len())).secondary())
-                    .draw(ctx)
+                    .into_widget(ctx)
                     .centered_vert(),
                 ctx.style()
                     .btn_next()

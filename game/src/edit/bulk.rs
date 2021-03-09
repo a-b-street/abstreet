@@ -29,7 +29,7 @@ impl BulkSelect {
 
 fn make_select_panel(ctx: &mut EventCtx, selector: &RoadSelector) -> Panel {
     Panel::new(Widget::col(vec![
-        Line("Edit many roads").small_heading().draw(ctx),
+        Line("Edit many roads").small_heading().into_widget(ctx),
         selector.make_controls(ctx),
         Widget::row(vec![
             ctx.style()
@@ -158,7 +158,7 @@ impl BulkEdit {
             panel: Panel::new(Widget::col(vec![
                 Line(format!("Editing {} roads", roads.len()))
                     .small_heading()
-                    .draw(ctx),
+                    .into_widget(ctx),
                 "Lane types".text_widget(ctx),
                 make_lt_switcher(ctx, vec![(None, None)]).named("lt transformations"),
                 {

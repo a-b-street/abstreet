@@ -153,7 +153,7 @@ impl TransitRoutes {
             DashTab::TransitRoutes.picker(ctx, app),
             Line(format!("{} Transit routes", routes.len()))
                 .small_heading()
-                .draw(ctx),
+                .into_widget(ctx),
             Widget::row(vec![
                 Image::icon("system/assets/tools/search.svg").into_widget(ctx),
                 Autocomplete::new(

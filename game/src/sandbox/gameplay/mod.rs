@@ -235,7 +235,7 @@ impl GameplayMode {
 
 fn challenge_header(ctx: &mut EventCtx, title: &str) -> Widget {
     Widget::row(vec![
-        Line(title).small_heading().draw(ctx).centered_vert(),
+        Line(title).small_heading().into_widget(ctx).centered_vert(),
         ctx.style()
             .btn_plain
             .icon("system/assets/tools/info.svg")

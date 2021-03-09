@@ -182,7 +182,7 @@ impl GameplayState for FixTrafficSignals {
                         Key::J.txt(ctx),
                         Line("ams"),
                     ]);
-                    let contents = txt.draw(ctx);
+                    let contents = txt.into_widget(ctx);
                     return Some(Transition::Push(FYI::new(ctx, contents, app.cs.panel_bg)));
                 }
                 "try again" => {
@@ -227,7 +227,7 @@ impl GameplayState for FixTrafficSignals {
                             ),
                             Line("Then you should check if your changes work from midnight."),
                         ])
-                        .draw(ctx),
+                        .into_widget(ctx),
                         app.cs.panel_bg,
                     )));
                 }
@@ -251,7 +251,7 @@ impl GameplayState for FixTrafficSignals {
                 Widget::row(vec![
                     Line(format!("Delay exceeded {} at {}", THRESHOLD, time))
                         .fg(Color::RED)
-                        .draw(ctx)
+                        .into_widget(ctx)
                         .centered_vert(),
                     ctx.style().btn_outline.text("try again").build_def(ctx),
                 ]),
@@ -266,7 +266,7 @@ impl GameplayState for FixTrafficSignals {
                         "Keep delay at all intersections under {}",
                         THRESHOLD
                     ))
-                    .draw(ctx),
+                    .into_widget(ctx),
                     ctx.style()
                         .btn_plain
                         .icon_text("system/assets/tools/lightbulb.svg", "Hint")
@@ -303,7 +303,7 @@ fn make_meter(ctx: &mut EventCtx, app: &App, worst: Option<(IntersectionID, Dura
                         Color::hex("#EB3223")
                     }),
                 ])
-                .draw(ctx),
+                .into_widget(ctx),
                 ctx.style()
                     .btn_plain
                     .icon("system/assets/tools/location.svg")
@@ -320,7 +320,8 @@ fn make_meter(ctx: &mut EventCtx, app: &App, worst: Option<(IntersectionID, Dura
                 } else {
                     Widget::nothing()
                 },
-                Text::from_all(vec![Line("Worst delay: "), Line("none!").secondary()]).draw(ctx),
+                Text::from_all(vec![Line("Worst delay: "), Line("none!").secondary()])
+                    .into_widget(ctx),
                 Image::icon("system/assets/tools/location.svg")
                     .color(RewriteColor::ChangeAlpha(0.5))
                     .into_widget(ctx)
@@ -373,18 +374,18 @@ fn cutscene_pt1_task(ctx: &mut EventCtx) -> Widget {
             Line("Survive as long as possible through 24 hours of a busy weekday.")
                 .fg(Color::BLACK),
         ])
-        .draw(ctx)
+        .into_widget(ctx)
         .margin_below(30),
         Widget::custom_row(vec![
             Widget::col(vec![
-                Line("Time").fg(Color::BLACK).draw(ctx),
+                Line("Time").fg(Color::BLACK).into_widget(ctx),
                 Image::icon("system/assets/tools/time.svg")
                     .color(Color::BLACK)
                     .into_widget(ctx),
-                Line("24 hours").fg(Color::BLACK).draw(ctx),
+                Line("24 hours").fg(Color::BLACK).into_widget(ctx),
             ]),
             Widget::col(vec![
-                Line("Goal").fg(Color::BLACK).draw(ctx),
+                Line("Goal").fg(Color::BLACK).into_widget(ctx),
                 Image::icon("system/assets/tools/location.svg")
                     .color(Color::BLACK)
                     .into_widget(ctx),
@@ -392,14 +393,16 @@ fn cutscene_pt1_task(ctx: &mut EventCtx) -> Widget {
                     Line("Keep delay at all intersections").fg(Color::BLACK),
                     Line(format!("under {}", THRESHOLD)).fg(Color::BLACK),
                 ])
-                .draw(ctx),
+                .into_widget(ctx),
             ]),
             Widget::col(vec![
-                Line("Score").fg(Color::BLACK).draw(ctx),
+                Line("Score").fg(Color::BLACK).into_widget(ctx),
                 Image::icon("system/assets/tools/star.svg")
                     .color(Color::BLACK)
                     .into_widget(ctx),
-                Line("How long you survive").fg(Color::BLACK).draw(ctx),
+                Line("How long you survive")
+                    .fg(Color::BLACK)
+                    .into_widget(ctx),
             ]),
         ])
         .evenly_spaced(),

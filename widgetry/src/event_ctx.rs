@@ -167,7 +167,7 @@ impl<'a> EventCtx<'a> {
                     .clone()
                     .default_fg(Color::WHITE)
                     .wrap_to_pct(self, 25)
-                    .draw(self)
+                    .into_widget(self)
                     .container()
                     .bg(Color::BLACK)
                     .padding(15)

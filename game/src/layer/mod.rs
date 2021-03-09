@@ -83,7 +83,7 @@ impl PickLayer {
 
     pub fn pick(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let mut col = vec![Widget::custom_row(vec![
-            Line("Layers").small_heading().draw(ctx),
+            Line("Layers").small_heading().into_widget(ctx),
             ctx.style().btn_close_widget(ctx),
         ])];
 

@@ -113,19 +113,19 @@ impl GameplayState for Actdev {
                 "about A/B Street" => {
                     let panel = Panel::new(Widget::col(vec![
                         Widget::row(vec![
-                            Line("About A/B Street").small_heading().draw(ctx),
+                            Line("About A/B Street").small_heading().into_widget(ctx),
                             ctx.style().btn_close_widget(ctx),
                         ]),
                         Line("Created by Dustin Carlino, Yuwen Li, & Michael Kirk")
                             .small()
-                            .draw(ctx),
+                            .into_widget(ctx),
                         Text::from(Line(
                             "A/B Street is a traffic simulation game based on OpenStreetMap. You \
                              can modify roads and intersections, measure the effects on different \
                              groups, and advocate for your proposal.",
                         ))
                         .wrap_to_pct(ctx, 50)
-                        .draw(ctx),
+                        .into_widget(ctx),
                         "This is a simplified version. Check out the full version below."
                             .text_widget(ctx),
                         ctx.style().btn_outline.text("abstreet.org").build_def(ctx),
@@ -200,7 +200,7 @@ impl GameplayState for Actdev {
                     .centered_vert(),
                 Line(nice_map_name(app.primary.map.get_name()))
                     .small_heading()
-                    .draw(ctx),
+                    .into_widget(ctx),
                 Widget::vert_separator(ctx, 50.0),
                 ctx.style()
                     .btn_popup_icon_text("system/assets/tools/calendar.svg", "scenario")

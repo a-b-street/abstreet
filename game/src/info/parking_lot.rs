@@ -43,7 +43,9 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: ParkingLot
     }
 
     let section = Widget::col(vec![
-        Line("Parking spots available").small_heading().draw(ctx),
+        Line("Parking spots available")
+            .small_heading()
+            .into_widget(ctx),
         LinePlot::new(
             ctx,
             series,
@@ -75,7 +77,7 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: ParkingLot
 fn header(ctx: &EventCtx, details: &mut Details, id: ParkingLotID, tab: Tab) -> Vec<Widget> {
     vec![
         Widget::row(vec![
-            Line(id.to_string()).small_heading().draw(ctx),
+            Line(id.to_string()).small_heading().into_widget(ctx),
             header_btns(ctx),
         ]),
         make_tabs(

@@ -28,7 +28,7 @@ impl EditRoad {
         for (k, v) in road.osm_tags.inner() {
             txt.add(Line(format!("{} = {}", k, v)).secondary());
         }
-        let info = txt.draw(ctx);
+        let info = txt.into_widget(ctx);
 
         let controls = Widget::col(vec![
             Widget::row(vec![
@@ -103,7 +103,7 @@ impl EditRoad {
 
         let col = vec![
             Widget::row(vec![
-                Line("Editing road").small_heading().draw(ctx),
+                Line("Editing road").small_heading().into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
             Widget::row(vec![info, controls]),

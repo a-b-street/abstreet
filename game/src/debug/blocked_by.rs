@@ -39,11 +39,11 @@ impl Viewer {
                 Widget::row(vec![
                     Line("What agents are blocked by others?")
                         .small_heading()
-                        .draw(ctx),
+                        .into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 Text::from(Line("Root causes"))
-                    .draw(ctx)
+                    .into_widget(ctx)
                     .named("root causes"),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)

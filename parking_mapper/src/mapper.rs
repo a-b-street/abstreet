@@ -127,7 +127,7 @@ impl ParkingMapper {
             draw_layer: ctx.upload(batch),
             show,
             panel: Panel::new(Widget::col(vec![
-                Line("Parking mapper").small_heading().draw(ctx),
+                Line("Parking mapper").small_heading().into_widget(ctx),
                 ctx.style()
                     .btn_popup_icon_text(
                         "system/assets/tools/map.svg",
@@ -260,7 +260,7 @@ impl State<App> for ParkingMapper {
                             txt.add(Line(format!("{} = {}", k, v)).secondary());
                         }
                     }
-                    self.panel.replace(ctx, "info", txt.draw(ctx));
+                    self.panel.replace(ctx, "info", txt.into_widget(ctx));
                 }
             } else if self.selected.is_some() {
                 self.selected = None;
@@ -423,7 +423,7 @@ impl ChangeWay {
                 Widget::row(vec![
                     Line("What kind of parking does this road have?")
                         .small_heading()
-                        .draw(ctx),
+                        .into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 Menu::widget(

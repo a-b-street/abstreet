@@ -31,7 +31,7 @@ impl DevToolsMode {
         Box::new(DevToolsMode {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
-                    Line("Internal dev tools").small_heading().draw(ctx),
+                    Line("Internal dev tools").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 Widget::row(vec![

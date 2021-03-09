@@ -55,7 +55,7 @@ impl Game {
                 Image::icon("system/assets/tools/map.svg")
                     .into_widget(ctx)
                     .centered_vert(),
-                Line(&level.title).draw(ctx),
+                Line(&level.title).into_widget(ctx),
             ])
             .padding(10)
             .bg(Color::hex("#003046")),
@@ -128,7 +128,7 @@ impl Game {
         ))
         .small_heading()
         .fg(text_color)
-        .draw(ctx)
+        .into_widget(ctx)
         .centered_vert();
         self.time_panel.replace(ctx, "time label", label);
 
@@ -301,7 +301,7 @@ impl Game {
                 let label = Text::from(
                     Line("SANTA'S HANGRY - grab some cookies from a store!").fg(Color::RED),
                 )
-                .draw(ctx);
+                .into_widget(ctx);
                 self.status_panel.replace(ctx, "energy label", label);
             }
             self.state

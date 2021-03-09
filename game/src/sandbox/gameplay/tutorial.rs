@@ -735,7 +735,7 @@ impl TutorialState {
 
     fn make_top_center(&self, ctx: &mut EventCtx, edit_map: bool) -> Panel {
         let mut col = vec![Widget::row(vec![
-            Line("Tutorial").small_heading().draw(ctx),
+            Line("Tutorial").small_heading().into_widget(ctx),
             Widget::vert_separator(ctx, 50.0),
             ctx.style()
                 .btn_prev()
@@ -745,7 +745,7 @@ impl TutorialState {
                 let mut txt = Text::from(Line(format!("Task {}", self.current.stage + 1)));
                 // TODO Smaller font and use alpha for the "/9" part
                 txt.append(Line(format!("/{}", self.stages.len())).fg(Color::grey(0.7)));
-                txt.draw(ctx)
+                txt.into_widget(ctx)
             },
             ctx.style()
                 .btn_next()
@@ -766,7 +766,7 @@ impl TutorialState {
                         ))
                         .small_heading(),
                     )
-                    .draw(ctx),
+                    .into_widget(ctx),
                     // TODO also text saying "instructions"... can we layout two things easily to
                     // make a button?
                     ctx.style()
@@ -776,7 +776,7 @@ impl TutorialState {
                         .centered_vert()
                         .align_right(),
                 ]));
-                col.push(task.top_txt(self).draw(ctx));
+                col.push(task.top_txt(self).into_widget(ctx));
             }
         }
         if edit_map {
@@ -826,7 +826,7 @@ impl TutorialState {
                     for l in lines {
                         txt.add(Line(l));
                     }
-                    txt.wrap_to_pct(ctx, 30).draw(ctx)
+                    txt.wrap_to_pct(ctx, 30).into_widget(ctx)
                 }];
                 let mut controls = vec![Widget::row(vec![
                     ctx.style()
@@ -1415,7 +1415,7 @@ fn intro_story(ctx: &mut EventCtx) -> Box<dyn State<App>> {
             ctx,
             Box::new(|ctx| {
                 Text::from(Line("Use the tutorial to learn the basic controls.").fg(Color::BLACK))
-                    .draw(ctx)
+                    .into_widget(ctx)
             }),
         )
 }

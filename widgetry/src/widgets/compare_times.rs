@@ -96,7 +96,7 @@ impl CompareTimes {
             labels
                 .iter()
                 .rev()
-                .map(|x| Line(x.to_string()).small().draw(ctx))
+                .map(|x| Line(x.to_string()).small().into_widget(ctx))
                 .collect(),
         )
         .evenly_spaced();
@@ -111,7 +111,7 @@ impl CompareTimes {
         let x_axis = Widget::custom_row(
             labels
                 .iter()
-                .map(|x| Line(x.to_string()).small().draw(ctx))
+                .map(|x| Line(x.to_string()).small().into_widget(ctx))
                 .collect(),
         )
         .evenly_spaced();

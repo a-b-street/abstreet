@@ -24,7 +24,7 @@ impl<A: AppLike + 'static, T: 'static> ChooseSomething<A, T> {
         Box::new(ChooseSomething {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
-                    Line(query).small_heading().draw(ctx),
+                    Line(query).small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 Menu::widget(ctx, choices).named("menu"),
@@ -79,7 +79,7 @@ impl<A: AppLike + 'static> PromptInput<A> {
         Box::new(PromptInput {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
-                    Line(query).small_heading().draw(ctx),
+                    Line(query).small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 Widget::text_entry(ctx, String::new(), true).named("input"),
@@ -161,7 +161,7 @@ impl PopupMsg {
         }
         Box::new(PopupMsg {
             panel: Panel::new(Widget::col(vec![
-                txt.draw(ctx),
+                txt.into_widget(ctx),
                 ctx.style()
                     .btn_solid_primary
                     .text("OK")

@@ -127,7 +127,10 @@ impl GameplayState for PlayScenario {
     fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
         let rows = vec![
             Widget::custom_row(vec![
-                Line("Sandbox").small_heading().draw(ctx).margin_right(18),
+                Line("Sandbox")
+                    .small_heading()
+                    .into_widget(ctx)
+                    .margin_right(18),
                 ctx.style()
                     .btn_popup_icon_text(
                         "system/assets/tools/map.svg",
@@ -185,7 +188,9 @@ impl EditScenarioModifiers {
         modifiers: Vec<ScenarioModifier>,
     ) -> Box<dyn State<App>> {
         let mut rows = vec![
-            Line("Modify traffic patterns").small_heading().draw(ctx),
+            Line("Modify traffic patterns")
+                .small_heading()
+                .into_widget(ctx),
             Text::from_multiline(vec![
                 Line(
                     "Data for all of the people in this simulation comes from PSRC's 2014 \
@@ -196,7 +201,7 @@ impl EditScenarioModifiers {
                 Line("You can modify those patterns here. The modifications apply in order."),
             ])
             .wrap_to_pct(ctx, 50)
-            .draw(ctx),
+            .into_widget(ctx),
         ];
         for (idx, m) in modifiers.iter().enumerate() {
             rows.push(
@@ -369,7 +374,7 @@ impl ChangeMode {
             scenario_name,
             modifiers,
             panel: Panel::new(Widget::col(vec![
-                Line("Change trip mode").small_heading().draw(ctx),
+                Line("Change trip mode").small_heading().into_widget(ctx),
                 Widget::row(vec![
                     "Percent of people to modify:"
                         .text_widget(ctx)

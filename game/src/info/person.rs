@@ -320,7 +320,7 @@ pub fn bio(
                 Line("Pandemic model state: ").secondary(),
                 Line(status),
             ])
-            .draw(ctx),
+            .into_widget(ctx),
         );
     }
 
@@ -368,7 +368,7 @@ pub fn bio(
                     app.primary.sim.debug_car_ui(car)
                 )))
                 .wrap_to_pct(ctx, 20)
-                .draw(ctx),
+                .into_widget(ctx),
             );
         }
     }
@@ -414,7 +414,7 @@ pub fn schedule(
                 trip.departure - last_t,
                 at
             )))
-            .draw(ctx),
+            .into_widget(ctx),
         );
         // TODO Ideally end time if we know
         last_t = trip.departure;
@@ -444,7 +444,7 @@ pub fn schedule(
             app.primary.sim.get_end_of_day() - last_trip.departure,
             at
         )))
-        .draw(ctx),
+        .into_widget(ctx),
     );
 
     rows
@@ -459,7 +459,7 @@ pub fn crowd(
     let mut rows = vec![];
 
     rows.push(Widget::row(vec![
-        Line("Pedestrian crowd").small_heading().draw(ctx),
+        Line("Pedestrian crowd").small_heading().into_widget(ctx),
         header_btns(ctx),
     ]));
 
@@ -506,7 +506,7 @@ pub fn parked_car(
     rows.push(Widget::row(vec![
         Line(format!("Parked car #{}", id.0))
             .small_heading()
-            .draw(ctx),
+            .into_widget(ctx),
         Widget::row(vec![
             // Little indirect, but the handler of this action is actually the ContextualActions
             // for SandboxMode.
@@ -622,7 +622,7 @@ fn header(
     };
 
     rows.push(Widget::custom_row(vec![
-        Line(format!("{}", id)).small_heading().draw(ctx),
+        Line(format!("{}", id)).small_heading().into_widget(ctx),
         if let Some(icon) = maybe_icon {
             let batch = GeomBatch::load_svg(ctx, icon)
                 .color(RewriteColor::ChangeAll(Color::hex("#A3A3A3")))
@@ -636,7 +636,7 @@ fn header(
         Line(format!("{}", descr))
             .small_heading()
             .fg(Color::hex("#A3A3A3"))
-            .draw(ctx)
+            .into_widget(ctx)
             .margin_horiz(10),
         Widget::row(vec![
             // Little indirect, but the handler of this action is actually the ContextualActions

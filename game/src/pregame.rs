@@ -96,7 +96,7 @@ impl MainMenu {
             {
                 let mut txt = Text::from(Line("A/B STREET").display_title());
                 txt.add(Line("Created by Dustin Carlino, Yuwen Li, & Michael Kirk"));
-                txt.draw(ctx).centered_horiz()
+                txt.into_widget(ctx).centered_horiz()
             },
             Widget::row({
                 let btn_builder = ctx
@@ -177,7 +177,7 @@ impl MainMenu {
                     ctx.style().btn_outline.text("About").build_def(ctx),
                     ctx.style().btn_outline.text("Feedback").build_def(ctx),
                 ]),
-                built_info::time().draw(ctx),
+                built_info::time().into_widget(ctx),
             ])
             .centered(),
         ];
@@ -283,7 +283,7 @@ impl About {
                     ),
                 ])
                 .wrap_to_pct(ctx, 50)
-                .draw(ctx)
+                .into_widget(ctx)
                 .centered_horiz()
                 .align_vert_center()
                 .bg(app.cs.panel_bg)
@@ -357,7 +357,7 @@ impl Proposals {
                 }
                 current_tab.push(
                     txt.wrap_to_pct(ctx, 70)
-                        .draw(ctx)
+                        .into_widget(ctx)
                         .margin_below(15)
                         .margin_above(15),
                 );
@@ -410,7 +410,7 @@ impl Proposals {
                     "These are proposed changes to Seattle made by community members.",
                 ));
                 txt.add(Line("Contact dabreegster@gmail.com to add your idea here!"));
-                txt.draw(ctx).centered_horiz().margin_below(20)
+                txt.into_widget(ctx).centered_horiz().margin_below(20)
             },
             Widget::custom_row(buttons).flex_wrap(ctx, Percent::int(80)),
         ];

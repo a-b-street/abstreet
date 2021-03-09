@@ -27,7 +27,7 @@ impl RouteExplorer {
             goal: None,
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
-                    Line("Route explorer").small_heading().draw(ctx),
+                    Line("Route explorer").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 ctx.style()
@@ -288,7 +288,7 @@ impl AllRoutesExplorer {
         Box::new(AllRoutesExplorer {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
-                    Line("All routes explorer").small_heading().draw(ctx),
+                    Line("All routes explorer").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 format!("{} total requests", prettyprint_usize(requests.len())).text_widget(ctx),

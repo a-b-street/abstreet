@@ -27,7 +27,7 @@ impl ChangeDuration {
             Widget::row(vec![
                 Line("How long should this stage last?")
                     .small_heading()
-                    .draw(ctx),
+                    .into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
             Widget::row(vec![
@@ -61,7 +61,7 @@ impl ChangeDuration {
             ]),
             Widget::row(vec![Line("Additional time this stage can last?")
                 .small_heading()
-                .draw(ctx)]),
+                .into_widget(ctx)]),
             Widget::row(vec![
                 "Seconds:".text_widget(ctx).centered_vert(),
                 Spinner::widget(
@@ -78,7 +78,7 @@ impl ChangeDuration {
             ]),
             Widget::row(vec![Line("How long with no demand to end stage?")
                 .small_heading()
-                .draw(ctx)]),
+                .into_widget(ctx)]),
             Widget::row(vec![
                 "Seconds:".text_widget(ctx).centered_vert(),
                 Spinner::widget(
@@ -93,7 +93,7 @@ impl ChangeDuration {
             ]),
             Line("Minimum time is set by the time required for crosswalk")
                 .secondary()
-                .draw(ctx),
+                .into_widget(ctx),
             ctx.style()
                 .btn_solid_primary
                 .text("Apply")

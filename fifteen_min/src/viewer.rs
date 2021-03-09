@@ -280,7 +280,7 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
     rows.push(
         Line("15-minute neighborhood explorer")
             .small_heading()
-            .draw(ctx),
+            .into_widget(ctx),
     );
 
     rows.push(
@@ -298,7 +298,7 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
             Line("Starting from: ").secondary(),
             Line(&start.address),
         ])
-        .draw(ctx),
+        .into_widget(ctx),
     );
 
     rows.push(
@@ -306,7 +306,7 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
             Line("Estimated population: ").secondary(),
             Line(prettyprint_usize(isochrone.population)),
         ])
-        .draw(ctx),
+        .into_widget(ctx),
     );
 
     rows.push(
@@ -314,7 +314,7 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
             Line("Estimated street parking spots: ").secondary(),
             Line(prettyprint_usize(isochrone.onstreet_parking_spots)),
         ])
-        .draw(ctx),
+        .into_widget(ctx),
     );
 
     rows.push(ColorLegend::categories(
@@ -488,7 +488,7 @@ impl ExploreAmenities {
             Widget::row(vec![
                 Line(format!("{} within 15 minutes", category))
                     .small_heading()
-                    .draw(ctx),
+                    .into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
             table.render(ctx, app),
@@ -509,7 +509,7 @@ impl ExploreAmenities {
             Widget::row(vec![
                 Line(format!("{} within 15 minutes", self.category))
                     .small_heading()
-                    .draw(ctx),
+                    .into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
             self.table.render(ctx, app),

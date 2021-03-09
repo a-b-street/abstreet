@@ -22,7 +22,9 @@ impl FindHome {
     pub fn new(ctx: &mut EventCtx, options: Options) -> Box<dyn State<App>> {
         let panel = Panel::new(Widget::col(vec![
             Widget::row(vec![
-                Line("Find your walkable home").small_heading().draw(ctx),
+                Line("Find your walkable home")
+                    .small_heading()
+                    .into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
             // TODO Adjust text to say bikeshed, or otherwise reflect the options chosen
@@ -141,7 +143,7 @@ impl Results {
         let panel = Panel::new(Widget::col(vec![
             Line("Results for your walkable home")
                 .small_heading()
-                .draw(ctx),
+                .into_widget(ctx),
             // TODO Adjust text to say bikeshed, or otherwise reflect the options chosen
             "Here are all of the matching houses.".text_widget(ctx),
             format!(

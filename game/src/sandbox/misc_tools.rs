@@ -84,7 +84,7 @@ impl TrafficRecorder {
                 Widget::row(vec![
                     Line("Select the bounding intersections for recording traffic")
                         .small_heading()
-                        .draw(ctx),
+                        .into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 make_btn(ctx, members.len()),

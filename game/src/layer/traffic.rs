@@ -77,7 +77,7 @@ impl Backpressure {
                     .secondary(),
             )
             .wrap_to_pct(ctx, 15)
-            .draw(ctx),
+            .into_widget(ctx),
             ColorLegend::gradient(
                 ctx,
                 &app.cs.good_to_bad_red,
@@ -221,7 +221,7 @@ impl Throughput {
             header(ctx, "Throughput"),
             Text::from(Line("This counts all people crossing since midnight").secondary())
                 .wrap_to_pct(ctx, 15)
-                .draw(ctx),
+                .into_widget(ctx),
             if app.has_prebaked().is_some() {
                 Toggle::switch(ctx, "Compare before proposal", None, false)
             } else {
@@ -455,7 +455,7 @@ impl TrafficJams {
                 Line("A jam starts when delay exceeds 5 mins, then spreads out").secondary(),
             )
             .wrap_to_pct(ctx, 15)
-            .draw(ctx),
+            .into_widget(ctx),
             format!("{} jams detected", cnt).text_widget(ctx),
         ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)

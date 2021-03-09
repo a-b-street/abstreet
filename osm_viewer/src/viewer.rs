@@ -56,7 +56,9 @@ impl Viewer {
         biz_search_panel: Option<Widget>,
     ) {
         let top_panel = Panel::new(Widget::col(vec![
-            Line("OpenStreetMap viewer").small_heading().draw(ctx),
+            Line("OpenStreetMap viewer")
+                .small_heading()
+                .into_widget(ctx),
             ctx.style()
                 .btn_popup_icon_text(
                     "system/assets/tools/map.svg",
@@ -142,7 +144,7 @@ impl Viewer {
                             ctx,
                             &format!("open https://wiki.openstreetmap.org/wiki/Key:{}", k),
                         ),
-                        Line(v).draw(ctx).align_right(),
+                        Line(v).into_widget(ctx).align_right(),
                     ]));
                 }
             }
@@ -187,7 +189,7 @@ impl Viewer {
                         )));
                     }
                 }
-                col.push(txt.draw(ctx));
+                col.push(txt.into_widget(ctx));
 
                 if !b.osm_tags.is_empty() {
                     for (k, v) in b.osm_tags.inner() {
@@ -199,7 +201,7 @@ impl Viewer {
                                 ctx,
                                 &format!("open https://wiki.openstreetmap.org/wiki/Key:{}", k),
                             ),
-                            Line(v).draw(ctx).align_right(),
+                            Line(v).into_widget(ctx).align_right(),
                         ]));
                     }
                 }

@@ -16,10 +16,10 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
     let sim = &app.primary.sim;
 
     rows.push(Widget::row(vec![
-        Line("Bus stop").small_heading().draw(ctx),
+        Line("Bus stop").small_heading().into_widget(ctx),
         header_btns(ctx),
     ]));
-    rows.push(Line(&bs.name).draw(ctx));
+    rows.push(Line(&bs.name).into_widget(ctx));
 
     let all_arrivals = &sim.get_analytics().bus_arrivals;
     for r in app.primary.map.get_routes_serving_stop(id) {
@@ -45,7 +45,7 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
         } else {
             txt.add(Line("  No arrivals yet").secondary());
         }
-        rows.push(txt.draw(ctx));
+        rows.push(txt.into_widget(ctx));
     }
 
     let mut boardings: Counter<BusRouteID> = Counter::new();
@@ -87,7 +87,7 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
             .secondary(),
         );
     }
-    rows.push(txt.draw(ctx));
+    rows.push(txt.into_widget(ctx));
 
     // Draw where the bus/train stops
     details.zoomed.push(
@@ -122,7 +122,7 @@ pub fn bus_status(ctx: &mut EventCtx, app: &App, details: &mut Details, id: CarI
             "Currently has {} passengers",
             app.primary.sim.num_transit_passengers(id),
         ))
-        .draw(ctx),
+        .into_widget(ctx),
     );
 
     rows
@@ -153,7 +153,7 @@ fn bus_header(
             app.primary.map.get_br(route).short_name
         ))
         .small_heading()
-        .draw(ctx),
+        .into_widget(ctx),
         header_btns(ctx),
     ]));
     rows.push(make_tabs(
@@ -174,13 +174,13 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
     rows.push(Widget::row(vec![
         Line(format!("Route {}", route.short_name))
             .small_heading()
-            .draw(ctx),
+            .into_widget(ctx),
         header_btns(ctx),
     ]));
     rows.push(
         Text::from(Line(&route.full_name))
             .wrap_to_pct(ctx, 20)
-            .draw(ctx),
+            .into_widget(ctx),
     );
 
     if app.opts.dev {
@@ -248,7 +248,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
             ))
             .secondary(),
         ])
-        .draw(ctx),
+        .into_widget(ctx),
     );
 
     rows.push(format!("{} stops", route.stops.len()).text_widget(ctx));
@@ -282,7 +282,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
                 ))
                 .secondary(),
             ])
-            .draw(ctx),
+            .into_widget(ctx),
         ]));
         details.warpers.insert(name, ID::BusStop(bs.id));
     }
@@ -308,7 +308,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
                 .hotkey(Key::E)
                 .build_widget(ctx, &format!("edit {}", route.id)),
         );
-        rows.push(describe_schedule(route).draw(ctx));
+        rows.push(describe_schedule(route).into_widget(ctx));
     }
 
     // Draw the route, label stops, and show location of buses

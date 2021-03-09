@@ -19,7 +19,7 @@ impl Navigator {
         Box::new(Navigator {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
-                    Line("Enter a street name").small_heading().draw(ctx),
+                    Line("Enter a street name").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 Autocomplete::new(
@@ -115,7 +115,7 @@ impl CrossStreet {
                             "(Or just quit to go to {})",
                             map.get_r(first[0]).get_name(app.opts().language.as_ref()),
                         )));
-                        txt.draw(ctx)
+                        txt.into_widget(ctx)
                     },
                     ctx.style().btn_close_widget(ctx),
                 ]),
@@ -205,7 +205,7 @@ impl SearchBuildings {
                 Widget::row(vec![
                     Line("Enter a business name or address")
                         .small_heading()
-                        .draw(ctx),
+                        .into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 Autocomplete::new(

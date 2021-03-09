@@ -74,7 +74,9 @@ impl DebugWarp {
         Box::new(DebugWarp {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
-                    Line("Warp to an object by ID").small_heading().draw(ctx),
+                    Line("Warp to an object by ID")
+                        .small_heading()
+                        .into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 "Example: r42 is Road #42".text_widget(ctx),
@@ -108,13 +110,13 @@ impl DebugWarp {
                     Line("L").fg(c),
                     Line("ot"),
                 ])
-                .draw(ctx),
+                .into_widget(ctx),
                 Text::from_all(vec![
                     Line("Or "),
                     Line("j").fg(c),
                     Line("ump to the previous position"),
                 ])
-                .draw(ctx),
+                .into_widget(ctx),
                 Widget::text_entry(ctx, String::new(), true).named("input"),
                 ctx.style()
                     .btn_outline

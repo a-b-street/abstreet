@@ -67,7 +67,7 @@ impl PathCounter {
                 Widget::row(vec![
                     Line(format!("Paths across {}", i))
                         .small_heading()
-                        .draw(ctx),
+                        .into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 ColorLegend::gradient(

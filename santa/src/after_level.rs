@@ -94,7 +94,7 @@ impl Strategize {
         batch.push(Color::CYAN, path.render(Distance::meters(2.0)));
 
         let panel = Panel::new(Widget::col(vec![
-            txt.draw(ctx),
+            txt.into_widget(ctx),
             ctx.style()
                 .btn_outline
                 .text("Back to title screen")
@@ -196,7 +196,7 @@ impl Results {
 
         SimpleState::new(
             Panel::new(Widget::col(vec![
-                txt.draw(ctx),
+                txt.into_widget(ctx),
                 ctx.style()
                     .btn_solid_primary
                     .text("OK")

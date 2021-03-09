@@ -93,7 +93,7 @@ impl Elevation {
                 Line(format!("Steepest road: {:.0}% grade", max * 100.0)),
                 Line("Note: elevation data is currently wrong!").secondary(),
             ])
-            .draw(ctx),
+            .into_widget(ctx),
             ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["flat", "steep"]),
         ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)

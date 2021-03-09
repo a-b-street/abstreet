@@ -120,7 +120,10 @@ impl GameplayState for Freeform {
     fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
         let rows = vec![
             Widget::custom_row(vec![
-                Line("Sandbox").small_heading().draw(ctx).margin_right(18),
+                Line("Sandbox")
+                    .small_heading()
+                    .into_widget(ctx)
+                    .margin_right(18),
                 ctx.style()
                     .btn_popup_icon_text(
                         "system/assets/tools/map.svg",
@@ -158,7 +161,7 @@ impl GameplayState for Freeform {
                 Key::Z.txt(ctx),
                 Line(" to start traffic nearby"),
             ])
-            .draw(ctx),
+            .into_widget(ctx),
         ];
 
         self.top_center = Panel::new(Widget::col(rows))
@@ -221,10 +224,11 @@ impl ChangeScenario {
 
         let mut col = vec![
             Widget::row(vec![
-                Line("Pick your scenario").small_heading().draw(ctx),
+                Line("Pick your scenario").small_heading().into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
-            Line("Each scenario determines what people live and travel around this map").draw(ctx),
+            Line("Each scenario determines what people live and travel around this map")
+                .into_widget(ctx),
         ];
         for (name, label, description) in choices {
             let btn = ctx
@@ -237,7 +241,7 @@ impl ChangeScenario {
                     btn.build_widget(ctx, &name),
                     Text::from(Line(description).secondary())
                         .wrap_to_pct(ctx, 40)
-                        .draw(ctx)
+                        .into_widget(ctx)
                         .align_right(),
                 ])
                 .margin_above(30),
@@ -305,7 +309,7 @@ impl AgentSpawner {
             confirmed: false,
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
-                    Line("New trip").small_heading().draw(ctx),
+                    Line("New trip").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 "Click a building or border to specify start"

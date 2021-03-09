@@ -102,7 +102,7 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
     }
 
     if !txt.is_empty() {
-        rows.push(txt.draw(ctx))
+        rows.push(txt.into_widget(ctx))
     }
 
     if app.opts.dev {
@@ -233,7 +233,7 @@ fn header(
     let mut rows = vec![];
 
     rows.push(Widget::row(vec![
-        Line(id.to_string()).small_heading().draw(ctx),
+        Line(id.to_string()).small_heading().into_widget(ctx),
         header_btns(ctx),
     ]));
 

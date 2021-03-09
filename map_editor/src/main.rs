@@ -104,10 +104,10 @@ impl MainState {
                 mode: Mode::Viewing,
                 panel: Panel::new(Widget::col(vec![
                     Widget::row(vec![
-                        Line("Map Editor").small_heading().draw(ctx),
+                        Line("Map Editor").small_heading().into_widget(ctx),
                         ctx.style().btn_close_widget(ctx),
                     ]),
-                    Text::new().draw(ctx).named("instructions"),
+                    Text::new().into_widget(ctx).named("instructions"),
                     Widget::col(vec![
                         Toggle::switch(ctx, "intersection geometry", Key::G, false),
                         ctx.style()
@@ -206,7 +206,7 @@ impl State<App> for MainState {
                             Key::T.txt(ctx),
                             Line(" to toggle stop sign / traffic signal"),
                         ]);
-                        let instructions = txt.draw(ctx);
+                        let instructions = txt.into_widget(ctx);
                         self.panel.replace(ctx, "instructions", instructions);
                     }
                     Some(ID::Building(b)) => {
@@ -228,7 +228,7 @@ impl State<App> for MainState {
                             Key::LeftControl.txt(ctx),
                             Line(" to move"),
                         ]);
-                        let instructions = txt.draw(ctx);
+                        let instructions = txt.into_widget(ctx);
                         self.panel.replace(ctx, "instructions", instructions);
                     }
                     Some(ID::Road(r)) => {
@@ -273,7 +273,7 @@ impl State<App> for MainState {
                             Key::M.txt(ctx),
                             Line(" to merge"),
                         ]);
-                        let instructions = txt.draw(ctx);
+                        let instructions = txt.into_widget(ctx);
                         self.panel.replace(ctx, "instructions", instructions);
                     }
                     Some(ID::RoadPoint(r, idx)) => {
@@ -295,7 +295,7 @@ impl State<App> for MainState {
                             Key::LeftControl.txt(ctx),
                             Line(" to move"),
                         ]);
-                        let instructions = txt.draw(ctx);
+                        let instructions = txt.into_widget(ctx);
                         self.panel.replace(ctx, "instructions", instructions);
                     }
                     None => {
@@ -348,7 +348,7 @@ impl State<App> for MainState {
                                     Key::B.txt(ctx),
                                     Line(" to create a building"),
                                 ]);
-                                let instructions = txt.draw(ctx);
+                                let instructions = txt.into_widget(ctx);
                                 self.panel.replace(ctx, "instructions", instructions);
                             }
                         }
@@ -397,7 +397,7 @@ impl State<App> for MainState {
                     Line("Click").fg(ctx.style().text_hotkey_color),
                     Line(" the top-left corner of this map"),
                 ]);
-                let instructions = txt.draw(ctx);
+                let instructions = txt.into_widget(ctx);
                 self.panel.replace(ctx, "instructions", instructions);
 
                 if let Some(pt) = cursor {
@@ -412,7 +412,7 @@ impl State<App> for MainState {
                     Line("Click").fg(ctx.style().text_hotkey_color),
                     Line(" the bottom-right corner of this map"),
                 ]);
-                let instructions = txt.draw(ctx);
+                let instructions = txt.into_widget(ctx);
                 self.panel.replace(ctx, "instructions", instructions);
 
                 if let Some(pt2) = cursor {

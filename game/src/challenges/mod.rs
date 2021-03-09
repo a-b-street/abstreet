@@ -140,7 +140,7 @@ impl ChallengesPicker {
                 Line("A/B STREET").display_title(),
                 Line("CHALLENGES").big_heading_styled(),
             ])
-            .draw(ctx)
+            .into_widget(ctx)
             .centered_horiz(),
             ctx.style()
                 .btn_outline
@@ -215,7 +215,7 @@ impl ChallengesPicker {
             }
 
             let mut inner_col = vec![
-                txt.draw(ctx),
+                txt.into_widget(ctx),
                 ctx.style()
                     .btn_outline
                     .text("Start!")
@@ -234,7 +234,7 @@ impl ChallengesPicker {
                     )));
                     idx += 1;
                 }
-                inner_col.push(txt.draw(ctx));
+                inner_col.push(txt.into_widget(ctx));
             } else {
                 inner_col.push("No attempts yet".text_widget(ctx));
             }

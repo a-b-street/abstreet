@@ -50,17 +50,17 @@ impl Demo {
 
     fn make_timeseries_panel(&self, ctx: &mut EventCtx) -> Panel {
         // Make a table with 3 columns.
-        let mut col1 = vec![Line("Time").draw(ctx)];
-        let mut col = vec![Line("Linear").draw(ctx)];
-        let mut col3 = vec![Line("Quadratic").draw(ctx)];
+        let mut col1 = vec![Line("Time").into_widget(ctx)];
+        let mut col = vec![Line("Linear").into_widget(ctx)];
+        let mut col3 = vec![Line("Quadratic").into_widget(ctx)];
         for s in 0..(self.elapsed.inner_seconds() as usize) {
             col1.push(
                 Line(format!("{}", Duration::seconds(s as f64)))
                     .secondary()
-                    .draw(ctx),
+                    .into_widget(ctx),
             );
-            col.push(Line(s.to_string()).secondary().draw(ctx));
-            col3.push(Line(s.pow(2).to_string()).secondary().draw(ctx));
+            col.push(Line(s.to_string()).secondary().into_widget(ctx));
+            col3.push(Line(s.pow(2).to_string()).secondary().into_widget(ctx));
         }
 
         let mut c = Panel::new(Widget::col(vec![
@@ -72,7 +72,7 @@ impl Demo {
                 )
                 .fg(Color::RED),
             ])
-            .draw(ctx),
+            .into_widget(ctx),
             Widget::row(vec![
                 // Examples of styling widgets
                 Widget::col(col1).outline((2.0, Color::BLACK)).padding(5),
@@ -308,7 +308,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
             Line("widgetry demo").big_heading_styled(),
             Line("Click and drag the background to pan, use touchpad or scroll wheel to zoom"),
         ])
-        .draw(ctx),
+        .into_widget(ctx),
         Text::from_all(vec![
             Line("You can "),
             Line("change fonts ").big_heading_plain(),
@@ -316,10 +316,10 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
             Line("line!").small_heading(),
         ])
         .bg(Color::PURPLE)
-        .draw(ctx),
+        .into_widget(ctx),
         // Button Style Gallery
         // TODO might be nice to have this in separate tabs or something.
-        Text::from(Line("Buttons").big_heading_styled().size(18)).draw(ctx),
+        Text::from(Line("Buttons").big_heading_styled().size(18)).into_widget(ctx),
         Widget::row(vec![Widget::col(vec![
             style
                 .btn_solid_primary
@@ -358,7 +358,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 .icon_text("system/assets/tools/home.svg", "Secondary")
                 .build_widget(ctx, "btn_outline.icon_text"),
         ])]),
-        Text::from(Line("Spinner").big_heading_styled().size(18)).draw(ctx),
+        Text::from(Line("Spinner").big_heading_styled().size(18)).into_widget(ctx),
         widgetry::Spinner::widget(ctx, (0, 11), 1),
         Widget::row(vec![
             ctx.style()
@@ -449,7 +449,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 .big_heading_styled()
                 .size(18),
         )
-        .draw(ctx),
+        .into_widget(ctx),
         {
             let row_height = 10;
             let mut id = 0;

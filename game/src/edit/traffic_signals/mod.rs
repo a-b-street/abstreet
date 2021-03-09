@@ -525,7 +525,9 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
     ];
     Panel::new(Widget::col(vec![
         Widget::row(vec![
-            Line("Traffic signal editor").small_heading().draw(ctx),
+            Line("Traffic signal editor")
+                .small_heading()
+                .into_widget(ctx),
             ctx.style()
                 .btn_plain
                 .text("+ Edit multiple")
@@ -595,7 +597,7 @@ fn make_side_panel(
             .secondary(),
         );
     }
-    let mut col = vec![txt.draw(ctx)];
+    let mut col = vec![txt.into_widget(ctx)];
     col.push(Widget::horiz_separator(ctx, 0.2));
 
     // TODO Say "normally" to account for variable stages?

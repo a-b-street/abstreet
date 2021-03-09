@@ -47,7 +47,7 @@ impl JumpToTime {
                         .build_def(ctx),
                 ])
                 .bg(Color::WHITE),
-                Line("Jump to what time?").small_heading().draw(ctx),
+                Line("Jump to what time?").small_heading().into_widget(ctx),
                 if app.has_prebaked().is_some() {
                     GeomBatch::from(vec![(
                         Color::WHITE.alpha(0.7),
@@ -182,7 +182,7 @@ impl JumpToDelay {
                 ])
                 .bg(Color::WHITE),
                 Widget::row(vec![
-                    Line("Jump to next").small_heading().draw(ctx),
+                    Line("Jump to next").small_heading().into_widget(ctx),
                     Widget::dropdown(
                         ctx,
                         "delay",
@@ -194,7 +194,7 @@ impl JumpToDelay {
                             Choice::new("10", Duration::minutes(10)),
                         ],
                     ),
-                    Line("minute delay").small_heading().draw(ctx),
+                    Line("minute delay").small_heading().into_widget(ctx),
                 ]),
                 Toggle::checkbox(
                     ctx,
@@ -295,7 +295,7 @@ impl TimeWarpScreen {
             halt_upon_delay,
             panel: Panel::new(
                 Widget::col(vec![
-                    Text::new().draw(ctx).named("text"),
+                    Text::new().into_widget(ctx).named("text"),
                     ctx.style()
                         .btn_outline
                         .text("stop now")
@@ -392,7 +392,7 @@ impl State<App> for TimeWarpScreen {
                 },
             ]);
 
-            self.panel.replace(ctx, "text", txt.draw(ctx));
+            self.panel.replace(ctx, "text", txt.into_widget(ctx));
         }
         // >= because of the case of resetting to midnight. GameplayMode::initialize takes a tiny
         // step past midnight after spawning things, so that agents initially appear on the map.

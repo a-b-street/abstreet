@@ -30,7 +30,9 @@ impl<A: AppLike + 'static> Picker<A> {
 
         let mut col = vec![
             Widget::row(vec![
-                Line("Download more cities").small_heading().draw(ctx),
+                Line("Download more cities")
+                    .small_heading()
+                    .into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
             "Select the cities you want to include".text_widget(ctx),
@@ -39,7 +41,7 @@ impl<A: AppLike + 'static> Picker<A> {
                  will be larger",
             )
             .secondary()
-            .draw(ctx),
+            .into_widget(ctx),
         ];
         for (city, bytes) in size_per_city(&manifest) {
             col.push(Widget::row(vec![

@@ -394,14 +394,14 @@ impl SaveEdits {
         let mut save = SaveEdits {
             current_name: initial_name.clone(),
             panel: Panel::new(Widget::col(vec![
-                Line(title).small_heading().draw(ctx),
+                Line(title).small_heading().into_widget(ctx),
                 Widget::row(vec![
                     "Name:".text_widget(ctx).centered_vert(),
                     Widget::text_entry(ctx, initial_name, true).named("filename"),
                 ]),
                 // TODO Want this to always consistently be one line high, but it isn't for a blank
                 // line
-                Text::new().draw(ctx).named("warning"),
+                Text::new().into_widget(ctx).named("warning"),
                 Widget::row(vec![
                     if discard {
                         ctx.style()
@@ -448,7 +448,8 @@ impl SaveEdits {
                     .disabled(true)
                     .build_def(ctx),
             );
-            self.panel.replace(ctx, "warning", Text::new().draw(ctx));
+            self.panel
+                .replace(ctx, "warning", Text::new().into_widget(ctx));
         } else if abstio::file_exists(abstio::path_edits(
             app.primary.map.get_name(),
             &self.current_name,
@@ -467,7 +468,7 @@ impl SaveEdits {
                 "warning",
                 Line("A proposal with this name already exists")
                     .fg(Color::hex("#FF5E5E"))
-                    .draw(ctx),
+                    .into_widget(ctx),
             );
         } else {
             self.panel.replace(
@@ -479,7 +480,8 @@ impl SaveEdits {
                     .hotkey(Key::Enter)
                     .build_def(ctx),
             );
-            self.panel.replace(ctx, "warning", Text::new().draw(ctx));
+            self.panel
+                .replace(ctx, "warning", Text::new().into_widget(ctx));
         }
     }
 }
@@ -534,7 +536,7 @@ impl LoadEdits {
     fn new(ctx: &mut EventCtx, app: &App, mode: GameplayMode) -> Box<dyn State<App>> {
         let current_edits_name = &app.primary.map.get_edits().edits_name;
         let your_edits = vec![
-            Line("Your proposals").small_heading().draw(ctx),
+            Line("Your proposals").small_heading().into_widget(ctx),
             Menu::widget(
                 ctx,
                 abstio::list_all_objects(abstio::path_all_edits(app.primary.map.get_name()))
@@ -545,7 +547,7 @@ impl LoadEdits {
         ];
         // widgetry can't toggle keyboard focus between two menus, so just use buttons for the less
         // common use case.
-        let mut proposals = vec![Line("Community proposals").small_heading().draw(ctx)];
+        let mut proposals = vec![Line("Community proposals").small_heading().into_widget(ctx)];
         // Up-front filter out proposals that definitely don't fit the current map
         for name in abstio::list_all_objects(abstio::path("system/proposals")) {
             let path = abstio::path(format!("system/proposals/{}.json", name));
@@ -558,7 +560,7 @@ impl LoadEdits {
             mode,
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
-                    Line("Load proposal").small_heading().draw(ctx),
+                    Line("Load proposal").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 ctx.style()
@@ -652,7 +654,7 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Panel {
     Panel::new(Widget::col(vec![
         Line("Editing map")
             .small_heading()
-            .draw(ctx)
+            .into_widget(ctx)
             .centered_horiz(),
         ctx.style()
             .btn_solid_primary
@@ -868,7 +870,7 @@ impl ConfirmDiscard {
                         .into_widget(ctx)
                         .container()
                         .padding_top(6),
-                    Line("Alert").small_heading().draw(ctx),
+                    Line("Alert").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 "Are you sure you want to discard changes you made?".text_widget(ctx),

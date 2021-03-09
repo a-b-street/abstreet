@@ -69,7 +69,9 @@ impl LaneEditor {
         let parent = app.primary.map.get_parent(l);
         let col = vec![
             Widget::row(vec![
-                Line(format!("Editing {}", l)).small_heading().draw(ctx),
+                Line(format!("Editing {}", l))
+                    .small_heading()
+                    .into_widget(ctx),
                 ctx.style()
                     .btn_plain
                     .text("+ Edit multiple")

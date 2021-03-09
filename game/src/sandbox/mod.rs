@@ -414,7 +414,7 @@ impl AgentMeter {
                         prettyprint_usize(finished),
                         pct as usize
                     )));
-                    txt.draw(ctx).centered_vert()
+                    txt.into_widget(ctx).centered_vert()
                 },
                 if app.primary.dirty_from_edits {
                     ctx.style()

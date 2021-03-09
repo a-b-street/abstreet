@@ -109,7 +109,9 @@ impl ColorLegend {
             )])
             .into_widget(ctx)
             .centered_vert(),
-            Text::from(Line(label)).wrap_to_pct(ctx, 35).draw(ctx),
+            Text::from(Line(label))
+                .wrap_to_pct(ctx, 35)
+                .into_widget(ctx),
         ])
     }
 
@@ -148,7 +150,7 @@ impl ColorLegend {
             Widget::custom_row(
                 labels
                     .into_iter()
-                    .map(|lbl| Line(lbl).small().draw(ctx))
+                    .map(|lbl| Line(lbl).small().into_widget(ctx))
                     .collect(),
             )
             .evenly_spaced(),
@@ -175,7 +177,7 @@ impl ColorLegend {
             Widget::custom_row(
                 pairs
                     .into_iter()
-                    .map(|(_, lbl)| Line(lbl).small().draw(ctx))
+                    .map(|(_, lbl)| Line(lbl).small().into_widget(ctx))
                     .collect(),
             )
             .evenly_spaced(),

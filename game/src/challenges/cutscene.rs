@@ -179,7 +179,11 @@ fn make_panel(
                         .autocrop()
                         .into_widget(ctx),
                     Widget::custom_row(vec![
-                        scenes[idx].msg.clone().wrap_to_pct(ctx, 30).draw(ctx),
+                        scenes[idx]
+                            .msg
+                            .clone()
+                            .wrap_to_pct(ctx, 30)
+                            .into_widget(ctx),
                         Image::untinted("system/assets/characters/player.svg").into_widget(ctx),
                     ])
                     .align_right(),
@@ -189,7 +193,11 @@ fn make_panel(
                         .scale(0.75)
                         .autocrop()
                         .into_widget(ctx),
-                    scenes[idx].msg.clone().wrap_to_pct(ctx, 30).draw(ctx),
+                    scenes[idx]
+                        .msg
+                        .clone()
+                        .wrap_to_pct(ctx, 30)
+                        .into_widget(ctx),
                     Image::untinted("system/assets/characters/player.svg")
                         .into_widget(ctx)
                         .align_right(),
@@ -207,7 +215,11 @@ fn make_panel(
                         .scale(scale)
                         .autocrop()
                         .into_widget(ctx),
-                        scenes[idx].msg.clone().wrap_to_pct(ctx, 30).draw(ctx),
+                        scenes[idx]
+                            .msg
+                            .clone()
+                            .wrap_to_pct(ctx, 30)
+                            .into_widget(ctx),
                     ]),
                     Image::untinted("system/assets/characters/player.svg").into_widget(ctx),
                 ])
@@ -232,7 +244,7 @@ fn make_panel(
                 .btn_back("Home")
                 .build_widget(ctx, "quit")
                 .margin_right(100),
-            Line(name).big_heading_styled().draw(ctx),
+            Line(name).big_heading_styled().into_widget(ctx),
         ])
         .margin_below(40),
         inner

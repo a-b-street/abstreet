@@ -51,7 +51,7 @@ impl ZoneEditor {
             panel: Panel::new(Widget::col(vec![
                 Line("Editing restricted access zone")
                     .small_heading()
-                    .draw(ctx),
+                    .into_widget(ctx),
                 selector.make_controls(ctx).named("selector"),
                 legend,
                 make_instructions(ctx, &allow_through_traffic).named("instructions"),
@@ -224,9 +224,9 @@ fn make_instructions(ctx: &mut EventCtx, allow_through_traffic: &BTreeSet<TripMo
              Would you like to restrict it?",
         ))
         .wrap_to_pct(ctx, 30)
-        .draw(ctx)
+        .into_widget(ctx)
     } else {
         Line("Trips may start or end in this zone, but through-traffic is only allowed for:")
-            .draw(ctx)
+            .into_widget(ctx)
     }
 }

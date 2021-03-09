@@ -69,7 +69,7 @@ impl ViewKML {
                 draw: ctx.upload(batch),
                 panel: Panel::new(Widget::col(vec![
                     Widget::row(vec![
-                        Line("KML viewer").small_heading().draw(ctx),
+                        Line("KML viewer").small_heading().into_widget(ctx),
                         ctx.style().btn_close_widget(ctx),
                     ]),
                     format!(

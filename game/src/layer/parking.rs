@@ -125,7 +125,7 @@ impl Occupancy {
                     Line("Parking simulation disabled."),
                     Line("Every building has unlimited capacity.").secondary(),
                 ])
-                .draw(ctx),
+                .into_widget(ctx),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
             .build(ctx);
@@ -226,7 +226,7 @@ impl Occupancy {
                     prettyprint_usize(private_filled + private_avail)
                 )),
             ])
-            .draw(ctx),
+            .into_widget(ctx),
             Widget::row(vec![
                 Toggle::switch(ctx, "On-street spots", None, onstreet),
                 Toggle::switch(ctx, "Parking lots", None, lots),
@@ -363,7 +363,7 @@ impl Efficiency {
             header(ctx, "Parking efficiency"),
             Text::from(Line("How far away are people parked? (minutes)").secondary())
                 .wrap_to_pct(ctx, 15)
-                .draw(ctx),
+                .into_widget(ctx),
             ColorLegend::gradient(
                 ctx,
                 &app.cs.good_to_bad_red,

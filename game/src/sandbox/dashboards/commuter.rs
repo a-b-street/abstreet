@@ -318,7 +318,7 @@ impl CommuterPatterns {
                 }
             }
 
-            self.panel.replace(ctx, "current", txt.draw(ctx));
+            self.panel.replace(ctx, "current", txt.into_widget(ctx));
 
             let new_scale = ColorLegend::gradient(
                 ctx,
@@ -681,7 +681,9 @@ fn partition_sidewalk_loops(app: &App) -> Vec<Loop> {
 fn make_panel(ctx: &mut EventCtx, app: &App) -> Panel {
     Panel::new(Widget::col(vec![
         Widget::row(vec![
-            Line("Commute map by block").small_heading().draw(ctx),
+            Line("Commute map by block")
+                .small_heading()
+                .into_widget(ctx),
             ctx.style().btn_close_widget(ctx),
         ]),
         Toggle::choice(ctx, "from / to this block", "from", "to", Key::Space, true),

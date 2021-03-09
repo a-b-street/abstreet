@@ -38,7 +38,7 @@ impl CollisionsViewer {
         Box::new(CollisionsViewer {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
-                    Line("Collisions viewer").small_heading().draw(ctx),
+                    Line("Collisions viewer").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 format!("{} collisions", prettyprint_usize(count))

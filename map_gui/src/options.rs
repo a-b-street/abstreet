@@ -128,7 +128,7 @@ impl OptionsPanel {
         Box::new(OptionsPanel {
             panel: Panel::new(Widget::col(vec![
                 Widget::custom_row(vec![
-                    Line("Settings").small_heading().draw(ctx),
+                    Line("Settings").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 "Camera controls".text_widget(ctx),

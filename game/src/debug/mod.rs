@@ -52,10 +52,10 @@ impl DebugMode {
         Box::new(DebugMode {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
-                    Line("Debug Mode").small_heading().draw(ctx),
+                    Line("Debug Mode").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                Text::new().draw(ctx).named("current info"),
+                Text::new().into_widget(ctx).named("current info"),
                 Toggle::switch(ctx, "show buildings", Key::Num1, true),
                 Toggle::switch(ctx, "show intersections", Key::Num2, true),
                 Toggle::switch(ctx, "show lanes", Key::Num3, true),
@@ -139,7 +139,7 @@ impl DebugMode {
                     Key::LeftControl.txt(ctx),
                     Line(" to show position"),
                 ])
-                .draw(ctx),
+                .into_widget(ctx),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
@@ -171,7 +171,8 @@ impl DebugMode {
                 abstutil::prettyprint_usize(n)
             )));
         }
-        self.panel.replace(ctx, "current info", txt.draw(ctx));
+        self.panel
+            .replace(ctx, "current info", txt.into_widget(ctx));
     }
 }
 

@@ -310,7 +310,7 @@ impl State<App> for StoryMapEditor {
 fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) -> Panel {
     Panel::new(Widget::col(vec![
         Widget::row(vec![
-            Line("Story map editor").small_heading().draw(ctx),
+            Line("Story map editor").small_heading().into_widget(ctx),
             Widget::vert_separator(ctx, 30.0),
             ctx.style()
                 .btn_outline
@@ -489,7 +489,7 @@ impl Marker {
     fn make_editor(&self, ctx: &mut EventCtx) -> Panel {
         Panel::new(Widget::col(vec![
             Widget::row(vec![
-                Line("Editing marker").small_heading().draw(ctx),
+                Line("Editing marker").small_heading().into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
             ctx.style().btn_outline.text("delete").build_def(ctx),

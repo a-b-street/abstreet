@@ -30,7 +30,7 @@ impl SignalPicker {
                 Widget::row(vec![
                     Line("Select multiple traffic signals")
                         .small_heading()
-                        .draw(ctx),
+                        .into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 make_btn(ctx, members.len()),

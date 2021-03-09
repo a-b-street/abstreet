@@ -50,7 +50,7 @@ impl StopSignEditor {
             .collect();
 
         let panel = Panel::new(Widget::col(vec![
-            Line("Stop sign editor").small_heading().draw(ctx),
+            Line("Stop sign editor").small_heading().into_widget(ctx),
             ctx.style()
                 .btn_outline
                 .text("reset to default")

@@ -43,7 +43,7 @@ impl TrafficSignalDemand {
                 Widget::row(vec![
                     Line("Traffic signal demand over time")
                         .small_heading()
-                        .draw(ctx),
+                        .into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 Text::from_all(vec![
@@ -53,7 +53,7 @@ impl TrafficSignalDemand {
                     Key::RightArrow.txt(ctx),
                     Line(" to adjust the hour"),
                 ])
-                .draw(ctx),
+                .into_widget(ctx),
                 Widget::row(vec![
                     "Hour:".text_widget(ctx),
                     Spinner::widget(ctx, (0, 24), 7).named("hour"),

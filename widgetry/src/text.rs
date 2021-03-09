@@ -68,8 +68,8 @@ impl TextSpan {
         self.fg_color.unwrap_or(style.text_fg_color)
     }
 
-    pub fn draw(self, ctx: &EventCtx) -> Widget {
-        Text::from(self).draw(ctx)
+    pub fn into_widget(self, ctx: &EventCtx) -> Widget {
+        Text::from(self).into_widget(ctx)
     }
     pub fn batch(self, ctx: &EventCtx) -> Widget {
         Text::from(self).batch(ctx)
@@ -370,7 +370,7 @@ impl Text {
         format!("{:x}", hasher.finish())
     }
 
-    pub fn draw(self, ctx: &EventCtx) -> Widget {
+    pub fn into_widget(self, ctx: &EventCtx) -> Widget {
         JustDraw::wrap(ctx, self.render(ctx))
     }
     pub fn batch(self, ctx: &EventCtx) -> Widget {
@@ -494,7 +494,7 @@ pub trait TextExt {
 
 impl TextExt for &str {
     fn text_widget(self, ctx: &EventCtx) -> Widget {
-        Line(self).draw(ctx)
+        Line(self).into_widget(ctx)
     }
     fn batch_text(self, ctx: &EventCtx) -> Widget {
         Line(self).batch(ctx)
@@ -503,7 +503,7 @@ impl TextExt for &str {
 
 impl TextExt for String {
     fn text_widget(self, ctx: &EventCtx) -> Widget {
-        Line(self).draw(ctx)
+        Line(self).into_widget(ctx)
     }
     fn batch_text(self, ctx: &EventCtx) -> Widget {
         Line(self).batch(ctx)

@@ -25,7 +25,7 @@ impl TitleScreen {
             Panel::new(Widget::col(vec![
                 Line("15-minute Santa")
                     .display_title()
-                    .draw(ctx)
+                    .into_widget(ctx)
                     .container()
                     .padding(16)
                     .bg(app.cs.fade_map_dark)
@@ -41,7 +41,7 @@ impl TitleScreen {
                     .small_heading(),
                 )
                 .wrap_to_pct(ctx, 50)
-                .draw(ctx)
+                .into_widget(ctx)
                 .container()
                 .padding(16)
                 .bg(app.cs.fade_map_dark)
@@ -147,7 +147,7 @@ impl Credits {
         SimpleState::new(
             Panel::new(Widget::col(vec![
                 Widget::row(vec![
-                    Line("15-minute Santa").big_heading_plain().draw(ctx),
+                    Line("15-minute Santa").big_heading_plain().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 link(
@@ -159,7 +159,7 @@ impl Credits {
                     Line("Lead: Dustin Carlino"),
                     Line("Programming & game design: Michael Kirk"),
                     Line("UI/UX: Yuwen Li"),
-                ]).draw(ctx),
+                ]).into_widget(ctx),
                 link(
                     ctx,
                     "Santa made by @parallaxcreativedesign",

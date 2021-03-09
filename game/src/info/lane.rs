@@ -80,7 +80,9 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
             });
         }
         let section = Widget::col(vec![
-            Line("Parking spots available").small_heading().draw(ctx),
+            Line("Parking spots available")
+                .small_heading()
+                .into_widget(ctx),
             LinePlot::new(
                 ctx,
                 series,
@@ -178,7 +180,7 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
 
     let mut txt = Text::from(Line(""));
     txt.add(Line("Raw OpenStreetMap data"));
-    rows.push(txt.draw(ctx));
+    rows.push(txt.into_widget(ctx));
 
     rows.extend(make_table(
         ctx,
@@ -210,7 +212,7 @@ pub fn traffic(
         "Since midnight: {} commuters and vehicles crossed",
         prettyprint_usize(app.primary.sim.get_analytics().road_thruput.total_for(r.id))
     )));
-    rows.push(txt.draw(ctx));
+    rows.push(txt.into_widget(ctx));
 
     rows.push(opts.to_controls(ctx, app));
 
@@ -255,7 +257,7 @@ fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID, tab: Tab
     rows.push(Widget::row(vec![
         Line(format!("{} #{}", label, id.0))
             .small_heading()
-            .draw(ctx),
+            .into_widget(ctx),
         header_btns(ctx),
     ]));
     rows.push(format!("@ {}", r.get_name(app.opts.language.as_ref())).text_widget(ctx));

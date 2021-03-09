@@ -51,7 +51,7 @@ impl ScenarioManager {
                 Widget::row(vec![
                     Line(format!("Scenario {}", scenario.scenario_name))
                         .small_heading()
-                        .draw(ctx),
+                        .into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 ctx.style()
@@ -75,7 +75,7 @@ impl ScenarioManager {
                     Line(""),
                     Line("Parked cars per building"),
                 ])
-                .draw(ctx),
+                .into_widget(ctx),
                 legend,
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)

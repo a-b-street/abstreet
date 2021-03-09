@@ -8,7 +8,7 @@ pub fn area(ctx: &EventCtx, app: &App, _: &mut Details, id: AreaID) -> Vec<Widge
     let mut rows = vec![];
 
     rows.push(Widget::row(vec![
-        Line(id.to_string()).small_heading().draw(ctx),
+        Line(id.to_string()).small_heading().into_widget(ctx),
         header_btns(ctx),
     ]));
 

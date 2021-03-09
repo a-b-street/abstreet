@@ -641,7 +641,7 @@ fn make_table<I: Into<String>>(ctx: &EventCtx, rows: Vec<(I, String)>) -> Vec<Wi
     rows.into_iter()
         .map(|(k, v)| {
             Widget::row(vec![
-                Line(k).secondary().draw(ctx),
+                Line(k).secondary().into_widget(ctx),
                 // TODO not quite...
                 v.text_widget(ctx).centered_vert().align_right(),
             ])
@@ -678,7 +678,7 @@ fn throughput<F: Fn(&Analytics) -> Vec<(AgentType, Vec<(Time, usize)>)>>(
     let mut plot_opts = PlotOptions::filterable();
     plot_opts.disabled = opts.disabled_series();
     Widget::col(vec![
-        Line(title).small_heading().draw(ctx),
+        Line(title).small_heading().into_widget(ctx),
         LinePlot::new(ctx, series, plot_opts),
     ])
     .padding(10)

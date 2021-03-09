@@ -73,7 +73,7 @@ impl Picker {
                 ]);
 
                 let instructions_panel = Panel::new(Widget::col(vec![
-                    txt.draw(ctx),
+                    txt.into_widget(ctx),
                     Widget::row(vec![
                         GeomBatch::load_svg_bytes(
                             &ctx.prerender,
@@ -86,7 +86,7 @@ impl Picker {
                             Line("WASD").fg(ctx.style().text_hotkey_color),
                             Line(")"),
                         ])
-                        .draw(ctx),
+                        .into_widget(ctx),
                     ]),
                     Widget::row(vec![
                         Image::icon("system/assets/tools/mouse.svg").into_widget(ctx),
@@ -95,13 +95,13 @@ impl Picker {
                                 .fg(ctx.style().text_hotkey_color),
                             Line(" to zoom in or out"),
                         ])
-                        .draw(ctx),
+                        .into_widget(ctx),
                     ]),
                     Text::from_all(vec![
                         Line("Escape key").fg(ctx.style().text_hotkey_color),
                         Line(" to pause"),
                     ])
-                    .draw(ctx),
+                    .into_widget(ctx),
                 ]))
                 .aligned(HorizontalAlignment::LeftInset, VerticalAlignment::TopInset)
                 .build(ctx);
@@ -273,9 +273,11 @@ fn make_vehicle_panel(ctx: &mut EventCtx, app: &App) -> Panel {
     let (max_speed, max_energy) = Vehicle::max_stats();
 
     Panel::new(Widget::col(vec![
-        Line("Pick Santa's vehicle").small_heading().draw(ctx),
+        Line("Pick Santa's vehicle")
+            .small_heading()
+            .into_widget(ctx),
         Widget::row(buttons),
-        Line(&vehicle.name).small_heading().draw(ctx),
+        Line(&vehicle.name).small_heading().into_widget(ctx),
         Widget::row(vec![
             "Speed:".text_widget(ctx),
             custom_bar(
@@ -321,7 +323,7 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
 
     Panel::new(Widget::col(vec![
         Widget::row(vec![
-            Line("Upzoning").small_heading().draw(ctx),
+            Line("Upzoning").small_heading().into_widget(ctx),
             ctx.style()
                 .btn_plain
                 .icon("system/assets/tools/info.svg")
@@ -332,7 +334,7 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
             Image::icon("system/assets/tools/mouse.svg").into_widget(ctx),
             Line("Select the houses you want to turn into stores")
                 .fg(ctx.style().text_hotkey_color)
-                .draw(ctx),
+                .into_widget(ctx),
         ]),
         Widget::row(vec![
             "Upzones chosen:".text_widget(ctx),

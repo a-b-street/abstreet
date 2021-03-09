@@ -117,7 +117,7 @@ impl TurnExplorer {
                 ))
                 .small_heading(),
             )
-            .draw(ctx),
+            .into_widget(ctx),
             Widget::vert_separator(ctx, 50.0),
             ctx.style()
                 .btn_prev()
@@ -125,7 +125,7 @@ impl TurnExplorer {
                 .hotkey(Key::LeftArrow)
                 .build_widget(ctx, "previous turn"),
             Text::from(Line(format!("{}/{}", idx, turns.len())).secondary())
-                .draw(ctx)
+                .into_widget(ctx)
                 .centered_vert(),
             ctx.style()
                 .btn_next()

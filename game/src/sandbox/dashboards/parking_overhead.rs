@@ -186,7 +186,7 @@ fn make_panel(ctx: &mut EventCtx, app: &App, table: &Table<App, Entry, Filters>)
                 ),
                 Line("since the time spent driving off-map isn't shown here."),
             ])
-            .draw(ctx),
+            .into_widget(ctx),
             Filler::square_width(ctx, 0.15).named("preview"),
         ])
         .evenly_spaced(),

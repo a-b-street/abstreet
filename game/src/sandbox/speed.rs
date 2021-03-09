@@ -368,7 +368,7 @@ impl TimePanel {
             time: app.primary.sim.time(),
             panel: Panel::new(Widget::col(vec![
                 Text::from(Line(app.primary.sim.time().ampm_tostring()).big_monospaced())
-                    .draw(ctx)
+                    .into_widget(ctx)
                     .centered_horiz(),
                 {
                     let mut batch = GeomBatch::new();
@@ -404,11 +404,11 @@ impl TimePanel {
                     batch.into_widget(ctx)
                 },
                 Widget::custom_row(vec![
-                    Line("00:00").small_monospaced().draw(ctx),
+                    Line("00:00").small_monospaced().into_widget(ctx),
                     Image::icon("system/assets/speed/sunrise.svg").into_widget(ctx),
-                    Line("12:00").small_monospaced().draw(ctx),
+                    Line("12:00").small_monospaced().into_widget(ctx),
                     Image::icon("system/assets/speed/sunset.svg").into_widget(ctx),
-                    Line("24:00").small_monospaced().draw(ctx),
+                    Line("24:00").small_monospaced().into_widget(ctx),
                 ])
                 .evenly_spaced(),
             ]))

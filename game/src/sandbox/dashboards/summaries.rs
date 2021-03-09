@@ -179,7 +179,7 @@ fn summary_boxes(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
             .small(),
             Line(format!("Saved {} in total", sum_faster)).small(),
         ])
-        .draw(ctx)
+        .into_widget(ctx)
         .container()
         .padding(20)
         .bg(Color::hex("#72CE36").alpha(0.5))
@@ -202,7 +202,7 @@ fn summary_boxes(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
             .small(),
             Line(format!("Lost {} in total", sum_slower)).small(),
         ])
-        .draw(ctx)
+        .into_widget(ctx)
         .container()
         .padding(20)
         .bg(Color::hex("#EB3223").alpha(0.5))
@@ -215,7 +215,7 @@ fn summary_boxes(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
             ))
             .small(),
         ])
-        .draw(ctx)
+        .into_widget(ctx)
         .container()
         .padding(20)
         .bg(Color::hex("#F4DA22").alpha(0.5))
@@ -235,7 +235,9 @@ fn scatter_plot(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
     }
 
     Widget::col(vec![
-        Line("Trip time before and after").small_heading().draw(ctx),
+        Line("Trip time before and after")
+            .small_heading()
+            .into_widget(ctx),
         CompareTimes::new(
             ctx,
             format!(
@@ -393,10 +395,14 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
             Line("Number of slower/faster trips").small_heading(),
             Line("by ranges of trip time (after)").small_heading(),
         ])
-        .draw(ctx),
-        Line("number of trips (faster)").secondary().draw(ctx),
+        .into_widget(ctx),
+        Line("number of trips (faster)")
+            .secondary()
+            .into_widget(ctx),
         DrawWithTooltips::new(ctx, batch, tooltips, Box::new(|_| GeomBatch::new())),
-        Line("number of trips (slower)").secondary().draw(ctx),
+        Line("number of trips (slower)")
+            .secondary()
+            .into_widget(ctx),
     ])
     .padding(16)
     .outline(ctx.style().section_outline)

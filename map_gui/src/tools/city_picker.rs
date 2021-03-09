@@ -104,7 +104,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                     }
                 }
 
-                let mut other_places = vec![Line("Other places").draw(ctx)];
+                let mut other_places = vec![Line("Other places").into_widget(ctx)];
                 for (country, cities) in cities_per_country() {
                     // If there's only one city and we're already there, skip it.
                     if cities.len() == 1 && cities[0] == city_name {
@@ -150,7 +150,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                     on_load: Some(on_load),
                     panel: Panel::new(Widget::col(vec![
                         Widget::row(vec![
-                            Line("Select a district").small_heading().draw(ctx),
+                            Line("Select a district").small_heading().into_widget(ctx),
                             ctx.style().btn_close_widget(ctx),
                         ]),
                         Widget::row(vec![
@@ -357,7 +357,7 @@ impl<A: AppLike + 'static> AllCityPicker<A> {
             on_load: Some(on_load),
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
-                    Line("Select a district").small_heading().draw(ctx),
+                    Line("Select a district").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 Widget::row(vec![
@@ -459,7 +459,7 @@ impl<A: AppLike + 'static> CitiesInCountryPicker<A> {
                     draw_flag,
                     Line(format!("Select a city in {}", nice_country_name(country)))
                         .small_heading()
-                        .draw(ctx),
+                        .into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 Widget::custom_row(buttons).flex_wrap(ctx, Percent::int(70)),

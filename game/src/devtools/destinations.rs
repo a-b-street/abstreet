@@ -94,12 +94,14 @@ impl PopularDestinations {
             draw: ctx.upload(batch),
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
-                    Line("Most popular destinations").small_heading().draw(ctx),
+                    Line("Most popular destinations")
+                        .small_heading()
+                        .into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 Toggle::switch(ctx, "Show heatmap", None, opts.is_some()),
                 controls,
-                breakdown.draw(ctx),
+                breakdown.into_widget(ctx),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),

@@ -142,14 +142,14 @@ impl BikeActivity {
                     total_dist.to_string(&app.opts.units)
                 )),
             ])
-            .draw(ctx),
-            Line("Throughput on bike lanes").draw(ctx),
+            .into_widget(ctx),
+            Line("Throughput on bike lanes").into_widget(ctx),
             ColorLegend::gradient(
                 ctx,
                 &app.cs.good_to_bad_green,
                 vec!["lowest count", "highest"],
             ),
-            Line("Throughput on unprotected roads").draw(ctx),
+            Line("Throughput on unprotected roads").into_widget(ctx),
             ColorLegend::gradient(
                 ctx,
                 &app.cs.good_to_bad_red,
@@ -254,7 +254,7 @@ impl Static {
                     edits.original_intersections.len()
                 )),
             ])
-            .draw(ctx),
+            .into_widget(ctx),
         )
     }
 

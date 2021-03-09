@@ -32,7 +32,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID
     for r in road_names {
         txt.add(Line(format!("  {}", r)));
     }
-    rows.push(txt.draw(ctx));
+    rows.push(txt.into_widget(ctx));
 
     if app.opts.dev {
         rows.push(
@@ -73,7 +73,7 @@ pub fn traffic(
                 .total_for(id)
         )
     )));
-    rows.push(txt.draw(ctx));
+    rows.push(txt.into_widget(ctx));
 
     rows.push(opts.to_controls(ctx, app));
 
@@ -197,7 +197,7 @@ pub fn current_demand(
 
     rows.push(
         Widget::col(vec![
-            txt.draw(ctx),
+            txt.into_widget(ctx),
             DrawWithTooltips::new(
                 ctx,
                 batch,
@@ -287,7 +287,7 @@ pub fn traffic_signal(
             // TODO Say "normally" or something?
             txt.add(Line(format!("One cycle lasts {}", total)));
         }
-        rows.push(txt.draw(ctx));
+        rows.push(txt.into_widget(ctx));
     }
 
     for (idx, stage) in signal.stages.iter().enumerate() {
@@ -302,7 +302,7 @@ pub fn traffic_signal(
                     additional
                 )),
             }
-            .draw(ctx),
+            .into_widget(ctx),
         );
 
         {
@@ -377,7 +377,9 @@ fn delay_plot(
         disabled: opts.disabled_series(),
     };
     Widget::col(vec![
-        Line("Delay through intersection").small_heading().draw(ctx),
+        Line("Delay through intersection")
+            .small_heading()
+            .into_widget(ctx),
         if fan_chart {
             FanChart::new(ctx, series, plot_opts)
         } else {
@@ -407,7 +409,7 @@ fn header(
         IntersectionType::Construction => format!("{} (under construction)", id),
     };
     rows.push(Widget::row(vec![
-        Line(label).small_heading().draw(ctx),
+        Line(label).small_heading().into_widget(ctx),
         header_btns(ctx),
     ]));
 

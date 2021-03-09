@@ -205,7 +205,7 @@ fn make_controls(ctx: &mut EventCtx, app: &App, opts: &Options, legend: Option<W
                 (model.count_dead() as f64) * pct
             )),
         ])
-        .draw(ctx),
+        .into_widget(ctx),
         Widget::row(vec![
             "Filter:".text_widget(ctx),
             Widget::dropdown(

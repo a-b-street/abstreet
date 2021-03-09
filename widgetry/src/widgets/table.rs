@@ -113,7 +113,7 @@ impl<A, T, F> Table<A, T, F> {
                 } else if let Col::Sortable(_) = col.col {
                     ctx.style().btn_outline.text(&col.name).build_def(ctx)
                 } else {
-                    Line(&col.name).draw(ctx).centered_vert()
+                    Line(&col.name).into_widget(ctx).centered_vert()
                 }
             })
             .collect();

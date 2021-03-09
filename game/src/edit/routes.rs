@@ -22,10 +22,10 @@ impl RouteEditor {
         Box::new(RouteEditor {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
-                    Line("Route editor").small_heading().draw(ctx),
+                    Line("Route editor").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                Line(&route.full_name).draw(ctx),
+                Line(&route.full_name).into_widget(ctx),
                 // TODO This UI needs design, just something to start plumbing the edits
                 Widget::row(vec![
                     "Frequency in minutes".text_widget(ctx),

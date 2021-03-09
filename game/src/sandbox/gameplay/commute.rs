@@ -167,7 +167,7 @@ impl GameplayState for OptimizeCommute {
                     txt.add(Line("Use the locator at the top right to find the VIP."));
                     txt.add(Line("You can wait for one of their trips to begin or end."));
                     txt.add(Line("Focus on trips spent mostly waiting"));
-                    let contents = txt.draw(ctx);
+                    let contents = txt.into_widget(ctx);
                     return Some(Transition::Push(FYI::new(ctx, contents, app.cs.panel_bg)));
                 }
                 _ => unreachable!(),
@@ -254,7 +254,7 @@ fn make_meter(
                 .icon("system/assets/tools/location.svg")
                 .build_widget(ctx, "locate VIP"),
             format!("{}/{} trips done", done, trips).text_widget(ctx),
-            txt.draw(ctx),
+            txt.into_widget(ctx),
         ]),
     ]))
     .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
@@ -326,11 +326,11 @@ fn cutscene_task(mode: &GameplayMode) -> Box<dyn Fn(&mut EventCtx) -> Widget> {
                 Line(format!("Speed up the VIP's trips by a total of {}", goal)).fg(Color::BLACK),
                 Line("Ignore the damage done to everyone else.").fg(Color::BLACK),
             ])
-            .draw(ctx)
+            .into_widget(ctx)
             .margin_below(30),
             Widget::row(vec![
                 Widget::col(vec![
-                    Line("Time").fg(Color::BLACK).draw(ctx),
+                    Line("Time").fg(Color::BLACK).into_widget(ctx),
                     Image::icon("system/assets/tools/time.svg")
                         .color(Color::BLACK)
                         .into_widget(ctx),
@@ -338,10 +338,10 @@ fn cutscene_task(mode: &GameplayMode) -> Box<dyn Fn(&mut EventCtx) -> Widget> {
                         Line("Until the VIP's").fg(Color::BLACK),
                         Line("last trip is done").fg(Color::BLACK),
                     ])
-                    .draw(ctx),
+                    .into_widget(ctx),
                 ]),
                 Widget::col(vec![
-                    Line("Goal").fg(Color::BLACK).draw(ctx),
+                    Line("Goal").fg(Color::BLACK).into_widget(ctx),
                     Image::icon("system/assets/tools/location.svg")
                         .color(Color::BLACK)
                         .into_widget(ctx),
@@ -349,10 +349,10 @@ fn cutscene_task(mode: &GameplayMode) -> Box<dyn Fn(&mut EventCtx) -> Widget> {
                         Line("Speed up the VIP's trips").fg(Color::BLACK),
                         Line(format!("by at least {}", goal)).fg(Color::BLACK),
                     ])
-                    .draw(ctx),
+                    .into_widget(ctx),
                 ]),
                 Widget::col(vec![
-                    Line("Score").fg(Color::BLACK).draw(ctx),
+                    Line("Score").fg(Color::BLACK).into_widget(ctx),
                     Image::icon("system/assets/tools/star.svg")
                         .color(Color::BLACK)
                         .into_widget(ctx),
@@ -360,7 +360,7 @@ fn cutscene_task(mode: &GameplayMode) -> Box<dyn Fn(&mut EventCtx) -> Widget> {
                         Line("How much time").fg(Color::BLACK),
                         Line("the VIP saves").fg(Color::BLACK),
                     ])
-                    .draw(ctx),
+                    .into_widget(ctx),
                 ]),
             ])
             .evenly_spaced(),
