@@ -389,7 +389,7 @@
 
 <span class="kw">impl</span> <span class="ident">Duration</span> {
     <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ZERO</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">0.0</span>);
-    <span class="kw">const</span> <span class="ident">EPSILON</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">0.0001</span>);
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">EPSILON</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">0.0001</span>);
 
     <span class="doccomment">/// Creates a duration in seconds.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">seconds</span>(<span class="ident">value</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {

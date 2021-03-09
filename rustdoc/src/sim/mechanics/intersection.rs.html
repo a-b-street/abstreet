@@ -1048,6 +1048,58 @@
 <span id="1045">1045</span>
 <span id="1046">1046</span>
 <span id="1047">1047</span>
+<span id="1048">1048</span>
+<span id="1049">1049</span>
+<span id="1050">1050</span>
+<span id="1051">1051</span>
+<span id="1052">1052</span>
+<span id="1053">1053</span>
+<span id="1054">1054</span>
+<span id="1055">1055</span>
+<span id="1056">1056</span>
+<span id="1057">1057</span>
+<span id="1058">1058</span>
+<span id="1059">1059</span>
+<span id="1060">1060</span>
+<span id="1061">1061</span>
+<span id="1062">1062</span>
+<span id="1063">1063</span>
+<span id="1064">1064</span>
+<span id="1065">1065</span>
+<span id="1066">1066</span>
+<span id="1067">1067</span>
+<span id="1068">1068</span>
+<span id="1069">1069</span>
+<span id="1070">1070</span>
+<span id="1071">1071</span>
+<span id="1072">1072</span>
+<span id="1073">1073</span>
+<span id="1074">1074</span>
+<span id="1075">1075</span>
+<span id="1076">1076</span>
+<span id="1077">1077</span>
+<span id="1078">1078</span>
+<span id="1079">1079</span>
+<span id="1080">1080</span>
+<span id="1081">1081</span>
+<span id="1082">1082</span>
+<span id="1083">1083</span>
+<span id="1084">1084</span>
+<span id="1085">1085</span>
+<span id="1086">1086</span>
+<span id="1087">1087</span>
+<span id="1088">1088</span>
+<span id="1089">1089</span>
+<span id="1090">1090</span>
+<span id="1091">1091</span>
+<span id="1092">1092</span>
+<span id="1093">1093</span>
+<span id="1094">1094</span>
+<span id="1095">1095</span>
+<span id="1096">1096</span>
+<span id="1097">1097</span>
+<span id="1098">1098</span>
+<span id="1099">1099</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -1062,7 +1114,7 @@
     <span class="ident">Traversable</span>, <span class="ident">TurnID</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>, <span class="ident">UberTurn</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechanics</span>::<span class="ident">car</span>::<span class="ident">Car</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechanics</span>::<span class="ident">car</span>::{<span class="ident">Car</span>, <span class="ident">CarState</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechanics</span>::<span class="ident">Queue</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">AgentID</span>, <span class="ident">AlertLocation</span>, <span class="ident">CarID</span>, <span class="ident">Command</span>, <span class="ident">DelayCause</span>, <span class="ident">Event</span>, <span class="ident">Scheduler</span>, <span class="ident">SimOptions</span>, <span class="ident">Speed</span>,
@@ -1105,12 +1157,13 @@
     <span class="ident">id</span>: <span class="ident">IntersectionID</span>,
     <span class="comment">// The in-progress turns which any potential new turns must not conflict with</span>
     <span class="ident">accepted</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="comment">// Track when a request is first made.</span>
+    <span class="comment">// Track when a request is first made and if it&#39;s &quot;urgent&quot; (because the agent is overflowing a</span>
+    <span class="comment">// short queue)</span>
     <span class="attribute">#[<span class="ident">serde</span>(
         <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_btreemap&quot;</span>,
         <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_btreemap&quot;</span>
     )]</span>
-    <span class="ident">waiting</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Time</span><span class="op">&gt;</span>,
+    <span class="ident">waiting</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">Request</span>, (<span class="ident">Time</span>, <span class="ident">bool</span>)<span class="op">&gt;</span>,
     <span class="comment">// When a vehicle begins an uber-turn, reserve the future turns to ensure they&#39;re able to</span>
     <span class="comment">// complete the entire sequence. This is especially necessary since groups of traffic signals</span>
     <span class="comment">// are not yet configured as one.</span>
@@ -1252,13 +1305,15 @@
     }
 
     <span class="kw">fn</span> <span class="ident">wakeup_waiting</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>, <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Scheduler</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Request</span>, <span class="ident">Time</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>[<span class="kw-2">&amp;</span><span class="ident">i</span>]
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Request</span>, <span class="ident">Time</span>, <span class="ident">bool</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>[<span class="kw-2">&amp;</span><span class="ident">i</span>]
             .<span class="ident">waiting</span>
             .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">r</span>, <span class="ident">t</span>)<span class="op">|</span> (<span class="ident">r</span>.<span class="ident">clone</span>(), <span class="kw-2">*</span><span class="ident">t</span>))
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">r</span>, (<span class="ident">t</span>, <span class="ident">urgent</span>))<span class="op">|</span> (<span class="ident">r</span>.<span class="ident">clone</span>(), <span class="kw-2">*</span><span class="ident">t</span>, <span class="kw-2">*</span><span class="ident">urgent</span>))
             .<span class="ident">collect</span>();
         <span class="comment">// Sort by waiting time, so things like stop signs actually are first-come, first-served.</span>
-        <span class="ident">all</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">t</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">t</span>);
+        <span class="comment">// But with an override: if somebody is currently on a queue that&#39;s overflowing, they&#39;re</span>
+        <span class="comment">// very likely to be part of a cycle causing gridlock. Let them go first.</span>
+        <span class="ident">all</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">t</span>, <span class="ident">urgent</span>)<span class="op">|</span> (<span class="op">!</span><span class="kw-2">*</span><span class="ident">urgent</span>, <span class="kw-2">*</span><span class="ident">t</span>));
 
         <span class="comment">// Wake up Priority turns before Yield turns. Don&#39;t wake up Banned turns at all. This makes</span>
         <span class="comment">// sure priority vehicles should get the head-start, without blocking yield vehicles</span>
@@ -1267,14 +1322,14 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">yielding</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">use_freeform_policy_everywhere</span> {
-            <span class="kw">for</span> (<span class="ident">req</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">all</span> {
+            <span class="kw">for</span> (<span class="ident">req</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">all</span> {
                 <span class="ident">protected</span>.<span class="ident">push</span>(<span class="ident">req</span>);
             }
         } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">signal</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_traffic_signal</span>(<span class="ident">i</span>) {
             <span class="kw">let</span> <span class="ident">current_stage</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>[<span class="kw-2">&amp;</span><span class="ident">i</span>].<span class="ident">signal</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">current_stage</span>;
             <span class="kw">let</span> <span class="ident">stage</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">current_stage</span>];
             <span class="kw">let</span> <span class="ident">reserved</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>[<span class="kw-2">&amp;</span><span class="ident">i</span>].<span class="ident">reserved</span>;
-            <span class="kw">for</span> (<span class="ident">req</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">all</span> {
+            <span class="kw">for</span> (<span class="ident">req</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">all</span> {
                 <span class="kw">match</span> <span class="ident">stage</span>.<span class="ident">get_priority_of_turn</span>(<span class="ident">req</span>.<span class="ident">turn</span>, <span class="ident">signal</span>) {
                     <span class="ident">TurnPriority</span>::<span class="ident">Protected</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="ident">protected</span>.<span class="ident">push</span>(<span class="ident">req</span>);
@@ -1291,7 +1346,7 @@
                 }
             }
         } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">sign</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_stop_sign</span>(<span class="ident">i</span>) {
-            <span class="kw">for</span> (<span class="ident">req</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">all</span> {
+            <span class="kw">for</span> (<span class="ident">req</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">all</span> {
                 <span class="kw">match</span> <span class="ident">sign</span>.<span class="ident">get_priority</span>(<span class="ident">req</span>.<span class="ident">turn</span>, <span class="ident">map</span>) {
                     <span class="ident">TurnPriority</span>::<span class="ident">Protected</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="ident">protected</span>.<span class="ident">push</span>(<span class="ident">req</span>);
@@ -1309,19 +1364,17 @@
             <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">protected</span>.<span class="ident">is_empty</span>());
             <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">yielding</span>.<span class="ident">is_empty</span>());
         };
+        <span class="ident">protected</span>.<span class="ident">extend</span>(<span class="ident">yielding</span>);
 
+        <span class="comment">// We now have all the requests in the order that we want to wake them up. The scheduler</span>
+        <span class="comment">// arbitrarily (but deterministically) orders commands with the same time, so preserve the</span>
+        <span class="comment">// ordering by adding little epsilons.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">delay</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>;
         <span class="kw">for</span> <span class="ident">req</span> <span class="kw">in</span> <span class="ident">protected</span> {
             <span class="comment">// Use update because multiple agents could finish a turn at the same time, before the</span>
             <span class="comment">// waiting one has a chance to try again.</span>
-            <span class="ident">scheduler</span>.<span class="ident">update</span>(<span class="ident">now</span>, <span class="ident">Command</span>::<span class="ident">update_agent</span>(<span class="ident">req</span>.<span class="ident">agent</span>));
-        }
-        <span class="comment">// Make sure the protected movement gets first dibs. The scheduler arbitrarily (but</span>
-        <span class="comment">// deterministically) orders commands with the same time.</span>
-        <span class="kw">for</span> <span class="ident">req</span> <span class="kw">in</span> <span class="ident">yielding</span> {
-            <span class="ident">scheduler</span>.<span class="ident">update</span>(
-                <span class="ident">now</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">0.1</span>),
-                <span class="ident">Command</span>::<span class="ident">update_agent</span>(<span class="ident">req</span>.<span class="ident">agent</span>),
-            );
+            <span class="ident">scheduler</span>.<span class="ident">update</span>(<span class="ident">now</span> <span class="op">+</span> <span class="ident">delay</span>, <span class="ident">Command</span>::<span class="ident">update_agent</span>(<span class="ident">req</span>.<span class="ident">agent</span>));
+            <span class="ident">delay</span> <span class="op">+</span><span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">EPSILON</span>;
         }
     }
 
@@ -1450,7 +1503,12 @@
             <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">btree_map</span>::<span class="ident">Entry</span>::<span class="ident">Vacant</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
             <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">btree_map</span>::<span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
         };
-        <span class="ident">entry</span>.<span class="ident">or_insert</span>(<span class="ident">now</span>);
+        <span class="kw">let</span> <span class="ident">urgent</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">car</span>, <span class="kw">_</span>, <span class="ident">queues</span>)) <span class="op">=</span> <span class="ident">maybe_cars_and_queues</span>.<span class="ident">as_ref</span>() {
+            <span class="ident">queues</span>[<span class="kw-2">&amp;</span><span class="ident">car</span>.<span class="ident">router</span>.<span class="ident">head</span>()].<span class="ident">is_overflowing</span>()
+        } <span class="kw">else</span> {
+            <span class="bool-val">false</span>
+        };
+        <span class="ident">entry</span>.<span class="ident">or_insert</span>((<span class="ident">now</span>, <span class="ident">urgent</span>));
 
         <span class="kw">if</span> <span class="ident">repeat_request</span> {
             <span class="self">self</span>.<span class="ident">total_repeat_requests</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
@@ -1463,7 +1521,8 @@
         <span class="kw">let</span> <span class="ident">allowed</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">shared_sidewalk_corner</span> {
             <span class="comment">// SharedSidewalkCorner doesn&#39;t conflict with anything -- fastpath!</span>
             <span class="bool-val">true</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">handle_accepted_conflicts</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>, <span class="ident">readonly_pair</span>) {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">handle_accepted_conflicts</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>, <span class="ident">readonly_pair</span>, <span class="prelude-val">Some</span>((<span class="ident">now</span>, <span class="ident">scheduler</span>)))
+        {
             <span class="comment">// It&#39;s never OK to perform a conflicting turn</span>
             <span class="bool-val">false</span>
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">maybe_cars_and_queues</span>
@@ -1526,7 +1585,7 @@
                 <span class="comment">// If there&#39;s a problem up ahead, don&#39;t start.</span>
                 <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">ut</span>.<span class="ident">path</span> {
                     <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">Request</span> { <span class="ident">agent</span>, <span class="ident">turn</span>: <span class="kw-2">*</span><span class="ident">t</span> };
-                    <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">handle_accepted_conflicts</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>, <span class="ident">readonly_pair</span>) {
+                    <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">handle_accepted_conflicts</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>, <span class="ident">readonly_pair</span>, <span class="prelude-val">None</span>) {
                         <span class="kw">if</span> <span class="ident">repeat_request</span> {
                             <span class="self">self</span>.<span class="ident">blocked_by_someone_requests</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                         }
@@ -1545,7 +1604,7 @@
         }
 
         <span class="comment">// Don&#39;t block the box.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">car</span>, <span class="kw">_</span>, <span class="ident">queues</span>)) <span class="op">=</span> <span class="ident">maybe_cars_and_queues</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">car</span>, <span class="ident">cars</span>, <span class="ident">queues</span>)) <span class="op">=</span> <span class="ident">maybe_cars_and_queues</span> {
             <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">agent</span>, <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>));
             <span class="kw">let</span> <span class="ident">inside_ut</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">handle_uber_turns</span>
                 <span class="op">&amp;&amp;</span> (<span class="ident">car</span>.<span class="ident">router</span>.<span class="ident">get_path</span>().<span class="ident">currently_inside_ut</span>().<span class="ident">is_some</span>()
@@ -1557,8 +1616,8 @@
                     <span class="op">|</span><span class="op">|</span> <span class="ident">allow_block_the_box</span>(<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">turn</span>.<span class="ident">parent</span>))
                     <span class="op">|</span><span class="op">|</span> <span class="ident">inside_ut</span>,
             ) {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">actually_did_reserve_entry</span> <span class="op">=</span> <span class="bool-val">false</span>;
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">break_turn_conflict_cycles</span> {
-                    <span class="comment">// TODO Should we run the detector here?</span>
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">queue</span>.<span class="ident">laggy_head</span> {
                         <span class="self">self</span>.<span class="ident">blocked_by</span>.<span class="ident">insert</span>((<span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">c</span>));
                     } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">queue</span>.<span class="ident">cars</span>.<span class="ident">get</span>(<span class="number">0</span>) {
@@ -1575,19 +1634,31 @@
                         <span class="self">self</span>.<span class="ident">blocked_by</span>
                             .<span class="ident">insert</span>((<span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">blocking_req</span>.<span class="ident">agent</span>.<span class="ident">as_car</span>()));
                     }
+
+                    <span class="comment">// Allow blocking the box if we&#39;re part of a cycle.</span>
+                    <span class="kw">if</span> <span class="self">self</span>
+                        .<span class="ident">detect_conflict_cycle</span>(<span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, (<span class="ident">cars</span>, <span class="ident">queues</span>))
+                        .<span class="ident">is_some</span>()
+                    {
+                        <span class="comment">// Reborrow</span>
+                        <span class="kw">let</span> <span class="ident">queue</span> <span class="op">=</span> <span class="ident">queues</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">Traversable</span>::<span class="ident">Lane</span>(<span class="ident">turn</span>.<span class="ident">dst</span>)).<span class="ident">unwrap</span>();
+                        <span class="ident">actually_did_reserve_entry</span> <span class="op">=</span> <span class="ident">queue</span>.<span class="ident">try_to_reserve_entry</span>(<span class="ident">car</span>, <span class="bool-val">true</span>);
+                    }
                 }
 
-                <span class="kw">if</span> <span class="ident">repeat_request</span> {
-                    <span class="self">self</span>.<span class="ident">blocked_by_someone_requests</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">actually_did_reserve_entry</span> {
+                    <span class="kw">if</span> <span class="ident">repeat_request</span> {
+                        <span class="self">self</span>.<span class="ident">blocked_by_someone_requests</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                    }
+                    <span class="kw">return</span> <span class="bool-val">false</span>;
                 }
-                <span class="kw">return</span> <span class="bool-val">false</span>;
             }
         }
 
         <span class="comment">// TODO For now, we&#39;re only interested in signals, and there&#39;s too much raw data to store</span>
         <span class="comment">// for stop signs too.</span>
         <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">turn</span>.<span class="ident">parent</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">delay</span> <span class="op">=</span> <span class="ident">now</span> <span class="op">-</span> <span class="ident">state</span>.<span class="ident">waiting</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">delay</span> <span class="op">=</span> <span class="ident">now</span> <span class="op">-</span> <span class="ident">state</span>.<span class="ident">waiting</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>).<span class="ident">unwrap</span>().<span class="number">0</span>;
         <span class="comment">// SharedSidewalkCorner are always no-conflict, immediate turns; they&#39;re not interesting.</span>
         <span class="kw">if</span> <span class="op">!</span><span class="ident">shared_sidewalk_corner</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_traffic_signal</span>(<span class="ident">state</span>.<span class="ident">id</span>) {
@@ -1716,7 +1787,7 @@
         <span class="self">self</span>.<span class="ident">state</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>]
             .<span class="ident">waiting</span>
             .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">req</span>, <span class="ident">time</span>)<span class="op">|</span> (<span class="ident">req</span>.<span class="ident">agent</span>, <span class="ident">req</span>.<span class="ident">turn</span>, <span class="kw-2">*</span><span class="ident">time</span>))
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">req</span>, (<span class="ident">time</span>, <span class="kw">_</span>))<span class="op">|</span> (<span class="ident">req</span>.<span class="ident">agent</span>, <span class="ident">req</span>.<span class="ident">turn</span>, <span class="kw-2">*</span><span class="ident">time</span>))
             .<span class="ident">collect</span>()
     }
 
@@ -1729,7 +1800,7 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">IntersectionID</span>, <span class="ident">Time</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">candidates</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">state</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">values</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">earliest</span>) <span class="op">=</span> <span class="ident">state</span>.<span class="ident">waiting</span>.<span class="ident">values</span>().<span class="ident">min</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">earliest</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">state</span>.<span class="ident">waiting</span>.<span class="ident">values</span>().<span class="ident">min</span>() {
                 <span class="kw">if</span> <span class="ident">now</span> <span class="op">-</span> <span class="kw-2">*</span><span class="ident">earliest</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">threshold</span> {
                     <span class="ident">candidates</span>.<span class="ident">push</span>((<span class="ident">state</span>.<span class="ident">id</span>, <span class="kw-2">*</span><span class="ident">earliest</span>));
                 }
@@ -1789,7 +1860,7 @@
         <span class="comment">//</span>
         <span class="comment">// This also assumes default values for handle_uber_turns, disable_turn_conflicts, etc!</span>
         <span class="kw">for</span> <span class="ident">state</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">values</span>() {
-            <span class="kw">for</span> (<span class="ident">req</span>, <span class="ident">started_at</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">state</span>.<span class="ident">waiting</span> {
+            <span class="kw">for</span> (<span class="ident">req</span>, (<span class="ident">started_at</span>, <span class="kw">_</span>)) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">state</span>.<span class="ident">waiting</span> {
                 <span class="kw">let</span> <span class="ident">turn</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">req</span>.<span class="ident">turn</span>);
                 <span class="comment">// In the absence of other explanations, the agent must be pausing at a stop sign</span>
                 <span class="comment">// or before making an unprotected movement, aka, in the middle of</span>
@@ -1846,7 +1917,7 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">our_priority</span> <span class="op">=</span> <span class="ident">sign</span>.<span class="ident">get_priority</span>(<span class="ident">req</span>.<span class="ident">turn</span>, <span class="ident">map</span>);
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">our_priority</span> <span class="op">!</span><span class="op">=</span> <span class="ident">TurnPriority</span>::<span class="ident">Banned</span>);
-        <span class="kw">let</span> <span class="ident">our_time</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>[<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">turn</span>.<span class="ident">parent</span>].<span class="ident">waiting</span>[<span class="ident">req</span>];
+        <span class="kw">let</span> (<span class="ident">our_time</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>[<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">turn</span>.<span class="ident">parent</span>].<span class="ident">waiting</span>[<span class="ident">req</span>];
 
         <span class="kw">if</span> <span class="ident">our_priority</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TurnPriority</span>::<span class="ident">Yield</span> <span class="op">&amp;&amp;</span> <span class="ident">now</span> <span class="op">&lt;</span> <span class="ident">our_time</span> <span class="op">+</span> <span class="ident">WAIT_AT_STOP_SIGN</span> {
             <span class="comment">// Since we have &quot;ownership&quot; of scheduling for req.agent, don&#39;t need to use</span>
@@ -1893,7 +1964,7 @@
         <span class="kw">let</span> <span class="ident">stage</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">signal_state</span>.<span class="ident">current_stage</span>];
         <span class="kw">let</span> <span class="ident">full_stage_duration</span> <span class="op">=</span> <span class="ident">stage</span>.<span class="ident">stage_type</span>.<span class="ident">simple_duration</span>();
         <span class="kw">let</span> <span class="ident">remaining_stage_time</span> <span class="op">=</span> <span class="ident">signal_state</span>.<span class="ident">stage_ends_at</span> <span class="op">-</span> <span class="ident">now</span>;
-        <span class="kw">let</span> <span class="ident">our_time</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">waiting</span>[<span class="ident">req</span>];
+        <span class="kw">let</span> (<span class="ident">our_time</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">state</span>.<span class="ident">waiting</span>[<span class="ident">req</span>];
 
         <span class="comment">// Can&#39;t go at all this stage.</span>
         <span class="kw">let</span> <span class="ident">our_priority</span> <span class="op">=</span> <span class="ident">stage</span>.<span class="ident">get_priority_of_turn</span>(<span class="ident">req</span>.<span class="ident">turn</span>, <span class="ident">signal</span>);
@@ -1945,6 +2016,7 @@
         <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">Request</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
         <span class="ident">maybe_cars_and_queues</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">FixedMap</span><span class="op">&lt;</span><span class="ident">CarID</span>, <span class="ident">Car</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Traversable</span>, <span class="ident">Queue</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
+        <span class="ident">wakeup_stuck_cycle</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Scheduler</span>)<span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">turn</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">req</span>.<span class="ident">turn</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cycle_detected</span> <span class="op">=</span> <span class="bool-val">false</span>;
@@ -1969,7 +2041,10 @@
                                 <span class="comment">// Allow the conflicting turn!</span>
                                 <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">Alert</span>(
                                     <span class="ident">AlertLocation</span>::<span class="ident">Intersection</span>(<span class="ident">req</span>.<span class="ident">turn</span>.<span class="ident">parent</span>),
-                                    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Turn conflict cycle involving {:?}&quot;</span>, <span class="ident">cycle</span>),
+                                    <span class="macro">format</span><span class="macro">!</span>(
+                                        <span class="string">&quot;{} found turn conflict cycle involving {:?}&quot;</span>,
+                                        <span class="ident">req</span>.<span class="ident">agent</span>, <span class="ident">cycle</span>
+                                    ),
                                 ));
                                 <span class="ident">cycle_detected</span> <span class="op">=</span> <span class="bool-val">true</span>;
                             }
@@ -1982,7 +2057,36 @@
                 }
 
                 <span class="comment">// It&#39;s never safe for two vehicles to go for the same lane.</span>
+                <span class="comment">// TODO I&#39;m questioning this now. If the source is the same, then queueing will</span>
+                <span class="comment">// work normally. If not, then... maybe we need to allow concurrent turns from</span>
+                <span class="comment">// different lanes into the same lane, and somehow make the queueing work out.</span>
                 <span class="kw">if</span> <span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">turn</span>.<span class="ident">dst</span> {
+                    <span class="kw">match</span> (
+                        <span class="ident">wakeup_stuck_cycle</span>,
+                        <span class="ident">other</span>.<span class="ident">agent</span>,
+                        <span class="ident">maybe_cars_and_queues</span>.<span class="ident">as_ref</span>(),
+                    ) {
+                        (<span class="prelude-val">Some</span>((<span class="ident">now</span>, <span class="ident">scheduler</span>)), <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">blocker</span>), <span class="prelude-val">Some</span>((<span class="ident">cars</span>, <span class="kw">_</span>))) <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="comment">// Sometimes the vehicle blocking us is actually queued in the turn;</span>
+                            <span class="comment">// don&#39;t wake them up in that case.</span>
+                            <span class="kw">if</span> <span class="ident">cycle_detected</span>
+                                <span class="op">&amp;&amp;</span> <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">cars</span>[<span class="kw-2">&amp;</span><span class="ident">blocker</span>].<span class="ident">state</span>, <span class="ident">CarState</span>::<span class="ident">WaitingToAdvance</span> { .. })
+                            {
+                                <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">Alert</span>(
+                                    <span class="ident">AlertLocation</span>::<span class="ident">Intersection</span>(<span class="ident">req</span>.<span class="ident">turn</span>.<span class="ident">parent</span>),
+                                    <span class="macro">format</span><span class="macro">!</span>(
+                                        <span class="string">&quot;{} waking up {}, who&#39;s blocking it as part of a cycle&quot;</span>,
+                                        <span class="ident">req</span>.<span class="ident">agent</span>, <span class="ident">other</span>.<span class="ident">agent</span>
+                                    ),
+                                ));
+                                <span class="ident">scheduler</span>.<span class="ident">update</span>(
+                                    <span class="ident">now</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">EPSILON</span>,
+                                    <span class="ident">Command</span>::<span class="ident">update_agent</span>(<span class="ident">other</span>.<span class="ident">agent</span>),
+                                );
+                            }
+                        }
+                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                    }
                     <span class="kw">return</span> <span class="bool-val">false</span>;
                 }
             }
