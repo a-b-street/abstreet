@@ -11,7 +11,7 @@ use map_model::{
     Traversable, TurnID, TurnPriority, TurnType, UberTurn,
 };
 
-use crate::mechanics::car::Car;
+use crate::mechanics::car::{Car, CarState};
 use crate::mechanics::Queue;
 use crate::{
     AgentID, AlertLocation, CarID, Command, DelayCause, Event, Scheduler, SimOptions, Speed,
@@ -54,12 +54,13 @@ struct State {
     id: IntersectionID,
     // The in-progress turns which any potential new turns must not conflict with
     accepted: BTreeSet<Request>,
-    // Track when a request is first made.
+    // Track when a request is first made and if it's "urgent" (because the agent is overflowing a
+    // short queue)
     #[serde(
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
     )]
-    waiting: BTreeMap<Request, Time>,
+    waiting: BTreeMap<Request, (Time, bool)>,
     // When a vehicle begins an uber-turn, reserve the future turns to ensure they're able to
     // complete the entire sequence. This is especially necessary since groups of traffic signals
     // are not yet configured as one.
@@ -201,13 +202,15 @@ impl IntersectionSimState {
     }
 
     fn wakeup_waiting(&self, now: Time, i: IntersectionID, scheduler: &mut Scheduler, map: &Map) {
-        let mut all: Vec<(Request, Time)> = self.state[&i]
+        let mut all: Vec<(Request, Time, bool)> = self.state[&i]
             .waiting
             .iter()
-            .map(|(r, t)| (r.clone(), *t))
+            .map(|(r, (t, urgent))| (r.clone(), *t, *urgent))
             .collect();
         // Sort by waiting time, so things like stop signs actually are first-come, first-served.
-        all.sort_by_key(|(_, t)| *t);
+        // But with an override: if somebody is currently on a queue that's overflowing, they're
+        // very likely to be part of a cycle causing gridlock. Let them go first.
+        all.sort_by_key(|(_, t, urgent)| (!*urgent, *t));
 
         // Wake up Priority turns before Yield turns. Don't wake up Banned turns at all. This makes
         // sure priority vehicles should get the head-start, without blocking yield vehicles
@@ -216,14 +219,14 @@ impl IntersectionSimState {
         let mut yielding = Vec::new();
 
         if self.use_freeform_policy_everywhere {
-            for (req, _) in all {
+            for (req, _, _) in all {
                 protected.push(req);
             }
         } else if let Some(ref signal) = map.maybe_get_traffic_signal(i) {
             let current_stage = self.state[&i].signal.as_ref().unwrap().current_stage;
             let stage = &signal.stages[current_stage];
             let reserved = &self.state[&i].reserved;
-            for (req, _) in all {
+            for (req, _, _) in all {
                 match stage.get_priority_of_turn(req.turn, signal) {
                     TurnPriority::Protected => {
                         protected.push(req);
@@ -240,7 +243,7 @@ impl IntersectionSimState {
                 }
             }
         } else if let Some(ref sign) = map.maybe_get_stop_sign(i) {
-            for (req, _) in all {
+            for (req, _, _) in all {
                 match sign.get_priority(req.turn, map) {
                     TurnPriority::Protected => {
                         protected.push(req);
@@ -258,19 +261,17 @@ impl IntersectionSimState {
             assert!(protected.is_empty());
             assert!(yielding.is_empty());
         };
+        protected.extend(yielding);
 
+        // We now have all the requests in the order that we want to wake them up. The scheduler
+        // arbitrarily (but deterministically) orders commands with the same time, so preserve the
+        // ordering by adding little epsilons.
+        let mut delay = Duration::ZERO;
         for req in protected {
             // Use update because multiple agents could finish a turn at the same time, before the
             // waiting one has a chance to try again.
-            scheduler.update(now, Command::update_agent(req.agent));
-        }
-        // Make sure the protected movement gets first dibs. The scheduler arbitrarily (but
-        // deterministically) orders commands with the same time.
-        for req in yielding {
-            scheduler.update(
-                now + Duration::seconds(0.1),
-                Command::update_agent(req.agent),
-            );
+            scheduler.update(now + delay, Command::update_agent(req.agent));
+            delay += Duration::EPSILON;
         }
     }
 
@@ -399,7 +400,12 @@ impl IntersectionSimState {
             std::collections::btree_map::Entry::Vacant(_) => false,
             std::collections::btree_map::Entry::Occupied(_) => true,
         };
-        entry.or_insert(now);
+        let urgent = if let Some((car, _, queues)) = maybe_cars_and_queues.as_ref() {
+            queues[&car.router.head()].is_overflowing()
+        } else {
+            false
+        };
+        entry.or_insert((now, urgent));
 
         if repeat_request {
             self.total_repeat_requests += 1;
@@ -412,7 +418,8 @@ impl IntersectionSimState {
         let allowed = if shared_sidewalk_corner {
             // SharedSidewalkCorner doesn't conflict with anything -- fastpath!
             true
-        } else if !self.handle_accepted_conflicts(&req, map, readonly_pair) {
+        } else if !self.handle_accepted_conflicts(&req, map, readonly_pair, Some((now, scheduler)))
+        {
             // It's never OK to perform a conflicting turn
             false
         } else if maybe_cars_and_queues
@@ -475,7 +482,7 @@ impl IntersectionSimState {
                 // If there's a problem up ahead, don't start.
                 for t in &ut.path {
                     let req = Request { agent, turn: *t };
-                    if !self.handle_accepted_conflicts(&req, map, readonly_pair) {
+                    if !self.handle_accepted_conflicts(&req, map, readonly_pair, None) {
                         if repeat_request {
                             self.blocked_by_someone_requests += 1;
                         }
@@ -494,7 +501,7 @@ impl IntersectionSimState {
         }
 
         // Don't block the box.
-        if let Some((car, _, queues)) = maybe_cars_and_queues {
+        if let Some((car, cars, queues)) = maybe_cars_and_queues {
             assert_eq!(agent, AgentID::Car(car.vehicle.id));
             let inside_ut = self.handle_uber_turns
                 && (car.router.get_path().currently_inside_ut().is_some()
@@ -506,8 +513,8 @@ impl IntersectionSimState {
                     || allow_block_the_box(map.get_i(turn.parent))
                     || inside_ut,
             ) {
+                let mut actually_did_reserve_entry = false;
                 if self.break_turn_conflict_cycles {
-                    // TODO Should we run the detector here?
                     if let Some(c) = queue.laggy_head {
                         self.blocked_by.insert((car.vehicle.id, c));
                     } else if let Some(c) = queue.cars.get(0) {
@@ -524,19 +531,31 @@ impl IntersectionSimState {
                         self.blocked_by
                             .insert((car.vehicle.id, blocking_req.agent.as_car()));
                     }
+
+                    // Allow blocking the box if we're part of a cycle.
+                    if self
+                        .detect_conflict_cycle(car.vehicle.id, (cars, queues))
+                        .is_some()
+                    {
+                        // Reborrow
+                        let queue = queues.get_mut(&Traversable::Lane(turn.dst)).unwrap();
+                        actually_did_reserve_entry = queue.try_to_reserve_entry(car, true);
+                    }
                 }
 
-                if repeat_request {
-                    self.blocked_by_someone_requests += 1;
+                if !actually_did_reserve_entry {
+                    if repeat_request {
+                        self.blocked_by_someone_requests += 1;
+                    }
+                    return false;
                 }
-                return false;
             }
         }
 
         // TODO For now, we're only interested in signals, and there's too much raw data to store
         // for stop signs too.
         let state = self.state.get_mut(&turn.parent).unwrap();
-        let delay = now - state.waiting.remove(&req).unwrap();
+        let delay = now - state.waiting.remove(&req).unwrap().0;
         // SharedSidewalkCorner are always no-conflict, immediate turns; they're not interesting.
         if !shared_sidewalk_corner {
             if let Some(ts) = map.maybe_get_traffic_signal(state.id) {
@@ -665,7 +684,7 @@ impl IntersectionSimState {
         self.state[&id]
             .waiting
             .iter()
-            .map(|(req, time)| (req.agent, req.turn, *time))
+            .map(|(req, (time, _))| (req.agent, req.turn, *time))
             .collect()
     }
 
@@ -678,7 +697,7 @@ impl IntersectionSimState {
     ) -> Vec<(IntersectionID, Time)> {
         let mut candidates = Vec::new();
         for state in self.state.values() {
-            if let Some(earliest) = state.waiting.values().min() {
+            if let Some((earliest, _)) = state.waiting.values().min() {
                 if now - *earliest >= threshold {
                     candidates.push((state.id, *earliest));
                 }
@@ -738,7 +757,7 @@ impl IntersectionSimState {
         //
         // This also assumes default values for handle_uber_turns, disable_turn_conflicts, etc!
         for state in self.state.values() {
-            for (req, started_at) in &state.waiting {
+            for (req, (started_at, _)) in &state.waiting {
                 let turn = map.get_t(req.turn);
                 // In the absence of other explanations, the agent must be pausing at a stop sign
                 // or before making an unprotected movement, aka, in the middle of
@@ -795,7 +814,7 @@ impl IntersectionSimState {
     ) -> bool {
         let our_priority = sign.get_priority(req.turn, map);
         assert!(our_priority != TurnPriority::Banned);
-        let our_time = self.state[&req.turn.parent].waiting[req];
+        let (our_time, _) = self.state[&req.turn.parent].waiting[req];
 
         if our_priority == TurnPriority::Yield && now < our_time + WAIT_AT_STOP_SIGN {
             // Since we have "ownership" of scheduling for req.agent, don't need to use
@@ -842,7 +861,7 @@ impl IntersectionSimState {
         let stage = &signal.stages[signal_state.current_stage];
         let full_stage_duration = stage.stage_type.simple_duration();
         let remaining_stage_time = signal_state.stage_ends_at - now;
-        let our_time = state.waiting[req];
+        let (our_time, _) = state.waiting[req];
 
         // Can't go at all this stage.
         let our_priority = stage.get_priority_of_turn(req.turn, signal);
@@ -894,6 +913,7 @@ impl IntersectionSimState {
         req: &Request,
         map: &Map,
         maybe_cars_and_queues: Option<(&FixedMap<CarID, Car>, &HashMap<Traversable, Queue>)>,
+        wakeup_stuck_cycle: Option<(Time, &mut Scheduler)>,
     ) -> bool {
         let turn = map.get_t(req.turn);
         let mut cycle_detected = false;
@@ -918,7 +938,10 @@ impl IntersectionSimState {
                                 // Allow the conflicting turn!
                                 self.events.push(Event::Alert(
                                     AlertLocation::Intersection(req.turn.parent),
-                                    format!("Turn conflict cycle involving {:?}", cycle),
+                                    format!(
+                                        "{} found turn conflict cycle involving {:?}",
+                                        req.agent, cycle
+                                    ),
                                 ));
                                 cycle_detected = true;
                             }
@@ -931,7 +954,36 @@ impl IntersectionSimState {
                 }
 
                 // It's never safe for two vehicles to go for the same lane.
+                // TODO I'm questioning this now. If the source is the same, then queueing will
+                // work normally. If not, then... maybe we need to allow concurrent turns from
+                // different lanes into the same lane, and somehow make the queueing work out.
                 if turn.id.dst == other.turn.dst {
+                    match (
+                        wakeup_stuck_cycle,
+                        other.agent,
+                        maybe_cars_and_queues.as_ref(),
+                    ) {
+                        (Some((now, scheduler)), AgentID::Car(blocker), Some((cars, _))) => {
+                            // Sometimes the vehicle blocking us is actually queued in the turn;
+                            // don't wake them up in that case.
+                            if cycle_detected
+                                && matches!(cars[&blocker].state, CarState::WaitingToAdvance { .. })
+                            {
+                                self.events.push(Event::Alert(
+                                    AlertLocation::Intersection(req.turn.parent),
+                                    format!(
+                                        "{} waking up {}, who's blocking it as part of a cycle",
+                                        req.agent, other.agent
+                                    ),
+                                ));
+                                scheduler.update(
+                                    now + Duration::EPSILON,
+                                    Command::update_agent(other.agent),
+                                );
+                            }
+                        }
+                        _ => {}
+                    }
                     return false;
                 }
             }

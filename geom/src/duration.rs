@@ -22,7 +22,7 @@ impl Ord for Duration {
 
 impl Duration {
     pub const ZERO: Duration = Duration::const_seconds(0.0);
-    const EPSILON: Duration = Duration::const_seconds(0.0001);
+    pub const EPSILON: Duration = Duration::const_seconds(0.0001);
 
     /// Creates a duration in seconds.
     pub fn seconds(value: f64) -> Duration {

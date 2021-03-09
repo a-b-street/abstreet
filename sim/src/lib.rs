@@ -158,6 +158,15 @@ impl AgentID {
             AgentID::BusPassenger(_, _) => None,
         }
     }
+
+    // Convenient debugging
+    #[allow(unused)]
+    pub(crate) fn is_car(&self, id: usize) -> bool {
+        match self {
+            AgentID::Car(c) => c.0 == id,
+            _ => false,
+        }
+    }
 }
 
 impl fmt::Display for AgentID {

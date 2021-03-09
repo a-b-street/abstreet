@@ -256,6 +256,10 @@ impl Queue {
         false
     }
 
+    pub fn is_overflowing(&self) -> bool {
+        self.reserved_length >= self.geom_len
+    }
+
     pub fn room_for_car(&self, car: &Car) -> bool {
         self.reserved_length == Distance::ZERO
             || self.reserved_length + car.vehicle.length + FOLLOWING_DISTANCE < self.geom_len
