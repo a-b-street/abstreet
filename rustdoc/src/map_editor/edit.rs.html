@@ -236,7 +236,7 @@
 
         <span class="kw">let</span> <span class="ident">controls</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="string">&quot;lanes:forward&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
+                <span class="string">&quot;lanes:forward&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
                 <span class="ident">Spinner</span>::<span class="ident">widget</span>(
                     <span class="ident">ctx</span>,
                     (<span class="number">1</span>, <span class="number">5</span>),
@@ -248,7 +248,7 @@
                 .<span class="ident">named</span>(<span class="string">&quot;lanes:forward&quot;</span>),
             ]),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="string">&quot;lanes:backward&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
+                <span class="string">&quot;lanes:backward&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
                 <span class="ident">Spinner</span>::<span class="ident">widget</span>(
                     <span class="ident">ctx</span>,
                     (<span class="number">0</span>, <span class="number">5</span>),
@@ -260,7 +260,7 @@
                 .<span class="ident">named</span>(<span class="string">&quot;lanes:backward&quot;</span>),
             ]),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="string">&quot;sidewalk&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
+                <span class="string">&quot;sidewalk&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
                 <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;sidewalk&quot;</span>,
@@ -280,7 +280,7 @@
                 ),
             ]),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="string">&quot;parking&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
+                <span class="string">&quot;parking&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
                 <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;parking&quot;</span>,

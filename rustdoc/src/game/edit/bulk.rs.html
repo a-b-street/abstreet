@@ -545,7 +545,7 @@
                 <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Editing {} roads&quot;</span>, <span class="ident">roads</span>.<span class="ident">len</span>()))
                     .<span class="ident">small_heading</span>()
                     .<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                <span class="string">&quot;Lane types&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                <span class="string">&quot;Lane types&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">make_lt_switcher</span>(<span class="ident">ctx</span>, <span class="macro">vec</span><span class="macro">!</span>[(<span class="prelude-val">None</span>, <span class="prelude-val">None</span>)]).<span class="ident">named</span>(<span class="string">&quot;lt transformations&quot;</span>),
                 {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">choices</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;don&#39;t change&quot;</span>, <span class="prelude-val">None</span>)];
@@ -553,7 +553,7 @@
                         <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">Choice</span>::<span class="ident">new</span>(<span class="ident">c</span>.<span class="ident">label</span>, <span class="prelude-val">Some</span>(<span class="ident">c</span>.<span class="ident">data</span>)));
                     }
                     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="string">&quot;Change speed limit:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+                        <span class="string">&quot;Change speed limit:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
                         <span class="ident">Widget</span>::<span class="ident">dropdown</span>(<span class="ident">ctx</span>, <span class="string">&quot;speed limit&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">choices</span>),
                     ])
                 },
@@ -649,7 +649,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="kw">for</span> (<span class="ident">idx</span>, (<span class="ident">from</span>, <span class="ident">to</span>)) <span class="kw">in</span> <span class="ident">pairs</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
         <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="string">&quot;Change all&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+            <span class="string">&quot;Change all&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
             <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
                 <span class="ident">ctx</span>,
                 <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;from lt #{}&quot;</span>, <span class="ident">idx</span>),
@@ -663,7 +663,7 @@
                     <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;construction&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Construction</span>)),
                 ],
             ),
-            <span class="string">&quot;lanes to&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+            <span class="string">&quot;lanes to&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
             <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
                 <span class="ident">ctx</span>,
                 <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;to lt #{}&quot;</span>, <span class="ident">idx</span>),

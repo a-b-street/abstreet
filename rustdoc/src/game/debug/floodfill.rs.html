@@ -222,10 +222,10 @@
                     <span class="ident">Line</span>(<span class="ident">title</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                 ]),
-                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} unreachable lanes&quot;</span>, <span class="ident">num_unreachable</span>).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} unreachable lanes&quot;</span>, <span class="ident">num_unreachable</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">legend</span>,
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="string">&quot;Connectivity type:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                    <span class="string">&quot;Connectivity type:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;constraints&quot;</span>,

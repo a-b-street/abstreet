@@ -1068,7 +1068,7 @@
             )
             .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">15</span>)
             .<span class="ident">draw</span>(<span class="ident">ctx</span>),
-            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} jams detected&quot;</span>, <span class="ident">cnt</span>).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} jams detected&quot;</span>, <span class="ident">cnt</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Center</span>)
         .<span class="ident">build</span>(<span class="ident">ctx</span>);

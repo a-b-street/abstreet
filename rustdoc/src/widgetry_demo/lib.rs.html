@@ -663,7 +663,7 @@
         <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">replace</span>(
             <span class="ident">ctx</span>,
             <span class="string">&quot;stopwatch&quot;</span>,
-            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Stopwatch: {}&quot;</span>, <span class="self">self</span>.<span class="ident">elapsed</span>).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Stopwatch: {}&quot;</span>, <span class="self">self</span>.<span class="ident">elapsed</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
         );
     }
 }
@@ -905,7 +905,7 @@
             <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Show timeseries&quot;</span>, <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">T</span>), <span class="bool-val">false</span>),
         ]),
         <span class="string">&quot;Stopwatch: ...&quot;</span>
-            .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
+            .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
             .<span class="ident">named</span>(<span class="string">&quot;stopwatch&quot;</span>)
             .<span class="ident">margin_above</span>(<span class="number">30</span>),
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[

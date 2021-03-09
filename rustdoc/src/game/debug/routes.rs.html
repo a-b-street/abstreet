@@ -470,6 +470,8 @@
 <span id="467">467</span>
 <span id="468">468</span>
 <span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>, <span class="ident">Parallelism</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">colors</span>::<span class="ident">ColorSchemeChoice</span>;
@@ -670,7 +672,9 @@
     .<span class="ident">evenly_spaced</span>()];
     <span class="kw">if</span> <span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TripMode</span>::<span class="ident">Drive</span> <span class="op">|</span><span class="op">|</span> <span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TripMode</span>::<span class="ident">Bike</span> {
         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="string">&quot;Unprotected turn penalty:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
+            <span class="string">&quot;Unprotected turn penalty:&quot;</span>
+                .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
+                .<span class="ident">margin_right</span>(<span class="number">20</span>),
             <span class="ident">Spinner</span>::<span class="ident">widget</span>(
                 <span class="ident">ctx</span>,
                 (<span class="number">1</span>, <span class="number">100</span>),
@@ -682,17 +686,17 @@
     <span class="kw">if</span> <span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TripMode</span>::<span class="ident">Bike</span> {
         <span class="comment">// TODO Spinners that natively understand a floating point range with a given precision</span>
         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="string">&quot;Bike lane penalty:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
+            <span class="string">&quot;Bike lane penalty:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
             <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">0</span>, <span class="number">20</span>), (<span class="ident">params</span>.<span class="ident">bike_lane_penalty</span> <span class="op">*</span> <span class="number">10.0</span>) <span class="kw">as</span> <span class="ident">isize</span>)
                 .<span class="ident">named</span>(<span class="string">&quot;bike lane penalty&quot;</span>),
         ]));
         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="string">&quot;Bus lane penalty:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
+            <span class="string">&quot;Bus lane penalty:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
             <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">0</span>, <span class="number">20</span>), (<span class="ident">params</span>.<span class="ident">bus_lane_penalty</span> <span class="op">*</span> <span class="number">10.0</span>) <span class="kw">as</span> <span class="ident">isize</span>)
                 .<span class="ident">named</span>(<span class="string">&quot;bus lane penalty&quot;</span>),
         ]));
         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="string">&quot;Driving lane penalty:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
+            <span class="string">&quot;Driving lane penalty:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
             <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">0</span>, <span class="number">20</span>), (<span class="ident">params</span>.<span class="ident">driving_lane_penalty</span> <span class="op">*</span> <span class="number">10.0</span>) <span class="kw">as</span> <span class="ident">isize</span>)
                 .<span class="ident">named</span>(<span class="string">&quot;driving lane penalty&quot;</span>),
         ]));
@@ -762,7 +766,7 @@
                     <span class="ident">Line</span>(<span class="string">&quot;All routes explorer&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                 ]),
-                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} total requests&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">requests</span>.<span class="ident">len</span>())).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} total requests&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">requests</span>.<span class="ident">len</span>())).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">params_to_controls</span>(<span class="ident">ctx</span>, <span class="ident">TripMode</span>::<span class="ident">Bike</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">routing_params</span>())
                     .<span class="ident">named</span>(<span class="string">&quot;params&quot;</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()

@@ -118,7 +118,7 @@
                 <span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">route</span>.<span class="ident">full_name</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>),
                 <span class="comment">// TODO This UI needs design, just something to start plumbing the edits</span>
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="string">&quot;Frequency in minutes&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                    <span class="string">&quot;Frequency in minutes&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">1</span>, <span class="number">120</span>), <span class="number">60</span>).<span class="ident">named</span>(<span class="string">&quot;freq_mins&quot;</span>),
                 ]),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()

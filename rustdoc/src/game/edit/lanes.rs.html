@@ -317,7 +317,7 @@
                     .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">M</span>)
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;Edit multiple lanes&quot;</span>),
             ]),
-            <span class="string">&quot;Type of lane&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+            <span class="string">&quot;Type of lane&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">row</span>).<span class="ident">centered</span>(),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_outline</span>
@@ -333,7 +333,7 @@
                     ));
                 }
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="string">&quot;Change speed limit:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+                    <span class="string">&quot;Change speed limit:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
                     <span class="ident">Widget</span>::<span class="ident">dropdown</span>(<span class="ident">ctx</span>, <span class="string">&quot;speed limit&quot;</span>, <span class="ident">parent</span>.<span class="ident">speed_limit</span>, <span class="ident">choices</span>),
                 ])
             },

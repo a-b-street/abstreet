@@ -592,9 +592,9 @@
     <span class="kw">fn</span> <span class="ident">calculate_tags</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">fixed_object_outline</span>.<span class="ident">is_some</span>() {
-            <span class="ident">col</span>.<span class="ident">push</span>(<span class="string">&quot;Click something else to examine it&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>));
+            <span class="ident">col</span>.<span class="ident">push</span>(<span class="string">&quot;Click something else to examine it&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
         } <span class="kw">else</span> {
-            <span class="ident">col</span>.<span class="ident">push</span>(<span class="string">&quot;Click to examine&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>));
+            <span class="ident">col</span>.<span class="ident">push</span>(<span class="string">&quot;Click to examine&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
         }
 
         <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">current_selection</span> {
@@ -713,11 +713,11 @@
                         <span class="string">&quot;Estimated parking spots: {}&quot;</span>,
                         <span class="ident">prettyprint_usize</span>(<span class="ident">pl</span>.<span class="ident">capacity</span>())
                     )
-                    .<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                    .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                 );
             }
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;Zoom in and select something to begin&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>)];
+                <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;Zoom in and select something to begin&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>)];
             }
         }
         <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>)
@@ -958,7 +958,7 @@
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         );
         <span class="ident">col</span>.<span class="ident">push</span>(
-            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} businesses total&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="self">self</span>.<span class="ident">counts</span>.<span class="ident">sum</span>())).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} businesses total&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="self">self</span>.<span class="ident">counts</span>.<span class="ident">sum</span>())).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
         );
         <span class="kw">for</span> (<span class="ident">amenity</span>, <span class="ident">cnt</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">counts</span>.<span class="ident">borrow</span>() {
             <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Toggle</span>::<span class="ident">custom_checkbox</span>(

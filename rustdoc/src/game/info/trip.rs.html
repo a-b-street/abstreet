@@ -1021,7 +1021,7 @@
                 .<span class="ident">container</span>()
                 .<span class="ident">force_width_pct</span>(<span class="ident">ctx</span>, <span class="ident">col_width</span>),
             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} here&quot;</span>, <span class="ident">props</span>.<span class="ident">waiting_here</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} here&quot;</span>, <span class="ident">props</span>.<span class="ident">waiting_here</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="kw">if</span> <span class="ident">props</span>.<span class="ident">total_waiting</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span> {
                         <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
@@ -1221,13 +1221,13 @@
                     .<span class="ident">force_width_pct</span>(<span class="ident">ctx</span>, <span class="ident">col_width</span>),
                 (<span class="ident">end_time</span> <span class="op">-</span> <span class="ident">trip</span>.<span class="ident">departure</span>)
                     .<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)
-                    .<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                    .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
             ]));
         } <span class="kw">else</span> {
             <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Line</span>(<span class="string">&quot;Trip time&quot;</span>).<span class="ident">secondary</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>)])
                     .<span class="ident">force_width_pct</span>(<span class="ident">ctx</span>, <span class="ident">col_width</span>),
-                <span class="string">&quot;Trip didn&#39;t complete before map changes&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                <span class="string">&quot;Trip didn&#39;t complete before map changes&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
             ]));
         }
 
@@ -1237,7 +1237,7 @@
         <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Line</span>(<span class="string">&quot;Total waiting time&quot;</span>).<span class="ident">secondary</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>)])
                 .<span class="ident">force_width_pct</span>(<span class="ident">ctx</span>, <span class="ident">col_width</span>),
-            <span class="ident">waiting</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+            <span class="ident">waiting</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
         ]));
 
         <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -1711,9 +1711,9 @@
         ])
         .<span class="ident">evenly_spaced</span>(),
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">trip</span>.<span class="ident">departure</span>.<span class="ident">ampm_tostring</span>().<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+            <span class="ident">trip</span>.<span class="ident">departure</span>.<span class="ident">ampm_tostring</span>().<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">end_time</span> {
-                <span class="ident">t</span>.<span class="ident">ampm_tostring</span>().<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">align_right</span>()
+                <span class="ident">t</span>.<span class="ident">ampm_tostring</span>().<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">align_right</span>()
             } <span class="kw">else</span> {
                 <span class="ident">Widget</span>::<span class="ident">nothing</span>()
             },
@@ -1764,7 +1764,7 @@
         ]),
     ];
     <span class="kw">if</span> <span class="ident">path_impossible</span> {
-        <span class="ident">col</span>.<span class="ident">push</span>(<span class="string">&quot;Map edits have disconnected the path taken before&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>));
+        <span class="ident">col</span>.<span class="ident">push</span>(<span class="string">&quot;Map edits have disconnected the path taken before&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
     }
     <span class="comment">// TODO This just needs too much more work</span>
     <span class="kw">if</span> <span class="bool-val">false</span> {

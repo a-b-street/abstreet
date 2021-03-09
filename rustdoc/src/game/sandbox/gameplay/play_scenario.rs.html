@@ -646,7 +646,7 @@
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit traffic patterns&quot;</span>)
                         .<span class="ident">centered_vert</span>(),
                     <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} modifications to traffic patterns&quot;</span>, <span class="self">self</span>.<span class="ident">modifiers</span>.<span class="ident">len</span>())
-                        .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
+                        .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
                         .<span class="ident">centered_vert</span>(),
                 ])
                 .<span class="ident">centered_horiz</span>()
@@ -690,7 +690,7 @@
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">m</span>) <span class="kw">in</span> <span class="ident">modifiers</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
             <span class="ident">rows</span>.<span class="ident">push</span>(
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">m</span>.<span class="ident">describe</span>().<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+                    <span class="ident">m</span>.<span class="ident">describe</span>().<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_solid_destructive</span>
                         .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/trash.svg&quot;</span>)
@@ -861,23 +861,23 @@
                 <span class="ident">Line</span>(<span class="string">&quot;Change trip mode&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="string">&quot;Percent of people to modify:&quot;</span>
-                        .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
+                        .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
                         .<span class="ident">centered_vert</span>(),
                     <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">1</span>, <span class="number">100</span>), <span class="number">50</span>).<span class="ident">named</span>(<span class="string">&quot;pct_ppl&quot;</span>),
                 ]),
-                <span class="string">&quot;Types of trips to convert:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                <span class="string">&quot;Types of trips to convert:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">checkbox_per_mode</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="macro">btreeset</span><span class="macro">!</span> { <span class="ident">TripMode</span>::<span class="ident">Drive</span> }),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="string">&quot;Departing from:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                    <span class="string">&quot;Departing from:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">Slider</span>::<span class="ident">area</span>(<span class="ident">ctx</span>, <span class="number">0.25</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="number">0.0</span>).<span class="ident">named</span>(<span class="string">&quot;depart from&quot;</span>),
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="string">&quot;Departing until:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                    <span class="string">&quot;Departing until:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">Slider</span>::<span class="ident">area</span>(<span class="ident">ctx</span>, <span class="number">0.25</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="number">0.3</span>).<span class="ident">named</span>(<span class="string">&quot;depart to&quot;</span>),
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.5</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="string">&quot;Change to trip type:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                    <span class="string">&quot;Change to trip type:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">Widget</span>::<span class="ident">dropdown</span>(<span class="ident">ctx</span>, <span class="string">&quot;to_mode&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">TripMode</span>::<span class="ident">Bike</span>), {
                         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">choices</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;cancel trip&quot;</span>, <span class="prelude-val">None</span>)];
                         <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="ident">TripMode</span>::<span class="ident">all</span>() {

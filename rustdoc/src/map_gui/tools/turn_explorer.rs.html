@@ -391,7 +391,7 @@
                      slow lane, {} for vehicles, {} for slow bikes&quot;</span>,
                     <span class="ident">lt</span>, <span class="ident">lc</span>, <span class="ident">slow_lane</span>, <span class="ident">vehicles</span>, <span class="ident">bike</span>
                 )
-                .<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
             );
             <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">ColorLegend</span>::<span class="ident">row</span>(<span class="ident">ctx</span>, <span class="ident">CURRENT_TURN</span>, <span class="string">&quot;current turn&quot;</span>));
             <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">ColorLegend</span>::<span class="ident">row</span>(<span class="ident">ctx</span>, <span class="ident">CONFLICTING_TURN</span>, <span class="string">&quot;conflicting turn&quot;</span>));

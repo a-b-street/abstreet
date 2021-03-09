@@ -469,7 +469,7 @@
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;next uber-turn&quot;</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
             ]),
-            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;driving_cost for a Car: {}&quot;</span>, <span class="ident">sum_cost</span>).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;driving_cost for a Car: {}&quot;</span>, <span class="ident">sum_cost</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Toggle</span>::<span class="ident">choice</span>(
                     <span class="ident">ctx</span>,
@@ -479,7 +479,7 @@
                     <span class="prelude-val">None</span>,
                     <span class="ident">legal_turns</span>,
                 ),
-                <span class="string">&quot;movements&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                <span class="string">&quot;movements&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
             ]),
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)

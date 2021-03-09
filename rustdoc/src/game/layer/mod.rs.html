@@ -386,14 +386,14 @@
         <span class="ident">col</span>.<span class="ident">push</span>(
             <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="string">&quot;Traffic&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                    <span class="string">&quot;Traffic&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;delay&quot;</span>, <span class="ident">Key</span>::<span class="ident">D</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;throughput&quot;</span>, <span class="ident">Key</span>::<span class="ident">T</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;traffic jams&quot;</span>, <span class="ident">Key</span>::<span class="ident">J</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;cycling activity&quot;</span>, <span class="ident">Key</span>::<span class="ident">B</span>),
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="string">&quot;Map&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                    <span class="string">&quot;Map&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;map edits&quot;</span>, <span class="ident">Key</span>::<span class="ident">E</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;parking occupancy&quot;</span>, <span class="ident">Key</span>::<span class="ident">P</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;transit network&quot;</span>, <span class="ident">Key</span>::<span class="ident">U</span>),
@@ -408,7 +408,7 @@
         <span class="ident">col</span>.<span class="ident">push</span>(
             <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="string">&quot;Experimental&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                    <span class="string">&quot;Experimental&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;amenities&quot;</span>, <span class="ident">Key</span>::<span class="ident">A</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;backpressure&quot;</span>, <span class="ident">Key</span>::<span class="ident">Z</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;elevation&quot;</span>, <span class="ident">Key</span>::<span class="ident">V</span>),
@@ -422,7 +422,7 @@
                     },
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="string">&quot;Data&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                    <span class="string">&quot;Data&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;traffic signal demand&quot;</span>, <span class="ident">Key</span>::<span class="ident">M</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;commuter patterns&quot;</span>, <span class="ident">Key</span>::<span class="ident">R</span>),
                 ]),
@@ -552,7 +552,7 @@
         <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/layers.svg&quot;</span>)
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
             .<span class="ident">centered_vert</span>(),
-        <span class="ident">name</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+        <span class="ident">name</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
         <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
     ])
 }

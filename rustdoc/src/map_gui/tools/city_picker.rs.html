@@ -580,7 +580,7 @@
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">districts</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this_city</span> <span class="op">=</span>
-                    <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;More districts in {}&quot;</span>, <span class="ident">city_name</span>.<span class="ident">describe</span>()).<span class="ident">draw_text</span>(<span class="ident">ctx</span>)];
+                    <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;More districts in {}&quot;</span>, <span class="ident">city_name</span>.<span class="ident">describe</span>()).<span class="ident">text_widget</span>(<span class="ident">ctx</span>)];
 
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">city</span>) <span class="op">=</span> <span class="ident">maybe_city</span> {
                     <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">city</span>.<span class="ident">boundary</span>.<span class="ident">get_bounds</span>();
@@ -692,7 +692,7 @@
                         ]),
                         <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                             <span class="string">&quot;Don&#39;t see the city you want?&quot;</span>
-                                .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
+                                .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
                                 .<span class="ident">centered_vert</span>(),
                             <span class="ident">ctx</span>.<span class="ident">style</span>()
                                 .<span class="ident">btn_plain</span>

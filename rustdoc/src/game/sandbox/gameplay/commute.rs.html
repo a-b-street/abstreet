@@ -575,7 +575,7 @@
             <span class="ident">challenge_header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Optimize the VIP&#39;s commute&quot;</span>),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Speed up the VIP&#39;s trips by {}&quot;</span>, <span class="self">self</span>.<span class="ident">goal</span>)
-                    .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
                     .<span class="ident">centered_vert</span>(),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_plain</span>
@@ -626,7 +626,7 @@
                 .<span class="ident">btn_plain</span>
                 .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;locate VIP&quot;</span>),
-            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/{} trips done&quot;</span>, <span class="ident">done</span>, <span class="ident">trips</span>).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/{} trips done&quot;</span>, <span class="ident">done</span>, <span class="ident">trips</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>),
         ]),
     ]))

@@ -2265,7 +2265,7 @@
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">LeftArrow</span>)
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;previous message&quot;</span>),
                     <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/{}&quot;</span>, <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">part</span> <span class="op">+</span> <span class="number">1</span>, <span class="self">self</span>.<span class="ident">stage</span>().<span class="ident">messages</span>.<span class="ident">len</span>())
-                        .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
+                        .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
                         .<span class="ident">centered_vert</span>(),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_next</span>()

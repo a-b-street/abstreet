@@ -497,21 +497,21 @@
                         <span class="ident">dataset_name</span>,
                         <span class="ident">prettyprint_usize</span>(<span class="ident">objects</span>.<span class="ident">len</span>())
                     )
-                    .<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                    .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_outline</span>
                         .<span class="ident">text</span>(<span class="string">&quot;load KML file&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">L</span>))
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="string">&quot;Query:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                        <span class="string">&quot;Query:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                         <span class="ident">Widget</span>::<span class="ident">dropdown</span>(<span class="ident">ctx</span>, <span class="string">&quot;query&quot;</span>, <span class="string">&quot;None&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">choices</span>),
                     ]),
                     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="string">&quot;Key=value filter:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                        <span class="string">&quot;Key=value filter:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                         <span class="ident">Widget</span>::<span class="ident">text_entry</span>(<span class="ident">ctx</span>, <span class="ident">String</span>::<span class="ident">new</span>(), <span class="bool-val">false</span>).<span class="ident">named</span>(<span class="string">&quot;filter&quot;</span>),
                     ]),
-                    <span class="string">&quot;Query matches 0 objects&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;matches&quot;</span>),
+                    <span class="string">&quot;Query matches 0 objects&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;matches&quot;</span>),
                 ]))
                 .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
                 .<span class="ident">build</span>(<span class="ident">ctx</span>),
@@ -599,7 +599,7 @@
                 <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;matches&quot;</span>,
-                    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Query matches {} objects&quot;</span>, <span class="ident">cnt</span>).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Query matches {} objects&quot;</span>, <span class="ident">cnt</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                 );
             }
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}

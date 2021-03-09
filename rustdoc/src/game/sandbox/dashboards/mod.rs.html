@@ -139,7 +139,7 @@
             <span class="ident">Line</span>(<span class="string">&quot;Data&quot;</span>).<span class="ident">big_heading_plain</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">dropdown</span>(<span class="ident">ctx</span>, <span class="string">&quot;tab&quot;</span>, <span class="self">self</span>, <span class="ident">choices</span>),
             <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;By {}&quot;</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>().<span class="ident">ampm_tostring</span>())
-                .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
+                .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
                 .<span class="ident">centered_vert</span>(),
             <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
         ])

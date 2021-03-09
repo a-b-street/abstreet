@@ -197,7 +197,7 @@
                         .<span class="ident">btn_prev</span>()
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">LeftArrow</span>)
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;previous&quot;</span>),
-                    <span class="string">&quot;noun X/Y&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;pointer&quot;</span>),
+                    <span class="string">&quot;noun X/Y&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;pointer&quot;</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_next</span>()
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">RightArrow</span>)
@@ -241,7 +241,7 @@
         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
             <span class="ident">ctx</span>,
             <span class="string">&quot;pointer&quot;</span>,
-            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} {}/{}&quot;</span>, <span class="self">self</span>.<span class="ident">noun</span>, <span class="self">self</span>.<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="self">self</span>.<span class="ident">items</span>.<span class="ident">len</span>()).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} {}/{}&quot;</span>, <span class="self">self</span>.<span class="ident">noun</span>, <span class="self">self</span>.<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="self">self</span>.<span class="ident">items</span>.<span class="ident">len</span>()).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
         );
 
         <span class="ident">Transition</span>::<span class="ident">Keep</span>

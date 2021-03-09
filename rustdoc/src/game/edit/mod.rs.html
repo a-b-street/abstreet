@@ -1311,7 +1311,7 @@
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="ident">title</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="string">&quot;Name:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+                    <span class="string">&quot;Name:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
                     <span class="ident">Widget</span>::<span class="ident">text_entry</span>(<span class="ident">ctx</span>, <span class="ident">initial_name</span>, <span class="bool-val">true</span>).<span class="ident">named</span>(<span class="string">&quot;filename&quot;</span>),
                 ]),
                 <span class="comment">// TODO Want this to always consistently be one line high, but it isn&#39;t for a blank</span>
@@ -1706,7 +1706,7 @@
                 .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">P</span>))
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;manage proposals&quot;</span>),
             <span class="string">&quot;autosaved&quot;</span>
-                .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
+                .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
                 .<span class="ident">container</span>()
                 .<span class="ident">padding</span>(<span class="number">10</span>)
                 .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#5D9630&quot;</span>)),
@@ -1723,7 +1723,7 @@
     ];
 
     <span class="kw">if</span> <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">5</span> {
-        <span class="ident">col</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} more...&quot;</span>, <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">5</span>).<span class="ident">draw_text</span>(<span class="ident">ctx</span>));
+        <span class="ident">col</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} more...&quot;</span>, <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">5</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
     }
     <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">len</span>().<span class="ident">max</span>(<span class="number">5</span>) <span class="op">-</span> <span class="number">5</span>..<span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">len</span>() {
         <span class="kw">let</span> (<span class="ident">summary</span>, <span class="ident">details</span>) <span class="op">=</span> <span class="ident">edits</span>.<span class="ident">commands</span>[<span class="ident">idx</span>].<span class="ident">describe</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>);
@@ -1786,7 +1786,7 @@
                     <span class="ident">Line</span>(<span class="string">&quot;Alert&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                 ]),
-                <span class="string">&quot;Are you sure you want to discard changes you made?&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                <span class="string">&quot;Are you sure you want to discard changes you made?&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_outline</span>

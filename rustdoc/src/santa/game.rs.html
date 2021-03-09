@@ -753,7 +753,7 @@
         <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">music</span>.<span class="ident">specify_volume</span>(<span class="kw">crate</span>::<span class="ident">music</span>::<span class="ident">IN_GAME</span>);
 
         <span class="kw">let</span> <span class="ident">status_panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="string">&quot;15-min Santa&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+            <span class="string">&quot;15-min Santa&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="comment">// TODO The blur is messed up</span>
                 <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/map.svg&quot;</span>)
@@ -763,9 +763,9 @@
             ])
             .<span class="ident">padding</span>(<span class="number">10</span>)
             .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#003046&quot;</span>)),
-            <span class="string">&quot;Complete Deliveries&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;score label&quot;</span>),
+            <span class="string">&quot;Complete Deliveries&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;score label&quot;</span>),
             <span class="ident">GeomBatch</span>::<span class="ident">new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;score&quot;</span>),
-            <span class="string">&quot;Blood sugar&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;energy label&quot;</span>),
+            <span class="string">&quot;Blood sugar&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;energy label&quot;</span>),
             <span class="ident">GeomBatch</span>::<span class="ident">new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;energy&quot;</span>),
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">RightInset</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">TopInset</span>)
@@ -773,7 +773,7 @@
 
         <span class="kw">let</span> <span class="ident">time_panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">GeomBatch</span>::<span class="ident">new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;time circle&quot;</span>),
-            <span class="string">&quot;Time&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>().<span class="ident">named</span>(<span class="string">&quot;time label&quot;</span>),
+            <span class="string">&quot;Time&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>().<span class="ident">named</span>(<span class="string">&quot;time label&quot;</span>),
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">LeftInset</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">TopInset</span>)
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
@@ -978,7 +978,7 @@
         <span class="kw">if</span> <span class="op">!</span><span class="ident">met_goal</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">met_goal</span>() {
             <span class="comment">// TODO What should we say here? Should we add some kind of animation to call this</span>
             <span class="comment">// out?</span>
-            <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="string">&quot;Goal met! Keep going&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>);
+            <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="string">&quot;Goal met! Keep going&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>);
             <span class="self">self</span>.<span class="ident">status_panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;score label&quot;</span>, <span class="ident">label</span>);
         }
 
@@ -992,7 +992,7 @@
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">has_energy</span>() {
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">energyless_arrow</span>.<span class="ident">is_some</span>() {
                 <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">energyless_arrow</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="string">&quot;Blood sugar&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>);
+                <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="string">&quot;Blood sugar&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>);
                 <span class="self">self</span>.<span class="ident">status_panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;energy label&quot;</span>, <span class="ident">label</span>);
             }
         } <span class="kw">else</span> {
@@ -1393,7 +1393,7 @@
             <span class="comment">// update_boost_panel here. It&#39;s not super common to actually mess with those controls,</span>
             <span class="comment">// so fine with this for now.</span>
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="string">&quot;Boost&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                <span class="string">&quot;Boost&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">GeomBatch</span>::<span class="ident">new</span>()
                     .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                     .<span class="ident">named</span>(<span class="string">&quot;boost&quot;</span>)

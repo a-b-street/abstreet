@@ -510,7 +510,7 @@
                     <span class="ident">Line</span>(<span class="string">&quot;Settings&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                 ]),
-                <span class="string">&quot;Camera controls&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                <span class="string">&quot;Camera controls&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Toggle</span>::<span class="ident">checkbox</span>(
                         <span class="ident">ctx</span>,
@@ -538,17 +538,17 @@
                         <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">keys_to_pan</span>,
                     ),
                     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="string">&quot;Scroll speed for menus&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+                        <span class="string">&quot;Scroll speed for menus&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
                         <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">1</span>, <span class="number">50</span>), <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">gui_scroll_speed</span> <span class="kw">as</span> <span class="ident">isize</span>)
                             .<span class="ident">named</span>(<span class="string">&quot;gui_scroll_speed&quot;</span>),
                     ]),
                 ])
                 .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">inner_panel_bg</span>)
                 .<span class="ident">padding</span>(<span class="number">8</span>),
-                <span class="string">&quot;Appearance&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                <span class="string">&quot;Appearance&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="string">&quot;Traffic signal rendering:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                        <span class="string">&quot;Traffic signal rendering:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                         <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;Traffic signal rendering&quot;</span>,
@@ -564,7 +564,7 @@
                         ),
                     ]),
                     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="string">&quot;Camera angle:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                        <span class="string">&quot;Camera angle:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                         <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;Camera angle&quot;</span>,
@@ -580,7 +580,7 @@
                         ),
                     ]),
                     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="string">&quot;Color scheme:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                        <span class="string">&quot;Color scheme:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                         <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;Color scheme&quot;</span>,
@@ -589,7 +589,7 @@
                         ),
                     ]),
                     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="string">&quot;Camera zoom to switch to unzoomed view&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                        <span class="string">&quot;Camera zoom to switch to unzoomed view&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                         <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;min zoom&quot;</span>,
@@ -605,7 +605,7 @@
                         ),
                     ]),
                     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="string">&quot;Language&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                        <span class="string">&quot;Language&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                         <span class="ident">Widget</span>::<span class="ident">dropdown</span>(<span class="ident">ctx</span>, <span class="string">&quot;language&quot;</span>, <span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">language</span>.<span class="ident">clone</span>(), {
                             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">choices</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
                             <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Map native language&quot;</span>, <span class="prelude-val">None</span>));
@@ -626,7 +626,7 @@
                 ])
                 .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">inner_panel_bg</span>)
                 .<span class="ident">padding</span>(<span class="number">8</span>),
-                <span class="string">&quot;Debug&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                <span class="string">&quot;Debug&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Toggle</span>::<span class="ident">checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Enable developer mode&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">dev</span>),
                     <span class="ident">Toggle</span>::<span class="ident">checkbox</span>(

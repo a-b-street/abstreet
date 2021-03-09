@@ -937,10 +937,10 @@
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="string">&quot;Click a building or border to specify start&quot;</span>
-                    .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
                     .<span class="ident">named</span>(<span class="string">&quot;instructions&quot;</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="string">&quot;Type of trip:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                    <span class="string">&quot;Type of trip:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;mode&quot;</span>,
@@ -952,7 +952,7 @@
                     ),
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="string">&quot;Number of trips:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                    <span class="string">&quot;Number of trips:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">1</span>, <span class="number">1000</span>), <span class="number">1</span>).<span class="ident">named</span>(<span class="string">&quot;number&quot;</span>),
                 ]),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
@@ -969,7 +969,7 @@
             <span class="ident">spawner</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
                 <span class="ident">ctx</span>,
                 <span class="string">&quot;instructions&quot;</span>,
-                <span class="string">&quot;Click a building or border to specify end&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                <span class="string">&quot;Click a building or border to specify end&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
             );
         }
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">spawner</span>)
@@ -1037,7 +1037,7 @@
                         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;instructions&quot;</span>,
-                            <span class="string">&quot;Click a building or border to specify end&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                            <span class="string">&quot;Click a building or border to specify end&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                         );
                         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
                             <span class="ident">ctx</span>,
@@ -1081,7 +1081,7 @@
                 <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;instructions&quot;</span>,
-                    <span class="string">&quot;Click a building or border to specify end&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                    <span class="string">&quot;Click a building or border to specify end&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                 );
             } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">source</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">source</span> <span class="op">!</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">hovering</span>.<span class="ident">clone</span>()) {
                 <span class="kw">if</span> <span class="self">self</span>
@@ -1114,7 +1114,7 @@
                     <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;instructions&quot;</span>,
-                        <span class="string">&quot;Confirm the trip settings&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                        <span class="string">&quot;Confirm the trip settings&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                     );
                     <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
                         <span class="ident">ctx</span>,

@@ -1282,7 +1282,7 @@
                     <span class="op">+</span> <span class="ident">counts</span>.<span class="ident">walking_to_from_car</span>
                     <span class="op">+</span> <span class="ident">counts</span>.<span class="ident">walking_to_from_bike</span>,
             )
-            .<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+            .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
         ]));
 
         <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -1293,7 +1293,7 @@
                 ]))
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                 .<span class="ident">margin_right</span>(<span class="number">5</span>),
-            <span class="ident">prettyprint_usize</span>(<span class="ident">counts</span>.<span class="ident">cyclists</span>).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+            <span class="ident">prettyprint_usize</span>(<span class="ident">counts</span>.<span class="ident">cyclists</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
         ]));
 
         <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -1308,7 +1308,7 @@
                 ]))
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                 .<span class="ident">margin_right</span>(<span class="number">5</span>),
-            <span class="ident">prettyprint_usize</span>(<span class="ident">counts</span>.<span class="ident">sov_drivers</span>).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+            <span class="ident">prettyprint_usize</span>(<span class="ident">counts</span>.<span class="ident">sov_drivers</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
         ]));
 
         <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -1330,11 +1330,11 @@
                 ]))
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                 .<span class="ident">margin_right</span>(<span class="number">5</span>),
-            <span class="ident">prettyprint_usize</span>(<span class="ident">counts</span>.<span class="ident">bus_riders</span> <span class="op">+</span> <span class="ident">counts</span>.<span class="ident">train_riders</span>).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+            <span class="ident">prettyprint_usize</span>(<span class="ident">counts</span>.<span class="ident">bus_riders</span> <span class="op">+</span> <span class="ident">counts</span>.<span class="ident">train_riders</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
         ]));
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="string">&quot;Active trips&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+            <span class="string">&quot;Active trips&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">row</span>).<span class="ident">centered</span>(),
             <span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.2</span>),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -1380,7 +1380,7 @@
                 )])
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                 .<span class="ident">centered_vert</span>(),
-                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} trips captured&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">n</span>)).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} trips captured&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">n</span>)).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_solid_primary</span>
                     .<span class="ident">text</span>(<span class="string">&quot;Finish Capture&quot;</span>)

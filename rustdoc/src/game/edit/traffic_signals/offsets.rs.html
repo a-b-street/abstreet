@@ -361,7 +361,7 @@
                     .<span class="ident">draw</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
             ]),
-            <span class="string">&quot;Select an intersection as the base&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+            <span class="string">&quot;Select an intersection as the base&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
@@ -450,7 +450,7 @@
                     .<span class="ident">draw</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
             ]),
-            <span class="string">&quot;Select a second intersection to tune offset between the two&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+            <span class="string">&quot;Select a second intersection to tune offset between the two&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
@@ -559,7 +559,7 @@
             ])
             .<span class="ident">draw</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="string">&quot;Offset (seconds):&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                <span class="string">&quot;Offset (seconds):&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">0</span>, <span class="number">90</span>), (<span class="ident">offset2</span> <span class="op">-</span> <span class="ident">offset1</span>).<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">isize</span>)
                     .<span class="ident">named</span>(<span class="string">&quot;offset&quot;</span>),
             ]),

@@ -228,7 +228,7 @@
                 <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
             ]),
             <span class="comment">// TODO Adjust text to say bikeshed, or otherwise reflect the options chosen</span>
-            <span class="string">&quot;Select the types of businesses you want within a 15 minute walkshed.&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+            <span class="string">&quot;Select the types of businesses you want within a 15 minute walkshed.&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">custom_row</span>(
                 <span class="ident">AmenityType</span>::<span class="ident">all</span>()
                     .<span class="ident">into_iter</span>()
@@ -345,7 +345,7 @@
                 .<span class="ident">small_heading</span>()
                 .<span class="ident">draw</span>(<span class="ident">ctx</span>),
             <span class="comment">// TODO Adjust text to say bikeshed, or otherwise reflect the options chosen</span>
-            <span class="string">&quot;Here are all of the matching houses.&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+            <span class="string">&quot;Here are all of the matching houses.&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
             <span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;Containing at least 1 of each: {}&quot;</span>,
                 <span class="ident">amenities</span>
@@ -354,7 +354,7 @@
                     .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
                     .<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>)
             )
-            .<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+            .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_outline</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Back&quot;</span>)
