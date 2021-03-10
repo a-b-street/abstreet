@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["built_info",""]],"struct":[["About",""],["MainMenu",""],["Proposals",""],["Screensaver",""],["TitleScreen",""]]});
+initSidebarItems({"mod":[["built_info",""],["proposals",""]],"struct":[["About",""],["MainMenu",""],["Screensaver",""],["TitleScreen",""]]});
