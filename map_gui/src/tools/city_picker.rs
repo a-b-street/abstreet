@@ -10,7 +10,9 @@ use widgetry::{
 
 use crate::load::{FileLoader, MapLoader};
 use crate::render::DrawArea;
-use crate::tools::{grey_out_map, nice_country_name, nice_map_name, open_browser};
+use crate::tools::{
+    grey_out_map, nice_country_name, nice_map_name, open_browser, prompt_to_download_missing_data,
+};
 use crate::AppLike;
 
 /// Lets the player switch maps.
@@ -195,33 +197,8 @@ impl<A: AppLike + 'static> CityPicker<A> {
         // districts, but the player might be missing a necessary data pack!
         #[cfg(not(target_arch = "wasm32"))]
         {
-            if !abstio::file_exists(name.path()) && name.city == CityName::seattle() {
-                return Transition::Push(crate::tools::ChooseSomething::new(
-                    ctx,
-                    "Download the larger Seattle maps?",
-                    vec![
-                        widgetry::Choice::string("Yes, download"),
-                        widgetry::Choice::string("Never mind").key(Key::Escape),
-                    ],
-                    Box::new(|resp, ctx, _| {
-                        if resp == "Never mind" {
-                            return Transition::Pop;
-                        }
-
-                        let mut data_packs = abstio::DataPacks::load_or_create();
-                        data_packs.runtime.insert("us/huge_seattle".to_string());
-                        abstio::write_json(abstio::path_player("data.json"), &data_packs);
-
-                        let messages = ctx.loading_screen("sync files", |_, timer| {
-                            crate::tools::updater::sync_missing_files(timer)
-                        });
-                        Transition::Replace(crate::tools::PopupMsg::new(
-                            ctx,
-                            "Download complete. Please try again",
-                            messages,
-                        ))
-                    }),
-                ));
+            if !abstio::file_exists(name.path()) {
+                return prompt_to_download_missing_data(ctx, name);
             }
         }
 

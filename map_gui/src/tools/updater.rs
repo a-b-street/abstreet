@@ -3,13 +3,13 @@ use std::fs::File;
 
 use anyhow::Result;
 
-use abstio::{DataPacks, Manifest};
+use abstio::{DataPacks, Manifest, MapName};
 use abstutil::Timer;
 use widgetry::{
-    EventCtx, GfxCtx, Line, Outcome, Panel, State, TextExt, Toggle, Transition, Widget,
+    EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, TextExt, Toggle, Transition, Widget,
 };
 
-use crate::tools::PopupMsg;
+use crate::tools::{ChooseSomething, PopupMsg};
 use crate::AppLike;
 
 // Update this ___before___ pushing the commit with "[rebuild] [release]".
@@ -80,7 +80,7 @@ impl<A: AppLike + 'static> State<A> for Picker<A> {
                             data_packs.runtime.insert(city);
                         }
                     }
-                    abstio::write_json(abstio::path_player("data.json"), &data_packs);
+                    data_packs.save();
 
                     let messages =
                         ctx.loading_screen("sync files", |_, timer| sync_missing_files(timer));
@@ -110,14 +110,12 @@ impl<A: AppLike + 'static> State<A> for Picker<A> {
 fn size_per_city(manifest: &Manifest) -> BTreeMap<String, usize> {
     let mut per_city = BTreeMap::new();
     for (path, entry) in &manifest.entries {
-        if Manifest::is_file_part_of_huge_seattle(path) {
-            *per_city.entry("us/huge_seattle".to_string()).or_insert(0) +=
-                entry.compressed_size_bytes;
-            continue;
-        }
         let parts = path.split("/").collect::<Vec<_>>();
         if parts[1] == "system" {
-            let city = format!("{}/{}", parts[2], parts[3]);
+            let mut city = format!("{}/{}", parts[2], parts[3]);
+            if Manifest::is_file_part_of_huge_seattle(path) {
+                city = "us/huge_seattle".to_string();
+            }
             *per_city.entry(city).or_insert(0) += entry.compressed_size_bytes;
         }
     }
@@ -134,6 +132,36 @@ fn prettyprint_bytes(bytes: usize) -> String {
     }
     let mb = kb / 1024.0;
     format!("{} mb", mb as usize)
+}
+
+pub fn prompt_to_download_missing_data<A: AppLike + 'static>(
+    ctx: &mut EventCtx,
+    map_name: MapName,
+) -> Transition<A> {
+    Transition::Push(ChooseSomething::new(
+        ctx,
+        &format!("Missing data. Download {}?", map_name.city.describe()),
+        vec![
+            widgetry::Choice::string("Yes, download"),
+            widgetry::Choice::string("Never mind").key(Key::Escape),
+        ],
+        Box::new(move |resp, ctx, _| {
+            if resp == "Never mind" {
+                return Transition::Pop;
+            }
+
+            let mut data_packs = abstio::DataPacks::load_or_create();
+            data_packs.runtime.insert(map_name.to_data_pack_name());
+            data_packs.save();
+
+            let messages = ctx.loading_screen("sync files", |_, timer| sync_missing_files(timer));
+            Transition::Replace(PopupMsg::new(
+                ctx,
+                "Download complete. Please try again",
+                messages,
+            ))
+        }),
+    ))
 }
 
 // TODO This only downloads files that don't exist but should. It doesn't remove or update

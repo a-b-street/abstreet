@@ -16,7 +16,7 @@ pub use self::url::URLManager;
 use crate::AppLike;
 
 #[cfg(not(target_arch = "wasm32"))]
-pub use self::updater::sync_missing_files;
+pub use self::updater::prompt_to_download_missing_data;
 
 mod camera;
 mod city_picker;

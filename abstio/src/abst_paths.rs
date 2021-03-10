@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::basename;
 
-use crate::{file_exists, list_all_objects};
+use crate::{file_exists, list_all_objects, Manifest};
 
 lazy_static::lazy_static! {
     static ref ROOT_DIR: String = {
@@ -228,6 +228,14 @@ impl MapName {
             names.extend(MapName::list_all_maps_in_city(&city));
         }
         names
+    }
+
+    /// Returns the string to opt into runtime or input files for DataPacks.
+    pub fn to_data_pack_name(&self) -> String {
+        if Manifest::is_file_part_of_huge_seattle(&self.path()) {
+            return "us/huge_seattle".to_string();
+        }
+        self.city.to_path()
     }
 }
 

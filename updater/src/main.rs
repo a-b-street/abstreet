@@ -191,15 +191,14 @@ fn opt_into_all() {
         input: BTreeSet::new(),
     };
     for path in Manifest::load().entries.keys() {
-        if Manifest::is_file_part_of_huge_seattle(path) {
-            data_packs.runtime.insert("us/huge_seattle".to_string());
-            continue;
-        }
-        if path.starts_with("data/system/extra_fonts") {
+        if path.starts_with("data/system/extra_fonts") || path.starts_with("data/input/shared") {
             continue;
         }
         let parts = path.split("/").collect::<Vec<_>>();
-        let city = format!("{}/{}", parts[2], parts[3]);
+        let mut city = format!("{}/{}", parts[2], parts[3]);
+        if Manifest::is_file_part_of_huge_seattle(path) {
+            city = "us/huge_seattle".to_string();
+        }
         if parts[1] == "input" {
             data_packs.input.insert(city);
         } else if parts[1] == "system" {

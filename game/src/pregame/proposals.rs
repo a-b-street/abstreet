@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use geom::Percent;
 use map_gui::load::MapLoader;
-use map_gui::tools::{open_browser, sync_missing_files, ChooseSomething, PopupMsg};
+use map_gui::tools::{open_browser, prompt_to_download_missing_data, PopupMsg};
 use map_model::PermanentMapEdits;
 use widgetry::{DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, Widget};
 
@@ -158,31 +158,7 @@ fn launch(ctx: &mut EventCtx, app: &App, edits: PermanentMapEdits) -> Transition
     #[cfg(not(target_arch = "wasm32"))]
     {
         if !abstio::file_exists(edits.map_name.path()) {
-            return Transition::Push(ChooseSomething::new(
-                ctx,
-                &format!("Missing data. Download {}?", edits.map_name.city.describe()),
-                vec![
-                    widgetry::Choice::string("Yes, download"),
-                    widgetry::Choice::string("Never mind").key(Key::Escape),
-                ],
-                Box::new(move |resp, ctx, _| {
-                    if resp == "Never mind" {
-                        return Transition::Pop;
-                    }
-
-                    let mut data_packs = abstio::DataPacks::load_or_create();
-                    data_packs.runtime.insert(edits.map_name.city.to_path());
-                    abstio::write_json(abstio::path_player("data.json"), &data_packs);
-
-                    let messages =
-                        ctx.loading_screen("sync files", |_, timer| sync_missing_files(timer));
-                    Transition::Replace(PopupMsg::new(
-                        ctx,
-                        "Download complete. Please try again",
-                        messages,
-                    ))
-                }),
-            ));
+            return prompt_to_download_missing_data(ctx, edits.map_name.clone());
         }
     }
 

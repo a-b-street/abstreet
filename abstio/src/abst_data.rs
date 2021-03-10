@@ -41,12 +41,6 @@ impl Manifest {
     pub fn filter(mut self, data_packs: DataPacks) -> Manifest {
         let mut remove = Vec::new();
         for path in self.entries.keys() {
-            if Manifest::is_file_part_of_huge_seattle(path)
-                && !data_packs.runtime.contains("us/huge_seattle")
-            {
-                remove.push(path.clone());
-                continue;
-            }
             if path.starts_with("data/system/extra_fonts") {
                 // Always grab all of these
                 continue;
@@ -57,7 +51,10 @@ impl Manifest {
             }
 
             let parts = path.split("/").collect::<Vec<_>>();
-            let city = format!("{}/{}", parts[2], parts[3]);
+            let mut city = format!("{}/{}", parts[2], parts[3]);
+            if Manifest::is_file_part_of_huge_seattle(path) {
+                city = "us/huge_seattle".to_string();
+            }
             if parts[1] == "input" {
                 if data_packs.input.contains(&city) {
                     continue;
@@ -82,11 +79,12 @@ impl Manifest {
     /// "us/huge_seattle" pack has the rest. This returns true for files belonging to
     /// "us/huge_seattle".
     pub fn is_file_part_of_huge_seattle(path: &str) -> bool {
-        let name = if let Some(x) = path.strip_prefix("data/system/us/seattle/maps/") {
+        let path = path.strip_prefix(&crate::path("")).unwrap_or(path);
+        let name = if let Some(x) = path.strip_prefix("system/us/seattle/maps/") {
             x.strip_suffix(".bin").unwrap()
-        } else if let Some(x) = path.strip_prefix("data/system/us/seattle/scenarios/") {
+        } else if let Some(x) = path.strip_prefix("system/us/seattle/scenarios/") {
             x.split("/").next().unwrap()
-        } else if let Some(x) = path.strip_prefix("data/system/us/seattle/prebaked_results/") {
+        } else if let Some(x) = path.strip_prefix("system/us/seattle/prebaked_results/") {
             x.split("/").next().unwrap()
         } else {
             return false;
@@ -113,7 +111,7 @@ impl DataPacks {
     /// Load the player's config for what files to download, or create the config.
     #[cfg(not(target_arch = "wasm32"))]
     pub fn load_or_create() -> DataPacks {
-        let path = crate::path("player/data.json");
+        let path = crate::path_player("data.json");
         match crate::maybe_read_json::<DataPacks>(path.clone(), &mut abstutil::Timer::throwaway()) {
             Ok(mut cfg) => {
                 // The game breaks without this required data pack.
@@ -131,5 +129,11 @@ impl DataPacks {
                 cfg
             }
         }
+    }
+
+    /// Saves the player's config for what files to download.
+    #[cfg(not(target_arch = "wasm32"))]
+    pub fn save(&self) {
+        crate::write_json(crate::path_player("data.json"), self);
     }
 }
