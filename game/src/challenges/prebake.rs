@@ -29,7 +29,7 @@ pub fn prebake_all() {
         MapName::seattle("phinney"),
         MapName::seattle("qa"),
         MapName::seattle("rainier_valley"),
-        MapName::seattle("wallingford"),
+        //MapName::seattle("wallingford"),  TODO broken
     ] {
         let map = map_model::Map::new(name.path(), &mut timer);
         let scenario: Scenario =

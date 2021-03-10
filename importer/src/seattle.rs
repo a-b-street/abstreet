@@ -124,13 +124,15 @@ pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration)
                 city.input_path("offstreet_parking.bin"),
             ),
             private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(
-                // TODO Utter guesses
+                // TODO Utter guesses or in response to gridlock
                 match name {
                     "downtown" => 5,
                     "lakeslice" => 5,
+                    "qa" => 5,
                     "rainier_valley" => 3,
                     "south_seattle" => 5,
                     "udistrict" => 5,
+                    "wallingford" => 5,
                     _ => 1,
                 },
             ),

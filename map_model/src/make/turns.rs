@@ -290,9 +290,7 @@ fn curvey_turn(src: &Lane, dst: &Lane) -> Result<PolyLine> {
     // they'll overlap. In that case, just use the straight line for the turn.
     if let (Some(l1), Some(l2)) = (Line::new(pt1, control_pt1), Line::new(control_pt2, pt2)) {
         if l1.crosses(&l2) {
-            // TODO Make this bail!, so we use the straight line. But it gridlocked two maps, so
-            // resolve that first.
-            warn!("intersection is too small for a Bezier curve");
+            bail!("intersection is too small for a Bezier curve");
         }
     }
 
