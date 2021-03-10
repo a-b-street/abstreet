@@ -869,7 +869,7 @@ fn mouseover_unzoomed_agent_circle(ctx: &mut EventCtx, app: &mut App) {
 }
 
 fn is_daytime(app: &App) -> bool {
-    let hours = app.primary.sim.time().get_parts().0 % 24;
+    let hours = app.primary.sim.time().get_hours() % 24;
     hours >= 6 && hours < 18
 }
 

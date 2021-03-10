@@ -37,7 +37,7 @@ impl Time {
     }
 
     /// (hours, minutes, seconds, centiseconds)
-    pub fn get_parts(self) -> (usize, usize, usize, usize) {
+    fn get_parts(self) -> (usize, usize, usize, usize) {
         let mut remainder = self.0;
         let hours = (remainder / 3600.0).floor();
         remainder -= hours * 3600.0;
@@ -54,14 +54,9 @@ impl Time {
             centis as usize,
         )
     }
-    /// Rounded up
+    /// Rounded down. 6:59:00 is hour 6.
     pub fn get_hours(self) -> usize {
-        let (hr, min, sec, cs) = self.get_parts();
-        if min > 0 || sec > 0 || cs > 0 {
-            hr + 1
-        } else {
-            hr
-        }
+        self.get_parts().0
     }
 
     pub fn ampm_tostring(self) -> String {
@@ -208,6 +203,19 @@ mod tests {
                 + Duration::minutes(30)
                 + Duration::seconds(5.0),
             Time::parse("07:30:05").unwrap()
+        );
+    }
+
+    #[test]
+    fn get_hours() {
+        assert_eq!((Time::START_OF_DAY + Duration::hours(6)).get_hours(), 6);
+        assert_eq!(
+            (Time::START_OF_DAY + Duration::hours(6) + Duration::seconds(1.0)).get_hours(),
+            6
+        );
+        assert_eq!(
+            (Time::START_OF_DAY + Duration::hours(6) + Duration::minutes(59)).get_hours(),
+            6
         );
     }
 }

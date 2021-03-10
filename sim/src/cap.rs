@@ -146,7 +146,7 @@ impl CapSimState {
                     let zone = &mut self.zones[*idx];
 
                     if now - zone.hour_started >= Duration::hours(1) {
-                        zone.hour_started = Time::START_OF_DAY + Duration::hours(now.get_parts().0);
+                        zone.hour_started = Time::START_OF_DAY + Duration::hours(now.get_hours());
                         zone.entered_in_last_hour.clear();
                     }
 

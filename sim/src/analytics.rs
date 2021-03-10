@@ -535,8 +535,10 @@ impl<X: Ord + Clone> TimeSeriesCount<X> {
             }
         }
 
-        let hour = time.get_parts().0;
-        *self.counts.entry((id, agent_type, hour)).or_insert(0) += count;
+        *self
+            .counts
+            .entry((id, agent_type, time.get_hours()))
+            .or_insert(0) += count;
     }
 
     pub fn total_for(&self, id: X) -> usize {
@@ -561,8 +563,7 @@ impl<X: Ord + Clone> TimeSeriesCount<X> {
     pub fn total_for_by_time(&self, id: X, now: Time) -> usize {
         let mut cnt = 0;
         for agent_type in AgentType::all() {
-            // TODO Off-by-one?
-            for hour in 0..now.get_hours() {
+            for hour in 0..=now.get_hours() {
                 cnt += self
                     .counts
                     .get(&(id.clone(), agent_type, hour))
