@@ -657,6 +657,21 @@
 <span id="654">654</span>
 <span id="655">655</span>
 <span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
+<span id="670">670</span>
+<span id="671">671</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 
@@ -1208,6 +1223,21 @@
         <span class="kw">for</span> <span class="ident">agent_type</span> <span class="kw">in</span> <span class="ident">agent_types</span> {
             <span class="comment">// TODO Hmm</span>
             <span class="kw">for</span> <span class="ident">hour</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">24</span> {
+                <span class="ident">cnt</span> <span class="op">+</span><span class="op">=</span> <span class="self">self</span>
+                    .<span class="ident">counts</span>
+                    .<span class="ident">get</span>(<span class="kw-2">&amp;</span>(<span class="ident">id</span>.<span class="ident">clone</span>(), <span class="ident">agent_type</span>, <span class="ident">hour</span>))
+                    .<span class="ident">cloned</span>()
+                    .<span class="ident">unwrap_or</span>(<span class="number">0</span>);
+            }
+        }
+        <span class="ident">cnt</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">total_for_by_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">X</span>, <span class="ident">now</span>: <span class="ident">Time</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">for</span> <span class="ident">agent_type</span> <span class="kw">in</span> <span class="ident">AgentType</span>::<span class="ident">all</span>() {
+            <span class="comment">// TODO Off-by-one?</span>
+            <span class="kw">for</span> <span class="ident">hour</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">now</span>.<span class="ident">get_hours</span>() {
                 <span class="ident">cnt</span> <span class="op">+</span><span class="op">=</span> <span class="self">self</span>
                     .<span class="ident">counts</span>
                     .<span class="ident">get</span>(<span class="kw-2">&amp;</span>(<span class="ident">id</span>.<span class="ident">clone</span>(), <span class="ident">agent_type</span>, <span class="ident">hour</span>))
