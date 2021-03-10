@@ -1805,7 +1805,7 @@
 }
 
 <span class="kw">fn</span> <span class="ident">is_daytime</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-    <span class="kw">let</span> <span class="ident">hours</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>().<span class="ident">get_parts</span>().<span class="number">0</span> <span class="op">%</span> <span class="number">24</span>;
+    <span class="kw">let</span> <span class="ident">hours</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>().<span class="ident">get_hours</span>() <span class="op">%</span> <span class="number">24</span>;
     <span class="ident">hours</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">6</span> <span class="op">&amp;&amp;</span> <span class="ident">hours</span> <span class="op">&lt;</span> <span class="number">18</span>
 }
 

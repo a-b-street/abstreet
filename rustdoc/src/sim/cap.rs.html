@@ -349,7 +349,7 @@
                     <span class="kw">let</span> <span class="ident">zone</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">zones</span>[<span class="kw-2">*</span><span class="ident">idx</span>];
 
                     <span class="kw">if</span> <span class="ident">now</span> <span class="op">-</span> <span class="ident">zone</span>.<span class="ident">hour_started</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">1</span>) {
-                        <span class="ident">zone</span>.<span class="ident">hour_started</span> <span class="op">=</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="ident">now</span>.<span class="ident">get_parts</span>().<span class="number">0</span>);
+                        <span class="ident">zone</span>.<span class="ident">hour_started</span> <span class="op">=</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="ident">now</span>.<span class="ident">get_hours</span>());
                         <span class="ident">zone</span>.<span class="ident">entered_in_last_hour</span>.<span class="ident">clear</span>();
                     }
 

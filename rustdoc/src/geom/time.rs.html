@@ -214,6 +214,14 @@
 <span id="211">211</span>
 <span id="212">212</span>
 <span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">cmp</span>, <span class="ident">ops</span>};
 
@@ -254,7 +262,7 @@
     }
 
     <span class="doccomment">/// (hours, minutes, seconds, centiseconds)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_parts</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
+    <span class="kw">fn</span> <span class="ident">get_parts</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">remainder</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>;
         <span class="kw">let</span> <span class="ident">hours</span> <span class="op">=</span> (<span class="ident">remainder</span> <span class="op">/</span> <span class="number">3600.0</span>).<span class="ident">floor</span>();
         <span class="ident">remainder</span> <span class="op">-</span><span class="op">=</span> <span class="ident">hours</span> <span class="op">*</span> <span class="number">3600.0</span>;
@@ -271,14 +279,9 @@
             <span class="ident">centis</span> <span class="kw">as</span> <span class="ident">usize</span>,
         )
     }
-    <span class="doccomment">/// Rounded up</span>
+    <span class="doccomment">/// Rounded down. 6:59:00 is hour 6.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_hours</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
-        <span class="kw">let</span> (<span class="ident">hr</span>, <span class="ident">min</span>, <span class="ident">sec</span>, <span class="ident">cs</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_parts</span>();
-        <span class="kw">if</span> <span class="ident">min</span> <span class="op">&gt;</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">sec</span> <span class="op">&gt;</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">cs</span> <span class="op">&gt;</span> <span class="number">0</span> {
-            <span class="ident">hr</span> <span class="op">+</span> <span class="number">1</span>
-        } <span class="kw">else</span> {
-            <span class="ident">hr</span>
-        }
+        <span class="self">self</span>.<span class="ident">get_parts</span>().<span class="number">0</span>
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ampm_tostring</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
@@ -425,6 +428,19 @@
                 <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">30</span>)
                 <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">5.0</span>),
             <span class="ident">Time</span>::<span class="ident">parse</span>(<span class="string">&quot;07:30:05&quot;</span>).<span class="ident">unwrap</span>()
+        );
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_hours</span>() {
+        <span class="macro">assert_eq</span><span class="macro">!</span>((<span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">6</span>)).<span class="ident">get_hours</span>(), <span class="number">6</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(
+            (<span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">6</span>) <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">1.0</span>)).<span class="ident">get_hours</span>(),
+            <span class="number">6</span>
+        );
+        <span class="macro">assert_eq</span><span class="macro">!</span>(
+            (<span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">6</span>) <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">59</span>)).<span class="ident">get_hours</span>(),
+            <span class="number">6</span>
         );
     }
 }
