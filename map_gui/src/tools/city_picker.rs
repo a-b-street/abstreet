@@ -213,7 +213,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                         abstio::write_json(abstio::path_player("data.json"), &data_packs);
 
                         let messages = ctx.loading_screen("sync files", |_, timer| {
-                            crate::tools::updater::sync(timer)
+                            crate::tools::updater::sync_missing_files(timer)
                         });
                         Transition::Replace(crate::tools::PopupMsg::new(
                             ctx,

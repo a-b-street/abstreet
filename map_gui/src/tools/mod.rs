@@ -15,6 +15,9 @@ pub use self::ui::{ChooseSomething, PopupMsg, PromptInput};
 pub use self::url::URLManager;
 use crate::AppLike;
 
+#[cfg(not(target_arch = "wasm32"))]
+pub use self::updater::sync_missing_files;
+
 mod camera;
 mod city_picker;
 mod colors;

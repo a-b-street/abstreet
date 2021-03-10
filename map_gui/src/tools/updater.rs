@@ -82,7 +82,8 @@ impl<A: AppLike + 'static> State<A> for Picker<A> {
                     }
                     abstio::write_json(abstio::path_player("data.json"), &data_packs);
 
-                    let messages = ctx.loading_screen("sync files", |_, timer| sync(timer));
+                    let messages =
+                        ctx.loading_screen("sync files", |_, timer| sync_missing_files(timer));
                     return Transition::Multi(vec![
                         Transition::Replace(crate::tools::CityPicker::new(
                             ctx,
@@ -137,7 +138,7 @@ fn prettyprint_bytes(bytes: usize) -> String {
 
 // TODO This only downloads files that don't exist but should. It doesn't remove or update
 // anything. Not sure if everything the updater does should also be done here.
-pub fn sync(timer: &mut Timer) -> Vec<String> {
+pub fn sync_missing_files(timer: &mut Timer) -> Vec<String> {
     let truth = Manifest::load().filter(DataPacks::load_or_create());
     let version = if cfg!(feature = "release_s3") {
         NEXT_RELEASE
