@@ -563,13 +563,20 @@ impl<X: Ord + Clone> TimeSeriesCount<X> {
     pub fn total_for_by_time(&self, id: X, now: Time) -> usize {
         let mut cnt = 0;
         for agent_type in AgentType::all() {
-            for hour in 0..=now.get_hours() {
+            for hour in 0..now.get_hours() {
                 cnt += self
                     .counts
                     .get(&(id.clone(), agent_type, hour))
                     .cloned()
                     .unwrap_or(0);
             }
+            let this_hr = self.counts.get(&(id.clone(), agent_type, now.get_hours())).cloned().unwrap_or(0);
+            let pct = {
+                let (_, mins, secs, centis) = now.get_parts();
+                let dt = Duration::minutes(mins) + Duration::seconds((secs as f64) + (centis as f64) / 10.0);
+                dt / Duration::hours(1)
+            };
+            cnt += (pct * (this_hr as f64)) as usize;
         }
         cnt
     }

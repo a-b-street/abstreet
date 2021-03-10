@@ -370,7 +370,24 @@ impl CompareThroughput {
     pub fn new(ctx: &mut EventCtx, app: &App) -> CompareThroughput {
         let after = app.primary.sim.get_analytics();
         let before = app.prebaked();
-        let hour = app.primary.sim.time().get_hours();
+        let now = app.primary.sim.time();
+        // What percentage are we through the current hour?
+        let pct = {
+            let (_, mins, secs, centis) = now.get_parts();
+            let dt = Duration::minutes(mins) + Duration::seconds((secs as f64) + (centis as f64) / 10.0);
+            dt / Duration::hours(1)
+        };
+        
+        let lerp = |hr, count| {
+            if hr < now.get_hours() {
+                count
+            } else if hr == now.get_hours() {
+                // Linearly interpolate
+                (pct * (count as f64)) as usize
+            } else {
+                0
+            }
+        };
 
         let mut after_road = Counter::new();
         let mut before_road = Counter::new();
@@ -378,11 +395,8 @@ impl CompareThroughput {
             for ((r, _, _), count) in &after.road_thruput.counts {
                 after_road.add(*r, *count);
             }
-            // TODO ew. lerp?
             for ((r, _, hr), count) in &before.road_thruput.counts {
-                if *hr <= hour {
-                    before_road.add(*r, *count);
-                }
+                before_road.add(*r, lerp(*hr, *count));
             }
         }
         let mut after_intersection = Counter::new();
@@ -391,11 +405,8 @@ impl CompareThroughput {
             for ((i, _, _), count) in &after.intersection_thruput.counts {
                 after_intersection.add(*i, *count);
             }
-            // TODO ew. lerp?
             for ((i, _, hr), count) in &before.intersection_thruput.counts {
-                if *hr <= hour {
-                    before_intersection.add(*i, *count);
-                }
+                before_intersection.add(*i, lerp(*hr, *count));
             }
         }
 
