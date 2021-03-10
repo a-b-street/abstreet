@@ -264,6 +264,7 @@ impl Throughput {
 
 pub struct CompareThroughput {
     time: Time,
+    tooltip: Option<Text>,
     unzoomed: Drawable,
     zoomed: Drawable,
     panel: Panel,
@@ -279,8 +280,55 @@ impl Layer for CompareThroughput {
         app: &mut App,
         minimap: &Panel,
     ) -> Option<LayerOutcome> {
+        let mut recalc_tooltip = false;
         if app.primary.sim.time() != self.time {
             *self = CompareThroughput::new(ctx, app);
+            recalc_tooltip = true;
+        }
+
+        // Show a tooltip with count, only when unzoomed
+        if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+            if ctx.redo_mouseover() || recalc_tooltip {
+                self.tooltip = None;
+                match app.mouseover_unzoomed_roads_and_intersections(ctx) {
+                    Some(ID::Road(r)) => {
+                        let after = app.primary.sim.get_analytics().road_thruput.total_for(r);
+                        let before = app
+                            .prebaked()
+                            .road_thruput
+                            .total_for_by_time(r, app.primary.sim.time());
+                        if before + after > 0 {
+                            self.tooltip = Some(Text::from(Line(format!(
+                                "{} before, {} after",
+                                prettyprint_usize(before),
+                                prettyprint_usize(after)
+                            ))));
+                        }
+                    }
+                    Some(ID::Intersection(i)) => {
+                        let after = app
+                            .primary
+                            .sim
+                            .get_analytics()
+                            .intersection_thruput
+                            .total_for(i);
+                        let before = app
+                            .prebaked()
+                            .intersection_thruput
+                            .total_for_by_time(i, app.primary.sim.time());
+                        if before + after > 0 {
+                            self.tooltip = Some(Text::from(Line(format!(
+                                "{} before, {} after",
+                                prettyprint_usize(before),
+                                prettyprint_usize(after)
+                            ))));
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        } else {
+            self.tooltip = None;
         }
 
         self.panel.align_above(ctx, minimap);
@@ -308,6 +356,9 @@ impl Layer for CompareThroughput {
             g.redraw(&self.unzoomed);
         } else {
             g.redraw(&self.zoomed);
+        }
+        if let Some(ref txt) = self.tooltip {
+            g.draw_mouse_tooltip(txt.clone());
         }
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
@@ -376,6 +427,7 @@ impl CompareThroughput {
 
         CompareThroughput {
             time: app.primary.sim.time(),
+            tooltip: None,
             unzoomed,
             zoomed,
             panel,

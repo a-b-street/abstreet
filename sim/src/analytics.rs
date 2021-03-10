@@ -558,6 +558,21 @@ impl<X: Ord + Clone> TimeSeriesCount<X> {
         cnt
     }
 
+    pub fn total_for_by_time(&self, id: X, now: Time) -> usize {
+        let mut cnt = 0;
+        for agent_type in AgentType::all() {
+            // TODO Off-by-one?
+            for hour in 0..now.get_hours() {
+                cnt += self
+                    .counts
+                    .get(&(id.clone(), agent_type, hour))
+                    .cloned()
+                    .unwrap_or(0);
+            }
+        }
+        cnt
+    }
+
     pub fn all_total_counts(&self, agent_types: &BTreeSet<AgentType>) -> Counter<X> {
         let mut cnt = Counter::new();
         for ((id, agent_type, _), value) in &self.counts {
