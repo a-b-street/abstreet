@@ -336,6 +336,14 @@
 <span id="333">333</span>
 <span id="334">334</span>
 <span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Generate paths for different A/B Street files</span>
 
@@ -344,7 +352,7 @@
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">basename</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">file_exists</span>, <span class="ident">list_all_objects</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">file_exists</span>, <span class="ident">list_all_objects</span>, <span class="ident">Manifest</span>};
 
 <span class="ident">lazy_static</span>::<span class="macro">lazy_static</span><span class="macro">!</span> {
     <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">ROOT_DIR</span>: <span class="ident">String</span> <span class="op">=</span> {
@@ -567,6 +575,14 @@
             <span class="ident">names</span>.<span class="ident">extend</span>(<span class="ident">MapName</span>::<span class="ident">list_all_maps_in_city</span>(<span class="kw-2">&amp;</span><span class="ident">city</span>));
         }
         <span class="ident">names</span>
+    }
+
+    <span class="doccomment">/// Returns the string to opt into runtime or input files for DataPacks.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_data_pack_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+        <span class="kw">if</span> <span class="ident">Manifest</span>::<span class="ident">is_file_part_of_huge_seattle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">path</span>()) {
+            <span class="kw">return</span> <span class="string">&quot;us/huge_seattle&quot;</span>.<span class="ident">to_string</span>();
+        }
+        <span class="self">self</span>.<span class="ident">city</span>.<span class="ident">to_path</span>()
     }
 }
 
