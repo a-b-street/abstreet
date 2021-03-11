@@ -407,6 +407,11 @@
 <span id="404">404</span>
 <span id="405">405</span>
 <span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">Cell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">panic</span>;
@@ -471,6 +476,11 @@
         <span class="comment">// Update some widgetry state that&#39;s stashed in Canvas for sad reasons.</span>
         {
             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event</span>::<span class="ident">WindowResized</span>(<span class="ident">new_size</span>) <span class="op">=</span> <span class="ident">input</span>.<span class="ident">event</span> {
+                <span class="comment">// On platforms like Linux, new_size jumps around when the window is first created.</span>
+                <span class="comment">// As a result, if an app has loading screens at startup and doesn&#39;t process all of</span>
+                <span class="comment">// these events, new_size may be stuck at an incorrect value during the loading.</span>
+                <span class="comment">//</span>
+                <span class="comment">// Instead, just use inner_size; it appears correct on all platforms tested.</span>
                 <span class="kw">let</span> <span class="ident">inner_size</span> <span class="op">=</span> <span class="ident">prerender</span>.<span class="ident">window_size</span>();
                 <span class="macro">trace</span><span class="macro">!</span>(
                     <span class="string">&quot;winit event says the window was resized from {}, {} to {:?}. But inner size \
@@ -480,7 +490,7 @@
                     <span class="ident">new_size</span>,
                     <span class="ident">inner_size</span>
                 );
-                <span class="ident">prerender</span>.<span class="ident">window_resized</span>(<span class="ident">new_size</span>);
+                <span class="ident">prerender</span>.<span class="ident">window_resized</span>(<span class="ident">inner_size</span>);
                 <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span> <span class="op">=</span> <span class="ident">inner_size</span>.<span class="ident">width</span>;
                 <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span> <span class="op">=</span> <span class="ident">inner_size</span>.<span class="ident">height</span>;
             }
