@@ -380,7 +380,7 @@
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
     <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ChooseSomething</span>::<span class="ident">new</span>(
         <span class="ident">ctx</span>,
-        <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Missing data. Download {}?&quot;</span>, <span class="ident">map_name</span>.<span class="ident">city</span>.<span class="ident">describe</span>()),
+        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Missing data. Download {}?&quot;</span>, <span class="ident">map_name</span>.<span class="ident">city</span>.<span class="ident">describe</span>()),
         <span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">widgetry</span>::<span class="ident">Choice</span>::<span class="ident">string</span>(<span class="string">&quot;Yes, download&quot;</span>),
             <span class="ident">widgetry</span>::<span class="ident">Choice</span>::<span class="ident">string</span>(<span class="string">&quot;Never mind&quot;</span>).<span class="ident">key</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>),

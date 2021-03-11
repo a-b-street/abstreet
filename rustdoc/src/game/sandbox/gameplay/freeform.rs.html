@@ -866,11 +866,11 @@
             <span class="kw">let</span> <span class="ident">btn</span> <span class="op">=</span> <span class="ident">ctx</span>
                 .<span class="ident">style</span>()
                 .<span class="ident">btn_tab</span>
-                .<span class="ident">text</span>(<span class="kw-2">&amp;</span><span class="ident">label</span>)
+                .<span class="ident">text</span>(<span class="ident">label</span>)
                 .<span class="ident">disabled</span>(<span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="ident">current_scenario</span>);
             <span class="ident">col</span>.<span class="ident">push</span>(
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">btn</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>),
+                    <span class="ident">btn</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="ident">name</span>),
                     <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">description</span>).<span class="ident">secondary</span>())
                         .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">40</span>)
                         .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)

@@ -970,6 +970,7 @@
 <span id="967">967</span>
 <span id="968">968</span>
 <span id="969">969</span>
+<span id="970">970</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
@@ -1117,7 +1118,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">struct</span> <span class="ident">ButtonStateStyle</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">image</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Image</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">label</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Label</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">label</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Label</span><span class="op">&gt;</span>,
     <span class="ident">outline</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OutlineStyle</span><span class="op">&gt;</span>,
     <span class="ident">bg_color</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span>,
     <span class="ident">custom_batch</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GeomBatch</span><span class="op">&gt;</span>,
@@ -1179,9 +1180,9 @@
     <span class="doccomment">/// Set the text of the button&#39;s label.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If `label_text` is not set, the button will not have a label.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">label_text</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">label_text</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">text</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">label</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">label</span>.<span class="ident">take</span>().<span class="ident">unwrap_or_default</span>();
-        <span class="ident">label</span>.<span class="ident">text</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">text</span>);
+        <span class="ident">label</span>.<span class="ident">text</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">text</span>.<span class="ident">into</span>());
         <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">label</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">label</span>);
         <span class="self">self</span>
     }
@@ -1191,7 +1192,7 @@
     <span class="doccomment">/// See `label_styled_text` if you need something more customizable text styling.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">label_underlined_text</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">label</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">label</span>.<span class="ident">take</span>().<span class="ident">unwrap_or_default</span>();
-        <span class="ident">label</span>.<span class="ident">text</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">text</span>);
+        <span class="ident">label</span>.<span class="ident">text</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">text</span>.<span class="ident">to_string</span>());
         <span class="ident">label</span>.<span class="ident">styled_text</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">text</span>).<span class="ident">underlined</span>()));
         <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">label</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">label</span>);
         <span class="self">self</span>
@@ -1506,7 +1507,8 @@
     <span class="doccomment">/// Shorthand method to build a Button wrapped in a Widget</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// `action`: The event that will be fired when clicked</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_widget</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_widget</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">action</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+        <span class="kw">let</span> <span class="ident">action</span> <span class="op">=</span> <span class="ident">action</span>.<span class="ident">as_ref</span>();
         <span class="ident">Widget</span>::<span class="ident">new</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">action</span>))).<span class="ident">named</span>(<span class="ident">action</span>)
     }
 
@@ -1516,7 +1518,7 @@
             .<span class="ident">default_style</span>
             .<span class="ident">label</span>
             .<span class="ident">as_ref</span>()
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">label</span><span class="op">|</span> <span class="ident">label</span>.<span class="ident">text</span>)
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">label</span><span class="op">|</span> <span class="ident">label</span>.<span class="ident">text</span>.<span class="ident">as_ref</span>())
             .<span class="ident">expect</span>(<span class="string">&quot;Must set `label_text` before calling build_def&quot;</span>);
 
         <span class="self">self</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="ident">action</span>)
@@ -1643,7 +1645,7 @@
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">styled_text</span>.<span class="ident">clone</span>().<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">CLEAR</span>).<span class="ident">render</span>(<span class="ident">ctx</span>));
                 }
 
-                <span class="kw">let</span> <span class="ident">text</span> <span class="op">=</span> <span class="ident">label</span>.<span class="ident">text</span>.<span class="ident">or</span>(<span class="ident">default</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">d</span><span class="op">|</span> <span class="ident">d</span>.<span class="ident">text</span>));
+                <span class="kw">let</span> <span class="ident">text</span> <span class="op">=</span> <span class="ident">label</span>.<span class="ident">text</span>.<span class="ident">clone</span>().<span class="ident">or</span>(<span class="ident">default</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">d</span><span class="op">|</span> <span class="ident">d</span>.<span class="ident">text</span>.<span class="ident">clone</span>()));
 
                 <span class="comment">// Is there a better way to do this like a `guard let`?</span>
                 <span class="kw">if</span> <span class="ident">text</span>.<span class="ident">is_none</span>() {
@@ -1755,8 +1757,8 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Label</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">text</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span>,
+<span class="kw">struct</span> <span class="ident">Label</span> {
+    <span class="ident">text</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="ident">color</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span>,
     <span class="ident">styled_text</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>,
     <span class="ident">font_size</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,

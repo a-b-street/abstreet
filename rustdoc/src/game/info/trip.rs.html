@@ -1188,7 +1188,7 @@
                     ]),
                     <span class="ident">ControlState</span>::<span class="ident">Default</span>,
                 )
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;show before changes for {}&quot;</span>, <span class="ident">id</span>)),
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;show before changes for {}&quot;</span>, <span class="ident">id</span>)),
         );
     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">has_prebaked</span>().<span class="ident">is_some</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">open</span> <span class="op">=</span> <span class="ident">open_trips</span>.<span class="ident">clone</span>();
@@ -1210,7 +1210,7 @@
                     ]),
                     <span class="ident">ControlState</span>::<span class="ident">Default</span>,
                 )
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;show after changes for {}&quot;</span>, <span class="ident">id</span>)),
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;show after changes for {}&quot;</span>, <span class="ident">id</span>)),
         );
     }
 
@@ -1625,7 +1625,7 @@
             .<span class="ident">btn_plain</span>
             .<span class="ident">icon</span>(<span class="string">&quot;system/assets/timeline/start_pos.svg&quot;</span>)
             .<span class="ident">tooltip</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">name</span>)))
-            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;jump to start of {}&quot;</span>, <span class="ident">trip_id</span>))
+            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;jump to start of {}&quot;</span>, <span class="ident">trip_id</span>))
     };
 
     <span class="kw">let</span> <span class="ident">goal_btn</span> <span class="op">=</span> {
@@ -1658,7 +1658,7 @@
             .<span class="ident">btn_plain</span>
             .<span class="ident">icon</span>(<span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
             .<span class="ident">tooltip</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">name</span>)))
-            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;jump to goal of {}&quot;</span>, <span class="ident">trip_id</span>))
+            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;jump to goal of {}&quot;</span>, <span class="ident">trip_id</span>))
     };
 
     <span class="kw">let</span> <span class="ident">timeline</span> <span class="op">=</span> <span class="ident">make_timeline</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">trip_id</span>, <span class="kw-2">&amp;</span><span class="ident">phases</span>, <span class="ident">progress_along_path</span>);
@@ -1738,7 +1738,7 @@
                         <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;will be calculated at this new time.&quot;</span>));
                         <span class="ident">txt</span>
                     })
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;jump to {}&quot;</span>, <span class="ident">trip</span>.<span class="ident">departure</span>))
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;jump to {}&quot;</span>, <span class="ident">trip</span>.<span class="ident">departure</span>))
             } <span class="kw">else</span> {
                 <span class="ident">Widget</span>::<span class="ident">nothing</span>()
             },
@@ -1757,7 +1757,7 @@
                             <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;will be calculated at this new time.&quot;</span>));
                             <span class="ident">txt</span>
                         })
-                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;jump to {}&quot;</span>, <span class="ident">t</span>))
+                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;jump to {}&quot;</span>, <span class="ident">t</span>))
                         .<span class="ident">align_right</span>()
                 } <span class="kw">else</span> {
                     <span class="ident">Widget</span>::<span class="ident">nothing</span>()

@@ -1593,8 +1593,8 @@
 
         <span class="kw">let</span> <span class="ident">stage_controls</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">up_button</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;move up stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>)),
-                <span class="ident">down_button</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;move down stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>)),
+                <span class="ident">up_button</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;move up stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>)),
+                <span class="ident">down_button</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;move down stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>)),
             ])
             .<span class="ident">centered_vert</span>(),
             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -1618,14 +1618,14 @@
                             <span class="ident">button</span> <span class="op">=</span> <span class="ident">button</span>.<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">X</span>);
                         }
                         <span class="ident">button</span>
-                            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;change duration of stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>))
+                            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;change duration of stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>))
                             .<span class="ident">align_right</span>()
                     },
                     <span class="kw">if</span> <span class="ident">canonical_signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
                         <span class="ident">ctx</span>.<span class="ident">style</span>()
                             .<span class="ident">btn_solid_destructive</span>
                             .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/trash.svg&quot;</span>)
-                            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;delete stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>))
+                            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;delete stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>))
                             .<span class="ident">align_right</span>()
                     } <span class="kw">else</span> {
                         <span class="ident">Widget</span>::<span class="ident">nothing</span>()

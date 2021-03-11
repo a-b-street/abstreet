@@ -608,11 +608,11 @@
                     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">ctx</span>.<span class="ident">style</span>()
                             .<span class="ident">btn_outline</span>
-                            .<span class="ident">text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Open OSM way {}&quot;</span>, <span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>.<span class="number">0</span>))
-                            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>)),
+                            .<span class="ident">text</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Open OSM way {}&quot;</span>, <span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>.<span class="number">0</span>))
+                            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>)),
                         <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Edit OSM way&quot;</span>).<span class="ident">build_widget</span>(
                             <span class="ident">ctx</span>,
-                            <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(
+                            <span class="macro">format</span><span class="macro">!</span>(
                                 <span class="string">&quot;open https://www.openstreetmap.org/edit?way={}&quot;</span>,
                                 <span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>.<span class="number">0</span>
                             ),
@@ -639,7 +639,7 @@
                     <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain</span>.<span class="ident">text</span>(<span class="ident">k</span>).<span class="ident">build_widget</span>(
                             <span class="ident">ctx</span>,
-                            <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open https://wiki.openstreetmap.org/wiki/Key:{}&quot;</span>, <span class="ident">k</span>),
+                            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open https://wiki.openstreetmap.org/wiki/Key:{}&quot;</span>, <span class="ident">k</span>),
                         ),
                         <span class="ident">Line</span>(<span class="ident">v</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">align_right</span>(),
                     ]));
@@ -650,8 +650,8 @@
                 <span class="ident">col</span>.<span class="ident">push</span>(
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_outline</span>
-                        .<span class="ident">text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Open OSM node {}&quot;</span>, <span class="ident">i</span>.<span class="ident">orig_id</span>.<span class="number">0</span>))
-                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">i</span>.<span class="ident">orig_id</span>)),
+                        .<span class="ident">text</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Open OSM node {}&quot;</span>, <span class="ident">i</span>.<span class="ident">orig_id</span>.<span class="number">0</span>))
+                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">i</span>.<span class="ident">orig_id</span>)),
                 );
             }
             <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">b</span>)) <span class="op">=</span><span class="op">&gt;</span> {
@@ -659,8 +659,8 @@
                 <span class="ident">col</span>.<span class="ident">push</span>(
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_outline</span>
-                        .<span class="ident">text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Open OSM ID {}&quot;</span>, <span class="ident">b</span>.<span class="ident">orig_id</span>.<span class="ident">inner</span>()))
-                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">b</span>.<span class="ident">orig_id</span>)),
+                        .<span class="ident">text</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Open OSM ID {}&quot;</span>, <span class="ident">b</span>.<span class="ident">orig_id</span>.<span class="ident">inner</span>()))
+                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">b</span>.<span class="ident">orig_id</span>)),
                 );
 
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
@@ -696,7 +696,7 @@
                         <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                             <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain</span>.<span class="ident">text</span>(<span class="ident">k</span>).<span class="ident">build_widget</span>(
                                 <span class="ident">ctx</span>,
-                                <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open https://wiki.openstreetmap.org/wiki/Key:{}&quot;</span>, <span class="ident">k</span>),
+                                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open https://wiki.openstreetmap.org/wiki/Key:{}&quot;</span>, <span class="ident">k</span>),
                             ),
                             <span class="ident">Line</span>(<span class="ident">v</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">align_right</span>(),
                         ]));
@@ -708,8 +708,8 @@
                 <span class="ident">col</span>.<span class="ident">push</span>(
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_outline</span>
-                        .<span class="ident">text</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Open OSM ID {}&quot;</span>, <span class="ident">pl</span>.<span class="ident">osm_id</span>.<span class="ident">inner</span>()))
-                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">pl</span>.<span class="ident">osm_id</span>)),
+                        .<span class="ident">text</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Open OSM ID {}&quot;</span>, <span class="ident">pl</span>.<span class="ident">osm_id</span>.<span class="ident">inner</span>()))
+                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">pl</span>.<span class="ident">osm_id</span>)),
                 );
 
                 <span class="ident">col</span>.<span class="ident">push</span>(
