@@ -48,8 +48,8 @@ lazy_static::lazy_static! {
     };
 }
 
-pub fn path<I: Into<String>>(p: I) -> String {
-    let p = p.into();
+pub fn path<I: AsRef<str>>(p: I) -> String {
+    let p = p.as_ref();
     if p.starts_with("player/") {
         format!("{}/{}", *ROOT_PLAYER_DIR, p)
     } else {
@@ -137,12 +137,12 @@ impl CityName {
     }
 
     /// Constructs the path to some city-scoped data/input.
-    pub fn input_path<I: Into<String>>(&self, file: I) -> String {
+    pub fn input_path<I: AsRef<str>>(&self, file: I) -> String {
         path(format!(
             "input/{}/{}/{}",
             self.country,
             self.city,
-            file.into()
+            file.as_ref()
         ))
     }
 }
@@ -288,8 +288,8 @@ pub fn parse_scenario_path(path: &str) -> (MapName, String) {
 
 // Player data (Players edit this)
 
-pub fn path_player<I: Into<String>>(p: I) -> String {
-    path(format!("player/{}", p.into()))
+pub fn path_player<I: AsRef<str>>(p: I) -> String {
+    path(format!("player/{}", p.as_ref()))
 }
 
 pub fn path_camera_state(name: &MapName) -> String {
@@ -338,6 +338,6 @@ pub fn path_raw_map(name: &MapName) -> String {
     ))
 }
 
-pub fn path_shared_input<I: Into<String>>(i: I) -> String {
-    path(format!("input/shared/{}", i.into()))
+pub fn path_shared_input<I: AsRef<str>>(i: I) -> String {
+    path(format!("input/shared/{}", i.as_ref()))
 }

@@ -28,9 +28,9 @@ static SYSTEM_DATA: include_dir::Dir = include_dir::include_dir!(
 // For file_exists and list_dir only, also check if the file is in the Manifest. The caller has to
 // know when to load this remotely, though.
 
-pub fn file_exists<I: Into<String>>(path: I) -> bool {
+pub fn file_exists<I: AsRef<str>>(path: I) -> bool {
     // TODO Handle player data in local storage
-    let path = path.into();
+    let path = path.as_ref();
     SYSTEM_DATA
         .get_file(path.trim_start_matches("../data/system/"))
         .is_some()
@@ -69,8 +69,8 @@ pub fn list_dir(dir: String) -> Vec<String> {
     results.into_iter().collect()
 }
 
-pub fn slurp_file<I: Into<String>>(path: I) -> Result<Vec<u8>> {
-    let path = path.into();
+pub fn slurp_file<I: AsRef<str>>(path: I) -> Result<Vec<u8>> {
+    let path = path.as_ref();
 
     if let Some(raw) = SYSTEM_DATA.get_file(path.trim_start_matches("../data/system/")) {
         Ok(raw.contents().to_vec())
@@ -96,7 +96,7 @@ pub fn slurp_file<I: Into<String>>(path: I) -> Result<Vec<u8>> {
 
 pub fn maybe_read_binary<T: DeserializeOwned>(path: String, _: &mut Timer) -> Result<T> {
     if let Some(raw) = SYSTEM_DATA.get_file(path.trim_start_matches("../data/system/")) {
-        bincode::deserialize(raw.contents()).map_err(|err| err.into())
+        bincode::deserialize(raw.contents()).map_err(|err| err.as_ref())
     } else {
         bail!("Can't maybe_read_binary {}, it doesn't exist", path)
     }
@@ -119,7 +119,7 @@ pub fn write_binary<T: Serialize>(path: String, _obj: &T) {
     warn!("Not saving {}", path);
 }
 
-pub fn delete_file<I: Into<String>>(path: I) {
+pub fn delete_file<I: AsRef<str>>(path: I) {
     // TODO
-    warn!("Not deleting {}", path.into());
+    warn!("Not deleting {}", path.as_ref());
 }

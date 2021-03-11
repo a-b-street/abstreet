@@ -14,8 +14,8 @@ use abstutil::{elapsed_seconds, prettyprint_usize, to_json, Timer, PROGRESS_FREQ
 
 pub use crate::io::*;
 
-pub fn file_exists<I: Into<String>>(path: I) -> bool {
-    Path::new(&path.into()).exists()
+pub fn file_exists<I: AsRef<str>>(path: I) -> bool {
+    Path::new(path.as_ref()).exists()
 }
 
 /// Returns full paths
@@ -34,8 +34,8 @@ pub fn list_dir(path: String) -> Vec<String> {
     files
 }
 
-pub fn slurp_file<I: Into<String>>(path: I) -> Result<Vec<u8>> {
-    inner_slurp_file(&path.into())
+pub fn slurp_file<I: AsRef<str>>(path: I) -> Result<Vec<u8>> {
+    inner_slurp_file(path.as_ref())
 }
 fn inner_slurp_file(path: &str) -> Result<Vec<u8>> {
     let mut file = File::open(path)?;
@@ -93,9 +93,9 @@ pub fn write_binary<T: Serialize>(path: String, obj: &T) {
 }
 
 /// Idempotent
-pub fn delete_file<I: Into<String>>(path: I) {
-    let path = path.into();
-    if std::fs::remove_file(&path).is_ok() {
+pub fn delete_file<I: AsRef<str>>(path: I) {
+    let path = path.as_ref();
+    if std::fs::remove_file(path).is_ok() {
         println!("Deleted {}", path);
     } else {
         println!("{} doesn't exist, so not deleting it", path);
