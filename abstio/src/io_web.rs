@@ -96,7 +96,7 @@ pub fn slurp_file<I: AsRef<str>>(path: I) -> Result<Vec<u8>> {
 
 pub fn maybe_read_binary<T: DeserializeOwned>(path: String, _: &mut Timer) -> Result<T> {
     if let Some(raw) = SYSTEM_DATA.get_file(path.trim_start_matches("../data/system/")) {
-        bincode::deserialize(raw.contents()).map_err(|err| err.as_ref())
+        bincode::deserialize(raw.contents()).map_err(|err| err.into())
     } else {
         bail!("Can't maybe_read_binary {}, it doesn't exist", path)
     }

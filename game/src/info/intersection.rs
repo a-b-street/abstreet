@@ -39,7 +39,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID
             ctx.style()
                 .btn_outline
                 .text("Open OSM node")
-                .build_widget(ctx, &format!("open {}", i.orig_id)),
+                .build_widget(ctx, format!("open {}", i.orig_id)),
         );
     }
 
@@ -226,7 +226,7 @@ pub fn current_demand(
             ctx.style()
                 .btn_outline
                 .text("Where are these agents headed?")
-                .build_widget(ctx, &format!("routes across {}", id)),
+                .build_widget(ctx, format!("routes across {}", id)),
         );
     }
 

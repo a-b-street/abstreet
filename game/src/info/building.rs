@@ -110,7 +110,7 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
             ctx.style()
                 .btn_outline
                 .text("Open OSM")
-                .build_widget(ctx, &format!("open {}", b.orig_id)),
+                .build_widget(ctx, format!("open {}", b.orig_id)),
         );
 
         if !b.osm_tags.is_empty() {
@@ -182,7 +182,7 @@ pub fn people(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Building
             .hyperlinks
             .insert(p.to_string(), Tab::PersonTrips(p, BTreeMap::new()));
         let widget = Widget::row(vec![
-            ctx.style().btn_outline.text(&p.to_string()).build_def(ctx),
+            ctx.style().btn_outline.text(p.to_string()).build_def(ctx),
             if let Some((t, mode)) = next_trip {
                 format!(
                     "Leaving in {} to {}",

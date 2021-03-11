@@ -264,7 +264,7 @@ pub fn finished(
                     ]),
                     ControlState::Default,
                 )
-                .build_widget(ctx, &format!("show before changes for {}", id)),
+                .build_widget(ctx, format!("show before changes for {}", id)),
         );
     } else if app.has_prebaked().is_some() {
         let mut open = open_trips.clone();
@@ -286,7 +286,7 @@ pub fn finished(
                     ]),
                     ControlState::Default,
                 )
-                .build_widget(ctx, &format!("show after changes for {}", id)),
+                .build_widget(ctx, format!("show after changes for {}", id)),
         );
     }
 
@@ -701,7 +701,7 @@ fn make_trip_details(
             .btn_plain
             .icon("system/assets/timeline/start_pos.svg")
             .tooltip(Text::from(Line(name)))
-            .build_widget(ctx, &format!("jump to start of {}", trip_id))
+            .build_widget(ctx, format!("jump to start of {}", trip_id))
     };
 
     let goal_btn = {
@@ -734,7 +734,7 @@ fn make_trip_details(
             .btn_plain
             .icon("system/assets/timeline/goal_pos.svg")
             .tooltip(Text::from(Line(name)))
-            .build_widget(ctx, &format!("jump to goal of {}", trip_id))
+            .build_widget(ctx, format!("jump to goal of {}", trip_id))
     };
 
     let timeline = make_timeline(ctx, app, trip_id, &phases, progress_along_path);
@@ -814,7 +814,7 @@ fn make_trip_details(
                         txt.add(Line("will be calculated at this new time."));
                         txt
                     })
-                    .build_widget(ctx, &format!("jump to {}", trip.departure))
+                    .build_widget(ctx, format!("jump to {}", trip.departure))
             } else {
                 Widget::nothing()
             },
@@ -833,7 +833,7 @@ fn make_trip_details(
                             txt.add(Line("will be calculated at this new time."));
                             txt
                         })
-                        .build_widget(ctx, &format!("jump to {}", t))
+                        .build_widget(ctx, format!("jump to {}", t))
                         .align_right()
                 } else {
                     Widget::nothing()

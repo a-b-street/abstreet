@@ -210,7 +210,7 @@ impl EditScenarioModifiers {
                     ctx.style()
                         .btn_solid_destructive
                         .icon("system/assets/tools/trash.svg")
-                        .build_widget(ctx, &format!("delete modifier {}", idx + 1))
+                        .build_widget(ctx, format!("delete modifier {}", idx + 1))
                         .align_right(),
                 ])
                 .padding(10)

@@ -234,11 +234,11 @@ impl ChangeScenario {
             let btn = ctx
                 .style()
                 .btn_tab
-                .text(&label)
+                .text(label)
                 .disabled(name == current_scenario);
             col.push(
                 Widget::row(vec![
-                    btn.build_widget(ctx, &name),
+                    btn.build_widget(ctx, name),
                     Text::from(Line(description).secondary())
                         .wrap_to_pct(ctx, 40)
                         .into_widget(ctx)

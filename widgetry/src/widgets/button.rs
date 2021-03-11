@@ -144,7 +144,7 @@ pub struct ButtonBuilder<'a> {
 #[derive(Clone, Debug, Default)]
 struct ButtonStateStyle<'a> {
     image: Option<Image<'a>>,
-    label: Option<Label<'a>>,
+    label: Option<Label>,
     outline: Option<OutlineStyle>,
     bg_color: Option<Color>,
     custom_batch: Option<GeomBatch>,
@@ -206,9 +206,9 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     /// Set the text of the button's label.
     ///
     /// If `label_text` is not set, the button will not have a label.
-    pub fn label_text(mut self, text: &'a str) -> Self {
+    pub fn label_text<I: Into<String>>(mut self, text: I) -> Self {
         let mut label = self.default_style.label.take().unwrap_or_default();
-        label.text = Some(text);
+        label.text = Some(text.into());
         self.default_style.label = Some(label);
         self
     }
@@ -218,7 +218,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     /// See `label_styled_text` if you need something more customizable text styling.
     pub fn label_underlined_text(mut self, text: &'a str) -> Self {
         let mut label = self.default_style.label.take().unwrap_or_default();
-        label.text = Some(text);
+        label.text = Some(text.to_string());
         label.styled_text = Some(Text::from(Line(text).underlined()));
         self.default_style.label = Some(label);
         self
@@ -533,7 +533,8 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     /// Shorthand method to build a Button wrapped in a Widget
     ///
     /// `action`: The event that will be fired when clicked
-    pub fn build_widget(&self, ctx: &EventCtx, action: &str) -> Widget {
+    pub fn build_widget<I: AsRef<str>>(&self, ctx: &EventCtx, action: I) -> Widget {
+        let action = action.as_ref();
         Widget::new(Box::new(self.build(ctx, action))).named(action)
     }
 
@@ -543,7 +544,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
             .default_style
             .label
             .as_ref()
-            .and_then(|label| label.text)
+            .and_then(|label| label.text.as_ref())
             .expect("Must set `label_text` before calling build_def");
 
         self.build_widget(ctx, action)
@@ -670,7 +671,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
                     return Some(styled_text.clone().bg(Color::CLEAR).render(ctx));
                 }
 
-                let text = label.text.or(default.and_then(|d| d.text));
+                let text = label.text.clone().or(default.and_then(|d| d.text.clone()));
 
                 // Is there a better way to do this like a `guard let`?
                 if text.is_none() {
@@ -782,8 +783,8 @@ pub struct Image<'a> {
 }
 
 #[derive(Clone, Debug, Default)]
-struct Label<'a> {
-    text: Option<&'a str>,
+struct Label {
+    text: Option<String>,
     color: Option<Color>,
     styled_text: Option<Text>,
     font_size: Option<usize>,

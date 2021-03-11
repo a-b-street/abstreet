@@ -111,11 +111,11 @@ impl Viewer {
                     Widget::row(vec![
                         ctx.style()
                             .btn_outline
-                            .text(&format!("Open OSM way {}", r.orig_id.osm_way_id.0))
-                            .build_widget(ctx, &format!("open {}", r.orig_id.osm_way_id)),
+                            .text(format!("Open OSM way {}", r.orig_id.osm_way_id.0))
+                            .build_widget(ctx, format!("open {}", r.orig_id.osm_way_id)),
                         ctx.style().btn_outline.text("Edit OSM way").build_widget(
                             ctx,
-                            &format!(
+                            format!(
                                 "open https://www.openstreetmap.org/edit?way={}",
                                 r.orig_id.osm_way_id.0
                             ),
@@ -142,7 +142,7 @@ impl Viewer {
                     col.push(Widget::row(vec![
                         ctx.style().btn_plain.text(k).build_widget(
                             ctx,
-                            &format!("open https://wiki.openstreetmap.org/wiki/Key:{}", k),
+                            format!("open https://wiki.openstreetmap.org/wiki/Key:{}", k),
                         ),
                         Line(v).into_widget(ctx).align_right(),
                     ]));
@@ -153,8 +153,8 @@ impl Viewer {
                 col.push(
                     ctx.style()
                         .btn_outline
-                        .text(&format!("Open OSM node {}", i.orig_id.0))
-                        .build_widget(ctx, &format!("open {}", i.orig_id)),
+                        .text(format!("Open OSM node {}", i.orig_id.0))
+                        .build_widget(ctx, format!("open {}", i.orig_id)),
                 );
             }
             Some(ID::Building(b)) => {
@@ -162,8 +162,8 @@ impl Viewer {
                 col.push(
                     ctx.style()
                         .btn_outline
-                        .text(&format!("Open OSM ID {}", b.orig_id.inner()))
-                        .build_widget(ctx, &format!("open {}", b.orig_id)),
+                        .text(format!("Open OSM ID {}", b.orig_id.inner()))
+                        .build_widget(ctx, format!("open {}", b.orig_id)),
                 );
 
                 let mut txt = Text::new();
@@ -199,7 +199,7 @@ impl Viewer {
                         col.push(Widget::row(vec![
                             ctx.style().btn_plain.text(k).build_widget(
                                 ctx,
-                                &format!("open https://wiki.openstreetmap.org/wiki/Key:{}", k),
+                                format!("open https://wiki.openstreetmap.org/wiki/Key:{}", k),
                             ),
                             Line(v).into_widget(ctx).align_right(),
                         ]));
@@ -211,8 +211,8 @@ impl Viewer {
                 col.push(
                     ctx.style()
                         .btn_outline
-                        .text(&format!("Open OSM ID {}", pl.osm_id.inner()))
-                        .build_widget(ctx, &format!("open {}", pl.osm_id)),
+                        .text(format!("Open OSM ID {}", pl.osm_id.inner()))
+                        .build_widget(ctx, format!("open {}", pl.osm_id)),
                 );
 
                 col.push(

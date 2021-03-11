@@ -28,7 +28,7 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
         rows.push(
             ctx.style()
                 .btn_outline
-                .text(&format!("Route {}", r.short_name))
+                .text(format!("Route {}", r.short_name))
                 .build_widget(ctx, &label),
         );
         details.hyperlinks.insert(label, Tab::BusRoute(r.id));
@@ -109,7 +109,7 @@ pub fn bus_status(ctx: &mut EventCtx, app: &App, details: &mut Details, id: CarI
     rows.push(
         ctx.style()
             .btn_outline
-            .text(&format!("Serves route {}", route.short_name))
+            .text(format!("Serves route {}", route.short_name))
             .build_def(ctx),
     );
     details.hyperlinks.insert(
@@ -188,7 +188,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
             ctx.style()
                 .btn_outline
                 .text("Open OSM relation")
-                .build_widget(ctx, &format!("open {}", route.osm_rel_id)),
+                .build_widget(ctx, format!("open {}", route.osm_rel_id)),
         );
     }
 
@@ -198,12 +198,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
         rows.push(format!("No {} running", route.plural_noun()).text_widget(ctx));
     } else {
         for (bus, _, _, pt) in buses {
-            rows.push(
-                ctx.style()
-                    .btn_outline
-                    .text(&bus.to_string())
-                    .build_def(ctx),
-            );
+            rows.push(ctx.style().btn_outline.text(bus.to_string()).build_def(ctx));
             details
                 .hyperlinks
                 .insert(bus.to_string(), Tab::BusStatus(bus));
@@ -306,7 +301,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
                 .btn_outline
                 .text("Edit schedule")
                 .hotkey(Key::E)
-                .build_widget(ctx, &format!("edit {}", route.id)),
+                .build_widget(ctx, format!("edit {}", route.id)),
         );
         rows.push(describe_schedule(route).into_widget(ctx));
     }

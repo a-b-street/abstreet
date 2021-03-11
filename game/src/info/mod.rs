@@ -377,7 +377,7 @@ impl InfoPanel {
                         .btn_outline
                         .text(&label)
                         .hotkey(key)
-                        .build_widget(ctx, &label);
+                        .build_widget(ctx, label);
                     col.push(button);
                 }
             }

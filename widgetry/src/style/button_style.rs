@@ -33,7 +33,7 @@ impl<'a> ButtonStyle {
         }
     }
 
-    pub fn text(&self, text: &'a str) -> ButtonBuilder<'a> {
+    pub fn text<I: Into<String>>(&self, text: I) -> ButtonBuilder<'a> {
         self.btn().label_text(text)
     }
 
@@ -45,7 +45,7 @@ impl<'a> ButtonStyle {
         icon_button(self.btn().image_bytes(labeled_bytes))
     }
 
-    pub fn icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
+    pub fn icon_text<I: Into<String>>(&self, image_path: &'a str, text: I) -> ButtonBuilder<'a> {
         self.btn()
             .label_text(text)
             .image_path(image_path)

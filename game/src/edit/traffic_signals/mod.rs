@@ -655,8 +655,8 @@ fn make_side_panel(
 
         let stage_controls = Widget::row(vec![
             Widget::col(vec![
-                up_button.build_widget(ctx, &format!("move up stage {}", idx + 1)),
-                down_button.build_widget(ctx, &format!("move down stage {}", idx + 1)),
+                up_button.build_widget(ctx, format!("move up stage {}", idx + 1)),
+                down_button.build_widget(ctx, format!("move down stage {}", idx + 1)),
             ])
             .centered_vert(),
             Widget::col(vec![
@@ -680,14 +680,14 @@ fn make_side_panel(
                             button = button.hotkey(Key::X);
                         }
                         button
-                            .build_widget(ctx, &format!("change duration of stage {}", idx + 1))
+                            .build_widget(ctx, format!("change duration of stage {}", idx + 1))
                             .align_right()
                     },
                     if canonical_signal.stages.len() > 1 {
                         ctx.style()
                             .btn_solid_destructive
                             .icon("system/assets/tools/trash.svg")
-                            .build_widget(ctx, &format!("delete stage {}", idx + 1))
+                            .build_widget(ctx, format!("delete stage {}", idx + 1))
                             .align_right()
                     } else {
                         Widget::nothing()

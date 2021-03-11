@@ -140,7 +140,7 @@ pub fn prompt_to_download_missing_data<A: AppLike + 'static>(
 ) -> Transition<A> {
     Transition::Push(ChooseSomething::new(
         ctx,
-        &format!("Missing data. Download {}?", map_name.city.describe()),
+        format!("Missing data. Download {}?", map_name.city.describe()),
         vec![
             widgetry::Choice::string("Yes, download"),
             widgetry::Choice::string("Never mind").key(Key::Escape),

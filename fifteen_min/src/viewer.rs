@@ -330,8 +330,8 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
         rows.push(
             ctx.style()
                 .btn_outline
-                .text(&format!("{}: {}", amenity, buildings.len()))
-                .build_widget(ctx, &format!("businesses: {}", amenity)),
+                .text(format!("{}: {}", amenity, buildings.len()))
+                .build_widget(ctx, format!("businesses: {}", amenity)),
         );
     }
 

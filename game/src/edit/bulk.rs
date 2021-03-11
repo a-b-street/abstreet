@@ -34,13 +34,13 @@ fn make_select_panel(ctx: &mut EventCtx, selector: &RoadSelector) -> Panel {
         Widget::row(vec![
             ctx.style()
                 .btn_outline
-                .text(&format!("Edit {} roads", selector.roads.len()))
+                .text(format!("Edit {} roads", selector.roads.len()))
                 .disabled(selector.roads.is_empty())
                 .hotkey(hotkeys(vec![Key::E, Key::Enter]))
                 .build_widget(ctx, "edit roads"),
             ctx.style()
                 .btn_outline
-                .text(&format!(
+                .text(format!(
                     "Export {} roads to shared-row",
                     selector.roads.len()
                 ))

@@ -142,8 +142,8 @@ impl GeomBatch {
     }
 
     /// Returns a batch containing an SVG from a file.
-    pub fn load_svg<P: AsRef<Prerender>>(prerender: &P, filename: &str) -> GeomBatch {
-        svg::load_svg(prerender.as_ref(), filename).0
+    pub fn load_svg<P: AsRef<Prerender>, I: AsRef<str>>(prerender: &P, filename: I) -> GeomBatch {
+        svg::load_svg(prerender.as_ref(), filename.as_ref()).0
     }
 
     /// Returns a GeomBatch from the bytes of a utf8 encoded SVG string.
