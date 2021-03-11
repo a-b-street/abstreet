@@ -35,8 +35,8 @@ pub fn prettyprint_usize(x: usize) -> String {
     result
 }
 
-pub fn basename<I: Into<String>>(path: I) -> String {
-    std::path::Path::new(&path.into())
+pub fn basename<I: AsRef<str>>(path: I) -> String {
+    std::path::Path::new(path.as_ref())
         .file_stem()
         .unwrap()
         .to_os_string()

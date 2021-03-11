@@ -191,6 +191,6 @@ pub fn nice_country_name(code: &str) -> &str {
     }
 }
 
-pub fn open_browser<I: Into<String>>(url: I) {
-    let _ = webbrowser::open(&url.into());
+pub fn open_browser<I: AsRef<str>>(url: I) {
+    let _ = webbrowser::open(url.as_ref());
 }

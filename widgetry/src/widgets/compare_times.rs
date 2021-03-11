@@ -22,7 +22,7 @@ pub struct CompareTimes {
 }
 
 impl CompareTimes {
-    pub fn new<I: Into<String>>(
+    pub fn new<I: AsRef<str>>(
         ctx: &mut EventCtx,
         x_name: I,
         y_name: I,
@@ -100,7 +100,7 @@ impl CompareTimes {
                 .collect(),
         )
         .evenly_spaced();
-        let y_label = Text::from(Line(format!("{} (minutes)", y_name.into())))
+        let y_label = Text::from(Line(format!("{} (minutes)", y_name.as_ref())))
             .render(ctx)
             .rotate(Angle::degrees(90.0))
             .autocrop()
@@ -115,7 +115,7 @@ impl CompareTimes {
                 .collect(),
         )
         .evenly_spaced();
-        let x_label = format!("{} (minutes)", x_name.into())
+        let x_label = format!("{} (minutes)", x_name.as_ref())
             .text_widget(ctx)
             .centered_horiz();
 

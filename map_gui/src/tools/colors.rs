@@ -37,8 +37,8 @@ impl<'a> ColorDiscrete<'a> {
         }
     }
 
-    pub fn add_l<I: Into<String>>(&mut self, l: LaneID, category: I) {
-        let color = self.colors[&category.into()];
+    pub fn add_l<I: AsRef<str>>(&mut self, l: LaneID, category: I) {
+        let color = self.colors[category.as_ref()];
         self.unzoomed
             .push(color, self.map.get_parent(l).get_thick_polygon(self.map));
         let lane = self.map.get_l(l);
@@ -48,8 +48,8 @@ impl<'a> ColorDiscrete<'a> {
         );
     }
 
-    pub fn add_r<I: Into<String>>(&mut self, r: RoadID, category: I) {
-        let color = self.colors[&category.into()];
+    pub fn add_r<I: AsRef<str>>(&mut self, r: RoadID, category: I) {
+        let color = self.colors[category.as_ref()];
         self.unzoomed
             .push(color, self.map.get_r(r).get_thick_polygon(self.map));
         self.zoomed.push(
@@ -58,22 +58,22 @@ impl<'a> ColorDiscrete<'a> {
         );
     }
 
-    pub fn add_i<I: Into<String>>(&mut self, i: IntersectionID, category: I) {
-        let color = self.colors[&category.into()];
+    pub fn add_i<I: AsRef<str>>(&mut self, i: IntersectionID, category: I) {
+        let color = self.colors[category.as_ref()];
         self.unzoomed.push(color, self.map.get_i(i).polygon.clone());
         self.zoomed
             .push(color.alpha(0.4), self.map.get_i(i).polygon.clone());
     }
 
-    pub fn add_b<I: Into<String>>(&mut self, b: BuildingID, category: I) {
-        let color = self.colors[&category.into()];
+    pub fn add_b<I: AsRef<str>>(&mut self, b: BuildingID, category: I) {
+        let color = self.colors[category.as_ref()];
         self.unzoomed.push(color, self.map.get_b(b).polygon.clone());
         self.zoomed
             .push(color.alpha(0.4), self.map.get_b(b).polygon.clone());
     }
 
-    pub fn add_bs<I: Into<String>>(&mut self, bs: BusStopID, category: I) {
-        let color = self.colors[&category.into()];
+    pub fn add_bs<I: AsRef<str>>(&mut self, bs: BusStopID, category: I) {
+        let color = self.colors[category.as_ref()];
         let pt = self.map.get_bs(bs).sidewalk_pos.pt(self.map);
         self.zoomed.push(
             color.alpha(0.4),
