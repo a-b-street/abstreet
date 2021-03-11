@@ -61,6 +61,11 @@ impl<A: SharedAppState> State<A> {
         // Update some widgetry state that's stashed in Canvas for sad reasons.
         {
             if let Event::WindowResized(new_size) = input.event {
+                // On platforms like Linux, new_size jumps around when the window is first created.
+                // As a result, if an app has loading screens at startup and doesn't process all of
+                // these events, new_size may be stuck at an incorrect value during the loading.
+                //
+                // Instead, just use inner_size; it appears correct on all platforms tested.
                 let inner_size = prerender.window_size();
                 trace!(
                     "winit event says the window was resized from {}, {} to {:?}. But inner size \
@@ -70,7 +75,7 @@ impl<A: SharedAppState> State<A> {
                     new_size,
                     inner_size
                 );
-                prerender.window_resized(new_size);
+                prerender.window_resized(inner_size);
                 self.canvas.window_width = inner_size.width;
                 self.canvas.window_height = inner_size.height;
             }
