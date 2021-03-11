@@ -124,7 +124,7 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
                 };
                 col.push(
                     level_btn
-                        .build_widget(ctx, &format!("zoom to level {}", i + 1))
+                        .build_widget(ctx, format!("zoom to level {}", i + 1))
                         .centered_horiz()
                         .margin_below(10),
                 );

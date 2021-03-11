@@ -552,7 +552,7 @@ impl LoadEdits {
         for name in abstio::list_all_objects(abstio::path("system/proposals")) {
             let path = abstio::path(format!("system/proposals/{}.json", name));
             if MapEdits::load(&app.primary.map, path.clone(), &mut Timer::throwaway()).is_ok() {
-                proposals.push(ctx.style().btn_outline.text(&name).build_widget(ctx, &path));
+                proposals.push(ctx.style().btn_outline.text(name).build_widget(ctx, &path));
             }
         }
 
@@ -658,7 +658,7 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Panel {
             .centered_horiz(),
         ctx.style()
             .btn_solid_primary
-            .text(&format!(
+            .text(format!(
                 "Finish & resume from {}",
                 app.primary
                     .suspended_sim
@@ -823,7 +823,7 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Panel {
             .btn_plain
             .btn()
             .label_styled_text(txt, ControlState::Default)
-            .build_widget(ctx, &format!("change #{}", idx + 1));
+            .build_widget(ctx, format!("change #{}", idx + 1));
         if idx == edits.commands.len() - 1 {
             col.push(
                 Widget::row(vec![

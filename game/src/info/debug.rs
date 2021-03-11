@@ -19,7 +19,7 @@ pub fn area(ctx: &EventCtx, app: &App, _: &mut Details, id: AreaID) -> Vec<Widge
             ctx.style()
                 .btn_outline
                 .text("Open in OSM")
-                .build_widget(ctx, &format!("open {}", osm_id)),
+                .build_widget(ctx, format!("open {}", osm_id)),
         );
     }
 

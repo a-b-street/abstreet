@@ -10,9 +10,7 @@ use widgetry::{
 
 use crate::load::{FileLoader, MapLoader};
 use crate::render::DrawArea;
-use crate::tools::{
-    grey_out_map, nice_country_name, nice_map_name, open_browser, prompt_to_download_missing_data,
-};
+use crate::tools::{grey_out_map, nice_country_name, nice_map_name, open_browser};
 use crate::AppLike;
 
 /// Lets the player switch maps.
@@ -119,7 +117,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                                 .btn_outline
                                 .icon_text(
                                     &flag_path,
-                                    &format!("{} in {}", cities.len(), nice_country_name(&country)),
+                                    format!("{} in {}", cities.len(), nice_country_name(&country)),
                                 )
                                 .image_color(RewriteColor::NoOp, ControlState::Default)
                                 .image_dims(30.0)
@@ -129,12 +127,12 @@ impl<A: AppLike + 'static> CityPicker<A> {
                         other_places.push(
                             ctx.style()
                                 .btn_outline
-                                .text(&format!(
+                                .text(format!(
                                     "{} in {}",
                                     cities.len(),
                                     nice_country_name(&country)
                                 ))
-                                .build_widget(ctx, &country),
+                                .build_widget(ctx, country),
                         );
                     }
                 }
@@ -198,7 +196,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
         #[cfg(not(target_arch = "wasm32"))]
         {
             if !abstio::file_exists(name.path()) {
-                return prompt_to_download_missing_data(ctx, name);
+                return crate::tools::prompt_to_download_missing_data(ctx, name);
             }
         }
 
@@ -322,7 +320,7 @@ impl<A: AppLike + 'static> AllCityPicker<A> {
             buttons.push(
                 ctx.style()
                     .btn_outline
-                    .text(&name.describe())
+                    .text(name.describe())
                     .build_widget(ctx, &name.path())
                     .margin_right(10)
                     .margin_below(10),
@@ -422,7 +420,7 @@ impl<A: AppLike + 'static> CitiesInCountryPicker<A> {
 
         let flag_path = format!("system/assets/flags/{}.svg", country);
         let draw_flag = if abstio::file_exists(abstio::path(&flag_path)) {
-            let flag = GeomBatch::load_svg(ctx, &format!("system/assets/flags/{}.svg", country));
+            let flag = GeomBatch::load_svg(ctx, format!("system/assets/flags/{}.svg", country));
             let y_factor = 30.0 / flag.get_dims().height;
             flag.scale(y_factor).into_widget(ctx)
         } else {

@@ -224,7 +224,7 @@ pub fn trips(
                 )
                 .build_widget(
                     ctx,
-                    &format!(
+                    format!(
                         "{} {}",
                         if open_trips.contains_key(t) {
                             "hide"
@@ -333,7 +333,7 @@ pub fn bio(
                 rows.push(
                     ctx.style()
                         .btn_outline
-                        .text(&format!("Owner of {} (parked)", v.id))
+                        .text(format!("Owner of {} (parked)", v.id))
                         .build_def(ctx),
                 );
                 details
@@ -474,7 +474,7 @@ pub fn crowd(
             format!("{})", idx + 1).text_widget(ctx).centered_vert(),
             ctx.style()
                 .btn_outline
-                .text(&person.to_string())
+                .text(person.to_string())
                 .build_def(ctx),
         ]));
         details.hyperlinks.insert(
@@ -536,7 +536,7 @@ pub fn parked_car(
     rows.push(
         ctx.style()
             .btn_outline
-            .text(&format!("Owned by {}", p))
+            .text(format!("Owned by {}", p))
             .build_def(ctx),
     );
     details.hyperlinks.insert(

@@ -144,8 +144,8 @@ impl Viewer {
                         ctx.style()
                             .btn_plain
                             .icon("system/assets/tools/location.svg")
-                            .label_text(&format!("{} is blocking {} agents", a, cnt))
-                            .build_widget(ctx, &warp_id),
+                            .label_text(format!("{} is blocking {} agents", a, cnt))
+                            .build_widget(ctx, warp_id),
                     );
 
                     if let Some(pt) = self.agent_positions.get(&a) {
@@ -159,8 +159,8 @@ impl Viewer {
                         ctx.style()
                             .btn_plain
                             .icon("system/assets/tools/location.svg")
-                            .label_text(&format!("{} is blocking {} agents", i, cnt))
-                            .build_widget(ctx, &format!("i{}", i.0)),
+                            .label_text(format!("{} is blocking {} agents", i, cnt))
+                            .build_widget(ctx, format!("i{}", i.0)),
                     );
 
                     app.primary.map.get_i(i).polygon.center()

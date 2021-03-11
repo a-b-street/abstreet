@@ -157,7 +157,7 @@ fn make_btn(ctx: &mut EventCtx, num: usize) -> Widget {
     };
     ctx.style()
         .btn_solid_primary
-        .text(&title)
+        .text(title)
         .disabled(num == 0)
         .hotkey(Key::Enter)
         .build_widget(ctx, "record")

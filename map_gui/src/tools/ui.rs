@@ -15,9 +15,9 @@ pub struct ChooseSomething<A: AppLike, T> {
 }
 
 impl<A: AppLike + 'static, T: 'static> ChooseSomething<A, T> {
-    pub fn new(
+    pub fn new<I: Into<String>>(
         ctx: &mut EventCtx,
-        query: &str,
+        query: I,
         choices: Vec<Choice<T>>,
         cb: Box<dyn Fn(T, &mut EventCtx, &mut A) -> Transition<A>>,
     ) -> Box<dyn State<A>> {

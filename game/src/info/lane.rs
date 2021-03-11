@@ -175,7 +175,7 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
         ctx.style()
             .btn_outline
             .text("Open OSM way")
-            .build_widget(ctx, &format!("open {}", r.orig_id.osm_way_id)),
+            .build_widget(ctx, format!("open {}", r.orig_id.osm_way_id)),
     );
 
     let mut txt = Text::from(Line(""));

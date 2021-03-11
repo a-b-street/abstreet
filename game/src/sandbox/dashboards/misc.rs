@@ -174,8 +174,8 @@ impl TransitRoutes {
                         Widget::row(vec![
                             ctx.style()
                                 .btn_outline
-                                .text(&name)
-                                .build_widget(ctx, &id.to_string()),
+                                .text(name)
+                                .build_widget(ctx, id.to_string()),
                             format!(
                                 "{} boardings, {} alightings, {} currently waiting",
                                 prettyprint_usize(-boardings as usize),

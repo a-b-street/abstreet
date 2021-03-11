@@ -210,7 +210,7 @@ fn make_panel(
                     Widget::col(vec![
                         GeomBatch::load_svg(
                             ctx.prerender,
-                            &format!("system/assets/characters/{}", filename),
+                            format!("system/assets/characters/{}", filename),
                         )
                         .scale(scale)
                         .autocrop()

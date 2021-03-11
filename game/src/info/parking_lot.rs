@@ -67,7 +67,7 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: ParkingLot
             ctx.style()
                 .btn_outline
                 .text("Open OSM")
-                .build_widget(ctx, &format!("open {}", pl.osm_id)),
+                .build_widget(ctx, format!("open {}", pl.osm_id)),
         );
     }
 

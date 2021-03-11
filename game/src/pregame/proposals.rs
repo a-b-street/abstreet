@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use geom::Percent;
 use map_gui::load::MapLoader;
-use map_gui::tools::{open_browser, prompt_to_download_missing_data, PopupMsg};
+use map_gui::tools::{open_browser, PopupMsg};
 use map_model::PermanentMapEdits;
 use widgetry::{DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, Widget};
 
@@ -158,7 +158,7 @@ fn launch(ctx: &mut EventCtx, app: &App, edits: PermanentMapEdits) -> Transition
     #[cfg(not(target_arch = "wasm32"))]
     {
         if !abstio::file_exists(edits.map_name.path()) {
-            return prompt_to_download_missing_data(ctx, edits.map_name.clone());
+            return map_gui::tools::prompt_to_download_missing_data(ctx, edits.map_name.clone());
         }
     }
 

@@ -114,7 +114,7 @@ fn make_btn(ctx: &mut EventCtx, num: usize) -> Widget {
     };
     ctx.style()
         .btn_solid_primary
-        .text(&title)
+        .text(title)
         .disabled(num == 0)
         .hotkey(hotkeys(vec![Key::Enter, Key::E]))
         .build_widget(ctx, "edit")
