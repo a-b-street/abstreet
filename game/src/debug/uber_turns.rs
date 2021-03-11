@@ -243,7 +243,7 @@ impl SimpleState<App> for UberTurnViewer {
         &mut self,
         ctx: &mut EventCtx,
         app: &mut App,
-        panel: &Panel,
+        panel: &mut Panel,
     ) -> Option<Transition> {
         Some(Transition::Replace(UberTurnViewer::new(
             ctx,

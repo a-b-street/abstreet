@@ -71,11 +71,17 @@ impl Spinner {
             up.get_dims().height + down.get_dims().height + 1.0,
         );
         if current < low {
+            warn!(
+                "Spinner's initial value is out of bounds! {}, bounds ({}, {})",
+                current, low, high
+            );
             current = low;
-            warn!("Spinner current value is out of bounds!");
         } else if high < current {
+            warn!(
+                "Spinner's initial value is out of bounds! {}, bounds ({}, {})",
+                current, low, high
+            );
             current = high;
-            warn!("Spinner current value is out of bounds!");
         }
 
         let mut spinner = Spinner {

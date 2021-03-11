@@ -223,6 +223,7 @@ impl State<App> for TrafficSignalEditor {
                     let idx = x.parse::<usize>().unwrap() - 1;
                     return Transition::Push(edits::ChangeDuration::new(
                         ctx,
+                        app,
                         &canonical_signal,
                         idx,
                     ));

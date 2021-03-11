@@ -221,7 +221,12 @@ pub trait SimpleState<A> {
     ) -> Transition<A>;
     /// Called when something on the panel has changed. If a transition is returned, stop handling
     /// the event and immediately apply the transition.
-    fn panel_changed(&mut self, _: &mut EventCtx, _: &mut A, _: &Panel) -> Option<Transition<A>> {
+    fn panel_changed(
+        &mut self,
+        _: &mut EventCtx,
+        _: &mut A,
+        _: &mut Panel,
+    ) -> Option<Transition<A>> {
         None
     }
     /// Called when the mouse has moved.
@@ -257,7 +262,7 @@ impl<A: 'static> State<A> for SimpleStateWrapper<A> {
             Outcome::Clicked(action) => self.inner.on_click(ctx, app, &action, &self.panel),
             Outcome::Changed => self
                 .inner
-                .panel_changed(ctx, app, &self.panel)
+                .panel_changed(ctx, app, &mut self.panel)
                 .unwrap_or_else(|| self.inner.other_event(ctx, app)),
             Outcome::Nothing => self.inner.other_event(ctx, app),
         }

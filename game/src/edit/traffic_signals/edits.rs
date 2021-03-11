@@ -4,8 +4,8 @@ use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, StageType,
 };
 use widgetry::{
-    Choice, DrawBaselayer, EventCtx, Key, Line, Panel, SimpleState, Spinner, State, TextExt,
-    Toggle, Widget,
+    Choice, DrawBaselayer, EventCtx, Key, Line, Panel, SimpleState, Spinner, State, Text, TextExt,
+    Widget,
 };
 
 use crate::app::{App, Transition};
@@ -20,6 +20,7 @@ pub struct ChangeDuration {
 impl ChangeDuration {
     pub fn new(
         ctx: &mut EventCtx,
+        app: &App,
         signal: &ControlTrafficSignal,
         idx: usize,
     ) -> Box<dyn State<App>> {
@@ -45,55 +46,54 @@ impl ChangeDuration {
                 )
                 .named("duration"),
             ]),
-            Widget::row(vec![
-                "Type:".text_widget(ctx),
-                Toggle::choice(
-                    ctx,
-                    "stage type",
-                    "fixed",
-                    "variable",
-                    None,
-                    match signal.stages[idx].stage_type {
-                        StageType::Fixed(_) => true,
-                        StageType::Variable(_, _, _) => false,
-                    },
-                ),
-            ]),
-            Widget::row(vec![Line("Additional time this stage can last?")
-                .small_heading()
-                .into_widget(ctx)]),
-            Widget::row(vec![
-                "Seconds:".text_widget(ctx).centered_vert(),
-                Spinner::widget(
-                    ctx,
-                    (1, 300),
-                    match signal.stages[idx].stage_type {
-                        StageType::Fixed(_) => 0,
-                        StageType::Variable(_, _, additional) => {
-                            additional.inner_seconds() as isize
-                        }
-                    },
-                )
-                .named("additional"),
-            ]),
-            Widget::row(vec![Line("How long with no demand to end stage?")
-                .small_heading()
-                .into_widget(ctx)]),
-            Widget::row(vec![
-                "Seconds:".text_widget(ctx).centered_vert(),
-                Spinner::widget(
-                    ctx,
-                    (1, 300),
-                    match signal.stages[idx].stage_type {
-                        StageType::Fixed(_) => 0,
-                        StageType::Variable(_, delay, _) => delay.inner_seconds() as isize,
-                    },
-                )
-                .named("delay"),
-            ]),
             Line("Minimum time is set by the time required for crosswalk")
                 .secondary()
                 .into_widget(ctx),
+            Widget::col(vec![
+                Text::from_all(match signal.stages[idx].stage_type {
+                    StageType::Fixed(_) => vec![
+                        Line("Fixed timing").small_heading(),
+                        Line(" (Adjust both values below to enable variable timing)"),
+                    ],
+                    StageType::Variable(_, _, _) => vec![
+                        Line("Variable timing").small_heading(),
+                        Line(" (Set either values below to 0 to use fixed timing."),
+                    ],
+                })
+                .into_widget(ctx)
+                .named("timing type"),
+                "How much additional time can this stage last?".text_widget(ctx),
+                Widget::row(vec![
+                    "Seconds:".text_widget(ctx).centered_vert(),
+                    Spinner::widget(
+                        ctx,
+                        (0, 300),
+                        match signal.stages[idx].stage_type {
+                            StageType::Fixed(_) => 0,
+                            StageType::Variable(_, _, additional) => {
+                                additional.inner_seconds() as isize
+                            }
+                        },
+                    )
+                    .named("additional"),
+                ]),
+                "How long with no demand before the stage ends?".text_widget(ctx),
+                Widget::row(vec![
+                    "Seconds:".text_widget(ctx).centered_vert(),
+                    Spinner::widget(
+                        ctx,
+                        (0, 300),
+                        match signal.stages[idx].stage_type {
+                            StageType::Fixed(_) => 0,
+                            StageType::Variable(_, delay, _) => delay.inner_seconds() as isize,
+                        },
+                    )
+                    .named("delay"),
+                ]),
+            ])
+            .padding(10)
+            .bg(app.cs.inner_panel_bg)
+            .outline(ctx.style().section_outline),
             ctx.style()
                 .btn_solid_primary
                 .text("Apply")
@@ -111,11 +111,11 @@ impl SimpleState<App> for ChangeDuration {
             "close" => Transition::Pop,
             "Apply" => {
                 let dt = Duration::seconds(panel.spinner("duration") as f64);
-                let new_type = if panel.is_checked("stage type") {
+                let delay = Duration::seconds(panel.spinner("delay") as f64);
+                let additional = Duration::seconds(panel.spinner("additional") as f64);
+                let new_type = if delay == Duration::ZERO || additional == Duration::ZERO {
                     StageType::Fixed(dt)
                 } else {
-                    let delay = Duration::seconds(panel.spinner("delay") as f64);
-                    let additional = Duration::seconds(panel.spinner("additional") as f64);
                     StageType::Variable(dt, delay, additional)
                 };
                 let idx = self.idx;
@@ -131,6 +131,30 @@ impl SimpleState<App> for ChangeDuration {
             }
             _ => unreachable!(),
         }
+    }
+
+    fn panel_changed(
+        &mut self,
+        ctx: &mut EventCtx,
+        _: &mut App,
+        panel: &mut Panel,
+    ) -> Option<Transition> {
+        let new_label = Text::from_all(
+            if panel.spinner("delay") == 0 || panel.spinner("additional") == 0 {
+                vec![
+                    Line("Fixed timing").small_heading(),
+                    Line(" (Adjust both values below to enable variable timing)"),
+                ]
+            } else {
+                vec![
+                    Line("Variable timing").small_heading(),
+                    Line(" (Set either values below to 0 to use fixed timing."),
+                ]
+            },
+        )
+        .into_widget(ctx);
+        panel.replace(ctx, "timing type", new_label);
+        None
     }
 
     fn other_event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {

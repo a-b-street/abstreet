@@ -169,7 +169,7 @@ impl SimpleState<App> for LaneEditor {
         &mut self,
         ctx: &mut EventCtx,
         app: &mut App,
-        panel: &Panel,
+        panel: &mut Panel,
     ) -> Option<Transition> {
         let mut edits = app.primary.map.get_edits().clone();
         edits.commands.push(app.primary.map.edit_road_cmd(
