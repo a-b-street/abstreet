@@ -103,14 +103,13 @@
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
-<span id="103">103</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Speed</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">CompressedMovementID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>,
-    <span class="ident">PathRequest</span>, <span class="ident">Traversable</span>, <span class="ident">TurnID</span>,
+    <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathRequest</span>, <span class="ident">Traversable</span>,
+    <span class="ident">TurnID</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AgentID</span>, <span class="ident">CarID</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>, <span class="ident">TripID</span>, <span class="ident">TripMode</span>};
@@ -147,7 +146,8 @@
     <span class="doccomment">/// If the agent is a transit vehicle, then include a count of how many passengers are on</span>
     <span class="doccomment">/// board.</span>
     <span class="ident">AgentEntersTraversable</span>(<span class="ident">AgentID</span>, <span class="ident">Traversable</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>),
-    <span class="ident">IntersectionDelayMeasured</span>(<span class="ident">CompressedMovementID</span>, <span class="ident">Duration</span>, <span class="ident">AgentID</span>),
+    <span class="doccomment">/// TripID, TurnID (Where the delay was encountered), Time spent waiting at that turn</span>
+    <span class="ident">IntersectionDelayMeasured</span>(<span class="ident">TripID</span>, <span class="ident">TurnID</span>, <span class="ident">AgentID</span>, <span class="ident">Duration</span>),
 
     <span class="ident">TripFinished</span> {
         <span class="ident">trip</span>: <span class="ident">TripID</span>,
@@ -157,8 +157,6 @@
     },
     <span class="ident">TripCancelled</span>(<span class="ident">TripID</span>, <span class="ident">TripMode</span>),
     <span class="ident">TripPhaseStarting</span>(<span class="ident">TripID</span>, <span class="ident">PersonID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathRequest</span><span class="op">&gt;</span>, <span class="ident">TripPhaseType</span>),
-    <span class="doccomment">/// TripID, TurnID (Where the delay was encountered), Time spent waiting at that turn</span>
-    <span class="ident">TripIntersectionDelay</span>(<span class="ident">TripID</span>, <span class="ident">TurnID</span>, <span class="ident">AgentID</span>, <span class="ident">Duration</span>),
     <span class="doccomment">/// TripID, LaneID (Where the delay was encountered), Average Speed, Max Speed</span>
     <span class="ident">LaneSpeedPercentage</span>(<span class="ident">TripID</span>, <span class="ident">LaneID</span>, <span class="ident">Speed</span>, <span class="ident">Speed</span>),
 

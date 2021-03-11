@@ -673,6 +673,11 @@
 <span id="670">670</span>
 <span id="671">671</span>
 <span id="672">672</span>
+<span id="673">673</span>
+<span id="674">674</span>
+<span id="675">675</span>
+<span id="676">676</span>
+<span id="677">677</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 
@@ -682,7 +687,7 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
     <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">CompressedMovementID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>,
-    <span class="ident">ParkingLotID</span>, <span class="ident">Path</span>, <span class="ident">PathRequest</span>, <span class="ident">RoadID</span>, <span class="ident">Traversable</span>, <span class="ident">TurnID</span>,
+    <span class="ident">ParkingLotID</span>, <span class="ident">Path</span>, <span class="ident">PathRequest</span>, <span class="ident">RoadID</span>, <span class="ident">Traversable</span>, <span class="ident">TurnID</span>, <span class="ident">TurnType</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -866,8 +871,8 @@
             <span class="self">self</span>.<span class="ident">finished_trips</span>.<span class="ident">push</span>((<span class="ident">time</span>, <span class="ident">id</span>, <span class="ident">mode</span>, <span class="prelude-val">None</span>));
         }
 
-        <span class="comment">// Trip Intersection delay</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event</span>::<span class="ident">TripIntersectionDelay</span>(<span class="ident">trip_id</span>, <span class="ident">turn_id</span>, <span class="ident">agent</span>, <span class="ident">delay</span>) <span class="op">=</span> <span class="ident">ev</span> {
+        <span class="comment">// Intersection delay</span>
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event</span>::<span class="ident">IntersectionDelayMeasured</span>(<span class="ident">trip_id</span>, <span class="ident">turn_id</span>, <span class="ident">agent</span>, <span class="ident">delay</span>) <span class="op">=</span> <span class="ident">ev</span> {
             <span class="kw">match</span> <span class="ident">agent</span> {
                 <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="ident">delay</span> <span class="op">&gt;</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">30.0</span>) {
@@ -887,7 +892,20 @@
                 }
                 <span class="ident">AgentID</span>::<span class="ident">BusPassenger</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {}
             }
+
+            <span class="comment">// SharedSidewalkCorner are always no-conflict, immediate turns; they&#39;re not</span>
+            <span class="comment">// interesting.</span>
+            <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">turn_id</span>).<span class="ident">turn_type</span> <span class="op">!</span><span class="op">=</span> <span class="ident">TurnType</span>::<span class="ident">SharedSidewalkCorner</span> {
+                <span class="comment">// Save memory and space by only storing these measurements at traffic signals.</span>
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_traffic_signal</span>(<span class="ident">turn_id</span>.<span class="ident">parent</span>) {
+                    <span class="self">self</span>.<span class="ident">intersection_delays</span>
+                        .<span class="ident">entry</span>(<span class="ident">turn_id</span>.<span class="ident">parent</span>)
+                        .<span class="ident">or_insert_with</span>(<span class="ident">Vec</span>::<span class="ident">new</span>)
+                        .<span class="ident">push</span>((<span class="ident">ts</span>.<span class="ident">compressed_id</span>(<span class="ident">turn_id</span>).<span class="ident">idx</span>, <span class="ident">time</span>, <span class="ident">delay</span>, <span class="ident">agent</span>.<span class="ident">to_type</span>()));
+                }
+            }
         }
+
         <span class="comment">// Lane Speed</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event</span>::<span class="ident">LaneSpeedPercentage</span>(<span class="ident">trip_id</span>, <span class="ident">lane_id</span>, <span class="ident">avg_speed</span>, <span class="ident">max_speed</span>) <span class="op">=</span> <span class="ident">ev</span> {
             <span class="kw">let</span> <span class="ident">speed_percent</span>: <span class="ident">u8</span> <span class="op">=</span> ((<span class="ident">avg_speed</span> <span class="op">/</span> <span class="ident">max_speed</span>) <span class="op">*</span> <span class="number">100.0</span>) <span class="kw">as</span> <span class="ident">u8</span>;
@@ -897,14 +915,6 @@
                     .<span class="ident">or_insert_with</span>(<span class="ident">BTreeMap</span>::<span class="ident">new</span>)
                     .<span class="ident">insert</span>(<span class="ident">lane_id</span>, <span class="ident">speed_percent</span>);
             }
-        }
-
-        <span class="comment">// Intersection delays</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event</span>::<span class="ident">IntersectionDelayMeasured</span>(<span class="ident">id</span>, <span class="ident">delay</span>, <span class="ident">agent</span>) <span class="op">=</span> <span class="ident">ev</span> {
-            <span class="self">self</span>.<span class="ident">intersection_delays</span>
-                .<span class="ident">entry</span>(<span class="ident">id</span>.<span class="ident">i</span>)
-                .<span class="ident">or_insert_with</span>(<span class="ident">Vec</span>::<span class="ident">new</span>)
-                .<span class="ident">push</span>((<span class="ident">id</span>.<span class="ident">idx</span>, <span class="ident">time</span>, <span class="ident">delay</span>, <span class="ident">agent</span>.<span class="ident">to_type</span>()));
         }
 
         <span class="comment">// Parking spot changes</span>

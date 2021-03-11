@@ -1144,7 +1144,7 @@
                     <span class="ident">ctx</span>.<span class="ident">scheduler</span>
                         .<span class="ident">push</span>(<span class="ident">ped</span>.<span class="ident">state</span>.<span class="ident">get_end_time</span>(), <span class="ident">Command</span>::<span class="ident">UpdatePed</span>(<span class="ident">ped</span>.<span class="ident">id</span>));
                     <span class="ident">ped</span>.<span class="ident">total_blocked_time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">now</span> <span class="op">-</span> <span class="ident">blocked_since</span>;
-                    <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">TripIntersectionDelay</span>(
+                    <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">IntersectionDelayMeasured</span>(
                         <span class="ident">ped</span>.<span class="ident">trip</span>,
                         <span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">as_turn</span>(),
                         <span class="ident">AgentID</span>::<span class="ident">Pedestrian</span>(<span class="ident">id</span>),
