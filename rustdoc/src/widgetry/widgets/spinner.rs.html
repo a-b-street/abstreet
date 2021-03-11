@@ -185,6 +185,12 @@
 <span id="182">182</span>
 <span id="183">183</span>
 <span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">CornerRadii</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
@@ -259,11 +265,17 @@
             <span class="ident">up</span>.<span class="ident">get_dims</span>().<span class="ident">height</span> <span class="op">+</span> <span class="ident">down</span>.<span class="ident">get_dims</span>().<span class="ident">height</span> <span class="op">+</span> <span class="number">1.0</span>,
         );
         <span class="kw">if</span> <span class="ident">current</span> <span class="op">&lt;</span> <span class="ident">low</span> {
+            <span class="macro">warn</span><span class="macro">!</span>(
+                <span class="string">&quot;Spinner&#39;s initial value is out of bounds! {}, bounds ({}, {})&quot;</span>,
+                <span class="ident">current</span>, <span class="ident">low</span>, <span class="ident">high</span>
+            );
             <span class="ident">current</span> <span class="op">=</span> <span class="ident">low</span>;
-            <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Spinner current value is out of bounds!&quot;</span>);
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">high</span> <span class="op">&lt;</span> <span class="ident">current</span> {
+            <span class="macro">warn</span><span class="macro">!</span>(
+                <span class="string">&quot;Spinner&#39;s initial value is out of bounds! {}, bounds ({}, {})&quot;</span>,
+                <span class="ident">current</span>, <span class="ident">low</span>, <span class="ident">high</span>
+            );
             <span class="ident">current</span> <span class="op">=</span> <span class="ident">high</span>;
-            <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Spinner current value is out of bounds!&quot;</span>);
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">spinner</span> <span class="op">=</span> <span class="ident">Spinner</span> {

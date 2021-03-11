@@ -935,6 +935,7 @@
 <span id="932">932</span>
 <span id="933">933</span>
 <span id="934">934</span>
+<span id="935">935</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 
@@ -1161,6 +1162,7 @@
                     <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>() <span class="op">-</span> <span class="number">1</span>;
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">edits</span>::<span class="ident">ChangeDuration</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,
+                        <span class="ident">app</span>,
                         <span class="kw-2">&amp;</span><span class="ident">canonical_signal</span>,
                         <span class="ident">idx</span>,
                     ));
