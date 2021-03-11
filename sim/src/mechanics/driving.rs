@@ -414,7 +414,7 @@ impl DrivingSimState {
                         return false;
                     }
                     if let Some((trip, _)) = car.trip_and_person {
-                        self.events.push(Event::TripIntersectionDelay(
+                        self.events.push(Event::IntersectionDelayMeasured(
                             trip,
                             t,
                             AgentID::Car(car.vehicle.id),

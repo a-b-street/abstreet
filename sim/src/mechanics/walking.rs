@@ -253,7 +253,7 @@ impl WalkingSimState {
                     ctx.scheduler
                         .push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
                     ped.total_blocked_time += now - blocked_since;
-                    self.events.push(Event::TripIntersectionDelay(
+                    self.events.push(Event::IntersectionDelayMeasured(
                         ped.trip,
                         ped.path.current_step().as_turn(),
                         AgentID::Pedestrian(id),

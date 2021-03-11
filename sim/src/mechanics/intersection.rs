@@ -555,17 +555,7 @@ impl IntersectionSimState {
         // TODO For now, we're only interested in signals, and there's too much raw data to store
         // for stop signs too.
         let state = self.state.get_mut(&turn.parent).unwrap();
-        let delay = now - state.waiting.remove(&req).unwrap().0;
-        // SharedSidewalkCorner are always no-conflict, immediate turns; they're not interesting.
-        if !shared_sidewalk_corner {
-            if let Some(ts) = map.maybe_get_traffic_signal(state.id) {
-                self.events.push(Event::IntersectionDelayMeasured(
-                    ts.compressed_id(turn),
-                    delay,
-                    agent,
-                ));
-            }
-        }
+        state.waiting.remove(&req).unwrap();
         state.accepted.insert(req);
         if self.break_turn_conflict_cycles {
             if let AgentID::Car(car) = agent {

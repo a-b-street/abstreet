@@ -2,8 +2,8 @@ use serde::{Deserialize, Serialize};
 
 use geom::{Duration, Speed};
 use map_model::{
-    BuildingID, BusRouteID, BusStopID, CompressedMovementID, IntersectionID, LaneID, Map, Path,
-    PathRequest, Traversable, TurnID,
+    BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, Map, Path, PathRequest, Traversable,
+    TurnID,
 };
 
 use crate::{AgentID, CarID, ParkingSpot, PedestrianID, PersonID, TripID, TripMode};
@@ -40,7 +40,8 @@ pub enum Event {
     /// If the agent is a transit vehicle, then include a count of how many passengers are on
     /// board.
     AgentEntersTraversable(AgentID, Traversable, Option<usize>),
-    IntersectionDelayMeasured(CompressedMovementID, Duration, AgentID),
+    /// TripID, TurnID (Where the delay was encountered), Time spent waiting at that turn
+    IntersectionDelayMeasured(TripID, TurnID, AgentID, Duration),
 
     TripFinished {
         trip: TripID,
@@ -50,8 +51,6 @@ pub enum Event {
     },
     TripCancelled(TripID, TripMode),
     TripPhaseStarting(TripID, PersonID, Option<PathRequest>, TripPhaseType),
-    /// TripID, TurnID (Where the delay was encountered), Time spent waiting at that turn
-    TripIntersectionDelay(TripID, TurnID, AgentID, Duration),
     /// TripID, LaneID (Where the delay was encountered), Average Speed, Max Speed
     LaneSpeedPercentage(TripID, LaneID, Speed, Speed),
 

@@ -6,7 +6,7 @@ use abstutil::Counter;
 use geom::{Duration, Time};
 use map_model::{
     BusRouteID, BusStopID, CompressedMovementID, IntersectionID, LaneID, Map, MovementID,
-    ParkingLotID, Path, PathRequest, RoadID, Traversable, TurnID,
+    ParkingLotID, Path, PathRequest, RoadID, Traversable, TurnID, TurnType,
 };
 
 use crate::{
@@ -190,8 +190,8 @@ impl Analytics {
             self.finished_trips.push((time, id, mode, None));
         }
 
-        // Trip Intersection delay
-        if let Event::TripIntersectionDelay(trip_id, turn_id, agent, delay) = ev {
+        // Intersection delay
+        if let Event::IntersectionDelayMeasured(trip_id, turn_id, agent, delay) = ev {
             match agent {
                 AgentID::Car(_) => {
                     if delay > Duration::seconds(30.0) {
@@ -211,7 +211,20 @@ impl Analytics {
                 }
                 AgentID::BusPassenger(_, _) => {}
             }
+
+            // SharedSidewalkCorner are always no-conflict, immediate turns; they're not
+            // interesting.
+            if map.get_t(turn_id).turn_type != TurnType::SharedSidewalkCorner {
+                // Save memory and space by only storing these measurements at traffic signals.
+                if let Some(ts) = map.maybe_get_traffic_signal(turn_id.parent) {
+                    self.intersection_delays
+                        .entry(turn_id.parent)
+                        .or_insert_with(Vec::new)
+                        .push((ts.compressed_id(turn_id).idx, time, delay, agent.to_type()));
+                }
+            }
         }
+
         // Lane Speed
         if let Event::LaneSpeedPercentage(trip_id, lane_id, avg_speed, max_speed) = ev {
             let speed_percent: u8 = ((avg_speed / max_speed) * 100.0) as u8;
@@ -221,14 +234,6 @@ impl Analytics {
                     .or_insert_with(BTreeMap::new)
                     .insert(lane_id, speed_percent);
             }
-        }
-
-        // Intersection delays
-        if let Event::IntersectionDelayMeasured(id, delay, agent) = ev {
-            self.intersection_delays
-                .entry(id.i)
-                .or_insert_with(Vec::new)
-                .push((id.idx, time, delay, agent.to_type()));
         }
 
         // Parking spot changes
