@@ -193,10 +193,6 @@
 <span id="190">190</span>
 <span id="191">191</span>
 <span id="192">192</span>
-<span id="193">193</span>
-<span id="194">194</span>
-<span id="195">195</span>
-<span id="196">196</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Assorted tools and UI states that&#39;re useful for applications built to display maps.</span>
 
@@ -233,16 +229,12 @@
 <span class="comment">// TODO This is A/B Street specific</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">loading_tips</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Text</span> {
     <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Line</span>(<span class="string">&quot;Recent changes (November 8)&quot;</span>),
+        <span class="ident">Line</span>(<span class="string">&quot;Have you tried...&quot;</span>),
         <span class="ident">Line</span>(<span class="string">&quot;&quot;</span>),
-        <span class="ident">Line</span>(<span class="string">&quot;- Download more cities from within the game&quot;</span>),
-        <span class="ident">Line</span>(<span class="string">&quot;- You can now click agents while zoomed out&quot;</span>),
-        <span class="ident">Line</span>(<span class="string">&quot;- New OpenStreetMap viewer, open it from the splash screen&quot;</span>),
-        <span class="ident">Line</span>(<span class="string">&quot;- A web version has launched!&quot;</span>),
-        <span class="ident">Line</span>(<span class="string">&quot;- Slow segments of a trip shown in the info panel&quot;</span>),
-        <span class="ident">Line</span>(<span class="string">&quot;- Alleyways are now included in the map&quot;</span>),
-        <span class="ident">Line</span>(<span class="string">&quot;- Check out the trip tables and summary changes (press &#39;q&#39;)&quot;</span>),
-        <span class="ident">Line</span>(<span class="string">&quot;- Try out the new traffic signal editor!&quot;</span>),
+        <span class="ident">Line</span>(<span class="string">&quot;- simulating cities in Britain, Taiwan, Poland, and more?&quot;</span>),
+        <span class="ident">Line</span>(<span class="string">&quot;- the 15-minute neighborhood tool?&quot;</span>),
+        <span class="ident">Line</span>(<span class="string">&quot;- exploring all of the map layers?&quot;</span>),
+        <span class="ident">Line</span>(<span class="string">&quot;- playing 15-minute Santa, our arcade game spin-off?&quot;</span>),
     ])
 }
 
