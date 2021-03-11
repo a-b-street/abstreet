@@ -33,16 +33,12 @@ mod url;
 // TODO This is A/B Street specific
 pub fn loading_tips() -> Text {
     Text::from_multiline(vec![
-        Line("Recent changes (November 8)"),
+        Line("Have you tried..."),
         Line(""),
-        Line("- Download more cities from within the game"),
-        Line("- You can now click agents while zoomed out"),
-        Line("- New OpenStreetMap viewer, open it from the splash screen"),
-        Line("- A web version has launched!"),
-        Line("- Slow segments of a trip shown in the info panel"),
-        Line("- Alleyways are now included in the map"),
-        Line("- Check out the trip tables and summary changes (press 'q')"),
-        Line("- Try out the new traffic signal editor!"),
+        Line("- simulating cities in Britain, Taiwan, Poland, and more?"),
+        Line("- the 15-minute neighborhood tool?"),
+        Line("- exploring all of the map layers?"),
+        Line("- playing 15-minute Santa, our arcade game spin-off?"),
     ])
 }
 
