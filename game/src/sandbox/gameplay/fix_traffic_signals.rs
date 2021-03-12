@@ -18,7 +18,7 @@ use crate::sandbox::{Actions, SandboxControls, SandboxMode};
 const THRESHOLD: Duration = Duration::const_seconds(20.0 * 60.0);
 
 pub struct FixTrafficSignals {
-    top_center: Panel,
+    top_right: Panel,
     time: Time,
     worst: Option<(IntersectionID, Duration)>,
     done_at: Option<Time>,
@@ -28,7 +28,7 @@ pub struct FixTrafficSignals {
 impl FixTrafficSignals {
     pub fn new(ctx: &mut EventCtx) -> Box<dyn GameplayState> {
         Box::new(FixTrafficSignals {
-            top_center: Panel::empty(ctx),
+            top_right: Panel::empty(ctx),
             time: Time::START_OF_DAY,
             worst: None,
             done_at: None,
@@ -154,7 +154,7 @@ impl GameplayState for FixTrafficSignals {
             }
         }
 
-        match self.top_center.event(ctx) {
+        match self.top_right.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "edit map" => {
                     return Some(Transition::Push(EditMode::new(ctx, app, self.mode.clone())));
@@ -228,12 +228,12 @@ impl GameplayState for FixTrafficSignals {
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
-        self.top_center.draw(g);
+        self.top_right.draw(g);
     }
 
     fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
         if let Some(time) = self.done_at {
-            self.top_center = Panel::new(Widget::col(vec![
+            self.top_right = Panel::new(Widget::col(vec![
                 challenge_header(ctx, "Traffic signal survivor"),
                 Widget::row(vec![
                     Line(format!("Delay exceeded {} at {}", THRESHOLD, time))
@@ -243,7 +243,7 @@ impl GameplayState for FixTrafficSignals {
                     ctx.style().btn_outline.text("try again").build_def(ctx),
                 ]),
             ]))
-            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx);
         } else {
             let meter = if let Some((_, delay)) = self.worst {
@@ -286,7 +286,7 @@ impl GameplayState for FixTrafficSignals {
                 ])
             };
 
-            self.top_center = Panel::new(Widget::col(vec![
+            self.top_right = Panel::new(Widget::col(vec![
                 challenge_header(ctx, "Traffic signal survivor"),
                 Widget::row(vec![
                     Line(format!(
@@ -302,7 +302,7 @@ impl GameplayState for FixTrafficSignals {
                 ]),
                 meter,
             ]))
-            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx);
         }
     }
