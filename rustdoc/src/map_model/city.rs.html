@@ -206,7 +206,7 @@
             <span class="string">&quot;system/{}/{}/maps&quot;</span>,
             <span class="ident">city_name</span>.<span class="ident">country</span>, <span class="ident">city_name</span>.<span class="ident">city</span>
         ))) {
-            <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map</span>::<span class="ident">new</span>(<span class="ident">path</span>, <span class="ident">timer</span>);
+            <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map</span>::<span class="ident">load_synchronously</span>(<span class="ident">path</span>, <span class="ident">timer</span>);
             <span class="kw">for</span> <span class="ident">area</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_areas</span>() {
                 <span class="kw">let</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">gps_bounds</span>.<span class="ident">convert_back</span>(<span class="ident">area</span>.<span class="ident">polygon</span>.<span class="ident">points</span>());
                 <span class="comment">// TODO Holes in the polygons get lost</span>

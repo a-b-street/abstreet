@@ -594,7 +594,7 @@
 
                 <span class="prelude-val">Some</span>(<span class="ident">map</span>)
             } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scenario</span> {
-                <span class="prelude-val">Some</span>(<span class="ident">map_model</span>::<span class="ident">Map</span>::<span class="ident">new</span>(<span class="ident">name</span>.<span class="ident">path</span>(), <span class="ident">timer</span>))
+                <span class="prelude-val">Some</span>(<span class="ident">map_model</span>::<span class="ident">Map</span>::<span class="ident">load_synchronously</span>(<span class="ident">name</span>.<span class="ident">path</span>(), <span class="ident">timer</span>))
             } <span class="kw">else</span> {
                 <span class="prelude-val">None</span>
             };

@@ -725,6 +725,7 @@
 <span id="722">722</span>
 <span id="723">723</span>
 <span id="724">724</span>
+<span id="725">725</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.</span>
 
@@ -771,7 +772,9 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Map</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">path</span>: <span class="ident">String</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Map</span> {
+    <span class="doccomment">/// Load a map from a local serialized Map or RawMap. Note this won&#39;t work on web. This should</span>
+    <span class="doccomment">/// only be used by non-UI tools.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_synchronously</span>(<span class="ident">path</span>: <span class="ident">String</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Map</span> {
         <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">contains</span>(<span class="string">&quot;/maps/&quot;</span>) {
             <span class="kw">match</span> <span class="ident">abstio</span>::<span class="ident">maybe_read_binary</span>(<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>) {
                 <span class="prelude-val">Ok</span>(<span class="ident">map</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -808,8 +811,7 @@
         <span class="ident">Map</span>::<span class="ident">create_from_raw</span>(<span class="ident">raw</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="ident">timer</span>)
     }
 
-    <span class="doccomment">/// If you have to deserialize a `Map` directly, call this after. Prefer using `Map::new`</span>
-    <span class="doccomment">/// though.</span>
+    <span class="doccomment">/// After deserializing a map directly, call this after.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_loaded_directly</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="self">self</span>.<span class="ident">edits</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">new_edits</span>();
 

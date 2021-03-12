@@ -16,7 +16,7 @@
 
 <span class="kw">fn</span> <span class="ident">main</span>() {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">CmdArgs</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map</span>::<span class="ident">new</span>(<span class="ident">args</span>.<span class="ident">required_free</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>());
+    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map</span>::<span class="ident">load_synchronously</span>(<span class="ident">args</span>.<span class="ident">required_free</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>());
     <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>));
     <span class="ident">args</span>.<span class="ident">done</span>();
 }

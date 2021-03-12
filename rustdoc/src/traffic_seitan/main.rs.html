@@ -159,7 +159,7 @@
     <span class="ident">args</span>.<span class="ident">done</span>();
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>();
-    <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">map</span>, <span class="kw-2">mut</span> <span class="ident">sim</span>, <span class="kw-2">mut</span> <span class="ident">rng</span>) <span class="op">=</span> <span class="ident">sim_flags</span>.<span class="ident">load</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
+    <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">map</span>, <span class="kw-2">mut</span> <span class="ident">sim</span>, <span class="kw-2">mut</span> <span class="ident">rng</span>) <span class="op">=</span> <span class="ident">sim_flags</span>.<span class="ident">load_synchronously</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
 
     <span class="comment">// Set the edits name up-front, so that the savestates get named reasonably too.</span>
     {

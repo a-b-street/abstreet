@@ -196,7 +196,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;augment scenario&quot;</span>);
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scenario</span>: <span class="ident">Scenario</span> <span class="op">=</span> <span class="ident">abstio</span>::<span class="ident">must_read_object</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map</span>::<span class="ident">new</span>(<span class="ident">scenario</span>.<span class="ident">map_name</span>.<span class="ident">path</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
+    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map</span>::<span class="ident">load_synchronously</span>(<span class="ident">scenario</span>.<span class="ident">map_name</span>.<span class="ident">path</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
 
     <span class="kw">if</span> <span class="ident">should_add_return_trips</span> {
         <span class="ident">add_return_trips</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">scenario</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>);

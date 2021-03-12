@@ -908,6 +908,10 @@
 <span id="905">905</span>
 <span id="906">906</span>
 <span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
@@ -1636,7 +1640,11 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">orig_map</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">unedited_map</span>.<span class="ident">borrow_mut</span>();
         <span class="kw">if</span> <span class="ident">orig_map</span>.<span class="ident">is_none</span>() {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;load unedited map&quot;</span>);
-            <span class="kw-2">*</span><span class="ident">orig_map</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Map</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">path</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>));
+            <span class="comment">// TODO Need to fix this</span>
+            <span class="kw-2">*</span><span class="ident">orig_map</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Map</span>::<span class="ident">load_synchronously</span>(
+                <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">path</span>(),
+                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,
+            ));
         }
     }
 
