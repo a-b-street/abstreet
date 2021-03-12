@@ -16,23 +16,21 @@ use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, Gamep
 use crate::sandbox::{Actions, SandboxControls, SandboxMode};
 
 const THRESHOLD: Duration = Duration::const_seconds(20.0 * 60.0);
-// TODO Avoid hack entirely, or tune appearance
-const METER_HACK: f64 = -15.0;
 
 pub struct FixTrafficSignals {
     top_center: Panel,
-    meter: Panel,
     time: Time,
+    worst: Option<(IntersectionID, Duration)>,
     done_at: Option<Time>,
     mode: GameplayMode,
 }
 
 impl FixTrafficSignals {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn GameplayState> {
+    pub fn new(ctx: &mut EventCtx) -> Box<dyn GameplayState> {
         Box::new(FixTrafficSignals {
             top_center: Panel::empty(ctx),
-            meter: make_meter(ctx, app, None),
             time: Time::START_OF_DAY,
+            worst: None,
             done_at: None,
             mode: GameplayMode::FixTrafficSignals,
         })
@@ -88,15 +86,9 @@ impl GameplayState for FixTrafficSignals {
         &mut self,
         ctx: &mut EventCtx,
         app: &mut App,
-        controls: &mut SandboxControls,
+        _: &mut SandboxControls,
         _: &mut Actions,
     ) -> Option<Transition> {
-        self.meter.align_below(
-            ctx,
-            &controls.time_panel.as_ref().unwrap().panel,
-            METER_HACK,
-        );
-
         // Normally we just do this once at the beginning, but because there are other paths to
         // reseting (like jump-to-time), it's safest just to do this.
         if app.primary.sim_cb.is_none() {
@@ -111,6 +103,7 @@ impl GameplayState for FixTrafficSignals {
         if self.time != app.primary.sim.time() && self.done_at.is_none() {
             self.time = app.primary.sim.time();
 
+            self.worst = None;
             if let Some((i, t)) = app
                 .primary
                 .sim_cb
@@ -122,31 +115,32 @@ impl GameplayState for FixTrafficSignals {
                 .get(0)
                 .cloned()
             {
-                let dt = app.primary.sim.time() - t;
-                self.meter = make_meter(ctx, app, Some((i, dt)));
-                if dt >= THRESHOLD {
-                    self.done_at = Some(app.primary.sim.time());
-                    self.recreate_panels(ctx, app);
-
-                    return Some(Transition::Multi(vec![
-                        Transition::Push(final_score(ctx, app, self.mode.clone(), true)),
-                        Transition::Push(Warping::new(
-                            ctx,
-                            app.primary.canonical_point(ID::Intersection(i)).unwrap(),
-                            Some(10.0),
-                            None,
-                            &mut app.primary,
-                        )),
-                    ]));
-                }
-            } else {
-                self.meter = make_meter(ctx, app, None);
+                self.worst = Some((i, app.primary.sim.time() - t));
             }
-            self.meter.align_below(
-                ctx,
-                &controls.time_panel.as_ref().unwrap().panel,
-                METER_HACK,
-            );
+
+            if self
+                .worst
+                .map(|(_, delay)| delay >= THRESHOLD)
+                .unwrap_or(false)
+            {
+                self.done_at = Some(app.primary.sim.time());
+                self.recreate_panels(ctx, app);
+
+                return Some(Transition::Multi(vec![
+                    Transition::Push(final_score(ctx, app, self.mode.clone(), true)),
+                    Transition::Push(Warping::new(
+                        ctx,
+                        app.primary
+                            .canonical_point(ID::Intersection(self.worst.unwrap().0))
+                            .unwrap(),
+                        Some(10.0),
+                        None,
+                        &mut app.primary,
+                    )),
+                ]));
+            } else {
+                self.recreate_panels(ctx, app);
+            }
 
             if app.primary.sim.is_done() {
                 self.done_at = Some(app.primary.sim.time());
@@ -191,12 +185,6 @@ impl GameplayState for FixTrafficSignals {
                         self.mode.clone(),
                     )));
                 }
-                _ => unreachable!(),
-            },
-            _ => {}
-        }
-        match self.meter.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
                 "go to slowest intersection" => {
                     let i = app
                         .primary
@@ -241,10 +229,9 @@ impl GameplayState for FixTrafficSignals {
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.top_center.draw(g);
-        self.meter.draw(g);
     }
 
-    fn recreate_panels(&mut self, ctx: &mut EventCtx, _app: &App) {
+    fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
         if let Some(time) = self.done_at {
             self.top_center = Panel::new(Widget::col(vec![
                 challenge_header(ctx, "Traffic signal survivor"),
@@ -259,6 +246,46 @@ impl GameplayState for FixTrafficSignals {
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx);
         } else {
+            let meter = if let Some((_, delay)) = self.worst {
+                Widget::row(vec![
+                    Text::from_all(vec![
+                        Line("Worst delay: "),
+                        Line(delay.to_string(&app.opts.units)).fg(
+                            if delay < Duration::minutes(5) {
+                                Color::hex("#F9EC51")
+                            } else if delay < Duration::minutes(15) {
+                                Color::hex("#EE702E")
+                            } else {
+                                Color::hex("#EB3223")
+                            },
+                        ),
+                    ])
+                    .into_widget(ctx),
+                    ctx.style()
+                        .btn_plain
+                        .icon("system/assets/tools/location.svg")
+                        .build_widget(ctx, "go to slowest intersection")
+                        .align_right(),
+                ])
+            } else {
+                Widget::row(vec![
+                    if app.primary.dirty_from_edits {
+                        ctx.style()
+                            .btn_plain
+                            .icon("system/assets/tools/info.svg")
+                            .build_widget(ctx, "explain score")
+                    } else {
+                        Widget::nothing()
+                    },
+                    Text::from_all(vec![Line("Worst delay: "), Line("none!").secondary()])
+                        .into_widget(ctx),
+                    Image::icon("system/assets/tools/location.svg")
+                        .color(RewriteColor::ChangeAlpha(0.5))
+                        .into_widget(ctx)
+                        .align_right(),
+                ])
+            };
+
             self.top_center = Panel::new(Widget::col(vec![
                 challenge_header(ctx, "Traffic signal survivor"),
                 Widget::row(vec![
@@ -273,12 +300,11 @@ impl GameplayState for FixTrafficSignals {
                         .build_widget(ctx, "hint")
                         .align_right(),
                 ]),
+                meter,
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx);
         }
-
-        // self.meter is recreated as time changes anyway
     }
 
     fn on_destroy(&self, app: &mut App) {
@@ -286,51 +312,6 @@ impl GameplayState for FixTrafficSignals {
         app.primary.sim_cb = None;
         app.primary.sim.unset_periodic_callback();
     }
-}
-
-fn make_meter(ctx: &mut EventCtx, app: &App, worst: Option<(IntersectionID, Duration)>) -> Panel {
-    Panel::new(Widget::col(vec![
-        Widget::horiz_separator(ctx, 0.2),
-        if let Some((_, delay)) = worst {
-            Widget::row(vec![
-                Text::from_all(vec![
-                    Line("Worst delay: "),
-                    Line(delay.to_string(&app.opts.units)).fg(if delay < Duration::minutes(5) {
-                        Color::hex("#F9EC51")
-                    } else if delay < Duration::minutes(15) {
-                        Color::hex("#EE702E")
-                    } else {
-                        Color::hex("#EB3223")
-                    }),
-                ])
-                .into_widget(ctx),
-                ctx.style()
-                    .btn_plain
-                    .icon("system/assets/tools/location.svg")
-                    .build_widget(ctx, "go to slowest intersection")
-                    .align_right(),
-            ])
-        } else {
-            Widget::row(vec![
-                if app.primary.dirty_from_edits {
-                    ctx.style()
-                        .btn_plain
-                        .icon("system/assets/tools/info.svg")
-                        .build_widget(ctx, "explain score")
-                } else {
-                    Widget::nothing()
-                },
-                Text::from_all(vec![Line("Worst delay: "), Line("none!").secondary()])
-                    .into_widget(ctx),
-                Image::icon("system/assets/tools/location.svg")
-                    .color(RewriteColor::ChangeAlpha(0.5))
-                    .into_widget(ctx)
-                    .align_right(),
-            ])
-        },
-    ]))
-    .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
-    .build(ctx)
 }
 
 fn final_score(
