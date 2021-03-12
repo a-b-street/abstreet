@@ -48,61 +48,7 @@ impl Map {
             match abstio::maybe_read_binary(path.clone(), timer) {
                 Ok(map) => {
                     let mut map: Map = map;
-                    map.edits = map.new_edits();
-
-                    if false {
-                        use abstutil::{prettyprint_usize, serialized_size_bytes};
-                        info!(
-                            "Total map size: {} bytes",
-                            prettyprint_usize(serialized_size_bytes(&map))
-                        );
-                        info!(
-                            "- {} roads: {} bytes",
-                            prettyprint_usize(map.roads.len()),
-                            prettyprint_usize(serialized_size_bytes(&map.roads))
-                        );
-                        info!(
-                            "- {} lanes: {} bytes",
-                            prettyprint_usize(map.lanes.len()),
-                            prettyprint_usize(serialized_size_bytes(&map.lanes))
-                        );
-                        info!(
-                            "- {} intersections: {} bytes",
-                            prettyprint_usize(map.intersections.len()),
-                            prettyprint_usize(serialized_size_bytes(&map.intersections))
-                        );
-                        info!(
-                            "- {} turns: {} bytes",
-                            prettyprint_usize(map.turns.len()),
-                            prettyprint_usize(serialized_size_bytes(&map.turns))
-                        );
-                        info!(
-                            "- {} buildings: {} bytes",
-                            prettyprint_usize(map.buildings.len()),
-                            prettyprint_usize(serialized_size_bytes(&map.buildings))
-                        );
-                        info!(
-                            "- {} areas: {} bytes",
-                            prettyprint_usize(map.areas.len()),
-                            prettyprint_usize(serialized_size_bytes(&map.areas))
-                        );
-                        info!(
-                            "- {} parking lots: {} bytes",
-                            prettyprint_usize(map.parking_lots.len()),
-                            prettyprint_usize(serialized_size_bytes(&map.parking_lots))
-                        );
-                        info!(
-                            "- {} zones: {} bytes",
-                            prettyprint_usize(map.zones.len()),
-                            prettyprint_usize(serialized_size_bytes(&map.zones))
-                        );
-                        // This is the partridge in the pear tree, I suppose
-                        info!(
-                            "- pathfinder: {} bytes",
-                            prettyprint_usize(serialized_size_bytes(&map.pathfinder))
-                        );
-                    }
-
+                    map.map_loaded_directly();
                     return map;
                 }
                 Err(err) => {
@@ -138,6 +84,59 @@ impl Map {
     /// though.
     pub fn map_loaded_directly(&mut self) {
         self.edits = self.new_edits();
+
+        if false {
+            use abstutil::{prettyprint_usize, serialized_size_bytes};
+            info!(
+                "Total map size: {} bytes",
+                prettyprint_usize(serialized_size_bytes(self))
+            );
+            info!(
+                "- {} roads: {} bytes",
+                prettyprint_usize(self.roads.len()),
+                prettyprint_usize(serialized_size_bytes(&self.roads))
+            );
+            info!(
+                "- {} lanes: {} bytes",
+                prettyprint_usize(self.lanes.len()),
+                prettyprint_usize(serialized_size_bytes(&self.lanes))
+            );
+            info!(
+                "- {} intersections: {} bytes",
+                prettyprint_usize(self.intersections.len()),
+                prettyprint_usize(serialized_size_bytes(&self.intersections))
+            );
+            info!(
+                "- {} turns: {} bytes",
+                prettyprint_usize(self.turns.len()),
+                prettyprint_usize(serialized_size_bytes(&self.turns))
+            );
+            info!(
+                "- {} buildings: {} bytes",
+                prettyprint_usize(self.buildings.len()),
+                prettyprint_usize(serialized_size_bytes(&self.buildings))
+            );
+            info!(
+                "- {} areas: {} bytes",
+                prettyprint_usize(self.areas.len()),
+                prettyprint_usize(serialized_size_bytes(&self.areas))
+            );
+            info!(
+                "- {} parking lots: {} bytes",
+                prettyprint_usize(self.parking_lots.len()),
+                prettyprint_usize(serialized_size_bytes(&self.parking_lots))
+            );
+            info!(
+                "- {} zones: {} bytes",
+                prettyprint_usize(self.zones.len()),
+                prettyprint_usize(serialized_size_bytes(&self.zones))
+            );
+            // This is the partridge in the pear tree, I suppose
+            info!(
+                "- pathfinder: {} bytes",
+                prettyprint_usize(serialized_size_bytes(&self.pathfinder))
+            );
+        }
     }
 
     /// Just for temporary std::mem::replace tricks.
