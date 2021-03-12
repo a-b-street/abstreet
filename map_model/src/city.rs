@@ -91,7 +91,7 @@ impl City {
             "system/{}/{}/maps",
             city_name.country, city_name.city
         ))) {
-            let map = Map::new(path, timer);
+            let map = Map::load_synchronously(path, timer);
             for area in map.all_areas() {
                 let pts = map.gps_bounds.convert_back(area.polygon.points());
                 // TODO Holes in the polygons get lost

@@ -85,7 +85,7 @@ fn dump_turn_goldenfile(map: &Map) -> Result<()> {
 fn smoke_test() -> Result<()> {
     let mut timer = Timer::new("run a smoke-test for all maps");
     for name in MapName::list_all_maps() {
-        let map = map_model::Map::new(name.path(), &mut timer);
+        let map = map_model::Map::load_synchronously(name.path(), &mut timer);
         let scenario = if map.get_city_name() == &CityName::seattle() {
             abstio::read_binary(abstio::path_scenario(&name, "weekday"), &mut timer)
         } else {
@@ -145,7 +145,7 @@ fn check_proposals() -> Result<()> {
             &mut timer,
         ) {
             Ok(perma) => {
-                let map = map_model::Map::new(perma.map_name.path(), &mut timer);
+                let map = map_model::Map::load_synchronously(perma.map_name.path(), &mut timer);
                 if let Err(err) = perma.clone().to_edits(&map) {
                     abstio::write_json(
                         "repair_attempt.json".to_string(),

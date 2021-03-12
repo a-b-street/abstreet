@@ -12,7 +12,7 @@ fn main() {
     args.done();
 
     let mut timer = Timer::new("import traffic demand data");
-    let map = Map::new(map, &mut timer);
+    let map = Map::load_synchronously(map, &mut timer);
     let input: Input = abstio::read_json(input, &mut timer);
 
     let mut s = Scenario::empty(&map, &input.scenario_name);

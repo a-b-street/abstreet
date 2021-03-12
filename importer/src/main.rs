@@ -239,7 +239,7 @@ impl Job {
 
                 Some(map)
             } else if self.scenario {
-                Some(map_model::Map::new(name.path(), timer))
+                Some(map_model::Map::load_synchronously(name.path(), timer))
             } else {
                 None
             };

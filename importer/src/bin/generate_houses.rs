@@ -16,7 +16,7 @@ use map_model::{osm, Map};
 fn main() {
     let mut timer = Timer::new("generate houses");
     let mut args = CmdArgs::new();
-    let map = Map::new(args.required("--map"), &mut timer);
+    let map = Map::load_synchronously(args.required("--map"), &mut timer);
     let num_required = args.required("--num_required").parse::<usize>().unwrap();
     let out = args.required("--out");
     let mut rng = XorShiftRng::seed_from_u64(args.required("--rng_seed").parse::<u64>().unwrap());

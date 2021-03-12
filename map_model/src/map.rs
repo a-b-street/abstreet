@@ -43,7 +43,9 @@ pub enum DrivingSide {
 }
 
 impl Map {
-    pub fn new(path: String, timer: &mut Timer) -> Map {
+    /// Load a map from a local serialized Map or RawMap. Note this won't work on web. This should
+    /// only be used by non-UI tools.
+    pub fn load_synchronously(path: String, timer: &mut Timer) -> Map {
         if path.contains("/maps/") {
             match abstio::maybe_read_binary(path.clone(), timer) {
                 Ok(map) => {
@@ -80,8 +82,7 @@ impl Map {
         Map::create_from_raw(raw, true, false, timer)
     }
 
-    /// If you have to deserialize a `Map` directly, call this after. Prefer using `Map::new`
-    /// though.
+    /// After deserializing a map directly, call this after.
     pub fn map_loaded_directly(&mut self) {
         self.edits = self.new_edits();
 

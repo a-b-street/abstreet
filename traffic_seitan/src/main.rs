@@ -20,7 +20,7 @@ fn main() {
     args.done();
 
     let mut timer = Timer::throwaway();
-    let (mut map, mut sim, mut rng) = sim_flags.load(&mut timer);
+    let (mut map, mut sim, mut rng) = sim_flags.load_synchronously(&mut timer);
 
     // Set the edits name up-front, so that the savestates get named reasonably too.
     {

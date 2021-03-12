@@ -206,7 +206,7 @@ fn setup_app(
         // work on the web.
         let primary = ctx.loading_screen("load map", |ctx, mut timer| {
             assert!(flags.sim_flags.modifiers.is_empty());
-            let (map, sim, _) = flags.sim_flags.load(timer);
+            let (map, sim, _) = flags.sim_flags.load_synchronously(timer);
             crate::app::PerMap::map_loaded(map, sim, flags, &opts, &cs, ctx, &mut timer)
         });
         let mut app = App {

@@ -483,7 +483,7 @@ impl LoadSim {
     fn setup(&self, timer: &mut Timer) -> (Map, Sim) {
         let mut scenario: Scenario = abstio::must_read_object(self.scenario.clone(), timer);
 
-        let mut map = Map::new(scenario.map_name.path(), timer);
+        let mut map = Map::load_synchronously(scenario.map_name.path(), timer);
         if let Some(perma) = self.edits.clone() {
             let edits = perma.to_edits(&map).unwrap();
             map.must_apply_edits(edits);

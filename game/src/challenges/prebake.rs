@@ -12,7 +12,8 @@ pub fn prebake_all() {
     let mut timer = Timer::new("prebake all challenge results");
 
     {
-        let map = map_model::Map::new(MapName::seattle("montlake").path(), &mut timer);
+        let map =
+            map_model::Map::load_synchronously(MapName::seattle("montlake").path(), &mut timer);
         for generator in TutorialState::scenarios_to_prebake(&map) {
             let scenario = generator.generate(
                 &map,
@@ -31,14 +32,17 @@ pub fn prebake_all() {
         MapName::seattle("rainier_valley"),
         //MapName::seattle("wallingford"),  TODO broken
     ] {
-        let map = map_model::Map::new(name.path(), &mut timer);
+        let map = map_model::Map::load_synchronously(name.path(), &mut timer);
         let scenario: Scenario =
             abstio::read_binary(abstio::path_scenario(map.get_name(), "weekday"), &mut timer);
         prebake(&map, scenario, None, &mut timer);
     }
 
     for scenario_name in vec!["base", "go_active", "base_with_bg", "go_active_with_bg"] {
-        let map = map_model::Map::new(MapName::new("gb", "poundbury", "center").path(), &mut timer);
+        let map = map_model::Map::load_synchronously(
+            MapName::new("gb", "poundbury", "center").path(),
+            &mut timer,
+        );
         let scenario: Scenario = abstio::read_binary(
             abstio::path_scenario(map.get_name(), scenario_name),
             &mut timer,

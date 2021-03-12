@@ -725,7 +725,11 @@ impl PerMap {
         let mut orig_map = self.unedited_map.borrow_mut();
         if orig_map.is_none() {
             let mut timer = Timer::new("load unedited map");
-            *orig_map = Some(Map::new(self.map.get_name().path(), &mut timer));
+            // TODO Need to fix this
+            *orig_map = Some(Map::load_synchronously(
+                self.map.get_name().path(),
+                &mut timer,
+            ));
         }
     }
 

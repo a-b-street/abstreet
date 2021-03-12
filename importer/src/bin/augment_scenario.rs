@@ -35,7 +35,7 @@ fn main() {
     let mut timer = Timer::new("augment scenario");
 
     let mut scenario: Scenario = abstio::must_read_object(input, &mut timer);
-    let map = Map::new(scenario.map_name.path(), &mut timer);
+    let map = Map::load_synchronously(scenario.map_name.path(), &mut timer);
 
     if should_add_return_trips {
         add_return_trips(&mut scenario, &mut rng);

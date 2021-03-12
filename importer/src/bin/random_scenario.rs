@@ -9,7 +9,7 @@ fn main() {
     let mut args = CmdArgs::new();
     let seed: u64 = args.required("--rng").parse().unwrap();
     let mut rng = XorShiftRng::seed_from_u64(seed);
-    let map = Map::new(args.required("--map"), &mut Timer::throwaway());
+    let map = Map::load_synchronously(args.required("--map"), &mut Timer::throwaway());
     let scenario_name = args.required("--scenario_name");
     args.done();
 

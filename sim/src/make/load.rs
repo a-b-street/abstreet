@@ -56,7 +56,8 @@ impl SimFlags {
         XorShiftRng::seed_from_u64(self.rng_seed)
     }
 
-    pub fn load(&self, timer: &mut abstutil::Timer) -> (Map, Sim, XorShiftRng) {
+    /// Loads a map and simulation. Not appropriate for use in the UI or on web.
+    pub fn load_synchronously(&self, timer: &mut abstutil::Timer) -> (Map, Sim, XorShiftRng) {
         let mut rng = self.make_rng();
 
         let mut opts = self.opts.clone();
@@ -66,7 +67,7 @@ impl SimFlags {
 
             let sim: Sim = abstio::must_read_object(self.load.clone(), timer);
 
-            let mut map = Map::new(sim.map_name.path(), timer);
+            let mut map = Map::load_synchronously(sim.map_name.path(), timer);
             match MapEdits::load(
                 &map,
                 abstio::path_edits(map.get_name(), &sim.edits_name),
@@ -87,7 +88,7 @@ impl SimFlags {
 
             let mut scenario: Scenario = abstio::must_read_object(self.load.clone(), timer);
 
-            let map = Map::new(scenario.map_name.path(), timer);
+            let map = Map::load_synchronously(scenario.map_name.path(), timer);
 
             for m in &self.modifiers {
                 scenario = m.apply(&map, scenario);
@@ -103,7 +104,7 @@ impl SimFlags {
         } else if self.load.contains("/raw_maps/") || self.load.contains("/maps/") {
             info!("Loading map {}", self.load);
 
-            let map = Map::new(self.load.clone(), timer);
+            let map = Map::load_synchronously(self.load.clone(), timer);
 
             timer.start("create sim");
             let sim = Sim::new(&map, opts);
