@@ -17,14 +17,10 @@ use crate::info::Tab;
 use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};
 use crate::sandbox::{Actions, SandboxControls};
 
-// TODO Avoid hack entirely, or tune appearance
-const METER_HACK: f64 = -15.0;
-
 // TODO A nice level to unlock: specifying your own commute, getting to work on it
 
 pub struct OptimizeCommute {
     top_center: Panel,
-    meter: Panel,
     person: PersonID,
     mode: GameplayMode,
     goal: Duration,
@@ -48,7 +44,6 @@ impl OptimizeCommute {
         let trips = app.primary.sim.get_person(person).trips.clone();
         Box::new(OptimizeCommute {
             top_center: Panel::empty(ctx),
-            meter: make_meter(ctx, app, Duration::ZERO, Duration::ZERO, 0, trips.len()),
             person,
             mode: GameplayMode::OptimizeCommute(orig_person, goal),
             goal,
@@ -121,23 +116,11 @@ impl GameplayState for OptimizeCommute {
             );
         }
 
-        self.meter.align_below(
-            ctx,
-            &controls.time_panel.as_ref().unwrap().panel,
-            METER_HACK,
-        );
-
         if self.time != app.primary.sim.time() && !self.done {
             self.time = app.primary.sim.time();
+            self.recreate_panels(ctx, app);
 
             let (before, after, done) = get_score(app, &self.trips);
-            self.meter = make_meter(ctx, app, before, after, done, self.trips.len());
-            self.meter.align_below(
-                ctx,
-                &controls.time_panel.as_ref().unwrap().panel,
-                METER_HACK,
-            );
-
             if done == self.trips.len() {
                 self.done = true;
                 return Some(Transition::Push(final_score(
@@ -170,12 +153,6 @@ impl GameplayState for OptimizeCommute {
                     let contents = txt.into_widget(ctx);
                     return Some(Transition::Push(FYI::new(ctx, contents, app.cs.panel_bg)));
                 }
-                _ => unreachable!(),
-            },
-            _ => {}
-        }
-        match self.meter.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
                 "locate VIP" => {
                     controls.common.as_mut().unwrap().launch_info_panel(
                         ctx,
@@ -194,10 +171,14 @@ impl GameplayState for OptimizeCommute {
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.top_center.draw(g);
-        self.meter.draw(g);
     }
 
-    fn recreate_panels(&mut self, ctx: &mut EventCtx, _app: &App) {
+    fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
+        let (before, after, done) = get_score(app, &self.trips);
+        let mut txt = Text::from(Line(format!("Total time: {} (", after)));
+        txt.append_all(cmp_duration_shorter(app, after, before));
+        txt.append(Line(")"));
+
         self.top_center = Panel::new(Widget::col(vec![
             challenge_header(ctx, "Optimize the VIP's commute"),
             Widget::row(vec![
@@ -210,11 +191,18 @@ impl GameplayState for OptimizeCommute {
                     .build_widget(ctx, "hint")
                     .align_right(),
             ]),
+            Widget::row(vec![
+                ctx.style()
+                    .btn_plain
+                    .icon("system/assets/tools/location.svg")
+                    .build_widget(ctx, "locate VIP"),
+                format!("{}/{} trips done", done, self.trips.len()).text_widget(ctx),
+                txt.into_widget(ctx),
+            ])
+            .centered(),
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);
-
-        // self.meter is recreated as time passes
     }
 }
 
@@ -232,33 +220,6 @@ fn get_score(app: &App, trips: &Vec<TripID>) -> (Duration, Duration, usize) {
         }
     }
     (before, after, done)
-}
-
-fn make_meter(
-    ctx: &mut EventCtx,
-    app: &App,
-    before: Duration,
-    after: Duration,
-    done: usize,
-    trips: usize,
-) -> Panel {
-    let mut txt = Text::from(Line(format!("Total time: {} (", after)));
-    txt.append_all(cmp_duration_shorter(app, after, before));
-    txt.append(Line(")"));
-
-    Panel::new(Widget::col(vec![
-        Widget::horiz_separator(ctx, 0.2),
-        Widget::row(vec![
-            ctx.style()
-                .btn_plain
-                .icon("system/assets/tools/location.svg")
-                .build_widget(ctx, "locate VIP"),
-            format!("{}/{} trips done", done, trips).text_widget(ctx),
-            txt.into_widget(ctx),
-        ]),
-    ]))
-    .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
-    .build(ctx)
 }
 
 fn final_score(

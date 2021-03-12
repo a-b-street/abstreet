@@ -213,9 +213,7 @@ impl GameplayMode {
             GameplayMode::PlayScenario(_, ref scenario, ref modifiers) => {
                 play_scenario::PlayScenario::new(ctx, app, scenario, modifiers.clone())
             }
-            GameplayMode::FixTrafficSignals => {
-                fix_traffic_signals::FixTrafficSignals::new(ctx, app)
-            }
+            GameplayMode::FixTrafficSignals => fix_traffic_signals::FixTrafficSignals::new(ctx),
             GameplayMode::OptimizeCommute(p, goal) => {
                 commute::OptimizeCommute::new(ctx, app, *p, *goal)
             }
