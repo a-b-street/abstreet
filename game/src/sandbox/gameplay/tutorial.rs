@@ -31,7 +31,7 @@ const ESCORT: CarID = CarID(0, VehicleType::Car);
 const CAR_BIKE_CONTENTION_GOAL: Duration = Duration::const_seconds(15.0);
 
 pub struct Tutorial {
-    top_center: Panel,
+    top_right: Panel,
     last_finished_task: Task,
 
     msg_panel: Option<Panel>,
@@ -126,7 +126,7 @@ impl Tutorial {
             }
         }
 
-        match self.top_center.event(ctx) {
+        match self.top_right.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Quit" => {
                     return Some(maybe_exit_sandbox(ctx));
@@ -190,24 +190,24 @@ impl Tutorial {
                 Some(ID::Lane(l)) => {
                     if app.primary.map.get_l(l).is_biking() && !tut.inspected_bike_lane {
                         tut.inspected_bike_lane = true;
-                        self.top_center = tut.make_top_center(ctx, false);
+                        self.top_right = tut.make_top_right(ctx, false);
                     }
                 }
                 Some(ID::Building(_)) => {
                     if !tut.inspected_building {
                         tut.inspected_building = true;
-                        self.top_center = tut.make_top_center(ctx, false);
+                        self.top_right = tut.make_top_right(ctx, false);
                     }
                 }
                 Some(ID::Intersection(i)) => {
                     let i = app.primary.map.get_i(i);
                     if i.is_stop_sign() && !tut.inspected_stop_sign {
                         tut.inspected_stop_sign = true;
-                        self.top_center = tut.make_top_center(ctx, false);
+                        self.top_right = tut.make_top_right(ctx, false);
                     }
                     if i.is_border() && !tut.inspected_border {
                         tut.inspected_border = true;
-                        self.top_center = tut.make_top_center(ctx, false);
+                        self.top_right = tut.make_top_right(ctx, false);
                     }
                 }
                 _ => {}
@@ -233,7 +233,7 @@ impl Tutorial {
             if !tut.was_paused && is_paused {
                 tut.num_pauses += 1;
                 tut.was_paused = true;
-                self.top_center = tut.make_top_center(ctx, false);
+                self.top_right = tut.make_top_right(ctx, false);
             }
             if tut.num_pauses == 3 {
                 tut.next();
@@ -249,14 +249,14 @@ impl Tutorial {
                 .is_none();
             if !tut.car_parked && is_parked && tut.following_car {
                 tut.car_parked = true;
-                self.top_center = tut.make_top_center(ctx, false);
+                self.top_right = tut.make_top_right(ctx, false);
             }
 
             if following_car && !tut.following_car {
                 // TODO There's a delay of one event before the checklist updates, because the
                 // info panel opening happens at the end of the event. Not a big deal.
                 tut.following_car = true;
-                self.top_center = tut.make_top_center(ctx, false);
+                self.top_right = tut.make_top_right(ctx, false);
             }
 
             if tut.prank_done {
@@ -382,7 +382,7 @@ impl GameplayState for Tutorial {
             grey_out_map(g, app);
         }
 
-        self.top_center.draw(g);
+        self.top_right.draw(g);
 
         if let Some(ref msg) = self.msg_panel {
             // Arrows underneath the message panel, but on top of other panels
@@ -419,7 +419,7 @@ impl GameplayState for Tutorial {
 
     fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
         let tut = app.session.tutorial.as_ref().unwrap();
-        self.top_center = tut.make_top_center(ctx, self.last_finished_task >= Task::WatchBikes);
+        self.top_right = tut.make_top_right(ctx, self.last_finished_task >= Task::WatchBikes);
 
         // Time can't pass while self.msg_panel is active
     }
@@ -727,7 +727,7 @@ impl TutorialState {
         }
     }
 
-    fn make_top_center(&self, ctx: &mut EventCtx, edit_map: bool) -> Panel {
+    fn make_top_right(&self, ctx: &mut EventCtx, edit_map: bool) -> Panel {
         let mut col = vec![Widget::row(vec![
             Line("Tutorial").small_heading().into_widget(ctx),
             Widget::vert_separator(ctx, 50.0),
@@ -784,7 +784,7 @@ impl TutorialState {
         }
 
         Panel::new(Widget::col(col))
-            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx)
     }
 
@@ -808,7 +808,7 @@ impl TutorialState {
         };
 
         Box::new(Tutorial {
-            top_center: self.make_top_center(ctx, last_finished_task >= Task::WatchBikes),
+            top_right: self.make_top_right(ctx, last_finished_task >= Task::WatchBikes),
             last_finished_task,
 
             msg_panel: if let Some((ref lines, horiz_align, _)) = self.lines() {
@@ -1191,7 +1191,7 @@ impl TutorialState {
                 ),
         );
 
-        let top_center = state.make_top_center(ctx, true);
+        let top_right = state.make_top_right(ctx, true);
         state.stages.push(
             Stage::new(Task::FixBikes)
                 .scenario(bike_lane_scenario)
@@ -1216,7 +1216,7 @@ impl TutorialState {
                 )
                 .msg(
                     vec!["To edit lanes, click 'edit map' and then select a lane."],
-                    arrow(top_center.center_of("edit map")),
+                    arrow(top_right.center_of("edit map")),
                 )
                 .msg(
                     vec![

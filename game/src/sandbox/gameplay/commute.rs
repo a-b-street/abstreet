@@ -20,7 +20,7 @@ use crate::sandbox::{Actions, SandboxControls};
 // TODO A nice level to unlock: specifying your own commute, getting to work on it
 
 pub struct OptimizeCommute {
-    top_center: Panel,
+    top_right: Panel,
     person: PersonID,
     mode: GameplayMode,
     goal: Duration,
@@ -43,7 +43,7 @@ impl OptimizeCommute {
         let person = app.primary.sim.find_person_by_orig_id(orig_person).unwrap();
         let trips = app.primary.sim.get_person(person).trips.clone();
         Box::new(OptimizeCommute {
-            top_center: Panel::empty(ctx),
+            top_right: Panel::empty(ctx),
             person,
             mode: GameplayMode::OptimizeCommute(orig_person, goal),
             goal,
@@ -134,7 +134,7 @@ impl GameplayState for OptimizeCommute {
             }
         }
 
-        match self.top_center.event(ctx) {
+        match self.top_right.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "edit map" => {
                     return Some(Transition::Push(EditMode::new(ctx, app, self.mode.clone())));
@@ -170,7 +170,7 @@ impl GameplayState for OptimizeCommute {
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
-        self.top_center.draw(g);
+        self.top_right.draw(g);
     }
 
     fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
@@ -179,7 +179,7 @@ impl GameplayState for OptimizeCommute {
         txt.append_all(cmp_duration_shorter(app, after, before));
         txt.append(Line(")"));
 
-        self.top_center = Panel::new(Widget::col(vec![
+        self.top_right = Panel::new(Widget::col(vec![
             challenge_header(ctx, "Optimize the VIP's commute"),
             Widget::row(vec![
                 format!("Speed up the VIP's trips by {}", self.goal)
@@ -201,7 +201,7 @@ impl GameplayState for OptimizeCommute {
             ])
             .centered(),
         ]))
-        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+        .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
         .build(ctx);
     }
 }

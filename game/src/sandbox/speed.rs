@@ -238,9 +238,7 @@ impl TimePanel {
         };
 
         Widget::col(vec![
-            Text::from(Line(self.time.ampm_tostring()).big_monospaced())
-                .into_widget(ctx)
-                .centered_horiz(),
+            Text::from(Line(self.time.ampm_tostring()).big_monospaced()).into_widget(ctx),
             time_bar,
             trip_results,
             record_trips,

@@ -22,7 +22,7 @@ use crate::sandbox::{Actions, SandboxControls, SandboxMode};
 
 // TODO Maybe remember what things were spawned, offer to replay this later
 pub struct Freeform {
-    top_center: Panel,
+    top_right: Panel,
 }
 
 impl Freeform {
@@ -40,7 +40,7 @@ impl Freeform {
         }
 
         Box::new(Freeform {
-            top_center: Panel::empty(ctx),
+            top_right: Panel::empty(ctx),
         })
     }
 }
@@ -53,7 +53,7 @@ impl GameplayState for Freeform {
         _: &mut SandboxControls,
         _: &mut Actions,
     ) -> Option<Transition> {
-        match self.top_center.event(ctx) {
+        match self.top_right.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "change map" => Some(Transition::Push(CityPicker::new(
                     ctx,
@@ -114,7 +114,7 @@ impl GameplayState for Freeform {
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
-        self.top_center.draw(g);
+        self.top_right.draw(g);
     }
 
     fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
@@ -164,8 +164,8 @@ impl GameplayState for Freeform {
             .into_widget(ctx),
         ];
 
-        self.top_center = Panel::new(Widget::col(rows))
-            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+        self.top_right = Panel::new(Widget::col(rows))
+            .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx);
     }
 }

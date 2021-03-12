@@ -19,7 +19,7 @@ use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{Actions, SandboxControls, SandboxMode};
 
 pub struct PlayScenario {
-    top_center: Panel,
+    top_right: Panel,
     scenario_name: String,
     modifiers: Vec<ScenarioModifier>,
 }
@@ -44,7 +44,7 @@ impl PlayScenario {
         }
 
         Box::new(PlayScenario {
-            top_center: Panel::empty(ctx),
+            top_right: Panel::empty(ctx),
             scenario_name: name.to_string(),
             modifiers,
         })
@@ -63,7 +63,7 @@ impl GameplayState for PlayScenario {
         // on_destroy can wipe this out.
         app.primary.has_modified_trips = !self.modifiers.is_empty();
 
-        match self.top_center.event(ctx) {
+        match self.top_right.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "change map" => {
                     let scenario = self.scenario_name.clone();
@@ -117,7 +117,7 @@ impl GameplayState for PlayScenario {
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
-        self.top_center.draw(g);
+        self.top_right.draw(g);
     }
 
     fn on_destroy(&self, app: &mut App) {
@@ -169,8 +169,8 @@ impl GameplayState for PlayScenario {
             },
         ];
 
-        self.top_center = Panel::new(Widget::col(rows))
-            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+        self.top_right = Panel::new(Widget::col(rows))
+            .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx);
     }
 }
