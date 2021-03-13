@@ -228,7 +228,10 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
                     }
                     #[cfg(not(target_arch = "wasm32"))]
                     {
-                        return Transition::Push(crate::tools::importer::ImportCity::new(ctx, app));
+                        return Transition::Replace(crate::tools::importer::ImportCity::new(
+                            ctx,
+                            self.on_load.take().unwrap(),
+                        ));
                     }
                 }
                 "Download more cities" => {

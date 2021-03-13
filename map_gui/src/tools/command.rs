@@ -11,20 +11,23 @@ use crate::AppLike;
 
 /// Executes a command and displays STDOUT and STDERR in a loading screen window. Only works on
 /// native, of course.
-pub struct RunCommand {
+pub struct RunCommand<A: AppLike> {
     p: Popen,
     comm: Communicator,
     panel: Panel,
     lines: VecDeque<String>,
     max_capacity: usize,
     started: Instant,
+    // Wrapped in an Option just to make calling from event() work. The bool is success.
+    on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut A, bool) -> Transition<A>>>,
 }
 
-impl RunCommand {
-    pub fn new<A: AppLike + 'static>(
+impl<A: AppLike + 'static> RunCommand<A> {
+    pub fn new(
         ctx: &mut EventCtx,
         _: &A,
         args: Vec<&str>,
+        on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, bool) -> Transition<A>>,
     ) -> Box<dyn State<A>> {
         match subprocess::Popen::create(
             &args,
@@ -48,6 +51,7 @@ impl RunCommand {
                     lines: VecDeque::new(),
                     max_capacity,
                     started: Instant::now(),
+                    on_load: Some(on_load),
                 })
             }
             Err(err) => PopupMsg::new(
@@ -59,8 +63,8 @@ impl RunCommand {
     }
 }
 
-impl<A: AppLike + 'static> State<A> for RunCommand {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut A) -> Transition<A> {
+impl<A: AppLike + 'static> State<A> for RunCommand<A> {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
         ctx.request_update(UpdateType::Game);
         if ctx.input.nonblocking_is_update_event().is_none() {
             return Transition::Keep;
@@ -106,18 +110,16 @@ impl<A: AppLike + 'static> State<A> for RunCommand {
         self.panel = ctx.make_loading_screen(txt);
 
         if let Some(status) = self.p.poll() {
-            if status.success() {
-                return Transition::Replace(PopupMsg::new(
+            let success = status.success();
+            return Transition::Multi(vec![
+                Transition::Pop,
+                (self.on_load.take().unwrap())(ctx, app, success),
+                Transition::Push(PopupMsg::new(
                     ctx,
-                    "Success!",
+                    if success { "Success!" } else { "Failure!" },
                     self.lines.drain(..).collect(),
-                ));
-            }
-            return Transition::Replace(PopupMsg::new(
-                ctx,
-                "Failure!",
-                self.lines.drain(..).collect(),
-            ));
+                )),
+            ]);
         }
 
         Transition::Keep

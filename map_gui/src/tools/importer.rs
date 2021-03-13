@@ -3,15 +3,26 @@ use std::io::Write;
 use anyhow::Result;
 use clipboard::{ClipboardContext, ClipboardProvider};
 
-use widgetry::{EventCtx, Line, Panel, SimpleState, State, TextExt, Toggle, Transition, Widget};
+use abstio::MapName;
+use widgetry::{
+    EventCtx, GfxCtx, Line, Outcome, Panel, State, TextExt, Toggle, Transition, Widget,
+};
 
+use crate::load::MapLoader;
 use crate::tools::{open_browser, PopupMsg};
 use crate::AppLike;
 
-pub struct ImportCity;
+pub struct ImportCity<A: AppLike> {
+    panel: Panel,
+    // Wrapped in an Option just to make calling from event() work.
+    on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>>,
+}
 
-impl ImportCity {
-    pub fn new<A: AppLike + 'static>(ctx: &mut EventCtx, _: &A) -> Box<dyn State<A>> {
+impl<A: AppLike + 'static> ImportCity<A> {
+    pub fn new(
+        ctx: &mut EventCtx,
+        on_load: Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>,
+    ) -> Box<dyn State<A>> {
         let panel = Panel::new(Widget::col(vec![
             Widget::row(vec![
                 Line("Import a new city").small_heading().into_widget(ctx),
@@ -50,49 +61,74 @@ impl ImportCity {
                 .build_def(ctx),
         ]))
         .build(ctx);
-        SimpleState::new(panel, Box::new(ImportCity))
+        Box::new(ImportCity {
+            panel,
+            on_load: Some(on_load),
+        })
     }
 }
 
-impl<A: AppLike + 'static> SimpleState<A> for ImportCity {
-    fn on_click(
-        &mut self,
-        ctx: &mut EventCtx,
-        app: &mut A,
-        x: &str,
-        panel: &Panel,
-    ) -> Transition<A> {
-        match x {
-            "close" => Transition::Pop,
-            "Alternate instructions" => {
-                open_browser("https://a-b-street.github.io/docs/howto/new_city.html");
-                Transition::Keep
-            }
-            "Go to geojson.io" => {
-                open_browser("http://geojson.io");
-                Transition::Keep
-            }
-            "Import the area from your clipboard" => {
-                let mut args = vec!["../target/debug/one_step_import", "boundary.geojson"];
-                if !panel.is_checked("driving side") {
-                    args.push("--drive_on_left");
+impl<A: AppLike + 'static> State<A> for ImportCity<A> {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
+        match self.panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
+                "close" => Transition::Pop,
+                "Alternate instructions" => {
+                    open_browser("https://a-b-street.github.io/docs/howto/new_city.html");
+                    Transition::Keep
                 }
-                match grab_geojson_from_clipboard() {
-                    Ok(()) => {
-                        Transition::Replace(crate::tools::command::RunCommand::new(ctx, app, args))
+                "Go to geojson.io" => {
+                    open_browser("http://geojson.io");
+                    Transition::Keep
+                }
+                "Import the area from your clipboard" => {
+                    let mut args = vec!["../target/debug/one_step_import", "boundary.geojson"];
+                    if !self.panel.is_checked("driving side") {
+                        args.push("--drive_on_left");
                     }
-                    Err(err) => Transition::Push(PopupMsg::new(
-                        ctx,
-                        "Error",
-                        vec![
-                            "Couldn't get GeoJSON from your clipboard".to_string(),
-                            err.to_string(),
-                        ],
-                    )),
+                    match grab_geojson_from_clipboard() {
+                        Ok(()) => Transition::Push(crate::tools::command::RunCommand::new(
+                            ctx,
+                            app,
+                            args,
+                            Box::new(|_, _, success| {
+                                if success {
+                                    Transition::ReplaceWithData(Box::new(move |state, ctx, app| {
+                                        let mut import =
+                                            state.downcast::<ImportCity<A>>().ok().unwrap();
+                                        let on_load = import.on_load.take().unwrap();
+                                        vec![MapLoader::new(
+                                            ctx,
+                                            app,
+                                            // TODO The name is hardcoded for now
+                                            MapName::new("zz", "oneshot", "clipped"),
+                                            on_load,
+                                        )]
+                                    }))
+                                } else {
+                                    // The popup already explained the failure
+                                    Transition::Keep
+                                }
+                            }),
+                        )),
+                        Err(err) => Transition::Push(PopupMsg::new(
+                            ctx,
+                            "Error",
+                            vec![
+                                "Couldn't get GeoJSON from your clipboard".to_string(),
+                                err.to_string(),
+                            ],
+                        )),
+                    }
                 }
-            }
-            _ => unreachable!(),
+                _ => unreachable!(),
+            },
+            _ => Transition::Keep,
         }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &A) {
+        self.panel.draw(g);
     }
 }
 
