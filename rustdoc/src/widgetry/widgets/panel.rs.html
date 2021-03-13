@@ -584,6 +584,21 @@
 <span id="581">581</span>
 <span id="582">582</span>
 <span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -640,6 +655,9 @@
             ),
             <span class="ident">Dims</span>::<span class="ident">ExactPercent</span>(<span class="ident">w</span>, <span class="ident">h</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="ident">w</span> <span class="op">*</span> <span class="ident">canvas_dims</span>.<span class="ident">width</span>, <span class="ident">h</span> <span class="op">*</span> <span class="ident">canvas_dims</span>.<span class="ident">height</span>)
+            }
+            <span class="ident">Dims</span>::<span class="ident">ExactHeight</span>(<span class="ident">h</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">contents_dims</span>.<span class="ident">width</span>.<span class="ident">min</span>(<span class="ident">canvas_dims</span>.<span class="ident">width</span>), <span class="ident">h</span>)
             }
         };
         <span class="self">self</span>.<span class="ident">container_dims</span> <span class="op">=</span> <span class="ident">new_container_dims</span>;
@@ -1031,6 +1049,9 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">center_of_panel</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ScreenPt</span> {
         <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">rect</span>.<span class="ident">center</span>()
     }
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">panel_dims</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ScreenDims</span> {
+        <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">rect</span>.<span class="ident">dims</span>()
+    }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">align</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">horiz</span>: <span class="ident">HorizontalAlignment</span>, <span class="ident">vert</span>: <span class="ident">VerticalAlignment</span>) {
         <span class="self">self</span>.<span class="ident">horiz</span> <span class="op">=</span> <span class="ident">horiz</span>;
@@ -1094,6 +1115,7 @@
 <span class="kw">enum</span> <span class="ident">Dims</span> {
     <span class="ident">MaxPercent</span>(<span class="ident">Percent</span>, <span class="ident">Percent</span>),
     <span class="ident">ExactPercent</span>(<span class="ident">f64</span>, <span class="ident">f64</span>),
+    <span class="ident">ExactHeight</span>(<span class="ident">f64</span>),
 }
 
 <span class="kw">impl</span> <span class="ident">PanelBuilder</span> {
@@ -1123,6 +1145,9 @@
                 <span class="ident">width</span>: <span class="ident">Dimension</span>::<span class="ident">Points</span>((<span class="ident">w</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>) <span class="kw">as</span> <span class="ident">f32</span>),
                 <span class="ident">height</span>: <span class="ident">Dimension</span>::<span class="ident">Points</span>((<span class="ident">h</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>) <span class="kw">as</span> <span class="ident">f32</span>),
             };
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Dims</span>::<span class="ident">ExactHeight</span>(<span class="ident">h</span>) <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">dims</span> {
+            <span class="ident">panel</span>.<span class="ident">top_level</span>.<span class="ident">layout</span>.<span class="ident">style</span>.<span class="ident">min_size</span>.<span class="ident">height</span> <span class="op">=</span> <span class="ident">Dimension</span>::<span class="ident">Points</span>(<span class="ident">h</span> <span class="kw">as</span> <span class="ident">f32</span>);
         }
 
         <span class="comment">// There is a dependency cycle in our layout logic. As a consequence:</span>
@@ -1165,6 +1190,11 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exact_size_percent</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pct_width</span>: <span class="ident">usize</span>, <span class="ident">pct_height</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PanelBuilder</span> {
         <span class="self">self</span>.<span class="ident">dims</span> <span class="op">=</span> <span class="ident">Dims</span>::<span class="ident">ExactPercent</span>((<span class="ident">pct_width</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="number">100.0</span>, (<span class="ident">pct_height</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="number">100.0</span>);
+        <span class="self">self</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exact_height</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">height</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PanelBuilder</span> {
+        <span class="self">self</span>.<span class="ident">dims</span> <span class="op">=</span> <span class="ident">Dims</span>::<span class="ident">ExactHeight</span>(<span class="ident">height</span>);
         <span class="self">self</span>
     }
 }

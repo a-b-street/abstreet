@@ -248,7 +248,52 @@
 <span id="245">245</span>
 <span id="246">246</span>
 <span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="comment">// TODO I&#39;ve considered moving this out of map_gui completely, to remove all dependencies on the</span>
+<span class="comment">// sim crate. If that&#39;s desirable, get_obj in DrawMap is the only dependency.</span>
+
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">borrow</span>::<span class="ident">Borrow</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -470,22 +515,61 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_horiz_viz_panel</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="doccomment">/// The details are (car, bike, bus, pedestrian)</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_horiz_viz_panel</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
+        <span class="ident">details</span>: (<span class="ident">Widget</span>, <span class="ident">Widget</span>, <span class="ident">Widget</span>, <span class="ident">Widget</span>),
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+        <span class="kw">let</span> (<span class="ident">car_details</span>, <span class="ident">bike_details</span>, <span class="ident">bus_details</span>, <span class="ident">pedestrian_details</span>) <span class="op">=</span> <span class="ident">details</span>;
         <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Toggle</span>::<span class="ident">colored_checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Car&quot;</span>, <span class="self">self</span>.<span class="ident">car_color</span>, <span class="self">self</span>.<span class="ident">cars</span>).<span class="ident">margin_right</span>(<span class="number">24</span>),
-            <span class="ident">Toggle</span>::<span class="ident">colored_checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Bike&quot;</span>, <span class="self">self</span>.<span class="ident">bike_color</span>, <span class="self">self</span>.<span class="ident">bikes</span>).<span class="ident">margin_right</span>(<span class="number">24</span>),
-            <span class="ident">Toggle</span>::<span class="ident">colored_checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Bus&quot;</span>, <span class="self">self</span>.<span class="ident">bus_color</span>, <span class="self">self</span>.<span class="ident">buses_and_trains</span>)
-                .<span class="ident">margin_right</span>(<span class="number">24</span>),
-            <span class="ident">Toggle</span>::<span class="ident">colored_checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Walk&quot;</span>, <span class="self">self</span>.<span class="ident">ped_color</span>, <span class="self">self</span>.<span class="ident">peds</span>).<span class="ident">margin_right</span>(<span class="number">8</span>),
+            <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Toggle</span>::<span class="ident">colored_checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Car&quot;</span>, <span class="self">self</span>.<span class="ident">car_color</span>, <span class="self">self</span>.<span class="ident">cars</span>),
+                <span class="ident">car_details</span>,
+            ])
+            .<span class="ident">margin_right</span>(<span class="number">24</span>),
+            <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Toggle</span>::<span class="ident">colored_checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Bike&quot;</span>, <span class="self">self</span>.<span class="ident">bike_color</span>, <span class="self">self</span>.<span class="ident">bikes</span>),
+                <span class="ident">bike_details</span>,
+            ])
+            .<span class="ident">margin_right</span>(<span class="number">24</span>),
+            <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Toggle</span>::<span class="ident">colored_checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Bus&quot;</span>, <span class="self">self</span>.<span class="ident">bus_color</span>, <span class="self">self</span>.<span class="ident">buses_and_trains</span>),
+                <span class="ident">bus_details</span>,
+            ])
+            .<span class="ident">margin_right</span>(<span class="number">24</span>),
+            <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Toggle</span>::<span class="ident">colored_checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Walk&quot;</span>, <span class="self">self</span>.<span class="ident">ped_color</span>, <span class="self">self</span>.<span class="ident">peds</span>),
+                <span class="ident">pedestrian_details</span>,
+            ])
+            .<span class="ident">margin_right</span>(<span class="number">8</span>),
         ])
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_vert_viz_panel</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="doccomment">/// The details are (car, bike, bus, pedestrian)</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_vert_viz_panel</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
+        <span class="ident">details</span>: (<span class="ident">Widget</span>, <span class="ident">Widget</span>, <span class="ident">Widget</span>, <span class="ident">Widget</span>),
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+        <span class="kw">let</span> (<span class="ident">car_details</span>, <span class="ident">bike_details</span>, <span class="ident">bus_details</span>, <span class="ident">pedestrian_details</span>) <span class="op">=</span> <span class="ident">details</span>;
         <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Toggle</span>::<span class="ident">colored_checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Car&quot;</span>, <span class="self">self</span>.<span class="ident">car_color</span>, <span class="self">self</span>.<span class="ident">cars</span>),
-            <span class="ident">Toggle</span>::<span class="ident">colored_checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Bike&quot;</span>, <span class="self">self</span>.<span class="ident">bike_color</span>, <span class="self">self</span>.<span class="ident">bikes</span>),
-            <span class="ident">Toggle</span>::<span class="ident">colored_checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Bus&quot;</span>, <span class="self">self</span>.<span class="ident">bus_color</span>, <span class="self">self</span>.<span class="ident">buses_and_trains</span>),
-            <span class="ident">Toggle</span>::<span class="ident">colored_checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Walk&quot;</span>, <span class="self">self</span>.<span class="ident">ped_color</span>, <span class="self">self</span>.<span class="ident">peds</span>),
+            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Toggle</span>::<span class="ident">colored_checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Car&quot;</span>, <span class="self">self</span>.<span class="ident">car_color</span>, <span class="self">self</span>.<span class="ident">cars</span>),
+                <span class="ident">car_details</span>.<span class="ident">align_right</span>(),
+            ]),
+            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Toggle</span>::<span class="ident">colored_checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Bike&quot;</span>, <span class="self">self</span>.<span class="ident">bike_color</span>, <span class="self">self</span>.<span class="ident">bikes</span>),
+                <span class="ident">bike_details</span>.<span class="ident">align_right</span>(),
+            ]),
+            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Toggle</span>::<span class="ident">colored_checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Bus&quot;</span>, <span class="self">self</span>.<span class="ident">bus_color</span>, <span class="self">self</span>.<span class="ident">buses_and_trains</span>),
+                <span class="ident">bus_details</span>.<span class="ident">align_right</span>(),
+            ]),
+            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Toggle</span>::<span class="ident">colored_checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Walk&quot;</span>, <span class="self">self</span>.<span class="ident">ped_color</span>, <span class="self">self</span>.<span class="ident">peds</span>),
+                <span class="ident">pedestrian_details</span>.<span class="ident">align_right</span>(),
+            ]),
         ])
     }
 

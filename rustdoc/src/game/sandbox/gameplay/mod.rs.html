@@ -381,14 +381,6 @@
 <span id="378">378</span>
 <span id="379">379</span>
 <span id="380">380</span>
-<span id="381">381</span>
-<span id="382">382</span>
-<span id="383">383</span>
-<span id="384">384</span>
-<span id="385">385</span>
-<span id="386">386</span>
-<span id="387">387</span>
-<span id="388">388</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">future</span>::<span class="ident">Future</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">pin</span>::<span class="ident">Pin</span>;
@@ -462,12 +454,6 @@
         <span class="bool-val">true</span>
     }
     <span class="kw">fn</span> <span class="ident">has_time_panel</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="bool-val">true</span>
-    }
-    <span class="kw">fn</span> <span class="ident">has_speed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="bool-val">true</span>
-    }
-    <span class="kw">fn</span> <span class="ident">has_agent_meter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="bool-val">true</span>
     }
     <span class="kw">fn</span> <span class="ident">has_minimap</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
@@ -611,9 +597,7 @@
             <span class="ident">GameplayMode</span>::<span class="ident">PlayScenario</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">scenario</span>, <span class="kw-2">ref</span> <span class="ident">modifiers</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">play_scenario</span>::<span class="ident">PlayScenario</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">scenario</span>, <span class="ident">modifiers</span>.<span class="ident">clone</span>())
             }
-            <span class="ident">GameplayMode</span>::<span class="ident">FixTrafficSignals</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">fix_traffic_signals</span>::<span class="ident">FixTrafficSignals</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)
-            }
+            <span class="ident">GameplayMode</span>::<span class="ident">FixTrafficSignals</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">fix_traffic_signals</span>::<span class="ident">FixTrafficSignals</span>::<span class="ident">new</span>(<span class="ident">ctx</span>),
             <span class="ident">GameplayMode</span>::<span class="ident">OptimizeCommute</span>(<span class="ident">p</span>, <span class="ident">goal</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">commute</span>::<span class="ident">OptimizeCommute</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">*</span><span class="ident">p</span>, <span class="kw-2">*</span><span class="ident">goal</span>)
             }

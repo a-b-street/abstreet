@@ -1415,18 +1415,6 @@
 <span id="1412">1412</span>
 <span id="1413">1413</span>
 <span id="1414">1414</span>
-<span id="1415">1415</span>
-<span id="1416">1416</span>
-<span id="1417">1417</span>
-<span id="1418">1418</span>
-<span id="1419">1419</span>
-<span id="1420">1420</span>
-<span id="1421">1421</span>
-<span id="1422">1422</span>
-<span id="1423">1423</span>
-<span id="1424">1424</span>
-<span id="1425">1425</span>
-<span id="1426">1426</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -1453,15 +1441,15 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">EditMode</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">gameplay</span>::{<span class="ident">GameplayMode</span>, <span class="ident">GameplayState</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::{
-    <span class="ident">maybe_exit_sandbox</span>, <span class="ident">spawn_agents_around</span>, <span class="ident">Actions</span>, <span class="ident">AgentMeter</span>, <span class="ident">MinimapController</span>,
-    <span class="ident">SandboxControls</span>, <span class="ident">SandboxMode</span>, <span class="ident">SpeedControls</span>, <span class="ident">TimePanel</span>,
+    <span class="ident">maybe_exit_sandbox</span>, <span class="ident">spawn_agents_around</span>, <span class="ident">Actions</span>, <span class="ident">MinimapController</span>, <span class="ident">SandboxControls</span>,
+    <span class="ident">SandboxMode</span>, <span class="ident">TimePanel</span>,
 };
 
 <span class="kw">const</span> <span class="ident">ESCORT</span>: <span class="ident">CarID</span> <span class="op">=</span> <span class="ident">CarID</span>(<span class="number">0</span>, <span class="ident">VehicleType</span>::<span class="ident">Car</span>);
 <span class="kw">const</span> <span class="ident">CAR_BIKE_CONTENTION_GOAL</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">15.0</span>);
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Tutorial</span> {
-    <span class="ident">top_center</span>: <span class="ident">Panel</span>,
+    <span class="ident">top_right</span>: <span class="ident">Panel</span>,
     <span class="ident">last_finished_task</span>: <span class="ident">Task</span>,
 
     <span class="ident">msg_panel</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Panel</span><span class="op">&gt;</span>,
@@ -1556,7 +1544,7 @@
             }
         }
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">top_center</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">top_right</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;Quit&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">maybe_exit_sandbox</span>(<span class="ident">ctx</span>));
@@ -1620,24 +1608,24 @@
                 <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">is_biking</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">tut</span>.<span class="ident">inspected_bike_lane</span> {
                         <span class="ident">tut</span>.<span class="ident">inspected_bike_lane</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                        <span class="self">self</span>.<span class="ident">top_center</span> <span class="op">=</span> <span class="ident">tut</span>.<span class="ident">make_top_center</span>(<span class="ident">ctx</span>, <span class="bool-val">false</span>);
+                        <span class="self">self</span>.<span class="ident">top_right</span> <span class="op">=</span> <span class="ident">tut</span>.<span class="ident">make_top_right</span>(<span class="ident">ctx</span>, <span class="bool-val">false</span>);
                     }
                 }
                 <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Building</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="op">!</span><span class="ident">tut</span>.<span class="ident">inspected_building</span> {
                         <span class="ident">tut</span>.<span class="ident">inspected_building</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                        <span class="self">self</span>.<span class="ident">top_center</span> <span class="op">=</span> <span class="ident">tut</span>.<span class="ident">make_top_center</span>(<span class="ident">ctx</span>, <span class="bool-val">false</span>);
+                        <span class="self">self</span>.<span class="ident">top_right</span> <span class="op">=</span> <span class="ident">tut</span>.<span class="ident">make_top_right</span>(<span class="ident">ctx</span>, <span class="bool-val">false</span>);
                     }
                 }
                 <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>);
                     <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_stop_sign</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">tut</span>.<span class="ident">inspected_stop_sign</span> {
                         <span class="ident">tut</span>.<span class="ident">inspected_stop_sign</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                        <span class="self">self</span>.<span class="ident">top_center</span> <span class="op">=</span> <span class="ident">tut</span>.<span class="ident">make_top_center</span>(<span class="ident">ctx</span>, <span class="bool-val">false</span>);
+                        <span class="self">self</span>.<span class="ident">top_right</span> <span class="op">=</span> <span class="ident">tut</span>.<span class="ident">make_top_right</span>(<span class="ident">ctx</span>, <span class="bool-val">false</span>);
                     }
                     <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_border</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">tut</span>.<span class="ident">inspected_border</span> {
                         <span class="ident">tut</span>.<span class="ident">inspected_border</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                        <span class="self">self</span>.<span class="ident">top_center</span> <span class="op">=</span> <span class="ident">tut</span>.<span class="ident">make_top_center</span>(<span class="ident">ctx</span>, <span class="bool-val">false</span>);
+                        <span class="self">self</span>.<span class="ident">top_right</span> <span class="op">=</span> <span class="ident">tut</span>.<span class="ident">make_top_right</span>(<span class="ident">ctx</span>, <span class="bool-val">false</span>);
                     }
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
@@ -1656,14 +1644,14 @@
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">transition</span>(<span class="ident">app</span>, <span class="ident">tut</span>));
             }
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">interaction</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">PauseResume</span> {
-            <span class="kw">let</span> <span class="ident">is_paused</span> <span class="op">=</span> <span class="ident">controls</span>.<span class="ident">speed</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">is_paused</span>();
+            <span class="kw">let</span> <span class="ident">is_paused</span> <span class="op">=</span> <span class="ident">controls</span>.<span class="ident">time_panel</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">is_paused</span>();
             <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">was_paused</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">is_paused</span> {
                 <span class="ident">tut</span>.<span class="ident">was_paused</span> <span class="op">=</span> <span class="bool-val">false</span>;
             }
             <span class="kw">if</span> <span class="op">!</span><span class="ident">tut</span>.<span class="ident">was_paused</span> <span class="op">&amp;&amp;</span> <span class="ident">is_paused</span> {
                 <span class="ident">tut</span>.<span class="ident">num_pauses</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                 <span class="ident">tut</span>.<span class="ident">was_paused</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                <span class="self">self</span>.<span class="ident">top_center</span> <span class="op">=</span> <span class="ident">tut</span>.<span class="ident">make_top_center</span>(<span class="ident">ctx</span>, <span class="bool-val">false</span>);
+                <span class="self">self</span>.<span class="ident">top_right</span> <span class="op">=</span> <span class="ident">tut</span>.<span class="ident">make_top_right</span>(<span class="ident">ctx</span>, <span class="bool-val">false</span>);
             }
             <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">num_pauses</span> <span class="op">=</span><span class="op">=</span> <span class="number">3</span> {
                 <span class="ident">tut</span>.<span class="ident">next</span>();
@@ -1679,14 +1667,14 @@
                 .<span class="ident">is_none</span>();
             <span class="kw">if</span> <span class="op">!</span><span class="ident">tut</span>.<span class="ident">car_parked</span> <span class="op">&amp;&amp;</span> <span class="ident">is_parked</span> <span class="op">&amp;&amp;</span> <span class="ident">tut</span>.<span class="ident">following_car</span> {
                 <span class="ident">tut</span>.<span class="ident">car_parked</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                <span class="self">self</span>.<span class="ident">top_center</span> <span class="op">=</span> <span class="ident">tut</span>.<span class="ident">make_top_center</span>(<span class="ident">ctx</span>, <span class="bool-val">false</span>);
+                <span class="self">self</span>.<span class="ident">top_right</span> <span class="op">=</span> <span class="ident">tut</span>.<span class="ident">make_top_right</span>(<span class="ident">ctx</span>, <span class="bool-val">false</span>);
             }
 
             <span class="kw">if</span> <span class="ident">following_car</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">tut</span>.<span class="ident">following_car</span> {
                 <span class="comment">// TODO There&#39;s a delay of one event before the checklist updates, because the</span>
                 <span class="comment">// info panel opening happens at the end of the event. Not a big deal.</span>
                 <span class="ident">tut</span>.<span class="ident">following_car</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                <span class="self">self</span>.<span class="ident">top_center</span> <span class="op">=</span> <span class="ident">tut</span>.<span class="ident">make_top_center</span>(<span class="ident">ctx</span>, <span class="bool-val">false</span>);
+                <span class="self">self</span>.<span class="ident">top_right</span> <span class="op">=</span> <span class="ident">tut</span>.<span class="ident">make_top_right</span>(<span class="ident">ctx</span>, <span class="bool-val">false</span>);
             }
 
             <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">prank_done</span> {
@@ -1812,7 +1800,7 @@
             <span class="ident">grey_out_map</span>(<span class="ident">g</span>, <span class="ident">app</span>);
         }
 
-        <span class="self">self</span>.<span class="ident">top_center</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="self">self</span>.<span class="ident">top_right</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">msg</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">msg_panel</span> {
             <span class="comment">// Arrows underneath the message panel, but on top of other panels</span>
@@ -1849,7 +1837,7 @@
 
     <span class="kw">fn</span> <span class="ident">recreate_panels</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="kw">let</span> <span class="ident">tut</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">tutorial</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>();
-        <span class="self">self</span>.<span class="ident">top_center</span> <span class="op">=</span> <span class="ident">tut</span>.<span class="ident">make_top_center</span>(<span class="ident">ctx</span>, <span class="self">self</span>.<span class="ident">last_finished_task</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">WatchBikes</span>);
+        <span class="self">self</span>.<span class="ident">top_right</span> <span class="op">=</span> <span class="ident">tut</span>.<span class="ident">make_top_right</span>(<span class="ident">ctx</span>, <span class="self">self</span>.<span class="ident">last_finished_task</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">WatchBikes</span>);
 
         <span class="comment">// Time can&#39;t pass while self.msg_panel is active</span>
     }
@@ -1868,12 +1856,6 @@
     }
     <span class="kw">fn</span> <span class="ident">has_time_panel</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">last_finished_task</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">InspectObjects</span>
-    }
-    <span class="kw">fn</span> <span class="ident">has_speed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">last_finished_task</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">InspectObjects</span>
-    }
-    <span class="kw">fn</span> <span class="ident">has_agent_meter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">last_finished_task</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">PauseResume</span>
     }
     <span class="kw">fn</span> <span class="ident">has_minimap</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">last_finished_task</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">Escort</span>
@@ -2163,7 +2145,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">make_top_center</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">edit_map</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
+    <span class="kw">fn</span> <span class="ident">make_top_right</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">edit_map</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;Tutorial&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">vert_separator</span>(<span class="ident">ctx</span>, <span class="number">50.0</span>),
@@ -2220,7 +2202,7 @@
         }
 
         <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>))
-            .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
+            .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>)
     }
 
@@ -2244,7 +2226,7 @@
         };
 
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Tutorial</span> {
-            <span class="ident">top_center</span>: <span class="self">self</span>.<span class="ident">make_top_center</span>(<span class="ident">ctx</span>, <span class="ident">last_finished_task</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">WatchBikes</span>),
+            <span class="ident">top_right</span>: <span class="self">self</span>.<span class="ident">make_top_right</span>(<span class="ident">ctx</span>, <span class="ident">last_finished_task</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">WatchBikes</span>),
             <span class="ident">last_finished_task</span>,
 
             <span class="ident">msg_panel</span>: <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw-2">ref</span> <span class="ident">lines</span>, <span class="ident">horiz_align</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">lines</span>() {
@@ -2320,8 +2302,6 @@
 
         <span class="kw">let</span> <span class="ident">tool_panel</span> <span class="op">=</span> <span class="ident">tool_panel</span>(<span class="ident">ctx</span>);
         <span class="kw">let</span> <span class="ident">time</span> <span class="op">=</span> <span class="ident">TimePanel</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-        <span class="kw">let</span> <span class="ident">speed</span> <span class="op">=</span> <span class="ident">SpeedControls</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-        <span class="kw">let</span> <span class="ident">agent_meter</span> <span class="op">=</span> <span class="ident">AgentMeter</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         <span class="comment">// The minimap is hidden at low zoom levels</span>
         <span class="kw">let</span> <span class="ident">orig_zoom</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>;
         <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">=</span> <span class="number">100.0</span>;
@@ -2404,7 +2384,7 @@
                 )
                 .<span class="ident">msg</span>(
                     <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;You can pause or resume time&quot;</span>],
-                    <span class="ident">arrow</span>(<span class="ident">speed</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;pause&quot;</span>)),
+                    <span class="ident">arrow</span>(<span class="ident">time</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;pause&quot;</span>)),
                 )
                 .<span class="ident">msg</span>(
                     <span class="macro">vec</span><span class="macro">!</span>[
@@ -2412,15 +2392,15 @@
                         <span class="string">&quot;&quot;</span>,
                         <span class="string">&quot;(The keyboard shortcuts are very helpful here!)&quot;</span>,
                     ],
-                    <span class="ident">arrow</span>(<span class="ident">speed</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;30x speed&quot;</span>)),
+                    <span class="ident">arrow</span>(<span class="ident">time</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;30x speed&quot;</span>)),
                 )
                 .<span class="ident">msg</span>(
                     <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;Advance time by certain amounts&quot;</span>],
-                    <span class="ident">arrow</span>(<span class="ident">speed</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;step forwards&quot;</span>)),
+                    <span class="ident">arrow</span>(<span class="ident">time</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;step forwards&quot;</span>)),
                 )
                 .<span class="ident">msg</span>(
                     <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;And jump to the beginning of the day&quot;</span>],
-                    <span class="ident">arrow</span>(<span class="ident">speed</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;reset to midnight&quot;</span>)),
+                    <span class="ident">arrow</span>(<span class="ident">time</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;reset to midnight&quot;</span>)),
                 )
                 .<span class="ident">msg</span>(
                     <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;Let&#39;s try these controls out. Wait until 5pm or later.&quot;</span>],
@@ -2439,7 +2419,7 @@
                         <span class="string">&quot;You might&#39;ve figured it out already,&quot;</span>,
                         <span class="string">&quot;But you&#39;ll be pausing/resuming time VERY frequently&quot;</span>,
                     ],
-                    <span class="ident">arrow</span>(<span class="ident">speed</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;pause&quot;</span>)),
+                    <span class="ident">arrow</span>(<span class="ident">time</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;pause&quot;</span>)),
                 )
                 .<span class="ident">msg</span>(
                     <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;Just reassure me and pause/resume time a few times, alright?&quot;</span>],
@@ -2538,10 +2518,6 @@
                     ],
                     <span class="prelude-val">None</span>,
                 )
-                .<span class="ident">msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;You can see the number of them here.&quot;</span>],
-                    <span class="ident">arrow</span>(<span class="ident">agent_meter</span>.<span class="ident">panel</span>.<span class="ident">center_of_panel</span>()),
-                )
                 .<span class="ident">left_aligned_msg</span>(
                     <span class="macro">vec</span><span class="macro">!</span>[
                         <span class="string">&quot;Why don&#39;t you follow this car to their destination,&quot;</span>,
@@ -2564,7 +2540,7 @@
                         <span class="string">&quot;&quot;</span>,
                         <span class="string">&quot;(If you do lose track of them, just reset)&quot;</span>,
                     ],
-                    <span class="ident">arrow</span>(<span class="ident">speed</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;reset to midnight&quot;</span>)),
+                    <span class="ident">arrow</span>(<span class="ident">time</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;reset to midnight&quot;</span>)),
                 ),
         );
 
@@ -2633,7 +2609,7 @@
                 ),
         );
 
-        <span class="kw">let</span> <span class="ident">top_center</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">make_top_center</span>(<span class="ident">ctx</span>, <span class="bool-val">true</span>);
+        <span class="kw">let</span> <span class="ident">top_right</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">make_top_right</span>(<span class="ident">ctx</span>, <span class="bool-val">true</span>);
         <span class="ident">state</span>.<span class="ident">stages</span>.<span class="ident">push</span>(
             <span class="ident">Stage</span>::<span class="ident">new</span>(<span class="ident">Task</span>::<span class="ident">FixBikes</span>)
                 .<span class="ident">scenario</span>(<span class="ident">bike_lane_scenario</span>)
@@ -2658,7 +2634,7 @@
                 )
                 .<span class="ident">msg</span>(
                     <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;To edit lanes, click &#39;edit map&#39; and then select a lane.&quot;</span>],
-                    <span class="ident">arrow</span>(<span class="ident">top_center</span>.<span class="ident">center_of</span>(<span class="string">&quot;edit map&quot;</span>)),
+                    <span class="ident">arrow</span>(<span class="ident">top_right</span>.<span class="ident">center_of</span>(<span class="string">&quot;edit map&quot;</span>)),
                 )
                 .<span class="ident">msg</span>(
                     <span class="macro">vec</span><span class="macro">!</span>[
@@ -2685,7 +2661,7 @@
                          you&#39;ll get your final score.&quot;</span>
                             .<span class="ident">to_string</span>(),
                     ],
-                    <span class="ident">arrow</span>(<span class="ident">agent_meter</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;more data&quot;</span>)),
+                    <span class="ident">arrow</span>(<span class="ident">minimap</span>.<span class="ident">get_panel</span>().<span class="ident">center_of</span>(<span class="string">&quot;more data&quot;</span>)),
                 ),
         );
 

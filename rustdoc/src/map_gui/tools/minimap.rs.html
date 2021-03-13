@@ -467,10 +467,17 @@
 <span id="464">464</span>
 <span id="465">465</span>
 <span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Filler</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
     <span class="ident">ScreenPt</span>, <span class="ident">Spinner</span>, <span class="ident">Transition</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
@@ -481,6 +488,7 @@
 <span class="comment">// TODO Some of the math in here might assume map bound minimums start at (0, 0).</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Minimap</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span>, <span class="ident">T</span>: <span class="ident">MinimapControls</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="ident">controls</span>: <span class="ident">T</span>,
+    <span class="ident">time</span>: <span class="ident">Time</span>,
     <span class="ident">app_type</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>,
 
     <span class="ident">dragging</span>: <span class="ident">bool</span>,
@@ -542,6 +550,7 @@
         <span class="kw">let</span> <span class="ident">layer</span> <span class="op">=</span> <span class="ident">controls</span>.<span class="ident">has_layer</span>(<span class="ident">app</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">Minimap</span> {
             <span class="ident">controls</span>,
+            <span class="ident">time</span>: <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>,
             <span class="ident">app_type</span>: <span class="ident">PhantomData</span>,
 
             <span class="ident">dragging</span>: <span class="bool-val">false</span>,
@@ -721,6 +730,11 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">time</span> <span class="op">!</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">sim_time</span>() {
+            <span class="self">self</span>.<span class="ident">time</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">sim_time</span>();
+            <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        }
+
         <span class="kw">let</span> <span class="ident">zoomed</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">min_zoom_for_detail</span>;
         <span class="kw">let</span> <span class="ident">layer</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">has_layer</span>(<span class="ident">app</span>);
         <span class="kw">if</span> <span class="ident">zoomed</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">zoomed</span> <span class="op">|</span><span class="op">|</span> <span class="ident">layer</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">layer</span> {

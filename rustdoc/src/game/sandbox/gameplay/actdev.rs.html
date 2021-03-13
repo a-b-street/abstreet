@@ -286,6 +286,10 @@
 <span id="283">283</span>
 <span id="284">284</span>
 <span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -313,7 +317,7 @@
 <span class="doccomment">/// A gameplay mode with specific controls for integration with</span>
 <span class="doccomment">/// https://cyipt.github.io/acton/articles/the-actdev-project.html.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Actdev</span> {
-    <span class="ident">top_center</span>: <span class="ident">Panel</span>,
+    <span class="ident">top_right</span>: <span class="ident">Panel</span>,
     <span class="ident">scenario_name</span>: <span class="ident">String</span>,
     <span class="ident">bg_traffic</span>: <span class="ident">bool</span>,
     <span class="ident">once</span>: <span class="ident">bool</span>,
@@ -326,7 +330,7 @@
         <span class="ident">bg_traffic</span>: <span class="ident">bool</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">GameplayState</span><span class="op">&gt;</span> {
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Actdev</span> {
-            <span class="ident">top_center</span>: <span class="ident">Panel</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>),
+            <span class="ident">top_right</span>: <span class="ident">Panel</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>),
             <span class="ident">scenario_name</span>,
             <span class="ident">bg_traffic</span>,
             <span class="ident">once</span>: <span class="bool-val">true</span>,
@@ -343,6 +347,8 @@
         <span class="ident">actions</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Actions</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">once</span> {
+            <span class="self">self</span>.<span class="ident">once</span> <span class="op">=</span> <span class="bool-val">false</span>;
+
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">bg_traffic</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">highlight</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
                 <span class="kw">let</span> <span class="ident">study_area</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>
@@ -364,15 +370,18 @@
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">set_highlighted_people</span>(<span class="ident">highlight</span>);
             }
 
-            <span class="self">self</span>.<span class="ident">once</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            <span class="comment">// The top-right panel never changes height, so we can set this just once.</span>
+            <span class="ident">controls</span>.<span class="ident">time_panel</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">override_height</span> <span class="op">=</span>
+                <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">top_right</span>.<span class="ident">panel_dims</span>().<span class="ident">height</span>);
+
             <span class="ident">controls</span>
-                .<span class="ident">speed</span>
+                .<span class="ident">time_panel</span>
                 .<span class="ident">as_mut</span>()
                 .<span class="ident">unwrap</span>()
                 .<span class="ident">resume</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">SpeedSetting</span>::<span class="ident">Faster</span>);
         }
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">top_center</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">top_right</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;change scenario&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scenario_name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;base&quot;</span> {
@@ -442,12 +451,12 @@
                         )));
                     }
                 }
-                <span class="string">&quot;Cycling activity&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;Cycling&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span>
                         <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">crate</span>::<span class="ident">layer</span>::<span class="ident">map</span>::<span class="ident">BikeActivity</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
                     <span class="prelude-val">None</span>
                 }
-                <span class="string">&quot;Walking activity&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;Walking&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">crate</span>::<span class="ident">layer</span>::<span class="ident">traffic</span>::<span class="ident">Throughput</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
@@ -474,7 +483,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">top_center</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="self">self</span>.<span class="ident">top_right</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
     }
 
     <span class="kw">fn</span> <span class="ident">recreate_panels</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
@@ -485,12 +494,18 @@
                     .<span class="ident">btn</span>()
                     .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/pregame/logo.svg&quot;</span>)
                     .<span class="ident">image_dims</span>(<span class="number">50.0</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;about A/B Street&quot;</span>)
-                    .<span class="ident">centered_vert</span>(),
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;about A/B Street&quot;</span>),
                 <span class="ident">Line</span>(<span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()))
                     .<span class="ident">small_heading</span>()
                     .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">Widget</span>::<span class="ident">vert_separator</span>(<span class="ident">ctx</span>, <span class="number">50.0</span>),
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_outline</span>
+                    .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>, <span class="string">&quot;Edit map&quot;</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">E</span>))
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            ])
+            .<span class="ident">centered</span>(),
+            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_popup_icon_text</span>(<span class="string">&quot;system/assets/tools/calendar.svg&quot;</span>, <span class="string">&quot;scenario&quot;</span>)
                     .<span class="ident">label_styled_text</span>(
@@ -508,13 +523,8 @@
                         <span class="ident">ControlState</span>::<span class="ident">Default</span>,
                     )
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change scenario&quot;</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline</span>
-                    .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>, <span class="string">&quot;Edit map&quot;</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">E</span>))
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-            ])
-            .<span class="ident">centered</span>(),
+                <span class="ident">Toggle</span>::<span class="ident">checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;background traffic&quot;</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.<span class="ident">bg_traffic</span>),
+            ]),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_plain</span>
@@ -522,19 +532,17 @@
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_plain</span>
-                    .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/meters/pedestrian.svg&quot;</span>, <span class="string">&quot;Walking activity&quot;</span>)
+                    .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/meters/pedestrian.svg&quot;</span>, <span class="string">&quot;Walking&quot;</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_plain</span>
-                    .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/meters/bike.svg&quot;</span>, <span class="string">&quot;Cycling activity&quot;</span>)
+                    .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/meters/bike.svg&quot;</span>, <span class="string">&quot;Cycling&quot;</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                <span class="comment">// TODO Layout pending.</span>
-                <span class="ident">Toggle</span>::<span class="ident">checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;background traffic&quot;</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.<span class="ident">bg_traffic</span>),
             ]),
         ]);
 
-        <span class="self">self</span>.<span class="ident">top_center</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">col</span>)
-            .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
+        <span class="self">self</span>.<span class="ident">top_right</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">col</span>)
+            .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>);
     }
 
