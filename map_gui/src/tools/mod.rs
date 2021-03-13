@@ -21,6 +21,8 @@ pub use self::updater::prompt_to_download_missing_data;
 mod camera;
 mod city_picker;
 mod colors;
+#[cfg(not(target_arch = "wasm32"))]
+mod command;
 mod heatmap;
 #[cfg(not(target_arch = "wasm32"))]
 mod importer;
