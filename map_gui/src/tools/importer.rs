@@ -1,9 +1,12 @@
 use std::io::Write;
+use std::process::Command;
 
 use anyhow::Result;
 use clipboard::{ClipboardContext, ClipboardProvider};
 
-use widgetry::{EventCtx, Line, Panel, SimpleState, State, TextExt, Toggle, Transition, Widget};
+use widgetry::{
+    EventCtx, GfxCtx, Line, Panel, SimpleState, State, Text, TextExt, Toggle, Transition, Widget,
+};
 
 use crate::tools::{open_browser, PopupMsg};
 use crate::AppLike;
@@ -55,7 +58,13 @@ impl ImportCity {
 }
 
 impl<A: AppLike + 'static> SimpleState<A> for ImportCity {
-    fn on_click(&mut self, ctx: &mut EventCtx, _: &mut A, x: &str, panel: &Panel) -> Transition<A> {
+    fn on_click(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut A,
+        x: &str,
+        panel: &Panel,
+    ) -> Transition<A> {
         match x {
             "close" => Transition::Pop,
             "Alternate instructions" => {
@@ -67,22 +76,32 @@ impl<A: AppLike + 'static> SimpleState<A> for ImportCity {
                 Transition::Keep
             }
             "Import the area from your clipboard" => {
-                let drive_on_left = !panel.is_checked("driving side");
+                let mut cmd = Command::new("../target/debug/one_step_import");
+                cmd.arg("boundary.geojson");
+                if !panel.is_checked("driving side") {
+                    cmd.arg("--drive_on_left");
+                }
                 match grab_geojson_from_clipboard() {
-                    Ok(()) => {
-                        println!("drive on left? {}", drive_on_left);
-                        Transition::Keep
-                    }
-                    Err(err) => {
-                        return Transition::Push(PopupMsg::new(
+                    Ok(()) => Transition::Multi(vec![
+                        Transition::Replace(RunCommand::new(ctx, app, cmd)),
+                        Transition::Push(PopupMsg::new(
                             ctx,
-                            "Error",
+                            "Ready to import",
                             vec![
-                                "Couldn't get GeoJSON from your clipboard".to_string(),
-                                err.to_string(),
+                                "The import will now download what's needed and run in the \
+                                 background.",
+                                "No progress bar or way to cancel yet, sorry.",
                             ],
-                        ));
-                    }
+                        )),
+                    ]),
+                    Err(err) => Transition::Push(PopupMsg::new(
+                        ctx,
+                        "Error",
+                        vec![
+                            "Couldn't get GeoJSON from your clipboard".to_string(),
+                            err.to_string(),
+                        ],
+                    )),
                 }
             }
             _ => unreachable!(),
@@ -109,4 +128,57 @@ fn grab_geojson_from_clipboard() -> Result<()> {
     let mut f = std::fs::File::create("boundary.geojson")?;
     write!(f, "{}", contents)?;
     Ok(())
+}
+
+struct RunCommand {
+    cmd: Command,
+    panel: Panel,
+}
+
+impl RunCommand {
+    fn new<A: AppLike + 'static>(ctx: &mut EventCtx, _: &A, cmd: Command) -> Box<dyn State<A>> {
+        let txt = Text::from(Line("Running command..."));
+        let panel = ctx.make_loading_screen(txt);
+        Box::new(RunCommand { cmd, panel })
+    }
+}
+
+impl<A: AppLike + 'static> State<A> for RunCommand {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut A) -> Transition<A> {
+        // TODO Blocking...
+        // TODO Combo stdout/stderr
+        info!("Running cmd {:?}", self.cmd);
+        let (ok, messages) = match self
+            .cmd
+            .output()
+            .map_err(|err| anyhow::Error::new(err))
+            .and_then(|out| {
+                let status = out.status;
+                String::from_utf8(out.stdout)
+                    .map(|stdout| (status, stdout))
+                    .map_err(|err| err.into())
+            }) {
+            Ok((status, stdout)) => {
+                // TODO Split by newlines
+                if status.success() {
+                    (true, vec!["Output:".to_string(), stdout])
+                } else {
+                    (false, vec!["Command failed. Output:".to_string(), stdout])
+                }
+            }
+            Err(err) => (
+                false,
+                vec!["Couldn't run command".to_string(), err.to_string()],
+            ),
+        };
+        Transition::Replace(PopupMsg::new(
+            ctx,
+            if ok { "Success" } else { "Failure" },
+            messages,
+        ))
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &A) {
+        self.panel.draw(g);
+    }
 }

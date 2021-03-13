@@ -11,6 +11,7 @@ use abstutil::{must_run_cmd, CmdArgs};
 fn main() -> Result<()> {
     let mut args = CmdArgs::new();
     let geojson_path = args.required_free();
+    let drive_on_left = args.enabled("--drive_on_left");
     args.done();
 
     // TODO Assumes the binaries are in hardcoded target directories... we could be smarter and
@@ -18,6 +19,7 @@ fn main() -> Result<()> {
 
     // Convert to a boundary polygon. This tool reads from STDIN.
     {
+        println!("Converting GeoJSON to Osmosis boundary");
         let geojson = abstio::slurp_file(geojson_path)?;
         let mut cmd = Command::new("./target/debug/geojson_to_osmosis")
             .stdin(Stdio::piped())
@@ -29,17 +31,18 @@ fn main() -> Result<()> {
 
     // What file should we download?
     let url = {
+        println!("Figuring out what Geofabrik file contains your boundary");
         let out = Command::new("./target/debug/pick_geofabrik")
             .arg("boundary0.poly")
             .output()?;
         assert!(out.status.success());
         String::from_utf8(out.stdout)?
     };
-    println!("go dl {}", url);
 
     // Download it!
     // TODO This is timing out. Also, really could use progress bars.
     {
+        println!("Downloading {}", url);
         let resp = reqwest::blocking::get(&url)?;
         assert!(resp.status().is_success());
         let bytes = resp.bytes()?;
@@ -48,6 +51,7 @@ fn main() -> Result<()> {
     }
 
     // Clip it
+    println!("Clipping osm.pbf file to your boundary");
     must_run_cmd(
         Command::new("./target/release/clip_osm")
             .arg("--pbf=raw.pbf")
@@ -56,11 +60,16 @@ fn main() -> Result<()> {
     );
 
     // Import!
-    must_run_cmd(
-        Command::new("./target/release/importer")
-            .arg("--oneshot=clipped.osm")
-            .arg("--oneshot_clip=boundary0.poly"),
-    );
+    {
+        let mut cmd = Command::new("./target/release/importer");
+        cmd.arg("--oneshot=clipped.osm");
+        cmd.arg("--oneshot_clip=boundary0.poly");
+        if drive_on_left {
+            cmd.arg("--oneshot_drive_on_left");
+        }
+        println!("Running importer");
+        must_run_cmd(&mut cmd);
+    }
 
     Ok(())
 }
