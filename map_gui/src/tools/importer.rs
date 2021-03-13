@@ -1,6 +1,11 @@
+use std::io::Write;
+
+use anyhow::Result;
+use clipboard::{ClipboardContext, ClipboardProvider};
+
 use widgetry::{EventCtx, Line, Panel, SimpleState, State, TextExt, Toggle, Transition, Widget};
 
-use crate::tools::open_browser;
+use crate::tools::{open_browser, PopupMsg};
 use crate::AppLike;
 
 pub struct ImportCity;
@@ -63,10 +68,45 @@ impl<A: AppLike + 'static> SimpleState<A> for ImportCity {
             }
             "Import the area from your clipboard" => {
                 let drive_on_left = !panel.is_checked("driving side");
-                println!("drive on left? {}", drive_on_left);
-                Transition::Keep
+                match grab_geojson_from_clipboard() {
+                    Ok(()) => {
+                        println!("drive on left? {}", drive_on_left);
+                        Transition::Keep
+                    }
+                    Err(err) => {
+                        return Transition::Push(PopupMsg::new(
+                            ctx,
+                            "Error",
+                            vec![
+                                "Couldn't get GeoJSON from your clipboard".to_string(),
+                                err.to_string(),
+                            ],
+                        ));
+                    }
+                }
             }
             _ => unreachable!(),
         }
     }
+}
+
+fn grab_geojson_from_clipboard() -> Result<()> {
+    // TODO The clipboard crate uses old nightly Errors. Converting to anyhow is weird.
+    let mut ctx: ClipboardContext = match ClipboardProvider::new() {
+        Ok(ctx) => ctx,
+        Err(err) => bail!("{}", err),
+    };
+    let contents = match ctx.get_contents() {
+        Ok(contents) => contents,
+        Err(err) => bail!("{}", err),
+    };
+    if contents.parse::<geojson::GeoJson>().is_err() {
+        bail!(
+            "Your clipboard doesn't seem to have GeoJSON. Got: {}",
+            contents
+        );
+    }
+    let mut f = std::fs::File::create("boundary.geojson")?;
+    write!(f, "{}", contents)?;
+    Ok(())
 }
