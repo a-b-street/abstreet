@@ -76,8 +76,18 @@
 <span id="73">73</span>
 <span id="74">74</span>
 <span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Write</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">path</span>::<span class="ident">Path</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">process</span>::{<span class="ident">Command</span>, <span class="ident">Stdio</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
@@ -93,14 +103,22 @@
     <span class="kw">let</span> <span class="ident">drive_on_left</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--drive_on_left&quot;</span>);
     <span class="ident">args</span>.<span class="ident">done</span>();
 
-    <span class="comment">// TODO Assumes the binaries are in hardcoded target directories... we could be smarter and</span>
-    <span class="comment">// detect if we&#39;re building from scratch, or look for stuff in the .zip release</span>
+    <span class="comment">// TODO Assume we&#39;re running from git and all the tools are built in the appropriate directory.</span>
+    <span class="kw">let</span> <span class="ident">bin_dir</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">Path</span>::<span class="ident">new</span>(<span class="string">&quot;target&quot;</span>).<span class="ident">exists</span>() {
+        <span class="string">&quot;./target&quot;</span>
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">Path</span>::<span class="ident">new</span>(<span class="string">&quot;../target&quot;</span>).<span class="ident">exists</span>() {
+        <span class="string">&quot;../target&quot;</span>
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">Path</span>::<span class="ident">new</span>(<span class="string">&quot;../../target&quot;</span>).<span class="ident">exists</span>() {
+        <span class="string">&quot;../../target&quot;</span>
+    } <span class="kw">else</span> {
+        <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t find target/ directory&quot;</span>);
+    };
 
     <span class="comment">// Convert to a boundary polygon. This tool reads from STDIN.</span>
     {
         <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Converting GeoJSON to Osmosis boundary&quot;</span>);
         <span class="kw">let</span> <span class="ident">geojson</span> <span class="op">=</span> <span class="ident">abstio</span>::<span class="ident">slurp_file</span>(<span class="ident">geojson_path</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cmd</span> <span class="op">=</span> <span class="ident">Command</span>::<span class="ident">new</span>(<span class="string">&quot;./target/debug/geojson_to_osmosis&quot;</span>)
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cmd</span> <span class="op">=</span> <span class="ident">Command</span>::<span class="ident">new</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/debug/geojson_to_osmosis&quot;</span>, <span class="ident">bin_dir</span>))
             .<span class="ident">stdin</span>(<span class="ident">Stdio</span>::<span class="ident">piped</span>())
             .<span class="ident">spawn</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">stdin</span> <span class="op">=</span> <span class="ident">cmd</span>.<span class="ident">stdin</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>();
@@ -111,7 +129,7 @@
     <span class="comment">// What file should we download?</span>
     <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> {
         <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Figuring out what Geofabrik file contains your boundary&quot;</span>);
-        <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">Command</span>::<span class="ident">new</span>(<span class="string">&quot;./target/debug/pick_geofabrik&quot;</span>)
+        <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">Command</span>::<span class="ident">new</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/debug/pick_geofabrik&quot;</span>, <span class="ident">bin_dir</span>))
             .<span class="ident">arg</span>(<span class="string">&quot;boundary0.poly&quot;</span>)
             .<span class="ident">output</span>()<span class="question-mark">?</span>;
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">out</span>.<span class="ident">status</span>.<span class="ident">success</span>());
@@ -132,7 +150,7 @@
     <span class="comment">// Clip it</span>
     <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Clipping osm.pbf file to your boundary&quot;</span>);
     <span class="ident">must_run_cmd</span>(
-        <span class="ident">Command</span>::<span class="ident">new</span>(<span class="string">&quot;./target/release/clip_osm&quot;</span>)
+        <span class="ident">Command</span>::<span class="ident">new</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/release/clip_osm&quot;</span>, <span class="ident">bin_dir</span>))
             .<span class="ident">arg</span>(<span class="string">&quot;--pbf=raw.pbf&quot;</span>)
             .<span class="ident">arg</span>(<span class="string">&quot;--clip=boundary0.poly&quot;</span>)
             .<span class="ident">arg</span>(<span class="string">&quot;--out=clipped.osm&quot;</span>),
@@ -140,7 +158,7 @@
 
     <span class="comment">// Import!</span>
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cmd</span> <span class="op">=</span> <span class="ident">Command</span>::<span class="ident">new</span>(<span class="string">&quot;./target/release/importer&quot;</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cmd</span> <span class="op">=</span> <span class="ident">Command</span>::<span class="ident">new</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/release/importer&quot;</span>, <span class="ident">bin_dir</span>));
         <span class="ident">cmd</span>.<span class="ident">arg</span>(<span class="string">&quot;--oneshot=clipped.osm&quot;</span>);
         <span class="ident">cmd</span>.<span class="ident">arg</span>(<span class="string">&quot;--oneshot_clip=boundary0.poly&quot;</span>);
         <span class="kw">if</span> <span class="ident">drive_on_left</span> {
