@@ -193,7 +193,6 @@
 <span id="190">190</span>
 <span id="191">191</span>
 <span id="192">192</span>
-<span id="193">193</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Write</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">process</span>::<span class="ident">Command</span>;
@@ -365,8 +364,7 @@
             }) {
             <span class="prelude-val">Ok</span>((<span class="ident">status</span>, <span class="kw-2">mut</span> <span class="ident">lines</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="ident">status</span>.<span class="ident">success</span>() {
-                    <span class="comment">// TODO If it worked, actually we&#39;re failing to render some of the output! Erm.</span>
-                    (<span class="bool-val">true</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Output has {} lines&quot;</span>, <span class="ident">lines</span>.<span class="ident">len</span>())])
+                    (<span class="bool-val">true</span>, <span class="ident">lines</span>)
                 } <span class="kw">else</span> {
                     <span class="ident">lines</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="string">&quot;Command failed. Output:&quot;</span>.<span class="ident">to_string</span>());
                     (<span class="bool-val">false</span>, <span class="ident">lines</span>)
