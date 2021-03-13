@@ -158,7 +158,7 @@ pub fn ensure_popdat_exists(
         println!("- {} exists, not regenerating it", abstio::path_popdat());
         return (
             abstio::read_binary(abstio::path_popdat(), timer),
-            map_model::Map::new(huge_name.path(), timer),
+            map_model::Map::load_synchronously(huge_name.path(), timer),
         );
     }
 
@@ -166,7 +166,7 @@ pub fn ensure_popdat_exists(
         osm_to_raw("huge_seattle", timer, config);
     }
     let huge_map = if abstio::file_exists(huge_name.path()) {
-        map_model::Map::new(huge_name.path(), timer)
+        map_model::Map::load_synchronously(huge_name.path(), timer)
     } else {
         crate::utils::raw_to_map(&huge_name, true, false, timer)
     };
