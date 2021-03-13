@@ -168,8 +168,7 @@ impl<A: AppLike + 'static> State<A> for RunCommand {
             }) {
             Ok((status, mut lines)) => {
                 if status.success() {
-                    // TODO If it worked, actually we're failing to render some of the output! Erm.
-                    (true, vec![format!("Output has {} lines", lines.len())])
+                    (true, lines)
                 } else {
                     lines.insert(0, "Command failed. Output:".to_string());
                     (false, lines)
