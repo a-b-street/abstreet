@@ -193,6 +193,8 @@
 <span id="190">190</span>
 <span id="191">191</span>
 <span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Assorted tools and UI states that&#39;re useful for applications built to display maps.</span>
 
@@ -218,6 +220,8 @@
 <span class="kw">mod</span> <span class="ident">city_picker</span>;
 <span class="kw">mod</span> <span class="ident">colors</span>;
 <span class="kw">mod</span> <span class="ident">heatmap</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
+<span class="kw">mod</span> <span class="ident">importer</span>;
 <span class="kw">mod</span> <span class="ident">minimap</span>;
 <span class="kw">mod</span> <span class="ident">navigate</span>;
 <span class="kw">mod</span> <span class="ident">turn_explorer</span>;
