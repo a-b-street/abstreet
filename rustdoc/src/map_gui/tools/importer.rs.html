@@ -119,20 +119,8 @@
 <span id="116">116</span>
 <span id="117">117</span>
 <span id="118">118</span>
-<span id="119">119</span>
-<span id="120">120</span>
-<span id="121">121</span>
-<span id="122">122</span>
-<span id="123">123</span>
-<span id="124">124</span>
-<span id="125">125</span>
-<span id="126">126</span>
-<span id="127">127</span>
-<span id="128">128</span>
-<span id="129">129</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Write</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">process</span>::<span class="ident">Command</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">clipboard</span>::{<span class="ident">ClipboardContext</span>, <span class="ident">ClipboardProvider</span>};
@@ -207,24 +195,14 @@
                 <span class="ident">Transition</span>::<span class="ident">Keep</span>
             }
             <span class="string">&quot;Import the area from your clipboard&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cmd</span> <span class="op">=</span> <span class="ident">Command</span>::<span class="ident">new</span>(<span class="string">&quot;../target/debug/one_step_import&quot;</span>);
-                <span class="ident">cmd</span>.<span class="ident">arg</span>(<span class="string">&quot;boundary.geojson&quot;</span>);
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;../target/debug/one_step_import&quot;</span>, <span class="string">&quot;boundary.geojson&quot;</span>];
                 <span class="kw">if</span> <span class="op">!</span><span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;driving side&quot;</span>) {
-                    <span class="ident">cmd</span>.<span class="ident">arg</span>(<span class="string">&quot;--drive_on_left&quot;</span>);
+                    <span class="ident">args</span>.<span class="ident">push</span>(<span class="string">&quot;--drive_on_left&quot;</span>);
                 }
                 <span class="kw">match</span> <span class="ident">grab_geojson_from_clipboard</span>() {
-                    <span class="prelude-val">Ok</span>(()) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="kw">crate</span>::<span class="ident">tools</span>::<span class="ident">command</span>::<span class="ident">RunCommand</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">cmd</span>)),
-                        <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(
-                            <span class="ident">ctx</span>,
-                            <span class="string">&quot;Ready to import&quot;</span>,
-                            <span class="macro">vec</span><span class="macro">!</span>[
-                                <span class="string">&quot;The import will now download what&#39;s needed and run in the \
-                                 background.&quot;</span>,
-                                <span class="string">&quot;No progress bar or way to cancel yet, sorry.&quot;</span>,
-                            ],
-                        )),
-                    ]),
+                    <span class="prelude-val">Ok</span>(()) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="kw">crate</span>::<span class="ident">tools</span>::<span class="ident">command</span>::<span class="ident">RunCommand</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">args</span>))
+                    }
                     <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Error&quot;</span>,
