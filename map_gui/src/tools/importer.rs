@@ -155,15 +155,24 @@ impl<A: AppLike + 'static> State<A> for RunCommand {
             .and_then(|out| {
                 let status = out.status;
                 String::from_utf8(out.stdout)
-                    .map(|stdout| (status, stdout))
+                    .map(|stdout| {
+                        (
+                            status,
+                            stdout
+                                .split("\n")
+                                .map(|x| x.to_string())
+                                .collect::<Vec<String>>(),
+                        )
+                    })
                     .map_err(|err| err.into())
             }) {
-            Ok((status, stdout)) => {
-                // TODO Split by newlines
+            Ok((status, mut lines)) => {
                 if status.success() {
-                    (true, vec!["Output:".to_string(), stdout])
+                    // TODO If it worked, actually we're failing to render some of the output! Erm.
+                    (true, vec![format!("Output has {} lines", lines.len())])
                 } else {
-                    (false, vec!["Command failed. Output:".to_string(), stdout])
+                    lines.insert(0, "Command failed. Output:".to_string());
+                    (false, lines)
                 }
             }
             Err(err) => (

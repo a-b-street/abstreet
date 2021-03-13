@@ -1,4 +1,5 @@
 use std::io::Write;
+use std::path::Path;
 use std::process::{Command, Stdio};
 
 use anyhow::Result;
@@ -14,14 +15,22 @@ fn main() -> Result<()> {
     let drive_on_left = args.enabled("--drive_on_left");
     args.done();
 
-    // TODO Assumes the binaries are in hardcoded target directories... we could be smarter and
-    // detect if we're building from scratch, or look for stuff in the .zip release
+    // TODO Assume we're running from git and all the tools are built in the appropriate directory.
+    let bin_dir = if Path::new("target").exists() {
+        "./target"
+    } else if Path::new("../target").exists() {
+        "../target"
+    } else if Path::new("../../target").exists() {
+        "../../target"
+    } else {
+        panic!("Can't find target/ directory");
+    };
 
     // Convert to a boundary polygon. This tool reads from STDIN.
     {
         println!("Converting GeoJSON to Osmosis boundary");
         let geojson = abstio::slurp_file(geojson_path)?;
-        let mut cmd = Command::new("./target/debug/geojson_to_osmosis")
+        let mut cmd = Command::new(format!("{}/debug/geojson_to_osmosis", bin_dir))
             .stdin(Stdio::piped())
             .spawn()?;
         let stdin = cmd.stdin.as_mut().unwrap();
@@ -32,7 +41,7 @@ fn main() -> Result<()> {
     // What file should we download?
     let url = {
         println!("Figuring out what Geofabrik file contains your boundary");
-        let out = Command::new("./target/debug/pick_geofabrik")
+        let out = Command::new(format!("{}/debug/pick_geofabrik", bin_dir))
             .arg("boundary0.poly")
             .output()?;
         assert!(out.status.success());
@@ -53,7 +62,7 @@ fn main() -> Result<()> {
     // Clip it
     println!("Clipping osm.pbf file to your boundary");
     must_run_cmd(
-        Command::new("./target/release/clip_osm")
+        Command::new(format!("{}/release/clip_osm", bin_dir))
             .arg("--pbf=raw.pbf")
             .arg("--clip=boundary0.poly")
             .arg("--out=clipped.osm"),
@@ -61,7 +70,7 @@ fn main() -> Result<()> {
 
     // Import!
     {
-        let mut cmd = Command::new("./target/release/importer");
+        let mut cmd = Command::new(format!("{}/release/importer", bin_dir));
         cmd.arg("--oneshot=clipped.osm");
         cmd.arg("--oneshot_clip=boundary0.poly");
         if drive_on_left {
