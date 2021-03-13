@@ -22,6 +22,8 @@ mod camera;
 mod city_picker;
 mod colors;
 mod heatmap;
+#[cfg(not(target_arch = "wasm32"))]
+mod importer;
 mod minimap;
 mod navigate;
 mod turn_explorer;

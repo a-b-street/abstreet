@@ -10,7 +10,7 @@ use widgetry::{
 
 use crate::load::{FileLoader, MapLoader};
 use crate::render::DrawArea;
-use crate::tools::{grey_out_map, nice_country_name, nice_map_name, open_browser};
+use crate::tools::{grey_out_map, nice_country_name, nice_map_name};
 use crate::AppLike;
 
 /// Lets the player switch maps.
@@ -159,12 +159,14 @@ impl<A: AppLike + 'static> CityPicker<A> {
                             Widget::col(this_city).centered_vert(),
                         ]),
                         Widget::custom_row(vec![
-                            "Don't see the city you want?"
+                            "Don't see the place you want?"
                                 .text_widget(ctx)
                                 .centered_vert(),
                             ctx.style()
                                 .btn_plain
                                 .btn()
+                                // TODO On web, this is a link, so it's styled appropriately. Use a
+                                // different style on native?
                                 .label_styled_text(
                                     Text::from(
                                         Line("Import a new city into A/B Street")
@@ -218,7 +220,16 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
                     ));
                 }
                 "import new city" => {
-                    open_browser("https://a-b-street.github.io/docs/howto/new_city.html");
+                    #[cfg(target_arch = "wasm32")]
+                    {
+                        crate::tools::open_browser(
+                            "https://a-b-street.github.io/docs/howto/new_city.html",
+                        );
+                    }
+                    #[cfg(not(target_arch = "wasm32"))]
+                    {
+                        return Transition::Push(crate::tools::importer::ImportCity::new(ctx, app));
+                    }
                 }
                 "Download more cities" => {
                     let _ = "just stop this from counting as an attribute on an expression";
