@@ -1,5 +1,4 @@
 use std::io::Write;
-use std::process::Command;
 
 use anyhow::Result;
 use clipboard::{ClipboardContext, ClipboardProvider};
@@ -74,24 +73,14 @@ impl<A: AppLike + 'static> SimpleState<A> for ImportCity {
                 Transition::Keep
             }
             "Import the area from your clipboard" => {
-                let mut cmd = Command::new("../target/debug/one_step_import");
-                cmd.arg("boundary.geojson");
+                let mut args = vec!["../target/debug/one_step_import", "boundary.geojson"];
                 if !panel.is_checked("driving side") {
-                    cmd.arg("--drive_on_left");
+                    args.push("--drive_on_left");
                 }
                 match grab_geojson_from_clipboard() {
-                    Ok(()) => Transition::Multi(vec![
-                        Transition::Replace(crate::tools::command::RunCommand::new(ctx, app, cmd)),
-                        Transition::Push(PopupMsg::new(
-                            ctx,
-                            "Ready to import",
-                            vec![
-                                "The import will now download what's needed and run in the \
-                                 background.",
-                                "No progress bar or way to cancel yet, sorry.",
-                            ],
-                        )),
-                    ]),
+                    Ok(()) => {
+                        Transition::Replace(crate::tools::command::RunCommand::new(ctx, app, args))
+                    }
                     Err(err) => Transition::Push(PopupMsg::new(
                         ctx,
                         "Error",
