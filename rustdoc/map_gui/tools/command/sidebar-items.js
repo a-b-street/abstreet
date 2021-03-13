@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["RunCommand","Executes a command and displays STDOUT and STDERR in a loading screen window. Only works on native, of course."]]});
