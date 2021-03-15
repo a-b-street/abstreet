@@ -82,9 +82,22 @@ impl<A: AppLike + 'static> State<A> for ImportCity<A> {
                     Transition::Keep
                 }
                 "Import the area from your clipboard" => {
-                    let mut args = vec!["../target/debug/one_step_import", "boundary.geojson"];
+                    let bin_dir = vec![
+                        "./target/release",
+                        "../target/release",
+                        "../../target/release",
+                        "./tools",
+                        "../tools",
+                    ]
+                    .into_iter()
+                    .find(|x| std::path::Path::new(x).exists())
+                    .unwrap_or("./target/release");
+                    let mut args = vec![
+                        format!("{}/one_step_import", bin_dir),
+                        "boundary.geojson".to_string(),
+                    ];
                     if !self.panel.is_checked("driving side") {
-                        args.push("--drive_on_left");
+                        args.push("--drive_on_left".to_string());
                     }
                     match grab_geojson_from_clipboard() {
                         Ok(()) => Transition::Push(crate::tools::command::RunCommand::new(

@@ -28,7 +28,7 @@ impl<A: AppLike + 'static> RunCommand<A> {
     pub fn new(
         ctx: &mut EventCtx,
         _: &A,
-        args: Vec<&str>,
+        args: Vec<String>,
         on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, bool, Vec<String>) -> Transition<A>>,
     ) -> Box<dyn State<A>> {
         info!("RunCommand: {}", args.join(" "));

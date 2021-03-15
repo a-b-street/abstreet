@@ -38,8 +38,13 @@ cp release/$runner release/INSTRUCTIONS.txt $output
 mkdir $output/game
 cp target/release/game${suffix} $output/game
 
-for name in fifteen_min osm_viewer parking_mapper santa importer; do
+for name in fifteen_min osm_viewer parking_mapper santa; do
 	cp target/release/${name}${suffix} $output;
+done
+
+mkdir $output/tools
+for name in importer one_step_import geojson_to_osmosis pick_geofabrik clip_osm; do
+	cp target/release/${name}${suffix} $output/tools;
 done
 
 mkdir $output/data

@@ -58,10 +58,8 @@ jobs:
         working-directory: parking_mapper
         run: cargo build --release ${features}
 
-      - name: Build importer
-        run: cargo build --release --bin importer
-      - name: Build headless
-        run: cargo build --release --bin headless
+      - name: Build other tools
+        run: cargo build --release --bin importer --bin one_step_import --bin geojson_to_osmosis --bin pick_geofabrik --bin clip_osm
 
       - name: Download system data
         run: cargo run --release --bin updater -- --quiet
