@@ -93,6 +93,8 @@ impl<A: AppLike + 'static> State<A> for ImportCity<A> {
                             args,
                             Box::new(|_, _, success| {
                                 if success {
+                                    abstio::delete_file("boundary.geojson");
+
                                     Transition::ReplaceWithData(Box::new(move |state, ctx, app| {
                                         let mut import =
                                             state.downcast::<ImportCity<A>>().ok().unwrap();

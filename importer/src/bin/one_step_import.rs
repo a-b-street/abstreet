@@ -4,6 +4,7 @@ use std::process::{Command, Stdio};
 
 use anyhow::Result;
 
+use abstio::CityName;
 use abstutil::{must_run_cmd, CmdArgs};
 
 /// Import a one-shot A/B Street map in a single command. Takes a GeoJSON file with a boundary as
@@ -48,14 +49,26 @@ fn main() -> Result<()> {
         String::from_utf8(out.stdout)?
     };
 
+    // Name the temporary map based on the Geofabrik region.
+    let name = CityName::new("zz", "oneshot");
+    let pbf = name.input_path(format!("osm/{}.pbf", abstutil::basename(&url)));
+    let osm = name.input_path(format!(
+        "osm/{}.osm",
+        abstutil::basename(&url)
+            .strip_suffix("-latest.osm")
+            .unwrap()
+    ));
+    std::fs::create_dir_all(std::path::Path::new(&osm).parent().unwrap())
+        .expect("Creating parent dir failed");
+
     // Download it!
     // TODO This is timing out. Also, really could use progress bars.
-    {
+    if !abstio::file_exists(&pbf) {
         println!("Downloading {}", url);
         let resp = reqwest::blocking::get(&url)?;
         assert!(resp.status().is_success());
         let bytes = resp.bytes()?;
-        let mut out = std::fs::File::create("raw.pbf")?;
+        let mut out = std::fs::File::create(&pbf)?;
         out.write_all(&bytes)?;
     }
 
@@ -63,15 +76,15 @@ fn main() -> Result<()> {
     println!("Clipping osm.pbf file to your boundary");
     must_run_cmd(
         Command::new(format!("{}/release/clip_osm", bin_dir))
-            .arg("--pbf=raw.pbf")
+            .arg(format!("--pbf={}", pbf))
             .arg("--clip=boundary0.poly")
-            .arg("--out=clipped.osm"),
+            .arg(format!("--out={}", osm)),
     );
 
     // Import!
     {
         let mut cmd = Command::new(format!("{}/release/importer", bin_dir));
-        cmd.arg("--oneshot=clipped.osm");
+        cmd.arg(format!("--oneshot={}", osm));
         cmd.arg("--oneshot_clip=boundary0.poly");
         if drive_on_left {
             cmd.arg("--oneshot_drive_on_left");
@@ -79,6 +92,10 @@ fn main() -> Result<()> {
         println!("Running importer");
         must_run_cmd(&mut cmd);
     }
+
+    // Clean up temporary files. If we broke before this, deliberately leave them around for
+    // debugging.
+    abstio::delete_file("boundary0.poly");
 
     Ok(())
 }
