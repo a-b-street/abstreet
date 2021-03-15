@@ -32,6 +32,10 @@ impl Pt2D {
         }
     }
 
+    pub fn zero() -> Self {
+        Self::new(0.0, 0.0)
+    }
+
     // TODO This is a small first step...
     pub fn approx_eq(self, other: Pt2D, threshold: Distance) -> bool {
         self.dist_to(other) <= threshold
