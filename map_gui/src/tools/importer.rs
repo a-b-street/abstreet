@@ -91,7 +91,7 @@ impl<A: AppLike + 'static> State<A> for ImportCity<A> {
                             ctx,
                             app,
                             args,
-                            Box::new(|_, _, success| {
+                            Box::new(|_, _, success, mut lines| {
                                 if success {
                                     abstio::delete_file("boundary.geojson");
 
@@ -99,13 +99,11 @@ impl<A: AppLike + 'static> State<A> for ImportCity<A> {
                                         let mut import =
                                             state.downcast::<ImportCity<A>>().ok().unwrap();
                                         let on_load = import.on_load.take().unwrap();
-                                        vec![MapLoader::new(
-                                            ctx,
-                                            app,
-                                            // TODO The name is hardcoded for now
-                                            MapName::new("zz", "oneshot", "clipped"),
-                                            on_load,
-                                        )]
+                                        // one_step_import prints the name of the map as the last
+                                        // line.
+                                        let name =
+                                            MapName::new("zz", "oneshot", &lines.pop().unwrap());
+                                        vec![MapLoader::new(ctx, app, name, on_load)]
                                     }))
                                 } else {
                                     // The popup already explained the failure

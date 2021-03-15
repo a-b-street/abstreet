@@ -50,14 +50,13 @@ fn main() -> Result<()> {
     };
 
     // Name the temporary map based on the Geofabrik region.
-    let name = CityName::new("zz", "oneshot");
-    let pbf = name.input_path(format!("osm/{}.pbf", abstutil::basename(&url)));
-    let osm = name.input_path(format!(
-        "osm/{}.osm",
-        abstutil::basename(&url)
-            .strip_suffix("-latest.osm")
-            .unwrap()
-    ));
+    let city = CityName::new("zz", "oneshot");
+    let name = abstutil::basename(&url)
+        .strip_suffix("-latest.osm")
+        .unwrap()
+        .to_string();
+    let pbf = city.input_path(format!("osm/{}.pbf", abstutil::basename(&url)));
+    let osm = city.input_path(format!("osm/{}.osm", name));
     std::fs::create_dir_all(std::path::Path::new(&osm).parent().unwrap())
         .expect("Creating parent dir failed");
 
@@ -96,6 +95,9 @@ fn main() -> Result<()> {
     // Clean up temporary files. If we broke before this, deliberately leave them around for
     // debugging.
     abstio::delete_file("boundary0.poly");
+
+    // For the sake of the UI, print the name of the new map as the last line of output.
+    println!("{}", name);
 
     Ok(())
 }

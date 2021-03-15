@@ -13,13 +13,15 @@ use crate::AppLike;
 /// native, of course.
 pub struct RunCommand<A: AppLike> {
     p: Popen,
-    comm: Communicator,
+    // Only wrapped in an Option so we can modify it when we're almost done.
+    comm: Option<Communicator>,
     panel: Panel,
     lines: VecDeque<String>,
     max_capacity: usize,
     started: Instant,
-    // Wrapped in an Option just to make calling from event() work. The bool is success.
-    on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut A, bool) -> Transition<A>>>,
+    // Wrapped in an Option just to make calling from event() work. The bool is success, and the
+    // strings are the last lines of output.
+    on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut A, bool, Vec<String>) -> Transition<A>>>,
 }
 
 impl<A: AppLike + 'static> RunCommand<A> {
@@ -27,8 +29,9 @@ impl<A: AppLike + 'static> RunCommand<A> {
         ctx: &mut EventCtx,
         _: &A,
         args: Vec<&str>,
-        on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, bool) -> Transition<A>>,
+        on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, bool, Vec<String>) -> Transition<A>>,
     ) -> Box<dyn State<A>> {
+        info!("RunCommand: {}", args.join(" "));
         match subprocess::Popen::create(
             &args,
             subprocess::PopenConfig {
@@ -38,9 +41,10 @@ impl<A: AppLike + 'static> RunCommand<A> {
             },
         ) {
             Ok(mut p) => {
-                let comm = p
-                    .communicate_start(None)
-                    .limit_time(Duration::from_millis(0));
+                let comm = Some(
+                    p.communicate_start(None)
+                        .limit_time(Duration::from_millis(0)),
+                );
                 let panel = ctx.make_loading_screen(Text::from(Line("Starting command...")));
                 let max_capacity =
                     (0.8 * ctx.canvas.window_height / ctx.default_line_height()) as usize;
@@ -61,17 +65,10 @@ impl<A: AppLike + 'static> RunCommand<A> {
             ),
         }
     }
-}
 
-impl<A: AppLike + 'static> State<A> for RunCommand<A> {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
-        ctx.request_update(UpdateType::Game);
-        if ctx.input.nonblocking_is_update_event().is_none() {
-            return Transition::Keep;
-        }
-
+    fn read_output(&mut self) {
         let mut new_lines = Vec::new();
-        let (stdout, stderr) = match self.comm.read() {
+        let (stdout, stderr) = match self.comm.as_mut().unwrap().read() {
             Ok(pair) => pair,
             // This is almost always a timeout.
             Err(err) => err.capture,
@@ -95,6 +92,17 @@ impl<A: AppLike + 'static> State<A> for RunCommand<A> {
                 self.lines.push_back(line);
             }
         }
+    }
+}
+
+impl<A: AppLike + 'static> State<A> for RunCommand<A> {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
+        ctx.request_update(UpdateType::Game);
+        if ctx.input.nonblocking_is_update_event().is_none() {
+            return Transition::Keep;
+        }
+
+        self.read_output();
 
         // Throttle rerendering?
         let mut txt = Text::from(
@@ -110,14 +118,27 @@ impl<A: AppLike + 'static> State<A> for RunCommand<A> {
         self.panel = ctx.make_loading_screen(txt);
 
         if let Some(status) = self.p.poll() {
+            // Make sure to grab all remaining output.
+            let comm = self.comm.take().unwrap();
+            self.comm = Some(comm.limit_time(Duration::from_secs(10)));
+            self.read_output();
+            // TODO Possible hack -- why is this last line empty?
+            if self.lines.back().map(|x| x.is_empty()).unwrap_or(false) {
+                self.lines.pop_back();
+            }
+
             let success = status.success();
+            let mut lines: Vec<String> = self.lines.drain(..).collect();
+            if !success {
+                lines.push(format!("Command failed: {:?}", status));
+            }
             return Transition::Multi(vec![
                 Transition::Pop,
-                (self.on_load.take().unwrap())(ctx, app, success),
+                (self.on_load.take().unwrap())(ctx, app, success, lines.clone()),
                 Transition::Push(PopupMsg::new(
                     ctx,
                     if success { "Success!" } else { "Failure!" },
-                    self.lines.drain(..).collect(),
+                    lines,
                 )),
             ]);
         }
