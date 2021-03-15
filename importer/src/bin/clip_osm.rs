@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::{BufRead, BufReader, BufWriter, Write};
 
@@ -42,17 +42,19 @@ fn clip(pbf_path: &str, boundary: &Polygon<f64>, out_path: &str) -> Result<()> {
         match obj.object_type() {
             OSMObjectType::Node => {
                 let node = obj.into_node().unwrap();
-                if let Some(pt) = node.lat_lon() {
-                    // TODO Include all nodes belonging to ways that're partly in-bounds.
-                    if boundary.contains(&to_pt(pt)) {
-                        nodes.insert(node.id(), node);
-                    }
+                if node.lat_lon().is_some() {
+                    nodes.insert(node.id(), node);
                 }
             }
             OSMObjectType::Way => {
                 // Assume all nodes appear before any way.
                 let way = obj.into_way().unwrap();
-                if way.nodes().iter().any(|id| nodes.contains_key(id)) {
+                if way.nodes().iter().any(|id| {
+                    nodes
+                        .get(id)
+                        .map(|n| boundary.contains(&to_pt(n.lat_lon().unwrap())))
+                        .unwrap_or(false)
+                }) {
                     ways.insert(way.id(), way);
                 }
             }
@@ -69,11 +71,19 @@ fn clip(pbf_path: &str, boundary: &Polygon<f64>, out_path: &str) -> Result<()> {
         }
     }
 
+    // Trim out all unused nodes
+    let mut used_nodes = HashSet::new();
+    for way in ways.values() {
+        used_nodes.extend(way.nodes().into_iter().cloned());
+    }
+
     // TODO Buffer?
     let mut writer = osmio::xml::XMLWriter::new(File::create("tmp.osm")?);
     // TODO Nondetermistic output because of HashMap!
-    for (_, node) in nodes {
-        writer.write_obj(&RcOSMObj::Node(node))?;
+    for id in used_nodes {
+        if let Some(node) = nodes.remove(&id) {
+            writer.write_obj(&RcOSMObj::Node(node))?;
+        }
     }
     for (_, way) in ways {
         writer.write_obj(&RcOSMObj::Way(way))?;
