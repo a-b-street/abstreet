@@ -40,7 +40,7 @@ jobs:
 
       - name: Install dependencies
         if: matrix.os == 'ubuntu-18.04'
-        run: sudo apt-get install libasound2-dev
+        run: sudo apt-get install libasound2-dev libxcb-shape0-dev libxcb-xfixes0-dev
 
       - name: Build game
         working-directory: game
