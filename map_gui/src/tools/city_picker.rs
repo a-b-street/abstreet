@@ -228,17 +228,10 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
                     }
                     #[cfg(not(target_arch = "wasm32"))]
                     {
-                        // TODO Enable the new tool when it's ready
-                        if true {
-                            crate::tools::open_browser(
-                                "https://a-b-street.github.io/docs/howto/new_city.html",
-                            );
-                        } else {
-                            return Transition::Replace(crate::tools::importer::ImportCity::new(
-                                ctx,
-                                self.on_load.take().unwrap(),
-                            ));
-                        }
+                        return Transition::Replace(crate::tools::importer::ImportCity::new(
+                            ctx,
+                            self.on_load.take().unwrap(),
+                        ));
                     }
                 }
                 "Download more cities" => {

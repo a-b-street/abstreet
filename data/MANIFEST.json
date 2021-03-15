@@ -1030,6 +1030,11 @@
       "uncompressed_size_bytes": 16138801,
       "compressed_size_bytes": 4011139
     },
+    "data/input/shared/geofabrik-index.json": {
+      "checksum": "9199b31132bd1231f4136ed38d4bdc43",
+      "uncompressed_size_bytes": 2953856,
+      "compressed_size_bytes": 925794
+    },
     "data/input/shared/wu03ew_v2.csv": {
       "checksum": "6614880a64e448b4e9a7255ab5355d00",
       "uncompressed_size_bytes": 108977615,

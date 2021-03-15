@@ -4,13 +4,14 @@ extern crate anyhow;
 extern crate log;
 
 use std::convert::TryInto;
+use std::io::Write;
 
 use anyhow::Result;
 use geo::algorithm::area::Area;
 use geo::algorithm::contains::Contains;
 use geojson::GeoJson;
 
-use abstutil::CmdArgs;
+use abstutil::{CmdArgs, Timer};
 use geom::LonLat;
 
 /// Takes an [osmosis polygon boundary
@@ -19,8 +20,6 @@ use geom::LonLat;
 ///
 /// This is a useful tool when importing a new map, if you don't already know which geofabrik file
 /// you should use as your OSM input.
-///
-/// This tool downloads a ~2MB file every run and doesn't cache it.
 fn main() -> Result<()> {
     let mut args = CmdArgs::new();
     let input = args.required_free();
@@ -30,7 +29,10 @@ fn main() -> Result<()> {
     // regions; don't handle that yet.
     let center = LonLat::center(&boundary_pts);
 
-    let geofabrik_idx = load_remote_geojson("https://download.geofabrik.de/index-v1.json")?;
+    let geofabrik_idx = load_remote_geojson(
+        abstio::path_shared_input("geofabrik-index.json"),
+        "https://download.geofabrik.de/index-v1.json",
+    )?;
     let matches = find_matching_regions(geofabrik_idx, center);
     info!(
         "{} regions contain boundary center {}",
@@ -47,13 +49,20 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn load_remote_geojson(url: &str) -> Result<GeoJson> {
-    info!("Downloading {}", url);
-    let resp = reqwest::blocking::get(url)?;
-    if !resp.status().is_success() {
-        bail!("bad status: {:?}", resp.status());
+fn load_remote_geojson(path: String, url: &str) -> Result<GeoJson> {
+    if !abstio::file_exists(&path) {
+        info!("Downloading {}", url);
+        let resp = reqwest::blocking::get(url)?;
+        if !resp.status().is_success() {
+            bail!("bad status: {:?}", resp.status());
+        }
+
+        std::fs::create_dir_all(std::path::Path::new(&path).parent().unwrap())
+            .expect("Creating parent dir failed");
+        let mut file = std::fs::File::create(&path)?;
+        file.write_all(&resp.bytes()?)?;
     }
-    resp.text()?.parse::<GeoJson>().map_err(|e| anyhow!(e))
+    abstio::maybe_read_json(path, &mut Timer::throwaway())
 }
 
 fn find_matching_regions(
