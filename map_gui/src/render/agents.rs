@@ -9,7 +9,7 @@ use aabb_quadtree::QuadTree;
 use geom::{Circle, Pt2D, Time};
 use map_model::{Map, Traversable};
 use sim::{AgentID, Sim, UnzoomedAgent, VehicleType};
-use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Panel, Prerender, Toggle, Widget};
+use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Panel, Prerender};
 
 use crate::colors::ColorScheme;
 use crate::render::{
@@ -30,9 +30,9 @@ pub struct AgentCache {
 }
 
 impl AgentCache {
-    pub fn new(cs: &ColorScheme) -> AgentCache {
+    pub fn new() -> AgentCache {
         AgentCache {
-            unzoomed_agents: UnzoomedAgents::new(cs),
+            unzoomed_agents: UnzoomedAgents::new(),
             time: None,
             agents_per_on: HashMap::new(),
             unzoomed: None,
@@ -112,7 +112,7 @@ impl AgentCache {
                 Circle::new(Pt2D::new(0.0, 0.0), unzoomed_agent_radius(None)).to_polygon();
 
             for agent in app.sim().get_unzoomed_agents(app.map()) {
-                if let Some(mut color) = self.unzoomed_agents.color(&agent) {
+                if let Some(mut color) = self.unzoomed_agents.color(&agent, app.cs()) {
                     // If the sim has highlighted people, then fade all others out.
                     if highlighted
                         .as_ref()
@@ -167,117 +167,62 @@ pub struct UnzoomedAgents {
     bikes: bool,
     buses_and_trains: bool,
     peds: bool,
-
-    car_color: Color,
-    bike_color: Color,
-    bus_color: Color,
-    ped_color: Color,
 }
 
 impl UnzoomedAgents {
-    pub fn new(cs: &ColorScheme) -> UnzoomedAgents {
+    pub fn new() -> UnzoomedAgents {
         UnzoomedAgents {
             cars: true,
             bikes: true,
             buses_and_trains: true,
             peds: true,
-
-            car_color: cs.unzoomed_car.alpha(0.8),
-            bike_color: cs.unzoomed_bike.alpha(0.8),
-            bus_color: cs.unzoomed_bus.alpha(0.8),
-            ped_color: cs.unzoomed_pedestrian.alpha(0.8),
         }
     }
 
-    fn color(&self, agent: &UnzoomedAgent) -> Option<Color> {
+    pub fn cars(&self) -> bool {
+        self.cars
+    }
+    pub fn bikes(&self) -> bool {
+        self.bikes
+    }
+    pub fn buses_and_trains(&self) -> bool {
+        self.buses_and_trains
+    }
+    pub fn peds(&self) -> bool {
+        self.peds
+    }
+
+    fn color(&self, agent: &UnzoomedAgent, color_scheme: &ColorScheme) -> Option<Color> {
         match agent.id.to_vehicle_type() {
             Some(VehicleType::Car) => {
                 if self.cars {
-                    Some(self.car_color)
+                    Some(color_scheme.unzoomed_car)
                 } else {
                     None
                 }
             }
             Some(VehicleType::Bike) => {
                 if self.bikes {
-                    Some(self.bike_color)
+                    Some(color_scheme.unzoomed_bike)
                 } else {
                     None
                 }
             }
             Some(VehicleType::Bus) | Some(VehicleType::Train) => {
                 if self.buses_and_trains {
-                    Some(self.bus_color)
+                    Some(color_scheme.unzoomed_bus)
                 } else {
                     None
                 }
             }
             None => {
                 if self.peds {
-                    Some(self.ped_color)
+                    Some(color_scheme.unzoomed_pedestrian)
                 } else {
                     None
                 }
             }
         }
-    }
-
-    /// The details are (car, bike, bus, pedestrian)
-    pub fn make_horiz_viz_panel(
-        &self,
-        ctx: &mut EventCtx,
-        details: (Widget, Widget, Widget, Widget),
-    ) -> Widget {
-        let (car_details, bike_details, bus_details, pedestrian_details) = details;
-        Widget::custom_row(vec![
-            Widget::col(vec![
-                Toggle::colored_checkbox(ctx, "Car", self.car_color, self.cars),
-                car_details,
-            ])
-            .margin_right(24),
-            Widget::col(vec![
-                Toggle::colored_checkbox(ctx, "Bike", self.bike_color, self.bikes),
-                bike_details,
-            ])
-            .margin_right(24),
-            Widget::col(vec![
-                Toggle::colored_checkbox(ctx, "Bus", self.bus_color, self.buses_and_trains),
-                bus_details,
-            ])
-            .margin_right(24),
-            Widget::col(vec![
-                Toggle::colored_checkbox(ctx, "Walk", self.ped_color, self.peds),
-                pedestrian_details,
-            ])
-            .margin_right(8),
-        ])
-    }
-
-    /// The details are (car, bike, bus, pedestrian)
-    pub fn make_vert_viz_panel(
-        &self,
-        ctx: &mut EventCtx,
-        details: (Widget, Widget, Widget, Widget),
-    ) -> Widget {
-        let (car_details, bike_details, bus_details, pedestrian_details) = details;
-        Widget::col(vec![
-            Widget::row(vec![
-                Toggle::colored_checkbox(ctx, "Car", self.car_color, self.cars),
-                car_details.align_right(),
-            ]),
-            Widget::row(vec![
-                Toggle::colored_checkbox(ctx, "Bike", self.bike_color, self.bikes),
-                bike_details.align_right(),
-            ]),
-            Widget::row(vec![
-                Toggle::colored_checkbox(ctx, "Bus", self.bus_color, self.buses_and_trains),
-                bus_details.align_right(),
-            ]),
-            Widget::row(vec![
-                Toggle::colored_checkbox(ctx, "Walk", self.ped_color, self.peds),
-                pedestrian_details.align_right(),
-            ]),
-        ])
     }
 
     pub fn update(&mut self, panel: &Panel) {

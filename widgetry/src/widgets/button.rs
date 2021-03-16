@@ -1,10 +1,12 @@
 use geom::{Distance, Polygon, Pt2D};
 
 use crate::{
-    svg, text::Font, Color, ContentMode, ControlState, CornerRounding, Drawable, EdgeInsets,
-    EventCtx, GeomBatch, GfxCtx, Line, MultiKey, Outcome, OutlineStyle, RewriteColor, ScreenDims,
-    ScreenPt, ScreenRectangle, Text, Widget, WidgetImpl, WidgetOutput,
+    text::Font, Color, ContentMode, ControlState, CornerRounding, Drawable, EdgeInsets, EventCtx,
+    GeomBatch, GfxCtx, ImageSource, Line, MultiKey, Outcome, OutlineStyle, RewriteColor,
+    ScreenDims, ScreenPt, ScreenRectangle, Text, Widget, WidgetImpl, WidgetOutput,
 };
+
+use crate::geom::geom_batch_stack::{Axis, GeomBatchStack};
 
 pub struct Button {
     /// When a button is clicked, `Outcome::Clicked` with this string is produced.
@@ -132,7 +134,7 @@ pub struct ButtonBuilder<'a> {
     stack_spacing: f64,
     hotkey: Option<MultiKey>,
     tooltip: Option<Text>,
-    stack_axis: Option<geom_batch_stack::Axis>,
+    stack_axis: Option<Axis>,
     is_label_before_image: bool,
     corner_rounding: Option<CornerRounding>,
     is_disabled: bool,
@@ -438,7 +440,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     ///
     /// If the button doesn't have both an image and label, this has no effect.
     pub fn vertical(mut self) -> Self {
-        self.stack_axis = Some(geom_batch_stack::Axis::Vertical);
+        self.stack_axis = Some(Axis::Vertical);
         self
     }
 
@@ -446,7 +448,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     ///
     /// If the button doesn't have both an image and label, this has no effect.
     pub fn horizontal(mut self) -> Self {
-        self.stack_axis = Some(geom_batch_stack::Axis::Horizontal);
+        self.stack_axis = Some(Axis::Horizontal);
         self
     }
 
@@ -704,8 +706,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
                 )
             });
 
-        use geom_batch_stack::Stack;
-        let mut stack = Stack::horizontal();
+        let mut stack = GeomBatchStack::horizontal(vec![]);
         if let Some(stack_axis) = self.stack_axis {
             stack.set_axis(stack_axis);
         }
@@ -746,28 +747,6 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
 
         let (geom_batch, _hitbox) = button_widget.to_geom(ctx, None);
         geom_batch
-    }
-}
-
-#[derive(Clone, Debug)]
-enum ImageSource<'a> {
-    Path(&'a str),
-    Bytes { bytes: &'a [u8], cache_key: &'a str },
-    GeomBatch(GeomBatch, geom::Bounds),
-}
-
-impl ImageSource<'_> {
-    fn load(&self, prerender: &crate::Prerender) -> (GeomBatch, geom::Bounds) {
-        match self {
-            ImageSource::Path(image_path) => svg::load_svg(prerender, image_path),
-            ImageSource::Bytes { bytes, cache_key } => {
-                svg::load_svg_bytes(prerender, cache_key, bytes).expect(&format!(
-                    "Failed to load svg from bytes. cache_key: {}",
-                    cache_key
-                ))
-            }
-            ImageSource::GeomBatch(geom_batch, bounds) => (geom_batch.clone(), *bounds),
-        }
     }
 }
 
@@ -855,116 +834,6 @@ impl WidgetImpl for MultiButton {
                 let draw = g.upload(GeomBatch::from(vec![(Color::YELLOW, p)]));
                 g.redraw_at(self.top_left, &draw);
             }
-        }
-    }
-}
-
-// Currently only the ButtonBuilder uses the Stack module below, but this might be useful in other
-// places.
-//
-// It's similar to Widget::row/column, but more of a builder pattern - you can add items
-// individually, change `spacing` and `axis`, and call `batch` at the end to apply this
-// configuration things to compute the layout.
-mod geom_batch_stack {
-    use crate::GeomBatch;
-
-    #[derive(Clone, Copy, Debug, PartialEq)]
-    pub enum Axis {
-        Horizontal,
-        Vertical,
-    }
-
-    #[derive(Debug)]
-    pub(crate) struct Stack {
-        batches: Vec<GeomBatch>,
-        axis: Axis,
-        spacing: f64,
-    }
-
-    impl Default for Stack {
-        fn default() -> Self {
-            Stack {
-                batches: vec![],
-                // TODO:
-                // alignment: Alignment::Center,
-                axis: Axis::Horizontal,
-                spacing: 0.0,
-            }
-        }
-    }
-
-    impl Stack {
-        pub fn horizontal() -> Self {
-            Stack {
-                axis: Axis::Horizontal,
-                ..Default::default()
-            }
-        }
-
-        #[allow(unused)]
-        pub fn vertical() -> Self {
-            Stack {
-                axis: Axis::Vertical,
-                ..Default::default()
-            }
-        }
-
-        pub fn set_axis(&mut self, new_value: Axis) {
-            self.axis = new_value;
-        }
-
-        #[allow(unused)]
-        pub fn push(&mut self, geom_batch: GeomBatch) {
-            self.batches.push(geom_batch);
-        }
-
-        pub fn append(&mut self, geom_batches: &mut Vec<GeomBatch>) {
-            self.batches.append(geom_batches);
-        }
-
-        pub fn spacing(&mut self, spacing: f64) -> &mut Self {
-            self.spacing = spacing;
-            self
-        }
-
-        pub fn batch(self) -> GeomBatch {
-            if self.batches.is_empty() {
-                return GeomBatch::new();
-            }
-
-            let max_bound_for_axis = self
-                .batches
-                .iter()
-                .map(GeomBatch::get_bounds)
-                .max_by(|b1, b2| match self.axis {
-                    Axis::Vertical => b1.width().partial_cmp(&b2.width()).unwrap(),
-                    Axis::Horizontal => b1.height().partial_cmp(&b2.height()).unwrap(),
-                })
-                .unwrap();
-
-            let mut stack_batch = GeomBatch::new();
-            let mut stack_offset = 0.0;
-            for mut batch in self.batches {
-                let bounds = batch.get_bounds();
-                let alignment_inset = match self.axis {
-                    Axis::Vertical => (max_bound_for_axis.width() - bounds.width()) / 2.0,
-                    Axis::Horizontal => (max_bound_for_axis.height() - bounds.height()) / 2.0,
-                };
-
-                let (dx, dy) = match self.axis {
-                    Axis::Vertical => (alignment_inset, stack_offset),
-                    Axis::Horizontal => (stack_offset, alignment_inset),
-                };
-                batch = batch.translate(dx, dy);
-                stack_batch.append(batch);
-
-                stack_offset += self.spacing;
-                match self.axis {
-                    Axis::Vertical => stack_offset += bounds.height(),
-                    Axis::Horizontal => stack_offset += bounds.width(),
-                }
-            }
-            stack_batch
         }
     }
 }

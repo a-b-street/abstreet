@@ -2,7 +2,7 @@ use abstutil::prettyprint_usize;
 use map_gui::tools::{MinimapControls, Navigator};
 use widgetry::{
     ControlState, EventCtx, GfxCtx, HorizontalAlignment, Image, Key, Line, Panel, ScreenDims, Text,
-    TextExt, VerticalAlignment, Widget,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -31,13 +31,16 @@ impl MinimapControls<App> for MinimapController {
     }
 
     fn make_unzoomed_panel(&self, ctx: &mut EventCtx, app: &App) -> Panel {
+        let unzoomed_agents = &app.primary.agents.borrow().unzoomed_agents;
+        let is_enabled = [
+            unzoomed_agents.cars(),
+            unzoomed_agents.bikes(),
+            unzoomed_agents.buses_and_trains(),
+            unzoomed_agents.peds(),
+        ];
         Panel::new(Widget::row(vec![
             make_tool_panel(ctx, app).align_right(),
-            app.primary
-                .agents
-                .borrow()
-                .unzoomed_agents
-                .make_vert_viz_panel(ctx, agent_counters(ctx, app))
+            Widget::col(make_agent_toggles(ctx, app, is_enabled))
                 .bg(app.cs.panel_bg)
                 .padding(16),
         ]))
@@ -48,12 +51,19 @@ impl MinimapControls<App> for MinimapController {
         .build_custom(ctx)
     }
     fn make_legend(&self, ctx: &mut EventCtx, app: &App) -> Widget {
-        app.primary
-            .agents
-            .borrow()
-            .unzoomed_agents
-            .make_horiz_viz_panel(ctx, agent_counters(ctx, app))
+        let unzoomed_agents = &app.primary.agents.borrow().unzoomed_agents;
+        let is_enabled = [
+            unzoomed_agents.cars(),
+            unzoomed_agents.bikes(),
+            unzoomed_agents.buses_and_trains(),
+            unzoomed_agents.peds(),
+        ];
+
+        Widget::custom_row(make_agent_toggles(ctx, app, is_enabled))
+            // nudge to left-align with the map edge
+            .margin_left(26)
     }
+
     fn make_zoomed_side_panel(&self, ctx: &mut EventCtx, app: &App) -> Widget {
         make_tool_panel(ctx, app)
     }
@@ -101,94 +111,181 @@ impl MinimapControls<App> for MinimapController {
     }
 }
 
-fn agent_counters(ctx: &EventCtx, app: &App) -> (Widget, Widget, Widget, Widget) {
+/// `is_enabled`: are (car, bike, bus, pedestrian) toggles enabled
+/// returns Widgets for (car, bike, bus, pedestrian)
+fn make_agent_toggles(ctx: &mut EventCtx, app: &App, is_enabled: [bool; 4]) -> Vec<Widget> {
+    use widgetry::{include_labeled_bytes, Color, GeomBatchStack, RewriteColor, Toggle};
+    let [is_car_enabled, is_bike_enabled, is_bus_enabled, is_pedestrian_enabled] = is_enabled;
+
+    pub fn colored_checkbox(
+        ctx: &EventCtx,
+        action: &str,
+        is_enabled: bool,
+        color: Color,
+        icon: &str,
+        label: &str,
+        tooltip: Text,
+    ) -> Widget {
+        let buttons = ctx
+            .style()
+            .btn_plain
+            .btn()
+            .label_text(label)
+            .padding(4.0)
+            .tooltip(tooltip)
+            .image_color(RewriteColor::NoOp, ControlState::Default);
+
+        let icon_batch = Image::icon(icon).batch(ctx).0;
+        let false_btn = {
+            let checkbox = Image::bytes(include_labeled_bytes!(
+                "../../../widgetry/icons/checkbox_no_border_unchecked.svg"
+            ))
+            .color(RewriteColor::Change(Color::BLACK, color.alpha(0.3)));
+            let mut row =
+                GeomBatchStack::horizontal(vec![checkbox.batch(ctx).0, icon_batch.clone()]);
+            row.spacing(8.0);
+
+            let row_batch = row.batch();
+            let bounds = row_batch.get_bounds();
+            buttons.clone().image_batch(row_batch, bounds)
+        };
+
+        // For typical checkboxes buttons, the checkbox *is* the image, but for the agent toggles
+        // we need both a checkbox *and* an additional icon. To do that, we combine the checkbox
+        // and icon into a single batch, and use that combined batch as the button's image.
+        let true_btn = {
+            let checkbox = Image::bytes(include_labeled_bytes!(
+                "../../../widgetry/icons/checkbox_no_border_checked.svg"
+            ))
+            .color(RewriteColor::Change(Color::BLACK, color));
+
+            let mut row = GeomBatchStack::horizontal(vec![checkbox.batch(ctx).0, icon_batch]);
+            row.spacing(8.0);
+
+            let row_batch = row.batch();
+            let bounds = row_batch.get_bounds();
+            buttons.image_batch(row_batch, bounds)
+        };
+
+        Toggle::new(
+            is_enabled,
+            false_btn.build(ctx, action),
+            true_btn.build(ctx, action),
+        )
+        .named(action)
+    }
+
     let counts = app.primary.sim.num_commuters_vehicles();
 
-    let pedestrian_details = Widget::custom_row(vec![
-        Image::icon("system/assets/meters/pedestrian.svg")
-            .tooltip(Text::from_multiline(vec![
-                Line("Pedestrians"),
-                Line(format!(
-                    "Walking commuters: {}",
-                    prettyprint_usize(counts.walking_commuters)
-                ))
-                .secondary(),
-                Line(format!(
-                    "To/from public transit: {}",
-                    prettyprint_usize(counts.walking_to_from_transit)
-                ))
-                .secondary(),
-                Line(format!(
-                    "To/from a car: {}",
-                    prettyprint_usize(counts.walking_to_from_car)
-                ))
-                .secondary(),
-                Line(format!(
-                    "To/from a bike: {}",
-                    prettyprint_usize(counts.walking_to_from_bike)
-                ))
-                .secondary(),
-            ]))
-            .into_widget(ctx)
-            .margin_right(5),
-        prettyprint_usize(
+    let pedestrian_details = {
+        let tooltip = Text::from_multiline(vec![
+            Line("Pedestrians"),
+            Line(format!(
+                "Walking commuters: {}",
+                prettyprint_usize(counts.walking_commuters)
+            ))
+            .secondary(),
+            Line(format!(
+                "To/from public transit: {}",
+                prettyprint_usize(counts.walking_to_from_transit)
+            ))
+            .secondary(),
+            Line(format!(
+                "To/from a car: {}",
+                prettyprint_usize(counts.walking_to_from_car)
+            ))
+            .secondary(),
+            Line(format!(
+                "To/from a bike: {}",
+                prettyprint_usize(counts.walking_to_from_bike)
+            ))
+            .secondary(),
+        ]);
+
+        let count = prettyprint_usize(
             counts.walking_commuters
                 + counts.walking_to_from_transit
                 + counts.walking_to_from_car
                 + counts.walking_to_from_bike,
+        );
+
+        colored_checkbox(
+            ctx,
+            "Walk",
+            is_pedestrian_enabled,
+            app.cs.unzoomed_pedestrian,
+            "system/assets/meters/pedestrian.svg",
+            &count,
+            tooltip,
         )
-        .text_widget(ctx),
-    ]);
+    };
 
-    let bike_details = Widget::custom_row(vec![
-        Image::icon("system/assets/meters/bike.svg")
-            .tooltip(Text::from_multiline(vec![
-                Line("Cyclists"),
-                Line(prettyprint_usize(counts.cyclists)).secondary(),
-            ]))
-            .into_widget(ctx)
-            .margin_right(5),
-        prettyprint_usize(counts.cyclists).text_widget(ctx),
-    ]);
+    let bike_details = {
+        let tooltip = Text::from_multiline(vec![
+            Line("Cyclists"),
+            Line(prettyprint_usize(counts.cyclists)).secondary(),
+        ]);
 
-    let car_details = Widget::custom_row(vec![
-        Image::icon("system/assets/meters/car.svg")
-            .tooltip(Text::from_multiline(vec![
-                Line("Cars"),
-                Line(format!(
-                    "Single-occupancy vehicles: {}",
-                    prettyprint_usize(counts.sov_drivers)
-                ))
-                .secondary(),
-            ]))
-            .into_widget(ctx)
-            .margin_right(5),
-        prettyprint_usize(counts.sov_drivers).text_widget(ctx),
-    ]);
+        colored_checkbox(
+            ctx,
+            "Bike",
+            is_bike_enabled,
+            app.cs.unzoomed_bike,
+            "system/assets/meters/bike.svg",
+            &prettyprint_usize(counts.cyclists),
+            tooltip,
+        )
+    };
 
-    let bus_details = Widget::custom_row(vec![
-        Image::icon("system/assets/meters/bus.svg")
-            .tooltip(Text::from_multiline(vec![
-                Line("Public transit"),
-                Line(format!(
-                    "{} passengers on {} buses",
-                    prettyprint_usize(counts.bus_riders),
-                    prettyprint_usize(counts.buses)
-                ))
-                .secondary(),
-                Line(format!(
-                    "{} passengers on {} trains",
-                    prettyprint_usize(counts.train_riders),
-                    prettyprint_usize(counts.trains)
-                ))
-                .secondary(),
-            ]))
-            .into_widget(ctx)
-            .margin_right(5),
-        prettyprint_usize(counts.bus_riders + counts.train_riders).text_widget(ctx),
-    ]);
+    let car_details = {
+        let tooltip = Text::from_multiline(vec![
+            Line("Cars"),
+            Line(format!(
+                "Single-occupancy vehicles: {}",
+                prettyprint_usize(counts.sov_drivers)
+            ))
+            .secondary(),
+        ]);
+        colored_checkbox(
+            ctx,
+            "Car",
+            is_car_enabled,
+            app.cs.unzoomed_car,
+            "system/assets/meters/car.svg",
+            &prettyprint_usize(counts.sov_drivers),
+            tooltip,
+        )
+    };
 
-    (car_details, bike_details, bus_details, pedestrian_details)
+    let bus_details = {
+        let tooltip = Text::from_multiline(vec![
+            Line("Public transit"),
+            Line(format!(
+                "{} passengers on {} buses",
+                prettyprint_usize(counts.bus_riders),
+                prettyprint_usize(counts.buses)
+            ))
+            .secondary(),
+            Line(format!(
+                "{} passengers on {} trains",
+                prettyprint_usize(counts.train_riders),
+                prettyprint_usize(counts.trains)
+            ))
+            .secondary(),
+        ]);
+
+        colored_checkbox(
+            ctx,
+            "Bus",
+            is_bus_enabled,
+            app.cs.unzoomed_bus,
+            "system/assets/meters/bus.svg",
+            &prettyprint_usize(counts.bus_riders + counts.train_riders),
+            tooltip,
+        )
+    };
+
+    vec![car_details, bike_details, bus_details, pedestrian_details]
 }
 
 fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {
