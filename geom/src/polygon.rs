@@ -504,7 +504,7 @@ pub struct Triangle {
 }
 
 impl Triangle {
-    pub(crate) fn new(pt1: Pt2D, pt2: Pt2D, pt3: Pt2D) -> Triangle {
+    pub fn new(pt1: Pt2D, pt2: Pt2D, pt3: Pt2D) -> Triangle {
         Triangle { pt1, pt2, pt3 }
     }
 

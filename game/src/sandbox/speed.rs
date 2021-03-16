@@ -20,6 +20,8 @@ pub struct TimePanel {
     time: Time,
     paused: bool,
     setting: SpeedSetting,
+    // if present, how many trips were completed in the baseline at this point
+    baseline_finished_trips: Option<usize>,
 }
 
 #[derive(Clone, Copy, PartialEq, PartialOrd)]
@@ -42,6 +44,7 @@ impl TimePanel {
             time: app.primary.sim.time(),
             paused: false,
             setting: SpeedSetting::Realtime,
+            baseline_finished_trips: None,
         };
         time.recreate_panel(ctx, app);
         time
@@ -156,34 +159,138 @@ impl TimePanel {
         self.panel = panel.build(ctx);
     }
 
-    fn create_time_panel(&mut self, ctx: &EventCtx, app: &App) -> Widget {
+    fn trips_completion_bar(&mut self, ctx: &EventCtx, app: &App) -> Widget {
+        let text_color = Color::WHITE;
+        let bar_fg = ctx.style().primary_fg;
+        let bar_bg = bar_fg.tint(0.6).shade(0.2);
+        let cursor_fg = Color::hex("#939393");
+
+        // This is manually tuned
+        let bar_width = 400.0;
+        let bar_height = 27.0;
+
         let (finished, unfinished) = app.primary.sim.num_trips();
-        let trip_results = Widget::row(vec![
-            {
-                let mut txt = Text::new();
-                let pct = if unfinished == 0 {
-                    100.0
+        let total = finished + unfinished;
+        let ratio = if total > 0 {
+            finished as f64 / total as f64
+        } else {
+            0.0
+        };
+        let finished_width = ratio * bar_width;
+
+        if app.has_prebaked().is_some() {
+            let now = self.time;
+            let mut baseline_finished = self.baseline_finished_trips.unwrap_or(0);
+            for (t, _, _, _) in &app.prebaked().finished_trips[baseline_finished..] {
+                if *t > now {
+                    break;
+                }
+                baseline_finished += 1;
+            }
+            // memoized for perf.
+            // A bit of profiling shows we save about 0.7% of runtime
+            // (using montlake, zoomed out, at max speed)
+            self.baseline_finished_trips = Some(baseline_finished);
+        }
+
+        let baseline_finished_ratio: Option<f64> =
+            self.baseline_finished_trips.and_then(|baseline_finished| {
+                if unfinished + baseline_finished > 0 {
+                    Some(baseline_finished as f64 / (baseline_finished + unfinished) as f64)
                 } else {
-                    100.0 * (finished as f64) / ((finished + unfinished) as f64)
-                };
-                txt.add(Line(format!(
-                    "Finished trips: {} ({}%)",
-                    prettyprint_usize(finished),
-                    pct as usize
-                )));
-                txt.into_widget(ctx).centered_vert()
-            },
-            if app.primary.dirty_from_edits {
-                ctx.style()
-                    .btn_plain
-                    .icon("system/assets/tools/warning.svg")
-                    .build_widget(ctx, "see why results are tentative")
-                    .centered_vert()
-                    .align_right()
+                    None
+                }
+            });
+        let baseline_finished_width: Option<f64> = baseline_finished_ratio
+            .map(|baseline_finished_ratio| baseline_finished_ratio * bar_width);
+
+        let cursor_width = 2.0;
+        let mut progress_bar = GeomBatch::new();
+
+        {
+            // TODO Why is the rounding so hard? The white background is always rounded
+            // at both ends. The moving bar should always be rounded on the left, flat
+            // on the right, except at the very end (for the last 'radius' pixels). And
+            // when the width is too small for the radius, this messes up.
+            progress_bar.push(bar_bg, Polygon::rectangle(bar_width, bar_height));
+            progress_bar.push(bar_fg, Polygon::rectangle(finished_width, bar_height));
+
+            if let Some(baseline_finished_width) = baseline_finished_width {
+                if baseline_finished_width > 0.0 {
+                    let baseline_cursor = Polygon::rectangle(cursor_width, bar_height)
+                        .translate(baseline_finished_width, 0.0);
+                    progress_bar.push(cursor_fg, baseline_cursor);
+                }
+            }
+        }
+
+        let text_geom = Text::from(
+            Line(format!("Finished Trips: {}", prettyprint_usize(finished))).fg(text_color),
+        )
+        .render(ctx)
+        .translate(8.0, 0.0);
+        progress_bar.append(text_geom);
+
+        if let Some(baseline_finished_width) = baseline_finished_width {
+            let triangle_width = 9.0;
+            let triangle_height = 9.0;
+
+            // Add a triangle-shaped cursor above the baseline cursor
+            progress_bar = progress_bar.translate(0.0, triangle_height);
+
+            use geom::Triangle;
+            let triangle = Triangle::new(
+                Pt2D::zero(),
+                Pt2D::new(triangle_width, 0.0),
+                Pt2D::new(triangle_width / 2.0, triangle_height),
+            );
+            let mut triangle_poly = Polygon::from_triangle(&triangle);
+            triangle_poly = triangle_poly.translate(
+                baseline_finished_width - triangle_width / 2.0 + cursor_width / 2.0,
+                0.0,
+            );
+
+            progress_bar.push(cursor_fg, triangle_poly);
+        }
+
+        use widgetry::DrawWithTooltips;
+        let mut tooltip_text = Text::from(Line("Finished Trips"));
+        tooltip_text.add(Line(format!(
+            "{} ({}% of total)",
+            prettyprint_usize(finished),
+            (ratio * 100.0) as usize
+        )));
+        if let Some(baseline_finished) = self.baseline_finished_trips {
+            // TODO: up/down icons
+            let line = if baseline_finished > finished {
+                let difference = baseline_finished - finished;
+                Line(format!(
+                    "{} less than baseline",
+                    prettyprint_usize(difference)
+                ))
+                .fg(ctx.style().text_destructive_color)
+            } else if baseline_finished < finished {
+                let difference = finished - baseline_finished;
+                Line(format!(
+                    "{} more than baseline",
+                    prettyprint_usize(difference)
+                ))
+                .fg(ctx.style().text_tooltip_color)
             } else {
-                Widget::nothing()
-            },
-        ]);
+                Line("No change from baseline")
+            };
+            tooltip_text.add(line);
+        }
+
+        let bounds = progress_bar.get_bounds();
+        let bounding_box = Polygon::rectangle(bounds.width(), bounds.height());
+        let tooltip = vec![(bounding_box, tooltip_text)];
+        DrawWithTooltips::new(ctx, progress_bar, tooltip, Box::new(|_| GeomBatch::new()))
+    }
+
+    fn create_time_panel(&mut self, ctx: &EventCtx, app: &App) -> Widget {
+        let trips_bar = self.trips_completion_bar(ctx, app);
+
         // TODO This likely fits better in the top center panel, but no easy way to squeeze it
         // into the panel for all gameplay modes
         let record_trips = if let Some(n) = app.primary.sim.num_recorded_trips() {
@@ -205,42 +312,19 @@ impl TimePanel {
             Widget::nothing()
         };
 
-        let time_bar = {
-            let mut batch = GeomBatch::new();
-            // This is manually tuned
-            let width = 400.0;
-            let height = 15.0;
-            // Just clamp if we simulate past the expected end
-            let percent = self
-                .time
-                .to_percent(app.primary.sim.get_end_of_day())
-                .min(1.0);
-
-            // TODO Why is the rounding so hard? The white background is always rounded
-            // at both ends. The moving bar should always be rounded on the left, flat
-            // on the right, except at the very end (for the last 'radius' pixels). And
-            // when the width is too small for the radius, this messes up.
-
-            batch.push(Color::WHITE, Polygon::rectangle(width, height));
-
-            if percent != 0.0 {
-                batch.push(
-                    if percent < 0.25 || percent > 0.75 {
-                        app.cs.night_time_slider
-                    } else {
-                        app.cs.day_time_slider
-                    },
-                    Polygon::rectangle(percent * width, height),
-                );
-            }
-
-            batch.into_widget(ctx)
-        };
-
         Widget::col(vec![
             Text::from(Line(self.time.ampm_tostring()).big_monospaced()).into_widget(ctx),
-            time_bar,
-            trip_results,
+            trips_bar.margin_above(12),
+            if app.primary.dirty_from_edits {
+                ctx.style()
+                    .btn_plain
+                    .icon("system/assets/tools/warning.svg")
+                    .build_widget(ctx, "see why results are tentative")
+                    .centered_vert()
+                    .align_right()
+            } else {
+                Widget::nothing()
+            },
             record_trips,
         ])
     }

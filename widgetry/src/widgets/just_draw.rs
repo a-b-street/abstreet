@@ -49,6 +49,11 @@ pub struct DrawWithTooltips {
 }
 
 impl DrawWithTooltips {
+    /// `batch`: the `GeomBatch` to draw
+    /// `tooltips`: (hitbox, text) tuples where each `text` is shown when the user hovers over
+    ///             the respective `hitbox`
+    /// `hover`: returns a GeomBatch to render upon hovering. Return an `GeomBox::new()` if
+    ///          you want hovering to be a no-op
     pub fn new(
         ctx: &EventCtx,
         batch: GeomBatch,
