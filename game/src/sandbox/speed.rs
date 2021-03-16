@@ -225,7 +225,7 @@ impl TimePanel {
         }
 
         let text_geom = Text::from(
-            Line(format!("Finished Trips: {}", prettyprint_usize(finished),)).fg(text_color),
+            Line(format!("Finished Trips: {}", prettyprint_usize(finished))).fg(text_color),
         )
         .render(ctx)
         .translate(8.0, 0.0);
@@ -257,19 +257,25 @@ impl TimePanel {
         let mut tooltip_text = Text::from(Line("Finished Trips"));
         tooltip_text.add(Line(format!(
             "{} ({}% of total)",
-            finished,
+            prettyprint_usize(finished),
             (ratio * 100.0) as usize
         )));
         if let Some(baseline_finished) = self.baseline_finished_trips {
             // TODO: up/down icons
             let line = if baseline_finished > finished {
                 let difference = baseline_finished - finished;
-                Line(format!("{} less than baseline", difference))
-                    .fg(ctx.style().text_destructive_color)
+                Line(format!(
+                    "{} less than baseline",
+                    prettyprint_usize(difference)
+                ))
+                .fg(ctx.style().text_destructive_color)
             } else if baseline_finished < finished {
                 let difference = finished - baseline_finished;
-                Line(format!("{} more than baseline", difference))
-                    .fg(ctx.style().text_tooltip_color)
+                Line(format!(
+                    "{} more than baseline",
+                    prettyprint_usize(difference)
+                ))
+                .fg(ctx.style().text_tooltip_color)
             } else {
                 Line("No change from baseline")
             };
