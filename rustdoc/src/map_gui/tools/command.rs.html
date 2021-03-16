@@ -154,6 +154,13 @@
 <span id="151">151</span>
 <span id="152">152</span>
 <span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">VecDeque</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">time</span>::<span class="ident">Duration</span>;
@@ -246,7 +253,14 @@
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">max_capacity</span> {
                     <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">pop_front</span>();
                 }
-                <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">push_back</span>(<span class="ident">line</span>);
+                <span class="comment">// Handle the &quot;clear the current line&quot; escape code</span>
+                <span class="kw">if</span> <span class="ident">line</span>.<span class="ident">contains</span>(<span class="string">&quot;\r&quot;</span>) {
+                    <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">pop_front</span>();
+                    <span class="self">self</span>.<span class="ident">lines</span>
+                        .<span class="ident">push_back</span>(<span class="ident">line</span>.<span class="ident">split</span>(<span class="string">&#39;\r&#39;</span>).<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">to_string</span>());
+                } <span class="kw">else</span> {
+                    <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">push_back</span>(<span class="ident">line</span>);
+                }
             }
         }
     }

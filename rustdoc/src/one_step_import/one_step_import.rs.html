@@ -103,9 +103,6 @@
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
-<span id="103">103</span>
-<span id="104">104</span>
-<span id="105">105</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Write</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">path</span>::<span class="ident">Path</span>;
@@ -118,7 +115,8 @@
 
 <span class="doccomment">/// Import a one-shot A/B Street map in a single command. Takes a GeoJSON file with a boundary as</span>
 <span class="doccomment">/// input. Automatically fetches the OSM data, clips it, and runs the importer.</span>
-<span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">main</span>]</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">CmdArgs</span>::<span class="ident">new</span>();
     <span class="kw">let</span> <span class="ident">geojson_path</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">required_free</span>();
     <span class="kw">let</span> <span class="ident">drive_on_left</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--drive_on_left&quot;</span>);
@@ -175,11 +173,7 @@
     <span class="comment">// TODO This is timing out. Also, really could use progress bars.</span>
     <span class="kw">if</span> <span class="op">!</span><span class="ident">abstio</span>::<span class="ident">file_exists</span>(<span class="kw-2">&amp;</span><span class="ident">pbf</span>) {
         <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Downloading {}&quot;</span>, <span class="ident">url</span>);
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">reqwest</span>::<span class="ident">blocking</span>::<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)<span class="question-mark">?</span>;
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">status</span>().<span class="ident">is_success</span>());
-        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">resp</span>.<span class="ident">bytes</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>::<span class="ident">create</span>(<span class="kw-2">&amp;</span><span class="ident">pbf</span>)<span class="question-mark">?</span>;
-        <span class="ident">out</span>.<span class="ident">write_all</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>)<span class="question-mark">?</span>;
+        <span class="ident">abstio</span>::<span class="ident">download_to_file</span>(<span class="ident">url</span>, <span class="ident">pbf</span>.<span class="ident">clone</span>(), <span class="bool-val">false</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     }
 
     <span class="comment">// Clip it</span>
