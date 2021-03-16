@@ -173,6 +173,9 @@ fn make_agent_toggles(ctx: &mut EventCtx, app: &App, is_enabled: [bool; 4]) -> V
             true_btn.build(ctx, action),
         )
         .named(action)
+        .container()
+        // avoid horizontal resize jitter as numbers fluctuate
+        .force_width(137.0)
     }
 
     let counts = app.primary.sim.num_commuters_vehicles();
