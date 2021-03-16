@@ -1,4 +1,4 @@
-use std::io::Write;
+use std::io::{stdout, Write};
 
 use anyhow::{Context, Result};
 
@@ -24,6 +24,7 @@ pub async fn download_bytes<I: AsRef<str>>(url: I, quiet: bool) -> Result<Vec<u8
                     prettyprint_usize(bytes.len()),
                     prettyprint_usize(n)
                 );
+                stdout().flush().unwrap();
             }
         }
 
