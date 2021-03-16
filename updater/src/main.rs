@@ -1,14 +1,13 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs::File;
-use std::io::{BufReader, Read, Write};
+use std::io::{BufReader, Read};
 use std::process::Command;
 
-use anyhow::{Context, Result};
+use anyhow::Result;
 use walkdir::WalkDir;
 
 use abstio::{DataPacks, Entry, Manifest};
 use abstutil::{must_run_cmd, prettyprint_usize, CmdArgs, Parallelism, Timer};
-use geom::Percent;
 
 const MD5_BUF_READ_SIZE: usize = 4096;
 
@@ -42,11 +41,11 @@ async fn main() {
     } else {
         let quiet = args.enabled("--quiet");
         args.done();
-        download(version, quiet).await;
+        download_updates(version, quiet).await;
     }
 }
 
-async fn download(version: String, quiet: bool) {
+async fn download_updates(version: String, quiet: bool) {
     let data_packs = DataPacks::load_or_create();
     let local = generate_manifest();
     let truth = Manifest::load().filter(data_packs);
@@ -63,7 +62,7 @@ async fn download(version: String, quiet: bool) {
     for (path, entry) in truth.entries {
         if local.entries.get(&path).map(|x| &x.checksum) != Some(&entry.checksum) {
             std::fs::create_dir_all(std::path::Path::new(&path).parent().unwrap()).unwrap();
-            match curl(&version, &path, quiet).await {
+            match download_file(&version, &path, quiet).await {
                 Ok(bytes) => {
                     println!(
                         "> decompress {}, which is {} bytes compressed",
@@ -285,7 +284,7 @@ fn rm(path: &str) {
     }
 }
 
-async fn curl(version: &str, path: &str, quiet: bool) -> Result<Vec<u8>> {
+async fn download_file(version: &str, path: &str, quiet: bool) -> Result<Vec<u8>> {
     // Manually enable to "download" from my local copy
     if false {
         return abstio::slurp_file(format!(
@@ -294,35 +293,12 @@ async fn curl(version: &str, path: &str, quiet: bool) -> Result<Vec<u8>> {
         ));
     }
 
-    let src = format!(
+    let url = format!(
         "http://abstreet.s3-website.us-east-2.amazonaws.com/{}/{}.gz",
         version, path
     );
-    println!("> download {}", src);
-
-    let mut resp = reqwest::get(&src).await.unwrap();
-    resp.error_for_status_ref()
-        .with_context(|| format!("downloading {}", src))?;
-
-    let total_size = resp.content_length().map(|x| x as usize);
-    let mut bytes = Vec::new();
-    while let Some(chunk) = resp.chunk().await.unwrap() {
-        if let Some(n) = total_size {
-            if !quiet {
-                abstutil::clear_current_line();
-                print!(
-                    "{} ({} / {} bytes)",
-                    Percent::of(bytes.len(), n),
-                    prettyprint_usize(bytes.len()),
-                    prettyprint_usize(n)
-                );
-            }
-        }
-
-        bytes.write_all(&chunk).unwrap();
-    }
-    println!();
-    Ok(bytes)
+    println!("> download {}", url);
+    abstio::download_bytes(url, quiet).await
 }
 
 // download() will remove stray files, but leave empty directories around. Since some runtime code

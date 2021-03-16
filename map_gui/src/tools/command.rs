@@ -89,7 +89,14 @@ impl<A: AppLike + 'static> RunCommand<A> {
                 if self.lines.len() == self.max_capacity {
                     self.lines.pop_front();
                 }
-                self.lines.push_back(line);
+                // Handle the "clear the current line" escape code
+                if line.contains("\r") {
+                    self.lines.pop_front();
+                    self.lines
+                        .push_back(line.split('\r').last().unwrap().to_string());
+                } else {
+                    self.lines.push_back(line);
+                }
             }
         }
     }

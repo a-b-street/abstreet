@@ -20,7 +20,8 @@ use geom::LonLat;
 ///
 /// This is a useful tool when importing a new map, if you don't already know which geofabrik file
 /// you should use as your OSM input.
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
     let mut args = CmdArgs::new();
     let input = args.required_free();
     args.done();
@@ -32,7 +33,8 @@ fn main() -> Result<()> {
     let geofabrik_idx = load_remote_geojson(
         abstio::path_shared_input("geofabrik-index.json"),
         "https://download.geofabrik.de/index-v1.json",
-    )?;
+    )
+    .await?;
     let matches = find_matching_regions(geofabrik_idx, center);
     info!(
         "{} regions contain boundary center {}",
@@ -49,18 +51,10 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn load_remote_geojson(path: String, url: &str) -> Result<GeoJson> {
+async fn load_remote_geojson(path: String, url: &str) -> Result<GeoJson> {
     if !abstio::file_exists(&path) {
         info!("Downloading {}", url);
-        let resp = reqwest::blocking::get(url)?;
-        if !resp.status().is_success() {
-            bail!("bad status: {:?}", resp.status());
-        }
-
-        std::fs::create_dir_all(std::path::Path::new(&path).parent().unwrap())
-            .expect("Creating parent dir failed");
-        let mut file = std::fs::File::create(&path)?;
-        file.write_all(&resp.bytes()?)?;
+        abstio::download_to_file(url, path.clone(), false).await?;
     }
     abstio::maybe_read_json(path, &mut Timer::throwaway())
 }

@@ -9,7 +9,8 @@ use abstutil::{must_run_cmd, CmdArgs};
 
 /// Import a one-shot A/B Street map in a single command. Takes a GeoJSON file with a boundary as
 /// input. Automatically fetches the OSM data, clips it, and runs the importer.
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
     let mut args = CmdArgs::new();
     let geojson_path = args.required_free();
     let drive_on_left = args.enabled("--drive_on_left");
@@ -66,11 +67,7 @@ fn main() -> Result<()> {
     // TODO This is timing out. Also, really could use progress bars.
     if !abstio::file_exists(&pbf) {
         println!("Downloading {}", url);
-        let resp = reqwest::blocking::get(&url)?;
-        assert!(resp.status().is_success());
-        let bytes = resp.bytes()?;
-        let mut out = std::fs::File::create(&pbf)?;
-        out.write_all(&bytes)?;
+        abstio::download_to_file(url, pbf.clone(), false).await?;
     }
 
     // Clip it

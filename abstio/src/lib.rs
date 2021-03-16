@@ -16,6 +16,11 @@ mod io_web;
 #[cfg(target_arch = "wasm32")]
 pub use io_web::*;
 
+#[cfg(not(target_arch = "wasm32"))]
+mod download;
+#[cfg(not(target_arch = "wasm32"))]
+pub use download::*;
+
 pub use abst_data::*;
 pub use abst_paths::*;
 

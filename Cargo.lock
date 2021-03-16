@@ -26,6 +26,7 @@ dependencies = [
  "instant",
  "lazy_static",
  "log",
+ "reqwest",
  "serde",
  "serde_json",
  "web-sys",
@@ -1807,10 +1808,10 @@ dependencies = [
  "popdat",
  "rand",
  "rand_xorshift",
- "reqwest",
  "serde",
  "serde_json",
  "sim",
+ "tokio",
 ]
 
 [[package]]
@@ -4135,7 +4136,6 @@ dependencies = [
  "flate2",
  "geom",
  "md5",
- "reqwest",
  "tokio",
  "walkdir",
 ]
