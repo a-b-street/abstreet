@@ -209,6 +209,10 @@
 <span id="206">206</span>
 <span id="207">207</span>
 <span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
@@ -242,6 +246,10 @@
             <span class="ident">x</span>: <span class="ident">trim_f64</span>(<span class="ident">x</span>),
             <span class="ident">y</span>: <span class="ident">trim_f64</span>(<span class="ident">y</span>),
         }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zero</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>)
     }
 
     <span class="comment">// TODO This is a small first step...</span>

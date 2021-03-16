@@ -137,6 +137,11 @@
 <span id="134">134</span>
 <span id="135">135</span>
 <span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Polygon</span>;
 
@@ -189,6 +194,11 @@
 }
 
 <span class="kw">impl</span> <span class="ident">DrawWithTooltips</span> {
+    <span class="doccomment">/// `batch`: the `GeomBatch` to draw</span>
+    <span class="doccomment">/// `tooltips`: (hitbox, text) tuples where each `text` is shown when the user hovers over</span>
+    <span class="doccomment">///             the respective `hitbox`</span>
+    <span class="doccomment">/// `hover`: returns a GeomBatch to render upon hovering. Return an `GeomBox::new()` if</span>
+    <span class="doccomment">///          you want hovering to be a no-op</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
         <span class="ident">batch</span>: <span class="ident">GeomBatch</span>,

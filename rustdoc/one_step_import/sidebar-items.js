@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["main","Import a one-shot A/B Street map in a single command. Takes a GeoJSON file with a boundary as input. Automatically fetches the OSM data, clips it, and runs the importer. TODO It currently overwrites a few fixed output files and doesn't clean them up."]]});
+initSidebarItems({"fn":[["main","Import a one-shot A/B Street map in a single command. Takes a GeoJSON file with a boundary as input. Automatically fetches the OSM data, clips it, and runs the importer."]]});

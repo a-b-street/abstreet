@@ -478,6 +478,90 @@
 <span id="475">475</span>
 <span id="476">476</span>
 <span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
@@ -501,6 +585,8 @@
     <span class="ident">time</span>: <span class="ident">Time</span>,
     <span class="ident">paused</span>: <span class="ident">bool</span>,
     <span class="ident">setting</span>: <span class="ident">SpeedSetting</span>,
+    <span class="comment">// if present, how many trips were completed in the baseline at this point</span>
+    <span class="ident">baseline_finished_trips</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>)]</span>
@@ -523,6 +609,7 @@
             <span class="ident">time</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(),
             <span class="ident">paused</span>: <span class="bool-val">false</span>,
             <span class="ident">setting</span>: <span class="ident">SpeedSetting</span>::<span class="ident">Realtime</span>,
+            <span class="ident">baseline_finished_trips</span>: <span class="prelude-val">None</span>,
         };
         <span class="ident">time</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         <span class="ident">time</span>
@@ -637,34 +724,138 @@
         <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">build</span>(<span class="ident">ctx</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">create_time_panel</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">fn</span> <span class="ident">trips_completion_bar</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+        <span class="kw">let</span> <span class="ident">text_color</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">WHITE</span>;
+        <span class="kw">let</span> <span class="ident">bar_fg</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">primary_fg</span>;
+        <span class="kw">let</span> <span class="ident">bar_bg</span> <span class="op">=</span> <span class="ident">bar_fg</span>.<span class="ident">tint</span>(<span class="number">0.6</span>).<span class="ident">shade</span>(<span class="number">0.2</span>);
+        <span class="kw">let</span> <span class="ident">cursor_fg</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#939393&quot;</span>);
+
+        <span class="comment">// This is manually tuned</span>
+        <span class="kw">let</span> <span class="ident">bar_width</span> <span class="op">=</span> <span class="number">400.0</span>;
+        <span class="kw">let</span> <span class="ident">bar_height</span> <span class="op">=</span> <span class="number">27.0</span>;
+
         <span class="kw">let</span> (<span class="ident">finished</span>, <span class="ident">unfinished</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">num_trips</span>();
-        <span class="kw">let</span> <span class="ident">trip_results</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
-                <span class="kw">let</span> <span class="ident">pct</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">unfinished</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-                    <span class="number">100.0</span>
+        <span class="kw">let</span> <span class="ident">total</span> <span class="op">=</span> <span class="ident">finished</span> <span class="op">+</span> <span class="ident">unfinished</span>;
+        <span class="kw">let</span> <span class="ident">ratio</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">total</span> <span class="op">&gt;</span> <span class="number">0</span> {
+            <span class="ident">finished</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="ident">total</span> <span class="kw">as</span> <span class="ident">f64</span>
+        } <span class="kw">else</span> {
+            <span class="number">0.0</span>
+        };
+        <span class="kw">let</span> <span class="ident">finished_width</span> <span class="op">=</span> <span class="ident">ratio</span> <span class="op">*</span> <span class="ident">bar_width</span>;
+
+        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">has_prebaked</span>().<span class="ident">is_some</span>() {
+            <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">time</span>;
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">baseline_finished</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">baseline_finished_trips</span>.<span class="ident">unwrap_or</span>(<span class="number">0</span>);
+            <span class="kw">for</span> (<span class="ident">t</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">prebaked</span>().<span class="ident">finished_trips</span>[<span class="ident">baseline_finished</span>..] {
+                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">t</span> <span class="op">&gt;</span> <span class="ident">now</span> {
+                    <span class="kw">break</span>;
+                }
+                <span class="ident">baseline_finished</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            }
+            <span class="comment">// memoized for perf.</span>
+            <span class="comment">// A bit of profiling shows we save about 0.7% of runtime</span>
+            <span class="comment">// (using montlake, zoomed out, at max speed)</span>
+            <span class="self">self</span>.<span class="ident">baseline_finished_trips</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">baseline_finished</span>);
+        }
+
+        <span class="kw">let</span> <span class="ident">baseline_finished_ratio</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span>
+            <span class="self">self</span>.<span class="ident">baseline_finished_trips</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">baseline_finished</span><span class="op">|</span> {
+                <span class="kw">if</span> <span class="ident">unfinished</span> <span class="op">+</span> <span class="ident">baseline_finished</span> <span class="op">&gt;</span> <span class="number">0</span> {
+                    <span class="prelude-val">Some</span>(<span class="ident">baseline_finished</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> (<span class="ident">baseline_finished</span> <span class="op">+</span> <span class="ident">unfinished</span>) <span class="kw">as</span> <span class="ident">f64</span>)
                 } <span class="kw">else</span> {
-                    <span class="number">100.0</span> <span class="op">*</span> (<span class="ident">finished</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> ((<span class="ident">finished</span> <span class="op">+</span> <span class="ident">unfinished</span>) <span class="kw">as</span> <span class="ident">f64</span>)
-                };
-                <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
-                    <span class="string">&quot;Finished trips: {} ({}%)&quot;</span>,
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">finished</span>),
-                    <span class="ident">pct</span> <span class="kw">as</span> <span class="ident">usize</span>
-                )));
-                <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>()
-            },
-            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">dirty_from_edits</span> {
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/warning.svg&quot;</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;see why results are tentative&quot;</span>)
-                    .<span class="ident">centered_vert</span>()
-                    .<span class="ident">align_right</span>()
+                    <span class="prelude-val">None</span>
+                }
+            });
+        <span class="kw">let</span> <span class="ident">baseline_finished_width</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">baseline_finished_ratio</span>
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">baseline_finished_ratio</span><span class="op">|</span> <span class="ident">baseline_finished_ratio</span> <span class="op">*</span> <span class="ident">bar_width</span>);
+
+        <span class="kw">let</span> <span class="ident">cursor_width</span> <span class="op">=</span> <span class="number">2.0</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">progress_bar</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+
+        {
+            <span class="comment">// TODO Why is the rounding so hard? The white background is always rounded</span>
+            <span class="comment">// at both ends. The moving bar should always be rounded on the left, flat</span>
+            <span class="comment">// on the right, except at the very end (for the last &#39;radius&#39; pixels). And</span>
+            <span class="comment">// when the width is too small for the radius, this messes up.</span>
+            <span class="ident">progress_bar</span>.<span class="ident">push</span>(<span class="ident">bar_bg</span>, <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="ident">bar_width</span>, <span class="ident">bar_height</span>));
+            <span class="ident">progress_bar</span>.<span class="ident">push</span>(<span class="ident">bar_fg</span>, <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="ident">finished_width</span>, <span class="ident">bar_height</span>));
+
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">baseline_finished_width</span>) <span class="op">=</span> <span class="ident">baseline_finished_width</span> {
+                <span class="kw">if</span> <span class="ident">baseline_finished_width</span> <span class="op">&gt;</span> <span class="number">0.0</span> {
+                    <span class="kw">let</span> <span class="ident">baseline_cursor</span> <span class="op">=</span> <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="ident">cursor_width</span>, <span class="ident">bar_height</span>)
+                        .<span class="ident">translate</span>(<span class="ident">baseline_finished_width</span>, <span class="number">0.0</span>);
+                    <span class="ident">progress_bar</span>.<span class="ident">push</span>(<span class="ident">cursor_fg</span>, <span class="ident">baseline_cursor</span>);
+                }
+            }
+        }
+
+        <span class="kw">let</span> <span class="ident">text_geom</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(
+            <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Finished Trips: {}&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">finished</span>))).<span class="ident">fg</span>(<span class="ident">text_color</span>),
+        )
+        .<span class="ident">render</span>(<span class="ident">ctx</span>)
+        .<span class="ident">translate</span>(<span class="number">8.0</span>, <span class="number">0.0</span>);
+        <span class="ident">progress_bar</span>.<span class="ident">append</span>(<span class="ident">text_geom</span>);
+
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">baseline_finished_width</span>) <span class="op">=</span> <span class="ident">baseline_finished_width</span> {
+            <span class="kw">let</span> <span class="ident">triangle_width</span> <span class="op">=</span> <span class="number">9.0</span>;
+            <span class="kw">let</span> <span class="ident">triangle_height</span> <span class="op">=</span> <span class="number">9.0</span>;
+
+            <span class="comment">// Add a triangle-shaped cursor above the baseline cursor</span>
+            <span class="ident">progress_bar</span> <span class="op">=</span> <span class="ident">progress_bar</span>.<span class="ident">translate</span>(<span class="number">0.0</span>, <span class="ident">triangle_height</span>);
+
+            <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Triangle</span>;
+            <span class="kw">let</span> <span class="ident">triangle</span> <span class="op">=</span> <span class="ident">Triangle</span>::<span class="ident">new</span>(
+                <span class="ident">Pt2D</span>::<span class="ident">zero</span>(),
+                <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">triangle_width</span>, <span class="number">0.0</span>),
+                <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">triangle_width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">triangle_height</span>),
+            );
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">triangle_poly</span> <span class="op">=</span> <span class="ident">Polygon</span>::<span class="ident">from_triangle</span>(<span class="kw-2">&amp;</span><span class="ident">triangle</span>);
+            <span class="ident">triangle_poly</span> <span class="op">=</span> <span class="ident">triangle_poly</span>.<span class="ident">translate</span>(
+                <span class="ident">baseline_finished_width</span> <span class="op">-</span> <span class="ident">triangle_width</span> <span class="op">/</span> <span class="number">2.0</span> <span class="op">+</span> <span class="ident">cursor_width</span> <span class="op">/</span> <span class="number">2.0</span>,
+                <span class="number">0.0</span>,
+            );
+
+            <span class="ident">progress_bar</span>.<span class="ident">push</span>(<span class="ident">cursor_fg</span>, <span class="ident">triangle_poly</span>);
+        }
+
+        <span class="kw">use</span> <span class="ident">widgetry</span>::<span class="ident">DrawWithTooltips</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tooltip_text</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Finished Trips&quot;</span>));
+        <span class="ident">tooltip_text</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+            <span class="string">&quot;{} ({}% of total)&quot;</span>,
+            <span class="ident">prettyprint_usize</span>(<span class="ident">finished</span>),
+            (<span class="ident">ratio</span> <span class="op">*</span> <span class="number">100.0</span>) <span class="kw">as</span> <span class="ident">usize</span>
+        )));
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">baseline_finished</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">baseline_finished_trips</span> {
+            <span class="comment">// TODO: up/down icons</span>
+            <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">baseline_finished</span> <span class="op">&gt;</span> <span class="ident">finished</span> {
+                <span class="kw">let</span> <span class="ident">difference</span> <span class="op">=</span> <span class="ident">baseline_finished</span> <span class="op">-</span> <span class="ident">finished</span>;
+                <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                    <span class="string">&quot;{} less than baseline&quot;</span>,
+                    <span class="ident">prettyprint_usize</span>(<span class="ident">difference</span>)
+                ))
+                .<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_destructive_color</span>)
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">baseline_finished</span> <span class="op">&lt;</span> <span class="ident">finished</span> {
+                <span class="kw">let</span> <span class="ident">difference</span> <span class="op">=</span> <span class="ident">finished</span> <span class="op">-</span> <span class="ident">baseline_finished</span>;
+                <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                    <span class="string">&quot;{} more than baseline&quot;</span>,
+                    <span class="ident">prettyprint_usize</span>(<span class="ident">difference</span>)
+                ))
+                .<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_tooltip_color</span>)
             } <span class="kw">else</span> {
-                <span class="ident">Widget</span>::<span class="ident">nothing</span>()
-            },
-        ]);
+                <span class="ident">Line</span>(<span class="string">&quot;No change from baseline&quot;</span>)
+            };
+            <span class="ident">tooltip_text</span>.<span class="ident">add</span>(<span class="ident">line</span>);
+        }
+
+        <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">progress_bar</span>.<span class="ident">get_bounds</span>();
+        <span class="kw">let</span> <span class="ident">bounding_box</span> <span class="op">=</span> <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="ident">bounds</span>.<span class="ident">width</span>(), <span class="ident">bounds</span>.<span class="ident">height</span>());
+        <span class="kw">let</span> <span class="ident">tooltip</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">bounding_box</span>, <span class="ident">tooltip_text</span>)];
+        <span class="ident">DrawWithTooltips</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">progress_bar</span>, <span class="ident">tooltip</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>()))
+    }
+
+    <span class="kw">fn</span> <span class="ident">create_time_panel</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+        <span class="kw">let</span> <span class="ident">trips_bar</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trips_completion_bar</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+
         <span class="comment">// TODO This likely fits better in the top center panel, but no easy way to squeeze it</span>
         <span class="comment">// into the panel for all gameplay modes</span>
         <span class="kw">let</span> <span class="ident">record_trips</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">num_recorded_trips</span>() {
@@ -686,42 +877,19 @@
             <span class="ident">Widget</span>::<span class="ident">nothing</span>()
         };
 
-        <span class="kw">let</span> <span class="ident">time_bar</span> <span class="op">=</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-            <span class="comment">// This is manually tuned</span>
-            <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="number">400.0</span>;
-            <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="number">15.0</span>;
-            <span class="comment">// Just clamp if we simulate past the expected end</span>
-            <span class="kw">let</span> <span class="ident">percent</span> <span class="op">=</span> <span class="self">self</span>
-                .<span class="ident">time</span>
-                .<span class="ident">to_percent</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_end_of_day</span>())
-                .<span class="ident">min</span>(<span class="number">1.0</span>);
-
-            <span class="comment">// TODO Why is the rounding so hard? The white background is always rounded</span>
-            <span class="comment">// at both ends. The moving bar should always be rounded on the left, flat</span>
-            <span class="comment">// on the right, except at the very end (for the last &#39;radius&#39; pixels). And</span>
-            <span class="comment">// when the width is too small for the radius, this messes up.</span>
-
-            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="ident">width</span>, <span class="ident">height</span>));
-
-            <span class="kw">if</span> <span class="ident">percent</span> <span class="op">!</span><span class="op">=</span> <span class="number">0.0</span> {
-                <span class="ident">batch</span>.<span class="ident">push</span>(
-                    <span class="kw">if</span> <span class="ident">percent</span> <span class="op">&lt;</span> <span class="number">0.25</span> <span class="op">|</span><span class="op">|</span> <span class="ident">percent</span> <span class="op">&gt;</span> <span class="number">0.75</span> {
-                        <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">night_time_slider</span>
-                    } <span class="kw">else</span> {
-                        <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">day_time_slider</span>
-                    },
-                    <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="ident">percent</span> <span class="op">*</span> <span class="ident">width</span>, <span class="ident">height</span>),
-                );
-            }
-
-            <span class="ident">batch</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-        };
-
         <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="self">self</span>.<span class="ident">time</span>.<span class="ident">ampm_tostring</span>()).<span class="ident">big_monospaced</span>()).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">time_bar</span>,
-            <span class="ident">trip_results</span>,
+            <span class="ident">trips_bar</span>.<span class="ident">margin_above</span>(<span class="number">12</span>),
+            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">dirty_from_edits</span> {
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_plain</span>
+                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/warning.svg&quot;</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;see why results are tentative&quot;</span>)
+                    .<span class="ident">centered_vert</span>()
+                    .<span class="ident">align_right</span>()
+            } <span class="kw">else</span> {
+                <span class="ident">Widget</span>::<span class="ident">nothing</span>()
+            },
             <span class="ident">record_trips</span>,
         ])
     }
