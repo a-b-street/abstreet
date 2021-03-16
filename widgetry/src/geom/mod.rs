@@ -5,6 +5,8 @@ use crate::{
     Widget,
 };
 
+pub mod geom_batch_stack;
+
 /// A mutable builder for a group of colored polygons.
 #[derive(Clone)]
 pub struct GeomBatch {

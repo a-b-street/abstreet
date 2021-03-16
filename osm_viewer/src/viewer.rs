@@ -262,7 +262,7 @@ impl State<App> for Viewer {
                 // get_obj must succeed, because we can only click static map elements.
                 let outline = app
                     .draw_map
-                    .get_obj(ctx, id, app, &mut map_gui::render::AgentCache::new(&app.cs))
+                    .get_obj(ctx, id, app, &mut map_gui::render::AgentCache::new())
                     .unwrap()
                     .get_outline(&app.map);
                 let mut batch = GeomBatch::from(vec![(app.cs.perma_selected_object, outline)]);

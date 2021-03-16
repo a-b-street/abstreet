@@ -665,7 +665,7 @@ impl PerMap {
             map,
             draw_map,
             sim,
-            agents: RefCell::new(AgentCache::new(cs)),
+            agents: RefCell::new(AgentCache::new()),
             current_selection: None,
             current_flags: flags,
             last_warped_from: None,
