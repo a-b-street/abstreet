@@ -1,6 +1,5 @@
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
-use std::io::{BufRead, BufReader, BufWriter, Write};
 
 use anyhow::Result;
 use geo::prelude::Contains;
@@ -78,7 +77,7 @@ fn clip(pbf_path: &str, boundary: &Polygon<f64>, out_path: &str) -> Result<()> {
     }
 
     // TODO Buffer?
-    let mut writer = osmio::xml::XMLWriter::new(File::create("tmp.osm")?);
+    let mut writer = osmio::xml::XMLWriter::new(File::create(out_path)?);
     // TODO Nondetermistic output because of HashMap!
     for id in used_nodes {
         if let Some(node) = nodes.remove(&id) {
@@ -92,26 +91,8 @@ fn clip(pbf_path: &str, boundary: &Polygon<f64>, out_path: &str) -> Result<()> {
         writer.write_obj(&RcOSMObj::Relation(relation))?;
     }
 
-    writer.close()?;
-
-    // TODO osmio seems to have a bug; it's writing 2 </osm> tags. Fix upstream, but in the
-    // meantime, just delete the last line from the file.
-    {
-        let reader = BufReader::new(File::open("tmp.osm")?);
-        let mut writer = BufWriter::new(File::create(out_path)?);
-        let mut last_line: Option<String> = None;
-        for line in reader.lines() {
-            let line = line?;
-            if let Some(l) = last_line.take() {
-                writer.write(l.as_bytes())?;
-                writer.write(b"\n")?;
-            }
-            last_line = Some(line);
-        }
-        // Drop the last line? Except somehow the last line is "</osm>\n</osm>", so...
-        writer.write(b"</osm>")?;
-        std::fs::remove_file("tmp.osm")?;
-    }
+    // Don't call write.close() -- it happens when writer gets dropped, and the implementation
+    // isn't idempotent.
 
     Ok(())
 }
