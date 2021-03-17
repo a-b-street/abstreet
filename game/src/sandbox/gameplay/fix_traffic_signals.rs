@@ -279,7 +279,7 @@ impl GameplayState for FixTrafficSignals {
                     },
                     Text::from_all(vec![Line("Worst delay: "), Line("none!").secondary()])
                         .into_widget(ctx),
-                    Image::icon("system/assets/tools/location.svg")
+                    Image::from_path("system/assets/tools/location.svg")
                         .color(RewriteColor::ChangeAlpha(0.5))
                         .into_widget(ctx)
                         .align_right(),
@@ -360,14 +360,14 @@ fn cutscene_pt1_task(ctx: &mut EventCtx) -> Widget {
         Widget::custom_row(vec![
             Widget::col(vec![
                 Line("Time").fg(Color::BLACK).into_widget(ctx),
-                Image::icon("system/assets/tools/time.svg")
+                Image::from_path("system/assets/tools/time.svg")
                     .color(Color::BLACK)
                     .into_widget(ctx),
                 Line("24 hours").fg(Color::BLACK).into_widget(ctx),
             ]),
             Widget::col(vec![
                 Line("Goal").fg(Color::BLACK).into_widget(ctx),
-                Image::icon("system/assets/tools/location.svg")
+                Image::from_path("system/assets/tools/location.svg")
                     .color(Color::BLACK)
                     .into_widget(ctx),
                 Text::from_multiline(vec![
@@ -378,7 +378,7 @@ fn cutscene_pt1_task(ctx: &mut EventCtx) -> Widget {
             ]),
             Widget::col(vec![
                 Line("Score").fg(Color::BLACK).into_widget(ctx),
-                Image::icon("system/assets/tools/star.svg")
+                Image::from_path("system/assets/tools/star.svg")
                     .color(Color::BLACK)
                     .into_widget(ctx),
                 Line("How long you survive")

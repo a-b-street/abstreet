@@ -116,7 +116,7 @@ pub enum ControlState {
 }
 
 /// Rules for how content should stretch to fill its bounds
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub enum ContentMode {
     /// Stretches content to fit its bounds exactly, breaking aspect ratio as necessary.
     ScaleToFill,

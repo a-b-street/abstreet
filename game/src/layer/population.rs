@@ -153,7 +153,7 @@ fn make_controls(ctx: &mut EventCtx, app: &App, opts: &Options, legend: Option<W
         ),
         Widget::row(vec![
             Widget::row(vec![
-                Image::icon("system/assets/tools/home.svg").into_widget(ctx),
+                Image::from_path("system/assets/tools/home.svg").into_widget(ctx),
                 Line(prettyprint_usize(ppl_in_bldg))
                     .small()
                     .into_widget(ctx),

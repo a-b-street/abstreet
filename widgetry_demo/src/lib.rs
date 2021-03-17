@@ -5,9 +5,10 @@ use rand_xorshift::XorShiftRng;
 
 use geom::{Angle, Duration, Percent, Polygon, Pt2D, Time};
 use widgetry::{
-    lctrl, Choice, Color, Drawable, EventCtx, Fill, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, LinePlot, Outcome, Panel, PersistentSplit, PlotOptions, Series, SharedAppState, State,
-    Text, TextExt, Texture, Toggle, Transition, UpdateType, VerticalAlignment, Widget,
+    lctrl, Choice, Color, ContentMode, Drawable, EventCtx, Fill, GeomBatch, GfxCtx,
+    HorizontalAlignment, Image, Key, Line, LinePlot, Outcome, Panel, PersistentSplit, PlotOptions,
+    ScreenDims, Series, SharedAppState, State, Text, TextExt, Texture, Toggle, Transition,
+    UpdateType, VerticalAlignment, Widget,
 };
 
 pub fn main() {
@@ -309,6 +310,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
             Line("Click and drag the background to pan, use touchpad or scroll wheel to zoom"),
         ])
         .into_widget(ctx),
+        Text::from(Line("Text").big_heading_styled().size(18)).into_widget(ctx),
         Text::from_all(vec![
             Line("You can "),
             Line("change fonts ").big_heading_plain(),
@@ -320,7 +322,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
         // Button Style Gallery
         // TODO might be nice to have this in separate tabs or something.
         Text::from(Line("Buttons").big_heading_styled().size(18)).into_widget(ctx),
-        Widget::row(vec![Widget::col(vec![
+        Widget::row(vec![
             style
                 .btn_solid_primary
                 .text("Primary")
@@ -339,6 +341,8 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 .btn_solid_primary
                 .icon_text("system/assets/tools/location.svg", "Primary")
                 .build_widget(ctx, "btn_primary_icon_text"),
+        ]),
+        Widget::row(vec![
             style
                 .btn_outline
                 .text("Secondary")
@@ -357,7 +361,54 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 .btn_outline
                 .icon_text("system/assets/tools/home.svg", "Secondary")
                 .build_widget(ctx, "btn_outline.icon_text"),
-        ])]),
+        ]),
+        Text::from_multiline(vec![
+            Line("Images").big_heading_styled().size(18),
+            Line(
+                "Images can be colored, scaled, and stretched. They can have a background and \
+                 padding.",
+            ),
+        ])
+        .into_widget(ctx),
+        Widget::row(vec![
+            Image::from_path("system/assets/tools/home.svg").into_widget(ctx),
+            Image::from_path("system/assets/tools/home.svg")
+                .color(Color::ORANGE)
+                .bg_color(Color::BLACK)
+                .dims(50.0)
+                .into_widget(ctx),
+            Image::from_path("system/assets/tools/home.svg")
+                .color(Color::RED)
+                .bg_color(Color::BLACK)
+                .padding(20)
+                .dims(ScreenDims::new(50.0, 100.0))
+                .content_mode(ContentMode::ScaleAspectFit)
+                .tooltip(Text::from(Line(
+                    "With ScaleAspectFit content grows, without distorting its aspect ratio, \
+                     until it reaches its padding bounds.",
+                )))
+                .into_widget(ctx),
+            Image::from_path("system/assets/tools/home.svg")
+                .color(Color::GREEN)
+                .bg_color(Color::PURPLE)
+                .padding(20)
+                .dims(ScreenDims::new(50.0, 100.0))
+                .content_mode(ContentMode::ScaleToFill)
+                .tooltip(Text::from(Line(
+                    "With ScaleToFill content can stretches to fill it's size (less padding)",
+                )))
+                .into_widget(ctx),
+            Image::from_path("system/assets/tools/home.svg")
+                .color(Color::BLUE)
+                .bg_color(Color::YELLOW)
+                .padding(20)
+                .dims(ScreenDims::new(50.0, 100.0))
+                .content_mode(ContentMode::ScaleAspectFill)
+                .tooltip(Text::from(Line(
+                    "With ScaleAspectFill content can exceed it's visible bounds",
+                )))
+                .into_widget(ctx),
+        ]),
         Text::from(Line("Spinner").big_heading_styled().size(18)).into_widget(ctx),
         widgetry::Spinner::widget(ctx, (0, 11), 1),
         Widget::row(vec![

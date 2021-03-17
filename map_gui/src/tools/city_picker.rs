@@ -350,7 +350,7 @@ impl<A: AppLike + 'static> AllCityPicker<A> {
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 Widget::row(vec![
-                    Image::icon("system/assets/tools/search.svg").into_widget(ctx),
+                    Image::from_path("system/assets/tools/search.svg").into_widget(ctx),
                     Autocomplete::new(ctx, autocomplete_entries).named("search"),
                 ])
                 .padding(8),

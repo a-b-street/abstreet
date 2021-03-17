@@ -1,9 +1,9 @@
-use geom::{Distance, Polygon, Pt2D};
+use geom::{Distance, Polygon};
 
 use crate::{
     text::Font, Color, ContentMode, ControlState, CornerRounding, Drawable, EdgeInsets, EventCtx,
-    GeomBatch, GfxCtx, ImageSource, Line, MultiKey, Outcome, OutlineStyle, RewriteColor,
-    ScreenDims, ScreenPt, ScreenRectangle, Text, Widget, WidgetImpl, WidgetOutput,
+    GeomBatch, GfxCtx, Image, Line, MultiKey, Outcome, OutlineStyle, RewriteColor, ScreenDims,
+    ScreenPt, ScreenRectangle, Text, Widget, WidgetImpl, WidgetOutput,
 };
 
 use crate::geom::geom_batch_stack::{Axis, GeomBatchStack};
@@ -129,7 +129,7 @@ impl WidgetImpl for Button {
 }
 
 #[derive(Clone, Debug, Default)]
-pub struct ButtonBuilder<'a> {
+pub struct ButtonBuilder<'a, 'c> {
     padding: EdgeInsets,
     stack_spacing: f64,
     hotkey: Option<MultiKey>,
@@ -138,21 +138,22 @@ pub struct ButtonBuilder<'a> {
     is_label_before_image: bool,
     corner_rounding: Option<CornerRounding>,
     is_disabled: bool,
-    default_style: ButtonStateStyle<'a>,
-    hover_style: ButtonStateStyle<'a>,
-    disable_style: ButtonStateStyle<'a>,
+    default_style: ButtonStateStyle<'a, 'c>,
+    hover_style: ButtonStateStyle<'a, 'c>,
+    disable_style: ButtonStateStyle<'a, 'c>,
 }
 
 #[derive(Clone, Debug, Default)]
-struct ButtonStateStyle<'a> {
-    image: Option<Image<'a>>,
+struct ButtonStateStyle<'a, 'c> {
+    image: Option<Image<'a, 'c>>,
     label: Option<Label>,
     outline: Option<OutlineStyle>,
     bg_color: Option<Color>,
     custom_batch: Option<GeomBatch>,
 }
 
-impl<'b, 'a: 'b> ButtonBuilder<'a> {
+// can we take 'b out? and make the func that uses it generic?
+impl<'b, 'a: 'b, 'c> ButtonBuilder<'a, 'c> {
     pub fn new() -> Self {
         ButtonBuilder {
             padding: EdgeInsets {
@@ -278,7 +279,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         // Currently we don't support setting image for other states like "hover", we easily
         // could, but the API gets more verbose for a thing we don't currently need.
         let mut image = self.default_style.image.take().unwrap_or_default();
-        image.source = Some(ImageSource::Path(path));
+        image = image.source_path(path);
         self.default_style.image = Some(image);
         self
     }
@@ -290,16 +291,12 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     /// * `labeled_bytes`: is a (`label`, `bytes`) tuple you can generate with
     ///   [`include_labeled_bytes!`]
     /// * `label`: a label to describe the bytes for debugging purposes
-    /// * `bytes`: utf-8 encoded bytes of the svg
+    /// * `bytes`: UTF-8 encoded bytes of the SVG
     pub fn image_bytes(mut self, labeled_bytes: (&'a str, &'a [u8])) -> Self {
-        let (label, bytes) = labeled_bytes;
         // Currently we don't support setting image for other states like "hover", we easily
         // could, but the API gets more verbose for a thing we don't currently need.
         let mut image = self.default_style.image.take().unwrap_or_default();
-        image.source = Some(ImageSource::Bytes {
-            bytes,
-            cache_key: label,
-        });
+        image = image.source_bytes(labeled_bytes);
         self.default_style.image = Some(image);
         self
     }
@@ -312,7 +309,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     /// one color for your button image, do so externally and pass in the resultant GeomBatch here.
     pub fn image_batch(mut self, batch: GeomBatch, bounds: geom::Bounds) -> Self {
         let mut image = self.default_style.image.take().unwrap_or_default();
-        image.source = Some(ImageSource::GeomBatch(batch, bounds));
+        image = image.source_batch(batch, bounds);
         self.default_style.image = Some(image);
         self
     }
@@ -326,7 +323,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     pub fn image_color<C: Into<RewriteColor>>(mut self, color: C, for_state: ControlState) -> Self {
         let state_style = self.style_mut(for_state);
         let mut image = state_style.image.take().unwrap_or_default();
-        image.color = Some(color.into());
+        image = image.color(color);
         state_style.image = Some(image);
         self
     }
@@ -340,7 +337,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     pub fn image_bg_color(mut self, color: Color, for_state: ControlState) -> Self {
         let state_style = self.style_mut(for_state);
         let mut image = state_style.image.take().unwrap_or_default();
-        image.bg_color = Some(color);
+        image = image.bg_color(color);
         state_style.image = Some(image);
         self
     }
@@ -352,7 +349,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     /// its custom bounds.
     pub fn image_dims<D: Into<ScreenDims>>(mut self, dims: D) -> Self {
         let mut image = self.default_style.image.take().unwrap_or_default();
-        image.dims = Some(dims.into());
+        image = image.dims(dims);
         self.default_style.image = Some(image);
         self
     }
@@ -366,7 +363,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     /// maintaining its aspect ratio and not exceeding its bounds.
     pub fn image_content_mode(mut self, content_mode: ContentMode) -> Self {
         let mut image = self.default_style.image.take().unwrap_or_default();
-        image.content_mode = content_mode;
+        image = image.content_mode(content_mode);
         self.default_style.image = Some(image);
         self
     }
@@ -374,7 +371,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     /// Set independent rounding for each of the button's image's corners
     pub fn image_corner_rounding<R: Into<CornerRounding>>(mut self, value: R) -> Self {
         let mut image = self.default_style.image.take().unwrap_or_default();
-        image.corner_rounding = Some(value.into());
+        image = image.corner_rounding(value);
         self.default_style.image = Some(image);
         self
     }
@@ -382,7 +379,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     /// Set padding for the image
     pub fn image_padding<EI: Into<EdgeInsets>>(mut self, value: EI) -> Self {
         let mut image = self.default_style.image.take().unwrap_or_default();
-        image.padding = Some(value.into());
+        image = image.padding(value);
         self.default_style.image = Some(image);
         self
     }
@@ -554,7 +551,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
 
     // private  methods
 
-    fn style_mut(&'b mut self, state: ControlState) -> &'b mut ButtonStateStyle<'a> {
+    fn style_mut(&'b mut self, state: ControlState) -> &'b mut ButtonStateStyle<'a, 'c> {
         match state {
             ControlState::Default => &mut self.default_style,
             ControlState::Hovered => &mut self.hover_style,
@@ -562,7 +559,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         }
     }
 
-    fn style(&'b self, state: ControlState) -> &'b ButtonStateStyle<'a> {
+    fn style(&'b self, state: ControlState) -> &'b ButtonStateStyle<'a, 'c> {
         match state {
             ControlState::Default => &self.default_style,
             ControlState::Hovered => &self.hover_style,
@@ -581,82 +578,21 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
             return custom_batch.clone();
         }
 
-        let image_batch = state_style
-            .image
-            .as_ref()
-            .or(default_style.image.as_ref())
-            .and_then(|image| {
-                let default = default_style.image.as_ref();
-                let image_source = image
-                    .source
-                    .as_ref()
-                    .or(default.and_then(|d| d.source.as_ref()));
-                if image_source.is_none() {
-                    return None;
-                }
-                let image_source = image_source.unwrap();
-
-                let (mut svg_batch, svg_bounds) = image_source.load(ctx.prerender);
-                if let Some(color) = image.color.or(default.and_then(|d| d.color)) {
-                    svg_batch = svg_batch.color(color);
-                }
-
-                if let Some(image_dims) = image.dims.or(default.and_then(|d| d.dims)) {
-                    if svg_bounds.width() != 0.0 && svg_bounds.height() != 0.0 {
-                        let (x_factor, y_factor) = (
-                            image_dims.width / svg_bounds.width(),
-                            image_dims.height / svg_bounds.height(),
-                        );
-                        svg_batch = match image.content_mode {
-                            ContentMode::ScaleToFill => svg_batch.scale_xy(x_factor, y_factor),
-                            ContentMode::ScaleAspectFit => svg_batch.scale(x_factor.min(y_factor)),
-                            ContentMode::ScaleAspectFill => svg_batch.scale(x_factor.max(y_factor)),
-                        }
-                    }
-
-                    let image_corners = image
-                        .corner_rounding
-                        .or(default.and_then(|d| d.corner_rounding))
-                        .unwrap_or_default();
-                    let padding = image
-                        .padding
-                        .or(default.and_then(|d| d.padding))
-                        .unwrap_or_default();
-                    let mut container_batch = GeomBatch::new();
-                    let container = match image_corners {
-                        CornerRounding::FullyRounded => Polygon::pill(
-                            image_dims.width + padding.left + padding.right,
-                            image_dims.height + padding.top + padding.bottom,
-                        ),
-                        CornerRounding::CornerRadii(image_corners) => {
-                            Polygon::rounded_rectangle(
-                                // TODO: EdgeInsets -> f64?
-                                image_dims.width + padding.left + padding.right,
-                                image_dims.height + padding.top + padding.bottom,
-                                image_corners,
-                            )
-                        }
-                    };
-
-                    let image_bg = image
-                        .bg_color
-                        .or(default.and_then(|d| d.bg_color))
-                        .unwrap_or(Color::CLEAR);
-                    container_batch.push(image_bg, container);
-
-                    let center = Pt2D::new(
-                        image_dims.width / 2.0 + padding.left,
-                        image_dims.height / 2.0 + padding.top,
-                    );
-                    svg_batch = svg_batch.autocrop().centered_on(center);
-
-                    container_batch.append(svg_batch);
-
-                    svg_batch = container_batch
-                }
-
-                Some(svg_batch)
-            });
+        let image_batch: Option<GeomBatch> = match (&state_style.image, &default_style.image) {
+            (Some(state_image), Some(default_image)) => default_image
+                .merged_image_style(state_image)
+                .build_batch(ctx),
+            (None, Some(default_image)) => default_image.build_batch(ctx),
+            (None, None) => None,
+            (Some(_), None) => {
+                debug_assert!(
+                    false,
+                    "unexpectedly found a per-state image with no default image"
+                );
+                None
+            }
+        }
+        .map(|b| b.0);
 
         let label_batch = state_style
             .label
@@ -706,12 +642,6 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
                 )
             });
 
-        let mut stack = GeomBatchStack::horizontal(vec![]);
-        if let Some(stack_axis) = self.stack_axis {
-            stack.set_axis(stack_axis);
-        }
-        stack.spacing(self.stack_spacing);
-
         let mut items = vec![];
         if let Some(image_batch) = image_batch {
             items.push(image_batch);
@@ -722,7 +652,11 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         if self.is_label_before_image {
             items.reverse()
         }
-        stack.append(&mut items);
+        let mut stack = GeomBatchStack::horizontal(items);
+        if let Some(stack_axis) = self.stack_axis {
+            stack.set_axis(stack_axis);
+        }
+        stack.spacing(self.stack_spacing);
 
         let mut button_widget = stack
             .batch()
@@ -748,17 +682,6 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         let (geom_batch, _hitbox) = button_widget.to_geom(ctx, None);
         geom_batch
     }
-}
-
-#[derive(Clone, Debug, Default)]
-pub struct Image<'a> {
-    source: Option<ImageSource<'a>>,
-    color: Option<RewriteColor>,
-    bg_color: Option<Color>,
-    dims: Option<ScreenDims>,
-    content_mode: ContentMode,
-    corner_rounding: Option<CornerRounding>,
-    padding: Option<EdgeInsets>,
 }
 
 #[derive(Clone, Debug, Default)]
