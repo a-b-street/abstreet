@@ -467,6 +467,7 @@ impl State<App> for SandboxLoader {
                             continue;
                         }
                         gameplay::LoadScenario::Scenario(scenario) => {
+                            // TODO Consider using the cached app.primary.scenario, if possible.
                             self.stage = Some(LoadStage::GotScenario(scenario));
                             continue;
                         }
@@ -484,7 +485,6 @@ impl State<App> for SandboxLoader {
                                         Transition::ModifyState(Box::new(|state, _, app| {
                                             let loader =
                                                 state.downcast_mut::<SandboxLoader>().unwrap();
-                                            app.primary.scenario = Some(scenario.clone());
                                             loader.stage = Some(LoadStage::GotScenario(scenario));
                                         })),
                                     ])
@@ -511,7 +511,6 @@ impl State<App> for SandboxLoader {
                                         Transition::ModifyState(Box::new(|state, _, app| {
                                             let loader =
                                                 state.downcast_mut::<SandboxLoader>().unwrap();
-                                            app.primary.scenario = Some(scenario.clone());
                                             loader.stage = Some(LoadStage::GotScenario(scenario));
                                         })),
                                     ])
@@ -523,6 +522,8 @@ impl State<App> for SandboxLoader {
                 LoadStage::GotScenario(mut scenario) => {
                     let scenario_name = scenario.scenario_name.clone();
                     ctx.loading_screen("instantiate scenario", |_, mut timer| {
+                        app.primary.scenario = Some(scenario.clone());
+
                         if let GameplayMode::PlayScenario(_, _, ref modifiers) = self.mode {
                             for m in modifiers {
                                 scenario = m.apply(&app.primary.map, scenario);

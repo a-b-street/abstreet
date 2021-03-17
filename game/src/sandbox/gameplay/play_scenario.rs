@@ -110,6 +110,19 @@ impl GameplayState for PlayScenario {
                     self.scenario_name.clone(),
                     self.modifiers.clone(),
                 ))),
+                "save scenario" => {
+                    let mut s = app.primary.scenario.as_ref().unwrap().clone();
+                    // If the name happens to be random, home_to_work, or census (the 3
+                    // dynamically generated cases), it'll get covered up. So to be safe, rename
+                    // it.
+                    s.scenario_name = format!("saved_{}", s.scenario_name);
+                    s.save();
+                    Some(Transition::Push(PopupMsg::new(
+                        ctx,
+                        "Saved",
+                        vec![format!("Scenario '{}' saved", s.scenario_name)],
+                    )))
+                }
                 _ => unreachable!(),
             },
             _ => None,
@@ -125,6 +138,33 @@ impl GameplayState for PlayScenario {
     }
 
     fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
+        let mut extra = Vec::new();
+        if self.scenario_name != "empty" {
+            extra.push(Widget::row(vec![
+                ctx.style()
+                    .btn_plain
+                    .icon("system/assets/tools/pencil.svg")
+                    .build_widget(ctx, "edit traffic patterns")
+                    .centered_vert(),
+                format!("{} modifications to traffic patterns", self.modifiers.len())
+                    .text_widget(ctx)
+                    .centered_vert(),
+            ]));
+        }
+        if !abstio::file_exists(abstio::path_scenario(
+            app.primary.map.get_name(),
+            &self.scenario_name,
+        )) && app.primary.scenario.is_some()
+        {
+            extra.push(
+                ctx.style()
+                    .btn_plain
+                    .icon("system/assets/tools/save.svg")
+                    .label_text("save scenario")
+                    .build_def(ctx),
+            );
+        }
+
         let rows = vec![
             Widget::custom_row(vec![
                 Line("Sandbox")
@@ -152,20 +192,10 @@ impl GameplayState for PlayScenario {
                     .margin_right(8),
             ])
             .centered(),
-            if self.scenario_name != "empty" {
-                Widget::row(vec![
-                    ctx.style()
-                        .btn_plain
-                        .icon("system/assets/tools/pencil.svg")
-                        .build_widget(ctx, "edit traffic patterns")
-                        .centered_vert(),
-                    format!("{} modifications to traffic patterns", self.modifiers.len())
-                        .text_widget(ctx)
-                        .centered_vert(),
-                ])
-                .centered_horiz()
-            } else {
+            if extra.is_empty() {
                 Widget::nothing()
+            } else {
+                Widget::row(extra).centered_horiz()
             },
         ];
 
@@ -191,15 +221,11 @@ impl EditScenarioModifiers {
             Line("Modify traffic patterns")
                 .small_heading()
                 .into_widget(ctx),
-            Text::from_multiline(vec![
-                Line(
-                    "Data for all of the people in this simulation comes from PSRC's 2014 \
-                     Soundcast model. The exact trips everybody takes, when they leave, where \
-                     they go, and how they choose to get there are fixed.",
-                ),
-                Line(""),
-                Line("You can modify those patterns here. The modifications apply in order."),
-            ])
+            Text::from(Line(
+                "This scenario determines the exact trips everybody takes, when they leave, where \
+                 they go, and how they choose to get there. You can modify those patterns here. \
+                 The modifications apply in order.",
+            ))
             .wrap_to_pct(ctx, 50)
             .into_widget(ctx),
         ];

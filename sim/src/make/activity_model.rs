@@ -56,7 +56,7 @@ impl ScenarioGenerator {
         residents.shuffle(rng);
         workers.shuffle(rng);
 
-        let mut s = Scenario::empty(map, "random people going to/from work");
+        let mut s = Scenario::empty(map, "random people going to and from work");
         // Include all buses/trains
         s.only_seed_buses = None;
 
