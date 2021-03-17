@@ -44,7 +44,7 @@ impl DashTab {
             choices.remove(1);
         }
         Widget::row(vec![
-            Image::icon("system/assets/meters/trip_histogram.svg").into_widget(ctx),
+            Image::from_path("system/assets/meters/trip_histogram.svg").into_widget(ctx),
             Line("Data").big_heading_plain().into_widget(ctx),
             Widget::dropdown(ctx, "tab", self, choices),
             format!("By {}", app.primary.sim.time().ampm_tostring())

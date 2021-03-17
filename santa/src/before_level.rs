@@ -89,7 +89,7 @@ impl Picker {
                         .into_widget(ctx),
                     ]),
                     Widget::row(vec![
-                        Image::icon("system/assets/tools/mouse.svg").into_widget(ctx),
+                        Image::from_path("system/assets/tools/mouse.svg").into_widget(ctx),
                         Text::from_all(vec![
                             Line("mouse scroll wheel or touchpad")
                                 .fg(ctx.style().text_hotkey_color),
@@ -331,7 +331,7 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
                 .align_right(),
         ]),
         Widget::row(vec![
-            Image::icon("system/assets/tools/mouse.svg").into_widget(ctx),
+            Image::from_path("system/assets/tools/mouse.svg").into_widget(ctx),
             Line("Select the houses you want to turn into stores")
                 .fg(ctx.style().text_hotkey_color)
                 .into_widget(ctx),

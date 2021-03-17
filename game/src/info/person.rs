@@ -190,10 +190,11 @@ pub fn trips(
                 Widget::nothing()
             },
             {
-                let mut icon = Image::bytes(include_labeled_bytes!(
+                let mut icon = Image::from_bytes(include_labeled_bytes!(
                     "../../../widgetry/icons/arrow_drop_down.svg"
                 ))
-                .batch(ctx)
+                .build_batch(ctx)
+                .expect("invalid svg")
                 .0
                 .scale(1.5);
 

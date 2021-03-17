@@ -292,7 +292,7 @@ fn cutscene_task(mode: &GameplayMode) -> Box<dyn Fn(&mut EventCtx) -> Widget> {
             Widget::row(vec![
                 Widget::col(vec![
                     Line("Time").fg(Color::BLACK).into_widget(ctx),
-                    Image::icon("system/assets/tools/time.svg")
+                    Image::from_path("system/assets/tools/time.svg")
                         .color(Color::BLACK)
                         .into_widget(ctx),
                     Text::from_multiline(vec![
@@ -303,7 +303,7 @@ fn cutscene_task(mode: &GameplayMode) -> Box<dyn Fn(&mut EventCtx) -> Widget> {
                 ]),
                 Widget::col(vec![
                     Line("Goal").fg(Color::BLACK).into_widget(ctx),
-                    Image::icon("system/assets/tools/location.svg")
+                    Image::from_path("system/assets/tools/location.svg")
                         .color(Color::BLACK)
                         .into_widget(ctx),
                     Text::from_multiline(vec![
@@ -314,7 +314,7 @@ fn cutscene_task(mode: &GameplayMode) -> Box<dyn Fn(&mut EventCtx) -> Widget> {
                 ]),
                 Widget::col(vec![
                     Line("Score").fg(Color::BLACK).into_widget(ctx),
-                    Image::icon("system/assets/tools/star.svg")
+                    Image::from_path("system/assets/tools/star.svg")
                         .color(Color::BLACK)
                         .into_widget(ctx),
                     Text::from_multiline(vec![

@@ -135,14 +135,19 @@ fn make_agent_toggles(ctx: &mut EventCtx, app: &App, is_enabled: [bool; 4]) -> V
             .tooltip(tooltip)
             .image_color(RewriteColor::NoOp, ControlState::Default);
 
-        let icon_batch = Image::icon(icon).batch(ctx).0;
+        let icon_batch = Image::from_path(icon)
+            .build_batch(ctx)
+            .expect("invalid svg")
+            .0;
         let false_btn = {
-            let checkbox = Image::bytes(include_labeled_bytes!(
+            let checkbox = Image::from_bytes(include_labeled_bytes!(
                 "../../../widgetry/icons/checkbox_no_border_unchecked.svg"
             ))
             .color(RewriteColor::Change(Color::BLACK, color.alpha(0.3)));
-            let mut row =
-                GeomBatchStack::horizontal(vec![checkbox.batch(ctx).0, icon_batch.clone()]);
+            let mut row = GeomBatchStack::horizontal(vec![
+                checkbox.build_batch(ctx).expect("invalid svg").0,
+                icon_batch.clone(),
+            ]);
             row.spacing(8.0);
 
             let row_batch = row.batch();
@@ -154,12 +159,15 @@ fn make_agent_toggles(ctx: &mut EventCtx, app: &App, is_enabled: [bool; 4]) -> V
         // we need both a checkbox *and* an additional icon. To do that, we combine the checkbox
         // and icon into a single batch, and use that combined batch as the button's image.
         let true_btn = {
-            let checkbox = Image::bytes(include_labeled_bytes!(
+            let checkbox = Image::from_bytes(include_labeled_bytes!(
                 "../../../widgetry/icons/checkbox_no_border_checked.svg"
             ))
             .color(RewriteColor::Change(Color::BLACK, color));
 
-            let mut row = GeomBatchStack::horizontal(vec![checkbox.batch(ctx).0, icon_batch]);
+            let mut row = GeomBatchStack::horizontal(vec![
+                checkbox.build_batch(ctx).expect("invalid svg").0,
+                icon_batch,
+            ]);
             row.spacing(8.0);
 
             let row_batch = row.batch();

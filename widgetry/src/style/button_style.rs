@@ -15,8 +15,8 @@ pub struct ButtonStyle {
     pub bg_disabled: Color,
 }
 
-impl<'a> ButtonStyle {
-    pub fn btn(&self) -> ButtonBuilder<'a> {
+impl<'a, 'c> ButtonStyle {
+    pub fn btn(&self) -> ButtonBuilder<'a, 'c> {
         let base = ButtonBuilder::new()
             .label_color(self.fg, ControlState::Default)
             .label_color(self.fg_disabled, ControlState::Disabled)
@@ -33,40 +33,44 @@ impl<'a> ButtonStyle {
         }
     }
 
-    pub fn text<I: Into<String>>(&self, text: I) -> ButtonBuilder<'a> {
+    pub fn text<I: Into<String>>(&self, text: I) -> ButtonBuilder<'a, 'c> {
         self.btn().label_text(text)
     }
 
-    pub fn icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
+    pub fn icon(&self, image_path: &'a str) -> ButtonBuilder<'a, 'c> {
         icon_button(self.btn().image_path(image_path))
     }
 
-    pub fn icon_bytes(&self, labeled_bytes: (&'a str, &'a [u8])) -> ButtonBuilder<'a> {
+    pub fn icon_bytes(&self, labeled_bytes: (&'a str, &'a [u8])) -> ButtonBuilder<'a, 'c> {
         icon_button(self.btn().image_bytes(labeled_bytes))
     }
 
-    pub fn icon_text<I: Into<String>>(&self, image_path: &'a str, text: I) -> ButtonBuilder<'a> {
+    pub fn icon_text<I: Into<String>>(
+        &self,
+        image_path: &'a str,
+        text: I,
+    ) -> ButtonBuilder<'a, 'c> {
         self.btn()
             .label_text(text)
             .image_path(image_path)
             .image_dims(ScreenDims::square(18.0))
     }
 
-    pub fn dropdown(&self) -> ButtonBuilder<'a> {
+    pub fn dropdown(&self) -> ButtonBuilder<'a, 'c> {
         self.icon_bytes(include_labeled_bytes!("../../icons/arrow_drop_down.svg"))
             .image_dims(12.0)
             .stack_spacing(12.0)
             .label_first()
     }
 
-    pub fn popup(&self, text: &'a str) -> ButtonBuilder<'a> {
+    pub fn popup(&self, text: &'a str) -> ButtonBuilder<'a, 'c> {
         self.dropdown().label_text(text)
     }
 }
 
-impl<'a> Style {
+impl<'a, 'c> Style {
     /// title: name of previous screen, which you'll return to
-    pub fn btn_back(&self, title: &'a str) -> ButtonBuilder<'a> {
+    pub fn btn_back(&self, title: &'a str) -> ButtonBuilder<'a, 'c> {
         self.btn_plain
             .icon_bytes(include_labeled_bytes!("../../icons/nav_back.svg"))
             .label_text(title)
@@ -75,19 +79,19 @@ impl<'a> Style {
     }
 
     /// A right facing caret, like ">", suitable for paging to the "next" set of results
-    pub fn btn_next(&self) -> ButtonBuilder<'a> {
+    pub fn btn_next(&self) -> ButtonBuilder<'a, 'c> {
         self.btn_plain
             .icon_bytes(include_labeled_bytes!("../../icons/next.svg"))
     }
 
     /// A left facing caret, like "<", suitable for paging to the "next" set of results
-    pub fn btn_prev(&self) -> ButtonBuilder<'a> {
+    pub fn btn_prev(&self) -> ButtonBuilder<'a, 'c> {
         self.btn_plain
             .icon_bytes(include_labeled_bytes!("../../icons/prev.svg"))
     }
 
     /// An "X" button to close the current state. Bound to the escape key.
-    pub fn btn_close(&self) -> ButtonBuilder<'a> {
+    pub fn btn_close(&self) -> ButtonBuilder<'a, 'c> {
         self.btn_plain
             .icon_bytes(include_labeled_bytes!("../../icons/close.svg"))
             .hotkey(Key::Escape)
@@ -99,7 +103,7 @@ impl<'a> Style {
         self.btn_close().build_widget(ctx, "close").align_right()
     }
 
-    pub fn btn_popup_icon_text(&self, icon_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
+    pub fn btn_popup_icon_text(&self, icon_path: &'a str, text: &'a str) -> ButtonBuilder<'a, 'c> {
         // The text is styled like an "outline" button, while the image is styled like a "solid"
         // button.
         let solid_style = &self.btn_tab;
@@ -130,6 +134,6 @@ impl<'a> Style {
 }
 
 // Captures some constants for uniform styling of icon-only buttons
-fn icon_button<'a>(builder: ButtonBuilder<'a>) -> ButtonBuilder<'a> {
+fn icon_button<'a, 'c>(builder: ButtonBuilder<'a, 'c>) -> ButtonBuilder<'a, 'c> {
     builder.padding(8.0).image_dims(25.0)
 }

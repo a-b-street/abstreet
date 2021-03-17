@@ -67,7 +67,7 @@ impl<T: 'static + PartialEq + Clone + std::fmt::Debug> PersistentSplit<T> {
     }
 }
 
-fn button_builder<'a>(ctx: &EventCtx) -> ButtonBuilder<'a> {
+fn button_builder<'a, 'c>(ctx: &EventCtx) -> ButtonBuilder<'a, 'c> {
     ctx.style()
         .btn_plain
         .btn()
