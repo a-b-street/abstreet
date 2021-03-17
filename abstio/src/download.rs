@@ -8,6 +8,7 @@ use abstutil::prettyprint_usize;
 /// tokio runtime somewhere.
 pub async fn download_bytes<I: AsRef<str>>(url: I, quiet: bool) -> Result<Vec<u8>> {
     let url = url.as_ref();
+    info!("Downloading {}", url);
     let mut resp = reqwest::get(url).await.unwrap();
     resp.error_for_status_ref()
         .with_context(|| format!("downloading {}", url))?;
