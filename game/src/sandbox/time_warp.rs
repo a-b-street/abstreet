@@ -29,6 +29,8 @@ impl JumpToTime {
     ) -> Box<dyn State<App>> {
         let target = app.primary.sim.time();
         let end_of_day = app.primary.sim.get_end_of_day();
+        // TODO Auto-fill width?
+        let slider_width = 500.0;
         Box::new(JumpToTime {
             target,
             maybe_mode,
@@ -53,8 +55,7 @@ impl JumpToTime {
                         ctx.style().icon_fg.alpha(0.7),
                         area_under_curve(
                             app.prebaked().active_agents(end_of_day),
-                            // TODO Auto fill width
-                            500.0,
+                            slider_width,
                             50.0,
                         ),
                     )])
@@ -62,13 +63,8 @@ impl JumpToTime {
                 } else {
                     Widget::nothing()
                 },
-                // TODO Auto-fill width?
-                Slider::area(
-                    ctx,
-                    0.25 * ctx.canvas.window_width,
-                    target.to_percent(end_of_day).min(1.0),
-                )
-                .named("time slider"),
+                Slider::area(ctx, slider_width, target.to_percent(end_of_day).min(1.0))
+                    .named("time slider"),
                 Toggle::checkbox(
                     ctx,
                     "skip drawing (for faster simulations)",
