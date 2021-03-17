@@ -282,6 +282,7 @@ fn cutscene_task(mode: &GameplayMode) -> Box<dyn Fn(&mut EventCtx) -> Widget> {
     };
 
     Box::new(move |ctx| {
+        let icon_builder = Image::empty().color(Color::BLACK).dims(50.0);
         Widget::custom_col(vec![
             Text::from_multiline(vec![
                 Line(format!("Speed up the VIP's trips by a total of {}", goal)).fg(Color::BLACK),
@@ -292,8 +293,9 @@ fn cutscene_task(mode: &GameplayMode) -> Box<dyn Fn(&mut EventCtx) -> Widget> {
             Widget::row(vec![
                 Widget::col(vec![
                     Line("Time").fg(Color::BLACK).into_widget(ctx),
-                    Image::from_path("system/assets/tools/time.svg")
-                        .color(Color::BLACK)
+                    icon_builder
+                        .clone()
+                        .source_path("system/assets/tools/time.svg")
                         .into_widget(ctx),
                     Text::from_multiline(vec![
                         Line("Until the VIP's").fg(Color::BLACK),
@@ -303,8 +305,9 @@ fn cutscene_task(mode: &GameplayMode) -> Box<dyn Fn(&mut EventCtx) -> Widget> {
                 ]),
                 Widget::col(vec![
                     Line("Goal").fg(Color::BLACK).into_widget(ctx),
-                    Image::from_path("system/assets/tools/location.svg")
-                        .color(Color::BLACK)
+                    icon_builder
+                        .clone()
+                        .source_path("system/assets/tools/location.svg")
                         .into_widget(ctx),
                     Text::from_multiline(vec![
                         Line("Speed up the VIP's trips").fg(Color::BLACK),
@@ -314,8 +317,8 @@ fn cutscene_task(mode: &GameplayMode) -> Box<dyn Fn(&mut EventCtx) -> Widget> {
                 ]),
                 Widget::col(vec![
                     Line("Score").fg(Color::BLACK).into_widget(ctx),
-                    Image::from_path("system/assets/tools/star.svg")
-                        .color(Color::BLACK)
+                    icon_builder
+                        .source_path("system/assets/tools/star.svg")
                         .into_widget(ctx),
                     Text::from_multiline(vec![
                         Line("How much time").fg(Color::BLACK),
