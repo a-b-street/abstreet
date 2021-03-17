@@ -17,11 +17,15 @@ use sim::{Scenario, TripEndpoint, TripMode};
 use crate::configuration::ImporterConfiguration;
 use crate::utils::download;
 
-pub fn import_collision_data(map: &RawMap, config: &ImporterConfiguration, timer: &mut Timer) {
+pub async fn import_collision_data(
+    map: &RawMap,
+    config: &ImporterConfiguration,
+    timer: &mut Timer<'_>,
+) {
     download(
         config,
         path_shared_input("Road Safety Data - Accidents 2019.csv"),
-        "http://data.dft.gov.uk.s3.amazonaws.com/road-accidents-safety-data/DfTRoadSafety_Accidents_2019.zip");
+        "http://data.dft.gov.uk.s3.amazonaws.com/road-accidents-safety-data/DfTRoadSafety_Accidents_2019.zip").await;
 
     // Always do this, it's idempotent and fast
     let shapes = kml::ExtraShapes::load_csv(
@@ -39,23 +43,24 @@ pub fn import_collision_data(map: &RawMap, config: &ImporterConfiguration, timer
     );
 }
 
-pub fn generate_scenario(
+pub async fn generate_scenario(
     map: &Map,
     config: &ImporterConfiguration,
-    timer: &mut Timer,
+    timer: &mut Timer<'_>,
 ) -> Result<()> {
     timer.start("prepare input");
     download(
         config,
         path_shared_input("wu03ew_v2.csv"),
-        "https://s3-eu-west-1.amazonaws.com/statistics.digitalresources.jisc.ac.uk/dkan/files/FLOW/wu03ew_v2/wu03ew_v2.csv");
+        "https://s3-eu-west-1.amazonaws.com/statistics.digitalresources.jisc.ac.uk/dkan/files/FLOW/wu03ew_v2/wu03ew_v2.csv").await;
     // https://mapit.mysociety.org/area/45350.html (for geocode) E02004277 is an example place to
     // debug where these zones are.
     download(
         config,
         path_shared_input("zones_core.geojson"),
         "https://github.com/cyipt/actdev/releases/download/0.1.13/zones_core.geojson",
-    );
+    )
+    .await;
 
     let desire_lines = parse_desire_lines(path_shared_input("wu03ew_v2.csv"))?;
     let zones = parse_zones(

@@ -67,7 +67,7 @@ async fn main() -> Result<()> {
     // TODO This is timing out. Also, really could use progress bars.
     if !abstio::file_exists(&pbf) {
         println!("Downloading {}", url);
-        abstio::download_to_file(url, pbf.clone(), false).await?;
+        abstio::download_to_file(url, &pbf).await?;
     }
 
     // Clip it

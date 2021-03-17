@@ -14,20 +14,22 @@ use sim::Scenario;
 use crate::configuration::ImporterConfiguration;
 use crate::utils::{download, download_kml, osmconvert};
 
-fn input(config: &ImporterConfiguration, timer: &mut Timer) {
+async fn input(config: &ImporterConfiguration, timer: &mut Timer<'_>) {
     let city = CityName::seattle();
 
     download(
         config,
         city.input_path("osm/washington-latest.osm.pbf"),
         "http://download.geofabrik.de/north-america/us/washington-latest.osm.pbf",
-    );
+    )
+    .await;
     // Soundcast data comes from https://github.com/psrc/soundcast/releases
     download(
         config,
         city.input_path("parcels_urbansim.txt"),
         "https://www.dropbox.com/s/t9oug9lwhdwfc04/psrc_2014.zip?dl=0",
-    );
+    )
+    .await;
 
     let bounds = geom::GPSBounds::from(
         geom::LonLat::read_osmosis_polygon("importer/config/us/seattle/huge_seattle.poly").unwrap(),
@@ -39,7 +41,8 @@ fn input(config: &ImporterConfiguration, timer: &mut Timer) {
         &bounds,
         true,
         timer,
-    );
+    )
+    .await;
     // From https://data-seattlecitygis.opendata.arcgis.com/datasets/public-garages-or-parking-lots
     download_kml(
         city.input_path("offstreet_parking.bin"),
@@ -47,13 +50,14 @@ fn input(config: &ImporterConfiguration, timer: &mut Timer) {
         &bounds,
         true,
         timer
-    );
+    ).await;
 
     download(
         config,
         city.input_path("google_transit/"),
         "http://metro.kingcounty.gov/gtfs/google_transit.zip",
-    );
+    )
+    .await;
 
     // From
     // https://data-seattlecitygis.opendata.arcgis.com/datasets/5b5c745e0f1f48e7a53acec63a0022ab_0
@@ -61,7 +65,8 @@ fn input(config: &ImporterConfiguration, timer: &mut Timer) {
         config,
         city.input_path("collisions.kml"),
         "https://opendata.arcgis.com/datasets/5b5c745e0f1f48e7a53acec63a0022ab_0.kml",
-    );
+    )
+    .await;
 
     // This is a little expensive, so delete data/input/us/seattle/collisions.bin to regenerate
     // this.
@@ -80,7 +85,8 @@ fn input(config: &ImporterConfiguration, timer: &mut Timer) {
         &bounds,
         true,
         timer,
-    );
+    )
+    .await;
 
     // From
     // https://data-seattlecitygis.opendata.arcgis.com/datasets/current-land-use-zoning-detail
@@ -90,13 +96,14 @@ fn input(config: &ImporterConfiguration, timer: &mut Timer) {
         &bounds,
         false,
         timer,
-    );
+    )
+    .await;
 }
 
-pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration) {
+pub async fn osm_to_raw(name: &str, timer: &mut Timer<'_>, config: &ImporterConfiguration) {
     let city = CityName::seattle();
 
-    input(config, timer);
+    input(config, timer).await;
     osmconvert(
         city.input_path("osm/washington-latest.osm.pbf"),
         format!("importer/config/us/seattle/{}.poly", name),
@@ -148,8 +155,8 @@ pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration)
 
 /// Download and pre-process data needed to generate Seattle scenarios.
 #[cfg(feature = "scenarios")]
-pub fn ensure_popdat_exists(
-    timer: &mut Timer,
+pub async fn ensure_popdat_exists(
+    timer: &mut Timer<'_>,
     config: &ImporterConfiguration,
 ) -> (crate::soundcast::PopDat, map_model::Map) {
     let huge_name = MapName::seattle("huge_seattle");
@@ -163,7 +170,7 @@ pub fn ensure_popdat_exists(
     }
 
     if !abstio::file_exists(abstio::path_raw_map(&huge_name)) {
-        osm_to_raw("huge_seattle", timer, config);
+        osm_to_raw("huge_seattle", timer, config).await;
     }
     let huge_map = if abstio::file_exists(huge_name.path()) {
         map_model::Map::load_synchronously(huge_name.path(), timer)

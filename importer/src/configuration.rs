@@ -4,7 +4,6 @@ use serde_json;
 #[derive(Deserialize)]
 #[serde(default)]
 pub struct ImporterConfiguration {
-    pub curl: String,
     pub osmconvert: String,
     pub unzip: String,
     pub gunzip: String,
@@ -14,7 +13,6 @@ pub struct ImporterConfiguration {
 impl Default for ImporterConfiguration {
     fn default() -> ImporterConfiguration {
         ImporterConfiguration {
-            curl: String::from("curl"),
             osmconvert: String::from("osmconvert"),
             unzip: String::from("unzip"),
             gunzip: String::from("gunzip"),

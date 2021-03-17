@@ -13,7 +13,11 @@ use map_model::BuildingType;
 use crate::configuration::ImporterConfiguration;
 use crate::utils::{download, download_kml};
 
-pub fn import_extra_data(map: &RawMap, config: &ImporterConfiguration, timer: &mut Timer) {
+pub async fn import_extra_data(
+    map: &RawMap,
+    config: &ImporterConfiguration,
+    timer: &mut Timer<'_>,
+) {
     // From https://data.technologiestiftung-berlin.de/dataset/lor_planungsgraeume/en
     download_kml(
         map.get_city_name().input_path("planning_areas.bin"),
@@ -22,7 +26,7 @@ pub fn import_extra_data(map: &RawMap, config: &ImporterConfiguration, timer: &m
         // Keep partly out-of-bounds polygons
         false,
         timer
-    );
+    ).await;
 
     // From
     // https://daten.berlin.de/datensaetze/einwohnerinnen-und-einwohner-berlin-lor-planungsr%C3%A4umen-am-31122018
@@ -30,7 +34,8 @@ pub fn import_extra_data(map: &RawMap, config: &ImporterConfiguration, timer: &m
         config,
         map.get_city_name().input_path("EWR201812E_Matrix.csv"),
         "https://www.statistik-berlin-brandenburg.de/opendata/EWR201812E_Matrix.csv",
-    );
+    )
+    .await;
 
     // Always do this, it's idempotent and fast
     correlate_population(

@@ -8,7 +8,7 @@ use crate::configuration::ImporterConfiguration;
 
 /// If the output file doesn't already exist, downloads the URL into that location. Automatically
 /// uncompresses .zip and .gz files. Assumes a proper path is passed in (including data/).
-pub fn download(config: &ImporterConfiguration, output: String, url: &str) {
+pub async fn download(config: &ImporterConfiguration, output: String, url: &str) {
     if Path::new(&output).exists() {
         println!("- {} already exists", output);
         return;
@@ -19,14 +19,7 @@ pub fn download(config: &ImporterConfiguration, output: String, url: &str) {
 
     let tmp = "tmp_output";
     println!("- Missing {}, so downloading {}", output, url);
-    must_run_cmd(
-        Command::new("curl")
-            .arg("--fail")
-            .arg("-L")
-            .arg("-o")
-            .arg(tmp)
-            .arg(url),
-    );
+    abstio::download_to_file(url, tmp).await.unwrap();
 
     // Argh the Dropbox URL is .zip?dl=0
     if url.contains(".zip") {
@@ -54,12 +47,12 @@ pub fn download(config: &ImporterConfiguration, output: String, url: &str) {
 
 /// If the output file doesn't already exist, downloads the URL into that location. Clips .kml
 /// files and converts to a .bin.
-pub fn download_kml(
+pub async fn download_kml(
     output: String,
     url: &str,
     bounds: &geom::GPSBounds,
     require_all_pts_in_bounds: bool,
-    timer: &mut Timer,
+    timer: &mut Timer<'_>,
 ) {
     assert!(url.ends_with(".kml"));
     if Path::new(&output).exists() {
@@ -75,14 +68,7 @@ pub fn download_kml(
         std::fs::copy(output.replace(".bin", ".kml"), tmp).unwrap();
     } else {
         println!("- Missing {}, so downloading {}", output, url);
-        must_run_cmd(
-            Command::new("curl")
-                .arg("--fail")
-                .arg("-L")
-                .arg("-o")
-                .arg(tmp)
-                .arg(url),
-        );
+        abstio::download_to_file(url, tmp).await.unwrap();
     }
 
     println!("- Extracting KML data");

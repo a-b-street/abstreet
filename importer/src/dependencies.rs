@@ -6,14 +6,7 @@ use crate::configuration::ImporterConfiguration;
 pub fn are_dependencies_callable(config: &ImporterConfiguration) -> bool {
     let mut result = true;
 
-    for command in [
-        &config.curl,
-        &config.osmconvert,
-        &config.unzip,
-        &config.gunzip,
-    ]
-    .iter()
-    {
+    for command in [&config.osmconvert, &config.unzip, &config.gunzip].iter() {
         println!("- Testing if {} is callable", command);
         if !is_program_callable(command) {
             println!("Failed to run {}", command);

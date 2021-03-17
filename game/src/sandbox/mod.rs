@@ -482,7 +482,7 @@ impl State<App> for SandboxLoader {
                                         scenario.expect("failed to load scenario from future");
                                     Transition::Multi(vec![
                                         Transition::Pop,
-                                        Transition::ModifyState(Box::new(|state, _, app| {
+                                        Transition::ModifyState(Box::new(|state, _, _| {
                                             let loader =
                                                 state.downcast_mut::<SandboxLoader>().unwrap();
                                             loader.stage = Some(LoadStage::GotScenario(scenario));
@@ -508,7 +508,7 @@ impl State<App> for SandboxLoader {
                                     let scenario = scenario.unwrap();
                                     Transition::Multi(vec![
                                         Transition::Pop,
-                                        Transition::ModifyState(Box::new(|state, _, app| {
+                                        Transition::ModifyState(Box::new(|state, _, _| {
                                             let loader =
                                                 state.downcast_mut::<SandboxLoader>().unwrap();
                                             loader.stage = Some(LoadStage::GotScenario(scenario));

@@ -35,10 +35,10 @@ pub struct GenericCityImporter {
 }
 
 impl GenericCityImporter {
-    pub fn osm_to_raw(
+    pub async fn osm_to_raw(
         &self,
         name: MapName,
-        timer: &mut abstutil::Timer,
+        timer: &mut abstutil::Timer<'_>,
         config: &ImporterConfiguration,
     ) -> RawMap {
         let local_osm_file = if self.osm_url.starts_with("http") {
@@ -51,7 +51,7 @@ impl GenericCityImporter {
                     .into_string()
                     .unwrap()
             ));
-            download(config, file.clone(), &self.osm_url);
+            download(config, file.clone(), &self.osm_url).await;
             file
         } else {
             self.osm_url.clone()

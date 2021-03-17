@@ -39,13 +39,12 @@ async fn main() {
         args.done();
         opt_into_all();
     } else {
-        let quiet = args.enabled("--quiet");
         args.done();
-        download_updates(version, quiet).await;
+        download_updates(version).await;
     }
 }
 
-async fn download_updates(version: String, quiet: bool) {
+async fn download_updates(version: String) {
     let data_packs = DataPacks::load_or_create();
     let local = generate_manifest();
     let truth = Manifest::load().filter(data_packs);
@@ -62,7 +61,7 @@ async fn download_updates(version: String, quiet: bool) {
     for (path, entry) in truth.entries {
         if local.entries.get(&path).map(|x| &x.checksum) != Some(&entry.checksum) {
             std::fs::create_dir_all(std::path::Path::new(&path).parent().unwrap()).unwrap();
-            match download_file(&version, &path, quiet).await {
+            match download_file(&version, &path).await {
                 Ok(bytes) => {
                     println!(
                         "> decompress {}, which is {} bytes compressed",
@@ -284,7 +283,7 @@ fn rm(path: &str) {
     }
 }
 
-async fn download_file(version: &str, path: &str, quiet: bool) -> Result<Vec<u8>> {
+async fn download_file(version: &str, path: &str) -> Result<Vec<u8>> {
     // Manually enable to "download" from my local copy
     if false {
         return abstio::slurp_file(format!(
@@ -298,7 +297,7 @@ async fn download_file(version: &str, path: &str, quiet: bool) -> Result<Vec<u8>
         version, path
     );
     println!("> download {}", url);
-    abstio::download_bytes(url, quiet).await
+    abstio::download_bytes(url).await
 }
 
 // download() will remove stray files, but leave empty directories around. Since some runtime code

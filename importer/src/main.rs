@@ -25,7 +25,8 @@ mod utils;
 
 // TODO Might be cleaner to express as a dependency graph?
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let config: ImporterConfiguration = load_configuration();
     if !are_dependencies_callable(&config) {
         println!("One or more dependencies aren't callable. Add them to the path and try again.");
@@ -51,7 +52,7 @@ fn main() {
     if args.enabled("--regen_all") {
         assert!(!skip_ch);
         assert!(!keep_bldg_tags);
-        regenerate_everything(config);
+        regenerate_everything(config).await;
         return;
     }
 
@@ -86,10 +87,10 @@ fn main() {
 
     let mut timer = Timer::new("import map data");
 
-    job.run(&config, skip_ch, keep_bldg_tags, &mut timer);
+    job.run(&config, skip_ch, keep_bldg_tags, &mut timer).await;
 }
 
-fn regenerate_everything(config: ImporterConfiguration) {
+async fn regenerate_everything(config: ImporterConfiguration) {
     // Discover all cities by looking at config. But always operate on Seattle first. Special
     // treatment ;)
     let mut all_cities = CityName::list_all_cities_from_importer_config();
@@ -122,7 +123,7 @@ fn regenerate_everything(config: ImporterConfiguration) {
 
         let skip_ch = false;
         let keep_bldg_tags = false;
-        job.run(&config, skip_ch, keep_bldg_tags, &mut timer);
+        job.run(&config, skip_ch, keep_bldg_tags, &mut timer).await;
     }
 }
 
@@ -137,12 +138,12 @@ struct Job {
 }
 
 impl Job {
-    fn run(
+    async fn run(
         self,
         config: &ImporterConfiguration,
         skip_ch: bool,
         keep_bldg_tags: bool,
-        timer: &mut Timer,
+        timer: &mut Timer<'_>,
     ) {
         timer.start(format!("import {}", self.city.describe()));
         let names = if let Some(n) = self.only_map {
@@ -164,7 +165,7 @@ impl Job {
             if self.scenario && self.city == CityName::seattle() {
                 #[cfg(feature = "scenarios")]
                 {
-                    let (popdat, huge_map) = seattle::ensure_popdat_exists(timer, config);
+                    let (popdat, huge_map) = seattle::ensure_popdat_exists(timer, config).await;
                     // Just assume --raw has been called...
                     let shapes: kml::ExtraShapes = abstio::read_binary(
                         CityName::seattle().input_path("zoning_parcels.bin"),
@@ -187,7 +188,7 @@ impl Job {
             if self.osm_to_raw {
                 // Still special-cased
                 if self.city == CityName::seattle() {
-                    seattle::osm_to_raw(&name, timer, config);
+                    seattle::osm_to_raw(&name, timer, config).await;
                 } else {
                     let raw = match abstio::maybe_read_json::<generic::GenericCityImporter>(
                         format!(
@@ -196,22 +197,22 @@ impl Job {
                         ),
                         timer,
                     ) {
-                        Ok(city_cfg) => city_cfg.osm_to_raw(
-                            MapName::from_city(&self.city, &name),
-                            timer,
-                            config,
-                        ),
+                        Ok(city_cfg) => {
+                            city_cfg
+                                .osm_to_raw(MapName::from_city(&self.city, &name), timer, config)
+                                .await
+                        }
                         Err(err) => {
                             panic!("Can't import city {}: {}", self.city.describe(), err);
                         }
                     };
 
                     if self.city == CityName::new("de", "berlin") {
-                        berlin::import_extra_data(&raw, config, timer);
+                        berlin::import_extra_data(&raw, config, timer).await;
                     } else if self.city == CityName::new("gb", "leeds") && name == "huge" {
-                        uk::import_collision_data(&raw, config, timer);
+                        uk::import_collision_data(&raw, config, timer).await;
                     } else if self.city == CityName::new("gb", "london") {
-                        uk::import_collision_data(&raw, config, timer);
+                        uk::import_collision_data(&raw, config, timer).await;
                     }
                 }
             }
@@ -278,7 +279,9 @@ impl Job {
                 }
 
                 if self.city.country == "gb" {
-                    uk::generate_scenario(maybe_map.as_ref().unwrap(), config, timer).unwrap();
+                    uk::generate_scenario(maybe_map.as_ref().unwrap(), config, timer)
+                        .await
+                        .unwrap();
                 }
             }
         }
