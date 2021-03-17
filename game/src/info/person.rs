@@ -11,8 +11,8 @@ use sim::{
     TripMode, TripResult, VehicleType,
 };
 use widgetry::{
-    Color, ControlState, CornerRounding, EdgeInsets, EventCtx, GeomBatch, Key, Line, RewriteColor,
-    Text, TextExt, TextSpan, Widget,
+    include_labeled_bytes, Color, ControlState, CornerRounding, EdgeInsets, EventCtx, GeomBatch,
+    Image, Key, Line, RewriteColor, Text, TextExt, TextSpan, Widget,
 };
 
 use crate::app::App;
@@ -190,12 +190,11 @@ pub fn trips(
                 Widget::nothing()
             },
             {
-                let mut icon = GeomBatch::load_svg_bytes(
-                    &ctx.prerender,
-                    widgetry::include_labeled_bytes!("../../../widgetry/icons/arrow_drop_down.svg"),
-                )
-                .autocrop()
-                .color(RewriteColor::ChangeAll(Color::WHITE))
+                let mut icon = Image::bytes(include_labeled_bytes!(
+                    "../../../widgetry/icons/arrow_drop_down.svg"
+                ))
+                .batch(ctx)
+                .0
                 .scale(1.5);
 
                 if !open_trips.contains_key(t) {
