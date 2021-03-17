@@ -50,7 +50,7 @@ impl JumpToTime {
                 Line("Jump to what time?").small_heading().into_widget(ctx),
                 if app.has_prebaked().is_some() {
                     GeomBatch::from(vec![(
-                        Color::WHITE.alpha(0.7),
+                        ctx.style().icon_fg.alpha(0.7),
                         area_under_curve(
                             app.prebaked().active_agents(end_of_day),
                             // TODO Auto fill width
