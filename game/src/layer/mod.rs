@@ -1,7 +1,8 @@
 use map_gui::tools::{grey_out_map, HeatmapOptions};
 use sim::AgentType;
 use widgetry::{
-    DrawBaselayer, EventCtx, GfxCtx, Image, Key, Line, Outcome, Panel, State, TextExt, Widget,
+    DrawBaselayer, EventCtx, GfxCtx, HorizontalAlignment, Image, Key, Line, Outcome, Panel, State,
+    TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -21,8 +22,7 @@ pub mod transit;
 
 pub trait Layer {
     fn name(&self) -> Option<&'static str>;
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App, minimap: &Panel)
-        -> Option<LayerOutcome>;
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<LayerOutcome>;
     // Draw both controls and, if zoomed, the layer contents
     fn draw(&self, g: &mut GfxCtx, app: &App);
     // Just draw contents and do it always
@@ -30,12 +30,7 @@ pub trait Layer {
 }
 
 impl dyn Layer {
-    fn simple_event(
-        ctx: &mut EventCtx,
-        minimap: &Panel,
-        panel: &mut Panel,
-    ) -> Option<LayerOutcome> {
-        panel.align_above(ctx, minimap);
+    fn simple_event(ctx: &mut EventCtx, panel: &mut Panel) -> Option<LayerOutcome> {
         match panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => Some(LayerOutcome::Close),
@@ -58,14 +53,14 @@ pub struct PickLayer {
 }
 
 impl PickLayer {
-    pub fn update(ctx: &mut EventCtx, app: &mut App, minimap: &Panel) -> Option<Transition> {
+    pub fn update(ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
         if app.primary.layer.is_none() {
             return None;
         }
 
         // TODO Since the Layer is embedded in App, we have to do this slight trick
         let mut layer = app.primary.layer.take().unwrap();
-        match layer.event(ctx, app, minimap) {
+        match layer.event(ctx, app) {
             Some(LayerOutcome::Close) => {
                 app.primary.layer = None;
                 return None;
@@ -275,3 +270,8 @@ pub fn header(ctx: &mut EventCtx, name: &str) -> Widget {
         ctx.style().btn_close_widget(ctx),
     ])
 }
+
+pub const PANEL_PLACEMENT: (HorizontalAlignment, VerticalAlignment) = (
+    HorizontalAlignment::Percent(0.02),
+    VerticalAlignment::Percent(0.2),
+);

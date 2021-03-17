@@ -1,12 +1,9 @@
 use geom::{ArrowCap, Distance, PolyLine};
 use map_gui::tools::{ColorLegend, ColorNetwork};
-use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Panel, Text,
-    VerticalAlignment, Widget,
-};
+use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Panel, Text, Widget};
 
 use crate::app::App;
-use crate::layer::{header, Layer, LayerOutcome};
+use crate::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
 
 pub struct Elevation {
     unzoomed: Drawable,
@@ -18,8 +15,8 @@ impl Layer for Elevation {
     fn name(&self) -> Option<&'static str> {
         Some("elevation")
     }
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut App, minimap: &Panel) -> Option<LayerOutcome> {
-        Layer::simple_event(ctx, minimap, &mut self.panel)
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Option<LayerOutcome> {
+        Layer::simple_event(ctx, &mut self.panel)
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
@@ -96,7 +93,7 @@ impl Elevation {
             .into_widget(ctx),
             ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["flat", "steep"]),
         ]))
-        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+        .aligned_pair(PANEL_PLACEMENT)
         .build(ctx);
 
         Elevation {

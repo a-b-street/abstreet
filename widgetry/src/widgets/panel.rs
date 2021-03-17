@@ -454,21 +454,7 @@ impl Panel {
     pub fn align(&mut self, horiz: HorizontalAlignment, vert: VerticalAlignment) {
         self.horiz = horiz;
         self.vert = vert;
-    }
-    pub fn align_above(&mut self, ctx: &mut EventCtx, other: &Panel) {
-        // Small padding
-        self.vert = VerticalAlignment::Above(other.top_level.rect.y1 - 5.0);
-        self.recompute_layout(ctx, false);
-
-        // Since we just moved things around, let all widgets respond to the mouse being somewhere
-        ctx.no_op_event(true, |ctx| assert_eq!(self.event(ctx), Outcome::Nothing));
-    }
-    pub fn align_below(&mut self, ctx: &mut EventCtx, other: &Panel, pad: f64) {
-        self.vert = VerticalAlignment::Below(other.top_level.rect.y2 + pad);
-        self.recompute_layout(ctx, false);
-
-        // Since we just moved things around, let all widgets respond to the mouse being somewhere
-        ctx.no_op_event(true, |ctx| assert_eq!(self.event(ctx), Outcome::Nothing));
+        // TODO Recompute layout and fire no_op_event?
     }
 
     /// All margins/padding/etc from the previous widget are retained. The ID is set on the new
@@ -485,7 +471,9 @@ impl Panel {
         new.layout.style = old.layout.style;
         *old = new;
         self.recompute_layout(ctx, true);
-        // TODO Same no_op_event as align_above? Should we always do this in recompute_layout?
+        // TODO Since we just moved things around, let all widgets respond to the mouse being
+        // somewhere? Maybe always do this in recompute_layout?
+        //ctx.no_op_event(true, |ctx| assert_eq!(self.event(ctx), Outcome::Nothing));
     }
 
     /// Removes a widget from the panel. Does not recalculate layout!
@@ -575,6 +563,12 @@ impl PanelBuilder {
     pub fn aligned(mut self, horiz: HorizontalAlignment, vert: VerticalAlignment) -> PanelBuilder {
         self.horiz = horiz;
         self.vert = vert;
+        self
+    }
+
+    pub fn aligned_pair(mut self, pair: (HorizontalAlignment, VerticalAlignment)) -> PanelBuilder {
+        self.horiz = pair.0;
+        self.vert = pair.1;
         self
     }
 

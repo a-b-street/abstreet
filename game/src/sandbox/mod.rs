@@ -136,7 +136,7 @@ impl State<App> for SandboxMode {
             if let Some(t) = m.event(ctx, app) {
                 return t;
             }
-            if let Some(t) = PickLayer::update(ctx, app, m.get_panel()) {
+            if let Some(t) = PickLayer::update(ctx, app) {
                 return t;
             }
         }

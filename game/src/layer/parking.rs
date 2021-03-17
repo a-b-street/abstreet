@@ -8,13 +8,10 @@ use map_model::{
     BuildingID, Map, OffstreetParking, ParkingLotID, PathConstraints, PathRequest, RoadID,
 };
 use sim::{ParkingSpot, Scenario, VehicleType};
-use widgetry::{
-    Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, Text, Toggle,
-    VerticalAlignment, Widget,
-};
+use widgetry::{Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Panel, Text, Toggle, Widget};
 
 use crate::app::App;
-use crate::layer::{header, Layer, LayerOutcome};
+use crate::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
 
 pub struct Occupancy {
     time: Time,
@@ -32,12 +29,7 @@ impl Layer for Occupancy {
     fn name(&self) -> Option<&'static str> {
         Some("parking occupancy")
     }
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        app: &mut App,
-        minimap: &Panel,
-    ) -> Option<LayerOutcome> {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<LayerOutcome> {
         if app.primary.sim.time() != self.time {
             *self = Occupancy::new(
                 ctx,
@@ -50,7 +42,6 @@ impl Layer for Occupancy {
             );
         }
 
-        self.panel.align_above(ctx, minimap);
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
@@ -68,7 +59,6 @@ impl Layer for Occupancy {
                     self.panel.is_checked("Private buildings"),
                     self.panel.is_checked("Cars looking for parking"),
                 );
-                self.panel.align_above(ctx, minimap);
             }
             _ => {}
         }
@@ -127,7 +117,7 @@ impl Occupancy {
                 ])
                 .into_widget(ctx),
             ]))
-            .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+            .aligned_pair(PANEL_PLACEMENT)
             .build(ctx);
             return Occupancy {
                 time: app.primary.sim.time(),
@@ -245,7 +235,7 @@ impl Occupancy {
             ),
             ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0%", "100%"]),
         ]))
-        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+        .aligned_pair(PANEL_PLACEMENT)
         .build(ctx);
 
         let mut colorer = ColorNetwork::new(app);
@@ -322,17 +312,11 @@ impl Layer for Efficiency {
     fn name(&self) -> Option<&'static str> {
         Some("parking efficiency")
     }
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        app: &mut App,
-        minimap: &Panel,
-    ) -> Option<LayerOutcome> {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<LayerOutcome> {
         if app.primary.sim.time() != self.time {
             *self = Efficiency::new(ctx, app);
         }
 
-        self.panel.align_above(ctx, minimap);
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
@@ -372,7 +356,7 @@ impl Efficiency {
                 vec!["0", "3", "6", "10+"],
             ),
         ]))
-        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+        .aligned_pair(PANEL_PLACEMENT)
         .build(ctx);
 
         let map = &app.primary.map;

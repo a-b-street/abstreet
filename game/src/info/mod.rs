@@ -11,14 +11,15 @@ use sim::{
     VehicleType,
 };
 use widgetry::{
-    Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    LinePlot, Outcome, Panel, PlotOptions, Series, TextExt, Toggle, VerticalAlignment, Widget,
+    Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, LinePlot, Outcome,
+    Panel, PlotOptions, Series, TextExt, Toggle, Widget,
 };
 
 use crate::app::{App, Transition};
 use crate::common::{color_for_agent_type, Warping};
 use crate::debug::path_counter::PathCounter;
 use crate::edit::{EditMode, RouteEditor};
+use crate::layer::PANEL_PLACEMENT;
 use crate::sandbox::{dashboards, GameplayMode, SandboxMode, TimeWarpScreen};
 
 mod building;
@@ -440,10 +441,7 @@ impl InfoPanel {
             time: app.primary.sim.time(),
             is_paused: ctx_actions.is_paused(),
             panel: Panel::new(Widget::col(col).bg(app.cs.panel_bg).padding(16))
-                .aligned(
-                    HorizontalAlignment::Percent(0.02),
-                    VerticalAlignment::Percent(0.2),
-                )
+                .aligned_pair(PANEL_PLACEMENT)
                 // TODO Some headings are too wide.. Intersection #xyz (Traffic signals)
                 .exact_size_percent(30, 60)
                 .build_custom(ctx),

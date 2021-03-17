@@ -5,12 +5,11 @@ use geom::{Circle, Distance, Pt2D, Time};
 use map_gui::tools::{make_heatmap, HeatmapOptions};
 use sim::PersonState;
 use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Image, Line, Outcome, Panel,
-    Toggle, VerticalAlignment, Widget,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Image, Line, Outcome, Panel, Toggle, Widget,
 };
 
 use crate::app::App;
-use crate::layer::{header, Layer, LayerOutcome};
+use crate::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
 
 // TODO Disable drawing unzoomed agents... or alternatively, implement this by asking Sim to
 // return this kind of data instead!
@@ -25,20 +24,13 @@ impl Layer for PopulationMap {
     fn name(&self) -> Option<&'static str> {
         Some("population map")
     }
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        app: &mut App,
-        minimap: &Panel,
-    ) -> Option<LayerOutcome> {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<LayerOutcome> {
         if app.primary.sim.time() != self.time {
             let mut new = PopulationMap::new(ctx, app, self.opts.clone());
-            new.panel.align_above(ctx, minimap);
             new.panel.restore(ctx, &self.panel);
             *self = new;
         }
 
-        self.panel.align_above(ctx, minimap);
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
@@ -50,7 +42,6 @@ impl Layer for PopulationMap {
                 let new_opts = self.options();
                 if self.opts != new_opts {
                     *self = PopulationMap::new(ctx, app, new_opts);
-                    self.panel.align_above(ctx, minimap);
                 }
             }
         }
@@ -185,6 +176,6 @@ fn make_controls(ctx: &mut EventCtx, app: &App, opts: &Options, legend: Option<W
     }
 
     Panel::new(Widget::col(col))
-        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+        .aligned_pair(PANEL_PLACEMENT)
         .build(ctx)
 }
