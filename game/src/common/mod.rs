@@ -46,9 +46,17 @@ impl CommonState {
             return Some(Transition::Push(warp::DebugWarp::new(ctx)));
         }
 
+        // Layers can be launched from many places, many of which don't have a way of getting at
+        // CommonState, which is only in sandbox and debug mode. It suffices to detect here if a
+        // layer is open and close the info panel, luckily.
+        if app.primary.layer.is_some() {
+            self.info_panel = None;
+        }
+
         if let Some(id) = app.primary.current_selection.clone() {
             // TODO Also have a hotkey binding for this?
             if app.per_obj.left_click(ctx, "show info") {
+                app.primary.layer = None;
                 self.info_panel =
                     Some(InfoPanel::new(ctx, app, Tab::from_id(app, id), ctx_actions));
                 return None;
@@ -276,6 +284,7 @@ impl CommonState {
         tab: Tab,
         ctx_actions: &mut dyn ContextualActions,
     ) {
+        app.primary.layer = None;
         self.info_panel = Some(InfoPanel::new(ctx, app, tab, ctx_actions));
     }
 
