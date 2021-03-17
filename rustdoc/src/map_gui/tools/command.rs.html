@@ -255,7 +255,7 @@
                 }
                 <span class="comment">// Handle the &quot;clear the current line&quot; escape code</span>
                 <span class="kw">if</span> <span class="ident">line</span>.<span class="ident">contains</span>(<span class="string">&quot;\r&quot;</span>) {
-                    <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">pop_front</span>();
+                    <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">pop_back</span>();
                     <span class="self">self</span>.<span class="ident">lines</span>
                         .<span class="ident">push_back</span>(<span class="ident">line</span>.<span class="ident">split</span>(<span class="string">&#39;\r&#39;</span>).<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">to_string</span>());
                 } <span class="kw">else</span> {
