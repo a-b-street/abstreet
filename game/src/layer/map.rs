@@ -6,13 +6,10 @@ use map_gui::tools::{ColorDiscrete, ColorLegend, ColorNetwork};
 use map_gui::ID;
 use map_model::{AmenityType, LaneType, PathConstraints};
 use sim::AgentType;
-use widgetry::{
-    Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Line, Panel, Text, TextExt,
-    VerticalAlignment, Widget,
-};
+use widgetry::{Color, Drawable, EventCtx, GfxCtx, Line, Panel, Text, TextExt, Widget};
 
 use crate::app::App;
-use crate::layer::{header, Layer, LayerOutcome};
+use crate::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
 
 pub struct BikeActivity {
     panel: Panel,
@@ -26,12 +23,7 @@ impl Layer for BikeActivity {
     fn name(&self) -> Option<&'static str> {
         Some("cycling activity")
     }
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        app: &mut App,
-        minimap: &Panel,
-    ) -> Option<LayerOutcome> {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<LayerOutcome> {
         let mut recalc_tooltip = false;
         if app.primary.sim.time() != self.time {
             *self = BikeActivity::new(ctx, app);
@@ -58,7 +50,7 @@ impl Layer for BikeActivity {
             self.tooltip = None;
         }
 
-        Layer::simple_event(ctx, minimap, &mut self.panel)
+        Layer::simple_event(ctx, &mut self.panel)
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
@@ -156,7 +148,7 @@ impl BikeActivity {
                 vec!["lowest count", "highest"],
             ),
         ]))
-        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+        .aligned_pair(PANEL_PLACEMENT)
         .build(ctx);
 
         let mut colorer = ColorNetwork::new(app);
@@ -187,8 +179,8 @@ impl Layer for Static {
     fn name(&self) -> Option<&'static str> {
         Some(self.name)
     }
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut App, minimap: &Panel) -> Option<LayerOutcome> {
-        Layer::simple_event(ctx, minimap, &mut self.panel)
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Option<LayerOutcome> {
+        Layer::simple_event(ctx, &mut self.panel)
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
@@ -213,7 +205,7 @@ impl Static {
     ) -> Static {
         let (unzoomed, zoomed, legend) = colorer.build(ctx);
         let panel = Panel::new(Widget::col(vec![header(ctx, &title), extra, legend]))
-            .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+            .aligned_pair(PANEL_PLACEMENT)
             .build(ctx);
 
         Static {
@@ -356,12 +348,7 @@ impl Layer for CongestionCaps {
     fn name(&self) -> Option<&'static str> {
         Some("congestion caps")
     }
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        app: &mut App,
-        minimap: &Panel,
-    ) -> Option<LayerOutcome> {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<LayerOutcome> {
         let mut recalc_tooltip = false;
         if app.primary.sim.time() != self.time {
             *self = CongestionCaps::new(ctx, app);
@@ -394,7 +381,7 @@ impl Layer for CongestionCaps {
             self.tooltip = None;
         }
 
-        Layer::simple_event(ctx, minimap, &mut self.panel)
+        Layer::simple_event(ctx, &mut self.panel)
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
@@ -438,7 +425,7 @@ impl CongestionCaps {
             format!("{} roads have caps", prettyprint_usize(num_roads)).text_widget(ctx),
             ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["available", "full"]),
         ]))
-        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+        .aligned_pair(PANEL_PLACEMENT)
         .build(ctx);
 
         let (unzoomed, zoomed) = colorer.build(ctx);

@@ -1,12 +1,9 @@
 use map_gui::tools::ColorDiscrete;
 use map_model::{PathConstraints, PathStep};
-use widgetry::{
-    Drawable, EventCtx, GfxCtx, HorizontalAlignment, Outcome, Panel, Toggle, VerticalAlignment,
-    Widget,
-};
+use widgetry::{Drawable, EventCtx, GfxCtx, Outcome, Panel, Toggle, Widget};
 
 use crate::app::App;
-use crate::layer::{header, Layer, LayerOutcome};
+use crate::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
 
 pub struct TransitNetwork {
     panel: Panel,
@@ -18,13 +15,7 @@ impl Layer for TransitNetwork {
     fn name(&self) -> Option<&'static str> {
         Some("transit network")
     }
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        app: &mut App,
-        minimap: &Panel,
-    ) -> Option<LayerOutcome> {
-        self.panel.align_above(ctx, minimap);
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<LayerOutcome> {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
@@ -40,7 +31,6 @@ impl Layer for TransitNetwork {
                     self.panel.is_checked("show buses"),
                     self.panel.is_checked("show trains"),
                 );
-                self.panel.align_above(ctx, minimap);
             }
             _ => {}
         }
@@ -121,7 +111,7 @@ impl TransitNetwork {
             Toggle::switch(ctx, "show trains", None, show_trains),
             legend,
         ]))
-        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+        .aligned_pair(PANEL_PLACEMENT)
         .build(ctx);
 
         TransitNetwork {

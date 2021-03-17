@@ -10,12 +10,12 @@ use map_gui::ID;
 use map_model::{IntersectionID, Map, Traversable};
 use sim::{AgentType, VehicleType};
 use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, Text,
-    TextExt, Toggle, VerticalAlignment, Widget,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Panel, Text, TextExt, Toggle,
+    Widget,
 };
 
 use crate::app::App;
-use crate::layer::{header, Layer, LayerOutcome};
+use crate::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
 
 pub struct Backpressure {
     time: Time,
@@ -28,17 +28,12 @@ impl Layer for Backpressure {
     fn name(&self) -> Option<&'static str> {
         Some("backpressure")
     }
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        app: &mut App,
-        minimap: &Panel,
-    ) -> Option<LayerOutcome> {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<LayerOutcome> {
         if app.primary.sim.time() != self.time {
             *self = Backpressure::new(ctx, app);
         }
 
-        Layer::simple_event(ctx, minimap, &mut self.panel)
+        Layer::simple_event(ctx, &mut self.panel)
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
@@ -84,7 +79,7 @@ impl Backpressure {
                 vec!["lowest count", "highest"],
             ),
         ]))
-        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+        .aligned_pair(PANEL_PLACEMENT)
         .build(ctx);
 
         let mut colorer = ColorNetwork::new(app);
@@ -114,12 +109,7 @@ impl Layer for Throughput {
     fn name(&self) -> Option<&'static str> {
         Some("throughput")
     }
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        app: &mut App,
-        minimap: &Panel,
-    ) -> Option<LayerOutcome> {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<LayerOutcome> {
         let mut recalc_tooltip = false;
         if app.primary.sim.time() != self.time {
             *self = Throughput::new(ctx, app, self.agent_types.clone());
@@ -160,7 +150,6 @@ impl Layer for Throughput {
             self.tooltip = None;
         }
 
-        self.panel.align_above(ctx, minimap);
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
@@ -243,7 +232,7 @@ impl Throughput {
             .flex_wrap(ctx, Percent::int(20)),
             ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0", "highest"]),
         ]))
-        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+        .aligned_pair(PANEL_PLACEMENT)
         .build(ctx);
 
         let mut colorer = ColorNetwork::new(app);
@@ -274,12 +263,7 @@ impl Layer for CompareThroughput {
     fn name(&self) -> Option<&'static str> {
         Some("throughput")
     }
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        app: &mut App,
-        minimap: &Panel,
-    ) -> Option<LayerOutcome> {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<LayerOutcome> {
         let mut recalc_tooltip = false;
         if app.primary.sim.time() != self.time {
             *self = CompareThroughput::new(ctx, app);
@@ -331,7 +315,6 @@ impl Layer for CompareThroughput {
             self.tooltip = None;
         }
 
-        self.panel.align_above(ctx, minimap);
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
@@ -421,7 +404,7 @@ impl CompareThroughput {
             Toggle::switch(ctx, "Compare before proposal", None, true),
             scale.make_legend(ctx, vec!["less traffic", "same", "more"]),
         ]))
-        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+        .aligned_pair(PANEL_PLACEMENT)
         .build(ctx);
         let (unzoomed, zoomed) = colorer.build(ctx);
 
@@ -446,17 +429,12 @@ impl Layer for TrafficJams {
     fn name(&self) -> Option<&'static str> {
         Some("traffic jams")
     }
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        app: &mut App,
-        minimap: &Panel,
-    ) -> Option<LayerOutcome> {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<LayerOutcome> {
         if app.primary.sim.time() != self.time {
             *self = TrafficJams::new(ctx, app);
         }
 
-        Layer::simple_event(ctx, minimap, &mut self.panel)
+        Layer::simple_event(ctx, &mut self.panel)
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
@@ -510,7 +488,7 @@ impl TrafficJams {
             .into_widget(ctx),
             format!("{} jams detected", cnt).text_widget(ctx),
         ]))
-        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+        .aligned_pair(PANEL_PLACEMENT)
         .build(ctx);
 
         TrafficJams {
@@ -584,17 +562,11 @@ impl Layer for Delay {
     fn name(&self) -> Option<&'static str> {
         Some("delay")
     }
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        app: &mut App,
-        minimap: &Panel,
-    ) -> Option<LayerOutcome> {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<LayerOutcome> {
         if app.primary.sim.time() != self.time {
             *self = Delay::new(ctx, app);
         }
 
-        self.panel.align_above(ctx, minimap);
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
@@ -653,7 +625,7 @@ impl Delay {
                 header(ctx, "Delay per agent (minutes)"),
                 ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0", "5", "10", "15+"]),
             ]))
-            .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+            .aligned_pair(PANEL_PLACEMENT)
             .build(ctx),
         }
     }

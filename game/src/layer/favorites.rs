@@ -5,13 +5,10 @@ use serde::{Deserialize, Serialize};
 use abstutil::Timer;
 use map_model::osm::OsmID;
 use map_model::BuildingID;
-use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Panel, RewriteColor,
-    VerticalAlignment,
-};
+use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Panel, RewriteColor};
 
 use crate::app::App;
-use crate::layer::{header, Layer, LayerOutcome};
+use crate::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
 
 /// A set of buildings that the player has starred, persisted as player data.
 #[derive(Serialize, Deserialize)]
@@ -63,8 +60,8 @@ impl Layer for ShowFavorites {
     fn name(&self) -> Option<&'static str> {
         Some("favorites")
     }
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut App, minimap: &Panel) -> Option<LayerOutcome> {
-        Layer::simple_event(ctx, minimap, &mut self.panel)
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Option<LayerOutcome> {
+        Layer::simple_event(ctx, &mut self.panel)
     }
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.panel.draw(g);
@@ -89,7 +86,7 @@ impl ShowFavorites {
         }
 
         let panel = Panel::new(header(ctx, "Your favorite buildings"))
-            .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+            .aligned_pair(PANEL_PLACEMENT)
             .build(ctx);
 
         ShowFavorites {
