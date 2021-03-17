@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["download_bytes","Downloads bytes from a URL. If `quiet` is false, prints progress. This must be called with a tokio runtime somewhere."],["download_to_file","Downloads a file. If `quiet` is false, prints progress. This must be called with a tokio runtime somewhere."]]});
+initSidebarItems({"fn":[["download_bytes","Downloads bytes from a URL, printing progress to STDOUT. This must be called with a tokio runtime somewhere."],["download_to_file","Downloads a file, printing progress to STDOUT. This must be called with a tokio runtime somewhere."]]});

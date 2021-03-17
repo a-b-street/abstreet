@@ -173,7 +173,7 @@
     <span class="comment">// TODO This is timing out. Also, really could use progress bars.</span>
     <span class="kw">if</span> <span class="op">!</span><span class="ident">abstio</span>::<span class="ident">file_exists</span>(<span class="kw-2">&amp;</span><span class="ident">pbf</span>) {
         <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Downloading {}&quot;</span>, <span class="ident">url</span>);
-        <span class="ident">abstio</span>::<span class="ident">download_to_file</span>(<span class="ident">url</span>, <span class="ident">pbf</span>.<span class="ident">clone</span>(), <span class="bool-val">false</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">abstio</span>::<span class="ident">download_to_file</span>(<span class="ident">url</span>, <span class="kw-2">&amp;</span><span class="ident">pbf</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     }
 
     <span class="comment">// Clip it</span>

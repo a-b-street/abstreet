@@ -33,8 +33,6 @@
 <span id="30">30</span>
 <span id="31">31</span>
 <span id="32">32</span>
-<span id="33">33</span>
-<span id="34">34</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">Deserialize</span>;
 <span class="kw">use</span> <span class="ident">serde_json</span>;
@@ -42,7 +40,6 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ImporterConfiguration</span> {
-    <span class="kw">pub</span> <span class="ident">curl</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">osmconvert</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">unzip</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">gunzip</span>: <span class="ident">String</span>,
@@ -52,7 +49,6 @@
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ImporterConfiguration</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ImporterConfiguration</span> {
         <span class="ident">ImporterConfiguration</span> {
-            <span class="ident">curl</span>: <span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;curl&quot;</span>),
             <span class="ident">osmconvert</span>: <span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;osmconvert&quot;</span>),
             <span class="ident">unzip</span>: <span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;unzip&quot;</span>),
             <span class="ident">gunzip</span>: <span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;gunzip&quot;</span>),

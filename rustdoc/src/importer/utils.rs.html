@@ -143,20 +143,6 @@
 <span id="140">140</span>
 <span id="141">141</span>
 <span id="142">142</span>
-<span id="143">143</span>
-<span id="144">144</span>
-<span id="145">145</span>
-<span id="146">146</span>
-<span id="147">147</span>
-<span id="148">148</span>
-<span id="149">149</span>
-<span id="150">150</span>
-<span id="151">151</span>
-<span id="152">152</span>
-<span id="153">153</span>
-<span id="154">154</span>
-<span id="155">155</span>
-<span id="156">156</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">path</span>::<span class="ident">Path</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">process</span>::<span class="ident">Command</span>;
@@ -168,7 +154,7 @@
 
 <span class="doccomment">/// If the output file doesn&#39;t already exist, downloads the URL into that location. Automatically</span>
 <span class="doccomment">/// uncompresses .zip and .gz files. Assumes a proper path is passed in (including data/).</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">download</span>(<span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ImporterConfiguration</span>, <span class="ident">output</span>: <span class="ident">String</span>, <span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">download</span>(<span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ImporterConfiguration</span>, <span class="ident">output</span>: <span class="ident">String</span>, <span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
     <span class="kw">if</span> <span class="ident">Path</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">output</span>).<span class="ident">exists</span>() {
         <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;- {} already exists&quot;</span>, <span class="ident">output</span>);
         <span class="kw">return</span>;
@@ -179,14 +165,7 @@
 
     <span class="kw">let</span> <span class="ident">tmp</span> <span class="op">=</span> <span class="string">&quot;tmp_output&quot;</span>;
     <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;- Missing {}, so downloading {}&quot;</span>, <span class="ident">output</span>, <span class="ident">url</span>);
-    <span class="ident">must_run_cmd</span>(
-        <span class="ident">Command</span>::<span class="ident">new</span>(<span class="string">&quot;curl&quot;</span>)
-            .<span class="ident">arg</span>(<span class="string">&quot;--fail&quot;</span>)
-            .<span class="ident">arg</span>(<span class="string">&quot;-L&quot;</span>)
-            .<span class="ident">arg</span>(<span class="string">&quot;-o&quot;</span>)
-            .<span class="ident">arg</span>(<span class="ident">tmp</span>)
-            .<span class="ident">arg</span>(<span class="ident">url</span>),
-    );
+    <span class="ident">abstio</span>::<span class="ident">download_to_file</span>(<span class="ident">url</span>, <span class="ident">tmp</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
     <span class="comment">// Argh the Dropbox URL is .zip?dl=0</span>
     <span class="kw">if</span> <span class="ident">url</span>.<span class="ident">contains</span>(<span class="string">&quot;.zip&quot;</span>) {
@@ -214,12 +193,12 @@
 
 <span class="doccomment">/// If the output file doesn&#39;t already exist, downloads the URL into that location. Clips .kml</span>
 <span class="doccomment">/// files and converts to a .bin.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">download_kml</span>(
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">download_kml</span>(
     <span class="ident">output</span>: <span class="ident">String</span>,
     <span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     <span class="ident">bounds</span>: <span class="kw-2">&amp;</span><span class="ident">geom</span>::<span class="ident">GPSBounds</span>,
     <span class="ident">require_all_pts_in_bounds</span>: <span class="ident">bool</span>,
-    <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
+    <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
 ) {
     <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">url</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.kml&quot;</span>));
     <span class="kw">if</span> <span class="ident">Path</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">output</span>).<span class="ident">exists</span>() {
@@ -235,14 +214,7 @@
         <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">copy</span>(<span class="ident">output</span>.<span class="ident">replace</span>(<span class="string">&quot;.bin&quot;</span>, <span class="string">&quot;.kml&quot;</span>), <span class="ident">tmp</span>).<span class="ident">unwrap</span>();
     } <span class="kw">else</span> {
         <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;- Missing {}, so downloading {}&quot;</span>, <span class="ident">output</span>, <span class="ident">url</span>);
-        <span class="ident">must_run_cmd</span>(
-            <span class="ident">Command</span>::<span class="ident">new</span>(<span class="string">&quot;curl&quot;</span>)
-                .<span class="ident">arg</span>(<span class="string">&quot;--fail&quot;</span>)
-                .<span class="ident">arg</span>(<span class="string">&quot;-L&quot;</span>)
-                .<span class="ident">arg</span>(<span class="string">&quot;-o&quot;</span>)
-                .<span class="ident">arg</span>(<span class="ident">tmp</span>)
-                .<span class="ident">arg</span>(<span class="ident">url</span>),
-        );
+        <span class="ident">abstio</span>::<span class="ident">download_to_file</span>(<span class="ident">url</span>, <span class="ident">tmp</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
     }
 
     <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;- Extracting KML data&quot;</span>);

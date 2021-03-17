@@ -46,9 +46,6 @@
 <span id="43">43</span>
 <span id="44">44</span>
 <span id="45">45</span>
-<span id="46">46</span>
-<span id="47">47</span>
-<span id="48">48</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::{<span class="ident">stdout</span>, <span class="ident">Write</span>};
 
@@ -56,9 +53,9 @@
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>;
 
-<span class="doccomment">/// Downloads bytes from a URL. If `quiet` is false, prints progress. This must be called with a</span>
-<span class="doccomment">/// tokio runtime somewhere.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">download_bytes</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">url</span>: <span class="ident">I</span>, <span class="ident">quiet</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="doccomment">/// Downloads bytes from a URL, printing progress to STDOUT. This must be called with a tokio</span>
+<span class="doccomment">/// runtime somewhere.</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">download_bytes</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">url</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">as_ref</span>();
     <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;Downloading {}&quot;</span>, <span class="ident">url</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">reqwest</span>::<span class="ident">get</span>(<span class="ident">url</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
@@ -69,32 +66,29 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">chunk</span>) <span class="op">=</span> <span class="ident">resp</span>.<span class="ident">chunk</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>() {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">total_size</span> {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">quiet</span> {
-                <span class="ident">abstutil</span>::<span class="ident">clear_current_line</span>();
-                <span class="macro">print</span><span class="macro">!</span>(
-                    <span class="string">&quot;{:.2}% ({} / {} bytes)&quot;</span>,
-                    (<span class="ident">bytes</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">n</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="number">100.0</span>,
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">bytes</span>.<span class="ident">len</span>()),
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">n</span>)
-                );
-                <span class="ident">stdout</span>().<span class="ident">flush</span>().<span class="ident">unwrap</span>();
-            }
+            <span class="ident">abstutil</span>::<span class="ident">clear_current_line</span>();
+            <span class="macro">print</span><span class="macro">!</span>(
+                <span class="string">&quot;{:.2}% ({} / {} bytes)&quot;</span>,
+                (<span class="ident">bytes</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">n</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="number">100.0</span>,
+                <span class="ident">prettyprint_usize</span>(<span class="ident">bytes</span>.<span class="ident">len</span>()),
+                <span class="ident">prettyprint_usize</span>(<span class="ident">n</span>)
+            );
+            <span class="ident">stdout</span>().<span class="ident">flush</span>().<span class="ident">unwrap</span>();
         }
 
         <span class="ident">bytes</span>.<span class="ident">write_all</span>(<span class="kw-2">&amp;</span><span class="ident">chunk</span>).<span class="ident">unwrap</span>();
     }
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">quiet</span> {
-        <span class="macro">println</span><span class="macro">!</span>();
-    }
+    <span class="macro">println</span><span class="macro">!</span>();
     <span class="prelude-val">Ok</span>(<span class="ident">bytes</span>)
 }
 
-<span class="doccomment">/// Downloads a file. If `quiet` is false, prints progress. This must be called with a tokio</span>
-<span class="doccomment">/// runtime somewhere.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">download_to_file</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">url</span>: <span class="ident">I</span>, <span class="ident">path</span>: <span class="ident">String</span>, <span class="ident">quiet</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">download_bytes</span>(<span class="ident">url</span>, <span class="ident">quiet</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">create_dir_all</span>(<span class="ident">std</span>::<span class="ident">path</span>::<span class="ident">Path</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="ident">parent</span>().<span class="ident">unwrap</span>())<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>::<span class="ident">create</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>)<span class="question-mark">?</span>;
+<span class="doccomment">/// Downloads a file, printing progress to STDOUT. This must be called with a tokio runtime</span>
+<span class="doccomment">/// somewhere.</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">download_to_file</span><span class="op">&lt;</span><span class="ident">I1</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">I2</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">url</span>: <span class="ident">I1</span>, <span class="ident">path</span>: <span class="ident">I2</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">download_bytes</span>(<span class="ident">url</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">as_ref</span>();
+    <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">create_dir_all</span>(<span class="ident">std</span>::<span class="ident">path</span>::<span class="ident">Path</span>::<span class="ident">new</span>(<span class="ident">path</span>).<span class="ident">parent</span>().<span class="ident">unwrap</span>())<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>::<span class="ident">create</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
     <span class="ident">file</span>.<span class="ident">write_all</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>)<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
