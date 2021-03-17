@@ -433,6 +433,15 @@
 <span id="430">430</span>
 <span id="431">431</span>
 <span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -482,9 +491,17 @@
             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">warp</span>::<span class="ident">DebugWarp</span>::<span class="ident">new</span>(<span class="ident">ctx</span>)));
         }
 
+        <span class="comment">// Layers can be launched from many places, many of which don&#39;t have a way of getting at</span>
+        <span class="comment">// CommonState, which is only in sandbox and debug mode. It suffices to detect here if a</span>
+        <span class="comment">// layer is open and close the info panel, luckily.</span>
+        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span>.<span class="ident">is_some</span>() {
+            <span class="self">self</span>.<span class="ident">info_panel</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        }
+
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span>.<span class="ident">clone</span>() {
             <span class="comment">// TODO Also have a hotkey binding for this?</span>
             <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">per_obj</span>.<span class="ident">left_click</span>(<span class="ident">ctx</span>, <span class="string">&quot;show info&quot;</span>) {
+                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                 <span class="self">self</span>.<span class="ident">info_panel</span> <span class="op">=</span>
                     <span class="prelude-val">Some</span>(<span class="ident">InfoPanel</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Tab</span>::<span class="ident">from_id</span>(<span class="ident">app</span>, <span class="ident">id</span>), <span class="ident">ctx_actions</span>));
                 <span class="kw">return</span> <span class="prelude-val">None</span>;
@@ -712,6 +729,7 @@
         <span class="ident">tab</span>: <span class="ident">Tab</span>,
         <span class="ident">ctx_actions</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">ContextualActions</span>,
     ) {
+        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="self">self</span>.<span class="ident">info_panel</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">InfoPanel</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">tab</span>, <span class="ident">ctx_actions</span>));
     }
 

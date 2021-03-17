@@ -820,8 +820,6 @@
 <span id="817">817</span>
 <span id="818">818</span>
 <span id="819">819</span>
-<span id="820">820</span>
-<span id="821">821</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -836,14 +834,15 @@
     <span class="ident">VehicleType</span>,
 };
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
-    <span class="ident">LinePlot</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PlotOptions</span>, <span class="ident">Series</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">Outcome</span>,
+    <span class="ident">Panel</span>, <span class="ident">PlotOptions</span>, <span class="ident">Series</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">color_for_agent_type</span>, <span class="ident">Warping</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">debug</span>::<span class="ident">path_counter</span>::<span class="ident">PathCounter</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::{<span class="ident">EditMode</span>, <span class="ident">RouteEditor</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">layer</span>::<span class="ident">PANEL_PLACEMENT</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::{<span class="ident">dashboards</span>, <span class="ident">GameplayMode</span>, <span class="ident">SandboxMode</span>, <span class="ident">TimeWarpScreen</span>};
 
 <span class="kw">mod</span> <span class="ident">building</span>;
@@ -1265,10 +1264,7 @@
             <span class="ident">time</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(),
             <span class="ident">is_paused</span>: <span class="ident">ctx_actions</span>.<span class="ident">is_paused</span>(),
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>).<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>).<span class="ident">padding</span>(<span class="number">16</span>))
-                .<span class="ident">aligned</span>(
-                    <span class="ident">HorizontalAlignment</span>::<span class="ident">Percent</span>(<span class="number">0.02</span>),
-                    <span class="ident">VerticalAlignment</span>::<span class="ident">Percent</span>(<span class="number">0.2</span>),
-                )
+                .<span class="ident">aligned_pair</span>(<span class="ident">PANEL_PLACEMENT</span>)
                 <span class="comment">// TODO Some headings are too wide.. Intersection #xyz (Traffic signals)</span>
                 .<span class="ident">exact_size_percent</span>(<span class="number">30</span>, <span class="number">60</span>)
                 .<span class="ident">build_custom</span>(<span class="ident">ctx</span>),
