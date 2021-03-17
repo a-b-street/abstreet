@@ -208,13 +208,17 @@ impl ChangeScenario {
             "A fixed number of trips will start at midnight, but not constantly appear through \
              the day.",
         ));
-        choices.push((
-            "census".to_string(),
-            "generate from US census data".to_string(),
-            "A population from 2010 US census data will travel between home and workplaces. This \
-             option will only work for maps in the US, and generating it will take a few moments \
-             as some data is downloaded for this map.",
-        ));
+        let country = &app.primary.map.get_name().city.country;
+        // Until we add in census data for other countries, offering the option doesn't make sense.
+        // Include "zz", used for one-shot imports, since we have no idea where those are located.
+        if country == "us" || country == "zz" {
+            choices.push((
+                "census".to_string(),
+                "generate from US census data".to_string(),
+                "A population from 2010 US census data will travel between home and workplaces. \
+                 Generating it will take a few moments as some data is downloaded for this map.",
+            ));
+        }
         choices.push((
             "none".to_string(),
             "none, except for buses".to_string(),
