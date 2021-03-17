@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Image",""]]});
+initSidebarItems({"enum":[["ImageSource",""]],"struct":[["Image",""]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Axis",""]],"struct":[["GeomBatchStack","Similar to [`Widget::row`]/[`Widget::column`], but for [`GeomBatch`]s instead of [`Widget`]s, and follows a builder pattern"]]});
