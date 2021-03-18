@@ -33,6 +33,7 @@ pub mod scatter_plot;
 pub mod slider;
 pub mod spinner;
 pub mod table;
+pub mod tabs;
 pub mod text_box;
 pub mod toggle;
 

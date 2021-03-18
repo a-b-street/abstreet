@@ -63,6 +63,7 @@ pub use crate::widgets::scatter_plot::ScatterPlot;
 pub use crate::widgets::slider::Slider;
 pub use crate::widgets::spinner::Spinner;
 pub use crate::widgets::table;
+pub use crate::widgets::tabs::TabController;
 pub(crate) use crate::widgets::text_box::TextBox;
 pub use crate::widgets::toggle::Toggle;
 pub use crate::widgets::{

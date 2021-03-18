@@ -437,6 +437,11 @@ impl Panel {
         }
     }
 
+    pub fn swap_container_content(&mut self, name: &str, widget: &mut Widget) {
+        let old_container: &mut Container = self.find_mut(name);
+        std::mem::swap(&mut old_container.members[0], widget);
+    }
+
     pub fn rect_of(&self, name: &str) -> &ScreenRectangle {
         &self.top_level.find(name).unwrap().rect
     }

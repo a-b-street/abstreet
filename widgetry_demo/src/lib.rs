@@ -7,8 +7,8 @@ use geom::{Angle, Duration, Percent, Polygon, Pt2D, Time};
 use widgetry::{
     lctrl, Choice, Color, ContentMode, Drawable, EventCtx, Fill, GeomBatch, GfxCtx,
     HorizontalAlignment, Image, Key, Line, LinePlot, Outcome, Panel, PersistentSplit, PlotOptions,
-    ScreenDims, Series, SharedAppState, State, Text, TextExt, Texture, Toggle, Transition,
-    UpdateType, VerticalAlignment, Widget,
+    ScreenDims, Series, SharedAppState, State, TabController, Text, TextExt, Texture, Toggle,
+    Transition, UpdateType, VerticalAlignment, Widget,
 };
 
 pub fn main() {
@@ -36,16 +36,19 @@ struct Demo {
     scrollable_canvas: Drawable,
     texture_demo: Drawable,
     elapsed: Duration,
+    tabs: TabController,
 }
 
 impl Demo {
-    fn new(ctx: &mut EventCtx) -> Demo {
-        Demo {
-            controls: make_controls(ctx),
+    fn new(ctx: &mut EventCtx) -> Self {
+        let mut tabs = make_tabs(ctx);
+        Self {
+            controls: make_controls(ctx, &mut tabs),
             timeseries_panel: None,
             scrollable_canvas: setup_scrollable_canvas(ctx),
             texture_demo: setup_texture_demo(ctx, Texture::SAND, Texture::CACTUS),
             elapsed: Duration::ZERO,
+            tabs: tabs,
         }
     }
 
@@ -163,7 +166,9 @@ impl State<App> for Demo {
                     self.texture_demo = setup_texture_demo(ctx, bg_texture, fg_texture);
                 }
                 action => {
-                    if action.contains("btn_") {
+                    if self.tabs.handle_action(ctx, action, &mut self.controls) {
+                        // If true, tab already handled the action internally
+                    } else if action.contains("btn_") {
                         log::info!("clicked button: {:?}", action);
                     } else {
                         unimplemented!("clicked: {:?}", x);
@@ -302,14 +307,11 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
     batch.upload(ctx)
 }
 
-fn make_controls(ctx: &mut EventCtx) -> Panel {
+fn make_tabs(ctx: &mut EventCtx) -> TabController {
     let style = ctx.style();
-    Panel::new(Widget::col(vec![
-        Text::from_multiline(vec![
-            Line("widgetry demo").big_heading_styled(),
-            Line("Click and drag the background to pan, use touchpad or scroll wheel to zoom"),
-        ])
-        .into_widget(ctx),
+
+    let gallery_bar_item = style.btn_tab.text("Component Gallery");
+    let gallery_content = Widget::col(vec![
         Text::from(Line("Text").big_heading_styled().size(18)).into_widget(ctx),
         Text::from_all(vec![
             Line("You can "),
@@ -320,7 +322,6 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
         .bg(Color::PURPLE)
         .into_widget(ctx),
         // Button Style Gallery
-        // TODO might be nice to have this in separate tabs or something.
         Text::from(Line("Buttons").big_heading_styled().size(18)).into_widget(ctx),
         Widget::row(vec![
             style
@@ -411,6 +412,96 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
         ]),
         Text::from(Line("Spinner").big_heading_styled().size(18)).into_widget(ctx),
         widgetry::Spinner::widget(ctx, (0, 11), 1),
+    ]);
+
+    let mut tabs = TabController::new("demo_tabs".to_string(), gallery_bar_item, gallery_content);
+
+    let qa_bar_item = style.btn_tab.text("Conformance Checks");
+    let qa_content = Widget::col(vec![
+        Text::from(
+            Line("Controls should be same height")
+                .big_heading_styled()
+                .size(18),
+        )
+        .into_widget(ctx),
+        {
+            let row_height = 10;
+            let mut id = 0;
+            let mut next_id = || {
+                id += 1;
+                format!("btn_height_check_{}", id)
+            };
+            Widget::row(vec![
+                Widget::col(
+                    (0..row_height)
+                        .map(|_| {
+                            style
+                                .btn_outline
+                                .icon("system/assets/tools/layers.svg")
+                                .build_widget(ctx, &next_id())
+                        })
+                        .collect::<Vec<_>>(),
+                ),
+                Widget::col(
+                    (0..row_height)
+                        .map(|_| style.btn_outline.text("text").build_widget(ctx, &next_id()))
+                        .collect::<Vec<_>>(),
+                ),
+                Widget::col(
+                    (0..row_height)
+                        .map(|_| {
+                            style
+                                .btn_outline
+                                .icon_text("system/assets/tools/layers.svg", "icon+text")
+                                .build_widget(ctx, &next_id())
+                        })
+                        .collect::<Vec<_>>(),
+                ),
+                Widget::col(
+                    (0..row_height)
+                        .map(|_| {
+                            style
+                                .btn_popup_icon_text("system/assets/tools/layers.svg", "icon+text")
+                                .build_widget(ctx, &next_id())
+                        })
+                        .collect::<Vec<_>>(),
+                ),
+                Widget::col(
+                    (0..row_height)
+                        .map(|_| {
+                            style
+                                .btn_outline
+                                .popup("popup")
+                                .build_widget(ctx, &next_id())
+                        })
+                        .collect::<Vec<_>>(),
+                ),
+                Widget::col(
+                    (0..row_height)
+                        .map(|_| widgetry::Spinner::widget(ctx, (0, 11), 1))
+                        .collect::<Vec<_>>(),
+                ),
+                Widget::col(
+                    (0..row_height)
+                        .map(|_| widgetry::Toggle::checkbox(ctx, "checkbox", None, true))
+                        .collect::<Vec<_>>(),
+                ),
+            ])
+        },
+    ]);
+
+    tabs.push_tab(qa_bar_item, qa_content);
+
+    tabs
+}
+
+fn make_controls(ctx: &mut EventCtx, tabs: &mut TabController) -> Panel {
+    Panel::new(Widget::col(vec![
+        Text::from_multiline(vec![
+            Line("widgetry demo").big_heading_styled(),
+            Line("Click and drag the background to pan, use touchpad or scroll wheel to zoom"),
+        ])
+        .into_widget(ctx),
         Widget::row(vec![
             ctx.style()
                 .btn_outline
@@ -495,76 +586,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 .build_widget(ctx, "apply"),
         ])
         .margin_above(30),
-        Text::from(
-            Line("Controls should be same height")
-                .big_heading_styled()
-                .size(18),
-        )
-        .into_widget(ctx),
-        {
-            let row_height = 10;
-            let mut id = 0;
-            let mut next_id = || {
-                id += 1;
-                format!("btn_height_check_{}", id)
-            };
-            Widget::row(vec![
-                Widget::col(
-                    (0..row_height)
-                        .map(|_| {
-                            style
-                                .btn_outline
-                                .icon("system/assets/tools/layers.svg")
-                                .build_widget(ctx, &next_id())
-                        })
-                        .collect::<Vec<_>>(),
-                ),
-                Widget::col(
-                    (0..row_height)
-                        .map(|_| style.btn_outline.text("text").build_widget(ctx, &next_id()))
-                        .collect::<Vec<_>>(),
-                ),
-                Widget::col(
-                    (0..row_height)
-                        .map(|_| {
-                            style
-                                .btn_outline
-                                .icon_text("system/assets/tools/layers.svg", "icon+text")
-                                .build_widget(ctx, &next_id())
-                        })
-                        .collect::<Vec<_>>(),
-                ),
-                Widget::col(
-                    (0..row_height)
-                        .map(|_| {
-                            style
-                                .btn_popup_icon_text("system/assets/tools/layers.svg", "icon+text")
-                                .build_widget(ctx, &next_id())
-                        })
-                        .collect::<Vec<_>>(),
-                ),
-                Widget::col(
-                    (0..row_height)
-                        .map(|_| {
-                            style
-                                .btn_outline
-                                .popup("popup")
-                                .build_widget(ctx, &next_id())
-                        })
-                        .collect::<Vec<_>>(),
-                ),
-                Widget::col(
-                    (0..row_height)
-                        .map(|_| widgetry::Spinner::widget(ctx, (0, 11), 1))
-                        .collect::<Vec<_>>(),
-                ),
-                Widget::col(
-                    (0..row_height)
-                        .map(|_| widgetry::Toggle::checkbox(ctx, "checkbox", None, true))
-                        .collect::<Vec<_>>(),
-                ),
-            ])
-        },
+        tabs.build_widget(ctx),
     ])) // end panel
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
