@@ -7,7 +7,7 @@ use map_gui::tools::{grey_out_map, PopupMsg};
 use map_gui::ID;
 use widgetry::{
     Choice, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, Slider,
-    State, Text, Toggle, UpdateType, Widget,
+    State, TabController, Text, Toggle, UpdateType, Widget,
 };
 
 use crate::app::{App, FindDelayedIntersections, ShowEverything, Transition};
@@ -19,6 +19,7 @@ pub struct JumpToTime {
     panel: Panel,
     target: Time,
     maybe_mode: Option<GameplayMode>,
+    tabs: TabController,
 }
 
 impl JumpToTime {
@@ -30,25 +31,17 @@ impl JumpToTime {
         let target = app.primary.sim.time();
         let end_of_day = app.primary.sim.get_end_of_day();
         // TODO Auto-fill width?
-        let slider_width = 500.0;
-        Box::new(JumpToTime {
-            target,
-            maybe_mode,
-            panel: Panel::new(Widget::col(vec![
-                ctx.style().btn_close_widget(ctx),
-                Widget::custom_row(vec![
-                    ctx.style()
-                        .btn_tab
-                        .text("Jump to time")
-                        .disabled(true)
-                        .build_def(ctx),
-                    ctx.style()
-                        .btn_tab
-                        .text("Jump to delay")
-                        .hotkey(Key::D)
-                        .build_def(ctx),
-                ])
-                .bg(Color::WHITE),
+
+        let jump_to_time_btn = ctx
+            .style()
+            .btn_tab
+            .text("Jump to time")
+            .hotkey(Key::T)
+            .tooltip(Text::from(Line("Jump to time")));
+        let jump_to_time_content = {
+            let slider_width = 500.0;
+
+            Widget::col(vec![
                 Line("Jump to what time?").small_heading().into_widget(ctx),
                 if app.has_prebaked().is_some() {
                     GeomBatch::from(vec![(
@@ -74,9 +67,36 @@ impl JumpToTime {
                 .margin_above(30)
                 .named("don't draw"),
                 build_jump_to_time_btn(ctx, target),
+            ])
+        };
+
+        let jump_to_delay_btn = ctx
+            .style()
+            .btn_tab
+            .text("Jump to delay")
+            .hotkey(Key::D)
+            .tooltip(Text::from(Line("Jump to delay")));
+        let jump_to_delay_content = Widget::col(vec![Line("TODO: jump to delay")
+            .small_heading()
+            .into_widget(ctx)]);
+
+        let mut tabs = TabController::new(
+            "jump_to_time_tabs".to_string(),
+            jump_to_time_btn,
+            jump_to_time_content,
+        );
+        tabs.push_tab(jump_to_delay_btn, jump_to_delay_content);
+
+        Box::new(JumpToTime {
+            target,
+            maybe_mode,
+            panel: Panel::new(Widget::col(vec![
+                ctx.style().btn_close_widget(ctx),
+                tabs.build_widget(ctx),
             ]))
             .exact_size_percent(50, 50)
             .build(ctx),
+            tabs: tabs,
         })
     }
 }
@@ -117,7 +137,13 @@ impl State<App> for JumpToTime {
                 "Jump to delay" => {
                     return Transition::Replace(JumpToDelay::new(ctx, app, self.maybe_mode.take()));
                 }
-                _ => unreachable!(),
+                action => {
+                    if self.tabs.handle_action(ctx, action, &mut self.panel) {
+                        // if true, tabs has handled the action
+                    } else {
+                        todo!("handle action: {}", action)
+                    }
+                }
             },
             Outcome::Changed => {
                 app.opts.dont_draw_time_warp = self.panel.is_checked("don't draw");
