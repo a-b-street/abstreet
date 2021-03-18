@@ -259,7 +259,7 @@ pub fn finished(
         );
         col.push(
             ctx.style()
-                .btn_floating
+                .btn_outline
                 .btn()
                 .label_styled_text(
                     Text::from_all(vec![
@@ -281,7 +281,7 @@ pub fn finished(
         );
         col.push(
             ctx.style()
-                .btn_floating
+                .btn_outline
                 .btn()
                 .label_styled_text(
                     Text::from_all(vec![
