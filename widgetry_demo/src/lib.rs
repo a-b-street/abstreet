@@ -22,7 +22,12 @@ pub fn main() {
     // read_svg. But we should have a more minimal example of how to do that here.
     widgetry::run(
         widgetry::Settings::new("widgetry demo").read_svg(Box::new(abstio::slurp_bytes)),
-        |ctx| (App {}, vec![Box::new(Demo::new(ctx))]),
+        |ctx| {
+            // TODO: remove Style::pregame and make light_bg the default.
+            ctx.set_style(widgetry::Style::light_bg());
+
+            (App {}, vec![Box::new(Demo::new(ctx))])
+        },
     );
 }
 
@@ -316,10 +321,10 @@ fn make_tabs(ctx: &mut EventCtx) -> TabController {
         Text::from_all(vec![
             Line("You can "),
             Line("change fonts ").big_heading_plain(),
-            Line("on the same ").small(),
+            Line("on the same ").small().fg(Color::BLUE),
             Line("line!").small_heading(),
         ])
-        .bg(Color::PURPLE)
+        .bg(Color::GREEN)
         .into_widget(ctx),
         // Button Style Gallery
         Text::from(Line("Buttons").big_heading_styled().size(18)).into_widget(ctx),
