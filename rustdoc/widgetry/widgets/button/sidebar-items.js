@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Button",""],["ButtonBuilder",""],["ButtonStateStyle",""],["Image",""],["Label",""],["MultiButton",""]]});
+initSidebarItems({"struct":[["Button",""],["ButtonBuilder",""],["ButtonStateStyle",""],["Label",""],["MultiButton",""]]});

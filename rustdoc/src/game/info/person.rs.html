@@ -723,8 +723,8 @@
     <span class="ident">TripMode</span>, <span class="ident">TripResult</span>, <span class="ident">VehicleType</span>,
 };
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">CornerRounding</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">RewriteColor</span>,
-    <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">TextSpan</span>, <span class="ident">Widget</span>,
+    <span class="ident">include_labeled_bytes</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">CornerRounding</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>,
+    <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">TextSpan</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
@@ -902,12 +902,12 @@
                 <span class="ident">Widget</span>::<span class="ident">nothing</span>()
             },
             {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">icon</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">load_svg_bytes</span>(
-                    <span class="kw-2">&amp;</span><span class="ident">ctx</span>.<span class="ident">prerender</span>,
-                    <span class="ident">widgetry</span>::<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../../widgetry/icons/arrow_drop_down.svg&quot;</span>),
-                )
-                .<span class="ident">autocrop</span>()
-                .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>))
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">icon</span> <span class="op">=</span> <span class="ident">Image</span>::<span class="ident">from_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(
+                    <span class="string">&quot;../../../widgetry/icons/arrow_drop_down.svg&quot;</span>
+                ))
+                .<span class="ident">build_batch</span>(<span class="ident">ctx</span>)
+                .<span class="ident">expect</span>(<span class="string">&quot;invalid svg&quot;</span>)
+                .<span class="number">0</span>
                 .<span class="ident">scale</span>(<span class="number">1.5</span>);
 
                 <span class="kw">if</span> <span class="op">!</span><span class="ident">open_trips</span>.<span class="ident">contains_key</span>(<span class="ident">t</span>) {

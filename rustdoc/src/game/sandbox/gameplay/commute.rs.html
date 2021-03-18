@@ -331,6 +331,9 @@
 <span id="328">328</span>
 <span id="329">329</span>
 <span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -616,6 +619,7 @@
     };
 
     <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
+        <span class="kw">let</span> <span class="ident">icon_builder</span> <span class="op">=</span> <span class="ident">Image</span>::<span class="ident">empty</span>().<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">dims</span>(<span class="number">50.0</span>);
         <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Speed up the VIP&#39;s trips by a total of {}&quot;</span>, <span class="ident">goal</span>)).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>),
@@ -626,8 +630,9 @@
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Time&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/time.svg&quot;</span>)
-                        .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)
+                    <span class="ident">icon_builder</span>
+                        .<span class="ident">clone</span>()
+                        .<span class="ident">source_path</span>(<span class="string">&quot;system/assets/tools/time.svg&quot;</span>)
                         .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">Line</span>(<span class="string">&quot;Until the VIP&#39;s&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>),
@@ -637,8 +642,9 @@
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Goal&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
-                        .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)
+                    <span class="ident">icon_builder</span>
+                        .<span class="ident">clone</span>()
+                        .<span class="ident">source_path</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
                         .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">Line</span>(<span class="string">&quot;Speed up the VIP&#39;s trips&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>),
@@ -648,8 +654,8 @@
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Score&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/star.svg&quot;</span>)
-                        .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)
+                    <span class="ident">icon_builder</span>
+                        .<span class="ident">source_path</span>(<span class="string">&quot;system/assets/tools/star.svg&quot;</span>)
                         .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">Line</span>(<span class="string">&quot;How much time&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>),

@@ -871,7 +871,7 @@
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/search.svg&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="string">&quot;system/assets/tools/search.svg&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">Autocomplete</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">autocomplete_entries</span>).<span class="ident">named</span>(<span class="string">&quot;search&quot;</span>),
                 ])
                 .<span class="ident">padding</span>(<span class="number">8</span>),

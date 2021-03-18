@@ -674,7 +674,7 @@
                     },
                     <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Line</span>(<span class="string">&quot;Worst delay: &quot;</span>), <span class="ident">Line</span>(<span class="string">&quot;none!&quot;</span>).<span class="ident">secondary</span>()])
                         .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                    <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
                         .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAlpha</span>(<span class="number">0.5</span>))
                         .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                         .<span class="ident">align_right</span>(),
@@ -755,14 +755,14 @@
         <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;Time&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/time.svg&quot;</span>)
+                <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="string">&quot;system/assets/tools/time.svg&quot;</span>)
                     .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)
                     .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Line</span>(<span class="string">&quot;24 hours&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             ]),
             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;Goal&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
                     .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)
                     .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -773,7 +773,7 @@
             ]),
             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;Score&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/star.svg&quot;</span>)
+                <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="string">&quot;system/assets/tools/star.svg&quot;</span>)
                     .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)
                     .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Line</span>(<span class="string">&quot;How long you survive&quot;</span>)

@@ -135,7 +135,7 @@
             <span class="ident">choices</span>.<span class="ident">remove</span>(<span class="number">1</span>);
         }
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="string">&quot;system/assets/meters/trip_histogram.svg&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="string">&quot;system/assets/meters/trip_histogram.svg&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Line</span>(<span class="string">&quot;Data&quot;</span>).<span class="ident">big_heading_plain</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">dropdown</span>(<span class="ident">ctx</span>, <span class="string">&quot;tab&quot;</span>, <span class="self">self</span>, <span class="ident">choices</span>),
             <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;By {}&quot;</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>().<span class="ident">ampm_tostring</span>())

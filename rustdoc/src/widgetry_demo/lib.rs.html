@@ -532,6 +532,57 @@
 <span id="529">529</span>
 <span id="530">530</span>
 <span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -540,9 +591,10 @@
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Duration</span>, <span class="ident">Percent</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Fill</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>,
-    <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PersistentSplit</span>, <span class="ident">PlotOptions</span>, <span class="ident">Series</span>, <span class="ident">SharedAppState</span>, <span class="ident">State</span>,
-    <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Texture</span>, <span class="ident">Toggle</span>, <span class="ident">Transition</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ContentMode</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Fill</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
+    <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PersistentSplit</span>, <span class="ident">PlotOptions</span>,
+    <span class="ident">ScreenDims</span>, <span class="ident">Series</span>, <span class="ident">SharedAppState</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Texture</span>, <span class="ident">Toggle</span>, <span class="ident">Transition</span>,
+    <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">main</span>() {
@@ -844,6 +896,7 @@
             <span class="ident">Line</span>(<span class="string">&quot;Click and drag the background to pan, use touchpad or scroll wheel to zoom&quot;</span>),
         ])
         .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+        <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Text&quot;</span>).<span class="ident">big_heading_styled</span>().<span class="ident">size</span>(<span class="number">18</span>)).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;You can &quot;</span>),
             <span class="ident">Line</span>(<span class="string">&quot;change fonts &quot;</span>).<span class="ident">big_heading_plain</span>(),
@@ -855,7 +908,7 @@
         <span class="comment">// Button Style Gallery</span>
         <span class="comment">// TODO might be nice to have this in separate tabs or something.</span>
         <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Buttons&quot;</span>).<span class="ident">big_heading_styled</span>().<span class="ident">size</span>(<span class="number">18</span>)).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">style</span>
                 .<span class="ident">btn_solid_primary</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Primary&quot;</span>)
@@ -874,6 +927,8 @@
                 .<span class="ident">btn_solid_primary</span>
                 .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>, <span class="string">&quot;Primary&quot;</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;btn_primary_icon_text&quot;</span>),
+        ]),
+        <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">style</span>
                 .<span class="ident">btn_outline</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Secondary&quot;</span>)
@@ -892,7 +947,54 @@
                 .<span class="ident">btn_outline</span>
                 .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>, <span class="string">&quot;Secondary&quot;</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;btn_outline.icon_text&quot;</span>),
-        ])]),
+        ]),
+        <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Line</span>(<span class="string">&quot;Images&quot;</span>).<span class="ident">big_heading_styled</span>().<span class="ident">size</span>(<span class="number">18</span>),
+            <span class="ident">Line</span>(
+                <span class="string">&quot;Images can be colored, scaled, and stretched. They can have a background and \
+                 padding.&quot;</span>,
+            ),
+        ])
+        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+        <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>)
+                .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">ORANGE</span>)
+                .<span class="ident">bg_color</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)
+                .<span class="ident">dims</span>(<span class="number">50.0</span>)
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>)
+                .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">RED</span>)
+                .<span class="ident">bg_color</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)
+                .<span class="ident">padding</span>(<span class="number">20</span>)
+                .<span class="ident">dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="number">50.0</span>, <span class="number">100.0</span>))
+                .<span class="ident">content_mode</span>(<span class="ident">ContentMode</span>::<span class="ident">ScaleAspectFit</span>)
+                .<span class="ident">tooltip</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(
+                    <span class="string">&quot;With ScaleAspectFit content grows, without distorting its aspect ratio, \
+                     until it reaches its padding bounds.&quot;</span>,
+                )))
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>)
+                .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">GREEN</span>)
+                .<span class="ident">bg_color</span>(<span class="ident">Color</span>::<span class="ident">PURPLE</span>)
+                .<span class="ident">padding</span>(<span class="number">20</span>)
+                .<span class="ident">dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="number">50.0</span>, <span class="number">100.0</span>))
+                .<span class="ident">content_mode</span>(<span class="ident">ContentMode</span>::<span class="ident">ScaleToFill</span>)
+                .<span class="ident">tooltip</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(
+                    <span class="string">&quot;With ScaleToFill content can stretches to fill its size (less padding)&quot;</span>,
+                )))
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>)
+                .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">BLUE</span>)
+                .<span class="ident">bg_color</span>(<span class="ident">Color</span>::<span class="ident">YELLOW</span>)
+                .<span class="ident">padding</span>(<span class="number">20</span>)
+                .<span class="ident">dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="number">50.0</span>, <span class="number">100.0</span>))
+                .<span class="ident">content_mode</span>(<span class="ident">ContentMode</span>::<span class="ident">ScaleAspectFill</span>)
+                .<span class="ident">tooltip</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(
+                    <span class="string">&quot;With ScaleAspectFill content can exceed its visible bounds&quot;</span>,
+                )))
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+        ]),
         <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Spinner&quot;</span>).<span class="ident">big_heading_styled</span>().<span class="ident">size</span>(<span class="number">18</span>)).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="ident">widgetry</span>::<span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">0</span>, <span class="number">11</span>), <span class="number">1</span>),
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[

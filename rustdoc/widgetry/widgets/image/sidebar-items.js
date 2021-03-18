@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["ImageSource",""]],"struct":[["Image",""]]});
+initSidebarItems({"enum":[["ImageSource","The visual"]],"struct":[["Image","A stylable UI component builder which presents vector graphics from an [`ImageSource`]."]]});

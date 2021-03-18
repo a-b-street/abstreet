@@ -333,6 +333,14 @@
 <span id="330">330</span>
 <span id="331">331</span>
 <span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">MinimapControls</span>, <span class="ident">Navigator</span>};
@@ -471,14 +479,19 @@
             .<span class="ident">tooltip</span>(<span class="ident">tooltip</span>)
             .<span class="ident">image_color</span>(<span class="ident">RewriteColor</span>::<span class="ident">NoOp</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>);
 
-        <span class="kw">let</span> <span class="ident">icon_batch</span> <span class="op">=</span> <span class="ident">Image</span>::<span class="ident">icon</span>(<span class="ident">icon</span>).<span class="ident">batch</span>(<span class="ident">ctx</span>).<span class="number">0</span>;
+        <span class="kw">let</span> <span class="ident">icon_batch</span> <span class="op">=</span> <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="ident">icon</span>)
+            .<span class="ident">build_batch</span>(<span class="ident">ctx</span>)
+            .<span class="ident">expect</span>(<span class="string">&quot;invalid svg&quot;</span>)
+            .<span class="number">0</span>;
         <span class="kw">let</span> <span class="ident">false_btn</span> <span class="op">=</span> {
-            <span class="kw">let</span> <span class="ident">checkbox</span> <span class="op">=</span> <span class="ident">Image</span>::<span class="ident">bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(
+            <span class="kw">let</span> <span class="ident">checkbox</span> <span class="op">=</span> <span class="ident">Image</span>::<span class="ident">from_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(
                 <span class="string">&quot;../../../widgetry/icons/checkbox_no_border_unchecked.svg&quot;</span>
             ))
             .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>, <span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.3</span>)));
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span>
-                <span class="ident">GeomBatchStack</span>::<span class="ident">horizontal</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">checkbox</span>.<span class="ident">batch</span>(<span class="ident">ctx</span>).<span class="number">0</span>, <span class="ident">icon_batch</span>.<span class="ident">clone</span>()]);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">GeomBatchStack</span>::<span class="ident">horizontal</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">checkbox</span>.<span class="ident">build_batch</span>(<span class="ident">ctx</span>).<span class="ident">expect</span>(<span class="string">&quot;invalid svg&quot;</span>).<span class="number">0</span>,
+                <span class="ident">icon_batch</span>.<span class="ident">clone</span>(),
+            ]);
             <span class="ident">row</span>.<span class="ident">spacing</span>(<span class="number">8.0</span>);
 
             <span class="kw">let</span> <span class="ident">row_batch</span> <span class="op">=</span> <span class="ident">row</span>.<span class="ident">batch</span>();
@@ -490,12 +503,15 @@
         <span class="comment">// we need both a checkbox *and* an additional icon. To do that, we combine the checkbox</span>
         <span class="comment">// and icon into a single batch, and use that combined batch as the button&#39;s image.</span>
         <span class="kw">let</span> <span class="ident">true_btn</span> <span class="op">=</span> {
-            <span class="kw">let</span> <span class="ident">checkbox</span> <span class="op">=</span> <span class="ident">Image</span>::<span class="ident">bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(
+            <span class="kw">let</span> <span class="ident">checkbox</span> <span class="op">=</span> <span class="ident">Image</span>::<span class="ident">from_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(
                 <span class="string">&quot;../../../widgetry/icons/checkbox_no_border_checked.svg&quot;</span>
             ))
             .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>, <span class="ident">color</span>));
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">GeomBatchStack</span>::<span class="ident">horizontal</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">checkbox</span>.<span class="ident">batch</span>(<span class="ident">ctx</span>).<span class="number">0</span>, <span class="ident">icon_batch</span>]);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">GeomBatchStack</span>::<span class="ident">horizontal</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">checkbox</span>.<span class="ident">build_batch</span>(<span class="ident">ctx</span>).<span class="ident">expect</span>(<span class="string">&quot;invalid svg&quot;</span>).<span class="number">0</span>,
+                <span class="ident">icon_batch</span>,
+            ]);
             <span class="ident">row</span>.<span class="ident">spacing</span>(<span class="number">8.0</span>);
 
             <span class="kw">let</span> <span class="ident">row_batch</span> <span class="op">=</span> <span class="ident">row</span>.<span class="ident">batch</span>();
