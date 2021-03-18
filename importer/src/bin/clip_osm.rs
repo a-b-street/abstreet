@@ -1,5 +1,6 @@
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
+use std::io::{BufReader, BufWriter};
 
 use anyhow::Result;
 use geo::prelude::Contains;
@@ -35,8 +36,7 @@ fn clip(pbf_path: &str, boundary: &Polygon<f64>, out_path: &str) -> Result<()> {
     let mut ways: HashMap<i64, RcWay> = HashMap::new();
     let mut relations: HashMap<i64, RcRelation> = HashMap::new();
 
-    // TODO Buffer?
-    let mut reader = osmio::pbf::PBFReader::new(File::open(pbf_path)?);
+    let mut reader = osmio::pbf::PBFReader::new(BufReader::new(File::open(pbf_path)?));
     for obj in reader.objects() {
         match obj.object_type() {
             OSMObjectType::Node => {
@@ -76,8 +76,7 @@ fn clip(pbf_path: &str, boundary: &Polygon<f64>, out_path: &str) -> Result<()> {
         used_nodes.extend(way.nodes().into_iter().cloned());
     }
 
-    // TODO Buffer?
-    let mut writer = osmio::xml::XMLWriter::new(File::create(out_path)?);
+    let mut writer = osmio::xml::XMLWriter::new(BufWriter::new(File::create(out_path)?));
     // TODO Nondetermistic output because of HashMap!
     for id in used_nodes {
         if let Some(node) = nodes.remove(&id) {
