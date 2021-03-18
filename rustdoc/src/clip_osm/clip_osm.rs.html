@@ -103,10 +103,10 @@
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
-<span id="103">103</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::{<span class="ident">BufReader</span>, <span class="ident">BufWriter</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">geo</span>::<span class="ident">prelude</span>::<span class="ident">Contains</span>;
@@ -142,8 +142,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ways</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">RcWay</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">relations</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">RcRelation</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
 
-    <span class="comment">// TODO Buffer?</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">osmio</span>::<span class="ident">pbf</span>::<span class="ident">PBFReader</span>::<span class="ident">new</span>(<span class="ident">File</span>::<span class="ident">open</span>(<span class="ident">pbf_path</span>)<span class="question-mark">?</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">osmio</span>::<span class="ident">pbf</span>::<span class="ident">PBFReader</span>::<span class="ident">new</span>(<span class="ident">BufReader</span>::<span class="ident">new</span>(<span class="ident">File</span>::<span class="ident">open</span>(<span class="ident">pbf_path</span>)<span class="question-mark">?</span>));
     <span class="kw">for</span> <span class="ident">obj</span> <span class="kw">in</span> <span class="ident">reader</span>.<span class="ident">objects</span>() {
         <span class="kw">match</span> <span class="ident">obj</span>.<span class="ident">object_type</span>() {
             <span class="ident">OSMObjectType</span>::<span class="ident">Node</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -183,8 +182,7 @@
         <span class="ident">used_nodes</span>.<span class="ident">extend</span>(<span class="ident">way</span>.<span class="ident">nodes</span>().<span class="ident">into_iter</span>().<span class="ident">cloned</span>());
     }
 
-    <span class="comment">// TODO Buffer?</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">osmio</span>::<span class="ident">xml</span>::<span class="ident">XMLWriter</span>::<span class="ident">new</span>(<span class="ident">File</span>::<span class="ident">create</span>(<span class="ident">out_path</span>)<span class="question-mark">?</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">osmio</span>::<span class="ident">xml</span>::<span class="ident">XMLWriter</span>::<span class="ident">new</span>(<span class="ident">BufWriter</span>::<span class="ident">new</span>(<span class="ident">File</span>::<span class="ident">create</span>(<span class="ident">out_path</span>)<span class="question-mark">?</span>));
     <span class="comment">// TODO Nondetermistic output because of HashMap!</span>
     <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">used_nodes</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">node</span>) <span class="op">=</span> <span class="ident">nodes</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>) {
