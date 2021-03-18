@@ -39,12 +39,12 @@ pub struct TabController {
 
 impl TabController {
     pub fn new(
-        id: String,
+        id: impl Into<String>,
         initial_bar_item: ButtonBuilder<'static, 'static>,
         initial_content: Widget,
     ) -> Self {
         let mut tc = Self {
-            id,
+            id: id.into(),
             tabs: vec![],
             active_child: 0,
         };

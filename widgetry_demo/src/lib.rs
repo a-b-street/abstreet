@@ -174,7 +174,7 @@ impl State<App> for Demo {
                 }
                 action => {
                     if self.tabs.handle_action(ctx, action, &mut self.controls) {
-                        // If true, tab already handled the action internally
+                        // if true, tabs has handled the action
                     } else if action.contains("btn_") {
                         log::info!("clicked button: {:?}", action);
                     } else {
@@ -424,7 +424,7 @@ fn make_tabs(ctx: &mut EventCtx) -> TabController {
         widgetry::Spinner::widget(ctx, (0, 11), 1),
     ]);
 
-    let mut tabs = TabController::new("demo_tabs".to_string(), gallery_bar_item, gallery_content);
+    let mut tabs = TabController::new("demo_tabs", gallery_bar_item, gallery_content);
 
     let qa_bar_item = style.btn_tab.text("Conformance Checks");
     let qa_content = Widget::col(vec![
