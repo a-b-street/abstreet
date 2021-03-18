@@ -395,7 +395,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 .dims(ScreenDims::new(50.0, 100.0))
                 .content_mode(ContentMode::ScaleToFill)
                 .tooltip(Text::from(Line(
-                    "With ScaleToFill content can stretches to fill it's size (less padding)",
+                    "With ScaleToFill content can stretches to fill its size (less padding)",
                 )))
                 .into_widget(ctx),
             Image::from_path("system/assets/tools/home.svg")
@@ -405,7 +405,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 .dims(ScreenDims::new(50.0, 100.0))
                 .content_mode(ContentMode::ScaleAspectFill)
                 .tooltip(Text::from(Line(
-                    "With ScaleAspectFill content can exceed it's visible bounds",
+                    "With ScaleAspectFill content can exceed its visible bounds",
                 )))
                 .into_widget(ctx),
         ]),
