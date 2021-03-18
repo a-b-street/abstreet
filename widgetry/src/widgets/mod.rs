@@ -37,6 +37,8 @@ pub mod tabs;
 pub mod text_box;
 pub mod toggle;
 
+pub const DEFAULT_CORNER_RADIUS: f64 = 5.0;
+
 /// Create a new widget by implementing this trait. You can instantiate your widget by calling
 /// `Widget::new(Box::new(instance of your new widget))`, which gives you the usual style options.
 pub trait WidgetImpl: downcast_rs::Downcast {
@@ -341,7 +343,7 @@ impl Widget {
             layout: LayoutStyle {
                 bg_color: None,
                 outline: None,
-                corner_rounding: CornerRounding::from(5.0),
+                corner_rounding: CornerRounding::from(DEFAULT_CORNER_RADIUS),
                 style: Style {
                     ..Default::default()
                 },

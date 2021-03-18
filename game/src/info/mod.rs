@@ -11,8 +11,8 @@ use sim::{
     VehicleType,
 };
 use widgetry::{
-    Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, LinePlot, Outcome,
-    Panel, PlotOptions, Series, TextExt, Toggle, Widget,
+    Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, LinePlot, Outcome, Panel, PlotOptions,
+    Series, TextExt, Toggle, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -711,32 +711,16 @@ fn make_tabs(
             ctx.style()
                 .btn_tab
                 .text(name)
-                // We use "disabled" to denote "currently selected", but we want to style it like
-                // normal
+                // We abuse "disabled" to denote "currently selected"
                 .disabled(current_tab.variant() == link.variant())
-                .bg_color(ctx.style().btn_tab.bg, ControlState::Disabled)
-                .label_color(ctx.style().btn_tab.fg, ControlState::Disabled)
-                .outline(ctx.style().btn_tab.outline, ControlState::Disabled)
-                // Hide the hit area for selectable tabs unless hovered
-                .bg_color(Color::CLEAR, ControlState::Default)
-                .outline((0.0, Color::CLEAR), ControlState::Default)
-                .bg_color(ctx.style().btn_tab.bg.alpha(0.6), ControlState::Hovered)
                 .build_def(ctx),
         );
         hyperlinks.insert(name.to_string(), link);
     }
     {
-        // stop-gap color that is semi-legible across themes until the tab redesign is completed
-        let tab_bg = ctx
-            .style()
-            .btn_tab
-            .bg
-            .lerp(ctx.style().btn_tab.fg, 0.3)
-            .alpha(1.0);
-
         // TODO Centered, but actually, we need to set the padding of each button to divide the
         // available space evenly. Fancy fill rules... hmmm.
-        Widget::custom_row(row).bg(tab_bg).margin_vert(16)
+        Widget::custom_row(row).margin_vert(16)
     }
 }
 

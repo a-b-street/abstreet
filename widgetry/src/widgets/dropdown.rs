@@ -179,7 +179,7 @@ fn make_btn(ctx: &EventCtx, label: &str, tooltip: &str, is_persisten_split: bool
         // It's not ideal, but we only use one persistent split in the whole app
         // and it's front and center - we'll notice if something breaks.
         ctx.style()
-            .btn_tab
+            .btn_solid
             .dropdown()
             .padding(EdgeInsets {
                 top: 15.0,

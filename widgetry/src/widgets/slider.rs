@@ -115,9 +115,9 @@ impl Slider {
                 // The draggy thing
                 batch.push(
                     if self.mouse_on_slider {
-                        ctx.style.btn_tab.bg_hover
+                        ctx.style.btn_solid.bg_hover
                     } else {
-                        ctx.style.btn_tab.bg
+                        ctx.style.btn_solid.bg
                     },
                     self.button_geom(),
                 );
@@ -140,12 +140,12 @@ impl Slider {
                 // The circle dragger
                 batch.push(
                     if self.mouse_on_slider {
-                        ctx.style.btn_tab.bg_hover
+                        ctx.style.btn_solid.bg_hover
                     } else {
                         // we don't want to use `ctx.style.btn_solid.bg` because it achieves it's
                         // "dulling" with opacity, which causes the slider to "peak through" and
                         // looks weird.
-                        ctx.style.btn_tab.bg_hover.dull(0.2)
+                        ctx.style.btn_solid.bg_hover.dull(0.2)
                     },
                     self.button_geom(),
                 );

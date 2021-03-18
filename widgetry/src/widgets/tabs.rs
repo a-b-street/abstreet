@@ -1,4 +1,6 @@
+use crate::widgets::DEFAULT_CORNER_RADIUS;
 use crate::{ButtonBuilder, EventCtx, Panel, Widget};
+use geom::CornerRadii;
 
 struct Tab {
     tab_id: String,
@@ -18,6 +20,12 @@ impl Tab {
     fn build_bar_item_widget(&self, ctx: &EventCtx, active: bool) -> Widget {
         self.bar_item
             .clone()
+            .corner_rounding(CornerRadii {
+                top_left: DEFAULT_CORNER_RADIUS,
+                top_right: DEFAULT_CORNER_RADIUS,
+                bottom_left: 0.0,
+                bottom_right: 0.0,
+            })
             .disabled(active)
             .build_widget(ctx, &self.tab_id)
     }
@@ -57,10 +65,16 @@ impl TabController {
 
     /// A widget containing the tab bar and a content pane with the currently active tab.
     pub fn build_widget(&mut self, ctx: &EventCtx) -> Widget {
-        Widget::col(vec![
+        Widget::custom_col(vec![
             self.build_bar_items(ctx),
             self.pop_active_content()
                 .container()
+                .corner_rounding(CornerRadii {
+                    top_left: 0.0,
+                    top_right: DEFAULT_CORNER_RADIUS,
+                    bottom_left: DEFAULT_CORNER_RADIUS,
+                    bottom_right: DEFAULT_CORNER_RADIUS,
+                })
                 .padding(16)
                 .bg(ctx.style().section_bg)
                 .named(self.active_content_id()),
@@ -108,9 +122,9 @@ impl TabController {
             .enumerate()
             .map(|(idx, tab)| tab.build_bar_item_widget(ctx, idx == self.active_child))
             .collect();
+
         Widget::row(bar_items)
             .container()
-            .bg(ctx.style().section_bg)
             .named(self.bar_items_id())
     }
 

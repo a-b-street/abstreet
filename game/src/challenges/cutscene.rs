@@ -251,7 +251,7 @@ fn make_panel(
             .fill_height()
             .padding(42)
             .bg(Color::WHITE)
-            .outline(ctx.style().btn_tab.outline),
+            .outline(ctx.style().btn_solid.outline),
     ];
 
     Panel::new(Widget::custom_col(col))

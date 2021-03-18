@@ -41,7 +41,7 @@ impl<T: 'static> Menu<T> {
         for (idx, choice) in self.choices.iter().enumerate() {
             let is_hovered = idx == self.current_idx;
             let mut text_color = if is_hovered {
-                choice.fg.unwrap_or(style.btn_tab.fg)
+                choice.fg.unwrap_or(style.btn_solid.fg)
             } else {
                 choice.fg.unwrap_or(style.text_fg_color)
             };
@@ -71,7 +71,7 @@ impl<T: 'static> Menu<T> {
 
             // TODO BG color should be on the TextSpan, so this isn't so terrible?
             if is_hovered {
-                txt.highlight_last_line(style.btn_tab.bg);
+                txt.highlight_last_line(style.btn_solid.bg);
             }
         }
         txt
