@@ -25,6 +25,8 @@ pub fn main() {
         |ctx| {
             // TODO: remove Style::pregame and make light_bg the default.
             ctx.set_style(widgetry::Style::light_bg());
+            // TODO: Add a toggle to switch theme in demo (and recreate UI in that new theme)
+            // ctx.set_style(widgetry::Style::dark_bg());
 
             (App {}, vec![Box::new(Demo::new(ctx))])
         },
@@ -332,42 +334,45 @@ fn make_tabs(ctx: &mut EventCtx) -> TabController {
             style
                 .btn_solid_primary
                 .text("Primary")
-                .build_widget(ctx, "btn_primary_text"),
+                .build_widget(ctx, "btn_solid_primary_text"),
             Widget::row(vec![
                 style
                     .btn_solid_primary
                     .icon("system/assets/tools/map.svg")
-                    .build_widget(ctx, "btn_primary_icon_1"),
+                    .build_widget(ctx, "btn_solid_primary_icon"),
                 style
                     .btn_plain_primary
                     .icon("system/assets/tools/map.svg")
-                    .build_widget(ctx, "btn_primary_icon_2"),
+                    .build_widget(ctx, "btn_plain_primary_icon"),
             ]),
             style
                 .btn_solid_primary
                 .icon_text("system/assets/tools/location.svg", "Primary")
-                .build_widget(ctx, "btn_primary_icon_text"),
+                .build_widget(ctx, "btn_solid_primary_icon_text"),
         ]),
         Widget::row(vec![
             style
                 .btn_outline
                 .text("Secondary")
-                .build_widget(ctx, "btn_outline_dark_text"),
+                .build_widget(ctx, "btn_outline_text"),
             Widget::row(vec![
                 style
                     .btn_outline
                     .icon("system/assets/tools/map.svg")
-                    .build_widget(ctx, "btn_outline_dark_icon_1"),
+                    .build_widget(ctx, "btn_outline_icon"),
                 style
                     .btn_plain
                     .icon("system/assets/tools/map.svg")
-                    .build_widget(ctx, "btn_outline_dark_icon_2"),
+                    .build_widget(ctx, "btn_plain_icon"),
             ]),
             style
                 .btn_outline
                 .icon_text("system/assets/tools/home.svg", "Secondary")
                 .build_widget(ctx, "btn_outline.icon_text"),
         ]),
+        Widget::row(vec![style
+            .btn_popup_icon_text("system/assets/tools/map.svg", "Popup")
+            .build_widget(ctx, "btn_popup_icon_text")]),
         Text::from_multiline(vec![
             Line("Images").big_heading_styled().size(18),
             Line(
@@ -502,95 +507,99 @@ fn make_tabs(ctx: &mut EventCtx) -> TabController {
 
 fn make_controls(ctx: &mut EventCtx, tabs: &mut TabController) -> Panel {
     Panel::new(Widget::col(vec![
-        Text::from_multiline(vec![
-            Line("widgetry demo").big_heading_styled(),
-            Line("Click and drag the background to pan, use touchpad or scroll wheel to zoom"),
-        ])
-        .into_widget(ctx),
-        Widget::row(vec![
-            ctx.style()
-                .btn_outline
-                .text("New faces")
-                .hotkey(Key::F)
-                .build_widget(ctx, "generate new faces"),
-            Toggle::switch(ctx, "Draw scrollable canvas", None, true),
-            Toggle::switch(ctx, "Show timeseries", lctrl(Key::T), false),
-        ]),
-        "Stopwatch: ..."
-            .text_widget(ctx)
-            .named("stopwatch")
+        Text::from(Line("widgetry demo").big_heading_styled()).into_widget(ctx),
+        Widget::col(vec![
+            Text::from(Line(
+                "Click and drag the background to pan, use touchpad or scroll wheel to zoom",
+            ))
+            .into_widget(ctx),
+            Widget::row(vec![
+                ctx.style()
+                    .btn_outline
+                    .text("New faces")
+                    .hotkey(Key::F)
+                    .build_widget(ctx, "generate new faces"),
+                Toggle::switch(ctx, "Draw scrollable canvas", None, true),
+                Toggle::switch(ctx, "Show timeseries", lctrl(Key::T), false),
+            ]),
+            "Stopwatch: ..."
+                .text_widget(ctx)
+                .named("stopwatch")
+                .margin_above(30),
+            Widget::row(vec![
+                Toggle::new(
+                    false,
+                    ctx.style()
+                        .btn_outline
+                        .text("Pause")
+                        .hotkey(Key::Space)
+                        .build(ctx, "pause the stopwatch"),
+                    ctx.style()
+                        .btn_outline
+                        .text("Resume")
+                        .hotkey(Key::Space)
+                        .build(ctx, "resume the stopwatch"),
+                )
+                .named("paused"),
+                PersistentSplit::widget(
+                    ctx,
+                    "adjust timer",
+                    Duration::seconds(20.0),
+                    None,
+                    vec![
+                        Choice::new("+20s", Duration::seconds(20.0)),
+                        Choice::new("-10s", Duration::seconds(-10.0)),
+                    ],
+                ),
+                ctx.style()
+                    .btn_outline
+                    .text("Reset Timer")
+                    .build_widget(ctx, "reset the stopwatch"),
+            ])
+            .evenly_spaced(),
+            Widget::row(vec![
+                Widget::dropdown(
+                    ctx,
+                    "alignment",
+                    (HorizontalAlignment::Center, VerticalAlignment::Top),
+                    vec![
+                        Choice::new("Top", (HorizontalAlignment::Center, VerticalAlignment::Top)),
+                        Choice::new(
+                            "Left",
+                            (HorizontalAlignment::Left, VerticalAlignment::Center),
+                        ),
+                        Choice::new(
+                            "Bottom",
+                            (HorizontalAlignment::Center, VerticalAlignment::Bottom),
+                        ),
+                        Choice::new(
+                            "Right",
+                            (HorizontalAlignment::Right, VerticalAlignment::Center),
+                        ),
+                        Choice::new(
+                            "Center",
+                            (HorizontalAlignment::Center, VerticalAlignment::Center),
+                        ),
+                    ],
+                ),
+                Widget::dropdown(
+                    ctx,
+                    "texture",
+                    (Texture::SAND, Texture::CACTUS),
+                    vec![
+                        Choice::new("Cold", (Texture::SNOW, Texture::SNOW_PERSON)),
+                        Choice::new("Hot", (Texture::SAND, Texture::CACTUS)),
+                    ],
+                ),
+                ctx.style()
+                    .btn_solid_primary
+                    .text("Apply")
+                    .build_widget(ctx, "apply"),
+            ])
             .margin_above(30),
-        Widget::row(vec![
-            Toggle::new(
-                false,
-                ctx.style()
-                    .btn_outline
-                    .text("Pause")
-                    .hotkey(Key::Space)
-                    .build(ctx, "pause the stopwatch"),
-                ctx.style()
-                    .btn_outline
-                    .text("Resume")
-                    .hotkey(Key::Space)
-                    .build(ctx, "resume the stopwatch"),
-            )
-            .named("paused"),
-            PersistentSplit::widget(
-                ctx,
-                "adjust timer",
-                Duration::seconds(20.0),
-                None,
-                vec![
-                    Choice::new("+20s", Duration::seconds(20.0)),
-                    Choice::new("-10s", Duration::seconds(-10.0)),
-                ],
-            ),
-            ctx.style()
-                .btn_outline
-                .text("Reset Timer")
-                .build_widget(ctx, "reset the stopwatch"),
         ])
-        .evenly_spaced(),
-        Widget::row(vec![
-            Widget::dropdown(
-                ctx,
-                "alignment",
-                (HorizontalAlignment::Center, VerticalAlignment::Top),
-                vec![
-                    Choice::new("Top", (HorizontalAlignment::Center, VerticalAlignment::Top)),
-                    Choice::new(
-                        "Left",
-                        (HorizontalAlignment::Left, VerticalAlignment::Center),
-                    ),
-                    Choice::new(
-                        "Bottom",
-                        (HorizontalAlignment::Center, VerticalAlignment::Bottom),
-                    ),
-                    Choice::new(
-                        "Right",
-                        (HorizontalAlignment::Right, VerticalAlignment::Center),
-                    ),
-                    Choice::new(
-                        "Center",
-                        (HorizontalAlignment::Center, VerticalAlignment::Center),
-                    ),
-                ],
-            ),
-            Widget::dropdown(
-                ctx,
-                "texture",
-                (Texture::SAND, Texture::CACTUS),
-                vec![
-                    Choice::new("Cold", (Texture::SNOW, Texture::SNOW_PERSON)),
-                    Choice::new("Hot", (Texture::SAND, Texture::CACTUS)),
-                ],
-            ),
-            ctx.style()
-                .btn_solid_primary
-                .text("Apply")
-                .build_widget(ctx, "apply"),
-        ])
-        .margin_above(30),
+        .padding(16)
+        .bg(ctx.style().section_bg),
         tabs.build_widget(ctx),
     ])) // end panel
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)

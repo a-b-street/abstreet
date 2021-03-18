@@ -106,15 +106,14 @@ impl<'a, 'c> Style {
     pub fn btn_popup_icon_text(&self, icon_path: &'a str, text: &'a str) -> ButtonBuilder<'a, 'c> {
         // The text is styled like an "outline" button, while the image is styled like a "solid"
         // button.
-        let solid_style = &self.btn_tab;
         self.btn_outline
             .btn()
             .label_text(text)
             .image_path(icon_path)
             .image_dims(25.0)
-            .image_color(solid_style.fg, ControlState::Default)
-            .image_bg_color(solid_style.bg, ControlState::Default)
-            .image_bg_color(solid_style.bg_hover, ControlState::Hovered)
+            .image_color(self.btn_solid.fg, ControlState::Default)
+            .image_bg_color(self.btn_solid.bg, ControlState::Default)
+            .image_bg_color(self.btn_solid.bg_hover, ControlState::Hovered)
             // Move the padding from the *entire button* to just the image, so we get a colored
             // padded area around the image.
             .padding(0)
