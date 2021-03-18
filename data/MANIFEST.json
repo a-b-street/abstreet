@@ -1030,6 +1030,11 @@
       "uncompressed_size_bytes": 16138801,
       "compressed_size_bytes": 4011139
     },
+    "data/input/shared/elevation/seattle_contours.geojson": {
+      "checksum": "38c0eee50c6ba32c9d0cefb903480929",
+      "uncompressed_size_bytes": 792985621,
+      "compressed_size_bytes": 241026379
+    },
     "data/input/shared/geofabrik-index.json": {
       "checksum": "9199b31132bd1231f4136ed38d4bdc43",
       "uncompressed_size_bytes": 2953856,
@@ -2641,9 +2646,9 @@
       "compressed_size_bytes": 9453820
     },
     "data/system/us/seattle/maps/montlake.bin": {
-      "checksum": "1b78f83da96d5fe851e778c0a91610ed",
+      "checksum": "42f698438e3fb1ed4d88eceedbc9728c",
       "uncompressed_size_bytes": 4611573,
-      "compressed_size_bytes": 1566820
+      "compressed_size_bytes": 1566360
     },
     "data/system/us/seattle/maps/north_seattle.bin": {
       "checksum": "d27259c7127ea3ba779397c07e1f9503",

@@ -154,7 +154,9 @@ fn upload(version: String) {
             }
             // Always do this -- even if nothing changed, compressed_size_bytes isn't filled out by
             // generate_manifest.
-            entry.compressed_size_bytes = std::fs::metadata(&remote_path).unwrap().len() as usize;
+            entry.compressed_size_bytes = std::fs::metadata(&remote_path)
+                .expect(&format!("Compressed {} not there?", remote_path))
+                .len() as usize;
             (path, entry)
         },
     ) {

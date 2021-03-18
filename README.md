@@ -122,6 +122,7 @@ Others:
   [RazrFalcon](https://github.com/RazrFalcon) and
   [nical](https://github.com/nical)
 - Lots of traffic signal and uber-turn work from [Bruce](https://github.com/BruceBrown)
+- [Elevation data](https://github.com/eldang/elevation_lookups) from [Eldan](https://eldang.xyz/)
 
 Data:
 

@@ -7,12 +7,13 @@ use anyhow::Result;
 
 use abstio::MapName;
 use abstutil::{Tags, Timer};
-use geom::{Distance, FindClosest, GPSBounds, LonLat, PolyLine, Pt2D, Ring};
+use geom::{Distance, FindClosest, GPSBounds, LonLat, Pt2D, Ring};
 use map_model::raw::RawMap;
 use map_model::{osm, raw, Amenity, MapConfig};
 use serde::{Deserialize, Serialize};
 
 mod clip;
+mod elevation;
 mod extract;
 pub mod osm_geom;
 mod parking;
@@ -109,8 +110,12 @@ pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
 
     parking::apply_parking(&mut map, &opts, timer);
 
-    if false {
-        generate_elevation_queries(&map).unwrap();
+    // TODO Enable for all when SRTM is ready.
+    if map.name.city == abstio::CityName::seattle() {
+        // TODO Make this bail out on failure, after the new dependencies are clearly explained.
+        if let Err(err) = elevation::add_data(&mut map, timer) {
+            error!("No elevation data: {}", err);
+        }
     }
     if let Some(ref path) = opts.extra_buildings {
         add_extra_buildings(&mut map, path).unwrap();
@@ -138,38 +143,6 @@ fn use_amenities(map: &mut RawMap, amenities: Vec<(Pt2D, Amenity)>, timer: &mut 
             }
         }
     }
-}
-
-fn generate_elevation_queries(map: &RawMap) -> Result<()> {
-    use std::fs::File;
-    use std::io::Write;
-
-    let mut f = File::create("elevation_queries")?;
-    for r in map.roads.values() {
-        // TODO Handle cul-de-sacs
-        if let Ok(pl) = PolyLine::new(r.center_points.clone()) {
-            // Sample points every meter along the road
-            let mut pts = Vec::new();
-            let mut dist = Distance::ZERO;
-            while dist <= pl.length() {
-                let (pt, _) = pl.dist_along(dist).unwrap();
-                pts.push(pt);
-                dist += Distance::meters(1.0);
-            }
-            // Always ask for the intersection
-            if *pts.last().unwrap() != pl.last_pt() {
-                pts.push(pl.last_pt());
-            }
-            for (idx, gps) in map.gps_bounds.convert_back(&pts).into_iter().enumerate() {
-                write!(f, "{},{}", gps.x(), gps.y())?;
-                if idx != pts.len() - 1 {
-                    write!(f, " ")?;
-                }
-            }
-            writeln!(f)?;
-        }
-    }
-    Ok(())
 }
 
 fn add_extra_buildings(map: &mut RawMap, path: &str) -> Result<()> {
