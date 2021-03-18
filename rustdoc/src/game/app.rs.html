@@ -912,6 +912,13 @@
 <span id="909">909</span>
 <span id="910">910</span>
 <span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
@@ -924,6 +931,7 @@
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Tags</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">LonLat</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">colors</span>::<span class="ident">ColorScheme</span>;
+<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">load</span>::<span class="ident">FileLoader</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">options</span>::<span class="ident">Options</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">render</span>::{<span class="ident">unzoomed_agent_radius</span>, <span class="ident">AgentCache</span>, <span class="ident">DrawMap</span>, <span class="ident">DrawOptions</span>, <span class="ident">Renderable</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">CameraState</span>;
@@ -1630,22 +1638,28 @@
     }
 
     <span class="doccomment">/// If needed, makes sure the unedited_map is populated. Callers can then do</span>
-    <span class="doccomment">/// `self.unedited_map.borrow().unwrap_or(&amp;self.map)`.</span>
+    <span class="doccomment">/// `self.unedited_map.borrow().unwrap_or(&amp;self.map)` if this returns None. If a transition is</span>
+    <span class="doccomment">/// returned, that must be executed first.</span>
     <span class="comment">// TODO I&#39;d like to return &amp;Map or something here, but can&#39;t get the borrow checker to work.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">calculate_unedited_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">commands</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">calculate_unedited_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">commands</span>.<span class="ident">is_empty</span>() <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">unedited_map</span>.<span class="ident">borrow</span>().<span class="ident">is_some</span>() {
+            <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">orig_map</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">unedited_map</span>.<span class="ident">borrow_mut</span>();
-        <span class="kw">if</span> <span class="ident">orig_map</span>.<span class="ident">is_none</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;load unedited map&quot;</span>);
-            <span class="comment">// TODO Need to fix this</span>
-            <span class="kw-2">*</span><span class="ident">orig_map</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Map</span>::<span class="ident">load_synchronously</span>(
-                <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">path</span>(),
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,
-            ));
-        }
+        <span class="comment">// TODO Why can&#39;t we just clone the map and revert the edits? Cloning the map is hard,</span>
+        <span class="comment">// because of some ThreadLocals used for pathfinding...</span>
+        <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">FileLoader</span>::<span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">Map</span><span class="op">&gt;</span>::<span class="ident">new</span>(
+            <span class="ident">ctx</span>,
+            <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">path</span>(),
+            <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="ident">app</span>, <span class="kw">_</span>, <span class="ident">map</span><span class="op">|</span> {
+                <span class="comment">// TODO Handle failure how? Popup is temporary, it would keep trying to</span>
+                <span class="comment">// load it.</span>
+                <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">unwrap</span>();
+                <span class="kw-2">*</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">unedited_map</span>.<span class="ident">borrow_mut</span>() <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">map</span>);
+                <span class="comment">// The pop exits the file loader</span>
+                <span class="ident">Transition</span>::<span class="ident">Pop</span>
+            }),
+        )))
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">canonical_point</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">ID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {

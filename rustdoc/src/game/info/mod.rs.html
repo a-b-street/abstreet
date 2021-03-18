@@ -820,6 +820,21 @@
 <span id="817">817</span>
 <span id="818">818</span>
 <span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -1117,15 +1132,21 @@
     <span class="kw">pub</span> <span class="ident">time_warpers</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, (<span class="ident">TripID</span>, <span class="ident">Time</span>)<span class="op">&gt;</span>,
     <span class="comment">// It&#39;s just convenient to plumb this here</span>
     <span class="kw">pub</span> <span class="ident">can_jump_to_time</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// If this gets filled out, immediately execute this transition, keeping the info panel open.</span>
+    <span class="doccomment">/// This can only be used when updating an already open info panel. If a panel is launched</span>
+    <span class="doccomment">/// directly into a tab that fills this out, it&#39;ll crash!</span>
+    <span class="kw">pub</span> <span class="ident">stop_immediately</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">InfoPanel</span> {
+    <span class="doccomment">/// Also returns `Details::stop_immediately`, which can only be used when updating an existing</span>
+    <span class="doccomment">/// info panel.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
         <span class="kw-2">mut</span> <span class="ident">tab</span>: <span class="ident">Tab</span>,
         <span class="ident">ctx_actions</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">ContextualActions</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InfoPanel</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">InfoPanel</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="op">=</span> <span class="ident">tab</span>.<span class="ident">variant</span>();
         <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">info_panel_tab</span>.<span class="ident">insert</span>(<span class="ident">k</span>, <span class="ident">v</span>);
 
@@ -1136,6 +1157,7 @@
             <span class="ident">warpers</span>: <span class="ident">HashMap</span>::<span class="ident">new</span>(),
             <span class="ident">time_warpers</span>: <span class="ident">HashMap</span>::<span class="ident">new</span>(),
             <span class="ident">can_jump_to_time</span>: <span class="ident">ctx_actions</span>.<span class="ident">gameplay_mode</span>().<span class="ident">can_jump_to_time</span>(),
+            <span class="ident">stop_immediately</span>: <span class="prelude-val">None</span>,
         };
 
         <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">col</span>, <span class="ident">main_tab</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">tab</span> {
@@ -1190,6 +1212,7 @@
                 (<span class="ident">lane</span>::<span class="ident">traffic</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">l</span>, <span class="ident">opts</span>), <span class="bool-val">false</span>)
             }
         };
+
         <span class="kw">let</span> <span class="ident">maybe_id</span> <span class="op">=</span> <span class="ident">tab</span>.<span class="ident">to_id</span>(<span class="ident">app</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cached_actions</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">if</span> <span class="ident">main_tab</span> {
@@ -1259,22 +1282,25 @@
             }
         }
 
-        <span class="ident">InfoPanel</span> {
-            <span class="ident">tab</span>,
-            <span class="ident">time</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(),
-            <span class="ident">is_paused</span>: <span class="ident">ctx_actions</span>.<span class="ident">is_paused</span>(),
-            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>).<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>).<span class="ident">padding</span>(<span class="number">16</span>))
-                .<span class="ident">aligned_pair</span>(<span class="ident">PANEL_PLACEMENT</span>)
-                <span class="comment">// TODO Some headings are too wide.. Intersection #xyz (Traffic signals)</span>
-                .<span class="ident">exact_size_percent</span>(<span class="number">30</span>, <span class="number">60</span>)
-                .<span class="ident">build_custom</span>(<span class="ident">ctx</span>),
-            <span class="ident">unzoomed</span>: <span class="ident">details</span>.<span class="ident">unzoomed</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>),
-            <span class="ident">zoomed</span>: <span class="ident">details</span>.<span class="ident">zoomed</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>),
-            <span class="ident">hyperlinks</span>: <span class="ident">details</span>.<span class="ident">hyperlinks</span>,
-            <span class="ident">warpers</span>: <span class="ident">details</span>.<span class="ident">warpers</span>,
-            <span class="ident">time_warpers</span>: <span class="ident">details</span>.<span class="ident">time_warpers</span>,
-            <span class="ident">cached_actions</span>,
-        }
+        (
+            <span class="ident">InfoPanel</span> {
+                <span class="ident">tab</span>,
+                <span class="ident">time</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(),
+                <span class="ident">is_paused</span>: <span class="ident">ctx_actions</span>.<span class="ident">is_paused</span>(),
+                <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>).<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>).<span class="ident">padding</span>(<span class="number">16</span>))
+                    .<span class="ident">aligned_pair</span>(<span class="ident">PANEL_PLACEMENT</span>)
+                    <span class="comment">// TODO Some headings are too wide.. Intersection #xyz (Traffic signals)</span>
+                    .<span class="ident">exact_size_percent</span>(<span class="number">30</span>, <span class="number">60</span>)
+                    .<span class="ident">build_custom</span>(<span class="ident">ctx</span>),
+                <span class="ident">unzoomed</span>: <span class="ident">details</span>.<span class="ident">unzoomed</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>),
+                <span class="ident">zoomed</span>: <span class="ident">details</span>.<span class="ident">zoomed</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>),
+                <span class="ident">hyperlinks</span>: <span class="ident">details</span>.<span class="ident">hyperlinks</span>,
+                <span class="ident">warpers</span>: <span class="ident">details</span>.<span class="ident">warpers</span>,
+                <span class="ident">time_warpers</span>: <span class="ident">details</span>.<span class="ident">time_warpers</span>,
+                <span class="ident">cached_actions</span>,
+            },
+            <span class="ident">details</span>.<span class="ident">stop_immediately</span>,
+        )
     }
 
     <span class="comment">// (Are we done, optional transition)</span>
@@ -1294,17 +1320,19 @@
 
         <span class="comment">// Live update?</span>
         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">time</span> <span class="op">|</span><span class="op">|</span> <span class="ident">ctx_actions</span>.<span class="ident">is_paused</span>() <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">is_paused</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">InfoPanel</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">tab</span>.<span class="ident">clone</span>(), <span class="ident">ctx_actions</span>);
+            <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">new</span>, <span class="ident">maybe_transition</span>) <span class="op">=</span>
+                <span class="ident">InfoPanel</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">tab</span>.<span class="ident">clone</span>(), <span class="ident">ctx_actions</span>);
             <span class="ident">new</span>.<span class="ident">panel</span>.<span class="ident">restore</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
             <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">new</span>;
-            <span class="kw">return</span> (<span class="bool-val">false</span>, <span class="prelude-val">None</span>);
+            <span class="kw">return</span> (<span class="bool-val">false</span>, <span class="ident">maybe_transition</span>);
         }
 
         <span class="kw">let</span> <span class="ident">maybe_id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">tab</span>.<span class="ident">to_id</span>(<span class="ident">app</span>);
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">action</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">new_tab</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">hyperlinks</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">action</span>).<span class="ident">cloned</span>() {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">InfoPanel</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">new_tab</span>, <span class="ident">ctx_actions</span>);
+                    <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">new</span>, <span class="ident">maybe_transition</span>) <span class="op">=</span>
+                        <span class="ident">InfoPanel</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">new_tab</span>, <span class="ident">ctx_actions</span>);
                     <span class="comment">// TODO Most cases use changed_settings, but one doesn&#39;t. Detect that</span>
                     <span class="comment">// &quot;sameness&quot; here.</span>
                     <span class="kw">if</span> <span class="kw">let</span> (<span class="ident">Tab</span>::<span class="ident">PersonTrips</span>(<span class="ident">p1</span>, <span class="kw">_</span>), <span class="ident">Tab</span>::<span class="ident">PersonTrips</span>(<span class="ident">p2</span>, <span class="kw">_</span>)) <span class="op">=</span>
@@ -1315,7 +1343,7 @@
                         }
                     }
                     <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">new</span>;
-                    (<span class="bool-val">false</span>, <span class="prelude-val">None</span>)
+                    (<span class="bool-val">false</span>, <span class="ident">maybe_transition</span>)
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">action</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;close&quot;</span> {
                     (<span class="bool-val">true</span>, <span class="prelude-val">None</span>)
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">action</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;jump to object&quot;</span> {
@@ -1430,9 +1458,11 @@
                 <span class="comment">// Maybe a non-click action should change the tab. Aka, checkboxes/dropdowns/etc on</span>
                 <span class="comment">// a tab.</span>
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">new_tab</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">tab</span>.<span class="ident">changed_settings</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>) {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">InfoPanel</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">new_tab</span>, <span class="ident">ctx_actions</span>);
+                    <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">new</span>, <span class="ident">maybe_transition</span>) <span class="op">=</span>
+                        <span class="ident">InfoPanel</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">new_tab</span>, <span class="ident">ctx_actions</span>);
                     <span class="ident">new</span>.<span class="ident">panel</span>.<span class="ident">restore</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
                     <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">new</span>;
+                    <span class="kw">return</span> (<span class="bool-val">false</span>, <span class="ident">maybe_transition</span>);
                 }
 
                 (<span class="bool-val">false</span>, <span class="prelude-val">None</span>)
