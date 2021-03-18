@@ -61,7 +61,6 @@ fn import_map(path: String) -> Map {
             onstreet_parking: convert_osm::OnstreetParking::JustOSM,
             public_offstreet_parking: convert_osm::PublicOffstreetParking::None,
             private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(0),
-            elevation: None,
             include_railroads: true,
             extra_buildings: None,
         },

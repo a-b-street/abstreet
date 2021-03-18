@@ -25,9 +25,6 @@ pub struct GenericCityImporter {
     pub onstreet_parking: convert_osm::OnstreetParking,
     pub public_offstreet_parking: convert_osm::PublicOffstreetParking,
     pub private_offstreet_parking: convert_osm::PrivateOffstreetParking,
-    /// If provided, pull elevation data from this SRTM file. The SRTM parser is incorrect, so the
-    /// results will be nonsense.
-    pub elevation: Option<String>,
     /// OSM railway=rail will be included as light rail if so. Cosmetic only.
     pub include_railroads: bool,
     /// If provided, read polygons from this GeoJSON file and add them to the RawMap as buildings.
@@ -80,7 +77,6 @@ impl GenericCityImporter {
                 onstreet_parking: self.onstreet_parking.clone(),
                 public_offstreet_parking: self.public_offstreet_parking.clone(),
                 private_offstreet_parking: self.private_offstreet_parking.clone(),
-                elevation: self.elevation.clone(),
                 include_railroads: self.include_railroads,
                 extra_buildings: self.extra_buildings.clone(),
             },

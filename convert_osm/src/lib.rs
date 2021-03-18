@@ -19,7 +19,6 @@ mod parking;
 pub mod reader;
 mod snappy;
 mod split_ways;
-mod srtm;
 mod transit;
 
 pub struct Options {
@@ -33,9 +32,6 @@ pub struct Options {
     pub onstreet_parking: OnstreetParking,
     pub public_offstreet_parking: PublicOffstreetParking,
     pub private_offstreet_parking: PrivateOffstreetParking,
-    /// If provided, pull elevation data from this SRTM file. The SRTM parser is incorrect, so the
-    /// results will be nonsense.
-    pub elevation: Option<String>,
     /// OSM railway=rail will be included as light rail if so. Cosmetic only.
     pub include_railroads: bool,
     /// If provided, read polygons from this GeoJSON file and add them to the RawMap as buildings.
@@ -113,9 +109,6 @@ pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
 
     parking::apply_parking(&mut map, &opts, timer);
 
-    if let Some(ref path) = opts.elevation {
-        use_elevation(&mut map, path, timer);
-    }
     if false {
         generate_elevation_queries(&map).unwrap();
     }
@@ -145,20 +138,6 @@ fn use_amenities(map: &mut RawMap, amenities: Vec<(Pt2D, Amenity)>, timer: &mut 
             }
         }
     }
-}
-
-fn use_elevation(map: &mut RawMap, path: &str, timer: &mut Timer) {
-    timer.start("apply elevation data to intersections");
-    let elevation = srtm::Elevation::load(path).unwrap();
-    for i in map.intersections.values_mut() {
-        // TODO Not sure why, but I've seen nodes from South Carolina wind up in the updated
-        // Seattle extract. And I think there's a bug with clipping, because they survive to this
-        // point. O_O
-        if map.boundary_polygon.contains_pt(i.point) {
-            i.elevation = elevation.get(i.point.to_gps(&map.gps_bounds));
-        }
-    }
-    timer.stop("apply elevation data to intersections");
 }
 
 fn generate_elevation_queries(map: &RawMap) -> Result<()> {
