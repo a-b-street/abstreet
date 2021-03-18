@@ -57,8 +57,15 @@ impl CommonState {
             // TODO Also have a hotkey binding for this?
             if app.per_obj.left_click(ctx, "show info") {
                 app.primary.layer = None;
-                self.info_panel =
-                    Some(InfoPanel::new(ctx, app, Tab::from_id(app, id), ctx_actions));
+                let (panel, maybe_transition) =
+                    InfoPanel::new(ctx, app, Tab::from_id(app, id.clone()), ctx_actions);
+                self.info_panel = Some(panel);
+                if maybe_transition.is_some() {
+                    panic!(
+                        "Clicking on {:?} immediately tried to execute a transition",
+                        id
+                    );
+                }
                 return None;
             }
         }
@@ -285,7 +292,11 @@ impl CommonState {
         ctx_actions: &mut dyn ContextualActions,
     ) {
         app.primary.layer = None;
-        self.info_panel = Some(InfoPanel::new(ctx, app, tab, ctx_actions));
+        let (panel, maybe_transition) = InfoPanel::new(ctx, app, tab, ctx_actions);
+        if maybe_transition.is_some() {
+            panic!("launch_info_panel for some tab immediately tried to execute a transition");
+        }
+        self.info_panel = Some(panel);
     }
 
     pub fn info_panel_open(&self, app: &App) -> Option<ID> {

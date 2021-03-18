@@ -173,7 +173,10 @@ pub fn future(
             ],
         ));
 
-        app.primary.calculate_unedited_map();
+        if let Some(t) = app.primary.calculate_unedited_map(ctx) {
+            details.stop_immediately = Some(t);
+            return Widget::nothing();
+        }
         let borrow = app.primary.unedited_map.borrow();
         let unedited_map = borrow.as_ref().unwrap_or(&app.primary.map);
         let phases = app.prebaked().get_trip_phases(id, unedited_map);
@@ -215,7 +218,10 @@ pub fn finished(
 ) -> Widget {
     // Weird order to make sure the borrow remains in scope in case we need it.
     if !open_trips[&id].show_after {
-        app.primary.calculate_unedited_map();
+        if let Some(t) = app.primary.calculate_unedited_map(ctx) {
+            details.stop_immediately = Some(t);
+            return Widget::nothing();
+        }
     }
     let borrow = app.primary.unedited_map.borrow();
 
