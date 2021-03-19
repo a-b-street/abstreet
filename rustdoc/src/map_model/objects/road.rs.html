@@ -476,6 +476,21 @@
 <span id="473">473</span>
 <span id="474">474</span>
 <span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
@@ -800,10 +815,25 @@
     <span class="doccomment">/// Returns [-1.0, 1.0] theoretically, but in practice, about [-0.25, 0.25]. 0 is flat,</span>
     <span class="doccomment">/// positive is uphill from src_i -&gt; dst_i, negative is downhill.</span>
     <span class="comment">// TODO Or do we care about the total up/down along the possibly long road?</span>
-    <span class="comment">// directional...</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">percent_incline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
         <span class="kw">let</span> <span class="ident">rise</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="self">self</span>.<span class="ident">dst_i</span>).<span class="ident">elevation</span> <span class="op">-</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="self">self</span>.<span class="ident">src_i</span>).<span class="ident">elevation</span>;
-        <span class="kw">let</span> <span class="ident">run</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">center_pts</span>.<span class="ident">length</span>();
+
+        <span class="comment">// TODO center_pts is trimmed, but the intersection elevation is measured at the point where</span>
+        <span class="comment">// the untrimmed roads originally meet. That point isn&#39;t retained. Until we sort thi</span>
+        <span class="comment">// out, workaround by assuming the intersection polygon&#39;s center was that original</span>
+        <span class="comment">// point, and add in the distance from that to this road&#39;s endpoint.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">run</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">center_pts</span>.<span class="ident">length</span>();
+        <span class="ident">run</span> <span class="op">+</span><span class="op">=</span> <span class="ident">map</span>
+            .<span class="ident">get_i</span>(<span class="self">self</span>.<span class="ident">src_i</span>)
+            .<span class="ident">polygon</span>
+            .<span class="ident">center</span>()
+            .<span class="ident">dist_to</span>(<span class="self">self</span>.<span class="ident">center_pts</span>.<span class="ident">first_pt</span>());
+        <span class="ident">run</span> <span class="op">+</span><span class="op">=</span> <span class="ident">map</span>
+            .<span class="ident">get_i</span>(<span class="self">self</span>.<span class="ident">dst_i</span>)
+            .<span class="ident">polygon</span>
+            .<span class="ident">center</span>()
+            .<span class="ident">dist_to</span>(<span class="self">self</span>.<span class="ident">center_pts</span>.<span class="ident">last_pt</span>());
+
         <span class="ident">rise</span> <span class="op">/</span> <span class="ident">run</span>
     }
 
