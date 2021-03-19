@@ -392,6 +392,9 @@
 <span id="389">389</span>
 <span id="390">390</span>
 <span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
@@ -740,6 +743,7 @@
 
 <span class="comment">// TODO Can we automatically transform text and SVG colors?</span>
 <span class="kw">fn</span> <span class="ident">cutscene_pt1_task</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">let</span> <span class="ident">icon_builder</span> <span class="op">=</span> <span class="ident">Image</span>::<span class="ident">empty</span>().<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">dims</span>(<span class="number">50.0</span>);
     <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
@@ -755,15 +759,17 @@
         <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;Time&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="string">&quot;system/assets/tools/time.svg&quot;</span>)
-                    .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)
+                <span class="ident">icon_builder</span>
+                    .<span class="ident">clone</span>()
+                    .<span class="ident">source_path</span>(<span class="string">&quot;system/assets/tools/time.svg&quot;</span>)
                     .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Line</span>(<span class="string">&quot;24 hours&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             ]),
             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;Goal&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
-                    .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)
+                <span class="ident">icon_builder</span>
+                    .<span class="ident">clone</span>()
+                    .<span class="ident">source_path</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
                     .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Keep delay at all intersections&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>),
@@ -773,8 +779,8 @@
             ]),
             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;Score&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="string">&quot;system/assets/tools/star.svg&quot;</span>)
-                    .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)
+                <span class="ident">icon_builder</span>
+                    .<span class="ident">source_path</span>(<span class="string">&quot;system/assets/tools/star.svg&quot;</span>)
                     .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Line</span>(<span class="string">&quot;How long you survive&quot;</span>)
                     .<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)
