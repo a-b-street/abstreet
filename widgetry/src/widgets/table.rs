@@ -9,6 +9,7 @@ use crate::{
 const ROWS: usize = 8;
 
 pub struct Table<A, T, F> {
+    id: String,
     data: Vec<T>,
     label_per_row: Box<dyn Fn(&T) -> String>,
     columns: Vec<Column<A, T>>,
@@ -39,12 +40,14 @@ pub struct Filter<A, T, F> {
 
 impl<A, T, F> Table<A, T, F> {
     pub fn new(
+        id: impl Into<String>,
         data: Vec<T>,
         label_per_row: Box<dyn Fn(&T) -> String>,
         default_sort_by: &str,
         filter: Filter<A, T, F>,
     ) -> Table<A, T, F> {
         Table {
+            id: id.into(),
             data,
             label_per_row,
             columns: Vec::new(),
@@ -67,6 +70,11 @@ impl<A, T, F> Table<A, T, F> {
             render,
             col,
         });
+    }
+
+    pub fn replace_render(&self, ctx: &mut EventCtx, app: &A, panel: &mut Panel) {
+        let new_widget = self.render(ctx, app);
+        panel.replace(ctx, &self.id, new_widget);
     }
 
     pub fn render(&self, ctx: &mut EventCtx, app: &A) -> Widget {
@@ -136,6 +144,9 @@ impl<A, T, F> Table<A, T, F> {
             make_table(ctx, headers, rows, 0.88 * ctx.canvas.window_width),
             make_pagination(ctx, num_filtered, self.skip),
         ])
+        .named(&self.id)
+        // return in separate container incase caller want to apply an outter-name
+        .container()
     }
 
     // Recalculate if true

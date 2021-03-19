@@ -1,20 +1,104 @@
 use geom::Duration;
 use sim::{TripEndpoint, TripID, TripPhaseType};
 use widgetry::table::{Col, Filter, Table};
-use widgetry::{EventCtx, Filler, Line, Panel, State, Text, Toggle, Widget};
+use widgetry::{EventCtx, Filler, GfxCtx, Line, Outcome, Panel, State, Text, Toggle, Widget};
+
+type Transition = widgetry::Transition<App>;
 
 use crate::app::App;
-use crate::sandbox::dashboards::generic_trip_table::GenericTripTable;
+use crate::sandbox::dashboards::generic_trip_table::{open_trip_transition, preview_trip};
 use crate::sandbox::dashboards::DashTab;
 
 // TODO Compare all of these things before/after
 
-pub struct ParkingOverhead;
+pub struct ParkingOverhead {
+    tab: DashTab,
+    table: Table<App, Entry, Filters>,
+    panel: Panel,
+}
 
 impl ParkingOverhead {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let table = make_table(app);
-        GenericTripTable::new(ctx, app, DashTab::ParkingOverhead, table, make_panel)
+        let col = Widget::col(vec![
+            DashTab::ParkingOverhead.picker(ctx, app),
+            Widget::col(vec![
+                Widget::row(vec![
+                    Text::from_multiline(vec![
+                        Line(
+                            "Trips taken by car also include time to walk between the building \
+                             and parking spot, as well as the time to find parking.",
+                        ),
+                        Line("Overhead is 1 - driving time / total time"),
+                        Line("Ideally, overhead is 0% -- the entire trip is just spent driving."),
+                        Line(""),
+                        Line("High overhead could mean:"),
+                        Line(
+                            "- the car burned more resources and caused more traffic looking for \
+                             parking",
+                        ),
+                        Line(
+                            "- somebody with impaired movement had to walk far to reach their \
+                             vehicle",
+                        ),
+                        Line("- the person was inconvenienced"),
+                        Line(""),
+                        Line(
+                            "Note: Trips beginning/ending outside the map have an artifically \
+                             high overhead,",
+                        ),
+                        Line("since the time spent driving off-map isn't shown here."),
+                    ])
+                    .into_widget(ctx),
+                    Filler::square_width(ctx, 0.15).named("preview"),
+                ])
+                .evenly_spaced(),
+                table.render(ctx, app),
+            ])
+            .section(ctx),
+        ]);
+
+        let panel = Panel::new(col).exact_size_percent(90, 90).build(ctx);
+
+        Box::new(Self {
+            tab: DashTab::ParkingOverhead,
+            table,
+            panel,
+        })
+    }
+}
+
+impl State<App> for ParkingOverhead {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        match self.panel.event(ctx) {
+            Outcome::Clicked(x) => {
+                if self.table.clicked(&x) {
+                    self.table.replace_render(ctx, app, &mut self.panel);
+                } else if let Ok(idx) = x.parse::<usize>() {
+                    return open_trip_transition(app, idx);
+                } else if x == "close" {
+                    return Transition::Pop;
+                } else {
+                    unreachable!()
+                }
+            }
+            Outcome::Changed => {
+                if let Some(t) = self.tab.transition(ctx, app, &self.panel) {
+                    return t;
+                }
+
+                self.table.panel_changed(&self.panel);
+                self.table.replace_render(ctx, app, &mut self.panel);
+            }
+            _ => {}
+        }
+
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        self.panel.draw(g);
+        preview_trip(g, app, &self.panel);
     }
 }
 
@@ -120,6 +204,7 @@ fn make_table(app: &App) -> Table<App, Entry, Filters> {
     };
 
     let mut table = Table::new(
+        "parking_overhead",
         produce_raw_data(app),
         Box::new(|x| x.trip.0.to_string()),
         "Percent overhead",
@@ -161,39 +246,4 @@ fn make_table(app: &App) -> Table<App, Entry, Filters> {
     );
 
     table
-}
-
-fn make_panel(ctx: &mut EventCtx, app: &App, table: &Table<App, Entry, Filters>) -> Panel {
-    let mut col = vec![DashTab::ParkingOverhead.picker(ctx, app)];
-    col.push(
-        Widget::row(vec![
-            Text::from_multiline(vec![
-                Line(
-                    "Trips taken by car also include time to walk between the building and \
-                     parking spot, as well as the time to find parking.",
-                ),
-                Line("Overhead is 1 - driving time / total time"),
-                Line("Ideally, overhead is 0% -- the entire trip is just spent driving."),
-                Line(""),
-                Line("High overhead could mean:"),
-                Line("- the car burned more resources and caused more traffic looking for parking"),
-                Line("- somebody with impaired movement had to walk far to reach their vehicle"),
-                Line("- the person was inconvenienced"),
-                Line(""),
-                Line(
-                    "Note: Trips beginning/ending outside the map have an artifically high \
-                     overhead,",
-                ),
-                Line("since the time spent driving off-map isn't shown here."),
-            ])
-            .into_widget(ctx),
-            Filler::square_width(ctx, 0.15).named("preview"),
-        ])
-        .evenly_spaced(),
-    );
-    col.push(table.render(ctx, app));
-
-    Panel::new(Widget::col(col))
-        .exact_size_percent(90, 90)
-        .build(ctx)
 }

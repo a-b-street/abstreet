@@ -2,8 +2,8 @@ use abstutil::{prettyprint_usize, Counter};
 use geom::Time;
 use map_model::BusRouteID;
 use widgetry::{
-    Autocomplete, DrawBaselayer, EventCtx, GfxCtx, Image, Line, LinePlot, Outcome, Panel,
-    PlotOptions, Series, State, TextExt, Widget,
+    Autocomplete, EventCtx, GfxCtx, Image, Line, LinePlot, Outcome, Panel, PlotOptions, Series,
+    State, TextExt, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -45,7 +45,7 @@ impl ActiveTraffic {
         Box::new(ActiveTraffic {
             panel: Panel::new(Widget::col(vec![
                 DashTab::ActiveTraffic.picker(ctx, app),
-                LinePlot::new(ctx, active_agents, PlotOptions::fixed()),
+                LinePlot::new(ctx, active_agents, PlotOptions::fixed()).section(ctx),
             ]))
             .exact_size_percent(90, 90)
             .build(ctx),
@@ -67,12 +67,7 @@ impl State<App> for ActiveTraffic {
         }
     }
 
-    fn draw_baselayer(&self) -> DrawBaselayer {
-        DrawBaselayer::Custom
-    }
-
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
-        g.clear(app.cs.dialog_bg);
+    fn draw(&self, g: &mut GfxCtx, _app: &App) {
         self.panel.draw(g);
     }
 }
@@ -244,12 +239,7 @@ impl State<App> for TransitRoutes {
         ])
     }
 
-    fn draw_baselayer(&self) -> DrawBaselayer {
-        DrawBaselayer::Custom
-    }
-
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
-        g.clear(app.cs.dialog_bg);
+    fn draw(&self, g: &mut GfxCtx, _app: &App) {
         self.panel.draw(g);
     }
 }

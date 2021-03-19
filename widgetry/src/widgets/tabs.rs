@@ -57,6 +57,7 @@ impl TabController {
     }
 
     /// A widget containing the tab bar and a content pane with the currently active tab.
+    // TODO: Clarify that this can only be called once - maybe `TabBuilder.into_tab_controller()`
     pub fn build_widget(&mut self, ctx: &EventCtx) -> Widget {
         Widget::custom_col(vec![
             self.build_bar_items(ctx),

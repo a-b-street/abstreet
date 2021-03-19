@@ -317,6 +317,8 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
 fn make_tabs(ctx: &mut EventCtx) -> TabController {
     let style = ctx.style();
 
+    let mut tabs = TabController::new("demo_tabs");
+
     let gallery_bar_item = style.btn_tab.text("Component Gallery");
     let gallery_content = Widget::col(vec![
         Text::from(Line("Text").big_heading_styled().size(18)).into_widget(ctx),
@@ -423,8 +425,7 @@ fn make_tabs(ctx: &mut EventCtx) -> TabController {
         Text::from(Line("Spinner").big_heading_styled().size(18)).into_widget(ctx),
         widgetry::Spinner::widget(ctx, (0, 11), 1),
     ]);
-
-    let mut tabs = TabController::new("demo_tabs", gallery_bar_item, gallery_content);
+    tabs.push_tab(gallery_bar_item, gallery_content);
 
     let qa_bar_item = style.btn_tab.text("Conformance Checks");
     let qa_content = Widget::col(vec![
@@ -598,8 +599,7 @@ fn make_controls(ctx: &mut EventCtx, tabs: &mut TabController) -> Panel {
             ])
             .margin_above(30),
         ])
-        .padding(16)
-        .bg(ctx.style().section_bg),
+        .section(ctx),
         tabs.build_widget(ctx),
     ])) // end panel
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)

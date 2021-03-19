@@ -225,6 +225,12 @@ impl Widget {
         Widget::row(vec![self])
     }
 
+    pub fn section(self, ctx: &EventCtx) -> Widget {
+        self.bg(ctx.style().section_bg)
+            .outline(ctx.style().section_outline)
+            .padding(16)
+    }
+
     // TODO Maybe panic if we call this on a non-container
     pub fn padding<I: Into<EdgeInsets>>(mut self, insets: I) -> Widget {
         let insets = insets.into();
