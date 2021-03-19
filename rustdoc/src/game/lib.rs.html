@@ -332,6 +332,9 @@
 <span id="329">329</span>
 <span id="330">330</span>
 <span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
@@ -489,6 +492,9 @@
     <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">GameplayMode</span>::<span class="ident">Tutorial</span>(<span class="kw">_</span>)) <span class="op">=</span> <span class="ident">maybe_mode</span>
     {
         <span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">=</span> <span class="ident">map_gui</span>::<span class="ident">colors</span>::<span class="ident">ColorSchemeChoice</span>::<span class="ident">NightMode</span>;
+    }
+    <span class="kw">if</span> <span class="ident">title</span> {
+        <span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">=</span> <span class="ident">map_gui</span>::<span class="ident">colors</span>::<span class="ident">ColorSchemeChoice</span>::<span class="ident">Pregame</span>;
     }
     <span class="kw">let</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">map_gui</span>::<span class="ident">colors</span>::<span class="ident">ColorScheme</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">opts</span>.<span class="ident">color_scheme</span>);
 
