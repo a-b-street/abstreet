@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::{BufWriter, Write};
+use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::process::Command;
 
 use anyhow::Result;
@@ -50,11 +50,15 @@ pub fn add_data(map: &mut RawMap, timer: &mut Timer) -> Result<()> {
     );
     timer.stop("run elevation_lookups");
 
-    // TODO Scrape output
+    timer.start("grab output");
+    scrape_output(map, ids)?;
+    timer.stop("grab output");
 
     // Clean up temporary files
     std::fs::remove_file("elevation_input/query")?;
     std::fs::remove_dir("elevation_input")?;
+    std::fs::remove_file("elevation_output/query")?;
+    std::fs::remove_dir("elevation_output")?;
 
     timer.stop("add elevation data");
     Ok(())
@@ -90,4 +94,30 @@ fn generate_input(map: &RawMap) -> Result<Vec<OriginalRoad>> {
         }
     }
     Ok(ids)
+}
+
+fn scrape_output(map: &mut RawMap, ids: Vec<OriginalRoad>) -> Result<()> {
+    let num_ids = ids.len();
+    let mut cnt = 0;
+    for (line, id) in BufReader::new(File::open("elevation_output/query")?)
+        .lines()
+        .zip(ids)
+    {
+        let line = line?;
+        let mut values = Vec::new();
+        for x in line.split('\t') {
+            values.push(Distance::meters(x.parse::<f64>()?));
+        }
+        if values.len() != 4 {
+            bail!("Elevation output line \"{}\" doesn't have 4 numbers", line);
+        }
+        // TODO Also put total_climb and total_descent on the roads
+        map.intersections.get_mut(&id.i1).unwrap().elevation = values[0];
+        map.intersections.get_mut(&id.i2).unwrap().elevation = values[1];
+        cnt += 1;
+    }
+    if cnt != num_ids {
+        bail!("Output had {} lines, but we made {} queries", cnt, num_ids);
+    }
+    Ok(())
 }

@@ -191,8 +191,6 @@ impl Model {
             RawIntersection {
                 point,
                 intersection_type: IntersectionType::StopSign,
-                // TODO If this isn't a synthetic map, load the elevation data and grab a real
-                // value.
                 elevation: Distance::ZERO,
             },
         );
