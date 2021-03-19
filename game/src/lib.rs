@@ -155,6 +155,9 @@ fn setup_app(
     {
         opts.color_scheme = map_gui::colors::ColorSchemeChoice::NightMode;
     }
+    if title {
+        opts.color_scheme = map_gui::colors::ColorSchemeChoice::Pregame;
+    }
     let cs = map_gui::colors::ColorScheme::new(ctx, opts.color_scheme);
 
     // SimFlags::load doesn't know how to do async IO, which we need on the web. But in the common
