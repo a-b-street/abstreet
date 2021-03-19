@@ -235,11 +235,11 @@ impl ChangeScenario {
                 .into_widget(ctx),
         ];
         for (name, label, description) in choices {
-            let btn = ctx
-                .style()
-                .btn_tab
-                .text(label)
-                .disabled(name == current_scenario);
+            let btn = if name == current_scenario {
+                ctx.style().btn_tab.text(label).disabled(true)
+            } else {
+                ctx.style().btn_outline.text(label)
+            };
             col.push(
                 Widget::row(vec![
                     btn.build_widget(ctx, name),
@@ -253,8 +253,9 @@ impl ChangeScenario {
         }
         col.push(
             ctx.style()
-                .btn_outline
-                .text("Import your own data")
+                .btn_plain
+                .btn()
+                .label_underlined_text("Learn how to import your own data.")
                 .build_def(ctx),
         );
 
@@ -269,7 +270,7 @@ impl SimpleState<App> for ChangeScenario {
     fn on_click(&mut self, _: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
         if x == "close" {
             Transition::Pop
-        } else if x == "Import your own data" {
+        } else if x == "Learn how to import your own data." {
             open_browser(
                 "https://a-b-street.github.io/docs/trafficsim/travel_demand.html#custom-import",
             );
