@@ -40,6 +40,7 @@ impl ColorSchemeChoice {
         vec![
             Choice::new("day mode", ColorSchemeChoice::DayMode),
             Choice::new("night mode", ColorSchemeChoice::NightMode),
+            Choice::new("pregame", ColorSchemeChoice::Pregame),
             Choice::new("sam green day", ColorSchemeChoice::SAMGreenDay),
             Choice::new("sam desert day", ColorSchemeChoice::SAMDesertDay),
             Choice::new("bap", ColorSchemeChoice::BAP),
