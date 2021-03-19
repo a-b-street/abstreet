@@ -263,7 +263,7 @@ pub fn run<
         }
     }
 
-    let mut style = Style::pregame();
+    let mut style = Style::light_bg();
     style.loading_tips = settings.loading_tips.unwrap_or_else(Text::new);
 
     let monitor_scale_factor = prerender_innards.monitor_scale_factor();
