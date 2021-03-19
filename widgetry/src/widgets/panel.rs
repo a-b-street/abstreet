@@ -437,9 +437,10 @@ impl Panel {
         }
     }
 
-    pub fn swap_container_content(&mut self, name: &str, widget: &mut Widget) {
+    pub fn swap_contained_content(&mut self, ctx: &EventCtx, name: &str, widget: &mut Widget) {
         let old_container: &mut Container = self.find_mut(name);
         std::mem::swap(&mut old_container.members[0], widget);
+        self.recompute_layout(ctx, true);
     }
 
     pub fn rect_of(&self, name: &str) -> &ScreenRectangle {

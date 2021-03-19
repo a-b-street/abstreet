@@ -34,23 +34,16 @@ impl Tab {
 pub struct TabController {
     id: String,
     tabs: Vec<Tab>,
-    active_child: usize,
+    active_tab_idx: usize,
 }
 
 impl TabController {
-    pub fn new(
-        id: impl Into<String>,
-        initial_bar_item: ButtonBuilder<'static, 'static>,
-        initial_content: Widget,
-    ) -> Self {
-        let mut tc = Self {
+    pub fn new(id: impl Into<String>) -> Self {
+        Self {
             id: id.into(),
             tabs: vec![],
-            active_child: 0,
-        };
-        tc.push_tab(initial_bar_item, initial_content);
-
-        tc
+            active_tab_idx: 0,
+        }
     }
 
     /// Add a new tab.
@@ -97,6 +90,10 @@ impl TabController {
         true
     }
 
+    pub fn active_tab_idx(&self) -> usize {
+        self.active_tab_idx
+    }
+
     fn active_content_id(&self) -> String {
         format!("{}_active_content", self.id)
     }
@@ -111,7 +108,11 @@ impl TabController {
 
     fn pop_active_content(&mut self) -> Widget {
         let mut tmp = Widget::nothing();
-        std::mem::swap(&mut self.tabs[self.active_child].content, &mut tmp);
+        assert!(
+            self.tabs.get(self.active_tab_idx).is_some(),
+            "must add at least one tab before rendering"
+        );
+        std::mem::swap(&mut self.tabs[self.active_tab_idx].content, &mut tmp);
         tmp
     }
 
@@ -120,7 +121,7 @@ impl TabController {
             .tabs
             .iter()
             .enumerate()
-            .map(|(idx, tab)| tab.build_bar_item_widget(ctx, idx == self.active_child))
+            .map(|(idx, tab)| tab.build_bar_item_widget(ctx, idx == self.active_tab_idx))
             .collect();
 
         Widget::row(bar_items)
@@ -129,14 +130,14 @@ impl TabController {
     }
 
     fn activate_tab(&mut self, ctx: &EventCtx, tab_idx: usize, panel: &mut Panel) {
-        let old_idx = self.active_child;
-        self.active_child = tab_idx;
+        let old_idx = self.active_tab_idx;
+        self.active_tab_idx = tab_idx;
 
         let mut bar_items = self.build_bar_items(ctx);
-        panel.swap_container_content(&self.bar_items_id(), &mut bar_items);
+        panel.swap_contained_content(ctx, &self.bar_items_id(), &mut bar_items);
 
         let mut content = self.pop_active_content();
-        panel.swap_container_content(&self.active_content_id(), &mut content);
+        panel.swap_contained_content(ctx, &self.active_content_id(), &mut content);
         self.tabs[old_idx].content = content;
     }
 }
