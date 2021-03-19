@@ -882,8 +882,8 @@
                 <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">current_counts</span>.<span class="ident">get</span>(<span class="ident">r</span>);
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
                 <span class="ident">txt</span>.<span class="ident">append_all</span>(<span class="ident">cmp_count</span>(<span class="ident">current</span>, <span class="ident">baseline</span>));
-                <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} baseline&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">baseline</span>))));
-                <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} now&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">current</span>))));
+                <span class="ident">txt</span>.<span class="ident">add</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} baseline&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">baseline</span>)));
+                <span class="ident">txt</span>.<span class="ident">add</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} now&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">current</span>)));
                 <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">txt</span>);
             }
         }

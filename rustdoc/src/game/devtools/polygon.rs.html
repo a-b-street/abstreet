@@ -145,10 +145,6 @@
 <span id="142">142</span>
 <span id="143">143</span>
 <span id="144">144</span>
-<span id="145">145</span>
-<span id="146">146</span>
-<span id="147">147</span>
-<span id="148">148</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">LonLat</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -288,11 +284,7 @@
 
         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">mouseover_pt</span>.<span class="ident">is_some</span>() {
-            <span class="ident">CommonState</span>::<span class="ident">draw_custom_osd</span>(
-                <span class="ident">g</span>,
-                <span class="ident">app</span>,
-                <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;hold left Control to move point&quot;</span>)),
-            );
+            <span class="ident">CommonState</span>::<span class="ident">draw_custom_osd</span>(<span class="ident">g</span>, <span class="ident">app</span>, <span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;hold left Control to move point&quot;</span>));
         } <span class="kw">else</span> {
             <span class="ident">CommonState</span>::<span class="ident">draw_osd</span>(<span class="ident">g</span>, <span class="ident">app</span>);
         }

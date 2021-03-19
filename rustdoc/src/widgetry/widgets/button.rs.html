@@ -1186,8 +1186,8 @@
     <span class="doccomment">/// Set a non-default tooltip [`Text`] to appear when hovering over the button.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If a `tooltip` is not specified, a default tooltip will be applied.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tooltip</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">tooltip</span>: <span class="ident">Text</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">tooltip</span>);
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tooltip</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">tooltip</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">tooltip</span>.<span class="ident">into</span>());
         <span class="self">self</span>
     }
 

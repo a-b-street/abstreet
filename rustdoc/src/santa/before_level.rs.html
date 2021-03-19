@@ -450,11 +450,11 @@
 
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
                 <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Ready for {}?&quot;</span>, <span class="ident">level</span>.<span class="ident">title</span>)).<span class="ident">small_heading</span>());
-                <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="ident">txt</span>.<span class="ident">add</span>(<span class="macro">format</span><span class="macro">!</span>(
                     <span class="string">&quot;Goal: deliver {} presents&quot;</span>,
                     <span class="ident">prettyprint_usize</span>(<span class="ident">level</span>.<span class="ident">goal</span>)
-                )));
-                <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Time limit: {}&quot;</span>, <span class="ident">level</span>.<span class="ident">time_limit</span>)));
+                ));
+                <span class="ident">txt</span>.<span class="ident">add</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Time limit: {}&quot;</span>, <span class="ident">level</span>.<span class="ident">time_limit</span>));
                 <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Deliver presents to &quot;</span>),
                     <span class="ident">Line</span>(<span class="string">&quot;single-family homes&quot;</span>).<span class="ident">fg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">residential_building</span>),

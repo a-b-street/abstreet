@@ -414,8 +414,6 @@
 <span id="411">411</span>
 <span id="412">412</span>
 <span id="413">413</span>
-<span id="414">414</span>
-<span id="415">415</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -519,7 +517,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ColorLegend</span> {}
 
 <span class="kw">impl</span> <span class="ident">ColorLegend</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">row</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">label</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">row</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">label</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="kw">let</span> <span class="ident">radius</span> <span class="op">=</span> <span class="number">15.0</span>;
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(
@@ -528,9 +526,7 @@
             )])
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
             .<span class="ident">centered_vert</span>(),
-            <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">label</span>))
-                .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">35</span>)
-                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">label</span>).<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">35</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         ])
     }
 

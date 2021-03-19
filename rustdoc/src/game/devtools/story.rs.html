@@ -1000,7 +1000,7 @@
                     )),
             );
             <span class="ident">batch</span>.<span class="ident">append</span>(
-                <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">event</span>))
+                <span class="ident">Text</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span><span class="ident">event</span>)
                     .<span class="ident">with_bg</span>()
                     .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)
                     .<span class="ident">scale</span>(<span class="number">0.5</span>)
@@ -1015,7 +1015,7 @@
             }
             <span class="comment">// TODO Refactor</span>
             <span class="ident">batch</span>.<span class="ident">append</span>(
-                <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">event</span>))
+                <span class="ident">Text</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span><span class="ident">event</span>)
                     .<span class="ident">with_bg</span>()
                     .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)
                     .<span class="ident">scale</span>(<span class="number">0.5</span>)
@@ -1041,7 +1041,7 @@
                     .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#5B5B5B&quot;</span>), <span class="ident">Color</span>::<span class="ident">RED</span>)),
             );
             <span class="ident">batch</span>.<span class="ident">append</span>(
-                <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">event</span>))
+                <span class="ident">Text</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">event</span>)
                     .<span class="ident">with_bg</span>()
                     .<span class="ident">render_autocropped</span>(<span class="ident">g</span>)
                     .<span class="ident">scale</span>(<span class="number">0.75</span>)
@@ -1051,7 +1051,7 @@
             <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">RED</span>, <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">clone</span>()).<span class="ident">to_polygon</span>());
             <span class="comment">// TODO Refactor plz</span>
             <span class="ident">batch</span>.<span class="ident">append</span>(
-                <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">event</span>))
+                <span class="ident">Text</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">event</span>)
                     .<span class="ident">with_bg</span>()
                     .<span class="ident">render_autocropped</span>(<span class="ident">g</span>)
                     .<span class="ident">scale</span>(<span class="number">0.75</span>)

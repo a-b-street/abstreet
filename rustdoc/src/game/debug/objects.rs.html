@@ -114,13 +114,11 @@
 <span id="111">111</span>
 <span id="112">112</span>
 <span id="113">113</span>
-<span id="114">114</span>
-<span id="115">115</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Map</span>, <span class="ident">PathConstraints</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentID</span>, <span class="ident">Sim</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Text</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Text</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 
@@ -131,16 +129,14 @@
         <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">is_key_down</span>(<span class="ident">Key</span>::<span class="ident">LeftControl</span>) {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
-                <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="ident">pt</span>.<span class="ident">to_string</span>()));
-                <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(
-                    <span class="ident">pt</span>.<span class="ident">to_gps</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>()).<span class="ident">to_string</span>(),
-                ));
-                <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor</span>())));
-                <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;zoom: {}&quot;</span>, <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>)));
-                <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">pt</span>.<span class="ident">to_string</span>());
+                <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">pt</span>.<span class="ident">to_gps</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>()).<span class="ident">to_string</span>());
+                <span class="ident">txt</span>.<span class="ident">add</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor</span>()));
+                <span class="ident">txt</span>.<span class="ident">add</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;zoom: {}&quot;</span>, <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>));
+                <span class="ident">txt</span>.<span class="ident">add</span>(<span class="macro">format</span><span class="macro">!</span>(
                     <span class="string">&quot;cam_x = {}, cam_y = {}&quot;</span>,
                     <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_x</span>, <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_y</span>
-                )));
+                ));
                 <span class="ident">g</span>.<span class="ident">draw_mouse_tooltip</span>(<span class="ident">txt</span>);
             }
         }

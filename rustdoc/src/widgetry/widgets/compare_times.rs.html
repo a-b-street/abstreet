@@ -299,7 +299,7 @@
                 .<span class="ident">collect</span>(),
         )
         .<span class="ident">evenly_spaced</span>();
-        <span class="kw">let</span> <span class="ident">y_label</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} (minutes)&quot;</span>, <span class="ident">y_name</span>.<span class="ident">as_ref</span>())))
+        <span class="kw">let</span> <span class="ident">y_label</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} (minutes)&quot;</span>, <span class="ident">y_name</span>.<span class="ident">as_ref</span>()))
             .<span class="ident">render</span>(<span class="ident">ctx</span>)
             .<span class="ident">rotate</span>(<span class="ident">Angle</span>::<span class="ident">degrees</span>(<span class="number">90.0</span>))
             .<span class="ident">autocrop</span>()

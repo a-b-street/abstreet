@@ -195,7 +195,7 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">CornerRadii</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">include_labeled_bytes</span>, <span class="ident">text</span>, <span class="ident">Button</span>, <span class="ident">Drawable</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>,
+    <span class="ident">include_labeled_bytes</span>, <span class="ident">text</span>, <span class="ident">Button</span>, <span class="ident">Drawable</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
     <span class="ident">Outcome</span>, <span class="ident">OutlineStyle</span>, <span class="ident">Prerender</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Style</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
     <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
 };
@@ -307,7 +307,7 @@
             <span class="ident">Polygon</span>::<span class="ident">rounded_rectangle</span>(<span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">width</span>, <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span>, <span class="number">5.0</span>),
         )]);
         <span class="ident">batch</span>.<span class="ident">append</span>(
-            <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">to_string</span>()))
+            <span class="ident">Text</span>::<span class="ident">from</span>(<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">to_string</span>())
                 .<span class="ident">render_autocropped</span>(<span class="ident">prerender</span>)
                 .<span class="ident">centered_on</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">TEXT_WIDTH</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span> <span class="op">/</span> <span class="number">2.0</span>)),
         );

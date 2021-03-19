@@ -231,7 +231,7 @@
             } {
                 <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cnt</span>.<span class="ident">get</span>(<span class="ident">r</span>);
                 <span class="kw">if</span> <span class="ident">n</span> <span class="op">&gt;</span> <span class="number">0</span> {
-                    <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>(<span class="ident">n</span>))));
+                    <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>(<span class="ident">n</span>)));
                 }
             } <span class="kw">else</span> {
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;

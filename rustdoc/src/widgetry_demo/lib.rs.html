@@ -615,10 +615,6 @@
 <span id="612">612</span>
 <span id="613">613</span>
 <span id="614">614</span>
-<span id="615">615</span>
-<span id="616">616</span>
-<span id="617">617</span>
-<span id="618">618</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -1018,10 +1014,10 @@
                 .<span class="ident">padding</span>(<span class="number">20</span>)
                 .<span class="ident">dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="number">50.0</span>, <span class="number">100.0</span>))
                 .<span class="ident">content_mode</span>(<span class="ident">ContentMode</span>::<span class="ident">ScaleAspectFit</span>)
-                .<span class="ident">tooltip</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(
+                .<span class="ident">tooltip</span>(
                     <span class="string">&quot;With ScaleAspectFit content grows, without distorting its aspect ratio, \
                      until it reaches its padding bounds.&quot;</span>,
-                )))
+                )
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>)
                 .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">GREEN</span>)
@@ -1029,9 +1025,7 @@
                 .<span class="ident">padding</span>(<span class="number">20</span>)
                 .<span class="ident">dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="number">50.0</span>, <span class="number">100.0</span>))
                 .<span class="ident">content_mode</span>(<span class="ident">ContentMode</span>::<span class="ident">ScaleToFill</span>)
-                .<span class="ident">tooltip</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(
-                    <span class="string">&quot;With ScaleToFill content can stretches to fill its size (less padding)&quot;</span>,
-                )))
+                .<span class="ident">tooltip</span>(<span class="string">&quot;With ScaleToFill content can stretches to fill its size (less padding)&quot;</span>)
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>)
                 .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">BLUE</span>)
@@ -1039,9 +1033,7 @@
                 .<span class="ident">padding</span>(<span class="number">20</span>)
                 .<span class="ident">dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="number">50.0</span>, <span class="number">100.0</span>))
                 .<span class="ident">content_mode</span>(<span class="ident">ContentMode</span>::<span class="ident">ScaleAspectFill</span>)
-                .<span class="ident">tooltip</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(
-                    <span class="string">&quot;With ScaleAspectFill content can exceed its visible bounds&quot;</span>,
-                )))
+                .<span class="ident">tooltip</span>(<span class="string">&quot;With ScaleAspectFill content can exceed its visible bounds&quot;</span>)
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         ]),
         <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Spinner&quot;</span>).<span class="ident">big_heading_styled</span>().<span class="ident">size</span>(<span class="number">18</span>)).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
@@ -1132,9 +1124,9 @@
     <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;widgetry demo&quot;</span>).<span class="ident">big_heading_styled</span>()).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(
+            <span class="ident">Text</span>::<span class="ident">from</span>(
                 <span class="string">&quot;Click and drag the background to pan, use touchpad or scroll wheel to zoom&quot;</span>,
-            ))
+            )
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">ctx</span>.<span class="ident">style</span>()

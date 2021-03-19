@@ -723,7 +723,7 @@
         );
 
         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">g</span>.<span class="ident">is_screencap</span>() {
-            <span class="kw">let</span> <span class="ident">dev_batch</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;DEV&quot;</span>)).<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">RED</span>).<span class="ident">render</span>(<span class="ident">g</span>);
+            <span class="kw">let</span> <span class="ident">dev_batch</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;DEV&quot;</span>).<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">RED</span>).<span class="ident">render</span>(<span class="ident">g</span>);
             <span class="kw">let</span> <span class="ident">dims</span> <span class="op">=</span> <span class="ident">dev_batch</span>.<span class="ident">get_dims</span>();
             <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">dev_batch</span>.<span class="ident">translate</span>(
                 <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span> <span class="op">-</span> <span class="ident">dims</span>.<span class="ident">width</span> <span class="op">-</span> <span class="number">10.0</span>,

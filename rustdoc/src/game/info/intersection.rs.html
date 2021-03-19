@@ -462,7 +462,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>, <span class="ident">Tab</span>::<span class="ident">IntersectionInfo</span>(<span class="ident">id</span>));
     <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Connecting&quot;</span>));
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;Connecting&quot;</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">road_names</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">roads</span> {
         <span class="ident">road_names</span>.<span class="ident">insert</span>(
@@ -473,7 +473,7 @@
         );
     }
     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">road_names</span> {
-        <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;  {}&quot;</span>, <span class="ident">r</span>)));
+        <span class="ident">txt</span>.<span class="ident">add</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;  {}&quot;</span>, <span class="ident">r</span>));
     }
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
 
@@ -506,7 +506,7 @@
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
 
-    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="macro">format</span><span class="macro">!</span>(
         <span class="string">&quot;Since midnight: {} commuters and vehicles crossed&quot;</span>,
         <span class="ident">prettyprint_usize</span>(
             <span class="ident">app</span>.<span class="ident">primary</span>
@@ -515,7 +515,7 @@
                 .<span class="ident">intersection_thruput</span>
                 .<span class="ident">total_for</span>(<span class="ident">id</span>)
         )
-    )));
+    ));
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
 
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">opts</span>.<span class="ident">to_controls</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
@@ -622,7 +622,7 @@
             <span class="ident">outlines</span>.<span class="ident">push</span>(<span class="ident">p</span>);
         }
         <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#A3A3A3&quot;</span>), <span class="ident">arrow</span>.<span class="ident">clone</span>());
-        <span class="ident">tooltips</span>.<span class="ident">push</span>((<span class="ident">arrow</span>, <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">prettyprint_usize</span>(<span class="ident">demand</span>)))));
+        <span class="ident">tooltips</span>.<span class="ident">push</span>((<span class="ident">arrow</span>, <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">prettyprint_usize</span>(<span class="ident">demand</span>))));
     }
     <span class="ident">batch</span>.<span class="ident">extend</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">outlines</span>);
 
@@ -721,14 +721,14 @@
     {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
         <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} stages&quot;</span>, <span class="ident">signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>())).<span class="ident">small_heading</span>());
-        <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Signal offset: {}&quot;</span>, <span class="ident">signal</span>.<span class="ident">offset</span>)));
+        <span class="ident">txt</span>.<span class="ident">add</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Signal offset: {}&quot;</span>, <span class="ident">signal</span>.<span class="ident">offset</span>));
         {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>;
             <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">stages</span> {
                 <span class="ident">total</span> <span class="op">+</span><span class="op">=</span> <span class="ident">s</span>.<span class="ident">stage_type</span>.<span class="ident">simple_duration</span>();
             }
             <span class="comment">// TODO Say &quot;normally&quot; or something?</span>
-            <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;One cycle lasts {}&quot;</span>, <span class="ident">total</span>)));
+            <span class="ident">txt</span>.<span class="ident">add</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;One cycle lasts {}&quot;</span>, <span class="ident">total</span>));
         }
         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
     }

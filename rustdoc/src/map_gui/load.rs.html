@@ -814,7 +814,7 @@
             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">FileLoader</span> {
                 <span class="ident">response</span>: <span class="ident">rx</span>,
                 <span class="ident">on_load</span>: <span class="prelude-val">Some</span>(<span class="ident">on_load</span>),
-                <span class="ident">panel</span>: <span class="ident">ctx</span>.<span class="ident">make_loading_screen</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Loading {}...&quot;</span>, <span class="ident">url</span>)))),
+                <span class="ident">panel</span>: <span class="ident">ctx</span>.<span class="ident">make_loading_screen</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Loading {}...&quot;</span>, <span class="ident">url</span>))),
                 <span class="ident">started</span>: <span class="ident">Instant</span>::<span class="ident">now</span>(),
                 <span class="ident">url</span>,
             })
@@ -933,7 +933,7 @@
             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">RawFileLoader</span> {
                 <span class="ident">response</span>: <span class="ident">rx</span>,
                 <span class="ident">on_load</span>: <span class="prelude-val">Some</span>(<span class="ident">on_load</span>),
-                <span class="ident">panel</span>: <span class="ident">ctx</span>.<span class="ident">make_loading_screen</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Loading {}...&quot;</span>, <span class="ident">url</span>)))),
+                <span class="ident">panel</span>: <span class="ident">ctx</span>.<span class="ident">make_loading_screen</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Loading {}...&quot;</span>, <span class="ident">url</span>))),
                 <span class="ident">started</span>: <span class="ident">Instant</span>::<span class="ident">now</span>(),
                 <span class="ident">url</span>,
             })
@@ -1037,7 +1037,7 @@
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">FutureLoader</span> {
             <span class="ident">loading_title</span>: <span class="ident">loading_title</span>.<span class="ident">to_string</span>(),
             <span class="ident">started</span>: <span class="ident">Instant</span>::<span class="ident">now</span>(),
-            <span class="ident">panel</span>: <span class="ident">ctx</span>.<span class="ident">make_loading_screen</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">loading_title</span>))),
+            <span class="ident">panel</span>: <span class="ident">ctx</span>.<span class="ident">make_loading_screen</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">loading_title</span>)),
             <span class="ident">receiver</span>,
             <span class="ident">on_load</span>: <span class="prelude-val">Some</span>(<span class="ident">on_load</span>),
         })
@@ -1059,7 +1059,7 @@
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">FutureLoader</span> {
             <span class="ident">loading_title</span>: <span class="ident">loading_title</span>.<span class="ident">to_string</span>(),
             <span class="ident">started</span>: <span class="ident">Instant</span>::<span class="ident">now</span>(),
-            <span class="ident">panel</span>: <span class="ident">ctx</span>.<span class="ident">make_loading_screen</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">loading_title</span>))),
+            <span class="ident">panel</span>: <span class="ident">ctx</span>.<span class="ident">make_loading_screen</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">loading_title</span>)),
             <span class="ident">receiver</span>,
             <span class="ident">on_load</span>: <span class="prelude-val">Some</span>(<span class="ident">on_load</span>),
             <span class="ident">runtime</span>,

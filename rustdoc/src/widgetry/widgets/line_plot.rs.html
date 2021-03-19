@@ -400,8 +400,8 @@
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>,
-    <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
+    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>,
+    <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
 };
 
 <span class="comment">// The X is always time</span>
@@ -569,7 +569,7 @@
             <span class="kw">let</span> <span class="ident">percent_x</span> <span class="op">=</span> (<span class="ident">i</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> ((<span class="ident">num_x_labels</span> <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>);
             <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">max_x</span>.<span class="ident">percent_of</span>(<span class="ident">percent_x</span>);
             <span class="comment">// TODO Need ticks now to actually see where this goes</span>
-            <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">t</span>.<span class="ident">to_string</span>()))
+            <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">t</span>.<span class="ident">to_string</span>())
                 .<span class="ident">render</span>(<span class="ident">ctx</span>)
                 .<span class="ident">rotate</span>(<span class="ident">Angle</span>::<span class="ident">degrees</span>(<span class="op">-</span><span class="number">15.0</span>))
                 .<span class="ident">autocrop</span>();
@@ -623,12 +623,12 @@
                     <span class="kw">let</span> <span class="ident">y_percent</span> <span class="op">=</span> <span class="number">1.0</span> <span class="op">-</span> (<span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">/</span> <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span>);
 
                     <span class="comment">// TODO Draw this info in the ColorLegend</span>
-                    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="macro">format</span><span class="macro">!</span>(
                         <span class="string">&quot;{}: at {}, {}&quot;</span>,
                         <span class="ident">label</span>,
                         <span class="ident">t</span>.<span class="ident">ampm_tostring</span>(),
                         <span class="self">self</span>.<span class="ident">max_y</span>.<span class="ident">from_percent</span>(<span class="ident">y_percent</span>).<span class="ident">prettyprint</span>()
-                    )));
+                    ));
                 }
                 <span class="kw">if</span> <span class="op">!</span><span class="ident">txt</span>.<span class="ident">is_empty</span>() {
                     <span class="ident">g</span>.<span class="ident">fork_screenspace</span>();

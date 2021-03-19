@@ -457,8 +457,8 @@
     }
 
     <span class="doccomment">/// Add a tooltip to appear when hovering over the image.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tooltip</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">tooltip</span>: <span class="ident">Text</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">tooltip</span>);
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tooltip</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">tooltip</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">tooltip</span>.<span class="ident">into</span>());
         <span class="self">self</span>
     }
 

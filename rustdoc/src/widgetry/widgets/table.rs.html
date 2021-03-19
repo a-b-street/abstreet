@@ -496,7 +496,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">static_col</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">to_str</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span><span class="op">&gt;</span>) {
         <span class="self">self</span>.<span class="ident">column</span>(
             <span class="ident">name</span>,
-            <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>((<span class="ident">to_str</span>)(<span class="ident">x</span>))).<span class="ident">render</span>(<span class="ident">ctx</span>)),
+            <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> <span class="ident">Text</span>::<span class="ident">from</span>((<span class="ident">to_str</span>)(<span class="ident">x</span>)).<span class="ident">render</span>(<span class="ident">ctx</span>)),
             <span class="ident">Col</span>::<span class="ident">Static</span>,
         );
     }
