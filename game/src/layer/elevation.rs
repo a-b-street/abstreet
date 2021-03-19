@@ -1,6 +1,6 @@
 use geom::{ArrowCap, Distance, PolyLine};
 use map_gui::tools::{ColorLegend, ColorNetwork};
-use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Panel, Text, Widget};
+use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Panel, TextExt, Widget};
 
 use crate::app::App;
 use crate::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
@@ -35,31 +35,27 @@ impl Elevation {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Elevation {
         let mut colorer = ColorNetwork::new(app);
 
-        let mut max = 0.0_f64;
+        let mut steepest = 0.0_f64;
+        let mut batch = GeomBatch::new();
         for r in app.primary.map.all_roads() {
-            let pct = r.percent_grade(&app.primary.map).abs();
-            max = max.max(pct);
+            let pct = r.percent_incline(&app.primary.map);
+            steepest = steepest.max(pct.abs());
 
             let color = app.cs.good_to_bad_red.eval(
-                // TODO Rescale based on a reasonable steepest grade, once the data doesn't suck
-                pct.max(0.0).min(1.0),
+                // Treat 30% as the steepest, rounding off
+                (pct.abs() / 0.3).min(1.0),
             );
             colorer.add_r(r.id, color);
-        }
 
-        let mut batch = GeomBatch::new();
-        // Time for uphill arrows!
-        // TODO Draw V's, not arrows.
-        // TODO Or try gradient colors.
-        for r in app.primary.map.all_roads() {
-            let mut pl = r.center_pts.clone();
-            let e1 = app.primary.map.get_i(r.src_i).elevation;
-            let e2 = app.primary.map.get_i(r.dst_i).elevation;
-            if (e1 - e2).abs() / pl.length() < 0.01 {
+            // Draw arrows pointing uphill
+            // TODO Draw V's, not arrows.
+            // TODO Or try gradient colors.
+            if pct.abs() < 0.01 {
                 // Don't bother with ~flat roads
                 continue;
             }
-            if e1 > e2 {
+            let mut pl = r.center_pts.clone();
+            if pct < 0.0 {
                 pl = pl.reversed();
             }
 
@@ -86,11 +82,7 @@ impl Elevation {
 
         let panel = Panel::new(Widget::col(vec![
             header(ctx, "Elevation change"),
-            Text::from_multiline(vec![
-                Line(format!("Steepest road: {:.0}% grade", max * 100.0)),
-                Line("Note: elevation data is currently wrong!").secondary(),
-            ])
-            .into_widget(ctx),
+            format!("Steepest road: {:.0}% incline", steepest * 100.0).text_widget(ctx),
             ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["flat", "steep"]),
         ]))
         .aligned_pair(PANEL_PLACEMENT)

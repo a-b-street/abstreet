@@ -351,6 +351,22 @@ impl Map {
             timer.stop("setup ContractionHierarchyPathfinder");
         }
 
+        timer.start("check elevation data");
+        for r in map.all_roads() {
+            let pct = r.percent_incline(&map);
+            // Per https://wiki.openstreetmap.org/wiki/Key:incline#Common_.26_extreme_inclines, we
+            // shouldn't often see values outside a certain range. Adjust this when we import
+            // somewhere exceeding this...
+            if pct.abs() > 0.3 {
+                error!(
+                    "{} is unexpectedly steep! Incline is {}%",
+                    r.id,
+                    pct * 100.0
+                );
+            }
+        }
+        timer.stop("check elevation data");
+
         map
     }
 }
