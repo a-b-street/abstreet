@@ -213,7 +213,7 @@ impl Style {
         Style {
             // tint panel_bg a bit to increase contrast vs. the section_bg, otherwise
             // the section (and tabs) can be hard to distinguish
-            panel_bg: navy.tint(0.04).alpha(0.9),
+            panel_bg: navy.tint(0.05).alpha(0.9),
             field_bg: navy.shade(0.2),
             dropdown_border: Color::WHITE,
             // TODO: replace inner_panel_bg with this
