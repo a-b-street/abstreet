@@ -145,7 +145,7 @@ impl<A, T, F> Table<A, T, F> {
             make_pagination(ctx, num_filtered, self.skip),
         ])
         .named(&self.id)
-        // return in separate container incase caller want to apply an outter-name
+        // return in separate container in case caller want to apply an outer-name
         .container()
     }
 
