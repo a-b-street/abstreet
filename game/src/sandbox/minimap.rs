@@ -95,7 +95,6 @@ impl MinimapControls<App> for MinimapController {
                 return Some(Transition::Push(PickLayer::pick(ctx, app)));
             }
             "more data" => {
-                // return Some(Transition::Push(FinishedTripTable::new(ctx, app)));
                 return Some(Transition::Push(Box::new(TripTable::new(ctx, app))));
             }
             _ => unreachable!(),

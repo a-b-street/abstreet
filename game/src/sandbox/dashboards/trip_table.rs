@@ -16,9 +16,8 @@ use crate::sandbox::dashboards::DashTab;
 pub type Transition = widgetry::Transition<App>;
 
 pub struct TripTable {
-    // CLEANUP: tab vs. tabs naming
     tab: DashTab,
-    tabs: TabController,
+    table_tabs: TabController,
     panel: Panel,
     finished_trips_table: Table<App, FinishedTrip, Filters>,
     cancelled_trips_table: Table<App, CancelledTrip, Filters>,
@@ -107,7 +106,7 @@ impl TripTable {
 
         Self {
             tab: DashTab::TripTable,
-            tabs,
+            table_tabs: tabs,
             panel,
             finished_trips_table,
             cancelled_trips_table,
@@ -120,14 +119,16 @@ impl State<App> for TripTable {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => {
-                if self.tabs.active_tab_idx() == 0 && self.finished_trips_table.clicked(&x) {
+                if self.table_tabs.active_tab_idx() == 0 && self.finished_trips_table.clicked(&x) {
                     self.finished_trips_table
                         .replace_render(ctx, app, &mut self.panel);
-                } else if self.tabs.active_tab_idx() == 1 && self.cancelled_trips_table.clicked(&x)
+                } else if self.table_tabs.active_tab_idx() == 1
+                    && self.cancelled_trips_table.clicked(&x)
                 {
                     self.cancelled_trips_table
                         .replace_render(ctx, app, &mut self.panel);
-                } else if self.tabs.active_tab_idx() == 2 && self.unfinished_trips_table.clicked(&x)
+                } else if self.table_tabs.active_tab_idx() == 2
+                    && self.unfinished_trips_table.clicked(&x)
                 {
                     self.unfinished_trips_table
                         .replace_render(ctx, app, &mut self.panel);
@@ -135,7 +136,7 @@ impl State<App> for TripTable {
                     return open_trip_transition(app, idx);
                 } else if x == "close" {
                     return Transition::Pop;
-                } else if self.tabs.handle_action(ctx, &x, &mut self.panel) {
+                } else if self.table_tabs.handle_action(ctx, &x, &mut self.panel) {
                     // if true, tabs handled the action
                 } else {
                     todo!("unhandled action: {}", x)
@@ -146,7 +147,7 @@ impl State<App> for TripTable {
                     return t;
                 }
 
-                match self.tabs.active_tab_idx() {
+                match self.table_tabs.active_tab_idx() {
                     0 => {
                         self.finished_trips_table.panel_changed(&self.panel);
                         self.finished_trips_table
