@@ -6,8 +6,8 @@ use map_gui::render::DrawOptions;
 use map_gui::tools::{grey_out_map, PopupMsg};
 use map_gui::ID;
 use widgetry::{
-    Choice, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, Slider,
-    State, TabController, Text, Toggle, UpdateType, Widget,
+    Choice, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, Slider, State,
+    TabController, Text, Toggle, UpdateType, Widget,
 };
 
 use crate::app::{App, FindDelayedIntersections, ShowEverything, Transition};
@@ -30,7 +30,6 @@ impl JumpToTime {
     ) -> Box<dyn State<App>> {
         let target = app.primary.sim.time();
         let end_of_day = app.primary.sim.get_end_of_day();
-        // TODO Auto-fill width?
 
         let jump_to_time_btn = ctx
             .style()
@@ -39,6 +38,7 @@ impl JumpToTime {
             .hotkey(Key::T)
             .tooltip(Text::from(Line("Jump to time")));
         let jump_to_time_content = {
+            // TODO Auto-fill width?
             let slider_width = 500.0;
 
             Widget::col(vec![
@@ -76,15 +76,35 @@ impl JumpToTime {
             .text("Jump to delay")
             .hotkey(Key::D)
             .tooltip(Text::from(Line("Jump to delay")));
-        let jump_to_delay_content = Widget::col(vec![Line("TODO: jump to delay")
-            .small_heading()
-            .into_widget(ctx)]);
+        let jump_to_delay_content = Widget::col(vec![
+            Widget::row(vec![
+                Line("Jump to next").small_heading().into_widget(ctx),
+                Widget::dropdown(
+                    ctx,
+                    "delay",
+                    app.opts.jump_to_delay,
+                    vec![
+                        Choice::new("1", Duration::minutes(1)),
+                        Choice::new("2", Duration::minutes(2)),
+                        Choice::new("5", Duration::minutes(5)),
+                        Choice::new("10", Duration::minutes(10)),
+                    ],
+                ),
+                Line("minute delay").small_heading().into_widget(ctx),
+            ]),
+            Toggle::checkbox(
+                ctx,
+                "skip drawing (for faster simulations)",
+                None,
+                app.opts.dont_draw_time_warp,
+            )
+            .margin_above(30)
+            .named("don't draw"),
+            build_jump_to_delay_button(ctx, app.opts.jump_to_delay),
+        ]);
 
-        let mut tabs = TabController::new(
-            "jump_to_time_tabs".to_string(),
-            jump_to_time_btn,
-            jump_to_time_content,
-        );
+        let mut tabs = TabController::new("jump_to_time_tabs");
+        tabs.push_tab(jump_to_time_btn, jump_to_time_content);
         tabs.push_tab(jump_to_delay_btn, jump_to_delay_content);
 
         Box::new(JumpToTime {
@@ -134,8 +154,15 @@ impl State<App> for JumpToTime {
                     }
                     return Transition::Replace(TimeWarpScreen::new(ctx, app, self.target, None));
                 }
-                "Jump to delay" => {
-                    return Transition::Replace(JumpToDelay::new(ctx, app, self.maybe_mode.take()));
+                "jump to delay" => {
+                    let delay = self.panel.dropdown_value("delay");
+                    app.opts.jump_to_delay = delay;
+                    return Transition::Replace(TimeWarpScreen::new(
+                        ctx,
+                        app,
+                        app.primary.sim.get_end_of_day(),
+                        Some(delay),
+                    ));
                 }
                 action => {
                     if self.tabs.handle_action(ctx, action, &mut self.panel) {
@@ -147,124 +174,29 @@ impl State<App> for JumpToTime {
             },
             Outcome::Changed => {
                 app.opts.dont_draw_time_warp = self.panel.is_checked("don't draw");
+                if self.tabs.active_tab_idx() == 1 {
+                    self.panel.replace(
+                        ctx,
+                        "jump to delay",
+                        build_jump_to_delay_button(ctx, self.panel.dropdown_value("delay")),
+                    );
+                }
             }
             _ => {}
         }
-        let target = app
-            .primary
-            .sim
-            .get_end_of_day()
-            .percent_of(self.panel.slider("time slider").get_percent())
-            .round_seconds(600.0);
-        if target != self.target {
-            self.target = target;
-            self.panel
-                .replace(ctx, "jump to time", build_jump_to_time_btn(ctx, target));
-        }
 
-        if self.panel.clicked_outside(ctx) {
-            return Transition::Pop;
-        }
-
-        Transition::Keep
-    }
-
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
-        grey_out_map(g, app);
-        self.panel.draw(g);
-    }
-}
-
-struct JumpToDelay {
-    panel: Panel,
-    maybe_mode: Option<GameplayMode>,
-}
-
-impl JumpToDelay {
-    pub fn new(
-        ctx: &mut EventCtx,
-        app: &App,
-        maybe_mode: Option<GameplayMode>,
-    ) -> Box<dyn State<App>> {
-        Box::new(JumpToDelay {
-            maybe_mode,
-            panel: Panel::new(Widget::col(vec![
-                ctx.style().btn_close_widget(ctx),
-                Widget::custom_row(vec![
-                    ctx.style()
-                        .btn_tab
-                        .text("Jump to time")
-                        .hotkey(Key::T)
-                        .build_def(ctx),
-                    ctx.style()
-                        .btn_tab
-                        .text("Jump to delay")
-                        .disabled(true)
-                        .build_def(ctx),
-                ])
-                .bg(Color::WHITE),
-                Widget::row(vec![
-                    Line("Jump to next").small_heading().into_widget(ctx),
-                    Widget::dropdown(
-                        ctx,
-                        "delay",
-                        app.opts.jump_to_delay,
-                        vec![
-                            Choice::new("1", Duration::minutes(1)),
-                            Choice::new("2", Duration::minutes(2)),
-                            Choice::new("5", Duration::minutes(5)),
-                            Choice::new("10", Duration::minutes(10)),
-                        ],
-                    ),
-                    Line("minute delay").small_heading().into_widget(ctx),
-                ]),
-                Toggle::checkbox(
-                    ctx,
-                    "skip drawing (for faster simulations)",
-                    None,
-                    app.opts.dont_draw_time_warp,
-                )
-                .margin_above(30)
-                .named("don't draw"),
-                build_jump_to_delay_button(ctx, app.opts.jump_to_delay),
-            ]))
-            .exact_size_percent(50, 50)
-            .build(ctx),
-        })
-    }
-}
-
-impl State<App> for JumpToDelay {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
-                "close" => {
-                    return Transition::Pop;
-                }
-                "jump to delay" => {
-                    let delay = self.panel.dropdown_value("delay");
-                    app.opts.jump_to_delay = delay;
-                    return Transition::Replace(TimeWarpScreen::new(
-                        ctx,
-                        app,
-                        app.primary.sim.get_end_of_day(),
-                        Some(delay),
-                    ));
-                }
-                "Jump to time" => {
-                    return Transition::Replace(JumpToTime::new(ctx, app, self.maybe_mode.take()));
-                }
-                _ => unreachable!(),
-            },
-            Outcome::Changed => {
-                app.opts.dont_draw_time_warp = self.panel.is_checked("don't draw");
-                self.panel.replace(
-                    ctx,
-                    "jump to delay",
-                    build_jump_to_delay_button(ctx, self.panel.dropdown_value("delay")),
-                );
+        if self.tabs.active_tab_idx() == 0 {
+            let target = app
+                .primary
+                .sim
+                .get_end_of_day()
+                .percent_of(self.panel.slider("time slider").get_percent())
+                .round_seconds(600.0);
+            if target != self.target {
+                self.target = target;
+                self.panel
+                    .replace(ctx, "jump to time", build_jump_to_time_btn(ctx, target));
             }
-            _ => {}
         }
 
         if self.panel.clicked_outside(ctx) {
