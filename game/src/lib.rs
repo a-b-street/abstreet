@@ -107,11 +107,12 @@ pub fn main() {
         // Parking data in the actdev maps is nonexistent, so many people have convoluted walking
         // routes just to fetch their car. Just disable parking entirely.
         flags.sim_flags.opts.infinite_parking = true;
-        mode = Some(sandbox::GameplayMode::Actdev(
-            name,
-            "base".to_string(),
-            false,
-        ));
+        let scenario = if args.optional("--actdev_scenario") == Some("go_active".to_string()) {
+            "go_active".to_string()
+        } else {
+            "base".to_string()
+        };
+        mode = Some(sandbox::GameplayMode::Actdev(name, scenario, false));
     }
 
     args.done();
