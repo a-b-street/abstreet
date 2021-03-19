@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["add_data",""],["generate_input",""]]});
+initSidebarItems({"fn":[["add_data",""],["generate_input",""],["scrape_output",""]]});
