@@ -819,22 +819,6 @@
 <span id="816">816</span>
 <span id="817">817</span>
 <span id="818">818</span>
-<span id="819">819</span>
-<span id="820">820</span>
-<span id="821">821</span>
-<span id="822">822</span>
-<span id="823">823</span>
-<span id="824">824</span>
-<span id="825">825</span>
-<span id="826">826</span>
-<span id="827">827</span>
-<span id="828">828</span>
-<span id="829">829</span>
-<span id="830">830</span>
-<span id="831">831</span>
-<span id="832">832</span>
-<span id="833">833</span>
-<span id="834">834</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -849,8 +833,8 @@
     <span class="ident">VehicleType</span>,
 };
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">Outcome</span>,
-    <span class="ident">Panel</span>, <span class="ident">PlotOptions</span>, <span class="ident">Series</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>,
+    <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PlotOptions</span>,
+    <span class="ident">Series</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
@@ -1549,32 +1533,16 @@
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_tab</span>
                 .<span class="ident">text</span>(<span class="ident">name</span>)
-                <span class="comment">// We use &quot;disabled&quot; to denote &quot;currently selected&quot;, but we want to style it like</span>
-                <span class="comment">// normal</span>
+                <span class="comment">// We abuse &quot;disabled&quot; to denote &quot;currently selected&quot;</span>
                 .<span class="ident">disabled</span>(<span class="ident">current_tab</span>.<span class="ident">variant</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">link</span>.<span class="ident">variant</span>())
-                .<span class="ident">bg_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_tab</span>.<span class="ident">bg</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
-                .<span class="ident">label_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_tab</span>.<span class="ident">fg</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
-                .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_tab</span>.<span class="ident">outline</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
-                <span class="comment">// Hide the hit area for selectable tabs unless hovered</span>
-                .<span class="ident">bg_color</span>(<span class="ident">Color</span>::<span class="ident">CLEAR</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
-                .<span class="ident">outline</span>((<span class="number">0.0</span>, <span class="ident">Color</span>::<span class="ident">CLEAR</span>), <span class="ident">ControlState</span>::<span class="ident">Default</span>)
-                .<span class="ident">bg_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_tab</span>.<span class="ident">bg</span>.<span class="ident">alpha</span>(<span class="number">0.6</span>), <span class="ident">ControlState</span>::<span class="ident">Hovered</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         );
         <span class="ident">hyperlinks</span>.<span class="ident">insert</span>(<span class="ident">name</span>.<span class="ident">to_string</span>(), <span class="ident">link</span>);
     }
     {
-        <span class="comment">// stop-gap color that is semi-legible across themes until the tab redesign is completed</span>
-        <span class="kw">let</span> <span class="ident">tab_bg</span> <span class="op">=</span> <span class="ident">ctx</span>
-            .<span class="ident">style</span>()
-            .<span class="ident">btn_tab</span>
-            .<span class="ident">bg</span>
-            .<span class="ident">lerp</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_tab</span>.<span class="ident">fg</span>, <span class="number">0.3</span>)
-            .<span class="ident">alpha</span>(<span class="number">1.0</span>);
-
         <span class="comment">// TODO Centered, but actually, we need to set the padding of each button to divide the</span>
         <span class="comment">// available space evenly. Fancy fill rules... hmmm.</span>
-        <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">row</span>).<span class="ident">bg</span>(<span class="ident">tab_bg</span>).<span class="ident">margin_vert</span>(<span class="number">16</span>)
+        <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">row</span>).<span class="ident">margin_vert</span>(<span class="number">16</span>)
     }
 }
 

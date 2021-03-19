@@ -178,6 +178,13 @@
 <span id="175">175</span>
 <span id="176">176</span>
 <span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -354,6 +361,13 @@
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ScreenDims</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">square</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ScreenDims</span> {
         <span class="ident">ScreenDims</span>::<span class="ident">square</span>(<span class="ident">square</span>)
+    }
+}
+
+<span class="doccomment">/// (Width, Height) -&gt; ScreenDims</span>
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span>(<span class="ident">f64</span>, <span class="ident">f64</span>)<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ScreenDims</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">width_and_height</span>: (<span class="ident">f64</span>, <span class="ident">f64</span>)) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ScreenDims</span> {
+        <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="ident">width_and_height</span>.<span class="number">0</span>, <span class="ident">width_and_height</span>.<span class="number">1</span>)
     }
 }
 </pre></div>

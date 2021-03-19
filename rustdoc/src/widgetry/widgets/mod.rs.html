@@ -806,6 +806,15 @@
 <span id="803">803</span>
 <span id="804">804</span>
 <span id="805">805</span>
+<span id="806">806</span>
+<span id="807">807</span>
+<span id="808">808</span>
+<span id="809">809</span>
+<span id="810">810</span>
+<span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -842,8 +851,11 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">slider</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">spinner</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">table</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">tabs</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">text_box</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">toggle</span>;
+
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">DEFAULT_CORNER_RADIUS</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">5.0</span>;
 
 <span class="doccomment">/// Create a new widget by implementing this trait. You can instantiate your widget by calling</span>
 <span class="doccomment">/// `Widget::new(Box::new(instance of your new widget))`, which gives you the usual style options.</span>
@@ -1031,6 +1043,12 @@
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="self">self</span>])
     }
 
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">section</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+        <span class="self">self</span>.<span class="ident">bg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_bg</span>)
+            .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_outline</span>)
+            .<span class="ident">padding</span>(<span class="number">16</span>)
+    }
+
     <span class="comment">// TODO Maybe panic if we call this on a non-container</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">EdgeInsets</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">insets</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="kw">let</span> <span class="ident">insets</span> <span class="op">=</span> <span class="ident">insets</span>.<span class="ident">into</span>();
@@ -1149,7 +1167,7 @@
             <span class="ident">layout</span>: <span class="ident">LayoutStyle</span> {
                 <span class="ident">bg_color</span>: <span class="prelude-val">None</span>,
                 <span class="ident">outline</span>: <span class="prelude-val">None</span>,
-                <span class="ident">corner_rounding</span>: <span class="ident">CornerRounding</span>::<span class="ident">from</span>(<span class="number">5.0</span>),
+                <span class="ident">corner_rounding</span>: <span class="ident">CornerRounding</span>::<span class="ident">from</span>(<span class="ident">DEFAULT_CORNER_RADIUS</span>),
                 <span class="ident">style</span>: <span class="ident">Style</span> {
                     ..<span class="ident">Default</span>::<span class="ident">default</span>()
                 },

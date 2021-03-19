@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["preview_route",""],["preview_trip",""]],"struct":[["GenericTripTable",""]]});
+initSidebarItems({"fn":[["open_trip_transition",""],["preview_route",""],["preview_trip",""]]});

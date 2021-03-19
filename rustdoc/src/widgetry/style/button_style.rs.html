@@ -139,7 +139,6 @@
 <span id="136">136</span>
 <span id="137">137</span>
 <span id="138">138</span>
-<span id="139">139</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">CornerRadii</span>;
 
@@ -249,15 +248,14 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">btn_popup_icon_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">icon_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
         <span class="comment">// The text is styled like an &quot;outline&quot; button, while the image is styled like a &quot;solid&quot;</span>
         <span class="comment">// button.</span>
-        <span class="kw">let</span> <span class="ident">solid_style</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">btn_tab</span>;
         <span class="self">self</span>.<span class="ident">btn_outline</span>
             .<span class="ident">btn</span>()
             .<span class="ident">label_text</span>(<span class="ident">text</span>)
             .<span class="ident">image_path</span>(<span class="ident">icon_path</span>)
             .<span class="ident">image_dims</span>(<span class="number">25.0</span>)
-            .<span class="ident">image_color</span>(<span class="ident">solid_style</span>.<span class="ident">fg</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
-            .<span class="ident">image_bg_color</span>(<span class="ident">solid_style</span>.<span class="ident">bg</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
-            .<span class="ident">image_bg_color</span>(<span class="ident">solid_style</span>.<span class="ident">bg_hover</span>, <span class="ident">ControlState</span>::<span class="ident">Hovered</span>)
+            .<span class="ident">image_color</span>(<span class="self">self</span>.<span class="ident">btn_solid</span>.<span class="ident">fg</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
+            .<span class="ident">image_bg_color</span>(<span class="self">self</span>.<span class="ident">btn_solid</span>.<span class="ident">bg</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
+            .<span class="ident">image_bg_color</span>(<span class="self">self</span>.<span class="ident">btn_solid</span>.<span class="ident">bg_hover</span>, <span class="ident">ControlState</span>::<span class="ident">Hovered</span>)
             <span class="comment">// Move the padding from the *entire button* to just the image, so we get a colored</span>
             <span class="comment">// padded area around the image.</span>
             .<span class="ident">padding</span>(<span class="number">0</span>)

@@ -583,6 +583,42 @@
 <span id="580">580</span>
 <span id="581">581</span>
 <span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -593,8 +629,8 @@
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ContentMode</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Fill</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
     <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PersistentSplit</span>, <span class="ident">PlotOptions</span>,
-    <span class="ident">ScreenDims</span>, <span class="ident">Series</span>, <span class="ident">SharedAppState</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Texture</span>, <span class="ident">Toggle</span>, <span class="ident">Transition</span>,
-    <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">ScreenDims</span>, <span class="ident">Series</span>, <span class="ident">SharedAppState</span>, <span class="ident">State</span>, <span class="ident">TabController</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Texture</span>, <span class="ident">Toggle</span>,
+    <span class="ident">Transition</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">main</span>() {
@@ -608,7 +644,14 @@
     <span class="comment">// read_svg. But we should have a more minimal example of how to do that here.</span>
     <span class="ident">widgetry</span>::<span class="ident">run</span>(
         <span class="ident">widgetry</span>::<span class="ident">Settings</span>::<span class="ident">new</span>(<span class="string">&quot;widgetry demo&quot;</span>).<span class="ident">read_svg</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">abstio</span>::<span class="ident">slurp_bytes</span>)),
-        <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> (<span class="ident">App</span> {}, <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Demo</span>::<span class="ident">new</span>(<span class="ident">ctx</span>))]),
+        <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
+            <span class="comment">// TODO: remove Style::pregame and make light_bg the default.</span>
+            <span class="ident">ctx</span>.<span class="ident">set_style</span>(<span class="ident">widgetry</span>::<span class="ident">Style</span>::<span class="ident">light_bg</span>());
+            <span class="comment">// TODO: Add a toggle to switch theme in demo (and recreate UI in that new theme)</span>
+            <span class="comment">// ctx.set_style(widgetry::Style::dark_bg());</span>
+
+            (<span class="ident">App</span> {}, <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Demo</span>::<span class="ident">new</span>(<span class="ident">ctx</span>))])
+        },
     );
 }
 
@@ -622,16 +665,19 @@
     <span class="ident">scrollable_canvas</span>: <span class="ident">Drawable</span>,
     <span class="ident">texture_demo</span>: <span class="ident">Drawable</span>,
     <span class="ident">elapsed</span>: <span class="ident">Duration</span>,
+    <span class="ident">tabs</span>: <span class="ident">TabController</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Demo</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Demo</span> {
-        <span class="ident">Demo</span> {
-            <span class="ident">controls</span>: <span class="ident">make_controls</span>(<span class="ident">ctx</span>),
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tabs</span> <span class="op">=</span> <span class="ident">make_tabs</span>(<span class="ident">ctx</span>);
+        <span class="self">Self</span> {
+            <span class="ident">controls</span>: <span class="ident">make_controls</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tabs</span>),
             <span class="ident">timeseries_panel</span>: <span class="prelude-val">None</span>,
             <span class="ident">scrollable_canvas</span>: <span class="ident">setup_scrollable_canvas</span>(<span class="ident">ctx</span>),
             <span class="ident">texture_demo</span>: <span class="ident">setup_texture_demo</span>(<span class="ident">ctx</span>, <span class="ident">Texture</span>::<span class="ident">SAND</span>, <span class="ident">Texture</span>::<span class="ident">CACTUS</span>),
             <span class="ident">elapsed</span>: <span class="ident">Duration</span>::<span class="ident">ZERO</span>,
+            <span class="ident">tabs</span>: <span class="ident">tabs</span>,
         }
     }
 
@@ -749,7 +795,9 @@
                     <span class="self">self</span>.<span class="ident">texture_demo</span> <span class="op">=</span> <span class="ident">setup_texture_demo</span>(<span class="ident">ctx</span>, <span class="ident">bg_texture</span>, <span class="ident">fg_texture</span>);
                 }
                 <span class="ident">action</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">if</span> <span class="ident">action</span>.<span class="ident">contains</span>(<span class="string">&quot;btn_&quot;</span>) {
+                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">tabs</span>.<span class="ident">handle_action</span>(<span class="ident">ctx</span>, <span class="ident">action</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">controls</span>) {
+                        <span class="comment">// if true, tabs has handled the action</span>
+                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">action</span>.<span class="ident">contains</span>(<span class="string">&quot;btn_&quot;</span>) {
                         <span class="ident">log</span>::<span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;clicked button: {:?}&quot;</span>, <span class="ident">action</span>);
                     } <span class="kw">else</span> {
                         <span class="macro">unimplemented</span><span class="macro">!</span>(<span class="string">&quot;clicked: {:?}&quot;</span>, <span class="ident">x</span>);
@@ -888,66 +936,67 @@
     <span class="ident">batch</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">make_controls</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
+<span class="kw">fn</span> <span class="ident">make_tabs</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TabController</span> {
     <span class="kw">let</span> <span class="ident">style</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">style</span>();
-    <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;widgetry demo&quot;</span>).<span class="ident">big_heading_styled</span>(),
-            <span class="ident">Line</span>(<span class="string">&quot;Click and drag the background to pan, use touchpad or scroll wheel to zoom&quot;</span>),
-        ])
-        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tabs</span> <span class="op">=</span> <span class="ident">TabController</span>::<span class="ident">new</span>(<span class="string">&quot;demo_tabs&quot;</span>);
+
+    <span class="kw">let</span> <span class="ident">gallery_bar_item</span> <span class="op">=</span> <span class="ident">style</span>.<span class="ident">btn_tab</span>.<span class="ident">text</span>(<span class="string">&quot;Component Gallery&quot;</span>);
+    <span class="kw">let</span> <span class="ident">gallery_content</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Text&quot;</span>).<span class="ident">big_heading_styled</span>().<span class="ident">size</span>(<span class="number">18</span>)).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;You can &quot;</span>),
             <span class="ident">Line</span>(<span class="string">&quot;change fonts &quot;</span>).<span class="ident">big_heading_plain</span>(),
-            <span class="ident">Line</span>(<span class="string">&quot;on the same &quot;</span>).<span class="ident">small</span>(),
+            <span class="ident">Line</span>(<span class="string">&quot;on the same &quot;</span>).<span class="ident">small</span>().<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLUE</span>),
             <span class="ident">Line</span>(<span class="string">&quot;line!&quot;</span>).<span class="ident">small_heading</span>(),
         ])
-        .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">PURPLE</span>)
+        .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">GREEN</span>)
         .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="comment">// Button Style Gallery</span>
-        <span class="comment">// TODO might be nice to have this in separate tabs or something.</span>
         <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Buttons&quot;</span>).<span class="ident">big_heading_styled</span>().<span class="ident">size</span>(<span class="number">18</span>)).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">style</span>
                 .<span class="ident">btn_solid_primary</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Primary&quot;</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;btn_primary_text&quot;</span>),
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;btn_solid_primary_text&quot;</span>),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">style</span>
                     .<span class="ident">btn_solid_primary</span>
                     .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/map.svg&quot;</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;btn_primary_icon_1&quot;</span>),
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;btn_solid_primary_icon&quot;</span>),
                 <span class="ident">style</span>
                     .<span class="ident">btn_plain_primary</span>
                     .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/map.svg&quot;</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;btn_primary_icon_2&quot;</span>),
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;btn_plain_primary_icon&quot;</span>),
             ]),
             <span class="ident">style</span>
                 .<span class="ident">btn_solid_primary</span>
                 .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>, <span class="string">&quot;Primary&quot;</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;btn_primary_icon_text&quot;</span>),
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;btn_solid_primary_icon_text&quot;</span>),
         ]),
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">style</span>
                 .<span class="ident">btn_outline</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Secondary&quot;</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;btn_outline_dark_text&quot;</span>),
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;btn_outline_text&quot;</span>),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">style</span>
                     .<span class="ident">btn_outline</span>
                     .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/map.svg&quot;</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;btn_outline_dark_icon_1&quot;</span>),
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;btn_outline_icon&quot;</span>),
                 <span class="ident">style</span>
                     .<span class="ident">btn_plain</span>
                     .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/map.svg&quot;</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;btn_outline_dark_icon_2&quot;</span>),
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;btn_plain_icon&quot;</span>),
             ]),
             <span class="ident">style</span>
                 .<span class="ident">btn_outline</span>
                 .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>, <span class="string">&quot;Secondary&quot;</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;btn_outline.icon_text&quot;</span>),
         ]),
+        <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">style</span>
+            .<span class="ident">btn_popup_icon_text</span>(<span class="string">&quot;system/assets/tools/map.svg&quot;</span>, <span class="string">&quot;Popup&quot;</span>)
+            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;btn_popup_icon_text&quot;</span>)]),
         <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;Images&quot;</span>).<span class="ident">big_heading_styled</span>().<span class="ident">size</span>(<span class="number">18</span>),
             <span class="ident">Line</span>(
@@ -997,90 +1046,11 @@
         ]),
         <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Spinner&quot;</span>).<span class="ident">big_heading_styled</span>().<span class="ident">size</span>(<span class="number">18</span>)).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="ident">widgetry</span>::<span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">0</span>, <span class="number">11</span>), <span class="number">1</span>),
-        <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline</span>
-                .<span class="ident">text</span>(<span class="string">&quot;New faces&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">F</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;generate new faces&quot;</span>),
-            <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Draw scrollable canvas&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>),
-            <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Show timeseries&quot;</span>, <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">T</span>), <span class="bool-val">false</span>),
-        ]),
-        <span class="string">&quot;Stopwatch: ...&quot;</span>
-            .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
-            .<span class="ident">named</span>(<span class="string">&quot;stopwatch&quot;</span>)
-            .<span class="ident">margin_above</span>(<span class="number">30</span>),
-        <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Toggle</span>::<span class="ident">new</span>(
-                <span class="bool-val">false</span>,
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Pause&quot;</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Space</span>)
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;pause the stopwatch&quot;</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Resume&quot;</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Space</span>)
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;resume the stopwatch&quot;</span>),
-            )
-            .<span class="ident">named</span>(<span class="string">&quot;paused&quot;</span>),
-            <span class="ident">PersistentSplit</span>::<span class="ident">widget</span>(
-                <span class="ident">ctx</span>,
-                <span class="string">&quot;adjust timer&quot;</span>,
-                <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">20.0</span>),
-                <span class="prelude-val">None</span>,
-                <span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;+20s&quot;</span>, <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">20.0</span>)),
-                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;-10s&quot;</span>, <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="op">-</span><span class="number">10.0</span>)),
-                ],
-            ),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Reset Timer&quot;</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;reset the stopwatch&quot;</span>),
-        ])
-        .<span class="ident">evenly_spaced</span>(),
-        <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
-                <span class="ident">ctx</span>,
-                <span class="string">&quot;alignment&quot;</span>,
-                (<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>),
-                <span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Top&quot;</span>, (<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)),
-                    <span class="ident">Choice</span>::<span class="ident">new</span>(
-                        <span class="string">&quot;Left&quot;</span>,
-                        (<span class="ident">HorizontalAlignment</span>::<span class="ident">Left</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Center</span>),
-                    ),
-                    <span class="ident">Choice</span>::<span class="ident">new</span>(
-                        <span class="string">&quot;Bottom&quot;</span>,
-                        (<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Bottom</span>),
-                    ),
-                    <span class="ident">Choice</span>::<span class="ident">new</span>(
-                        <span class="string">&quot;Right&quot;</span>,
-                        (<span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Center</span>),
-                    ),
-                    <span class="ident">Choice</span>::<span class="ident">new</span>(
-                        <span class="string">&quot;Center&quot;</span>,
-                        (<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Center</span>),
-                    ),
-                ],
-            ),
-            <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
-                <span class="ident">ctx</span>,
-                <span class="string">&quot;texture&quot;</span>,
-                (<span class="ident">Texture</span>::<span class="ident">SAND</span>, <span class="ident">Texture</span>::<span class="ident">CACTUS</span>),
-                <span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Cold&quot;</span>, (<span class="ident">Texture</span>::<span class="ident">SNOW</span>, <span class="ident">Texture</span>::<span class="ident">SNOW_PERSON</span>)),
-                    <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Hot&quot;</span>, (<span class="ident">Texture</span>::<span class="ident">SAND</span>, <span class="ident">Texture</span>::<span class="ident">CACTUS</span>)),
-                ],
-            ),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_primary</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Apply&quot;</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;apply&quot;</span>),
-        ])
-        .<span class="ident">margin_above</span>(<span class="number">30</span>),
+    ]);
+    <span class="ident">tabs</span>.<span class="ident">push_tab</span>(<span class="ident">gallery_bar_item</span>, <span class="ident">gallery_content</span>);
+
+    <span class="kw">let</span> <span class="ident">qa_bar_item</span> <span class="op">=</span> <span class="ident">style</span>.<span class="ident">btn_tab</span>.<span class="ident">text</span>(<span class="string">&quot;Conformance Checks&quot;</span>);
+    <span class="kw">let</span> <span class="ident">qa_content</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Text</span>::<span class="ident">from</span>(
             <span class="ident">Line</span>(<span class="string">&quot;Controls should be same height&quot;</span>)
                 .<span class="ident">big_heading_styled</span>()
@@ -1151,6 +1121,108 @@
                 ),
             ])
         },
+    ]);
+
+    <span class="ident">tabs</span>.<span class="ident">push_tab</span>(<span class="ident">qa_bar_item</span>, <span class="ident">qa_content</span>);
+
+    <span class="ident">tabs</span>
+}
+
+<span class="kw">fn</span> <span class="ident">make_controls</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">tabs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TabController</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
+    <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;widgetry demo&quot;</span>).<span class="ident">big_heading_styled</span>()).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+        <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(
+                <span class="string">&quot;Click and drag the background to pan, use touchpad or scroll wheel to zoom&quot;</span>,
+            ))
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_outline</span>
+                    .<span class="ident">text</span>(<span class="string">&quot;New faces&quot;</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">F</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;generate new faces&quot;</span>),
+                <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Draw scrollable canvas&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>),
+                <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Show timeseries&quot;</span>, <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">T</span>), <span class="bool-val">false</span>),
+            ]),
+            <span class="string">&quot;Stopwatch: ...&quot;</span>
+                .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
+                .<span class="ident">named</span>(<span class="string">&quot;stopwatch&quot;</span>)
+                .<span class="ident">margin_above</span>(<span class="number">30</span>),
+            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Toggle</span>::<span class="ident">new</span>(
+                    <span class="bool-val">false</span>,
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;Pause&quot;</span>)
+                        .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Space</span>)
+                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;pause the stopwatch&quot;</span>),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;Resume&quot;</span>)
+                        .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Space</span>)
+                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;resume the stopwatch&quot;</span>),
+                )
+                .<span class="ident">named</span>(<span class="string">&quot;paused&quot;</span>),
+                <span class="ident">PersistentSplit</span>::<span class="ident">widget</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="string">&quot;adjust timer&quot;</span>,
+                    <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">20.0</span>),
+                    <span class="prelude-val">None</span>,
+                    <span class="macro">vec</span><span class="macro">!</span>[
+                        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;+20s&quot;</span>, <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">20.0</span>)),
+                        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;-10s&quot;</span>, <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="op">-</span><span class="number">10.0</span>)),
+                    ],
+                ),
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_outline</span>
+                    .<span class="ident">text</span>(<span class="string">&quot;Reset Timer&quot;</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;reset the stopwatch&quot;</span>),
+            ])
+            .<span class="ident">evenly_spaced</span>(),
+            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="string">&quot;alignment&quot;</span>,
+                    (<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>),
+                    <span class="macro">vec</span><span class="macro">!</span>[
+                        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Top&quot;</span>, (<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)),
+                        <span class="ident">Choice</span>::<span class="ident">new</span>(
+                            <span class="string">&quot;Left&quot;</span>,
+                            (<span class="ident">HorizontalAlignment</span>::<span class="ident">Left</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Center</span>),
+                        ),
+                        <span class="ident">Choice</span>::<span class="ident">new</span>(
+                            <span class="string">&quot;Bottom&quot;</span>,
+                            (<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Bottom</span>),
+                        ),
+                        <span class="ident">Choice</span>::<span class="ident">new</span>(
+                            <span class="string">&quot;Right&quot;</span>,
+                            (<span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Center</span>),
+                        ),
+                        <span class="ident">Choice</span>::<span class="ident">new</span>(
+                            <span class="string">&quot;Center&quot;</span>,
+                            (<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Center</span>),
+                        ),
+                    ],
+                ),
+                <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="string">&quot;texture&quot;</span>,
+                    (<span class="ident">Texture</span>::<span class="ident">SAND</span>, <span class="ident">Texture</span>::<span class="ident">CACTUS</span>),
+                    <span class="macro">vec</span><span class="macro">!</span>[
+                        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Cold&quot;</span>, (<span class="ident">Texture</span>::<span class="ident">SNOW</span>, <span class="ident">Texture</span>::<span class="ident">SNOW_PERSON</span>)),
+                        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Hot&quot;</span>, (<span class="ident">Texture</span>::<span class="ident">SAND</span>, <span class="ident">Texture</span>::<span class="ident">CACTUS</span>)),
+                    ],
+                ),
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_solid_primary</span>
+                    .<span class="ident">text</span>(<span class="string">&quot;Apply&quot;</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;apply&quot;</span>),
+            ])
+            .<span class="ident">margin_above</span>(<span class="number">30</span>),
+        ])
+        .<span class="ident">section</span>(<span class="ident">ctx</span>),
+        <span class="ident">tabs</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>),
     ])) <span class="comment">// end panel</span>
     .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
     .<span class="ident">build</span>(<span class="ident">ctx</span>)

@@ -572,23 +572,6 @@
 <span id="569">569</span>
 <span id="570">570</span>
 <span id="571">571</span>
-<span id="572">572</span>
-<span id="573">573</span>
-<span id="574">574</span>
-<span id="575">575</span>
-<span id="576">576</span>
-<span id="577">577</span>
-<span id="578">578</span>
-<span id="579">579</span>
-<span id="580">580</span>
-<span id="581">581</span>
-<span id="582">582</span>
-<span id="583">583</span>
-<span id="584">584</span>
-<span id="585">585</span>
-<span id="586">586</span>
-<span id="587">587</span>
-<span id="588">588</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! This is a tool to experiment with the concept of 15-minute neighborhoods. Can you access your</span>
 <span class="doccomment">//! daily needs (like groceries, a cafe, a library) within a 15-minute walk, bike ride, or public</span>
@@ -1007,7 +990,6 @@
 }
 
 <span class="kw">struct</span> <span class="ident">ExploreAmenities</span> {
-    <span class="ident">category</span>: <span class="ident">AmenityType</span>,
     <span class="ident">table</span>: <span class="ident">Table</span><span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">Entry</span>, ()<span class="op">&gt;</span>,
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
     <span class="ident">draw</span>: <span class="ident">Drawable</span>,
@@ -1052,6 +1034,7 @@
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">table</span>: <span class="ident">Table</span><span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">Entry</span>, ()<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Table</span>::<span class="ident">new</span>(
+            <span class="string">&quot;time_to_reach_table&quot;</span>,
             <span class="ident">entries</span>,
             <span class="comment">// The label has extra junk to avoid crashing when one building has two stores,</span>
             <span class="comment">// possibly with the same name in the current language</span>
@@ -1089,27 +1072,10 @@
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
 
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">ExploreAmenities</span> {
-            <span class="ident">category</span>: <span class="ident">category</span>,
             <span class="ident">table</span>,
             <span class="ident">panel</span>,
             <span class="ident">draw</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
         })
-    }
-
-    <span class="kw">fn</span> <span class="ident">recalc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} within 15 minutes&quot;</span>, <span class="self">self</span>.<span class="ident">category</span>))
-                    .<span class="ident">small_heading</span>()
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
-            ]),
-            <span class="self">self</span>.<span class="ident">table</span>.<span class="ident">render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-        ]))
-        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">TopInset</span>)
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
-        <span class="ident">new</span>.<span class="ident">restore</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
-        <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">new</span>;
     }
 }
 
@@ -1120,7 +1086,7 @@
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">table</span>.<span class="ident">clicked</span>(<span class="kw-2">&amp;</span><span class="ident">x</span>) {
-                    <span class="self">self</span>.<span class="ident">recalc</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                    <span class="self">self</span>.<span class="ident">table</span>.<span class="ident">replace_render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">panel</span>)
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;close&quot;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">split</span>(<span class="string">&quot;:&quot;</span>).<span class="ident">next</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">ok</span>())
@@ -1133,7 +1099,7 @@
             }
             <span class="ident">Outcome</span>::<span class="ident">Changed</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">table</span>.<span class="ident">panel_changed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
-                <span class="self">self</span>.<span class="ident">recalc</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                <span class="self">self</span>.<span class="ident">table</span>.<span class="ident">replace_render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">panel</span>)
             }
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }

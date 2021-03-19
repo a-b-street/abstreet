@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["make_panel",""],["make_table",""],["produce_raw_data",""]],"struct":[["Entry",""],["Filters",""],["ParkingOverhead",""]]});
+initSidebarItems({"fn":[["make_table",""],["produce_raw_data",""]],"struct":[["Entry",""],["Filters",""],["ParkingOverhead",""]]});
