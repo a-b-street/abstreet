@@ -36,17 +36,21 @@ impl TripTable {
         }
         let total = finished + cancelled + unfinished;
 
+        let percent = |x: usize| -> f64 {
+            if total > 0 {
+                (x as f64) / (total as f64) * 100.0
+            } else {
+                0.0
+            }
+        };
+
         let finished_trips_btn = ctx
             .style()
             .btn_tab
             .text(format!(
-                "{} ({:.1}%) Finished Trips",
+                "Finished Trips: {} ({:.1}%)",
                 prettyprint_usize(finished),
-                if total > 0 {
-                    (finished as f64) / (total as f64) * 100.0
-                } else {
-                    0.0
-                }
+                percent(finished),
             ))
             .tooltip(Text::from(Line("Finished Trips")));
 
@@ -63,7 +67,7 @@ impl TripTable {
         let cancelled_trips_btn = ctx
             .style()
             .btn_tab
-            .text(format!("{} Cancelled Trips", prettyprint_usize(cancelled)))
+            .text(format!("Cancelled Trips: {}", prettyprint_usize(cancelled)))
             .tooltip(Text::from(Line("Cancelled Trips")));
         let cancelled_trips_content = Widget::col(vec![
             cancelled_trips_table.render(ctx, app),
@@ -78,13 +82,9 @@ impl TripTable {
             .style()
             .btn_tab
             .text(format!(
-                "{} ({:.1}%) Unfinished Trips",
+                "Unfinished Trips: {} ({:.1}%)",
                 prettyprint_usize(unfinished),
-                if total > 0 {
-                    (unfinished as f64) / (total as f64) * 100.0
-                } else {
-                    0.0
-                }
+                percent(unfinished)
             ))
             .tooltip(Text::from(Line("Unfinished Trips")));
         let unfinished_trips_content = Widget::col(vec![
