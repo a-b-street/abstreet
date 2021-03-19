@@ -114,6 +114,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("leeds", "huge") => "Leeds (entire area inside motorways)",
             ("leeds", "north") => "North Leeds",
             ("leeds", "west") => "West Leeds",
+            ("london", "a5") => "London A5 (Hyde Park to Edgware)",
             ("london", "southbank") => "London (Southbank)",
             ("long_marston", "center") => "Long Marston (Stratford)",
             ("micklefield", "center") => "Micklefield",

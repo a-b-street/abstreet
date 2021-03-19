@@ -700,6 +700,11 @@
       "uncompressed_size_bytes": 13527,
       "compressed_size_bytes": 8222
     },
+    "data/input/gb/london/osm/a5.osm": {
+      "checksum": "438ba14566a773a818b8dcdeb8300048",
+      "uncompressed_size_bytes": 64552068,
+      "compressed_size_bytes": 6487668
+    },
     "data/input/gb/london/osm/greater-london-latest.osm.pbf": {
       "checksum": "ef110d0831b482bb7336c82e36b115ed",
       "uncompressed_size_bytes": 62100025,
@@ -709,6 +714,11 @@
       "checksum": "b86babace41d69a9e5b8be2310a725ae",
       "uncompressed_size_bytes": 18059372,
       "compressed_size_bytes": 2120711
+    },
+    "data/input/gb/london/raw_maps/a5.bin": {
+      "checksum": "6cbfb60449cbea5ea21cb7a15aa67174",
+      "uncompressed_size_bytes": 20895488,
+      "compressed_size_bytes": 4732544
     },
     "data/input/gb/london/raw_maps/southbank.bin": {
       "checksum": "ae6a702b4e3aaf0368eea594fbe40989",
@@ -2165,10 +2175,20 @@
       "uncompressed_size_bytes": 3139424,
       "compressed_size_bytes": 907194
     },
+    "data/system/gb/london/maps/a5.bin": {
+      "checksum": "1ea7a8289e3a137fe550b97fda2cf05a",
+      "uncompressed_size_bytes": 64002577,
+      "compressed_size_bytes": 21887840
+    },
     "data/system/gb/london/maps/southbank.bin": {
       "checksum": "6d61783702097c9d9cc7a17df99c1d61",
       "uncompressed_size_bytes": 11761114,
       "compressed_size_bytes": 3839265
+    },
+    "data/system/gb/london/scenarios/a5/background.bin": {
+      "checksum": "7552730214836b121f433ab6d6dda5de",
+      "uncompressed_size_bytes": 5140354,
+      "compressed_size_bytes": 1476587
     },
     "data/system/gb/london/scenarios/southbank/background.bin": {
       "checksum": "c59236235eeebe14d75e4e3fe4c983cd",
