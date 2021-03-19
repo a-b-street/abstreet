@@ -42,7 +42,7 @@ impl TextBox {
     }
 
     fn calculate_text(&self, style: &Style) -> Text {
-        let mut txt = Text::from(Line(&self.line[0..self.cursor_x]));
+        let mut txt = Text::from(&self.line[0..self.cursor_x]);
         if self.cursor_x < self.line.len() {
             // TODO This "cursor" looks awful!
             txt.append_all(vec![

@@ -1,7 +1,7 @@
 use map_gui::ID;
 use map_model::{Map, PathConstraints};
 use sim::{AgentID, Sim};
-use widgetry::{GfxCtx, Key, Line, Text};
+use widgetry::{GfxCtx, Key, Text};
 
 use crate::app::App;
 
@@ -12,16 +12,14 @@ impl ObjectDebugger {
         if g.is_key_down(Key::LeftControl) {
             if let Some(pt) = g.canvas.get_cursor_in_map_space() {
                 let mut txt = Text::new();
-                txt.add(Line(pt.to_string()));
-                txt.add(Line(
-                    pt.to_gps(app.primary.map.get_gps_bounds()).to_string(),
-                ));
-                txt.add(Line(format!("{:?}", g.canvas.get_cursor())));
-                txt.add(Line(format!("zoom: {}", g.canvas.cam_zoom)));
-                txt.add(Line(format!(
+                txt.add(pt.to_string());
+                txt.add(pt.to_gps(app.primary.map.get_gps_bounds()).to_string());
+                txt.add(format!("{:?}", g.canvas.get_cursor()));
+                txt.add(format!("zoom: {}", g.canvas.cam_zoom));
+                txt.add(format!(
                     "cam_x = {}, cam_y = {}",
                     g.canvas.cam_x, g.canvas.cam_y
-                )));
+                ));
                 g.draw_mouse_tooltip(txt);
             }
         }

@@ -193,7 +193,7 @@ impl<T: 'static> WidgetImpl for Menu<T> {
             if let Some(pt) = g.canvas.get_cursor_in_screen_space() {
                 if rect.contains(pt) {
                     g.draw_mouse_tooltip(
-                        Text::from(Line(info))
+                        Text::from(info)
                             .inner_wrap_to_pct(0.3 * g.canvas.window_width, &g.prerender.assets),
                     );
                 }

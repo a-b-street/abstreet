@@ -42,7 +42,7 @@ impl Viewer {
                         .into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                Text::from(Line("Root causes"))
+                Text::from("Root causes")
                     .into_widget(ctx)
                     .named("root causes"),
             ]))

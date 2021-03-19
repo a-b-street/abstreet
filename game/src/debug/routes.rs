@@ -407,8 +407,8 @@ impl State<App> for AllRoutesExplorer {
                 let current = self.current_counts.get(r);
                 let mut txt = Text::new();
                 txt.append_all(cmp_count(current, baseline));
-                txt.add(Line(format!("{} baseline", prettyprint_usize(baseline))));
-                txt.add(Line(format!("{} now", prettyprint_usize(current))));
+                txt.add(format!("{} baseline", prettyprint_usize(baseline)));
+                txt.add(format!("{} now", prettyprint_usize(current)));
                 self.tooltip = Some(txt);
             }
         }

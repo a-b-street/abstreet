@@ -100,7 +100,7 @@ impl<'a> ColorDiscrete<'a> {
 pub struct ColorLegend {}
 
 impl ColorLegend {
-    pub fn row<S: Into<String>>(ctx: &mut EventCtx, color: Color, label: S) -> Widget {
+    pub fn row(ctx: &mut EventCtx, color: Color, label: impl AsRef<str>) -> Widget {
         let radius = 15.0;
         Widget::row(vec![
             GeomBatch::from(vec![(
@@ -109,9 +109,7 @@ impl ColorLegend {
             )])
             .into_widget(ctx)
             .centered_vert(),
-            Text::from(Line(label))
-                .wrap_to_pct(ctx, 35)
-                .into_widget(ctx),
+            Text::from(label).wrap_to_pct(ctx, 35).into_widget(ctx),
         ])
     }
 

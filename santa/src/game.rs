@@ -175,9 +175,9 @@ impl Game {
             app.session.colors.boost,
             self.state.boost / MAX_BOOST,
             if self.state.boost == Duration::ZERO {
-                Text::from(Line("Find a bike or bus lane"))
+                Text::from("Find a bike or bus lane")
             } else {
-                Text::from(Line("Hold space to boost"))
+                Text::from("Hold space to boost")
             },
         );
         self.minimap.mut_panel().replace(ctx, "boost", boost_bar);
@@ -228,7 +228,7 @@ impl Game {
                             Effect::Scale {
                                 lerp_scale: (1.0, 4.0),
                                 center: app.map.get_b(b).label_center,
-                                orig: Text::from(Line(format!("+{}", prettyprint_usize(increase))))
+                                orig: Text::from(format!("+{}", prettyprint_usize(increase)))
                                     .bg(app.session.colors.score)
                                     .render_autocropped(ctx)
                                     .scale(0.1),
@@ -257,13 +257,10 @@ impl Game {
                             Effect::Scale {
                                 lerp_scale: (1.0, 4.0),
                                 center: app.map.get_b(b).label_center,
-                                orig: Text::from(Line(format!(
-                                    "Refilled {}",
-                                    prettyprint_usize(refill)
-                                )))
-                                .bg(app.session.colors.energy)
-                                .render_autocropped(ctx)
-                                .scale(0.1),
+                                orig: Text::from(format!("Refilled {}", prettyprint_usize(refill)))
+                                    .bg(app.session.colors.energy)
+                                    .render_autocropped(ctx)
+                                    .scale(0.1),
                             },
                         );
                     }
@@ -368,7 +365,7 @@ impl State<App> for Game {
                     Effect::Scale {
                         lerp_scale: (1.0, 4.0),
                         center: self.player.get_pos(),
-                        orig: Text::from(Line("Time's up!"))
+                        orig: Text::from("Time's up!")
                             .bg(Color::RED)
                             .render_autocropped(ctx)
                             .scale(0.1),
@@ -402,7 +399,7 @@ impl State<App> for Game {
                             let pt = ctx.canvas.center_to_screen_pt();
                             Pt2D::new(pt.x, pt.y / 2.0)
                         },
-                        orig: Text::from(Line("Almost out of time!"))
+                        orig: Text::from("Almost out of time!")
                             .bg(Color::RED)
                             .render_autocropped(ctx),
                     },
@@ -432,7 +429,7 @@ impl State<App> for Game {
                             let pt = ctx.canvas.center_to_screen_pt();
                             Pt2D::new(pt.x, pt.y / 2.0)
                         },
-                        orig: Text::from(Line("Low on blood sugar, refill soon!"))
+                        orig: Text::from("Low on blood sugar, refill soon!")
                             .bg(Color::RED)
                             .render_autocropped(ctx),
                     },

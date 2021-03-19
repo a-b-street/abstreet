@@ -255,7 +255,7 @@ mod wasm_loader {
             Box::new(FileLoader {
                 response: rx,
                 on_load: Some(on_load),
-                panel: ctx.make_loading_screen(Text::from(Line(format!("Loading {}...", url)))),
+                panel: ctx.make_loading_screen(Text::from(format!("Loading {}...", url))),
                 started: Instant::now(),
                 url,
             })
@@ -374,7 +374,7 @@ mod wasm_loader {
             Box::new(RawFileLoader {
                 response: rx,
                 on_load: Some(on_load),
-                panel: ctx.make_loading_screen(Text::from(Line(format!("Loading {}...", url)))),
+                panel: ctx.make_loading_screen(Text::from(format!("Loading {}...", url))),
                 started: Instant::now(),
                 url,
             })
@@ -478,7 +478,7 @@ where
         Box::new(FutureLoader {
             loading_title: loading_title.to_string(),
             started: Instant::now(),
-            panel: ctx.make_loading_screen(Text::from(Line(loading_title))),
+            panel: ctx.make_loading_screen(Text::from(loading_title)),
             receiver,
             on_load: Some(on_load),
         })
@@ -500,7 +500,7 @@ where
         Box::new(FutureLoader {
             loading_title: loading_title.to_string(),
             started: Instant::now(),
-            panel: ctx.make_loading_screen(Text::from(Line(loading_title))),
+            panel: ctx.make_loading_screen(Text::from(loading_title)),
             receiver,
             on_load: Some(on_load),
             runtime,

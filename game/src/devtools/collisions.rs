@@ -198,13 +198,13 @@ impl Dataviz {
         for (r, cnt) in per_road.borrow() {
             tooltips.push((
                 map.get_r(*r).get_thick_polygon(map),
-                Text::from(Line(format!("{} collisions", prettyprint_usize(*cnt)))),
+                Text::from(format!("{} collisions", prettyprint_usize(*cnt))),
             ));
         }
         for (i, cnt) in per_intersection.borrow() {
             tooltips.push((
                 map.get_i(*i).polygon.clone(),
-                Text::from(Line(format!("{} collisions", prettyprint_usize(*cnt)))),
+                Text::from(format!("{} collisions", prettyprint_usize(*cnt))),
             ));
         }
         let tooltips = MapspaceTooltips::new(

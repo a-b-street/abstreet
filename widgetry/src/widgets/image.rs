@@ -143,8 +143,8 @@ impl<'a, 'c> Image<'a, 'c> {
     }
 
     /// Add a tooltip to appear when hovering over the image.
-    pub fn tooltip(mut self, tooltip: Text) -> Self {
-        self.tooltip = Some(tooltip);
+    pub fn tooltip(mut self, tooltip: impl Into<Text>) -> Self {
+        self.tooltip = Some(tooltip.into());
         self
     }
 

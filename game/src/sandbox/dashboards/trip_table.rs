@@ -52,7 +52,7 @@ impl TripTable {
                 prettyprint_usize(finished),
                 percent(finished),
             ))
-            .tooltip(Text::from(Line("Finished Trips")));
+            .tooltip("Finished Trips");
 
         let finished_trips_table = make_table_finished_trips(app);
         let finished_trips_content = Widget::col(vec![
@@ -68,7 +68,7 @@ impl TripTable {
             .style()
             .btn_tab
             .text(format!("Cancelled Trips: {}", prettyprint_usize(cancelled)))
-            .tooltip(Text::from(Line("Cancelled Trips")));
+            .tooltip("Cancelled Trips");
         let cancelled_trips_content = Widget::col(vec![
             cancelled_trips_table.render(ctx, app),
             Filler::square_width(ctx, 0.15)
@@ -86,7 +86,7 @@ impl TripTable {
                 prettyprint_usize(unfinished),
                 percent(unfinished)
             ))
-            .tooltip(Text::from(Line("Unfinished Trips")));
+            .tooltip("Unfinished Trips");
         let unfinished_trips_content = Widget::col(vec![
             unfinished_trips_table.render(ctx, app),
             Filler::square_width(ctx, 0.15)
@@ -448,14 +448,12 @@ fn make_table_finished_trips(app: &App) -> Table<App, FinishedTrip, Filters> {
     );
     table.column(
         "Departure",
-        Box::new(|ctx, _, x| Text::from(Line(x.departure.ampm_tostring())).render(ctx)),
+        Box::new(|ctx, _, x| Text::from(x.departure.ampm_tostring()).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.departure))),
     );
     table.column(
         "Duration",
-        Box::new(|ctx, app, x| {
-            Text::from(Line(x.duration_after.to_string(&app.opts.units))).render(ctx)
-        }),
+        Box::new(|ctx, app, x| Text::from(x.duration_after.to_string(&app.opts.units)).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.duration_after))),
     );
 
@@ -500,12 +498,12 @@ fn make_table_finished_trips(app: &App) -> Table<App, FinishedTrip, Filters> {
 
     table.column(
         "Time spent waiting",
-        Box::new(|ctx, app, x| Text::from(Line(x.waiting.to_string(&app.opts.units))).render(ctx)),
+        Box::new(|ctx, app, x| Text::from(x.waiting.to_string(&app.opts.units)).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.waiting))),
     );
     table.column(
         "Percent waiting",
-        Box::new(|ctx, _, x| Text::from(Line(x.percent_waiting.to_string())).render(ctx)),
+        Box::new(|ctx, _, x| Text::from(x.percent_waiting.to_string()).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.percent_waiting))),
     );
 
@@ -582,14 +580,14 @@ fn make_table_cancelled_trips(app: &App) -> Table<App, CancelledTrip, Filters> {
     );
     table.column(
         "Departure",
-        Box::new(|ctx, _, x| Text::from(Line(x.departure.ampm_tostring())).render(ctx)),
+        Box::new(|ctx, _, x| Text::from(x.departure.ampm_tostring()).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.departure))),
     );
     if app.has_prebaked().is_some() {
         table.column(
             "Estimated duration",
             Box::new(|ctx, app, x| {
-                Text::from(Line(x.duration_before.to_string(&app.opts.units))).render(ctx)
+                Text::from(x.duration_before.to_string(&app.opts.units)).render(ctx)
             }),
             Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.duration_before))),
         );
@@ -683,14 +681,14 @@ fn make_table_unfinished_trips(app: &App) -> Table<App, UnfinishedTrip, Filters>
     );
     table.column(
         "Departure",
-        Box::new(|ctx, _, x| Text::from(Line(x.departure.ampm_tostring())).render(ctx)),
+        Box::new(|ctx, _, x| Text::from(x.departure.ampm_tostring()).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.departure))),
     );
     if app.has_prebaked().is_some() {
         table.column(
             "Estimated duration",
             Box::new(|ctx, app, x| {
-                Text::from(Line(x.duration_before.to_string(&app.opts.units))).render(ctx)
+                Text::from(x.duration_before.to_string(&app.opts.units)).render(ctx)
             }),
             Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.duration_before))),
         );

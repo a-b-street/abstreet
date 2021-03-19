@@ -42,7 +42,7 @@ impl Layer for BikeActivity {
                         .road_thruput
                         .total_for_with_agent_types(r, btreeset! { AgentType::Bike });
                     if cnt > 0 {
-                        self.tooltip = Some(Text::from(Line(prettyprint_usize(cnt))));
+                        self.tooltip = Some(Text::from(prettyprint_usize(cnt)));
                     }
                 }
             }

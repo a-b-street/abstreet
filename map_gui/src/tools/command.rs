@@ -45,7 +45,7 @@ impl<A: AppLike + 'static> RunCommand<A> {
                     p.communicate_start(None)
                         .limit_time(Duration::from_millis(0)),
                 );
-                let panel = ctx.make_loading_screen(Text::from(Line("Starting command...")));
+                let panel = ctx.make_loading_screen(Text::from("Starting command..."));
                 let max_capacity =
                     (0.8 * ctx.canvas.window_height / ctx.default_line_height()) as usize;
                 Box::new(RunCommand {
@@ -120,7 +120,7 @@ impl<A: AppLike + 'static> State<A> for RunCommand<A> {
             .small_heading(),
         );
         for line in &self.lines {
-            txt.add(Line(line));
+            txt.add(line);
         }
         self.panel = ctx.make_loading_screen(txt);
 

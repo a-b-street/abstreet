@@ -405,9 +405,9 @@ impl HoverOnBuilding {
 
         HoverOnBuilding {
             tooltip: if let Some(time) = isochrone.time_to_reach_building.get(&hover_id) {
-                Text::from(Line(format!("{} away", time)))
+                Text::from(format!("{} away", time))
             } else {
-                Text::from(Line("This is more than 15 minutes away"))
+                Text::from("This is more than 15 minutes away")
             },
             drawn_route: ctx.upload(batch),
         }
@@ -469,7 +469,7 @@ impl ExploreAmenities {
         );
         table.column(
             "Type",
-            Box::new(|ctx, _, x| Text::from(Line(&x.amenity_type)).render(ctx)),
+            Box::new(|ctx, _, x| Text::from(&x.amenity_type).render(ctx)),
             Col::Sortable(Box::new(|rows| {
                 rows.sort_by_key(|x| x.amenity_type.clone())
             })),
@@ -479,7 +479,7 @@ impl ExploreAmenities {
         table.column(
             "Time to reach",
             Box::new(|ctx, app, x| {
-                Text::from(Line(x.duration_away.to_string(&app.opts.units))).render(ctx)
+                Text::from(x.duration_away.to_string(&app.opts.units)).render(ctx)
             }),
             Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.duration_away))),
         );

@@ -111,10 +111,10 @@ impl CrossStreet {
                     {
                         let mut txt = Text::from(Line("What cross street?").small_heading());
                         // TODO This isn't so clear...
-                        txt.add(Line(format!(
+                        txt.add(format!(
                             "(Or just quit to go to {})",
                             map.get_r(first[0]).get_name(app.opts().language.as_ref()),
-                        )));
+                        ));
                         txt.into_widget(ctx)
                     },
                     ctx.style().btn_close_widget(ctx),

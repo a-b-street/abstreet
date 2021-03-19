@@ -197,7 +197,7 @@ impl<A, T: 'static, F> Table<A, T, F> {
     pub fn static_col(&mut self, name: &str, to_str: Box<dyn Fn(&T) -> String>) {
         self.column(
             name,
-            Box::new(move |ctx, _, x| Text::from(Line((to_str)(x))).render(ctx)),
+            Box::new(move |ctx, _, x| Text::from((to_str)(x)).render(ctx)),
             Col::Static,
         );
     }

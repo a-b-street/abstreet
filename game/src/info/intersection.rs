@@ -19,7 +19,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID
     let mut rows = header(ctx, app, details, id, Tab::IntersectionInfo(id));
     let i = app.primary.map.get_i(id);
 
-    let mut txt = Text::from(Line("Connecting"));
+    let mut txt = Text::from("Connecting");
     let mut road_names = BTreeSet::new();
     for r in &i.roads {
         road_names.insert(
@@ -30,7 +30,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID
         );
     }
     for r in road_names {
-        txt.add(Line(format!("  {}", r)));
+        txt.add(format!("  {}", r));
     }
     rows.push(txt.into_widget(ctx));
 
@@ -63,7 +63,7 @@ pub fn traffic(
 
     let mut txt = Text::new();
 
-    txt.add(Line(format!(
+    txt.add(format!(
         "Since midnight: {} commuters and vehicles crossed",
         prettyprint_usize(
             app.primary
@@ -72,7 +72,7 @@ pub fn traffic(
                 .intersection_thruput
                 .total_for(id)
         )
-    )));
+    ));
     rows.push(txt.into_widget(ctx));
 
     rows.push(opts.to_controls(ctx, app));
@@ -179,7 +179,7 @@ pub fn current_demand(
             outlines.push(p);
         }
         batch.push(Color::hex("#A3A3A3"), arrow.clone());
-        tooltips.push((arrow, Text::from(Line(prettyprint_usize(demand)))));
+        tooltips.push((arrow, Text::from(prettyprint_usize(demand))));
     }
     batch.extend(Color::WHITE, outlines);
 
@@ -278,14 +278,14 @@ pub fn traffic_signal(
     {
         let mut txt = Text::new();
         txt.add(Line(format!("{} stages", signal.stages.len())).small_heading());
-        txt.add(Line(format!("Signal offset: {}", signal.offset)));
+        txt.add(format!("Signal offset: {}", signal.offset));
         {
             let mut total = Duration::ZERO;
             for s in &signal.stages {
                 total += s.stage_type.simple_duration();
             }
             // TODO Say "normally" or something?
-            txt.add(Line(format!("One cycle lasts {}", total)));
+            txt.add(format!("One cycle lasts {}", total));
         }
         rows.push(txt.into_widget(ctx));
     }

@@ -425,7 +425,7 @@ impl Marker {
                     )),
             );
             batch.append(
-                Text::from(Line(&event))
+                Text::from(&event)
                     .with_bg()
                     .render_autocropped(ctx)
                     .scale(0.5)
@@ -440,7 +440,7 @@ impl Marker {
             }
             // TODO Refactor
             batch.append(
-                Text::from(Line(&event))
+                Text::from(&event)
                     .with_bg()
                     .render_autocropped(ctx)
                     .scale(0.5)
@@ -466,7 +466,7 @@ impl Marker {
                     .color(RewriteColor::Change(Color::hex("#5B5B5B"), Color::RED)),
             );
             batch.append(
-                Text::from(Line(&self.event))
+                Text::from(&self.event)
                     .with_bg()
                     .render_autocropped(g)
                     .scale(0.75)
@@ -476,7 +476,7 @@ impl Marker {
             batch.push(Color::RED, Ring::must_new(self.pts.clone()).to_polygon());
             // TODO Refactor plz
             batch.append(
-                Text::from(Line(&self.event))
+                Text::from(&self.event)
                     .with_bg()
                     .render_autocropped(g)
                     .scale(0.75)

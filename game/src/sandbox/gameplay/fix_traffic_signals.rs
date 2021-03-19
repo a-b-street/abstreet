@@ -165,8 +165,8 @@ impl GameplayState for FixTrafficSignals {
                 }
                 "hint" => {
                     // TODO Multiple hints. Point to layers.
-                    let mut txt = Text::from(Line("Hint"));
-                    txt.add(Line(""));
+                    let mut txt = Text::from("Hint");
+                    txt.add("");
                     txt.add_appended(vec![
                         Line("Press "),
                         Key::L.txt(ctx),

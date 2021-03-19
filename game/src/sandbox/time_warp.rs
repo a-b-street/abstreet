@@ -36,7 +36,7 @@ impl JumpToTime {
             .btn_tab
             .text("Jump to time")
             .hotkey(Key::T)
-            .tooltip(Text::from(Line("Jump to time")));
+            .tooltip("Jump to time");
         let jump_to_time_content = {
             // TODO Auto-fill width?
             let slider_width = 500.0;
@@ -75,7 +75,7 @@ impl JumpToTime {
             .btn_tab
             .text("Jump to delay")
             .hotkey(Key::D)
-            .tooltip(Text::from(Line("Jump to delay")));
+            .tooltip("Jump to delay");
         let jump_to_delay_content = Widget::col(vec![
             Widget::row(vec![
                 Line("Jump to next").small_heading().into_widget(ctx),

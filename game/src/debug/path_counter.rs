@@ -95,7 +95,7 @@ impl State<App> for PathCounter {
             } {
                 let n = self.cnt.get(r);
                 if n > 0 {
-                    self.tooltip = Some(Text::from(Line(abstutil::prettyprint_usize(n))));
+                    self.tooltip = Some(Text::from(abstutil::prettyprint_usize(n)));
                 }
             } else {
                 app.primary.current_selection = None;

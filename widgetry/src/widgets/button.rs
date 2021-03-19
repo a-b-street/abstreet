@@ -420,8 +420,8 @@ impl<'b, 'a: 'b, 'c> ButtonBuilder<'a, 'c> {
     /// Set a non-default tooltip [`Text`] to appear when hovering over the button.
     ///
     /// If a `tooltip` is not specified, a default tooltip will be applied.
-    pub fn tooltip(mut self, tooltip: Text) -> Self {
-        self.tooltip = Some(tooltip);
+    pub fn tooltip(mut self, tooltip: impl Into<Text>) -> Self {
+        self.tooltip = Some(tooltip.into());
         self
     }
 

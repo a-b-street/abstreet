@@ -409,12 +409,7 @@ pub fn schedule(
             TripEndpoint::SuddenlyAppear(_) => "suddenly appear".to_string(),
         };
         rows.push(
-            Text::from(Line(format!(
-                "  Spends {} at {}",
-                trip.departure - last_t,
-                at
-            )))
-            .into_widget(ctx),
+            Text::from(format!("  Spends {} at {}", trip.departure - last_t, at)).into_widget(ctx),
         );
         // TODO Ideally end time if we know
         last_t = trip.departure;

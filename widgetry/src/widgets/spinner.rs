@@ -1,7 +1,7 @@
 use geom::{CornerRadii, Distance, Polygon, Pt2D};
 
 use crate::{
-    include_labeled_bytes, text, Button, Drawable, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Line,
+    include_labeled_bytes, text, Button, Drawable, EdgeInsets, EventCtx, GeomBatch, GfxCtx,
     Outcome, OutlineStyle, Prerender, ScreenDims, ScreenPt, ScreenRectangle, Style, Text, Widget,
     WidgetImpl, WidgetOutput,
 };
@@ -113,7 +113,7 @@ impl Spinner {
             Polygon::rounded_rectangle(self.dims.width, self.dims.height, 5.0),
         )]);
         batch.append(
-            Text::from(Line(self.current.to_string()))
+            Text::from(self.current.to_string())
                 .render_autocropped(prerender)
                 .centered_on(Pt2D::new(TEXT_WIDTH / 2.0, self.dims.height / 2.0)),
         );

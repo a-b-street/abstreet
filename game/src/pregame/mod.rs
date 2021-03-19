@@ -92,7 +92,7 @@ impl MainMenu {
         let col = vec![
             {
                 let mut txt = Text::from(Line("A/B STREET").display_title());
-                txt.add(Line("Created by Dustin Carlino, Yuwen Li, & Michael Kirk"));
+                txt.add("Created by Dustin Carlino, Yuwen Li, & Michael Kirk");
                 txt.into_widget(ctx).centered_horiz()
             },
             Widget::row({

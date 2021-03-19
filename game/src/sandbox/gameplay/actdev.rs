@@ -124,11 +124,11 @@ impl GameplayState for Actdev {
                         Line("Created by Dustin Carlino, Yuwen Li, & Michael Kirk")
                             .small()
                             .into_widget(ctx),
-                        Text::from(Line(
+                        Text::from(
                             "A/B Street is a traffic simulation game based on OpenStreetMap. You \
                              can modify roads and intersections, measure the effects on different \
                              groups, and advocate for your proposal.",
-                        ))
+                        )
                         .wrap_to_pct(ctx, 50)
                         .into_widget(ctx),
                         "This is a simplified version. Check out the full version below."

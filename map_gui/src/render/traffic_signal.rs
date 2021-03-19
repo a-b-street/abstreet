@@ -245,7 +245,7 @@ fn draw_time_left(
         Circle::new(center, radius).to_partial_polygon(percent),
     );
     batch.append(
-        Text::from(Line(format!("{}", idx + 1)))
+        Text::from(format!("{}", idx + 1))
             .render_autocropped(prerender)
             .scale(0.1)
             .centered_on(center),

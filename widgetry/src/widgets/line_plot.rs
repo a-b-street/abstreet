@@ -7,8 +7,8 @@ use geom::{
 };
 
 use crate::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ScreenDims, ScreenPt, ScreenRectangle,
-    Text, TextExt, Toggle, Widget, WidgetImpl, WidgetOutput,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenPt, ScreenRectangle, Text,
+    TextExt, Toggle, Widget, WidgetImpl, WidgetOutput,
 };
 
 // The X is always time
@@ -176,7 +176,7 @@ impl<T: Yvalue<T>> LinePlot<T> {
             let percent_x = (i as f64) / ((num_x_labels - 1) as f64);
             let t = max_x.percent_of(percent_x);
             // TODO Need ticks now to actually see where this goes
-            let batch = Text::from(Line(t.to_string()))
+            let batch = Text::from(t.to_string())
                 .render(ctx)
                 .rotate(Angle::degrees(-15.0))
                 .autocrop();
@@ -230,12 +230,12 @@ impl<T: Yvalue<T>> WidgetImpl for LinePlot<T> {
                     let y_percent = 1.0 - (pt.y() / self.dims.height);
 
                     // TODO Draw this info in the ColorLegend
-                    txt.add(Line(format!(
+                    txt.add(format!(
                         "{}: at {}, {}",
                         label,
                         t.ampm_tostring(),
                         self.max_y.from_percent(y_percent).prettyprint()
-                    )));
+                    ));
                 }
                 if !txt.is_empty() {
                     g.fork_screenspace();

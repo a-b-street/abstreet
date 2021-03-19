@@ -267,7 +267,7 @@ impl CommonState {
         );
 
         if app.opts.dev && !g.is_screencap() {
-            let dev_batch = Text::from(Line("DEV")).bg(Color::RED).render(g);
+            let dev_batch = Text::from("DEV").bg(Color::RED).render(g);
             let dims = dev_batch.get_dims();
             batch.append(dev_batch.translate(
                 g.canvas.window_width - dims.width - 10.0,
