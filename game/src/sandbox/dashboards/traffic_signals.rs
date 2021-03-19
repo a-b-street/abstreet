@@ -83,11 +83,11 @@ impl State<App> for TrafficSignalDemand {
                             if let Ok(p) = arrow.to_outline(Distance::meters(0.1)) {
                                 batch.push(Color::WHITE, p);
                             }
-                            let txt = Text::from(Line(format!(
+                            let txt = Text::from(format!(
                                 "{} / {}",
                                 prettyprint_usize(count),
                                 self.all_demand[&i].count(self.hour).sum()
-                            )));
+                            ));
                             self.selected = Some((ctx.upload(batch), txt));
                             break;
                         }

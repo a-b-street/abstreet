@@ -237,7 +237,7 @@ fn make_table(app: &App) -> Table<App, Entry, Filters> {
     );
     table.column(
         "Percent overhead",
-        Box::new(|ctx, _, x| Text::from(Line(format!("{}%", x.percent_overhead))).render(ctx)),
+        Box::new(|ctx, _, x| Text::from(format!("{}%", x.percent_overhead)).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.percent_overhead))),
     );
 

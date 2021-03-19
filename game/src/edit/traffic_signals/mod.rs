@@ -465,15 +465,15 @@ impl State<App> for TrafficSignalEditor {
 
         if let Some((id, _)) = self.movement_selected {
             let osd = if id.crosswalk {
-                Text::from(Line(format!(
+                Text::from(format!(
                     "Crosswalk across {}",
                     app.primary
                         .map
                         .get_r(id.from.id)
                         .get_name(app.opts.language.as_ref())
-                )))
+                ))
             } else {
-                Text::from(Line(format!(
+                Text::from(format!(
                     "Turn from {} to {}",
                     app.primary
                         .map
@@ -483,7 +483,7 @@ impl State<App> for TrafficSignalEditor {
                         .map
                         .get_r(id.to.id)
                         .get_name(app.opts.language.as_ref())
-                )))
+                ))
             };
             CommonState::draw_custom_osd(g, app, osd);
         } else {

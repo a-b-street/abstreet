@@ -368,10 +368,10 @@ impl Layer for CongestionCaps {
                             .access_restrictions
                             .cap_vehicles_per_hour
                         {
-                            self.tooltip = Some(Text::from(Line(format!(
+                            self.tooltip = Some(Text::from(format!(
                                 "Cap of {} vehicles per hour",
                                 prettyprint_usize(cap)
-                            ))));
+                            )));
                         }
                     }
                     _ => {}

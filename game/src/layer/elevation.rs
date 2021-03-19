@@ -1,7 +1,7 @@
 use geom::{ArrowCap, Distance, PolyLine};
 use map_gui::tools::{ColorLegend, ColorNetwork};
 use map_gui::ID;
-use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Panel, Text, TextExt, Widget};
+use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Panel, Text, TextExt, Widget};
 
 use crate::app::App;
 use crate::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
@@ -21,7 +21,7 @@ impl Layer for Elevation {
         if ctx.redo_mouseover() {
             self.tooltip = None;
             if let Some(ID::Road(r)) = app.mouseover_unzoomed_roads_and_intersections(ctx) {
-                self.tooltip = Some(Text::from(Line(format!(
+                self.tooltip = Some(Text::from(format!(
                     "{:.1}% incline",
                     app.primary
                         .map
@@ -29,7 +29,7 @@ impl Layer for Elevation {
                         .percent_incline(&app.primary.map)
                         .abs()
                         * 100.0
-                ))));
+                )));
             }
         }
 

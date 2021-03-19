@@ -363,12 +363,9 @@ pub fn bio(
     if app.opts.dev {
         if let Some(AgentID::Car(car)) = app.primary.sim.person_to_agent(id) {
             rows.push(
-                Text::from(Line(format!(
-                    "State: {:?}",
-                    app.primary.sim.debug_car_ui(car)
-                )))
-                .wrap_to_pct(ctx, 20)
-                .into_widget(ctx),
+                Text::from(format!("State: {:?}", app.primary.sim.debug_car_ui(car)))
+                    .wrap_to_pct(ctx, 20)
+                    .into_widget(ctx),
             );
         }
     }
@@ -434,11 +431,11 @@ pub fn schedule(
         TripEndpoint::SuddenlyAppear(_) => "suddenly disappear".to_string(),
     };
     rows.push(
-        Text::from(Line(format!(
+        Text::from(format!(
             "  Spends {} at {}",
             app.primary.sim.get_end_of_day() - last_trip.departure,
             at
-        )))
+        ))
         .into_widget(ctx),
     );
 

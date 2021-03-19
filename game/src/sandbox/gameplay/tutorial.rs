@@ -509,9 +509,7 @@ impl Task {
                 return txt;
             }
             Task::LowParking => {
-                let mut txt = Text::from(Line(
-                    "1) Find a road with almost no parking spots available",
-                ));
+                let mut txt = Text::from("1) Find a road with almost no parking spots available");
                 txt.add("2) Click it and press ");
                 // TODO ctx.style().hotkey_color
                 txt.append(Line(Key::C.describe()).fg(Color::GREEN));

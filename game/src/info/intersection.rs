@@ -183,10 +183,10 @@ pub fn current_demand(
     }
     batch.extend(Color::WHITE, outlines);
 
-    let mut txt = Text::from(Line(format!(
+    let mut txt = Text::from(format!(
         "Active agent demand at {}",
         app.primary.sim.time().ampm_tostring()
-    )));
+    ));
     txt.add(
         Line(format!(
             "Includes all {} active agents anywhere on the map",

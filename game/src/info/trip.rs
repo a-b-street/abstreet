@@ -355,10 +355,10 @@ pub fn cancelled(
 ) -> Widget {
     let trip = app.primary.sim.trip_info(id);
 
-    let mut col = vec![Text::from(Line(format!(
+    let mut col = vec![Text::from(format!(
         "Trip cancelled: {}",
         trip.cancellation_reason.as_ref().unwrap()
-    )))
+    ))
     .wrap_to_pct(ctx, 20)
     .into_widget(ctx)];
 
@@ -597,17 +597,17 @@ fn make_timeline(
                             build_text(app, &msgs, norm_distance),
                         ));
                         let mut display_txt = Text::from(&p.phase_type.describe(map));
-                        display_txt.add(Line(format!(
+                        display_txt.add(format!(
                             "  Road: {}",
                             map.get_r(lane_detail.parent)
                                 .get_name(app.opts.language.as_ref())
-                        )));
-                        display_txt.add(Line(format!("  Lane ID: {}", id)));
-                        display_txt.add(Line(format!(
+                        ));
+                        display_txt.add(format!("  Lane ID: {}", id));
+                        display_txt.add(format!(
                             "  Lane distance: {}",
                             lane_detail.length().to_string(&app.opts.units)
-                        )));
-                        display_txt.add(Line(format!("  Average speed: {}", avg_speed)));
+                        ));
+                        display_txt.add(format!("  Average speed: {}", avg_speed));
                         segments.push((lane_detail.length(), Color::RED, display_txt));
                         norm_distance = Distance::meters(0.0);
                     } else {
@@ -625,11 +625,11 @@ fn make_timeline(
                         ));
 
                         let mut display_txt = Text::from(&p.phase_type.describe(map));
-                        display_txt.add(Line(format!("  Intersection: {}", id.parent)));
-                        display_txt.add(Line(format!(
+                        display_txt.add(format!("  Intersection: {}", id.parent));
+                        display_txt.add(format!(
                             "  Delay: {}",
                             Duration::seconds(*delay as f64)
-                        )));
+                        ));
                         segments.push((
                             // To make sure that the hotspot isn't too small
                             if 0.05 < (turn_details.geom.length() / sum_phase_dist) {

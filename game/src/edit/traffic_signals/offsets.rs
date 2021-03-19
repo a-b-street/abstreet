@@ -28,13 +28,13 @@ impl ShowAbsolute {
         let mut batch = fade_irrelevant(app, &members);
         for i in &members {
             batch.append(
-                Text::from(Line(
+                Text::from(
                     app.primary
                         .map
                         .get_traffic_signal(*i)
                         .offset
                         .to_string(&app.opts.units),
-                ))
+                )
                 .bg(Color::PURPLE)
                 .render_autocropped(ctx)
                 .color(RewriteColor::ChangeAlpha(0.8))

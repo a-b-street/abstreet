@@ -333,13 +333,13 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
         for (idx, bs) in route.stops.iter().enumerate() {
             let bs = map.get_bs(*bs);
             details.unzoomed.append(
-                Text::from(Line(format!("{}) {}", idx + 1, bs.name)))
+                Text::from(format!("{}) {}", idx + 1, bs.name))
                     .with_bg()
                     .render_autocropped(ctx)
                     .centered_on(bs.sidewalk_pos.pt(map)),
             );
             details.zoomed.append(
-                Text::from(Line(format!("{}) {}", idx + 1, bs.name)))
+                Text::from(format!("{}) {}", idx + 1, bs.name))
                     .with_bg()
                     .render_autocropped(ctx)
                     .scale(0.1)

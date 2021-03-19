@@ -475,7 +475,7 @@ fn make_table_finished_trips(app: &App) -> Table<App, FinishedTrip, Filters> {
         table.column(
             "Normalized",
             Box::new(|ctx, _, x| {
-                Text::from(Line(if x.duration_after == x.duration_before {
+                Text::from(if x.duration_after == x.duration_before {
                     format!("same")
                 } else if x.duration_after < x.duration_before {
                     format!(
@@ -487,7 +487,7 @@ fn make_table_finished_trips(app: &App) -> Table<App, FinishedTrip, Filters> {
                         "{}% slower ",
                         (100.0 * ((x.duration_after / x.duration_before) - 1.0)) as usize
                     )
-                }))
+                })
                 .render(ctx)
             }),
             Col::Sortable(Box::new(|rows| {

@@ -282,11 +282,11 @@ impl Layer for CompareThroughput {
                             .road_thruput
                             .total_for_by_time(r, app.primary.sim.time());
                         if before + after > 0 {
-                            self.tooltip = Some(Text::from(Line(format!(
+                            self.tooltip = Some(Text::from(format!(
                                 "{} before, {} after",
                                 prettyprint_usize(before),
                                 prettyprint_usize(after)
-                            ))));
+                            )));
                         }
                     }
                     Some(ID::Intersection(i)) => {
@@ -301,11 +301,11 @@ impl Layer for CompareThroughput {
                             .intersection_thruput
                             .total_for_by_time(i, app.primary.sim.time());
                         if before + after > 0 {
-                            self.tooltip = Some(Text::from(Line(format!(
+                            self.tooltip = Some(Text::from(format!(
                                 "{} before, {} after",
                                 prettyprint_usize(before),
                                 prettyprint_usize(after)
-                            ))));
+                            )));
                         }
                     }
                     _ => {}

@@ -814,7 +814,7 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Panel {
     }
     for idx in edits.commands.len().max(5) - 5..edits.commands.len() {
         let (summary, details) = edits.commands[idx].describe(&app.primary.map);
-        let mut txt = Text::from(Line(format!("{}) {}", idx + 1, summary)));
+        let mut txt = Text::from(format!("{}) {}", idx + 1, summary));
         for line in details {
             txt.add(Line(line).secondary());
         }
