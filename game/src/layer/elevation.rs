@@ -1,11 +1,13 @@
 use geom::{ArrowCap, Distance, PolyLine};
 use map_gui::tools::{ColorLegend, ColorNetwork};
-use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Panel, TextExt, Widget};
+use map_gui::ID;
+use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Panel, Text, TextExt, Widget};
 
 use crate::app::App;
 use crate::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
 
 pub struct Elevation {
+    tooltip: Option<Text>,
     unzoomed: Drawable,
     zoomed: Drawable,
     panel: Panel,
@@ -15,7 +17,17 @@ impl Layer for Elevation {
     fn name(&self) -> Option<&'static str> {
         Some("elevation")
     }
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Option<LayerOutcome> {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<LayerOutcome> {
+        if ctx.redo_mouseover() {
+            self.tooltip = None;
+            if let Some(ID::Road(r)) = app.mouseover_unzoomed_roads_and_intersections(ctx) {
+                self.tooltip = Some(Text::from(Line(format!(
+                    "{:.1}% incline",
+                    app.primary.map.get_r(r).percent_incline(&app.primary.map).abs() * 100.0
+                ))));
+            }
+        }
+
         Layer::simple_event(ctx, &mut self.panel)
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
@@ -24,6 +36,9 @@ impl Layer for Elevation {
             g.redraw(&self.unzoomed);
         } else {
             g.redraw(&self.zoomed);
+        }
+        if let Some(ref txt) = self.tooltip {
+            g.draw_mouse_tooltip(txt.clone());
         }
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
@@ -89,6 +104,7 @@ impl Elevation {
         .build(ctx);
 
         Elevation {
+            tooltip: None,
             unzoomed: ctx.upload(colorer.unzoomed),
             zoomed: ctx.upload(colorer.zoomed),
             panel,
