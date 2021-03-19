@@ -23,7 +23,12 @@ impl Layer for Elevation {
             if let Some(ID::Road(r)) = app.mouseover_unzoomed_roads_and_intersections(ctx) {
                 self.tooltip = Some(Text::from(Line(format!(
                     "{:.1}% incline",
-                    app.primary.map.get_r(r).percent_incline(&app.primary.map).abs() * 100.0
+                    app.primary
+                        .map
+                        .get_r(r)
+                        .percent_incline(&app.primary.map)
+                        .abs()
+                        * 100.0
                 ))));
             }
         }
