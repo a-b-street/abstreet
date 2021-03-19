@@ -415,7 +415,6 @@ impl HoverOnBuilding {
 }
 
 struct ExploreAmenities {
-    category: AmenityType,
     table: Table<App, Entry, ()>,
     panel: Panel,
     draw: Drawable,
@@ -460,6 +459,7 @@ impl ExploreAmenities {
         }
 
         let mut table: Table<App, Entry, ()> = Table::new(
+            "time_to_reach_table",
             entries,
             // The label has extra junk to avoid crashing when one building has two stores,
             // possibly with the same name in the current language
@@ -497,27 +497,10 @@ impl ExploreAmenities {
         .build(ctx);
 
         Box::new(ExploreAmenities {
-            category: category,
             table,
             panel,
             draw: ctx.upload(batch),
         })
-    }
-
-    fn recalc(&mut self, ctx: &mut EventCtx, app: &App) {
-        let mut new = Panel::new(Widget::col(vec![
-            Widget::row(vec![
-                Line(format!("{} within 15 minutes", self.category))
-                    .small_heading()
-                    .into_widget(ctx),
-                ctx.style().btn_close_widget(ctx),
-            ]),
-            self.table.render(ctx, app),
-        ]))
-        .aligned(HorizontalAlignment::Center, VerticalAlignment::TopInset)
-        .build(ctx);
-        new.restore(ctx, &self.panel);
-        self.panel = new;
     }
 }
 
@@ -528,7 +511,7 @@ impl State<App> for ExploreAmenities {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => {
                 if self.table.clicked(&x) {
-                    self.recalc(ctx, app);
+                    self.table.replace_render(ctx, app, &mut self.panel)
                 } else if x == "close" {
                     return Transition::Pop;
                 } else if let Some(idx) = x.split(":").next().and_then(|x| x.parse::<usize>().ok())
@@ -541,7 +524,7 @@ impl State<App> for ExploreAmenities {
             }
             Outcome::Changed => {
                 self.table.panel_changed(&self.panel);
-                self.recalc(ctx, app);
+                self.table.replace_render(ctx, app, &mut self.panel)
             }
             _ => {}
         }

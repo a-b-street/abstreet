@@ -9,8 +9,8 @@ use geom::{Distance, Duration, Polygon, Pt2D};
 use map_gui::tools::PopupMsg;
 use sim::TripMode;
 use widgetry::{
-    Choice, Color, CompareTimes, DrawBaselayer, DrawWithTooltips, EventCtx, GeomBatch, GfxCtx,
-    Line, Outcome, Panel, State, Text, TextExt, Toggle, Widget,
+    Choice, Color, CompareTimes, DrawWithTooltips, EventCtx, GeomBatch, GfxCtx, Line, Outcome,
+    Panel, State, Text, TextExt, Toggle, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -55,14 +55,12 @@ impl TripSummaries {
             panel: Panel::new(Widget::col(vec![
                 DashTab::TripSummaries.picker(ctx, app),
                 Widget::row(vec![
-                    Widget::col(filters)
-                        .padding(16)
-                        .outline(ctx.style().section_outline),
+                    Widget::col(filters).section(ctx),
                     Widget::col(vec![
                         summary_boxes(ctx, app, &filter),
                         Widget::row(vec![
-                            contingency_table(ctx, app, &filter),
-                            scatter_plot(ctx, app, &filter),
+                            contingency_table(ctx, app, &filter).bg(ctx.style().section_bg),
+                            scatter_plot(ctx, app, &filter).bg(ctx.style().section_bg),
                         ])
                         .evenly_spaced(),
                     ]),
@@ -113,12 +111,7 @@ impl State<App> for TripSummaries {
         }
     }
 
-    fn draw_baselayer(&self) -> DrawBaselayer {
-        DrawBaselayer::Custom
-    }
-
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
-        g.clear(app.cs.dialog_bg);
+    fn draw(&self, g: &mut GfxCtx, _app: &App) {
         self.panel.draw(g);
     }
 }

@@ -4,52 +4,176 @@ use abstutil::prettyprint_usize;
 use geom::{Duration, Time};
 use sim::{TripEndpoint, TripID, TripMode};
 use widgetry::table::{Col, Filter, Table};
-use widgetry::{EventCtx, Filler, Line, Panel, State, Text, Toggle, Widget};
+use widgetry::{
+    EventCtx, Filler, GfxCtx, Line, Outcome, Panel, State, TabController, Text, Toggle, Widget,
+};
 
+use super::generic_trip_table::{open_trip_transition, preview_trip};
 use crate::app::App;
 use crate::common::{checkbox_per_mode, cmp_duration_shorter, color_for_mode};
-use crate::sandbox::dashboards::generic_trip_table::GenericTripTable;
 use crate::sandbox::dashboards::DashTab;
 
-pub struct FinishedTripTable;
+pub type Transition = widgetry::Transition<App>;
 
-impl FinishedTripTable {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
-        GenericTripTable::new(
-            ctx,
-            app,
-            DashTab::FinishedTripTable,
-            make_table_finished_trips(app),
-            make_panel_finished_trips,
-        )
+pub struct TripTable {
+    // CLEANUP: tab vs. tabs naming
+    tab: DashTab,
+    tabs: TabController,
+    panel: Panel,
+    finished_trips_table: Table<App, FinishedTrip, Filters>,
+    cancelled_trips_table: Table<App, CancelledTrip, Filters>,
+    unfinished_trips_table: Table<App, UnfinishedTrip, Filters>,
+}
+
+impl TripTable {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Self {
+        let mut tabs = TabController::new("trips_tabs");
+
+        let (finished, unfinished) = app.primary.sim.num_trips();
+        let mut cancelled = 0;
+        // TODO Can we avoid iterating through this again?
+        for (_, _, _, maybe_dt) in &app.primary.sim.get_analytics().finished_trips {
+            if maybe_dt.is_none() {
+                cancelled += 1;
+            }
+        }
+        let total = finished + cancelled + unfinished;
+
+        let finished_trips_btn = ctx
+            .style()
+            .btn_tab
+            .text(format!(
+                "{} ({:.1}%) Finished Trips",
+                prettyprint_usize(finished),
+                if total > 0 {
+                    (finished as f64) / (total as f64) * 100.0
+                } else {
+                    0.0
+                }
+            ))
+            .tooltip(Text::from(Line("Finished Trips")));
+
+        let finished_trips_table = make_table_finished_trips(app);
+        let finished_trips_content = Widget::col(vec![
+            finished_trips_table.render(ctx, app),
+            Filler::square_width(ctx, 0.15)
+                .named("preview")
+                .centered_horiz(),
+        ]);
+        tabs.push_tab(finished_trips_btn, finished_trips_content);
+
+        let cancelled_trips_table = make_table_cancelled_trips(app);
+        let cancelled_trips_btn = ctx
+            .style()
+            .btn_tab
+            .text(format!("{} Cancelled Trips", prettyprint_usize(cancelled)))
+            .tooltip(Text::from(Line("Cancelled Trips")));
+        let cancelled_trips_content = Widget::col(vec![
+            cancelled_trips_table.render(ctx, app),
+            Filler::square_width(ctx, 0.15)
+                .named("preview")
+                .centered_horiz(),
+        ]);
+        tabs.push_tab(cancelled_trips_btn, cancelled_trips_content);
+
+        let unfinished_trips_table = make_table_unfinished_trips(app);
+        let unfinished_trips_btn = ctx
+            .style()
+            .btn_tab
+            .text(format!(
+                "{} ({:.1}%) Unfinished Trips",
+                prettyprint_usize(unfinished),
+                if total > 0 {
+                    (unfinished as f64) / (total as f64) * 100.0
+                } else {
+                    0.0
+                }
+            ))
+            .tooltip(Text::from(Line("Unfinished Trips")));
+        let unfinished_trips_content = Widget::col(vec![
+            unfinished_trips_table.render(ctx, app),
+            Filler::square_width(ctx, 0.15)
+                .named("preview")
+                .centered_horiz(),
+        ]);
+        tabs.push_tab(unfinished_trips_btn, unfinished_trips_content);
+
+        let panel = Panel::new(Widget::col(vec![
+            DashTab::TripTable.picker(ctx, app),
+            tabs.build_widget(ctx),
+        ]))
+        .exact_size_percent(90, 90)
+        .build(ctx);
+
+        Self {
+            tab: DashTab::TripTable,
+            tabs,
+            panel,
+            finished_trips_table,
+            cancelled_trips_table,
+            unfinished_trips_table,
+        }
     }
 }
 
-pub struct CancelledTripTable;
+impl State<App> for TripTable {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        match self.panel.event(ctx) {
+            Outcome::Clicked(x) => {
+                if self.tabs.active_tab_idx() == 0 && self.finished_trips_table.clicked(&x) {
+                    self.finished_trips_table
+                        .replace_render(ctx, app, &mut self.panel);
+                } else if self.tabs.active_tab_idx() == 1 && self.cancelled_trips_table.clicked(&x)
+                {
+                    self.cancelled_trips_table
+                        .replace_render(ctx, app, &mut self.panel);
+                } else if self.tabs.active_tab_idx() == 2 && self.unfinished_trips_table.clicked(&x)
+                {
+                    self.unfinished_trips_table
+                        .replace_render(ctx, app, &mut self.panel);
+                } else if let Ok(idx) = x.parse::<usize>() {
+                    return open_trip_transition(app, idx);
+                } else if x == "close" {
+                    return Transition::Pop;
+                } else if self.tabs.handle_action(ctx, &x, &mut self.panel) {
+                    // if true, tabs handled the action
+                } else {
+                    todo!("unhandled action: {}", x)
+                }
+            }
+            Outcome::Changed => {
+                if let Some(t) = self.tab.transition(ctx, app, &self.panel) {
+                    return t;
+                }
 
-impl CancelledTripTable {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
-        GenericTripTable::new(
-            ctx,
-            app,
-            DashTab::CancelledTripTable,
-            make_table_cancelled_trips(app),
-            make_panel_cancelled_trips,
-        )
+                match self.tabs.active_tab_idx() {
+                    0 => {
+                        self.finished_trips_table.panel_changed(&self.panel);
+                        self.finished_trips_table
+                            .replace_render(ctx, app, &mut self.panel);
+                    }
+                    1 => {
+                        self.cancelled_trips_table.panel_changed(&self.panel);
+                        self.cancelled_trips_table
+                            .replace_render(ctx, app, &mut self.panel);
+                    }
+                    2 => {
+                        self.unfinished_trips_table.panel_changed(&self.panel);
+                        self.unfinished_trips_table
+                            .replace_render(ctx, app, &mut self.panel);
+                    }
+                    other => unimplemented!("unknown tab: {}", other),
+                }
+            }
+            _ => {}
+        }
+
+        Transition::Keep
     }
-}
 
-pub struct UnfinishedTripTable;
-
-impl UnfinishedTripTable {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
-        GenericTripTable::new(
-            ctx,
-            app,
-            DashTab::UnfinishedTripTable,
-            make_table_unfinished_trips(app),
-            make_panel_unfinished_trips,
-        )
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        self.panel.draw(g);
+        preview_trip(g, app, &self.panel);
     }
 }
 
@@ -285,6 +409,7 @@ fn make_table_finished_trips(app: &App) -> Table<App, FinishedTrip, Filters> {
     };
 
     let mut table = Table::new(
+        "finished_trips_table",
         finished,
         Box::new(|x| x.id.0.to_string()),
         "Percent waiting",
@@ -442,6 +567,7 @@ fn make_table_cancelled_trips(app: &App) -> Table<App, CancelledTrip, Filters> {
     };
 
     let mut table = Table::new(
+        "cancelled_trips_table",
         cancelled,
         Box::new(|x| x.id.0.to_string()),
         "Departure",
@@ -542,6 +668,7 @@ fn make_table_unfinished_trips(app: &App) -> Table<App, UnfinishedTrip, Filters>
     };
 
     let mut table = Table::new(
+        "unfinished_trips_table",
         unfinished,
         Box::new(|x| x.id.0.to_string()),
         "Departure",
@@ -571,112 +698,4 @@ fn make_table_unfinished_trips(app: &App) -> Table<App, UnfinishedTrip, Filters>
     }
 
     table
-}
-
-fn trip_category_selector(ctx: &mut EventCtx, app: &App, tab: DashTab) -> Widget {
-    let (finished, unfinished) = app.primary.sim.num_trips();
-    let mut cancelled = 0;
-    // TODO Can we avoid iterating through this again?
-    for (_, _, _, maybe_dt) in &app.primary.sim.get_analytics().finished_trips {
-        if maybe_dt.is_none() {
-            cancelled += 1;
-        }
-    }
-    let total = finished + cancelled + unfinished;
-
-    let btn = |dash, action, label| {
-        ctx.style()
-            .btn_tab
-            .text(label)
-            .disabled(dash == tab)
-            .build_widget(ctx, action)
-    };
-
-    Widget::custom_row(vec![
-        btn(
-            DashTab::FinishedTripTable,
-            "finished trips",
-            &format!(
-                "{} ({:.1}%) Finished Trips",
-                prettyprint_usize(finished),
-                if total > 0 {
-                    (finished as f64) / (total as f64) * 100.0
-                } else {
-                    0.0
-                }
-            ),
-        )
-        .margin_right(28),
-        btn(
-            DashTab::CancelledTripTable,
-            "cancelled trips",
-            &format!("{} Cancelled Trips", prettyprint_usize(cancelled)),
-        )
-        .margin_right(28),
-        btn(
-            DashTab::UnfinishedTripTable,
-            "unfinished trips",
-            &format!(
-                "{} ({:.1}%) Unfinished Trips",
-                prettyprint_usize(unfinished),
-                if total > 0 {
-                    (unfinished as f64) / (total as f64) * 100.0
-                } else {
-                    0.0
-                }
-            ),
-        ),
-    ])
-}
-
-fn make_panel_finished_trips(
-    ctx: &mut EventCtx,
-    app: &App,
-    table: &Table<App, FinishedTrip, Filters>,
-) -> Panel {
-    Panel::new(Widget::col(vec![
-        DashTab::FinishedTripTable.picker(ctx, app),
-        trip_category_selector(ctx, app, DashTab::FinishedTripTable),
-        table.render(ctx, app),
-        Filler::square_width(ctx, 0.15)
-            .named("preview")
-            .centered_horiz(),
-    ]))
-    .exact_size_percent(90, 90)
-    .build(ctx)
-}
-
-// Always use DashTab::FinishedTripTable, so the dropdown works
-fn make_panel_cancelled_trips(
-    ctx: &mut EventCtx,
-    app: &App,
-    table: &Table<App, CancelledTrip, Filters>,
-) -> Panel {
-    Panel::new(Widget::col(vec![
-        DashTab::FinishedTripTable.picker(ctx, app),
-        trip_category_selector(ctx, app, DashTab::CancelledTripTable),
-        table.render(ctx, app),
-        Filler::square_width(ctx, 0.15)
-            .named("preview")
-            .centered_horiz(),
-    ]))
-    .exact_size_percent(90, 90)
-    .build(ctx)
-}
-
-fn make_panel_unfinished_trips(
-    ctx: &mut EventCtx,
-    app: &App,
-    table: &Table<App, UnfinishedTrip, Filters>,
-) -> Panel {
-    Panel::new(Widget::col(vec![
-        DashTab::FinishedTripTable.picker(ctx, app),
-        trip_category_selector(ctx, app, DashTab::UnfinishedTripTable),
-        table.render(ctx, app),
-        Filler::square_width(ctx, 0.15)
-            .named("preview")
-            .centered_horiz(),
-    ]))
-    .exact_size_percent(90, 90)
-    .build(ctx)
 }

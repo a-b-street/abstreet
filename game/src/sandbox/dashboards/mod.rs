@@ -1,6 +1,6 @@
 pub use commuter::CommuterPatterns;
 pub use traffic_signals::TrafficSignalDemand;
-pub use trip_table::FinishedTripTable;
+pub use trip_table::TripTable;
 
 use widgetry::{Choice, EventCtx, Image, Line, Panel, TextExt, Widget};
 
@@ -18,9 +18,7 @@ mod trip_table;
 // Oh the dashboards melted, but we still had the radio
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum DashTab {
-    FinishedTripTable,
-    CancelledTripTable,
-    UnfinishedTripTable,
+    TripTable,
     TripSummaries,
     ParkingOverhead,
     ActiveTraffic,
@@ -32,7 +30,7 @@ pub enum DashTab {
 impl DashTab {
     pub fn picker(self, ctx: &EventCtx, app: &App) -> Widget {
         let mut choices = vec![
-            Choice::new("Trip Table", DashTab::FinishedTripTable),
+            Choice::new("Trip Table", DashTab::TripTable),
             Choice::new("Trip Summaries", DashTab::TripSummaries),
             Choice::new("Parking Overhead", DashTab::ParkingOverhead),
             Choice::new("Active Traffic", DashTab::ActiveTraffic),
@@ -64,15 +62,9 @@ impl DashTab {
         if tab == self {
             return None;
         }
-        // Hold on, a few tabs are "sub-tabs" -- don't change
-        if tab == DashTab::FinishedTripTable {
-            if self == DashTab::CancelledTripTable || self == DashTab::UnfinishedTripTable {
-                return None;
-            }
-        }
 
         Some(Transition::Replace(match tab {
-            DashTab::FinishedTripTable => FinishedTripTable::new(ctx, app),
+            DashTab::TripTable => Box::new(TripTable::new(ctx, app)),
             DashTab::TripSummaries => {
                 summaries::TripSummaries::new(ctx, app, summaries::Filter::new())
             }
@@ -81,7 +73,6 @@ impl DashTab {
             DashTab::TransitRoutes => misc::TransitRoutes::new(ctx, app),
             DashTab::CommuterPatterns => CommuterPatterns::new(ctx, app),
             DashTab::TrafficSignals => TrafficSignalDemand::new(ctx, app),
-            DashTab::CancelledTripTable | DashTab::UnfinishedTripTable => unreachable!(),
         }))
     }
 }
