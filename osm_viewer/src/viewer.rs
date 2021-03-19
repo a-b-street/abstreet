@@ -167,26 +167,26 @@ impl Viewer {
                 );
 
                 let mut txt = Text::new();
-                txt.add(Line(format!("Address: {}", b.address)));
+                txt.add(format!("Address: {}", b.address));
                 if let Some(ref names) = b.name {
-                    txt.add(Line(format!(
+                    txt.add(format!(
                         "Name: {}",
                         names.get(app.opts.language.as_ref()).to_string()
-                    )));
+                    ));
                 }
                 if !b.amenities.is_empty() {
-                    txt.add(Line(""));
+                    txt.add("");
                     if b.amenities.len() == 1 {
-                        txt.add(Line("1 amenity:"));
+                        txt.add("1 amenity:");
                     } else {
-                        txt.add(Line(format!("{} amenities:", b.amenities.len())));
+                        txt.add(format!("{} amenities:", b.amenities.len()));
                     }
                     for a in &b.amenities {
-                        txt.add(Line(format!(
+                        txt.add(format!(
                             "  {} ({})",
                             a.names.get(app.opts.language.as_ref()),
                             a.amenity_type
-                        )));
+                        ));
                     }
                 }
                 col.push(txt.into_widget(ctx));

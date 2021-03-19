@@ -54,23 +54,23 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
     let mut txt = Text::new();
 
     if !b.amenities.is_empty() {
-        txt.add(Line(""));
+        txt.add("");
         if b.amenities.len() == 1 {
-            txt.add(Line("1 amenity:"));
+            txt.add("1 amenity:");
         } else {
-            txt.add(Line(format!("{} amenities:", b.amenities.len())));
+            txt.add(format!("{} amenities:", b.amenities.len()));
         }
         for a in &b.amenities {
-            txt.add(Line(format!(
+            txt.add(format!(
                 "  {} ({})",
                 a.names.get(app.opts.language.as_ref()),
                 a.amenity_type
-            )));
+            ));
         }
     }
 
     if !app.primary.sim.infinite_parking() {
-        txt.add(Line(""));
+        txt.add("");
         if let Some(pl) = app
             .primary
             .sim
@@ -97,7 +97,7 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
                 ),
             );
         } else {
-            txt.add(Line("No nearby parking available"))
+            txt.add("No nearby parking available")
         }
     }
 

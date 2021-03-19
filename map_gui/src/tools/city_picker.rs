@@ -311,7 +311,7 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
             g.draw_polygon(color.alpha(0.5), poly.clone());
             g.unfork();
 
-            g.draw_mouse_tooltip(Text::from(Line(nice_map_name(name))));
+            g.draw_mouse_tooltip(Text::from(nice_map_name(name)));
         }
     }
 }

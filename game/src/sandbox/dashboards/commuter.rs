@@ -307,14 +307,14 @@ impl CommuterPatterns {
     fn redraw_panel(&mut self, state: Option<&PanelState>, ctx: &mut EventCtx, app: &App) {
         if let Some(state) = state {
             let mut txt = Text::new();
-            txt.add(Line(format!(
+            txt.add(format!(
                 "Total: {} trips",
                 abstutil::prettyprint_usize(state.total_trips)
-            )));
+            ));
 
             for (name, cnt) in &state.building_counts {
                 if *cnt != 0 {
-                    txt.add(Line(format!("{}: {}", name, cnt)));
+                    txt.add(format!("{}: {}", name, cnt));
                 }
             }
 

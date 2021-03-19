@@ -56,11 +56,11 @@ impl Picker {
 
                 let mut txt = Text::new();
                 txt.add(Line(format!("Ready for {}?", level.title)).small_heading());
-                txt.add(Line(format!(
+                txt.add(format!(
                     "Goal: deliver {} presents",
                     prettyprint_usize(level.goal)
-                )));
-                txt.add(Line(format!("Time limit: {}", level.time_limit)));
+                ));
+                txt.add(format!("Time limit: {}", level.time_limit));
                 txt.add_appended(vec![
                     Line("Deliver presents to "),
                     Line("single-family homes").fg(app.cs.residential_building),

@@ -596,7 +596,7 @@ fn make_timeline(
                             norm_color,
                             build_text(app, &msgs, norm_distance),
                         ));
-                        let mut display_txt = Text::from(Line(&p.phase_type.describe(map)));
+                        let mut display_txt = Text::from(&p.phase_type.describe(map));
                         display_txt.add(Line(format!(
                             "  Road: {}",
                             map.get_r(lane_detail.parent)
@@ -624,7 +624,7 @@ fn make_timeline(
                             build_text(app, &msgs, norm_distance),
                         ));
 
-                        let mut display_txt = Text::from(Line(&p.phase_type.describe(map)));
+                        let mut display_txt = Text::from(&p.phase_type.describe(map));
                         display_txt.add(Line(format!("  Intersection: {}", id.parent)));
                         display_txt.add(Line(format!(
                             "  Delay: {}",
@@ -706,7 +706,7 @@ fn make_trip_details(
         ctx.style()
             .btn_plain
             .icon("system/assets/timeline/start_pos.svg")
-            .tooltip(Text::from(Line(name)))
+            .tooltip(name)
             .build_widget(ctx, format!("jump to start of {}", trip_id))
     };
 
@@ -739,7 +739,7 @@ fn make_trip_details(
         ctx.style()
             .btn_plain
             .icon("system/assets/timeline/goal_pos.svg")
-            .tooltip(Text::from(Line(name)))
+            .tooltip(name)
             .build_widget(ctx, format!("jump to goal of {}", trip_id))
     };
 
@@ -814,10 +814,10 @@ fn make_trip_details(
                     .btn_plain
                     .icon("system/assets/speed/jump_to_time.svg")
                     .tooltip({
-                        let mut txt = Text::from(Line("This will jump to "));
+                        let mut txt = Text::from("This will jump to ");
                         txt.append(Line(trip.departure.ampm_tostring()).fg(Color::hex("#F9EC51")));
-                        txt.add(Line("The simulation will continue, and your score"));
-                        txt.add(Line("will be calculated at this new time."));
+                        txt.add("The simulation will continue, and your score");
+                        txt.add("will be calculated at this new time.");
                         txt
                     })
                     .build_widget(ctx, format!("jump to {}", trip.departure))
@@ -833,10 +833,10 @@ fn make_trip_details(
                         .btn_plain
                         .icon("system/assets/speed/jump_to_time.svg")
                         .tooltip({
-                            let mut txt = Text::from(Line("This will jump to "));
+                            let mut txt = Text::from("This will jump to ");
                             txt.append(Line(t.ampm_tostring()).fg(Color::hex("#F9EC51")));
-                            txt.add(Line("The simulation will continue, and your score"));
-                            txt.add(Line("will be calculated at this new time."));
+                            txt.add("The simulation will continue, and your score");
+                            txt.add("will be calculated at this new time.");
                             txt
                         })
                         .build_widget(ctx, format!("jump to {}", t))

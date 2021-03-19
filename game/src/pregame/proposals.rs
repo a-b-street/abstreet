@@ -31,7 +31,7 @@ impl Proposals {
                 let mut txt = Text::new();
                 txt.add(Line(&edits.proposal_description[0]).small_heading());
                 for l in edits.proposal_description.iter().skip(1) {
-                    txt.add(Line(l));
+                    txt.add(l);
                 }
                 current_tab.push(
                     txt.wrap_to_pct(ctx, 70)
@@ -83,11 +83,9 @@ impl Proposals {
             {
                 let mut txt = Text::from(Line("A/B STREET").display_title());
                 txt.add(Line("PROPOSALS").big_heading_styled());
-                txt.add(Line(""));
-                txt.add(Line(
-                    "These are proposed changes to Seattle made by community members.",
-                ));
-                txt.add(Line("Contact dabreegster@gmail.com to add your idea here!"));
+                txt.add("");
+                txt.add("These are proposed changes to Seattle made by community members.");
+                txt.add("Contact dabreegster@gmail.com to add your idea here!");
                 txt.into_widget(ctx).centered_horiz().margin_below(20)
             },
             Widget::custom_row(buttons).flex_wrap(ctx, Percent::int(80)),

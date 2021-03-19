@@ -219,10 +219,10 @@ fn draw_zone(
 
 fn make_instructions(ctx: &mut EventCtx, allow_through_traffic: &BTreeSet<TripMode>) -> Widget {
     if allow_through_traffic == &TripMode::all().into_iter().collect() {
-        Text::from(Line(
+        Text::from(
             "Through-traffic is allowed for everyone, meaning this is just a normal public road. \
              Would you like to restrict it?",
-        ))
+        )
         .wrap_to_pct(ctx, 30)
         .into_widget(ctx)
     } else {

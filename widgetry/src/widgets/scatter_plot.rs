@@ -2,8 +2,8 @@ use geom::{Angle, Circle, Distance, Duration, PolyLine, Pt2D, Time};
 
 use crate::widgets::line_plot::{make_legend, Yvalue};
 use crate::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, PlotOptions, ScreenDims, ScreenPt, Series,
-    Text, TextExt, Widget, WidgetImpl, WidgetOutput,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, PlotOptions, ScreenDims, ScreenPt, Series, Text,
+    TextExt, Widget, WidgetImpl, WidgetOutput,
 };
 
 // The X is always time
@@ -132,7 +132,7 @@ impl ScatterPlot {
                 ),
             );
 
-            let txt = Text::from(Line("avg")).render(ctx).autocrop();
+            let txt = Text::from("avg").render(ctx).autocrop();
             let width = txt.get_dims().width;
             batch.append(txt.centered_on(Pt2D::new(-width / 2.0, (1.0 - avg) * height)));
         }
@@ -150,7 +150,7 @@ impl ScatterPlot {
             let percent_x = (i as f64) / ((num_x_labels - 1) as f64);
             let t = max_x.percent_of(percent_x);
             // TODO Need ticks now to actually see where this goes
-            let batch = Text::from(Line(t.to_string()))
+            let batch = Text::from(t.to_string())
                 .render(ctx)
                 .rotate(Angle::degrees(-15.0))
                 .autocrop();

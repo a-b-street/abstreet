@@ -157,19 +157,16 @@ impl DebugMode {
     fn reset_info(&mut self, ctx: &mut EventCtx) {
         let mut txt = Text::new();
         if !self.hidden.is_empty() {
-            txt.add(Line(format!("Hiding {} things", self.hidden.len())));
+            txt.add(format!("Hiding {} things", self.hidden.len()));
         }
         if let Some(ref results) = self.search_results {
-            txt.add(Line(format!(
+            txt.add(format!(
                 "Search for {} has {} results",
                 results.query, results.num_matches
-            )));
+            ));
         }
         if let Some((n, _)) = self.all_routes {
-            txt.add(Line(format!(
-                "Showing {} routes",
-                abstutil::prettyprint_usize(n)
-            )));
+            txt.add(format!("Showing {} routes", abstutil::prettyprint_usize(n)));
         }
         self.panel
             .replace(ctx, "current info", txt.into_widget(ctx));

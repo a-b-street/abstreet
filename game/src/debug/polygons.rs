@@ -102,7 +102,7 @@ impl State<App> for PolygonDebugger {
         match &self.items[self.idx] {
             Item::Point(pt) => {
                 batch.append(
-                    Text::from(Line(self.idx.to_string()))
+                    Text::from(self.idx.to_string())
                         .bg(app.cs.panel_bg)
                         .render(g)
                         .centered_on(g.canvas.map_to_screen(*pt).to_pt()),
@@ -111,7 +111,7 @@ impl State<App> for PolygonDebugger {
             Item::Triangle(ref tri) => {
                 for pt in &[tri.pt1, tri.pt2, tri.pt3] {
                     batch.append(
-                        Text::from(Line(self.idx.to_string()))
+                        Text::from(self.idx.to_string())
                             .bg(app.cs.panel_bg)
                             .render(g)
                             .centered_on(g.canvas.map_to_screen(*pt).to_pt()),
@@ -122,7 +122,7 @@ impl State<App> for PolygonDebugger {
             Item::Polygon(ref poly) => {
                 g.draw_polygon(app.cs.selected, poly.clone());
                 batch.append(
-                    Text::from(Line(self.idx.to_string()))
+                    Text::from(self.idx.to_string())
                         .bg(app.cs.panel_bg)
                         .render(g)
                         .centered_on(g.canvas.map_to_screen(poly.center()).to_pt()),
@@ -131,7 +131,7 @@ impl State<App> for PolygonDebugger {
         }
         if let Some(pt) = self.center {
             batch.append(
-                Text::from(Line("c"))
+                Text::from("c")
                     .bg(app.cs.panel_bg)
                     .render(g)
                     .centered_on(g.canvas.map_to_screen(pt).to_pt()),

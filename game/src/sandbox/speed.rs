@@ -254,12 +254,12 @@ impl TimePanel {
         }
 
         use widgetry::DrawWithTooltips;
-        let mut tooltip_text = Text::from(Line("Finished Trips"));
-        tooltip_text.add(Line(format!(
+        let mut tooltip_text = Text::from("Finished Trips");
+        tooltip_text.add(format!(
             "{} ({}% of total)",
             prettyprint_usize(finished),
             (ratio * 100.0) as usize
-        )));
+        ));
         if let Some(baseline_finished) = self.baseline_finished_trips {
             // TODO: up/down icons
             let line = if baseline_finished > finished {

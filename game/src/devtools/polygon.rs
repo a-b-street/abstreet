@@ -136,11 +136,7 @@ impl State<App> for PolygonEditor {
 
         self.panel.draw(g);
         if self.mouseover_pt.is_some() {
-            CommonState::draw_custom_osd(
-                g,
-                app,
-                Text::from(Line("hold left Control to move point")),
-            );
+            CommonState::draw_custom_osd(g, app, Text::from("hold left Control to move point"));
         } else {
             CommonState::draw_osd(g, app);
         }

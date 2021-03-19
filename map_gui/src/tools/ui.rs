@@ -133,10 +133,10 @@ pub struct PopupMsg {
 }
 
 impl PopupMsg {
-    pub fn new<A: AppLike, I: Into<String>>(
+    pub fn new<A: AppLike>(
         ctx: &mut EventCtx,
         title: &str,
-        lines: Vec<I>,
+        lines: Vec<impl AsRef<str>>,
     ) -> Box<dyn State<A>> {
         PopupMsg::also_draw(
             ctx,
@@ -147,17 +147,17 @@ impl PopupMsg {
         )
     }
 
-    pub fn also_draw<A: AppLike, I: Into<String>>(
+    pub fn also_draw<A: AppLike>(
         ctx: &mut EventCtx,
         title: &str,
-        lines: Vec<I>,
+        lines: Vec<impl AsRef<str>>,
         unzoomed: Drawable,
         zoomed: Drawable,
     ) -> Box<dyn State<A>> {
         let mut txt = Text::new();
         txt.add(Line(title).small_heading());
         for l in lines {
-            txt.add(Line(l));
+            txt.add(l);
         }
         Box::new(PopupMsg {
             panel: Panel::new(Widget::col(vec![

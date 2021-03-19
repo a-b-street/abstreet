@@ -74,19 +74,19 @@ impl PopularDestinations {
                 by_type.add(None, *cnt);
             }
         }
-        let mut breakdown = Text::from(Line("Breakdown by type"));
+        let mut breakdown = Text::from("Breakdown by type");
         let mut list = by_type.consume().into_iter().collect::<Vec<_>>();
         list.sort_by_key(|(_, cnt)| *cnt);
         list.reverse();
         let sum = per_bldg.sum() as f64;
         for (category, cnt) in list {
-            breakdown.add(Line(format!(
+            breakdown.add(format!(
                 "{}: {}%",
                 category
                     .map(|x| x.to_string())
                     .unwrap_or("other".to_string()),
                 ((cnt as f64) / sum * 100.0) as usize
-            )));
+            ));
         }
 
         Box::new(PopularDestinations {
@@ -151,16 +151,16 @@ impl State<App> for PopularDestinations {
 
         if let Some(ID::Building(b)) = app.primary.current_selection {
             let mut txt = Text::new();
-            txt.add(Line(format!(
+            txt.add(format!(
                 "{} trips to here",
                 abstutil::prettyprint_usize(self.per_bldg.get(b))
-            )));
+            ));
             for a in &app.primary.map.get_b(b).amenities {
-                txt.add(Line(format!(
+                txt.add(format!(
                     "  {} ({})",
                     a.names.get(app.opts.language.as_ref()),
                     a.amenity_type
-                )));
+                ));
             }
             g.draw_mouse_tooltip(txt);
         }

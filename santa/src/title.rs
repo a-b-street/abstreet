@@ -100,7 +100,7 @@ fn level_btn(ctx: &mut EventCtx, app: &App, level: &Level, idx: usize) -> GeomBa
     let mut txt = Text::new();
     txt.add(Line(format!("LEVEL {}", idx + 1)).small_heading());
     txt.add(Line(&level.title).small_heading());
-    txt.add(Line(&level.description));
+    txt.add(&level.description);
     let batch = txt.wrap_to_pct(ctx, 15).render_autocropped(ctx);
 
     // Add padding

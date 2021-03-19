@@ -211,29 +211,27 @@ fn make_table(app: &App) -> Table<App, Entry, Filters> {
     table.static_col("Trip ID", Box::new(|x| x.trip.0.to_string()));
     table.column(
         "Total duration",
-        Box::new(|ctx, app, x| {
-            Text::from(Line(x.total_duration.to_string(&app.opts.units))).render(ctx)
-        }),
+        Box::new(|ctx, app, x| Text::from(x.total_duration.to_string(&app.opts.units)).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.total_duration))),
     );
     table.column(
         "Driving duration",
         Box::new(|ctx, app, x| {
-            Text::from(Line(x.driving_duration.to_string(&app.opts.units))).render(ctx)
+            Text::from(x.driving_duration.to_string(&app.opts.units)).render(ctx)
         }),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.driving_duration))),
     );
     table.column(
         "Parking duration",
         Box::new(|ctx, app, x| {
-            Text::from(Line(x.parking_duration.to_string(&app.opts.units))).render(ctx)
+            Text::from(x.parking_duration.to_string(&app.opts.units)).render(ctx)
         }),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.parking_duration))),
     );
     table.column(
         "Walking duration",
         Box::new(|ctx, app, x| {
-            Text::from(Line(x.walking_duration.to_string(&app.opts.units))).render(ctx)
+            Text::from(x.walking_duration.to_string(&app.opts.units)).render(ctx)
         }),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.walking_duration))),
     );

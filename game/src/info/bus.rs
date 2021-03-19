@@ -67,7 +67,7 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
         }
     }
     let mut txt = Text::new();
-    txt.add(Line("Total"));
+    txt.add("Total");
     txt.append(
         Line(format!(
             ": {} boardings, {} alightings",
@@ -77,7 +77,7 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
         .secondary(),
     );
     for r in app.primary.map.get_routes_serving_stop(id) {
-        txt.add(Line(format!("Route {}", r.short_name)));
+        txt.add(format!("Route {}", r.short_name));
         txt.append(
             Line(format!(
                 ": {} boardings, {} alightings",
@@ -178,7 +178,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
         header_btns(ctx),
     ]));
     rows.push(
-        Text::from(Line(&route.full_name))
+        Text::from(&route.full_name)
             .wrap_to_pct(ctx, 20)
             .into_widget(ctx),
     );
@@ -354,11 +354,11 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
 // TODO Unit test
 fn describe_schedule(route: &BusRoute) -> Text {
     let mut txt = Text::new();
-    txt.add(Line(format!(
+    txt.add(format!(
         "{} {}s run this route daily",
         route.spawn_times.len(),
         route.plural_noun()
-    )));
+    ));
 
     if false {
         // Compress the times
@@ -371,12 +371,12 @@ fn describe_schedule(route: &BusRoute) -> Text {
                 if Some(new_dt) == dt {
                     last = Some(*t);
                 } else {
-                    txt.add(Line(format!(
+                    txt.add(format!(
                         "Every {} from {} to {}",
                         dt.unwrap(),
                         start.ampm_tostring(),
                         l.ampm_tostring()
-                    )));
+                    ));
                     start = l;
                     last = Some(*t);
                     dt = Some(new_dt);
@@ -387,16 +387,16 @@ fn describe_schedule(route: &BusRoute) -> Text {
             }
         }
         // Handle end
-        txt.add(Line(format!(
+        txt.add(format!(
             "Every {} from {} to {}",
             dt.unwrap(),
             start.ampm_tostring(),
             last.unwrap().ampm_tostring()
-        )));
+        ));
     } else {
         // Just list the times
         for t in &route.spawn_times {
-            txt.add(Line(t.ampm_tostring()));
+            txt.add(t.ampm_tostring());
         }
     }
     txt

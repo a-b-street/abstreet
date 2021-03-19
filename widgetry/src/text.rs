@@ -51,6 +51,12 @@ pub struct TextSpan {
     underlined: bool,
 }
 
+impl<AsStrRef: AsRef<str>> From<AsStrRef> for TextSpan {
+    fn from(line: AsStrRef) -> Self {
+        Line(line.as_ref())
+    }
+}
+
 impl TextSpan {
     pub fn fg(mut self, color: Color) -> TextSpan {
         assert_eq!(self.fg_color, None);
@@ -167,18 +173,28 @@ pub struct Text {
     bg_color: Option<Color>,
 }
 
+impl From<TextSpan> for Text {
+    fn from(line: TextSpan) -> Text {
+        let mut txt = Text::new();
+        txt.add(line);
+        txt
+    }
+}
+
+impl<AsStrRef: AsRef<str>> From<AsStrRef> for Text {
+    fn from(line: AsStrRef) -> Text {
+        let mut txt = Text::new();
+        txt.add(Line(line.as_ref()));
+        txt
+    }
+}
+
 impl Text {
     pub fn new() -> Text {
         Text {
             lines: Vec::new(),
             bg_color: None,
         }
-    }
-
-    pub fn from(line: TextSpan) -> Text {
-        let mut txt = Text::new();
-        txt.add(line);
-        txt
     }
 
     pub fn from_all(lines: Vec<TextSpan>) -> Text {
@@ -244,8 +260,8 @@ impl Text {
         self
     }
 
-    pub fn add(&mut self, line: TextSpan) {
-        self.lines.push((None, vec![line]));
+    pub fn add(&mut self, line: impl Into<TextSpan>) {
+        self.lines.push((None, vec![line.into()]));
     }
 
     pub fn add_highlighted(&mut self, line: TextSpan, highlight: Color) {
@@ -542,7 +558,7 @@ impl TextSpan {
         write!(&mut svg, "\" />").unwrap();
         // We need to subtract and account for the length of the text
         let start_offset = (path.length() / 2.0).inner_meters()
-            - (Text::from(Line(&self.text)).dims(assets).width * scale) / 2.0;
+            - (Text::from(&self.text).dims(assets).width * scale) / 2.0;
 
         let fg_color = self.fg_color_for_style(&assets.style.borrow());
         write!(

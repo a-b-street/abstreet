@@ -253,7 +253,7 @@ impl<'a> LoadingScreen<'a> {
 
         let mut txt = Text::from(Line(&self.title).small_heading());
         for l in &self.lines {
-            txt.add(Line(l));
+            txt.add(l);
         }
         let panel = ctx.make_loading_screen(txt);
 

@@ -396,10 +396,10 @@ fn make_tabs(ctx: &mut EventCtx) -> TabController {
                 .padding(20)
                 .dims(ScreenDims::new(50.0, 100.0))
                 .content_mode(ContentMode::ScaleAspectFit)
-                .tooltip(Text::from(Line(
+                .tooltip(
                     "With ScaleAspectFit content grows, without distorting its aspect ratio, \
                      until it reaches its padding bounds.",
-                )))
+                )
                 .into_widget(ctx),
             Image::from_path("system/assets/tools/home.svg")
                 .color(Color::GREEN)
@@ -407,9 +407,7 @@ fn make_tabs(ctx: &mut EventCtx) -> TabController {
                 .padding(20)
                 .dims(ScreenDims::new(50.0, 100.0))
                 .content_mode(ContentMode::ScaleToFill)
-                .tooltip(Text::from(Line(
-                    "With ScaleToFill content can stretches to fill its size (less padding)",
-                )))
+                .tooltip("With ScaleToFill content can stretches to fill its size (less padding)")
                 .into_widget(ctx),
             Image::from_path("system/assets/tools/home.svg")
                 .color(Color::BLUE)
@@ -417,9 +415,7 @@ fn make_tabs(ctx: &mut EventCtx) -> TabController {
                 .padding(20)
                 .dims(ScreenDims::new(50.0, 100.0))
                 .content_mode(ContentMode::ScaleAspectFill)
-                .tooltip(Text::from(Line(
-                    "With ScaleAspectFill content can exceed its visible bounds",
-                )))
+                .tooltip("With ScaleAspectFill content can exceed its visible bounds")
                 .into_widget(ctx),
         ]),
         Text::from(Line("Spinner").big_heading_styled().size(18)).into_widget(ctx),
@@ -510,9 +506,9 @@ fn make_controls(ctx: &mut EventCtx, tabs: &mut TabController) -> Panel {
     Panel::new(Widget::col(vec![
         Text::from(Line("widgetry demo").big_heading_styled()).into_widget(ctx),
         Widget::col(vec![
-            Text::from(Line(
+            Text::from(
                 "Click and drag the background to pan, use touchpad or scroll wheel to zoom",
-            ))
+            )
             .into_widget(ctx),
             Widget::row(vec![
                 ctx.style()

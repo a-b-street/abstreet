@@ -37,7 +37,7 @@ impl Buildings {
                 buildings.insert(b.id, BldgState::Store);
                 batch.push(colors.store, b.polygon.clone());
                 batch.append(
-                    Text::from(Line("Upzoned"))
+                    Text::from("Upzoned")
                         .render_autocropped(ctx)
                         .scale(0.1)
                         .centered_on(b.label_center),
@@ -83,7 +83,7 @@ impl Buildings {
                 buildings.insert(b.id, BldgState::Store);
                 batch.push(colors.store, b.polygon.clone());
                 batch.append(
-                    Text::from(Line(amenity.names.get(app.opts.language.as_ref())))
+                    Text::from(amenity.names.get(app.opts.language.as_ref()))
                         .render_autocropped(ctx)
                         .scale(0.1)
                         .centered_on(b.label_center),

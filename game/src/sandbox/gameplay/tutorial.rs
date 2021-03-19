@@ -464,7 +464,7 @@ impl Task {
             Task::Nil => unreachable!(),
             Task::Camera => "Put out the fire at the fire station",
             Task::InspectObjects => {
-                let mut txt = Text::from(Line("Find one of each:"));
+                let mut txt = Text::from("Find one of each:");
                 for (name, done) in vec![
                     ("bike lane", state.inspected_bike_lane),
                     ("building", state.inspected_building),
@@ -474,14 +474,14 @@ impl Task {
                     if done {
                         txt.add(Line(format!("[X] {}", name)).fg(Color::GREEN));
                     } else {
-                        txt.add(Line(format!("[ ] {}", name)));
+                        txt.add(format!("[ ] {}", name));
                     }
                 }
                 return txt;
             }
             Task::TimeControls => "Wait until after 5pm",
             Task::PauseResume => {
-                let mut txt = Text::from(Line("[ ] Pause/resume "));
+                let mut txt = Text::from("[ ] Pause/resume ");
                 txt.append(Line(format!("{} times", 3 - state.num_pauses)).fg(Color::GREEN));
                 return txt;
             }
@@ -491,17 +491,17 @@ impl Task {
                 if state.following_car {
                     txt.add(Line("[X] follow the target car").fg(Color::GREEN));
                 } else {
-                    txt.add(Line("[ ] follow the target car"));
+                    txt.add("[ ] follow the target car");
                 }
                 if state.car_parked {
                     txt.add(Line("[X] wait for them to park").fg(Color::GREEN));
                 } else {
-                    txt.add(Line("[ ] wait for them to park"));
+                    txt.add("[ ] wait for them to park");
                 }
                 if state.prank_done {
                     txt.add(Line("[X] click car and press c to draw WASH ME").fg(Color::GREEN));
                 } else {
-                    txt.add(Line("[ ] click car and press "));
+                    txt.add("[ ] click car and press ");
                     // TODO ctx.style().hotkey_color
                     txt.append(Line(Key::C.describe()).fg(Color::GREEN));
                     txt.append(Line(" to draw WASH ME"));
@@ -512,7 +512,7 @@ impl Task {
                 let mut txt = Text::from(Line(
                     "1) Find a road with almost no parking spots available",
                 ));
-                txt.add(Line("2) Click it and press "));
+                txt.add("2) Click it and press ");
                 // TODO ctx.style().hotkey_color
                 txt.append(Line(Key::C.describe()).fg(Color::GREEN));
                 txt.append(Line(" to check the occupancy"));
@@ -520,14 +520,14 @@ impl Task {
             }
             Task::WatchBikes => "Watch for 3 minutes",
             Task::FixBikes => {
-                return Text::from(Line(format!(
+                return Text::from(format!(
                     "[ ] Complete all trips {} faster",
                     CAR_BIKE_CONTENTION_GOAL
-                )));
+                ));
             }
             Task::Done => "Tutorial complete!",
         };
-        Text::from(Line(simple))
+        Text::from(simple)
     }
 
     fn label(self) -> &'static str {
@@ -736,7 +736,7 @@ impl TutorialState {
                 .disabled(self.current.stage == 0)
                 .build_widget(ctx, "previous tutorial"),
             {
-                let mut txt = Text::from(Line(format!("Task {}", self.current.stage + 1)));
+                let mut txt = Text::from(format!("Task {}", self.current.stage + 1));
                 // TODO Smaller font and use alpha for the "/9" part
                 txt.append(Line(format!("/{}", self.stages.len())).fg(Color::grey(0.7)));
                 txt.into_widget(ctx)
@@ -815,10 +815,10 @@ impl TutorialState {
                 let mut col = vec![{
                     let mut txt = Text::new();
                     txt.add(Line(self.stage().task.label()).small_heading());
-                    txt.add(Line(""));
+                    txt.add("");
 
                     for l in lines {
-                        txt.add(Line(l));
+                        txt.add(l);
                     }
                     txt.wrap_to_pct(ctx, 30).into_widget(ctx)
                 }];

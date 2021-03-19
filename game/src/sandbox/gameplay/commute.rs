@@ -145,11 +145,11 @@ impl GameplayState for OptimizeCommute {
                 }
                 "hint" => {
                     // TODO Multiple hints. Point to follow button.
-                    let mut txt = Text::from(Line("Hints"));
-                    txt.add(Line(""));
-                    txt.add(Line("Use the locator at the top right to find the VIP."));
-                    txt.add(Line("You can wait for one of their trips to begin or end."));
-                    txt.add(Line("Focus on trips spent mostly waiting"));
+                    let mut txt = Text::from("Hints");
+                    txt.add("");
+                    txt.add("Use the locator at the top right to find the VIP.");
+                    txt.add("You can wait for one of their trips to begin or end.");
+                    txt.add("Focus on trips spent mostly waiting");
                     let contents = txt.into_widget(ctx);
                     return Some(Transition::Push(FYI::new(ctx, contents, app.cs.panel_bg)));
                 }
@@ -175,7 +175,7 @@ impl GameplayState for OptimizeCommute {
 
     fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
         let (before, after, done) = get_score(app, &self.trips);
-        let mut txt = Text::from(Line(format!("Total time: {} (", after)));
+        let mut txt = Text::from(format!("Total time: {} (", after));
         txt.append_all(cmp_duration_shorter(app, after, before));
         txt.append(Line(")"));
 

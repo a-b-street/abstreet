@@ -100,7 +100,7 @@ impl CompareTimes {
                 .collect(),
         )
         .evenly_spaced();
-        let y_label = Text::from(Line(format!("{} (minutes)", y_name.as_ref())))
+        let y_label = Text::from(format!("{} (minutes)", y_name.as_ref()))
             .render(ctx)
             .rotate(Angle::degrees(90.0))
             .autocrop()

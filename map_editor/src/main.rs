@@ -81,7 +81,7 @@ impl MainState {
             Key::I.txt(ctx),
             Line(" to create a new intersection"),
         ]);
-        instructions.add(Line("Hover on an intersection, then..."));
+        instructions.add("Hover on an intersection, then...");
         instructions.add_appended(vec![
             Line("- Press "),
             Key::R.txt(ctx),

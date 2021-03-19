@@ -129,7 +129,7 @@ impl Layer for Throughput {
                             .road_thruput
                             .total_for_with_agent_types(r, self.agent_types.clone());
                         if cnt > 0 {
-                            self.tooltip = Some(Text::from(Line(prettyprint_usize(cnt))));
+                            self.tooltip = Some(Text::from(prettyprint_usize(cnt)));
                         }
                     }
                     Some(ID::Intersection(i)) => {
@@ -140,7 +140,7 @@ impl Layer for Throughput {
                             .intersection_thruput
                             .total_for_with_agent_types(i, self.agent_types.clone());
                         if cnt > 0 {
-                            self.tooltip = Some(Text::from(Line(prettyprint_usize(cnt))));
+                            self.tooltip = Some(Text::from(prettyprint_usize(cnt)));
                         }
                     }
                     _ => {}

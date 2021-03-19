@@ -122,7 +122,7 @@ impl ShowRelative {
             } else {
                 let offset = app.primary.map.get_traffic_signal(*i).offset - base_offset;
                 batch.append(
-                    Text::from(Line(offset.to_string(&app.opts.units)))
+                    Text::from(offset.to_string(&app.opts.units))
                         .bg(Color::PURPLE)
                         .render_autocropped(ctx)
                         .color(RewriteColor::ChangeAlpha(0.8))

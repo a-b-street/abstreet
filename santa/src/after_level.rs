@@ -39,14 +39,14 @@ impl Strategize {
 
         let mut txt = Text::new();
         txt.add(Line(format!("Results for {}", level.title)).small_heading());
-        txt.add(Line(format!(
+        txt.add(format!(
             "You delivered {} presents",
             prettyprint_usize(score)
-        )));
-        txt.add(Line(""));
-        txt.add(Line("High scores:"));
+        ));
+        txt.add("");
+        txt.add("High scores:");
         for (idx, score) in app.session.high_scores[&level.title].iter().enumerate() {
-            txt.add(Line(format!("{}) {}", idx + 1, prettyprint_usize(*score))));
+            txt.add(format!("{}) {}", idx + 1, prettyprint_usize(*score)));
         }
 
         // Partly duplicated with Buildings::new, but we want to label upzones and finished houses
@@ -168,29 +168,29 @@ impl Results {
         let mut txt = Text::new();
         if score < level.goal {
             txt.add(Line("Not quite...").small_heading());
-            txt.add(Line(format!(
+            txt.add(format!(
                 "You only delivered {} / {} presents",
                 prettyprint_usize(score),
                 prettyprint_usize(level.goal)
-            )));
-            txt.add(Line("Review your route and try again."));
-            txt.add(Line(""));
-            txt.add(Line("Hint: look for any apartments you missed!"));
+            ));
+            txt.add("Review your route and try again.");
+            txt.add("");
+            txt.add("Hint: look for any apartments you missed!");
         } else {
             txt.add(Line("Thank you, Santa!").small_heading());
-            txt.add(Line(format!(
+            txt.add(format!(
                 "You delivered {} presents, more than the goal of {}!",
                 prettyprint_usize(score),
                 prettyprint_usize(level.goal)
-            )));
+            ));
             let high_score = app.session.high_scores[&level.title][0];
             if high_score == score {
-                txt.add(Line("Wow, a new high score!"));
+                txt.add("Wow, a new high score!");
             } else {
-                txt.add(Line(format!(
+                txt.add(format!(
                     "But can you beat the high score of {}?",
                     prettyprint_usize(high_score)
-                )));
+                ));
             }
         }
 

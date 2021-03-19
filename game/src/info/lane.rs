@@ -178,8 +178,8 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
             .build_widget(ctx, format!("open {}", r.orig_id.osm_way_id)),
     );
 
-    let mut txt = Text::from(Line(""));
-    txt.add(Line("Raw OpenStreetMap data"));
+    let mut txt = Text::from("");
+    txt.add("Raw OpenStreetMap data");
     rows.push(txt.into_widget(ctx));
 
     rows.extend(make_table(
@@ -207,11 +207,11 @@ pub fn traffic(
     let r = map.get_r(l.parent);
 
     // Since this applies to the entire road, ignore lane type.
-    let mut txt = Text::from(Line("Traffic over entire road, not just this lane"));
-    txt.add(Line(format!(
+    let mut txt = Text::from("Traffic over entire road, not just this lane");
+    txt.add(format!(
         "Since midnight: {} commuters and vehicles crossed",
         prettyprint_usize(app.primary.sim.get_analytics().road_thruput.total_for(r.id))
-    )));
+    ));
     rows.push(txt.into_widget(ctx));
 
     rows.push(opts.to_controls(ctx, app));

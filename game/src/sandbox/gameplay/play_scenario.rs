@@ -221,11 +221,11 @@ impl EditScenarioModifiers {
             Line("Modify traffic patterns")
                 .small_heading()
                 .into_widget(ctx),
-            Text::from(Line(
+            Text::from(
                 "This scenario determines the exact trips everybody takes, when they leave, where \
                  they go, and how they choose to get there. You can modify those patterns here. \
                  The modifications apply in order.",
-            ))
+            )
             .wrap_to_pct(ctx, 50)
             .into_widget(ctx),
         ];
