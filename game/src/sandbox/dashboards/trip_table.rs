@@ -9,11 +9,9 @@ use widgetry::{
 };
 
 use super::generic_trip_table::{open_trip_transition, preview_trip};
-use crate::app::App;
+use crate::app::{App, Transition};
 use crate::common::{checkbox_per_mode, cmp_duration_shorter, color_for_mode};
 use crate::sandbox::dashboards::DashTab;
-
-pub type Transition = widgetry::Transition<App>;
 
 pub struct TripTable {
     tab: DashTab,

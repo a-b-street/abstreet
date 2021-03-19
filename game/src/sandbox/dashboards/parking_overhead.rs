@@ -3,9 +3,7 @@ use sim::{TripEndpoint, TripID, TripPhaseType};
 use widgetry::table::{Col, Filter, Table};
 use widgetry::{EventCtx, Filler, GfxCtx, Line, Outcome, Panel, State, Text, Toggle, Widget};
 
-type Transition = widgetry::Transition<App>;
-
-use crate::app::App;
+use crate::app::{App, Transition};
 use crate::sandbox::dashboards::generic_trip_table::{open_trip_transition, preview_trip};
 use crate::sandbox::dashboards::DashTab;
 
