@@ -139,7 +139,7 @@ impl State<App> for TripTable {
                 } else if self.table_tabs.handle_action(ctx, &x, &mut self.panel) {
                     // if true, tabs handled the action
                 } else {
-                    todo!("unhandled action: {}", x)
+                    unreachable!("unhandled action: {}", x)
                 }
             }
             Outcome::Changed => {

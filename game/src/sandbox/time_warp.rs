@@ -168,7 +168,7 @@ impl State<App> for JumpToTime {
                     if self.tabs.handle_action(ctx, action, &mut self.panel) {
                         // if true, tabs has handled the action
                     } else {
-                        todo!("handle action: {}", action)
+                        unreachable!("unhandled action: {}", action)
                     }
                 }
             },
