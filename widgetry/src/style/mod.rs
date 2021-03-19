@@ -148,7 +148,9 @@ impl ButtonStyle {
 impl Style {
     pub fn light_bg() -> Style {
         Style {
-            panel_bg: Color::WHITE.alpha(0.95),
+            // shade panel_bg a bit to increase contrast vs. the section_bg, otherwise
+            // the section (and tabs) can be hard to distinguish
+            panel_bg: Color::WHITE.shade(0.03).alpha(0.95),
             field_bg: hex("#F2F2F2"),
             dropdown_border: hex("#4C4C4C"),
             // TODO: replace inner_panel_bg with this
@@ -209,7 +211,9 @@ impl Style {
     pub fn dark_bg() -> Style {
         let navy = hex("#003046");
         Style {
-            panel_bg: navy.alpha(0.9),
+            // tint panel_bg a bit to increase contrast vs. the section_bg, otherwise
+            // the section (and tabs) can be hard to distinguish
+            panel_bg: navy.tint(0.04).alpha(0.9),
             field_bg: navy.shade(0.2),
             dropdown_border: Color::WHITE,
             // TODO: replace inner_panel_bg with this
