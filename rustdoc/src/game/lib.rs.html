@@ -335,6 +335,7 @@
 <span id="332">332</span>
 <span id="333">333</span>
 <span id="334">334</span>
+<span id="335">335</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
@@ -445,11 +446,12 @@
         <span class="comment">// Parking data in the actdev maps is nonexistent, so many people have convoluted walking</span>
         <span class="comment">// routes just to fetch their car. Just disable parking entirely.</span>
         <span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">opts</span>.<span class="ident">infinite_parking</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="ident">mode</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">sandbox</span>::<span class="ident">GameplayMode</span>::<span class="ident">Actdev</span>(
-            <span class="ident">name</span>,
-            <span class="string">&quot;base&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="bool-val">false</span>,
-        ));
+        <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--actdev_scenario&quot;</span>) <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;go_active&quot;</span>.<span class="ident">to_string</span>()) {
+            <span class="string">&quot;go_active&quot;</span>.<span class="ident">to_string</span>()
+        } <span class="kw">else</span> {
+            <span class="string">&quot;base&quot;</span>.<span class="ident">to_string</span>()
+        };
+        <span class="ident">mode</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">sandbox</span>::<span class="ident">GameplayMode</span>::<span class="ident">Actdev</span>(<span class="ident">name</span>, <span class="ident">scenario</span>, <span class="bool-val">false</span>));
     }
 
     <span class="ident">args</span>.<span class="ident">done</span>();
