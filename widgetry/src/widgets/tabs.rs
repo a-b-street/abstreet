@@ -135,10 +135,10 @@ impl TabController {
         self.active_tab_idx = tab_idx;
 
         let mut bar_items = self.build_bar_items(ctx);
-        panel.swap_contained_content(ctx, &self.bar_items_id(), &mut bar_items);
+        panel.swap_inner_content(ctx, &self.bar_items_id(), &mut bar_items);
 
         let mut content = self.pop_active_content();
-        panel.swap_contained_content(ctx, &self.active_content_id(), &mut content);
+        panel.swap_inner_content(ctx, &self.active_content_id(), &mut content);
         self.tabs[old_idx].content = content;
     }
 }

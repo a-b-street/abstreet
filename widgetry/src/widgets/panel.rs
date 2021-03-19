@@ -437,9 +437,20 @@ impl Panel {
         }
     }
 
-    pub fn swap_contained_content(&mut self, ctx: &EventCtx, name: &str, widget: &mut Widget) {
-        let old_container: &mut Container = self.find_mut(name);
-        std::mem::swap(&mut old_container.members[0], widget);
+    /// Swap the inner content of a `container` widget with `new_inner_content`.
+    pub(crate) fn swap_inner_content(
+        &mut self,
+        ctx: &EventCtx,
+        container_name: &str,
+        new_inner_content: &mut Widget,
+    ) {
+        let old_container: &mut Container = self.find_mut(container_name);
+        assert_eq!(
+            old_container.members.len(),
+            1,
+            "method only intended to be used for containers created with `Widget::container`"
+        );
+        std::mem::swap(&mut old_container.members[0], new_inner_content);
         self.recompute_layout(ctx, true);
     }
 
