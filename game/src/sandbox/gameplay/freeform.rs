@@ -302,7 +302,9 @@ impl SimpleState<App> for ChangeScenario {
 struct AgentSpawner {
     panel: Panel,
     source: Option<TripEndpoint>,
-    goal: Option<(TripEndpoint, Option<Polygon>)>,
+    // (goal, feasible path, draw the path). Even if we can't draw the path, remember if the path
+    // exists at all.
+    goal: Option<(TripEndpoint, bool, Option<Polygon>)>,
     confirmed: bool,
 }
 
@@ -409,6 +411,7 @@ impl State<App> for AgentSpawner {
                     {
                         self.goal = Some((
                             to,
+                            true,
                             path.trace(&app.primary.map)
                                 .map(|pl| pl.make_polygons(NORMAL_LANE_THICKNESS)),
                         ));
@@ -468,7 +471,7 @@ impl State<App> for AgentSpawner {
                 if self
                     .goal
                     .as_ref()
-                    .map(|(to, _)| to != &hovering)
+                    .map(|(to, _, _)| to != &hovering)
                     .unwrap_or(true)
                 {
                     if let Some(path) = TripEndpoint::path_req(
@@ -481,15 +484,19 @@ impl State<App> for AgentSpawner {
                     {
                         self.goal = Some((
                             hovering,
+                            true,
                             path.trace(&app.primary.map)
                                 .map(|pl| pl.make_polygons(NORMAL_LANE_THICKNESS)),
                         ));
                     } else {
-                        self.goal = None;
+                        // Don't constantly recalculate a failed path
+                        self.goal = Some((hovering, false, None));
                     }
                 }
 
-                if self.goal.is_some() && app.per_obj.left_click(ctx, "end here") {
+                if self.goal.as_ref().map(|(_, ok, _)| *ok).unwrap_or(false)
+                    && app.per_obj.left_click(ctx, "end here")
+                {
                     app.primary.current_selection = None;
                     self.confirmed = true;
                     self.panel.replace(
@@ -529,7 +536,7 @@ impl State<App> for AgentSpawner {
                 },
             );
         }
-        if let Some((ref endpt, ref poly)) = self.goal {
+        if let Some((ref endpt, _, ref poly)) = self.goal {
             g.draw_polygon(
                 Color::GREEN.alpha(0.8),
                 match endpt {
