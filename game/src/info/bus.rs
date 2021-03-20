@@ -9,16 +9,21 @@ use widgetry::{Color, EventCtx, Key, Line, Text, TextExt, Widget};
 use crate::app::App;
 use crate::info::{header_btns, make_tabs, Details, Tab};
 
-pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID) -> Vec<Widget> {
-    let bs = app.primary.map.get_bs(id);
-    let mut rows = vec![];
-
-    let sim = &app.primary.sim;
-
-    rows.push(Widget::row(vec![
+pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID) -> Widget {
+    let header = Widget::row(vec![
         Line("Bus stop").small_heading().into_widget(ctx),
         header_btns(ctx),
-    ]));
+    ]);
+
+    Widget::custom_col(vec![header, stop_body(ctx, app, details, id).tab_body(ctx)])
+}
+
+fn stop_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID) -> Widget {
+    let mut rows = vec![];
+
+    let bs = app.primary.map.get_bs(id);
+    let sim = &app.primary.sim;
+
     rows.push(Line(&bs.name).into_widget(ctx));
 
     let all_arrivals = &sim.get_analytics().bus_arrivals;
@@ -95,11 +100,18 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
         Circle::new(bs.driving_pos.pt(&app.primary.map), Distance::meters(2.5)).to_polygon(),
     );
 
-    rows
+    Widget::col(rows)
 }
 
-pub fn bus_status(ctx: &mut EventCtx, app: &App, details: &mut Details, id: CarID) -> Vec<Widget> {
-    let mut rows = bus_header(ctx, app, details, id, Tab::BusStatus(id));
+pub fn bus_status(ctx: &mut EventCtx, app: &App, details: &mut Details, id: CarID) -> Widget {
+    Widget::custom_col(vec![
+        bus_header(ctx, app, details, id, Tab::BusStatus(id)),
+        bus_status_body(ctx, app, details, id).tab_body(ctx),
+    ])
+}
+
+fn bus_status_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: CarID) -> Widget {
+    let mut rows = vec![];
 
     let route = app
         .primary
@@ -125,16 +137,10 @@ pub fn bus_status(ctx: &mut EventCtx, app: &App, details: &mut Details, id: CarI
         .into_widget(ctx),
     );
 
-    rows
+    Widget::col(rows)
 }
 
-fn bus_header(
-    ctx: &mut EventCtx,
-    app: &App,
-    details: &mut Details,
-    id: CarID,
-    tab: Tab,
-) -> Vec<Widget> {
+fn bus_header(ctx: &mut EventCtx, app: &App, details: &mut Details, id: CarID, tab: Tab) -> Widget {
     let route = app.primary.sim.bus_route_id(id).unwrap();
 
     if let Some(pt) = app
@@ -163,20 +169,33 @@ fn bus_header(
         vec![("Status", Tab::BusStatus(id))],
     ));
 
-    rows
+    Widget::custom_col(rows)
 }
 
-pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteID) -> Vec<Widget> {
-    let map = &app.primary.map;
-    let route = map.get_br(id);
+pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteID) -> Widget {
+    let header = {
+        let map = &app.primary.map;
+        let route = map.get_br(id);
+
+        Widget::row(vec![
+            Line(format!("Route {}", route.short_name))
+                .small_heading()
+                .into_widget(ctx),
+            header_btns(ctx),
+        ])
+    };
+
+    Widget::custom_col(vec![
+        header,
+        route_body(ctx, app, details, id).tab_body(ctx),
+    ])
+}
+
+fn route_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteID) -> Widget {
     let mut rows = vec![];
 
-    rows.push(Widget::row(vec![
-        Line(format!("Route {}", route.short_name))
-            .small_heading()
-            .into_widget(ctx),
-        header_btns(ctx),
-    ]));
+    let map = &app.primary.map;
+    let route = map.get_br(id);
     rows.push(
         Text::from(&route.full_name)
             .wrap_to_pct(ctx, 20)
@@ -348,7 +367,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
         }
     }
 
-    rows
+    Widget::col(rows)
 }
 
 // TODO Unit test

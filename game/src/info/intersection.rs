@@ -15,8 +15,16 @@ use crate::app::App;
 use crate::common::color_for_agent_type;
 use crate::info::{header_btns, make_tabs, throughput, DataOptions, Details, Tab};
 
-pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID) -> Vec<Widget> {
-    let mut rows = header(ctx, app, details, id, Tab::IntersectionInfo(id));
+pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID) -> Widget {
+    Widget::custom_col(vec![
+        header(ctx, app, details, id, Tab::IntersectionInfo(id)),
+        info_body(ctx, app, id).tab_body(ctx),
+    ])
+}
+
+fn info_body(ctx: &EventCtx, app: &App, id: IntersectionID) -> Widget {
+    let mut rows = vec![];
+
     let i = app.primary.map.get_i(id);
 
     let mut txt = Text::from("Connecting");
@@ -43,7 +51,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID
         );
     }
 
-    rows
+    Widget::col(rows)
 }
 
 pub fn traffic(
@@ -52,15 +60,21 @@ pub fn traffic(
     details: &mut Details,
     id: IntersectionID,
     opts: &DataOptions,
-) -> Vec<Widget> {
-    let mut rows = header(
-        ctx,
-        app,
-        details,
-        id,
-        Tab::IntersectionTraffic(id, opts.clone()),
-    );
+) -> Widget {
+    Widget::custom_col(vec![
+        header(
+            ctx,
+            app,
+            details,
+            id,
+            Tab::IntersectionTraffic(id, opts.clone()),
+        ),
+        traffic_body(ctx, app, id, opts).tab_body(ctx),
+    ])
+}
 
+fn traffic_body(ctx: &mut EventCtx, app: &App, id: IntersectionID, opts: &DataOptions) -> Widget {
+    let mut rows = vec![];
     let mut txt = Text::new();
 
     txt.add_line(format!(
@@ -96,7 +110,7 @@ pub fn traffic(
         &opts,
     ));
 
-    rows
+    Widget::col(rows)
 }
 
 pub fn delay(
@@ -106,14 +120,27 @@ pub fn delay(
     id: IntersectionID,
     opts: &DataOptions,
     fan_chart: bool,
-) -> Vec<Widget> {
-    let mut rows = header(
-        ctx,
-        app,
-        details,
-        id,
-        Tab::IntersectionDelay(id, opts.clone(), fan_chart),
-    );
+) -> Widget {
+    Widget::custom_col(vec![
+        header(
+            ctx,
+            app,
+            details,
+            id,
+            Tab::IntersectionDelay(id, opts.clone(), fan_chart),
+        ),
+        delay_body(ctx, app, id, opts, fan_chart).tab_body(ctx),
+    ])
+}
+
+fn delay_body(
+    ctx: &mut EventCtx,
+    app: &App,
+    id: IntersectionID,
+    opts: &DataOptions,
+    fan_chart: bool,
+) -> Widget {
+    let mut rows = vec![];
     let i = app.primary.map.get_i(id);
 
     assert!(i.is_traffic_signal());
@@ -129,7 +156,7 @@ pub fn delay(
 
     rows.push(delay_plot(ctx, app, id, opts, fan_chart));
 
-    rows
+    Widget::col(rows)
 }
 
 pub fn current_demand(
@@ -137,9 +164,15 @@ pub fn current_demand(
     app: &App,
     details: &mut Details,
     id: IntersectionID,
-) -> Vec<Widget> {
-    let mut rows = header(ctx, app, details, id, Tab::IntersectionDemand(id));
+) -> Widget {
+    Widget::custom_col(vec![
+        header(ctx, app, details, id, Tab::IntersectionDemand(id)),
+        current_demand_body(ctx, app, id).tab_body(ctx),
+    ])
+}
 
+fn current_demand_body(ctx: &mut EventCtx, app: &App, id: IntersectionID) -> Widget {
+    let mut rows = vec![];
     let mut total_demand = 0;
     let mut demand_per_movement: Vec<(&PolyLine, usize)> = Vec::new();
     for m in app.primary.map.get_traffic_signal(id).movements.values() {
@@ -230,7 +263,7 @@ pub fn current_demand(
         );
     }
 
-    rows
+    Widget::col(rows)
 }
 
 pub fn arrivals(
@@ -239,24 +272,24 @@ pub fn arrivals(
     details: &mut Details,
     id: IntersectionID,
     opts: &DataOptions,
-) -> Vec<Widget> {
-    let mut rows = header(
-        ctx,
-        app,
-        details,
-        id,
-        Tab::IntersectionArrivals(id, opts.clone()),
-    );
-
-    rows.push(throughput(
-        ctx,
-        app,
-        "Number of in-bound trips from this border",
-        move |_| app.primary.sim.all_arrivals_at_border(id),
-        opts,
-    ));
-
-    rows
+) -> Widget {
+    Widget::custom_col(vec![
+        header(
+            ctx,
+            app,
+            details,
+            id,
+            Tab::IntersectionArrivals(id, opts.clone()),
+        ),
+        throughput(
+            ctx,
+            app,
+            "Number of in-bound trips from this border",
+            move |_| app.primary.sim.all_arrivals_at_border(id),
+            opts,
+        )
+        .tab_body(ctx),
+    ])
 }
 
 pub fn traffic_signal(
@@ -264,9 +297,15 @@ pub fn traffic_signal(
     app: &App,
     details: &mut Details,
     id: IntersectionID,
-) -> Vec<Widget> {
-    let mut rows = header(ctx, app, details, id, Tab::IntersectionTrafficSignal(id));
+) -> Widget {
+    Widget::custom_col(vec![
+        header(ctx, app, details, id, Tab::IntersectionTrafficSignal(id)),
+        traffic_signal_body(ctx, app, id).tab_body(ctx),
+    ])
+}
 
+fn traffic_signal_body(ctx: &mut EventCtx, app: &App, id: IntersectionID) -> Widget {
+    let mut rows = vec![];
     // Slightly inaccurate -- the turn rendering may slightly exceed the intersection polygon --
     // but this is close enough.
     let bounds = app.primary.map.get_i(id).polygon.get_bounds();
@@ -330,7 +369,7 @@ pub fn traffic_signal(
         }
     }
 
-    rows
+    Widget::col(rows)
 }
 
 fn delay_plot(
@@ -397,7 +436,7 @@ fn header(
     details: &mut Details,
     id: IntersectionID,
     tab: Tab,
-) -> Vec<Widget> {
+) -> Widget {
     let mut rows = vec![];
 
     let i = app.primary.map.get_i(id);
@@ -435,5 +474,5 @@ fn header(
         tabs
     }));
 
-    rows
+    Widget::custom_col(rows)
 }

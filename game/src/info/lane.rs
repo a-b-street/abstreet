@@ -7,8 +7,16 @@ use widgetry::{EventCtx, Line, LinePlot, PlotOptions, Series, Text, TextExt, Wid
 use crate::app::App;
 use crate::info::{header_btns, make_table, make_tabs, throughput, DataOptions, Details, Tab};
 
-pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec<Widget> {
-    let mut rows = header(ctx, app, details, id, Tab::LaneInfo(id));
+pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Widget {
+    Widget::custom_col(vec![
+        header(ctx, app, details, id, Tab::LaneInfo(id)),
+        info_body(ctx, app, id).tab_body(ctx),
+    ])
+}
+
+fn info_body(ctx: &EventCtx, app: &App, id: LaneID) -> Widget {
+    let mut rows = vec![];
+
     let map = &app.primary.map;
     let l = map.get_l(id);
     let r = map.get_r(l.parent);
@@ -100,11 +108,19 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
         rows.push(section);
     }
 
-    rows
+    Widget::col(rows)
 }
 
-pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec<Widget> {
-    let mut rows = header(ctx, app, details, id, Tab::LaneDebug(id));
+pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Widget {
+    Widget::custom_col(vec![
+        header(ctx, app, details, id, Tab::LaneDebug(id)),
+        debug_body(ctx, app, id).tab_body(ctx),
+    ])
+}
+
+fn debug_body(ctx: &EventCtx, app: &App, id: LaneID) -> Widget {
+    let mut rows = vec![];
+
     let map = &app.primary.map;
     let l = map.get_l(id);
     let r = map.get_r(l.parent);
@@ -191,7 +207,7 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
             .collect(),
     ));
 
-    rows
+    Widget::col(rows)
 }
 
 pub fn traffic(
@@ -200,8 +216,16 @@ pub fn traffic(
     details: &mut Details,
     id: LaneID,
     opts: &DataOptions,
-) -> Vec<Widget> {
-    let mut rows = header(ctx, app, details, id, Tab::LaneTraffic(id, opts.clone()));
+) -> Widget {
+    Widget::custom_col(vec![
+        header(ctx, app, details, id, Tab::LaneTraffic(id, opts.clone())),
+        traffic_body(ctx, app, id, opts).tab_body(ctx),
+    ])
+}
+
+fn traffic_body(ctx: &mut EventCtx, app: &App, id: LaneID, opts: &DataOptions) -> Widget {
+    let mut rows = vec![];
+
     let map = &app.primary.map;
     let l = map.get_l(id);
     let r = map.get_r(l.parent);
@@ -237,10 +261,10 @@ pub fn traffic(
         &opts,
     ));
 
-    rows
+    Widget::col(rows)
 }
 
-fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID, tab: Tab) -> Vec<Widget> {
+fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID, tab: Tab) -> Widget {
     let mut rows = vec![];
 
     let map = &app.primary.map;
@@ -254,14 +278,19 @@ fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID, tab: Tab
     } else {
         "Lane"
     };
+
+    // Navbar
     rows.push(Widget::row(vec![
         Line(format!("{} #{}", label, id.0))
             .small_heading()
             .into_widget(ctx),
         header_btns(ctx),
     ]));
+
+    // subtitle
     rows.push(format!("@ {}", r.get_name(app.opts.language.as_ref())).text_widget(ctx));
 
+    // tabs
     let mut tabs = vec![("Info", Tab::LaneInfo(id))];
     if !l.is_parking() {
         tabs.push(("Traffic", Tab::LaneTraffic(id, DataOptions::new())));
@@ -271,5 +300,5 @@ fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID, tab: Tab
     }
     rows.push(make_tabs(ctx, &mut details.hyperlinks, tab, tabs));
 
-    rows
+    Widget::custom_col(rows)
 }

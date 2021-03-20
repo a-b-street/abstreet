@@ -25,15 +25,28 @@ pub fn trips(
     id: PersonID,
     open_trips: &mut BTreeMap<TripID, OpenTrip>,
     is_paused: bool,
-) -> Vec<Widget> {
-    let mut rows = header(
-        ctx,
-        app,
-        details,
-        id,
-        Tab::PersonTrips(id, open_trips.clone()),
-        is_paused,
-    );
+) -> Widget {
+    Widget::custom_col(vec![
+        header(
+            ctx,
+            app,
+            details,
+            id,
+            Tab::PersonTrips(id, open_trips.clone()),
+            is_paused,
+        ),
+        trips_body(ctx, app, details, id, open_trips).tab_body(ctx),
+    ])
+}
+
+fn trips_body(
+    ctx: &mut EventCtx,
+    app: &App,
+    details: &mut Details,
+    id: PersonID,
+    open_trips: &mut BTreeMap<TripID, OpenTrip>,
+) -> Widget {
+    let mut rows = vec![];
 
     let map = &app.primary.map;
     let sim = &app.primary.sim;
@@ -261,7 +274,7 @@ pub fn trips(
         rows.push(current_status(ctx, person, map));
     }
 
-    rows
+    Widget::col(rows)
 }
 
 pub fn bio(
@@ -270,8 +283,15 @@ pub fn bio(
     details: &mut Details,
     id: PersonID,
     is_paused: bool,
-) -> Vec<Widget> {
-    let mut rows = header(ctx, app, details, id, Tab::PersonBio(id), is_paused);
+) -> Widget {
+    Widget::custom_col(vec![
+        header(ctx, app, details, id, Tab::PersonBio(id), is_paused),
+        bio_body(ctx, app, details, id).tab_body(ctx),
+    ])
+}
+
+fn bio_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: PersonID) -> Widget {
+    let mut rows = vec![];
     let person = app.primary.sim.get_person(id);
     let mut rng = XorShiftRng::seed_from_u64(id.0 as u64);
 
@@ -370,7 +390,7 @@ pub fn bio(
         }
     }
 
-    rows
+    Widget::col(rows)
 }
 
 pub fn schedule(
@@ -379,8 +399,15 @@ pub fn schedule(
     details: &mut Details,
     id: PersonID,
     is_paused: bool,
-) -> Vec<Widget> {
-    let mut rows = header(ctx, app, details, id, Tab::PersonSchedule(id), is_paused);
+) -> Widget {
+    Widget::custom_col(vec![
+        header(ctx, app, details, id, Tab::PersonSchedule(id), is_paused),
+        schedule_body(ctx, app, id).tab_body(ctx),
+    ])
+}
+
+fn schedule_body(ctx: &mut EventCtx, app: &App, id: PersonID) -> Widget {
+    let mut rows = vec![];
     let person = app.primary.sim.get_person(id);
     let mut rng = XorShiftRng::seed_from_u64(id.0 as u64);
 
@@ -439,7 +466,7 @@ pub fn schedule(
         .into_widget(ctx),
     );
 
-    rows
+    Widget::col(rows)
 }
 
 pub fn crowd(
@@ -447,14 +474,24 @@ pub fn crowd(
     app: &App,
     details: &mut Details,
     members: &Vec<PedestrianID>,
-) -> Vec<Widget> {
-    let mut rows = vec![];
-
-    rows.push(Widget::row(vec![
+) -> Widget {
+    let header = Widget::custom_col(vec![
         Line("Pedestrian crowd").small_heading().into_widget(ctx),
         header_btns(ctx),
-    ]));
+    ]);
+    Widget::custom_col(vec![
+        header,
+        crowd_body(ctx, app, details, members).tab_body(ctx),
+    ])
+}
 
+fn crowd_body(
+    ctx: &EventCtx,
+    app: &App,
+    details: &mut Details,
+    members: &Vec<PedestrianID>,
+) -> Widget {
+    let mut rows = vec![];
     for (idx, id) in members.into_iter().enumerate() {
         let person = app
             .primary
@@ -483,7 +520,7 @@ pub fn crowd(
         );
     }
 
-    rows
+    Widget::col(rows)
 }
 
 pub fn parked_car(
@@ -492,10 +529,8 @@ pub fn parked_car(
     details: &mut Details,
     id: CarID,
     is_paused: bool,
-) -> Vec<Widget> {
-    let mut rows = vec![];
-
-    rows.push(Widget::row(vec![
+) -> Widget {
+    let header = Widget::row(vec![
         Line(format!("Parked car #{}", id.0))
             .small_heading()
             .into_widget(ctx),
@@ -520,9 +555,17 @@ pub fn parked_car(
             ctx.style().btn_close_widget(ctx),
         ])
         .align_right(),
-    ]));
+    ]);
 
+    Widget::custom_col(vec![
+        header,
+        parked_car_body(ctx, app, details, id).tab_body(ctx),
+    ])
+}
+
+fn parked_car_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: CarID) -> Widget {
     // TODO prev trips, next trips, etc
+    let mut rows = vec![];
 
     let p = app.primary.sim.get_owner_of_car(id).unwrap();
     rows.push(
@@ -566,7 +609,7 @@ pub fn parked_car(
         rows.push("No longer parked".text_widget(ctx));
     }
 
-    rows
+    Widget::col(rows)
 }
 
 fn header(
@@ -576,7 +619,7 @@ fn header(
     id: PersonID,
     tab: Tab,
     is_paused: bool,
-) -> Vec<Widget> {
+) -> Widget {
     let mut rows = vec![];
 
     let (current_trip, (descr, maybe_icon)) = match app.primary.sim.get_person(id).state {
@@ -667,7 +710,7 @@ fn header(
     }
     rows.push(make_tabs(ctx, &mut details.hyperlinks, tab, tabs));
 
-    rows
+    Widget::col(rows)
 }
 
 fn current_status(ctx: &EventCtx, person: &Person, map: &Map) -> Widget {
