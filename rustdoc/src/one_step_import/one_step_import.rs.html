@@ -103,6 +103,8 @@
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Write</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">path</span>::<span class="ident">Path</span>;
@@ -155,7 +157,9 @@
             .<span class="ident">arg</span>(<span class="string">&quot;boundary0.poly&quot;</span>)
             .<span class="ident">output</span>()<span class="question-mark">?</span>;
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">out</span>.<span class="ident">status</span>.<span class="ident">success</span>());
-        <span class="ident">String</span>::<span class="ident">from_utf8</span>(<span class="ident">out</span>.<span class="ident">stdout</span>)<span class="question-mark">?</span>
+        <span class="comment">// pick_geofabrik might output extra lines while downloading the index. Grab the last line.</span>
+        <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">from_utf8</span>(<span class="ident">out</span>.<span class="ident">stdout</span>)<span class="question-mark">?</span>;
+        <span class="ident">output</span>.<span class="ident">trim</span>().<span class="ident">split</span>(<span class="string">&quot;\n&quot;</span>).<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">trim</span>().<span class="ident">to_string</span>()
     };
 
     <span class="comment">// Name the temporary map based on the Geofabrik region.</span>
