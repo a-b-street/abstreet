@@ -62,7 +62,7 @@ jobs:
         run: cargo build --release --bin importer --bin one_step_import --bin geojson_to_osmosis --bin pick_geofabrik --bin clip_osm
 
       - name: Download system data
-        run: cargo run --release --bin updater -- --quiet
+        run: cargo run --release --bin updater
 
       - name: Package release
         run: ./release/build.sh ${{ matrix.os }}
