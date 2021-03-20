@@ -636,6 +636,9 @@
 <span id="633">633</span>
 <span id="634">634</span>
 <span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>};
 
@@ -1090,9 +1093,12 @@
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
     }
-    <span class="comment">// Import most service roads. Always ignore driveways, and always reserve parking_aisles for</span>
-    <span class="comment">// parking lots.</span>
+    <span class="comment">// Import most service roads. Always ignore driveways, golf cart paths, and always reserve</span>
+    <span class="comment">// parking_aisles for parking lots.</span>
     <span class="kw">if</span> <span class="ident">highway</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;service&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;service&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;driveway&quot;</span>, <span class="string">&quot;parking_aisle&quot;</span>]) {
+        <span class="kw">return</span> <span class="bool-val">false</span>;
+    }
+    <span class="kw">if</span> <span class="ident">highway</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;service&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;golf&quot;</span>, <span class="string">&quot;cartpath&quot;</span>) {
         <span class="kw">return</span> <span class="bool-val">false</span>;
     }
 
