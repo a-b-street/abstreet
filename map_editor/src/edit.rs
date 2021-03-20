@@ -26,7 +26,7 @@ impl EditRoad {
 
         let mut txt = Text::new();
         for (k, v) in road.osm_tags.inner() {
-            txt.add(Line(format!("{} = {}", k, v)).secondary());
+            txt.add_line(Line(format!("{} = {}", k, v)).secondary());
         }
         let info = txt.into_widget(ctx);
 

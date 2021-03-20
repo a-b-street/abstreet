@@ -54,14 +54,14 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
     let mut txt = Text::new();
 
     if !b.amenities.is_empty() {
-        txt.add("");
+        txt.add_line("");
         if b.amenities.len() == 1 {
-            txt.add("1 amenity:");
+            txt.add_line("1 amenity:");
         } else {
-            txt.add(format!("{} amenities:", b.amenities.len()));
+            txt.add_line(format!("{} amenities:", b.amenities.len()));
         }
         for a in &b.amenities {
-            txt.add(format!(
+            txt.add_line(format!(
                 "  {} ({})",
                 a.names.get(app.opts.language.as_ref()),
                 a.amenity_type
@@ -70,7 +70,7 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
     }
 
     if !app.primary.sim.infinite_parking() {
-        txt.add("");
+        txt.add_line("");
         if let Some(pl) = app
             .primary
             .sim
@@ -79,7 +79,7 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
         {
             let color = app.cs.parking_trip;
             // TODO But this color doesn't show up well against the info panel...
-            txt.add(Line("Nearest parking").fg(color));
+            txt.add_line(Line("Nearest parking").fg(color));
             txt.append(Line(format!(
                 " is ~{} away by foot",
                 pl.length() / Speed::miles_per_hour(3.0)
@@ -97,7 +97,7 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
                 ),
             );
         } else {
-            txt.add("No nearby parking available")
+            txt.add_line("No nearby parking available")
         }
     }
 

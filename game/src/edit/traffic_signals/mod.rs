@@ -571,7 +571,7 @@ fn make_side_panel(
     let mut txt = Text::new();
     if members.len() == 1 {
         let i = *members.iter().next().unwrap();
-        txt.add(Line(i.to_string()).big_heading_plain());
+        txt.add_line(Line(i.to_string()).big_heading_plain());
 
         let mut road_names = BTreeSet::new();
         for r in &app.primary.map.get_i(i).roads {
@@ -583,11 +583,11 @@ fn make_side_panel(
             );
         }
         for r in road_names {
-            txt.add(Line(format!("  {}", r)).secondary());
+            txt.add_line(Line(format!("  {}", r)).secondary());
         }
     } else {
-        txt.add(Line(format!("{} intersections", members.len())).big_heading_plain());
-        txt.add(
+        txt.add_line(Line(format!("{} intersections", members.len())).big_heading_plain());
+        txt.add_line(
             Line(
                 members
                     .iter()

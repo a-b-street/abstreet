@@ -228,7 +228,7 @@ impl State<App> for ParkingMapper {
                     self.selected = Some((ids, ctx.upload(batch)));
 
                     let mut txt = Text::new();
-                    txt.add(format!("Click to map parking for OSM way {}", way));
+                    txt.add_line(format!("Click to map parking for OSM way {}", way));
                     txt.add_appended(vec![
                         Line("Shortcut: press "),
                         Key::N.txt(ctx),
@@ -250,14 +250,14 @@ impl State<App> for ParkingMapper {
                         }
                         if k.contains("parking") {
                             if !road.osm_tags.contains_key(osm::INFERRED_PARKING) {
-                                txt.add(format!("{} = {}", k, v));
+                                txt.add_line(format!("{} = {}", k, v));
                             }
                         } else if k == "sidewalk" {
                             if !road.osm_tags.contains_key(osm::INFERRED_SIDEWALKS) {
-                                txt.add(Line(format!("{} = {}", k, v)).secondary());
+                                txt.add_line(Line(format!("{} = {}", k, v)).secondary());
                             }
                         } else {
-                            txt.add(Line(format!("{} = {}", k, v)).secondary());
+                            txt.add_line(Line(format!("{} = {}", k, v)).secondary());
                         }
                     }
                     self.panel.replace(ctx, "info", txt.into_widget(ctx));

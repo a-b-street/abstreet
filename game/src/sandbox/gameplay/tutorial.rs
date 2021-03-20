@@ -472,9 +472,9 @@ impl Task {
                     ("intersection on the map border", state.inspected_border),
                 ] {
                     if done {
-                        txt.add(Line(format!("[X] {}", name)).fg(Color::GREEN));
+                        txt.add_line(Line(format!("[X] {}", name)).fg(Color::GREEN));
                     } else {
-                        txt.add(format!("[ ] {}", name));
+                        txt.add_line(format!("[ ] {}", name));
                     }
                 }
                 return txt;
@@ -489,19 +489,21 @@ impl Task {
                 // Inspect the target car, wait for them to park, draw WASH ME on the window
                 let mut txt = Text::new();
                 if state.following_car {
-                    txt.add(Line("[X] follow the target car").fg(Color::GREEN));
+                    txt.add_line(Line("[X] follow the target car").fg(Color::GREEN));
                 } else {
-                    txt.add("[ ] follow the target car");
+                    txt.add_line("[ ] follow the target car");
                 }
                 if state.car_parked {
-                    txt.add(Line("[X] wait for them to park").fg(Color::GREEN));
+                    txt.add_line(Line("[X] wait for them to park").fg(Color::GREEN));
                 } else {
-                    txt.add("[ ] wait for them to park");
+                    txt.add_line("[ ] wait for them to park");
                 }
                 if state.prank_done {
-                    txt.add(Line("[X] click car and press c to draw WASH ME").fg(Color::GREEN));
+                    txt.add_line(
+                        Line("[X] click car and press c to draw WASH ME").fg(Color::GREEN),
+                    );
                 } else {
-                    txt.add("[ ] click car and press ");
+                    txt.add_line("[ ] click car and press ");
                     // TODO ctx.style().hotkey_color
                     txt.append(Line(Key::C.describe()).fg(Color::GREEN));
                     txt.append(Line(" to draw WASH ME"));
@@ -510,7 +512,7 @@ impl Task {
             }
             Task::LowParking => {
                 let mut txt = Text::from("1) Find a road with almost no parking spots available");
-                txt.add("2) Click it and press ");
+                txt.add_line("2) Click it and press ");
                 // TODO ctx.style().hotkey_color
                 txt.append(Line(Key::C.describe()).fg(Color::GREEN));
                 txt.append(Line(" to check the occupancy"));
@@ -812,11 +814,11 @@ impl TutorialState {
             msg_panel: if let Some((ref lines, horiz_align, _)) = self.lines() {
                 let mut col = vec![{
                     let mut txt = Text::new();
-                    txt.add(Line(self.stage().task.label()).small_heading());
-                    txt.add("");
+                    txt.add_line(Line(self.stage().task.label()).small_heading());
+                    txt.add_line("");
 
                     for l in lines {
-                        txt.add(l);
+                        txt.add_line(l);
                     }
                     txt.wrap_to_pct(ctx, 30).into_widget(ctx)
                 }];

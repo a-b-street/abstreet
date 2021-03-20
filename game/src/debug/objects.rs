@@ -12,11 +12,11 @@ impl ObjectDebugger {
         if g.is_key_down(Key::LeftControl) {
             if let Some(pt) = g.canvas.get_cursor_in_map_space() {
                 let mut txt = Text::new();
-                txt.add(pt.to_string());
-                txt.add(pt.to_gps(app.primary.map.get_gps_bounds()).to_string());
-                txt.add(format!("{:?}", g.canvas.get_cursor()));
-                txt.add(format!("zoom: {}", g.canvas.cam_zoom));
-                txt.add(format!(
+                txt.add_line(pt.to_string());
+                txt.add_line(pt.to_gps(app.primary.map.get_gps_bounds()).to_string());
+                txt.add_line(format!("{:?}", g.canvas.get_cursor()));
+                txt.add_line(format!("zoom: {}", g.canvas.cam_zoom));
+                txt.add_line(format!(
                     "cam_x = {}, cam_y = {}",
                     g.canvas.cam_x, g.canvas.cam_y
                 ));

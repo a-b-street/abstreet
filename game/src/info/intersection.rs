@@ -30,7 +30,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID
         );
     }
     for r in road_names {
-        txt.add(format!("  {}", r));
+        txt.add_line(format!("  {}", r));
     }
     rows.push(txt.into_widget(ctx));
 
@@ -63,7 +63,7 @@ pub fn traffic(
 
     let mut txt = Text::new();
 
-    txt.add(format!(
+    txt.add_line(format!(
         "Since midnight: {} commuters and vehicles crossed",
         prettyprint_usize(
             app.primary
@@ -187,7 +187,7 @@ pub fn current_demand(
         "Active agent demand at {}",
         app.primary.sim.time().ampm_tostring()
     ));
-    txt.add(
+    txt.add_line(
         Line(format!(
             "Includes all {} active agents anywhere on the map",
             prettyprint_usize(total_demand)
@@ -277,15 +277,15 @@ pub fn traffic_signal(
     let signal = app.primary.map.get_traffic_signal(id);
     {
         let mut txt = Text::new();
-        txt.add(Line(format!("{} stages", signal.stages.len())).small_heading());
-        txt.add(format!("Signal offset: {}", signal.offset));
+        txt.add_line(Line(format!("{} stages", signal.stages.len())).small_heading());
+        txt.add_line(format!("Signal offset: {}", signal.offset));
         {
             let mut total = Duration::ZERO;
             for s in &signal.stages {
                 total += s.stage_type.simple_duration();
             }
             // TODO Say "normally" or something?
-            txt.add(format!("One cycle lasts {}", total));
+            txt.add_line(format!("One cycle lasts {}", total));
         }
         rows.push(txt.into_widget(ctx));
     }

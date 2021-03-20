@@ -230,7 +230,7 @@ impl<T: Yvalue<T>> WidgetImpl for LinePlot<T> {
                     let y_percent = 1.0 - (pt.y() / self.dims.height);
 
                     // TODO Draw this info in the ColorLegend
-                    txt.add(format!(
+                    txt.add_line(format!(
                         "{}: at {}, {}",
                         label,
                         t.ampm_tostring(),

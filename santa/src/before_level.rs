@@ -55,12 +55,12 @@ impl Picker {
                 let bldgs = Buildings::new(ctx, app, HashSet::new());
 
                 let mut txt = Text::new();
-                txt.add(Line(format!("Ready for {}?", level.title)).small_heading());
-                txt.add(format!(
+                txt.add_line(Line(format!("Ready for {}?", level.title)).small_heading());
+                txt.add_line(format!(
                     "Goal: deliver {} presents",
                     prettyprint_usize(level.goal)
                 ));
-                txt.add(format!("Time limit: {}", level.time_limit));
+                txt.add_line(format!("Time limit: {}", level.time_limit));
                 txt.add_appended(vec![
                     Line("Deliver presents to "),
                     Line("single-family homes").fg(app.cs.residential_building),

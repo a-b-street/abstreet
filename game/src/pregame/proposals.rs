@@ -29,9 +29,9 @@ impl Proposals {
         {
             if current == Some(name.clone()) {
                 let mut txt = Text::new();
-                txt.add(Line(&edits.proposal_description[0]).small_heading());
+                txt.add_line(Line(&edits.proposal_description[0]).small_heading());
                 for l in edits.proposal_description.iter().skip(1) {
-                    txt.add(l);
+                    txt.add_line(l);
                 }
                 current_tab.push(
                     txt.wrap_to_pct(ctx, 70)
@@ -82,10 +82,10 @@ impl Proposals {
         let mut col = vec![
             {
                 let mut txt = Text::from(Line("A/B STREET").display_title());
-                txt.add(Line("PROPOSALS").big_heading_styled());
-                txt.add("");
-                txt.add("These are proposed changes to Seattle made by community members.");
-                txt.add("Contact dabreegster@gmail.com to add your idea here!");
+                txt.add_line(Line("PROPOSALS").big_heading_styled());
+                txt.add_line("");
+                txt.add_line("These are proposed changes to Seattle made by community members.");
+                txt.add_line("Contact dabreegster@gmail.com to add your idea here!");
                 txt.into_widget(ctx).centered_horiz().margin_below(20)
             },
             Widget::custom_row(buttons).flex_wrap(ctx, Percent::int(80)),

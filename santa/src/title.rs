@@ -98,9 +98,9 @@ impl SimpleState<App> for TitleScreen {
 
 fn level_btn(ctx: &mut EventCtx, app: &App, level: &Level, idx: usize) -> GeomBatch {
     let mut txt = Text::new();
-    txt.add(Line(format!("LEVEL {}", idx + 1)).small_heading());
-    txt.add(Line(&level.title).small_heading());
-    txt.add(&level.description);
+    txt.add_line(Line(format!("LEVEL {}", idx + 1)).small_heading());
+    txt.add_line(Line(&level.title).small_heading());
+    txt.add_line(&level.description);
     let batch = txt.wrap_to_pct(ctx, 15).render_autocropped(ctx);
 
     // Add padding

@@ -199,7 +199,7 @@ impl State<App> for ViewKML {
             g.draw_polygon(Color::BLUE, obj.polygon.clone());
             let mut txt = Text::new();
             for (k, v) in &obj.attribs {
-                txt.add(format!("{} = {}", k, v));
+                txt.add_line(format!("{} = {}", k, v));
             }
             g.draw_mouse_tooltip(txt);
 

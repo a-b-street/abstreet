@@ -179,7 +179,7 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
     );
 
     let mut txt = Text::from("");
-    txt.add("Raw OpenStreetMap data");
+    txt.add_line("Raw OpenStreetMap data");
     rows.push(txt.into_widget(ctx));
 
     rows.extend(make_table(
@@ -208,7 +208,7 @@ pub fn traffic(
 
     // Since this applies to the entire road, ignore lane type.
     let mut txt = Text::from("Traffic over entire road, not just this lane");
-    txt.add(format!(
+    txt.add_line(format!(
         "Since midnight: {} commuters and vehicles crossed",
         prettyprint_usize(app.primary.sim.get_analytics().road_thruput.total_for(r.id))
     ));

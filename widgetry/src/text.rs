@@ -176,7 +176,7 @@ pub struct Text {
 impl From<TextSpan> for Text {
     fn from(line: TextSpan) -> Text {
         let mut txt = Text::new();
-        txt.add(line);
+        txt.add_line(line);
         txt
     }
 }
@@ -184,7 +184,7 @@ impl From<TextSpan> for Text {
 impl<AsStrRef: AsRef<str>> From<AsStrRef> for Text {
     fn from(line: AsStrRef) -> Text {
         let mut txt = Text::new();
-        txt.add(Line(line.as_ref()));
+        txt.add_line(Line(line.as_ref()));
         txt
     }
 }
@@ -208,7 +208,7 @@ impl Text {
     pub fn from_multiline(lines: Vec<TextSpan>) -> Text {
         let mut txt = Text::new();
         for l in lines {
-            txt.add(l);
+            txt.add_line(l);
         }
         txt
     }
@@ -260,12 +260,8 @@ impl Text {
         self
     }
 
-    pub fn add(&mut self, line: impl Into<TextSpan>) {
+    pub fn add_line(&mut self, line: impl Into<TextSpan>) {
         self.lines.push((None, vec![line.into()]));
-    }
-
-    pub fn add_highlighted(&mut self, line: TextSpan, highlight: Color) {
-        self.lines.push((Some(highlight), vec![line]));
     }
 
     // TODO Just one user...
@@ -275,7 +271,7 @@ impl Text {
 
     pub fn append(&mut self, line: TextSpan) {
         if self.lines.is_empty() {
-            self.add(line);
+            self.add_line(line);
             return;
         }
 
@@ -285,7 +281,7 @@ impl Text {
     pub fn add_appended(&mut self, lines: Vec<TextSpan>) {
         for (idx, l) in lines.into_iter().enumerate() {
             if idx == 0 {
-                self.add(l);
+                self.add_line(l);
             } else {
                 self.append(l);
             }
