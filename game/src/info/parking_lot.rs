@@ -7,8 +7,15 @@ use widgetry::{EventCtx, Line, LinePlot, PlotOptions, Series, TextExt, Widget};
 use crate::app::App;
 use crate::info::{header_btns, make_tabs, Details, Tab};
 
-pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: ParkingLotID) -> Vec<Widget> {
-    let mut rows = header(ctx, details, id, Tab::ParkingLot(id));
+pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: ParkingLotID) -> Widget {
+    Widget::custom_col(vec![
+        header(ctx, details, id, Tab::ParkingLot(id)),
+        info_body(ctx, app, id).tab_body(ctx),
+    ])
+}
+
+fn info_body(ctx: &mut EventCtx, app: &App, id: ParkingLotID) -> Widget {
+    let mut rows = vec![];
     let pl = app.primary.map.get_pl(id);
     let capacity = pl.capacity();
 
@@ -71,11 +78,11 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: ParkingLot
         );
     }
 
-    rows
+    Widget::col(rows)
 }
 
-fn header(ctx: &EventCtx, details: &mut Details, id: ParkingLotID, tab: Tab) -> Vec<Widget> {
-    vec![
+fn header(ctx: &EventCtx, details: &mut Details, id: ParkingLotID, tab: Tab) -> Widget {
+    Widget::custom_col(vec![
         Widget::row(vec![
             Line(id.to_string()).small_heading().into_widget(ctx),
             header_btns(ctx),
@@ -86,5 +93,5 @@ fn header(ctx: &EventCtx, details: &mut Details, id: ParkingLotID, tab: Tab) -> 
             tab,
             vec![("Info", Tab::ParkingLot(id))],
         ),
-    ]
+    ])
 }

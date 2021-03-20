@@ -322,7 +322,7 @@ impl InfoPanel {
             stop_immediately: None,
         };
 
-        let (mut col, main_tab) = match tab {
+        let (header_and_tabs, main_tab) = match tab {
             Tab::PersonTrips(p, ref mut open) => (
                 person::trips(ctx, app, &mut details, p, open, ctx_actions.is_paused()),
                 true,
@@ -375,6 +375,7 @@ impl InfoPanel {
             }
         };
 
+        let mut col = vec![header_and_tabs];
         let maybe_id = tab.to_id(app);
         let mut cached_actions = Vec::new();
         if main_tab {
@@ -705,23 +706,27 @@ fn make_tabs(
     current_tab: Tab,
     tabs: Vec<(&str, Tab)>,
 ) -> Widget {
+    use widgetry::DEFAULT_CORNER_RADIUS;
     let mut row = Vec::new();
     for (name, link) in tabs {
         row.push(
             ctx.style()
                 .btn_tab
                 .text(name)
+                .corner_rounding(geom::CornerRadii {
+                    top_left: DEFAULT_CORNER_RADIUS,
+                    top_right: DEFAULT_CORNER_RADIUS,
+                    bottom_left: 0.0,
+                    bottom_right: 0.0,
+                })
                 // We abuse "disabled" to denote "currently selected"
                 .disabled(current_tab.variant() == link.variant())
                 .build_def(ctx),
         );
         hyperlinks.insert(name.to_string(), link);
     }
-    {
-        // TODO Centered, but actually, we need to set the padding of each button to divide the
-        // available space evenly. Fancy fill rules... hmmm.
-        Widget::custom_row(row).margin_vert(16)
-    }
+
+    Widget::row(row).margin_above(16)
 }
 
 fn header_btns(ctx: &EventCtx) -> Widget {

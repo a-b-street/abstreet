@@ -227,8 +227,24 @@ impl Widget {
 
     pub fn section(self, ctx: &EventCtx) -> Widget {
         self.bg(ctx.style().section_bg)
-            .outline(ctx.style().section_outline)
             .padding(16)
+            .outline(ctx.style().section_outline)
+    }
+
+    pub fn tab_body(self, ctx: &EventCtx) -> Widget {
+        let mut tab_body =
+            self.bg(ctx.style().section_bg)
+                .padding(16)
+                .corner_rounding(CornerRadii {
+                    top_left: 0.0,
+                    top_right: DEFAULT_CORNER_RADIUS,
+                    bottom_left: DEFAULT_CORNER_RADIUS,
+                    bottom_right: DEFAULT_CORNER_RADIUS,
+                });
+
+        // really short tab bodies look out of place in the panels
+        tab_body.layout.style.min_size.height = Dimension::Points(400.0);
+        tab_body
     }
 
     // TODO Maybe panic if we call this on a non-container

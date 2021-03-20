@@ -63,14 +63,7 @@ impl TabController {
             self.build_bar_items(ctx),
             self.pop_active_content()
                 .container()
-                .corner_rounding(CornerRadii {
-                    top_left: 0.0,
-                    top_right: DEFAULT_CORNER_RADIUS,
-                    bottom_left: DEFAULT_CORNER_RADIUS,
-                    bottom_right: DEFAULT_CORNER_RADIUS,
-                })
-                .padding(16)
-                .bg(ctx.style().section_bg)
+                .tab_body(ctx)
                 .named(self.active_content_id()),
         ])
     }

@@ -9,8 +9,16 @@ use widgetry::{Color, EventCtx, Line, Text, TextExt, Widget};
 use crate::app::App;
 use crate::info::{header_btns, make_table, make_tabs, Details, Tab};
 
-pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID) -> Vec<Widget> {
-    let mut rows = header(ctx, app, details, id, Tab::BldgInfo(id));
+pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID) -> Widget {
+    Widget::custom_col(vec![
+        header(ctx, app, details, id, Tab::BldgInfo(id)),
+        info_body(ctx, app, details, id).tab_body(ctx),
+    ])
+}
+
+fn info_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID) -> Widget {
+    let mut rows = vec![];
+
     let b = app.primary.map.get_b(id);
 
     let mut kv = Vec::new();
@@ -126,11 +134,18 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
         }
     }
 
-    rows
+    Widget::col(rows)
 }
 
-pub fn people(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID) -> Vec<Widget> {
-    let mut rows = header(ctx, app, details, id, Tab::BldgPeople(id));
+pub fn people(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID) -> Widget {
+    Widget::custom_col(vec![
+        header(ctx, app, details, id, Tab::BldgPeople(id)),
+        people_body(ctx, app, details, id).tab_body(ctx),
+    ])
+}
+
+fn people_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID) -> Widget {
+    let mut rows = vec![];
 
     // Two caveats about these counts:
     // 1) A person might use multiple modes through the day, but this just picks a single category.
@@ -220,16 +235,10 @@ pub fn people(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Building
         }
     }
 
-    rows
+    Widget::col(rows)
 }
 
-fn header(
-    ctx: &EventCtx,
-    app: &App,
-    details: &mut Details,
-    id: BuildingID,
-    tab: Tab,
-) -> Vec<Widget> {
+fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: BuildingID, tab: Tab) -> Widget {
     let mut rows = vec![];
 
     rows.push(Widget::row(vec![
@@ -247,7 +256,7 @@ fn header(
     draw_occupants(details, app, id, None);
     // TODO Draw cars parked inside?
 
-    rows
+    Widget::custom_col(rows)
 }
 
 pub fn draw_occupants(details: &mut Details, app: &App, id: BuildingID, focus: Option<PersonID>) {

@@ -4,14 +4,17 @@ use widgetry::{EventCtx, Line, Widget};
 use crate::app::App;
 use crate::info::{header_btns, make_table, Details};
 
-pub fn area(ctx: &EventCtx, app: &App, _: &mut Details, id: AreaID) -> Vec<Widget> {
-    let mut rows = vec![];
-
-    rows.push(Widget::row(vec![
+pub fn area(ctx: &EventCtx, app: &App, _: &mut Details, id: AreaID) -> Widget {
+    let header = Widget::row(vec![
         Line(id.to_string()).small_heading().into_widget(ctx),
         header_btns(ctx),
-    ]));
+    ]);
 
+    Widget::custom_col(vec![header, area_body(ctx, app, id).tab_body(ctx)])
+}
+
+fn area_body(ctx: &EventCtx, app: &App, id: AreaID) -> Widget {
+    let mut rows = vec![];
     let area = app.primary.map.get_a(id);
 
     if let Some(osm_id) = area.osm_id {
@@ -32,5 +35,5 @@ pub fn area(ctx: &EventCtx, app: &App, _: &mut Details, id: AreaID) -> Vec<Widge
             .collect(),
     ));
 
-    rows
+    Widget::col(rows)
 }
