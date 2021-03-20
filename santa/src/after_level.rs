@@ -38,15 +38,15 @@ impl Strategize {
         let unlock_messages = app.session.record_score(level.title.clone(), score);
 
         let mut txt = Text::new();
-        txt.add(Line(format!("Results for {}", level.title)).small_heading());
-        txt.add(format!(
+        txt.add_line(Line(format!("Results for {}", level.title)).small_heading());
+        txt.add_line(format!(
             "You delivered {} presents",
             prettyprint_usize(score)
         ));
-        txt.add("");
-        txt.add("High scores:");
+        txt.add_line("");
+        txt.add_line("High scores:");
         for (idx, score) in app.session.high_scores[&level.title].iter().enumerate() {
-            txt.add(format!("{}) {}", idx + 1, prettyprint_usize(*score)));
+            txt.add_line(format!("{}) {}", idx + 1, prettyprint_usize(*score)));
         }
 
         // Partly duplicated with Buildings::new, but we want to label upzones and finished houses
@@ -167,27 +167,27 @@ impl Results {
     ) -> Box<dyn State<App>> {
         let mut txt = Text::new();
         if score < level.goal {
-            txt.add(Line("Not quite...").small_heading());
-            txt.add(format!(
+            txt.add_line(Line("Not quite...").small_heading());
+            txt.add_line(format!(
                 "You only delivered {} / {} presents",
                 prettyprint_usize(score),
                 prettyprint_usize(level.goal)
             ));
-            txt.add("Review your route and try again.");
-            txt.add("");
-            txt.add("Hint: look for any apartments you missed!");
+            txt.add_line("Review your route and try again.");
+            txt.add_line("");
+            txt.add_line("Hint: look for any apartments you missed!");
         } else {
-            txt.add(Line("Thank you, Santa!").small_heading());
-            txt.add(format!(
+            txt.add_line(Line("Thank you, Santa!").small_heading());
+            txt.add_line(format!(
                 "You delivered {} presents, more than the goal of {}!",
                 prettyprint_usize(score),
                 prettyprint_usize(level.goal)
             ));
             let high_score = app.session.high_scores[&level.title][0];
             if high_score == score {
-                txt.add("Wow, a new high score!");
+                txt.add_line("Wow, a new high score!");
             } else {
-                txt.add(format!(
+                txt.add_line(format!(
                     "But can you beat the high score of {}?",
                     prettyprint_usize(high_score)
                 ));

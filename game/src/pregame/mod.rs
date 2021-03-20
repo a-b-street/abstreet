@@ -92,7 +92,7 @@ impl MainMenu {
         let col = vec![
             {
                 let mut txt = Text::from(Line("A/B STREET").display_title());
-                txt.add("Created by Dustin Carlino, Yuwen Li, & Michael Kirk");
+                txt.add_line("Created by Dustin Carlino, Yuwen Li, & Michael Kirk");
                 txt.into_widget(ctx).centered_horiz()
             },
             Widget::row({
@@ -121,7 +121,7 @@ impl MainMenu {
                         .label_text("Tutorial")
                         .tooltip({
                             let mut txt = Text::tooltip(ctx, Key::T, "Tutorial");
-                            txt.add(Line("Learn how to play the game").small());
+                            txt.add_line(Line("Learn how to play the game").small());
                             txt
                         })
                         .hotkey(Key::T)
@@ -132,7 +132,7 @@ impl MainMenu {
                         .label_text("Sandbox")
                         .tooltip({
                             let mut txt = Text::tooltip(ctx, Key::S, "Sandbox");
-                            txt.add(Line("No goals, try out any idea here").small());
+                            txt.add_line(Line("No goals, try out any idea here").small());
                             txt
                         })
                         .hotkey(Key::S)
@@ -143,7 +143,7 @@ impl MainMenu {
                         .label_text("Challenge")
                         .tooltip({
                             let mut txt = Text::tooltip(ctx, Key::C, "Challenges");
-                            txt.add(Line("Fix specific problems").small());
+                            txt.add_line(Line("Fix specific problems").small());
                             txt
                         })
                         .hotkey(Key::C)
@@ -157,7 +157,7 @@ impl MainMenu {
                     .text("Community Proposals")
                     .tooltip({
                         let mut txt = Text::tooltip(ctx, Key::P, "Community Proposals");
-                        txt.add(Line("See existing ideas for improving traffic").small());
+                        txt.add_line(Line("See existing ideas for improving traffic").small());
                         txt
                     })
                     .hotkey(Key::P)

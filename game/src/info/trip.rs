@@ -816,8 +816,8 @@ fn make_trip_details(
                     .tooltip({
                         let mut txt = Text::from("This will jump to ");
                         txt.append(Line(trip.departure.ampm_tostring()).fg(Color::hex("#F9EC51")));
-                        txt.add("The simulation will continue, and your score");
-                        txt.add("will be calculated at this new time.");
+                        txt.add_line("The simulation will continue, and your score");
+                        txt.add_line("will be calculated at this new time.");
                         txt
                     })
                     .build_widget(ctx, format!("jump to {}", trip.departure))
@@ -835,8 +835,8 @@ fn make_trip_details(
                         .tooltip({
                             let mut txt = Text::from("This will jump to ");
                             txt.append(Line(t.ampm_tostring()).fg(Color::hex("#F9EC51")));
-                            txt.add("The simulation will continue, and your score");
-                            txt.add("will be calculated at this new time.");
+                            txt.add_line("The simulation will continue, and your score");
+                            txt.add_line("will be calculated at this new time.");
                             txt
                         })
                         .build_widget(ctx, format!("jump to {}", t))

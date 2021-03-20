@@ -155,9 +155,9 @@ impl PopupMsg {
         zoomed: Drawable,
     ) -> Box<dyn State<A>> {
         let mut txt = Text::new();
-        txt.add(Line(title).small_heading());
+        txt.add_line(Line(title).small_heading());
         for l in lines {
-            txt.add(l);
+            txt.add_line(l);
         }
         Box::new(PopupMsg {
             panel: Panel::new(Widget::col(vec![

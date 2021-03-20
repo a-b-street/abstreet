@@ -211,7 +211,7 @@ impl ChallengesPicker {
             let challenge = Challenge::all().remove(name).unwrap().remove(current);
             let mut txt = Text::new();
             for l in &challenge.description {
-                txt.add(l);
+                txt.add_line(l);
             }
 
             let mut inner_col = vec![
@@ -225,10 +225,10 @@ impl ChallengesPicker {
 
             if let Some(scores) = app.session.high_scores.get(&challenge.gameplay) {
                 let mut txt = Text::from(format!("{} high scores:", scores.len()));
-                txt.add(format!("Goal: {}", scores[0].goal));
+                txt.add_line(format!("Goal: {}", scores[0].goal));
                 let mut idx = 1;
                 for score in scores {
-                    txt.add(format!(
+                    txt.add_line(format!(
                         "{}) {}, using proposal: {}",
                         idx, score.score, score.edits_name
                     ));

@@ -53,14 +53,16 @@ impl<T: 'static> Menu<T> {
                         Line(format!(" - {}", choice.label)).fg(text_color),
                     ]);
                 } else {
-                    txt.add(Line(&choice.label).fg(text_color))
+                    txt.add_line(Line(&choice.label).fg(text_color))
                 }
             } else {
                 text_color = text_color.alpha(0.8);
                 if let Some(ref key) = choice.hotkey {
-                    txt.add(Line(format!("{} - {}", key.describe(), choice.label)).fg(text_color));
+                    txt.add_line(
+                        Line(format!("{} - {}", key.describe(), choice.label)).fg(text_color),
+                    );
                 } else {
-                    txt.add(Line(&choice.label).fg(text_color));
+                    txt.add_line(Line(&choice.label).fg(text_color));
                 }
             }
 

@@ -80,7 +80,7 @@ impl PopularDestinations {
         list.reverse();
         let sum = per_bldg.sum() as f64;
         for (category, cnt) in list {
-            breakdown.add(format!(
+            breakdown.add_line(format!(
                 "{}: {}%",
                 category
                     .map(|x| x.to_string())
@@ -151,12 +151,12 @@ impl State<App> for PopularDestinations {
 
         if let Some(ID::Building(b)) = app.primary.current_selection {
             let mut txt = Text::new();
-            txt.add(format!(
+            txt.add_line(format!(
                 "{} trips to here",
                 abstutil::prettyprint_usize(self.per_bldg.get(b))
             ));
             for a in &app.primary.map.get_b(b).amenities {
-                txt.add(format!(
+                txt.add_line(format!(
                     "  {} ({})",
                     a.names.get(app.opts.language.as_ref()),
                     a.amenity_type

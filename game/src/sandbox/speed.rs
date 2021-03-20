@@ -255,7 +255,7 @@ impl TimePanel {
 
         use widgetry::DrawWithTooltips;
         let mut tooltip_text = Text::from("Finished Trips");
-        tooltip_text.add(format!(
+        tooltip_text.add_line(format!(
             "{} ({}% of total)",
             prettyprint_usize(finished),
             (ratio * 100.0) as usize
@@ -279,7 +279,7 @@ impl TimePanel {
             } else {
                 Line("No change from baseline")
             };
-            tooltip_text.add(line);
+            tooltip_text.add_line(line);
         }
 
         let bounds = progress_bar.get_bounds();

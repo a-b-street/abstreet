@@ -816,7 +816,7 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Panel {
         let (summary, details) = edits.commands[idx].describe(&app.primary.map);
         let mut txt = Text::from(format!("{}) {}", idx + 1, summary));
         for line in details {
-            txt.add(Line(line).secondary());
+            txt.add_line(Line(line).secondary());
         }
         let btn = ctx
             .style()

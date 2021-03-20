@@ -146,10 +146,10 @@ impl GameplayState for OptimizeCommute {
                 "hint" => {
                     // TODO Multiple hints. Point to follow button.
                     let mut txt = Text::from("Hints");
-                    txt.add("");
-                    txt.add("Use the locator at the top right to find the VIP.");
-                    txt.add("You can wait for one of their trips to begin or end.");
-                    txt.add("Focus on trips spent mostly waiting");
+                    txt.add_line("");
+                    txt.add_line("Use the locator at the top right to find the VIP.");
+                    txt.add_line("You can wait for one of their trips to begin or end.");
+                    txt.add_line("Focus on trips spent mostly waiting");
                     let contents = txt.into_widget(ctx);
                     return Some(Transition::Push(FYI::new(ctx, contents, app.cs.panel_bg)));
                 }

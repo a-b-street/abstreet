@@ -120,7 +120,7 @@ impl<A: AppLike + 'static> State<A> for RunCommand<A> {
             .small_heading(),
         );
         for line in &self.lines {
-            txt.add(line);
+            txt.add_line(line);
         }
         self.panel = ctx.make_loading_screen(txt);
 

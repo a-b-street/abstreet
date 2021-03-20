@@ -111,7 +111,7 @@ impl CrossStreet {
                     {
                         let mut txt = Text::from(Line("What cross street?").small_heading());
                         // TODO This isn't so clear...
-                        txt.add(format!(
+                        txt.add_line(format!(
                             "(Or just quit to go to {})",
                             map.get_r(first[0]).get_name(app.opts().language.as_ref()),
                         ));

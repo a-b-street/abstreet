@@ -41,9 +41,9 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
         let mut txt = Text::new();
         if let Some((t, _)) = arrivals.last() {
             // TODO Button to jump to the bus
-            txt.add(Line(format!("  Last bus arrived {} ago", sim.time() - *t)).secondary());
+            txt.add_line(Line(format!("  Last bus arrived {} ago", sim.time() - *t)).secondary());
         } else {
-            txt.add(Line("  No arrivals yet").secondary());
+            txt.add_line(Line("  No arrivals yet").secondary());
         }
         rows.push(txt.into_widget(ctx));
     }
@@ -67,7 +67,7 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
         }
     }
     let mut txt = Text::new();
-    txt.add("Total");
+    txt.add_line("Total");
     txt.append(
         Line(format!(
             ": {} boardings, {} alightings",
@@ -77,7 +77,7 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
         .secondary(),
     );
     for r in app.primary.map.get_routes_serving_stop(id) {
-        txt.add(format!("Route {}", r.short_name));
+        txt.add_line(format!("Route {}", r.short_name));
         txt.append(
             Line(format!(
                 ": {} boardings, {} alightings",
@@ -354,7 +354,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
 // TODO Unit test
 fn describe_schedule(route: &BusRoute) -> Text {
     let mut txt = Text::new();
-    txt.add(format!(
+    txt.add_line(format!(
         "{} {}s run this route daily",
         route.spawn_times.len(),
         route.plural_noun()
@@ -371,7 +371,7 @@ fn describe_schedule(route: &BusRoute) -> Text {
                 if Some(new_dt) == dt {
                     last = Some(*t);
                 } else {
-                    txt.add(format!(
+                    txt.add_line(format!(
                         "Every {} from {} to {}",
                         dt.unwrap(),
                         start.ampm_tostring(),
@@ -387,7 +387,7 @@ fn describe_schedule(route: &BusRoute) -> Text {
             }
         }
         // Handle end
-        txt.add(format!(
+        txt.add_line(format!(
             "Every {} from {} to {}",
             dt.unwrap(),
             start.ampm_tostring(),
@@ -396,7 +396,7 @@ fn describe_schedule(route: &BusRoute) -> Text {
     } else {
         // Just list the times
         for t in &route.spawn_times {
-            txt.add(t.ampm_tostring());
+            txt.add_line(t.ampm_tostring());
         }
     }
     txt
