@@ -338,6 +338,8 @@
 <span id="335">335</span>
 <span id="336">336</span>
 <span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -412,18 +414,18 @@
                     .<span class="ident">allow_through_traffic</span>
                     .<span class="ident">contains</span>(<span class="ident">req</span>.<span class="ident">constraints</span>)
                 {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">borders</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Intersection</span><span class="op">&gt;</span> <span class="op">=</span>
-                        <span class="ident">zone</span>.<span class="ident">borders</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>)).<span class="ident">collect</span>();
-                    <span class="comment">// TODO Use the CH to pick the lowest overall cost?</span>
-                    <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">pt</span>(<span class="ident">map</span>);
-                    <span class="ident">borders</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">pt</span>.<span class="ident">dist_to</span>(<span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">center</span>()));
-
-                    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">borders</span> {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">result</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">pathfind_from_zone</span>(<span class="ident">i</span>, <span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">zone</span>, <span class="ident">map</span>) {
-                            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">result</span>);
+                    <span class="comment">// Calculate the entire path using every possible border, then take the one</span>
+                    <span class="comment">// with the least total distance.</span>
+                    <span class="comment">// TODO This is slow and doesn&#39;t account for the mode-specific cost.</span>
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">paths</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+                    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">zone</span>.<span class="ident">borders</span> {
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">result</span>) <span class="op">=</span>
+                            <span class="self">self</span>.<span class="ident">pathfind_from_zone</span>(<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>), <span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">zone</span>, <span class="ident">map</span>)
+                        {
+                            <span class="ident">paths</span>.<span class="ident">push</span>(<span class="ident">result</span>);
                         }
                     }
-                    <span class="kw">return</span> <span class="prelude-val">None</span>;
+                    <span class="kw">return</span> <span class="ident">paths</span>.<span class="ident">into_iter</span>().<span class="ident">min_by_key</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">total_length</span>());
                 }
             }
             (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">zone</span>)) <span class="op">=</span><span class="op">&gt;</span> {
@@ -432,18 +434,18 @@
                     .<span class="ident">allow_through_traffic</span>
                     .<span class="ident">contains</span>(<span class="ident">req</span>.<span class="ident">constraints</span>)
                 {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">borders</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Intersection</span><span class="op">&gt;</span> <span class="op">=</span>
-                        <span class="ident">zone</span>.<span class="ident">borders</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>)).<span class="ident">collect</span>();
-                    <span class="comment">// TODO Use the CH to pick the lowest overall cost?</span>
-                    <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">pt</span>(<span class="ident">map</span>);
-                    <span class="ident">borders</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">pt</span>.<span class="ident">dist_to</span>(<span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">center</span>()));
-
-                    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">borders</span> {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">result</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">pathfind_to_zone</span>(<span class="ident">i</span>, <span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">zone</span>, <span class="ident">map</span>) {
-                            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">result</span>);
+                    <span class="comment">// Calculate the entire path using every possible border, then take the one</span>
+                    <span class="comment">// with the least total distance.</span>
+                    <span class="comment">// TODO This is slow and doesn&#39;t account for the mode-specific cost.</span>
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">paths</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+                    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">zone</span>.<span class="ident">borders</span> {
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">result</span>) <span class="op">=</span>
+                            <span class="self">self</span>.<span class="ident">pathfind_to_zone</span>(<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>), <span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">zone</span>, <span class="ident">map</span>)
+                        {
+                            <span class="ident">paths</span>.<span class="ident">push</span>(<span class="ident">result</span>);
                         }
                     }
-                    <span class="kw">return</span> <span class="prelude-val">None</span>;
+                    <span class="kw">return</span> <span class="ident">paths</span>.<span class="ident">into_iter</span>().<span class="ident">min_by_key</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">total_length</span>());
                 }
             }
             (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> {}
@@ -566,6 +568,7 @@
             },
             <span class="ident">constraints</span>: <span class="ident">req</span>.<span class="ident">constraints</span>,
         };
+        <span class="kw">let</span> <span class="ident">orig_req</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">clone</span>();
         <span class="ident">req</span>.<span class="ident">start</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">dst</span>).<span class="ident">src_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span>.<span class="ident">id</span> {
             <span class="ident">Position</span>::<span class="ident">start</span>(<span class="ident">dst</span>)
         } <span class="kw">else</span> {
@@ -586,12 +589,13 @@
             };
             <span class="ident">interior_path</span>.<span class="ident">extend</span>(<span class="ident">main_path</span>);
             <span class="kw">let</span> <span class="ident">steps</span> <span class="op">=</span> <span class="ident">walking_path_to_steps</span>(<span class="ident">interior_path</span>, <span class="ident">map</span>);
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Path</span>::<span class="ident">new</span>(<span class="ident">map</span>, <span class="ident">steps</span>, <span class="ident">req</span>, <span class="ident">Vec</span>::<span class="ident">new</span>()));
+            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Path</span>::<span class="ident">new</span>(<span class="ident">map</span>, <span class="ident">steps</span>, <span class="ident">orig_req</span>, <span class="ident">Vec</span>::<span class="ident">new</span>()));
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">interior_path</span> <span class="op">=</span> <span class="ident">zone</span>.<span class="ident">pathfind</span>(<span class="ident">interior_req</span>, <span class="ident">map</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">main_path</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">simple_pathfind</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>.<span class="ident">routing_params</span>(), <span class="ident">map</span>)<span class="question-mark">?</span>;
         <span class="ident">interior_path</span>.<span class="ident">append</span>(<span class="ident">main_path</span>, <span class="ident">map</span>);
+        <span class="ident">interior_path</span>.<span class="ident">orig_req</span> <span class="op">=</span> <span class="ident">orig_req</span>;
         <span class="prelude-val">Some</span>(<span class="ident">interior_path</span>)
     }
 
