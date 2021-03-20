@@ -1413,8 +1413,6 @@
 <span id="1410">1410</span>
 <span id="1411">1411</span>
 <span id="1412">1412</span>
-<span id="1413">1413</span>
-<span id="1414">1414</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -1927,9 +1925,7 @@
                 <span class="kw">return</span> <span class="ident">txt</span>;
             }
             <span class="ident">Task</span>::<span class="ident">LowParking</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(
-                    <span class="string">&quot;1) Find a road with almost no parking spots available&quot;</span>,
-                ));
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;1) Find a road with almost no parking spots available&quot;</span>);
                 <span class="ident">txt</span>.<span class="ident">add</span>(<span class="string">&quot;2) Click it and press &quot;</span>);
                 <span class="comment">// TODO ctx.style().hotkey_color</span>
                 <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">Key</span>::<span class="ident">C</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">GREEN</span>));

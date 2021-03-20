@@ -918,11 +918,11 @@
                             .<span class="ident">road_thruput</span>
                             .<span class="ident">total_for_by_time</span>(<span class="ident">r</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>());
                         <span class="kw">if</span> <span class="ident">before</span> <span class="op">+</span> <span class="ident">after</span> <span class="op">&gt;</span> <span class="number">0</span> {
-                            <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                            <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="macro">format</span><span class="macro">!</span>(
                                 <span class="string">&quot;{} before, {} after&quot;</span>,
                                 <span class="ident">prettyprint_usize</span>(<span class="ident">before</span>),
                                 <span class="ident">prettyprint_usize</span>(<span class="ident">after</span>)
-                            ))));
+                            )));
                         }
                     }
                     <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>)) <span class="op">=</span><span class="op">&gt;</span> {
@@ -937,11 +937,11 @@
                             .<span class="ident">intersection_thruput</span>
                             .<span class="ident">total_for_by_time</span>(<span class="ident">i</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>());
                         <span class="kw">if</span> <span class="ident">before</span> <span class="op">+</span> <span class="ident">after</span> <span class="op">&gt;</span> <span class="number">0</span> {
-                            <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                            <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="macro">format</span><span class="macro">!</span>(
                                 <span class="string">&quot;{} before, {} after&quot;</span>,
                                 <span class="ident">prettyprint_usize</span>(<span class="ident">before</span>),
                                 <span class="ident">prettyprint_usize</span>(<span class="ident">after</span>)
-                            ))));
+                            )));
                         }
                     }
                     <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}

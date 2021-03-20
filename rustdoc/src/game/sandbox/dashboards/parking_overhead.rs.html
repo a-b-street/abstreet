@@ -486,7 +486,7 @@
     );
     <span class="ident">table</span>.<span class="ident">column</span>(
         <span class="string">&quot;Percent overhead&quot;</span>,
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}%&quot;</span>, <span class="ident">x</span>.<span class="ident">percent_overhead</span>))).<span class="ident">render</span>(<span class="ident">ctx</span>)),
+        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}%&quot;</span>, <span class="ident">x</span>.<span class="ident">percent_overhead</span>)).<span class="ident">render</span>(<span class="ident">ctx</span>)),
         <span class="ident">Col</span>::<span class="ident">Sortable</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">rows</span><span class="op">|</span> <span class="ident">rows</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">percent_overhead</span>))),
     );
 

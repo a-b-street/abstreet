@@ -1177,7 +1177,7 @@
         <span class="ident">table</span>.<span class="ident">column</span>(
             <span class="string">&quot;Normalized&quot;</span>,
             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> {
-                <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="kw">if</span> <span class="ident">x</span>.<span class="ident">duration_after</span> <span class="op">=</span><span class="op">=</span> <span class="ident">x</span>.<span class="ident">duration_before</span> {
+                <span class="ident">Text</span>::<span class="ident">from</span>(<span class="kw">if</span> <span class="ident">x</span>.<span class="ident">duration_after</span> <span class="op">=</span><span class="op">=</span> <span class="ident">x</span>.<span class="ident">duration_before</span> {
                     <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;same&quot;</span>)
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span>.<span class="ident">duration_after</span> <span class="op">&lt;</span> <span class="ident">x</span>.<span class="ident">duration_before</span> {
                     <span class="macro">format</span><span class="macro">!</span>(
@@ -1189,7 +1189,7 @@
                         <span class="string">&quot;{}% slower &quot;</span>,
                         (<span class="number">100.0</span> <span class="op">*</span> ((<span class="ident">x</span>.<span class="ident">duration_after</span> <span class="op">/</span> <span class="ident">x</span>.<span class="ident">duration_before</span>) <span class="op">-</span> <span class="number">1.0</span>)) <span class="kw">as</span> <span class="ident">usize</span>
                     )
-                }))
+                })
                 .<span class="ident">render</span>(<span class="ident">ctx</span>)
             }),
             <span class="ident">Col</span>::<span class="ident">Sortable</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">rows</span><span class="op">|</span> {

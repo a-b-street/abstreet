@@ -1285,10 +1285,10 @@
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
     <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trip_info</span>(<span class="ident">id</span>);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Text</span>::<span class="ident">from</span>(<span class="macro">format</span><span class="macro">!</span>(
         <span class="string">&quot;Trip cancelled: {}&quot;</span>,
         <span class="ident">trip</span>.<span class="ident">cancellation_reason</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>()
-    )))
+    ))
     .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">20</span>)
     .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)];
 
@@ -1527,17 +1527,17 @@
                             build_text(app, &amp;msgs, norm_distance),
                         ));
                         let mut display_txt = Text::from(&amp;p.phase_type.describe(map));
-                        display_txt.add(Line(format!(
+                        display_txt.add(format!(
                             &quot;  Road: {}&quot;,
                             map.get_r(lane_detail.parent)
                                 .get_name(app.opts.language.as_ref())
-                        )));
-                        display_txt.add(Line(format!(&quot;  Lane ID: {}&quot;, id)));
-                        display_txt.add(Line(format!(
+                        ));
+                        display_txt.add(format!(&quot;  Lane ID: {}&quot;, id));
+                        display_txt.add(format!(
                             &quot;  Lane distance: {}&quot;,
                             lane_detail.length().to_string(&amp;app.opts.units)
-                        )));
-                        display_txt.add(Line(format!(&quot;  Average speed: {}&quot;, avg_speed)));
+                        ));
+                        display_txt.add(format!(&quot;  Average speed: {}&quot;, avg_speed));
                         segments.push((lane_detail.length(), Color::RED, display_txt));
                         norm_distance = Distance::meters(0.0);
                     } else {
@@ -1555,11 +1555,11 @@
                         ));
 
                         let mut display_txt = Text::from(&amp;p.phase_type.describe(map));
-                        display_txt.add(Line(format!(&quot;  Intersection: {}&quot;, id.parent)));
-                        display_txt.add(Line(format!(
+                        display_txt.add(format!(&quot;  Intersection: {}&quot;, id.parent));
+                        display_txt.add(format!(
                             &quot;  Delay: {}&quot;,
                             Duration::seconds(*delay as f64)
-                        )));
+                        ));
                         segments.push((
                             // To make sure that the hotspot isn&#39;t too small
                             if 0.05 &lt; (turn_details.geom.length() / sum_phase_dist) {
