@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["header",""],["info",""]]});
+initSidebarItems({"fn":[["header",""],["info",""],["info_body",""]]});

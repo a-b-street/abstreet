@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["bio",""],["cmp_duration_shorter",""],["crowd",""],["current_status",""],["header",""],["parked_car",""],["schedule",""],["trips",""]]});
+initSidebarItems({"fn":[["bio",""],["bio_body",""],["cmp_duration_shorter",""],["crowd",""],["crowd_body",""],["current_status",""],["header",""],["parked_car",""],["parked_car_body",""],["schedule",""],["schedule_body",""],["trips",""],["trips_body",""]]});

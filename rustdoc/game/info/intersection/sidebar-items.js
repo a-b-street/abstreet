@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["arrivals",""],["current_demand",""],["delay",""],["delay_plot",""],["header",""],["info",""],["traffic",""],["traffic_signal",""]]});
+initSidebarItems({"fn":[["arrivals",""],["current_demand",""],["current_demand_body",""],["delay",""],["delay_body",""],["delay_plot",""],["header",""],["info",""],["info_body",""],["traffic",""],["traffic_body",""],["traffic_signal",""],["traffic_signal_body",""]]});

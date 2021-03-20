@@ -138,13 +138,6 @@
 <span id="135">135</span>
 <span id="136">136</span>
 <span id="137">137</span>
-<span id="138">138</span>
-<span id="139">139</span>
-<span id="140">140</span>
-<span id="141">141</span>
-<span id="142">142</span>
-<span id="143">143</span>
-<span id="144">144</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">DEFAULT_CORNER_RADIUS</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ButtonBuilder</span>, <span class="ident">EventCtx</span>, <span class="ident">Panel</span>, <span class="ident">Widget</span>};
@@ -211,14 +204,7 @@
             <span class="self">self</span>.<span class="ident">build_bar_items</span>(<span class="ident">ctx</span>),
             <span class="self">self</span>.<span class="ident">pop_active_content</span>()
                 .<span class="ident">container</span>()
-                .<span class="ident">corner_rounding</span>(<span class="ident">CornerRadii</span> {
-                    <span class="ident">top_left</span>: <span class="number">0.0</span>,
-                    <span class="ident">top_right</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
-                    <span class="ident">bottom_left</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
-                    <span class="ident">bottom_right</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
-                })
-                .<span class="ident">padding</span>(<span class="number">16</span>)
-                .<span class="ident">bg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_bg</span>)
+                .<span class="ident">tab_body</span>(<span class="ident">ctx</span>)
                 .<span class="ident">named</span>(<span class="self">self</span>.<span class="ident">active_content_id</span>()),
         ])
     }

@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["debug",""],["header",""],["info",""],["traffic",""]]});
+initSidebarItems({"fn":[["debug",""],["debug_body",""],["header",""],["info",""],["info_body",""],["traffic",""],["traffic_body",""]]});

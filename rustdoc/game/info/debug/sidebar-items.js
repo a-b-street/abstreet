@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["area",""]]});
+initSidebarItems({"fn":[["area",""],["area_body",""]]});

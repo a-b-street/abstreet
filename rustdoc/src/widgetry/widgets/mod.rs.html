@@ -815,6 +815,22 @@
 <span id="812">812</span>
 <span id="813">813</span>
 <span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -1045,8 +1061,24 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">section</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="self">self</span>.<span class="ident">bg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_bg</span>)
-            .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_outline</span>)
             .<span class="ident">padding</span>(<span class="number">16</span>)
+            .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_outline</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tab_body</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tab_body</span> <span class="op">=</span>
+            <span class="self">self</span>.<span class="ident">bg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_bg</span>)
+                .<span class="ident">padding</span>(<span class="number">16</span>)
+                .<span class="ident">corner_rounding</span>(<span class="ident">CornerRadii</span> {
+                    <span class="ident">top_left</span>: <span class="number">0.0</span>,
+                    <span class="ident">top_right</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
+                    <span class="ident">bottom_left</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
+                    <span class="ident">bottom_right</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
+                });
+
+        <span class="comment">// really short tab bodies look out of place in the panels</span>
+        <span class="ident">tab_body</span>.<span class="ident">layout</span>.<span class="ident">style</span>.<span class="ident">min_size</span>.<span class="ident">height</span> <span class="op">=</span> <span class="ident">Dimension</span>::<span class="ident">Points</span>(<span class="number">400.0</span>);
+        <span class="ident">tab_body</span>
     }
 
     <span class="comment">// TODO Maybe panic if we call this on a non-container</span>
