@@ -71,18 +71,18 @@ impl Pathfinder {
                     .allow_through_traffic
                     .contains(req.constraints)
                 {
-                    let mut borders: Vec<&Intersection> =
-                        zone.borders.iter().map(|i| map.get_i(*i)).collect();
-                    // TODO Use the CH to pick the lowest overall cost?
-                    let pt = req.end.pt(map);
-                    borders.sort_by_key(|i| pt.dist_to(i.polygon.center()));
-
-                    for i in borders {
-                        if let Some(result) = self.pathfind_from_zone(i, req.clone(), zone, map) {
-                            return Some(result);
+                    // Calculate the entire path using every possible border, then take the one
+                    // with the least total distance.
+                    // TODO This is slow and doesn't account for the mode-specific cost.
+                    let mut paths = Vec::new();
+                    for i in &zone.borders {
+                        if let Some(result) =
+                            self.pathfind_from_zone(map.get_i(*i), req.clone(), zone, map)
+                        {
+                            paths.push(result);
                         }
                     }
-                    return None;
+                    return paths.into_iter().min_by_key(|p| p.total_length());
                 }
             }
             (None, Some(zone)) => {
@@ -91,18 +91,18 @@ impl Pathfinder {
                     .allow_through_traffic
                     .contains(req.constraints)
                 {
-                    let mut borders: Vec<&Intersection> =
-                        zone.borders.iter().map(|i| map.get_i(*i)).collect();
-                    // TODO Use the CH to pick the lowest overall cost?
-                    let pt = req.start.pt(map);
-                    borders.sort_by_key(|i| pt.dist_to(i.polygon.center()));
-
-                    for i in borders {
-                        if let Some(result) = self.pathfind_to_zone(i, req.clone(), zone, map) {
-                            return Some(result);
+                    // Calculate the entire path using every possible border, then take the one
+                    // with the least total distance.
+                    // TODO This is slow and doesn't account for the mode-specific cost.
+                    let mut paths = Vec::new();
+                    for i in &zone.borders {
+                        if let Some(result) =
+                            self.pathfind_to_zone(map.get_i(*i), req.clone(), zone, map)
+                        {
+                            paths.push(result);
                         }
                     }
-                    return None;
+                    return paths.into_iter().min_by_key(|p| p.total_length());
                 }
             }
             (None, None) => {}
@@ -225,6 +225,7 @@ impl Pathfinder {
             },
             constraints: req.constraints,
         };
+        let orig_req = req.clone();
         req.start = if map.get_l(dst).src_i == i.id {
             Position::start(dst)
         } else {
@@ -245,12 +246,13 @@ impl Pathfinder {
             };
             interior_path.extend(main_path);
             let steps = walking_path_to_steps(interior_path, map);
-            return Some(Path::new(map, steps, req, Vec::new()));
+            return Some(Path::new(map, steps, orig_req, Vec::new()));
         }
 
         let mut interior_path = zone.pathfind(interior_req, map)?;
         let main_path = self.simple_pathfind(&req, map.routing_params(), map)?;
         interior_path.append(main_path, map);
+        interior_path.orig_req = orig_req;
         Some(interior_path)
     }
 
