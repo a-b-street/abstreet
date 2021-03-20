@@ -564,7 +564,7 @@
                 <span class="string">&quot;hint&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="comment">// TODO Multiple hints. Point to layers.</span>
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;Hint&quot;</span>);
-                    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="string">&quot;&quot;</span>);
+                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;&quot;</span>);
                     <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">Line</span>(<span class="string">&quot;Press &quot;</span>),
                         <span class="ident">Key</span>::<span class="ident">L</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),

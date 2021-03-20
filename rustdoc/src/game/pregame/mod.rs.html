@@ -502,7 +502,7 @@
         <span class="kw">let</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
             {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;A/B STREET&quot;</span>).<span class="ident">display_title</span>());
-                <span class="ident">txt</span>.<span class="ident">add</span>(<span class="string">&quot;Created by Dustin Carlino, Yuwen Li, &amp; Michael Kirk&quot;</span>);
+                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;Created by Dustin Carlino, Yuwen Li, &amp; Michael Kirk&quot;</span>);
                 <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_horiz</span>()
             },
             <span class="ident">Widget</span>::<span class="ident">row</span>({
@@ -531,7 +531,7 @@
                         .<span class="ident">label_text</span>(<span class="string">&quot;Tutorial&quot;</span>)
                         .<span class="ident">tooltip</span>({
                             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">tooltip</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">T</span>, <span class="string">&quot;Tutorial&quot;</span>);
-                            <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;Learn how to play the game&quot;</span>).<span class="ident">small</span>());
+                            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;Learn how to play the game&quot;</span>).<span class="ident">small</span>());
                             <span class="ident">txt</span>
                         })
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">T</span>)
@@ -542,7 +542,7 @@
                         .<span class="ident">label_text</span>(<span class="string">&quot;Sandbox&quot;</span>)
                         .<span class="ident">tooltip</span>({
                             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">tooltip</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">S</span>, <span class="string">&quot;Sandbox&quot;</span>);
-                            <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;No goals, try out any idea here&quot;</span>).<span class="ident">small</span>());
+                            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;No goals, try out any idea here&quot;</span>).<span class="ident">small</span>());
                             <span class="ident">txt</span>
                         })
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">S</span>)
@@ -553,7 +553,7 @@
                         .<span class="ident">label_text</span>(<span class="string">&quot;Challenge&quot;</span>)
                         .<span class="ident">tooltip</span>({
                             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">tooltip</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">C</span>, <span class="string">&quot;Challenges&quot;</span>);
-                            <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;Fix specific problems&quot;</span>).<span class="ident">small</span>());
+                            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;Fix specific problems&quot;</span>).<span class="ident">small</span>());
                             <span class="ident">txt</span>
                         })
                         .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">C</span>)
@@ -567,7 +567,7 @@
                     .<span class="ident">text</span>(<span class="string">&quot;Community Proposals&quot;</span>)
                     .<span class="ident">tooltip</span>({
                         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">tooltip</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">P</span>, <span class="string">&quot;Community Proposals&quot;</span>);
-                        <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;See existing ideas for improving traffic&quot;</span>).<span class="ident">small</span>());
+                        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;See existing ideas for improving traffic&quot;</span>).<span class="ident">small</span>());
                         <span class="ident">txt</span>
                     })
                     .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">P</span>)

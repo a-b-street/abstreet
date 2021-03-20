@@ -820,7 +820,7 @@
 
         <span class="kw">use</span> <span class="ident">widgetry</span>::<span class="ident">DrawWithTooltips</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tooltip_text</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;Finished Trips&quot;</span>);
-        <span class="ident">tooltip_text</span>.<span class="ident">add</span>(<span class="macro">format</span><span class="macro">!</span>(
+        <span class="ident">tooltip_text</span>.<span class="ident">add_line</span>(<span class="macro">format</span><span class="macro">!</span>(
             <span class="string">&quot;{} ({}% of total)&quot;</span>,
             <span class="ident">prettyprint_usize</span>(<span class="ident">finished</span>),
             (<span class="ident">ratio</span> <span class="op">*</span> <span class="number">100.0</span>) <span class="kw">as</span> <span class="ident">usize</span>
@@ -844,7 +844,7 @@
             } <span class="kw">else</span> {
                 <span class="ident">Line</span>(<span class="string">&quot;No change from baseline&quot;</span>)
             };
-            <span class="ident">tooltip_text</span>.<span class="ident">add</span>(<span class="ident">line</span>);
+            <span class="ident">tooltip_text</span>.<span class="ident">add_line</span>(<span class="ident">line</span>);
         }
 
         <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">progress_bar</span>.<span class="ident">get_bounds</span>();

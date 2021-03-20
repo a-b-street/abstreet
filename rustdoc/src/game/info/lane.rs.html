@@ -458,7 +458,7 @@
     );
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;&quot;</span>);
-    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="string">&quot;Raw OpenStreetMap data&quot;</span>);
+    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;Raw OpenStreetMap data&quot;</span>);
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
 
     <span class="ident">rows</span>.<span class="ident">extend</span>(<span class="ident">make_table</span>(
@@ -487,7 +487,7 @@
 
     <span class="comment">// Since this applies to the entire road, ignore lane type.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;Traffic over entire road, not just this lane&quot;</span>);
-    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="macro">format</span><span class="macro">!</span>(
+    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format</span><span class="macro">!</span>(
         <span class="string">&quot;Since midnight: {} commuters and vehicles crossed&quot;</span>,
         <span class="ident">prettyprint_usize</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">road_thruput</span>.<span class="ident">total_for</span>(<span class="ident">r</span>.<span class="ident">id</span>))
     ));

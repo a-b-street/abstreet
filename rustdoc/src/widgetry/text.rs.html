@@ -596,10 +596,6 @@
 <span id="593">593</span>
 <span id="594">594</span>
 <span id="595">595</span>
-<span id="596">596</span>
-<span id="597">597</span>
-<span id="598">598</span>
-<span id="599">599</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">hash_map</span>::<span class="ident">DefaultHasher</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Write</span>;
@@ -779,7 +775,7 @@
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Text</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">line</span>: <span class="ident">TextSpan</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Text</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
-        <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">line</span>);
+        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">line</span>);
         <span class="ident">txt</span>
     }
 }
@@ -787,7 +783,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">AsStrRef</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">AsStrRef</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Text</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">line</span>: <span class="ident">AsStrRef</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Text</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
-        <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="ident">line</span>.<span class="ident">as_ref</span>()));
+        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="ident">line</span>.<span class="ident">as_ref</span>()));
         <span class="ident">txt</span>
     }
 }
@@ -811,7 +807,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_multiline</span>(<span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Text</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">lines</span> {
-            <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">l</span>);
+            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">l</span>);
         }
         <span class="ident">txt</span>
     }
@@ -863,12 +859,8 @@
         <span class="self">self</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">line</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_line</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">line</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span>) {
         <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">push</span>((<span class="prelude-val">None</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">line</span>.<span class="ident">into</span>()]));
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_highlighted</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">line</span>: <span class="ident">TextSpan</span>, <span class="ident">highlight</span>: <span class="ident">Color</span>) {
-        <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">push</span>((<span class="prelude-val">Some</span>(<span class="ident">highlight</span>), <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">line</span>]));
     }
 
     <span class="comment">// TODO Just one user...</span>
@@ -878,7 +870,7 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">line</span>: <span class="ident">TextSpan</span>) {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">is_empty</span>() {
-            <span class="self">self</span>.<span class="ident">add</span>(<span class="ident">line</span>);
+            <span class="self">self</span>.<span class="ident">add_line</span>(<span class="ident">line</span>);
             <span class="kw">return</span>;
         }
 
@@ -888,7 +880,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_appended</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span>) {
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">l</span>) <span class="kw">in</span> <span class="ident">lines</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
             <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-                <span class="self">self</span>.<span class="ident">add</span>(<span class="ident">l</span>);
+                <span class="self">self</span>.<span class="ident">add_line</span>(<span class="ident">l</span>);
             } <span class="kw">else</span> {
                 <span class="self">self</span>.<span class="ident">append</span>(<span class="ident">l</span>);
             }

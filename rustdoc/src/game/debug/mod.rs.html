@@ -1099,16 +1099,16 @@
     <span class="kw">fn</span> <span class="ident">reset_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">hidden</span>.<span class="ident">is_empty</span>() {
-            <span class="ident">txt</span>.<span class="ident">add</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Hiding {} things&quot;</span>, <span class="self">self</span>.<span class="ident">hidden</span>.<span class="ident">len</span>()));
+            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Hiding {} things&quot;</span>, <span class="self">self</span>.<span class="ident">hidden</span>.<span class="ident">len</span>()));
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">results</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">search_results</span> {
-            <span class="ident">txt</span>.<span class="ident">add</span>(<span class="macro">format</span><span class="macro">!</span>(
+            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;Search for {} has {} results&quot;</span>,
                 <span class="ident">results</span>.<span class="ident">query</span>, <span class="ident">results</span>.<span class="ident">num_matches</span>
             ));
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">n</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">all_routes</span> {
-            <span class="ident">txt</span>.<span class="ident">add</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Showing {} routes&quot;</span>, <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>(<span class="ident">n</span>)));
+            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Showing {} routes&quot;</span>, <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>(<span class="ident">n</span>)));
         }
         <span class="self">self</span>.<span class="ident">panel</span>
             .<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;current info&quot;</span>, <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));

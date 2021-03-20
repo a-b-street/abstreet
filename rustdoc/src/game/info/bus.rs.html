@@ -448,9 +448,9 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">t</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">arrivals</span>.<span class="ident">last</span>() {
             <span class="comment">// TODO Button to jump to the bus</span>
-            <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;  Last bus arrived {} ago&quot;</span>, <span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">-</span> <span class="kw-2">*</span><span class="ident">t</span>)).<span class="ident">secondary</span>());
+            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;  Last bus arrived {} ago&quot;</span>, <span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">-</span> <span class="kw-2">*</span><span class="ident">t</span>)).<span class="ident">secondary</span>());
         } <span class="kw">else</span> {
-            <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;  No arrivals yet&quot;</span>).<span class="ident">secondary</span>());
+            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;  No arrivals yet&quot;</span>).<span class="ident">secondary</span>());
         }
         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
     }
@@ -474,7 +474,7 @@
         }
     }
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
-    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="string">&quot;Total&quot;</span>);
+    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;Total&quot;</span>);
     <span class="ident">txt</span>.<span class="ident">append</span>(
         <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
             <span class="string">&quot;: {} boardings, {} alightings&quot;</span>,
@@ -484,7 +484,7 @@
         .<span class="ident">secondary</span>(),
     );
     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_routes_serving_stop</span>(<span class="ident">id</span>) {
-        <span class="ident">txt</span>.<span class="ident">add</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Route {}&quot;</span>, <span class="ident">r</span>.<span class="ident">short_name</span>));
+        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Route {}&quot;</span>, <span class="ident">r</span>.<span class="ident">short_name</span>));
         <span class="ident">txt</span>.<span class="ident">append</span>(
             <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;: {} boardings, {} alightings&quot;</span>,
@@ -761,7 +761,7 @@
 <span class="comment">// TODO Unit test</span>
 <span class="kw">fn</span> <span class="ident">describe_schedule</span>(<span class="ident">route</span>: <span class="kw-2">&amp;</span><span class="ident">BusRoute</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Text</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
-    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="macro">format</span><span class="macro">!</span>(
+    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format</span><span class="macro">!</span>(
         <span class="string">&quot;{} {}s run this route daily&quot;</span>,
         <span class="ident">route</span>.<span class="ident">spawn_times</span>.<span class="ident">len</span>(),
         <span class="ident">route</span>.<span class="ident">plural_noun</span>()
@@ -778,7 +778,7 @@
                 <span class="kw">if</span> <span class="prelude-val">Some</span>(<span class="ident">new_dt</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">dt</span> {
                     <span class="ident">last</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">t</span>);
                 } <span class="kw">else</span> {
-                    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="macro">format</span><span class="macro">!</span>(
+                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format</span><span class="macro">!</span>(
                         <span class="string">&quot;Every {} from {} to {}&quot;</span>,
                         <span class="ident">dt</span>.<span class="ident">unwrap</span>(),
                         <span class="ident">start</span>.<span class="ident">ampm_tostring</span>(),
@@ -794,7 +794,7 @@
             }
         }
         <span class="comment">// Handle end</span>
-        <span class="ident">txt</span>.<span class="ident">add</span>(<span class="macro">format</span><span class="macro">!</span>(
+        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format</span><span class="macro">!</span>(
             <span class="string">&quot;Every {} from {} to {}&quot;</span>,
             <span class="ident">dt</span>.<span class="ident">unwrap</span>(),
             <span class="ident">start</span>.<span class="ident">ampm_tostring</span>(),
@@ -803,7 +803,7 @@
     } <span class="kw">else</span> {
         <span class="comment">// Just list the times</span>
         <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">route</span>.<span class="ident">spawn_times</span> {
-            <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">t</span>.<span class="ident">ampm_tostring</span>());
+            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">t</span>.<span class="ident">ampm_tostring</span>());
         }
     }
     <span class="ident">txt</span>

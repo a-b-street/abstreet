@@ -623,7 +623,7 @@
                     <span class="kw">let</span> <span class="ident">y_percent</span> <span class="op">=</span> <span class="number">1.0</span> <span class="op">-</span> (<span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">/</span> <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span>);
 
                     <span class="comment">// TODO Draw this info in the ColorLegend</span>
-                    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="macro">format</span><span class="macro">!</span>(
+                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format</span><span class="macro">!</span>(
                         <span class="string">&quot;{}: at {}, {}&quot;</span>,
                         <span class="ident">label</span>,
                         <span class="ident">t</span>.<span class="ident">ampm_tostring</span>(),

@@ -910,7 +910,7 @@
                     <span class="self">self</span>.<span class="ident">selected</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">ids</span>, <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>)));
 
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
-                    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Click to map parking for OSM way {}&quot;</span>, <span class="ident">way</span>));
+                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Click to map parking for OSM way {}&quot;</span>, <span class="ident">way</span>));
                     <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">Line</span>(<span class="string">&quot;Shortcut: press &quot;</span>),
                         <span class="ident">Key</span>::<span class="ident">N</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
@@ -932,14 +932,14 @@
                         }
                         <span class="kw">if</span> <span class="ident">k</span>.<span class="ident">contains</span>(<span class="string">&quot;parking&quot;</span>) {
                             <span class="kw">if</span> <span class="op">!</span><span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="ident">osm</span>::<span class="ident">INFERRED_PARKING</span>) {
-                                <span class="ident">txt</span>.<span class="ident">add</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} = {}&quot;</span>, <span class="ident">k</span>, <span class="ident">v</span>));
+                                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} = {}&quot;</span>, <span class="ident">k</span>, <span class="ident">v</span>));
                             }
                         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">k</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;sidewalk&quot;</span> {
                             <span class="kw">if</span> <span class="op">!</span><span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="ident">osm</span>::<span class="ident">INFERRED_SIDEWALKS</span>) {
-                                <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} = {}&quot;</span>, <span class="ident">k</span>, <span class="ident">v</span>)).<span class="ident">secondary</span>());
+                                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} = {}&quot;</span>, <span class="ident">k</span>, <span class="ident">v</span>)).<span class="ident">secondary</span>());
                             }
                         } <span class="kw">else</span> {
-                            <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} = {}&quot;</span>, <span class="ident">k</span>, <span class="ident">v</span>)).<span class="ident">secondary</span>());
+                            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} = {}&quot;</span>, <span class="ident">k</span>, <span class="ident">v</span>)).<span class="ident">secondary</span>());
                         }
                     }
                     <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;info&quot;</span>, <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));

@@ -1413,6 +1413,8 @@
 <span id="1410">1410</span>
 <span id="1411">1411</span>
 <span id="1412">1412</span>
+<span id="1413">1413</span>
+<span id="1414">1414</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -1888,9 +1890,9 @@
                     (<span class="string">&quot;intersection on the map border&quot;</span>, <span class="ident">state</span>.<span class="ident">inspected_border</span>),
                 ] {
                     <span class="kw">if</span> <span class="ident">done</span> {
-                        <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;[X] {}&quot;</span>, <span class="ident">name</span>)).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">GREEN</span>));
+                        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;[X] {}&quot;</span>, <span class="ident">name</span>)).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">GREEN</span>));
                     } <span class="kw">else</span> {
-                        <span class="ident">txt</span>.<span class="ident">add</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;[ ] {}&quot;</span>, <span class="ident">name</span>));
+                        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;[ ] {}&quot;</span>, <span class="ident">name</span>));
                     }
                 }
                 <span class="kw">return</span> <span class="ident">txt</span>;
@@ -1905,19 +1907,21 @@
                 <span class="comment">// Inspect the target car, wait for them to park, draw WASH ME on the window</span>
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
                 <span class="kw">if</span> <span class="ident">state</span>.<span class="ident">following_car</span> {
-                    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;[X] follow the target car&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">GREEN</span>));
+                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;[X] follow the target car&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">GREEN</span>));
                 } <span class="kw">else</span> {
-                    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="string">&quot;[ ] follow the target car&quot;</span>);
+                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;[ ] follow the target car&quot;</span>);
                 }
                 <span class="kw">if</span> <span class="ident">state</span>.<span class="ident">car_parked</span> {
-                    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;[X] wait for them to park&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">GREEN</span>));
+                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;[X] wait for them to park&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">GREEN</span>));
                 } <span class="kw">else</span> {
-                    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="string">&quot;[ ] wait for them to park&quot;</span>);
+                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;[ ] wait for them to park&quot;</span>);
                 }
                 <span class="kw">if</span> <span class="ident">state</span>.<span class="ident">prank_done</span> {
-                    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;[X] click car and press c to draw WASH ME&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">GREEN</span>));
+                    <span class="ident">txt</span>.<span class="ident">add_line</span>(
+                        <span class="ident">Line</span>(<span class="string">&quot;[X] click car and press c to draw WASH ME&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">GREEN</span>),
+                    );
                 } <span class="kw">else</span> {
-                    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="string">&quot;[ ] click car and press &quot;</span>);
+                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;[ ] click car and press &quot;</span>);
                     <span class="comment">// TODO ctx.style().hotkey_color</span>
                     <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">Key</span>::<span class="ident">C</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">GREEN</span>));
                     <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot; to draw WASH ME&quot;</span>));
@@ -1926,7 +1930,7 @@
             }
             <span class="ident">Task</span>::<span class="ident">LowParking</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;1) Find a road with almost no parking spots available&quot;</span>);
-                <span class="ident">txt</span>.<span class="ident">add</span>(<span class="string">&quot;2) Click it and press &quot;</span>);
+                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;2) Click it and press &quot;</span>);
                 <span class="comment">// TODO ctx.style().hotkey_color</span>
                 <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">Key</span>::<span class="ident">C</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">GREEN</span>));
                 <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot; to check the occupancy&quot;</span>));
@@ -2228,11 +2232,11 @@
             <span class="ident">msg_panel</span>: <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw-2">ref</span> <span class="ident">lines</span>, <span class="ident">horiz_align</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">lines</span>() {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[{
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
-                    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="self">self</span>.<span class="ident">stage</span>().<span class="ident">task</span>.<span class="ident">label</span>()).<span class="ident">small_heading</span>());
-                    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="string">&quot;&quot;</span>);
+                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="self">self</span>.<span class="ident">stage</span>().<span class="ident">task</span>.<span class="ident">label</span>()).<span class="ident">small_heading</span>());
+                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;&quot;</span>);
 
                     <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">lines</span> {
-                        <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">l</span>);
+                        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">l</span>);
                     }
                     <span class="ident">txt</span>.<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">30</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                 }];
