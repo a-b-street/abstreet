@@ -97,6 +97,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("bailrigg", "center") => "Bailrigg (Lancaster)",
             ("bath_riverside", "center") => "Bath Riverside",
             ("bicester", "center") => "Bicester",
+            ("cambridge", "north") => "North Cambridge",
             ("castlemead", "center") => "Castlemead",
             ("chapelford", "center") => "Chapelford (Cheshire)",
             ("clackers_brook", "center") => "Clackers Brook",

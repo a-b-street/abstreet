@@ -360,6 +360,21 @@
       "uncompressed_size_bytes": 14217964,
       "compressed_size_bytes": 3656918
     },
+    "data/input/gb/cambridge/osm/cambridgeshire-latest.osm.pbf": {
+      "checksum": "fc78b2ebc96bfcd24d5117926c7b9e87",
+      "uncompressed_size_bytes": 23006168,
+      "compressed_size_bytes": 22987750
+    },
+    "data/input/gb/cambridge/osm/north.osm": {
+      "checksum": "f1d1d426baec04862556ebf0d7ff60da",
+      "uncompressed_size_bytes": 28159679,
+      "compressed_size_bytes": 2741727
+    },
+    "data/input/gb/cambridge/raw_maps/north.bin": {
+      "checksum": "aa600e3e576ce87435eebe94f25f07bb",
+      "uncompressed_size_bytes": 9311036,
+      "compressed_size_bytes": 1930965
+    },
     "data/input/gb/castlemead/osm/center.osm": {
       "checksum": "c31876a64151061d07bc97c940ed5d55",
       "uncompressed_size_bytes": 7575433,
@@ -521,24 +536,24 @@
       "compressed_size_bytes": 11174
     },
     "data/input/gb/great_kneighton/osm/cambridgeshire-latest.osm.pbf": {
-      "checksum": "4638deab83813f64cade93c76cc683c7",
-      "uncompressed_size_bytes": 22717458,
-      "compressed_size_bytes": 22698883
+      "checksum": "fc78b2ebc96bfcd24d5117926c7b9e87",
+      "uncompressed_size_bytes": 23006168,
+      "compressed_size_bytes": 22987750
     },
     "data/input/gb/great_kneighton/osm/center.osm": {
-      "checksum": "2482f0993d3fd8a4208919dc9fa944db",
-      "uncompressed_size_bytes": 46970513,
-      "compressed_size_bytes": 4738816
+      "checksum": "1b26aa6fad8165d54e2c5dbd37b8d895",
+      "uncompressed_size_bytes": 47114351,
+      "compressed_size_bytes": 4757537
     },
     "data/input/gb/great_kneighton/raw_maps/center.bin": {
-      "checksum": "449ec77744e1fcba7f994fa4422a899a",
-      "uncompressed_size_bytes": 14862536,
-      "compressed_size_bytes": 3295106
+      "checksum": "5f73ec6ee8cb103c109edb3707d76740",
+      "uncompressed_size_bytes": 14880161,
+      "compressed_size_bytes": 3301451
     },
     "data/input/gb/great_kneighton/screenshots/center.zip": {
-      "checksum": "a0c39d8c1e7ba454dba89fbd85064b46",
-      "uncompressed_size_bytes": 40343420,
-      "compressed_size_bytes": 40328169
+      "checksum": "364fb18d504cd1bf75656d48f5dcba34",
+      "uncompressed_size_bytes": 40380204,
+      "compressed_size_bytes": 40364672
     },
     "data/input/gb/halsnead/osm/center.osm": {
       "checksum": "9b4aedf25220e29e11d0970cf7c70a26",
@@ -1790,6 +1805,16 @@
       "uncompressed_size_bytes": 3690497,
       "compressed_size_bytes": 1066232
     },
+    "data/system/gb/cambridge/maps/north.bin": {
+      "checksum": "0e2589d992b46465f58289d1fe78699d",
+      "uncompressed_size_bytes": 24558893,
+      "compressed_size_bytes": 8370997
+    },
+    "data/system/gb/cambridge/scenarios/north/background.bin": {
+      "checksum": "565b57e4c1b9bf40a9306fbd6194483b",
+      "uncompressed_size_bytes": 1555948,
+      "compressed_size_bytes": 430209
+    },
     "data/system/gb/castlemead/maps/center.bin": {
       "checksum": "5091663968890707102b60750c6fa1d6",
       "uncompressed_size_bytes": 18394749,
@@ -1991,29 +2016,29 @@
       "compressed_size_bytes": 246720
     },
     "data/system/gb/great_kneighton/maps/center.bin": {
-      "checksum": "db2ed013274d07509f84a2fd96151396",
-      "uncompressed_size_bytes": 39710387,
-      "compressed_size_bytes": 13657350
+      "checksum": "f50ed57e6328acfb293024c468a16504",
+      "uncompressed_size_bytes": 39718869,
+      "compressed_size_bytes": 13657422
     },
     "data/system/gb/great_kneighton/scenarios/center/base.bin": {
-      "checksum": "4d83f94d0cd428e3fe6a68fe8a1d45f1",
+      "checksum": "1e03238718d164ab0c12fc36ec9c94ed",
       "uncompressed_size_bytes": 314018,
-      "compressed_size_bytes": 97638
+      "compressed_size_bytes": 97625
     },
     "data/system/gb/great_kneighton/scenarios/center/base_with_bg.bin": {
-      "checksum": "2fe4f675dbcd3cbb9f8ff475e0d696e3",
-      "uncompressed_size_bytes": 2594890,
-      "compressed_size_bytes": 773188
+      "checksum": "5f7f0cb81db3e7e533b00ddcf7817a67",
+      "uncompressed_size_bytes": 2594752,
+      "compressed_size_bytes": 773133
     },
     "data/system/gb/great_kneighton/scenarios/center/go_active.bin": {
-      "checksum": "762f302e84550432a2e1ee2aaf63695f",
+      "checksum": "c4a3f8ddf4c315936a9fd8325cef11b8",
       "uncompressed_size_bytes": 314075,
-      "compressed_size_bytes": 97341
+      "compressed_size_bytes": 97304
     },
     "data/system/gb/great_kneighton/scenarios/center/go_active_with_bg.bin": {
-      "checksum": "dd7c1e9d6395931af647a05deecbf43a",
-      "uncompressed_size_bytes": 2594947,
-      "compressed_size_bytes": 772879
+      "checksum": "4a073ec24d9d9c0367a3716cb8648069",
+      "uncompressed_size_bytes": 2594809,
+      "compressed_size_bytes": 772816
     },
     "data/system/gb/halsnead/maps/center.bin": {
       "checksum": "93ffaf4659f2eb24d303759d4d15e0fc",
