@@ -410,26 +410,6 @@ impl Path {
         &self.steps
     }
 
-    // Not for walking paths
-    fn append(&mut self, other: Path, map: &Map) {
-        assert!(self.currently_inside_ut.is_none());
-        assert!(other.currently_inside_ut.is_none());
-        let turn = match (*self.steps.back().unwrap(), other.steps[0]) {
-            (PathStep::Lane(src), PathStep::Lane(dst)) => TurnID {
-                parent: map.get_l(src).dst_i,
-                src,
-                dst,
-            },
-            _ => unreachable!(),
-        };
-        self.steps.push_back(PathStep::Turn(turn));
-        // TODO Need to correct for the uncrossed start/end distance where we're gluing together
-        self.total_length += map.get_t(turn).geom.length();
-        self.steps.extend(other.steps);
-        self.total_length += other.total_length;
-        self.uber_turns.extend(other.uber_turns);
-    }
-
     /// Estimate how long following the path will take in the best case, assuming no traffic or
     /// delay at intersections. To determine the speed along each step, the agent following their
     /// path and their optional max_speed must be specified.
@@ -491,7 +471,6 @@ impl PathConstraints {
         }
     }
 
-    // TODO Handle private zones here?
     pub fn can_use(self, l: &Lane, map: &Map) -> bool {
         match self {
             PathConstraints::Pedestrian => l.is_walkable(),

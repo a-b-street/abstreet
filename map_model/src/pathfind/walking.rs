@@ -232,13 +232,7 @@ fn make_input_graph(
     let mut input_graph = InputGraph::new();
 
     for l in map.all_lanes() {
-        if l.is_walkable()
-            && map
-                .get_r(l.parent)
-                .access_restrictions
-                .allow_through_traffic
-                .contains(PathConstraints::Pedestrian)
-        {
+        if l.is_walkable() {
             let mut cost = walking_cost(l.length());
             // TODO Tune this penalty, along with many others.
             if l.is_shoulder() {
