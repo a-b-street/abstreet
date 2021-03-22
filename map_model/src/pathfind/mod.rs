@@ -132,6 +132,9 @@ impl Path {
         if false {
             validate_restrictions(map, &steps);
         }
+        if false {
+            validate_zones(map, &steps, &orig_req);
+        }
         let mut path = Path {
             steps: VecDeque::from(steps),
             orig_req,
@@ -639,6 +642,33 @@ fn validate_restrictions(map: &Map, steps: &Vec<PathStep>) {
                         "Some path does illegal uber-turn: {} -> {} -> {}",
                         l1, l2, l3
                     );
+                }
+            }
+        }
+    }
+}
+
+fn validate_zones(map: &Map, steps: &Vec<PathStep>, req: &PathRequest) {
+    let z1 = map.get_parent(req.start.lane()).get_zone(map);
+    let z2 = map.get_parent(req.end.lane()).get_zone(map);
+
+    for step in steps {
+        if let PathStep::Turn(t) = step {
+            if map
+                .get_parent(t.src)
+                .access_restrictions
+                .allow_through_traffic
+                .contains(req.constraints)
+                && !map
+                    .get_parent(t.dst)
+                    .access_restrictions
+                    .allow_through_traffic
+                    .contains(req.constraints)
+            {
+                // Maybe it's fine
+                let into_zone = map.get_parent(t.dst).get_zone(map);
+                if into_zone != z1 && into_zone != z2 {
+                    error!("{} causes illegal entrance into a zone at {}", req, t);
                 }
             }
         }
