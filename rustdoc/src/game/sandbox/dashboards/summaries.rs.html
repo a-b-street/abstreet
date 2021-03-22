@@ -471,6 +471,9 @@
 <span id="468">468</span>
 <span id="469">469</span>
 <span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
@@ -734,10 +737,12 @@
     <span class="kw">if</span> <span class="ident">points</span>.<span class="ident">is_empty</span>() {
         <span class="kw">return</span> <span class="ident">Widget</span>::<span class="ident">nothing</span>();
     }
+
+    <span class="comment">// bucket by trip duration _before_ changes</span>
     <span class="kw">let</span> <span class="ident">num_buckets</span> <span class="op">=</span> <span class="number">10</span>;
     <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">endpts</span>) <span class="op">=</span> <span class="ident">points</span>
         .<span class="ident">iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">b</span>, <span class="ident">a</span>)<span class="op">|</span> <span class="ident">a</span>.<span class="ident">max</span>(<span class="ident">b</span>))
+        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">b</span>, <span class="ident">_a</span>)<span class="op">|</span> <span class="ident">b</span>)
         .<span class="ident">max</span>()
         .<span class="ident">unwrap</span>()
         .<span class="ident">make_intervals_for_max</span>(<span class="ident">num_buckets</span>);
@@ -745,7 +750,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
     <span class="ident">batch</span>.<span class="ident">autocrop_dims</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
-    <span class="comment">// Draw the X axis, time before changes in buckets.</span>
+    <span class="comment">// Draw the X axis</span>
     <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">mins</span>) <span class="kw">in</span> <span class="ident">endpts</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
         <span class="ident">batch</span>.<span class="ident">append</span>(
             <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">mins</span>.<span class="ident">to_string</span>()).<span class="ident">secondary</span>())
@@ -777,6 +782,7 @@
         .<span class="ident">take</span>(<span class="ident">num_buckets</span>)
         .<span class="ident">collect</span>();
     <span class="kw">for</span> (<span class="ident">b</span>, <span class="ident">a</span>) <span class="kw">in</span> <span class="ident">points</span> {
+        <span class="comment">// bucket by trip duration _before_ changes</span>
         <span class="kw">let</span> <span class="ident">before_mins</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">num_minutes_rounded_up</span>();
         <span class="kw">let</span> <span class="ident">raw_idx</span> <span class="op">=</span> <span class="ident">endpts</span>.<span class="ident">iter</span>().<span class="ident">rev</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">before_mins</span> <span class="op">&gt;</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">x</span>).<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">endpts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> <span class="op">-</span> <span class="ident">raw_idx</span>;
@@ -859,15 +865,15 @@
 
     <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Number of slower/faster trips&quot;</span>).<span class="ident">small_heading</span>(),
-            <span class="ident">Line</span>(<span class="string">&quot;by ranges of trip time (after)&quot;</span>).<span class="ident">small_heading</span>(),
+            <span class="ident">Line</span>(<span class="string">&quot;Time difference by trip length&quot;</span>).<span class="ident">small_heading</span>(),
+            <span class="ident">Line</span>(<span class="string">&quot;Grouped by the length of the trip before your changes.&quot;</span>),
         ])
         .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">Line</span>(<span class="string">&quot;number of trips (faster)&quot;</span>)
+        <span class="ident">Line</span>(<span class="string">&quot;Total Time Saved (faster)&quot;</span>)
             .<span class="ident">secondary</span>()
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="ident">DrawWithTooltips</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>, <span class="ident">tooltips</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>())),
-        <span class="ident">Line</span>(<span class="string">&quot;number of trips (slower)&quot;</span>)
+        <span class="ident">Line</span>(<span class="string">&quot;Total Time Lost (slower)&quot;</span>)
             .<span class="ident">secondary</span>()
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
     ])
