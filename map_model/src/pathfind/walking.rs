@@ -12,6 +12,7 @@ use geom::{Distance, Speed};
 
 use crate::pathfind::driving::VehiclePathfinder;
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
+use crate::pathfind::zone_cost;
 use crate::{
     BusRoute, BusRouteID, BusStopID, IntersectionID, LaneID, Map, Path, PathConstraints,
     PathRequest, PathStep, Position,
@@ -254,7 +255,8 @@ fn make_input_graph(
             input_graph.add_edge(
                 nodes.get(from),
                 nodes.get(to),
-                walking_cost(t.geom.length()),
+                walking_cost(t.geom.length())
+                    + zone_cost(t, PathConstraints::Pedestrian, map) as usize,
             );
         }
     }

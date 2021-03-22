@@ -7,7 +7,7 @@ use petgraph::graphmap::DiGraphMap;
 use geom::{Distance, Duration, Speed};
 
 pub use self::walking::{all_walking_costs_from, WalkingOptions};
-use crate::pathfind::build_graph_for_vehicles;
+use crate::pathfind::{build_graph_for_vehicles, zone_cost};
 pub use crate::pathfind::{driving_cost, WalkingNode};
 use crate::{BuildingID, LaneID, Map, PathConstraints, PathRequest, RoadID};
 
@@ -117,26 +117,28 @@ pub fn debug_vehicle_costs(req: PathRequest, map: &Map) -> Option<(f64, HashMap<
         &graph,
         req.start.lane(),
         |l| l == req.end.lane(),
-        |(_, _, turn)| {
+        |(_, _, t)| {
+            let turn = map.get_t(*t);
             driving_cost(
-                map.get_l(turn.src),
-                map.get_t(*turn),
+                map.get_l(turn.id.src),
+                turn,
                 req.constraints,
                 map.routing_params(),
                 map,
-            )
+            ) + zone_cost(turn, req.constraints, map)
         },
         |_| 0.0,
     )?;
 
-    let lane_costs = petgraph::algo::dijkstra(&graph, req.start.lane(), None, |(_, _, turn)| {
+    let lane_costs = petgraph::algo::dijkstra(&graph, req.start.lane(), None, |(_, _, t)| {
+        let turn = map.get_t(*t);
         driving_cost(
-            map.get_l(turn.src),
-            map.get_t(*turn),
+            map.get_l(turn.id.src),
+            turn,
             req.constraints,
             map.routing_params(),
             map,
-        )
+        ) + zone_cost(turn, req.constraints, map)
     });
     // Express the costs per road for an easier debug experince. Take the LOWEST cost per road,
     // since we don't want noise from considering the opposite direction.

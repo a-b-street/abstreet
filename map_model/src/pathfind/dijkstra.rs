@@ -6,6 +6,7 @@ use petgraph::graphmap::DiGraphMap;
 
 use crate::pathfind::driving::driving_cost;
 use crate::pathfind::walking::{walking_cost, WalkingNode};
+use crate::pathfind::zone_cost;
 use crate::{LaneID, Map, Path, PathConstraints, PathRequest, PathStep, RoutingParams, TurnID};
 
 // TODO These should maybe keep the DiGraphMaps as state. It's cheap to recalculate it for edits.
@@ -58,17 +59,14 @@ fn calc_path(
         &graph,
         req.start.lane(),
         |l| l == req.end.lane(),
-        |(_, _, turn)| {
-            driving_cost(
-                map.get_l(turn.src),
-                map.get_t(*turn),
-                req.constraints,
-                params,
-                map,
-            )
+        |(_, _, t)| {
+            let turn = map.get_t(*t);
+            driving_cost(map.get_l(turn.id.src), turn, req.constraints, params, map)
+                + zone_cost(turn, req.constraints, map)
         },
         |_| 0.0,
     )?;
+
     let mut steps = Vec::new();
     for pair in path.windows(2) {
         steps.push(PathStep::Lane(pair[0]));
@@ -101,7 +99,8 @@ pub fn build_graph_for_pedestrians(map: &Map) -> DiGraphMap<WalkingNode, usize> 
                         turn.id.dst,
                         map.get_l(turn.id.dst).dst_i == turn.id.parent,
                     ),
-                    walking_cost(turn.geom.length()),
+                    walking_cost(turn.geom.length())
+                        + zone_cost(turn, PathConstraints::Pedestrian, map) as usize,
                 );
             }
         }

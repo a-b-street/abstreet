@@ -10,6 +10,7 @@ use abstutil::MultiMap;
 
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::pathfind::uber_turns::{IntersectionCluster, UberTurn};
+use crate::pathfind::zone_cost;
 use crate::{
     DrivingSide, Lane, LaneID, Map, Path, PathConstraints, PathRequest, PathStep, RoutingParams,
     Turn, TurnID, TurnType,
@@ -175,13 +176,10 @@ fn make_input_graph(
                     input_graph.add_edge(
                         from,
                         nodes.get(Node::Lane(turn.id.dst)),
-                        round(driving_cost(
-                            l,
-                            turn,
-                            constraints,
-                            map.routing_params(),
-                            map,
-                        )),
+                        round(
+                            driving_cost(l, turn, constraints, map.routing_params(), map)
+                                + zone_cost(turn, constraints, map),
+                        ),
                     );
                 }
             } else {
@@ -191,13 +189,14 @@ fn make_input_graph(
 
                     let mut sum_cost = 0.0;
                     for t in &ut.path {
+                        let turn = map.get_t(*t);
                         sum_cost += driving_cost(
                             map.get_l(t.src),
-                            map.get_t(*t),
+                            turn,
                             constraints,
                             map.routing_params(),
                             map,
-                        );
+                        ) + zone_cost(turn, constraints, map);
                     }
                     input_graph.add_edge(from, nodes.get(Node::UberTurn(*idx)), round(sum_cost));
                     input_graph.add_edge(

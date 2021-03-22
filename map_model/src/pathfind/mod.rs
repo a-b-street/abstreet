@@ -15,7 +15,7 @@ pub use self::driving::driving_cost;
 pub use self::pathfinder::Pathfinder;
 pub use self::walking::{walking_cost, WalkingNode};
 use crate::{
-    osm, BuildingID, Lane, LaneID, LaneType, Map, Position, Traversable, TurnID, UberTurn,
+    osm, BuildingID, Lane, LaneID, LaneType, Map, Position, Traversable, Turn, TurnID, UberTurn,
 };
 
 mod ch;
@@ -644,13 +644,39 @@ fn validate_zones(map: &Map, steps: &Vec<PathStep>, req: &PathRequest) {
                     .allow_through_traffic
                     .contains(req.constraints)
             {
-                // Maybe it's fine
+                // Entering our destination zone is fine
                 let into_zone = map.get_parent(t.dst).get_zone(map);
                 if into_zone != z1 && into_zone != z2 {
-                    error!("{} causes illegal entrance into a zone at {}", req, t);
+                    // TODO There are lots of false positive here that occur when part of the graph
+                    // is separated from the rest by access-restricted roads. Could maybe detect
+                    // that here, or ideally even extend the zone at map construction time (or edit
+                    // time) when that happens.
+                    panic!("{} causes illegal entrance into a zone at {}", req, t);
                 }
             }
         }
+    }
+}
+
+/// Heavily penalize crossing into an access-restricted zone that doesn't allow this mode.
+pub fn zone_cost(turn: &Turn, constraints: PathConstraints, map: &Map) -> f64 {
+    // Detect when we cross into a new zone that doesn't allow constraints.
+    if map
+        .get_parent(turn.id.src)
+        .access_restrictions
+        .allow_through_traffic
+        .contains(constraints)
+        && !map
+            .get_parent(turn.id.dst)
+            .access_restrictions
+            .allow_through_traffic
+            .contains(constraints)
+    {
+        // TODO Tune this after making driving_cost and walking_cost both roughly represent
+        // seconds. In the meantime, this penalty seems high enough to achieve the desired effect.
+        100_000.0
+    } else {
+        0.0
     }
 }
 
