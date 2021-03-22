@@ -481,10 +481,6 @@
 <span id="478">478</span>
 <span id="479">479</span>
 <span id="480">480</span>
-<span id="481">481</span>
-<span id="482">482</span>
-<span id="483">483</span>
-<span id="484">484</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Pathfinding for pedestrians using contraction hierarchies, as well as figuring out if somebody</span>
 <span class="doccomment">//! should use public transit.</span>
@@ -498,8 +494,9 @@
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Speed</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">driving</span>::<span class="ident">VehiclePathfinder</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">node_map</span>::{<span class="ident">deserialize_nodemap</span>, <span class="ident">NodeMap</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">vehicles</span>::<span class="ident">VehiclePathfinder</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">zone_cost</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">BusRoute</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>,
     <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>, <span class="ident">Position</span>,
@@ -720,13 +717,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input_graph</span> <span class="op">=</span> <span class="ident">InputGraph</span>::<span class="ident">new</span>();
 
     <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>() {
-        <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">is_walkable</span>()
-            <span class="op">&amp;&amp;</span> <span class="ident">map</span>
-                .<span class="ident">get_r</span>(<span class="ident">l</span>.<span class="ident">parent</span>)
-                .<span class="ident">access_restrictions</span>
-                .<span class="ident">allow_through_traffic</span>
-                .<span class="ident">contains</span>(<span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>)
-        {
+        <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">is_walkable</span>() {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cost</span> <span class="op">=</span> <span class="ident">walking_cost</span>(<span class="ident">l</span>.<span class="ident">length</span>());
             <span class="comment">// TODO Tune this penalty, along with many others.</span>
             <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">is_shoulder</span>() {
@@ -748,7 +739,8 @@
             <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(
                 <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">from</span>),
                 <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">to</span>),
-                <span class="ident">walking_cost</span>(<span class="ident">t</span>.<span class="ident">geom</span>.<span class="ident">length</span>()),
+                <span class="ident">walking_cost</span>(<span class="ident">t</span>.<span class="ident">geom</span>.<span class="ident">length</span>())
+                    <span class="op">+</span> <span class="ident">zone_cost</span>(<span class="ident">t</span>, <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>, <span class="ident">map</span>) <span class="kw">as</span> <span class="ident">usize</span>,
             );
         }
     }

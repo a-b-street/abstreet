@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Node",""]],"fn":[["make_input_graph",""],["round",""],["vehicle_cost","Different unit based on constraints."]],"struct":[["VehiclePathfinder",""]]});
