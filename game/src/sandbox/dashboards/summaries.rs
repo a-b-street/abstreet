@@ -260,10 +260,12 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
     if points.is_empty() {
         return Widget::nothing();
     }
+
+    // bucket by trip duration _before_ changes
     let num_buckets = 10;
     let (_, endpts) = points
         .iter()
-        .map(|(b, a)| a.max(b))
+        .map(|(b, _a)| b)
         .max()
         .unwrap()
         .make_intervals_for_max(num_buckets);
@@ -271,7 +273,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
     let mut batch = GeomBatch::new();
     batch.autocrop_dims = false;
 
-    // Draw the X axis, time before changes in buckets.
+    // Draw the X axis
     for (idx, mins) in endpts.iter().enumerate() {
         batch.append(
             Text::from(Line(mins.to_string()).secondary())
@@ -303,6 +305,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
         .take(num_buckets)
         .collect();
     for (b, a) in points {
+        // bucket by trip duration _before_ changes
         let before_mins = b.num_minutes_rounded_up();
         let raw_idx = endpts.iter().rev().position(|x| before_mins >= *x).unwrap();
         let mut idx = endpts.len() - 1 - raw_idx;
@@ -385,15 +388,15 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
 
     Widget::col(vec![
         Text::from_multiline(vec![
-            Line("Number of slower/faster trips").small_heading(),
-            Line("by ranges of trip time (after)").small_heading(),
+            Line("Time difference by trip length").small_heading(),
+            Line("Grouped by the length of the trip before your changes."),
         ])
         .into_widget(ctx),
-        Line("number of trips (faster)")
+        Line("Total Time Saved (faster)")
             .secondary()
             .into_widget(ctx),
         DrawWithTooltips::new(ctx, batch, tooltips, Box::new(|_| GeomBatch::new())),
-        Line("number of trips (slower)")
+        Line("Total Time Lost (slower)")
             .secondary()
             .into_widget(ctx),
     ])
