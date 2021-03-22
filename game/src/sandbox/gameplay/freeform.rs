@@ -16,6 +16,7 @@ use widgetry::{
 
 use crate::app::{App, Transition};
 use crate::common::{jump_to_time_upon_startup, CommonState};
+use crate::debug::PathCostDebugger;
 use crate::edit::EditMode;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{Actions, SandboxControls, SandboxMode};
@@ -80,7 +81,7 @@ impl GameplayState for Freeform {
                     app,
                     GameplayMode::Freeform(app.primary.map.get_name().clone()),
                 ))),
-                "Start a new trip" => Some(Transition::Push(AgentSpawner::new(ctx, None))),
+                "Start a new trip" => Some(Transition::Push(AgentSpawner::new(ctx, app, None))),
                 "Record trips as a scenario" => Some(Transition::Push(PromptInput::new(
                     ctx,
                     "Name this scenario",
@@ -309,7 +310,7 @@ struct AgentSpawner {
 }
 
 impl AgentSpawner {
-    fn new(ctx: &mut EventCtx, start: Option<BuildingID>) -> Box<dyn State<App>> {
+    fn new(ctx: &mut EventCtx, app: &App, start: Option<BuildingID>) -> Box<dyn State<App>> {
         let mut spawner = AgentSpawner {
             source: None,
             goal: None,
@@ -338,6 +339,14 @@ impl AgentSpawner {
                     "Number of trips:".text_widget(ctx),
                     Spinner::widget(ctx, (1, 1000), 1).named("number"),
                 ]),
+                if app.opts.dev {
+                    ctx.style()
+                        .btn_plain_destructive
+                        .text("Debug all costs")
+                        .build_def(ctx)
+                } else {
+                    Widget::nothing()
+                },
                 ctx.style()
                     .btn_solid_primary
                     .text("Confirm")
@@ -393,6 +402,40 @@ impl State<App> for AgentSpawner {
                     app.primary.sim.tiny_step(map, &mut app.primary.sim_cb);
                     app.recalculate_current_selection(ctx);
                     return Transition::Pop;
+                }
+                "Debug all costs" => {
+                    if let Some(state) = self
+                        .goal
+                        .as_ref()
+                        .and_then(|(to, _, _)| {
+                            TripEndpoint::path_req(
+                                self.source.clone().unwrap(),
+                                to.clone(),
+                                self.panel.dropdown_value("mode"),
+                                &app.primary.map,
+                            )
+                        })
+                        .and_then(|req| app.primary.map.pathfind(req).ok())
+                        .and_then(|path| {
+                            path.trace(&app.primary.map).map(|pl| {
+                                (
+                                    path.get_req().clone(),
+                                    pl.make_polygons(NORMAL_LANE_THICKNESS),
+                                )
+                            })
+                        })
+                        .and_then(|(req, draw_path)| {
+                            PathCostDebugger::maybe_new(ctx, app, req, draw_path)
+                        })
+                    {
+                        return Transition::Push(state);
+                    } else {
+                        return Transition::Push(PopupMsg::new(
+                            ctx,
+                            "Error",
+                            vec!["Couldn't launch cost debugger for some reason"],
+                        ));
+                    }
                 }
                 _ => unreachable!(),
             },
@@ -630,7 +673,9 @@ pub fn actions(_: &App, id: ID) -> Vec<(Key, String)> {
 
 pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: &str) -> Transition {
     match (id, action.as_ref()) {
-        (ID::Building(b), "start a trip here") => Transition::Push(AgentSpawner::new(ctx, Some(b))),
+        (ID::Building(b), "start a trip here") => {
+            Transition::Push(AgentSpawner::new(ctx, app, Some(b)))
+        }
         (ID::Intersection(id), "spawn agents here") => {
             spawn_agents_around(id, app);
             Transition::Keep

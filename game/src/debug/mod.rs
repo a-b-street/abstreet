@@ -24,6 +24,8 @@ use crate::common::{tool_panel, CommonState};
 use crate::info::ContextualActions;
 use crate::sandbox::GameplayMode;
 
+pub use self::routes::PathCostDebugger;
+
 mod blocked_by;
 mod floodfill;
 mod objects;

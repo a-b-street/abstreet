@@ -9,7 +9,7 @@ use geom::{Distance, Duration, Speed};
 pub use self::walking::{all_walking_costs_from, WalkingOptions};
 use crate::pathfind::build_graph_for_vehicles;
 pub use crate::pathfind::{driving_cost, WalkingNode};
-use crate::{BuildingID, LaneID, Map, PathConstraints};
+use crate::{BuildingID, LaneID, Map, PathConstraints, PathRequest, RoadID};
 
 mod walking;
 
@@ -103,4 +103,48 @@ pub fn all_vehicle_costs_from(
     }
 
     results
+}
+
+// TODO Refactor with all_vehicle_costs_from
+pub fn debug_vehicle_costs(req: PathRequest, map: &Map) -> Option<(f64, HashMap<RoadID, f64>)> {
+    // TODO Support this
+    if req.constraints == PathConstraints::Pedestrian {
+        return None;
+    }
+    let graph = build_graph_for_vehicles(map, req.constraints);
+
+    let (cost, _) = petgraph::algo::astar(
+        &graph,
+        req.start.lane(),
+        |l| l == req.end.lane(),
+        |(_, _, turn)| {
+            driving_cost(
+                map.get_l(turn.src),
+                map.get_t(*turn),
+                req.constraints,
+                map.routing_params(),
+                map,
+            )
+        },
+        |_| 0.0,
+    )?;
+
+    let lane_costs = petgraph::algo::dijkstra(&graph, req.start.lane(), None, |(_, _, turn)| {
+        driving_cost(
+            map.get_l(turn.src),
+            map.get_t(*turn),
+            req.constraints,
+            map.routing_params(),
+            map,
+        )
+    });
+    // Express the costs per road for an easier debug experince. Take the LOWEST cost per road,
+    // since we don't want noise from considering the opposite direction.
+    let mut road_costs = HashMap::new();
+    for (l, cost) in lane_costs {
+        let road_cost = road_costs.entry(map.get_l(l).parent).or_insert(cost);
+        *road_cost = road_cost.min(cost);
+    }
+
+    Some((cost, road_costs))
 }

@@ -1,8 +1,13 @@
+use std::collections::HashMap;
+
 use abstutil::{prettyprint_usize, Counter, Parallelism, Timer};
+use geom::Polygon;
 use map_gui::colors::ColorSchemeChoice;
 use map_gui::tools::ColorNetwork;
 use map_gui::{AppLike, ID};
-use map_model::{PathRequest, RoadID, RoutingParams, Traversable, NORMAL_LANE_THICKNESS};
+use map_model::{
+    connectivity, PathRequest, RoadID, RoutingParams, Traversable, NORMAL_LANE_THICKNESS,
+};
 use sim::{TripEndpoint, TripMode};
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
@@ -467,5 +472,73 @@ fn cmp_count(after: usize, before: usize) -> Vec<TextSpan> {
         ]
     } else {
         unreachable!()
+    }
+}
+
+/// Evaluate why an alternative path wasn't chosen, by showing the cost to reach every road from
+/// one start.
+pub struct PathCostDebugger {
+    draw_path: Drawable,
+    costs: HashMap<RoadID, f64>,
+    tooltip: Option<Text>,
+    panel: Panel,
+}
+
+impl PathCostDebugger {
+    pub fn maybe_new(
+        ctx: &mut EventCtx,
+        app: &App,
+        req: PathRequest,
+        draw_path: Polygon,
+    ) -> Option<Box<dyn State<App>>> {
+        let (full_cost, all_costs) = connectivity::debug_vehicle_costs(req, &app.primary.map)?;
+        Some(Box::new(PathCostDebugger {
+            draw_path: ctx.upload(GeomBatch::from(vec![(Color::PURPLE, draw_path)])),
+            costs: all_costs,
+            tooltip: None,
+            panel: Panel::new(Widget::col(vec![
+                Widget::row(vec![
+                    Line("Path cost debugger").small_heading().into_widget(ctx),
+                    ctx.style().btn_close_widget(ctx),
+                ]),
+                format!("Cost of chosen path: {}", full_cost).text_widget(ctx),
+            ]))
+            .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
+            .build(ctx),
+        }))
+    }
+}
+
+impl State<App> for PathCostDebugger {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        ctx.canvas_movement();
+
+        if ctx.redo_mouseover() {
+            self.tooltip = None;
+            if let Some(ID::Road(r)) = app.mouseover_unzoomed_roads_and_intersections(ctx) {
+                let cost = self.costs.get(&r).cloned().unwrap_or(-1.0);
+                self.tooltip = Some(Text::from(format!("Cost: {}", cost)));
+            }
+        }
+
+        match self.panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
+                "close" => {
+                    return Transition::Pop;
+                }
+                _ => unreachable!(),
+            },
+            _ => {}
+        }
+
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
+        self.panel.draw(g);
+        g.redraw(&self.draw_path);
+        if let Some(ref txt) = self.tooltip {
+            g.draw_mouse_tooltip(txt.clone());
+        }
     }
 }
