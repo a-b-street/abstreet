@@ -207,6 +207,13 @@
 <span id="204">204</span>
 <span id="205">205</span>
 <span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -229,8 +236,8 @@
 <span class="kw">impl</span> <span class="ident">Proposals</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">current</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">proposals</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buttons</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_tab</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tab_buttons</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_tab_rows</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="comment">// If a proposal has fallen out of date, it&#39;ll be skipped with an error logged. Since these</span>
         <span class="comment">// are under version control, much more likely to notice when they break (or we could add a</span>
         <span class="comment">// step to data/regen.sh).</span>
@@ -243,7 +250,7 @@
                 <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">edits</span>.<span class="ident">proposal_description</span>.<span class="ident">iter</span>().<span class="ident">skip</span>(<span class="number">1</span>) {
                     <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">l</span>);
                 }
-                <span class="ident">current_tab</span>.<span class="ident">push</span>(
+                <span class="ident">current_tab_rows</span>.<span class="ident">push</span>(
                     <span class="ident">txt</span>.<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">70</span>)
                         .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                         .<span class="ident">margin_below</span>(<span class="number">15</span>)
@@ -251,7 +258,7 @@
                 );
 
                 <span class="kw">if</span> <span class="ident">edits</span>.<span class="ident">proposal_link</span>.<span class="ident">is_some</span>() {
-                    <span class="ident">current_tab</span>.<span class="ident">push</span>(
+                    <span class="ident">current_tab_rows</span>.<span class="ident">push</span>(
                         <span class="ident">ctx</span>.<span class="ident">style</span>()
                             .<span class="ident">btn_plain</span>
                             .<span class="ident">btn</span>()
@@ -260,14 +267,14 @@
                             .<span class="ident">margin_below</span>(<span class="number">10</span>),
                     );
                 }
-                <span class="ident">current_tab</span>.<span class="ident">push</span>(
+                <span class="ident">current_tab_rows</span>.<span class="ident">push</span>(
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_solid_primary</span>
                         .<span class="ident">text</span>(<span class="string">&quot;Try out this proposal&quot;</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 );
 
-                <span class="ident">buttons</span>.<span class="ident">push</span>(
+                <span class="ident">tab_buttons</span>.<span class="ident">push</span>(
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_tab</span>
                         .<span class="ident">text</span>(<span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">proposal_description</span>[<span class="number">0</span>])
@@ -276,9 +283,9 @@
                         .<span class="ident">margin_below</span>(<span class="number">10</span>),
                 );
             } <span class="kw">else</span> {
-                <span class="ident">buttons</span>.<span class="ident">push</span>(
+                <span class="ident">tab_buttons</span>.<span class="ident">push</span>(
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_tab</span>
+                        .<span class="ident">btn_outline</span>
                         .<span class="ident">text</span>(<span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">proposal_description</span>[<span class="number">0</span>])
                         .<span class="ident">no_tooltip</span>()
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>)
@@ -289,32 +296,39 @@
             <span class="ident">proposals</span>.<span class="ident">insert</span>(<span class="ident">name</span>, <span class="ident">edits</span>);
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">header</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_back</span>(<span class="string">&quot;Home&quot;</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;back&quot;</span>)
+                .<span class="ident">align_bottom</span>(),
             {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;A/B STREET&quot;</span>).<span class="ident">display_title</span>());
                 <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;PROPOSALS&quot;</span>).<span class="ident">big_heading_styled</span>());
-                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;&quot;</span>);
-                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;These are proposed changes to Seattle made by community members.&quot;</span>);
-                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;Contact dabreegster@gmail.com to add your idea here!&quot;</span>);
-                <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_horiz</span>().<span class="ident">margin_below</span>(<span class="number">20</span>)
+                <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_horiz</span>().<span class="ident">fill_width</span>()
             },
-            <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">buttons</span>).<span class="ident">flex_wrap</span>(<span class="ident">ctx</span>, <span class="ident">Percent</span>::<span class="ident">int</span>(<span class="number">80</span>)),
-        ];
-        <span class="ident">col</span>.<span class="ident">extend</span>(<span class="ident">current_tab</span>);
+        ]);
+
+        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span>
+                    <span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;These are proposed changes to Seattle made by community members.&quot;</span>);
+                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;Contact dabreegster@gmail.com to add your idea here!&quot;</span>);
+                <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_horiz</span>()
+            },
+            <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">tab_buttons</span>)
+                .<span class="ident">flex_wrap</span>(<span class="ident">ctx</span>, <span class="ident">Percent</span>::<span class="ident">int</span>(<span class="number">80</span>))
+                .<span class="ident">margin_above</span>(<span class="number">60</span>),
+            <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">current_tab_rows</span>),
+        ])
+        .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>)
+        .<span class="ident">padding</span>(<span class="number">16</span>);
 
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Proposals</span> {
             <span class="ident">proposals</span>,
-            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_back</span>(<span class="string">&quot;Home&quot;</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;back&quot;</span>)
-                    .<span class="ident">align_left</span>()
-                    .<span class="ident">margin_below</span>(<span class="number">20</span>),
-                <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>).<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>).<span class="ident">padding</span>(<span class="number">16</span>),
-            ]))
-            .<span class="ident">exact_size_percent</span>(<span class="number">90</span>, <span class="number">85</span>)
-            .<span class="ident">build_custom</span>(<span class="ident">ctx</span>),
+            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">header</span>, <span class="ident">body</span>])]))
+                .<span class="ident">exact_size_percent</span>(<span class="number">90</span>, <span class="number">85</span>)
+                .<span class="ident">build_custom</span>(<span class="ident">ctx</span>),
             <span class="ident">current</span>,
         })
     }

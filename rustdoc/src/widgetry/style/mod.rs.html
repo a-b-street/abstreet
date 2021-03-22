@@ -253,6 +253,13 @@
 <span id="250">250</span>
 <span id="251">251</span>
 <span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Color</span>, <span class="ident">Text</span>};
 
@@ -452,7 +459,14 @@
             <span class="ident">text_hotkey_color</span>: <span class="ident">Color</span>::<span class="ident">GREEN</span>,
             <span class="ident">text_tooltip_color</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>,
             <span class="ident">text_destructive_color</span>: <span class="ident">hex</span>(<span class="string">&quot;#EB3223&quot;</span>),
-            <span class="ident">btn_tab</span>: <span class="ident">ButtonStyle</span>::<span class="ident">solid_dark_fg</span>(),
+            <span class="ident">btn_tab</span>: <span class="ident">ButtonStyle</span> {
+                <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>).<span class="ident">tint</span>(<span class="number">0.2</span>),
+                <span class="ident">fg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>),
+                <span class="ident">bg</span>: <span class="ident">Color</span>::<span class="ident">CLEAR</span>,
+                <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.1</span>),
+                <span class="ident">bg_disabled</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>,
+                <span class="ident">outline</span>: (<span class="number">0.0</span>, <span class="ident">Color</span>::<span class="ident">CLEAR</span>),
+            },
             <span class="ident">btn_outline</span>: <span class="ident">ButtonStyle</span>::<span class="ident">outline_light_fg</span>(),
             <span class="ident">btn_solid</span>: <span class="ident">ButtonStyle</span>::<span class="ident">solid_dark_fg</span>(),
             <span class="ident">btn_plain</span>: <span class="ident">ButtonStyle</span>::<span class="ident">plain_light_fg</span>(),
