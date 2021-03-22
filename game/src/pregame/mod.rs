@@ -7,8 +7,8 @@ use geom::{Duration, Line, Pt2D, Speed};
 use map_gui::tools::open_browser;
 use sim::{AlertHandler, ScenarioGenerator, Sim, SimOptions};
 use widgetry::{
-    hotkeys, Color, ContentMode, DrawBaselayer, EdgeInsets, EventCtx, Font, GfxCtx, Image, Key,
-    Line, Outcome, Panel, ScreenDims, State, Text, UpdateType, Widget,
+    hotkeys, ButtonStyle, Color, ContentMode, DrawBaselayer, EdgeInsets, EventCtx, Font, GfxCtx,
+    Image, Key, Line, Outcome, Panel, ScreenDims, State, Text, UpdateType, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -96,9 +96,7 @@ impl MainMenu {
                 txt.into_widget(ctx).centered_horiz()
             },
             Widget::row({
-                let btn_builder = ctx
-                    .style()
-                    .btn_tab
+                let btn_builder = ButtonStyle::solid_dark_fg()
                     .btn()
                     .image_dims(ScreenDims::new(200.0, 100.0))
                     .font_size(40)

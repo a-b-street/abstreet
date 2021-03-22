@@ -19,8 +19,8 @@ pub struct Proposals {
 impl Proposals {
     pub fn new(ctx: &mut EventCtx, app: &App, current: Option<String>) -> Box<dyn State<App>> {
         let mut proposals = HashMap::new();
-        let mut buttons = Vec::new();
-        let mut current_tab = Vec::new();
+        let mut tab_buttons = Vec::new();
+        let mut current_tab_rows = Vec::new();
         // If a proposal has fallen out of date, it'll be skipped with an error logged. Since these
         // are under version control, much more likely to notice when they break (or we could add a
         // step to data/regen.sh).
@@ -33,7 +33,7 @@ impl Proposals {
                 for l in edits.proposal_description.iter().skip(1) {
                     txt.add_line(l);
                 }
-                current_tab.push(
+                current_tab_rows.push(
                     txt.wrap_to_pct(ctx, 70)
                         .into_widget(ctx)
                         .margin_below(15)
@@ -41,7 +41,7 @@ impl Proposals {
                 );
 
                 if edits.proposal_link.is_some() {
-                    current_tab.push(
+                    current_tab_rows.push(
                         ctx.style()
                             .btn_plain
                             .btn()
@@ -50,14 +50,14 @@ impl Proposals {
                             .margin_below(10),
                     );
                 }
-                current_tab.push(
+                current_tab_rows.push(
                     ctx.style()
                         .btn_solid_primary
                         .text("Try out this proposal")
                         .build_def(ctx),
                 );
 
-                buttons.push(
+                tab_buttons.push(
                     ctx.style()
                         .btn_tab
                         .text(&edits.proposal_description[0])
@@ -66,9 +66,9 @@ impl Proposals {
                         .margin_below(10),
                 );
             } else {
-                buttons.push(
+                tab_buttons.push(
                     ctx.style()
-                        .btn_tab
+                        .btn_outline
                         .text(&edits.proposal_description[0])
                         .no_tooltip()
                         .build_widget(ctx, &name)
@@ -79,32 +79,39 @@ impl Proposals {
             proposals.insert(name, edits);
         }
 
-        let mut col = vec![
+        let header = Widget::row(vec![
+            ctx.style()
+                .btn_back("Home")
+                .hotkey(Key::Escape)
+                .build_widget(ctx, "back")
+                .align_bottom(),
             {
                 let mut txt = Text::from(Line("A/B STREET").display_title());
                 txt.add_line(Line("PROPOSALS").big_heading_styled());
-                txt.add_line("");
-                txt.add_line("These are proposed changes to Seattle made by community members.");
-                txt.add_line("Contact dabreegster@gmail.com to add your idea here!");
-                txt.into_widget(ctx).centered_horiz().margin_below(20)
+                txt.into_widget(ctx).centered_horiz().fill_width()
             },
-            Widget::custom_row(buttons).flex_wrap(ctx, Percent::int(80)),
-        ];
-        col.extend(current_tab);
+        ]);
+
+        let body = Widget::col(vec![
+            {
+                let mut txt =
+                    Text::from("These are proposed changes to Seattle made by community members.");
+                txt.add_line("Contact dabreegster@gmail.com to add your idea here!");
+                txt.into_widget(ctx).centered_horiz()
+            },
+            Widget::custom_row(tab_buttons)
+                .flex_wrap(ctx, Percent::int(80))
+                .margin_above(60),
+            Widget::col(current_tab_rows),
+        ])
+        .bg(app.cs.panel_bg)
+        .padding(16);
 
         Box::new(Proposals {
             proposals,
-            panel: Panel::new(Widget::custom_col(vec![
-                ctx.style()
-                    .btn_back("Home")
-                    .hotkey(Key::Escape)
-                    .build_widget(ctx, "back")
-                    .align_left()
-                    .margin_below(20),
-                Widget::col(col).bg(app.cs.panel_bg).padding(16),
-            ]))
-            .exact_size_percent(90, 85)
-            .build_custom(ctx),
+            panel: Panel::new(Widget::custom_col(vec![Widget::col(vec![header, body])]))
+                .exact_size_percent(90, 85)
+                .build_custom(ctx),
             current,
         })
     }
