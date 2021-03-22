@@ -30,8 +30,8 @@ pub fn prebake_all() {
         MapName::seattle("lakeslice"),
         MapName::seattle("phinney"),
         MapName::seattle("qa"),
-        MapName::seattle("rainier_valley"),
-        //MapName::seattle("wallingford"),  TODO broken
+        //MapName::seattle("rainier_valley"),   // TODO broken
+        MapName::seattle("wallingford"),
     ] {
         let map = map_model::Map::load_synchronously(name.path(), &mut timer);
         let scenario: Scenario =
@@ -39,7 +39,11 @@ pub fn prebake_all() {
         prebake(&map, scenario, None, &mut timer);
     }
 
-    for scenario_name in vec!["base", "go_active", "base_with_bg", "go_active_with_bg"] {
+    // TODO These two also broke
+    for scenario_name in vec![
+        "base",
+        "go_active", /* "base_with_bg", "go_active_with_bg" */
+    ] {
         let map = map_model::Map::load_synchronously(
             MapName::new("gb", "poundbury", "center").path(),
             &mut timer,
