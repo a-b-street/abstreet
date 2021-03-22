@@ -162,7 +162,7 @@ impl UberTurnViewer {
             );
 
             for t in &ut.path {
-                sum_cost += map_model::connectivity::driving_cost(
+                sum_cost += map_model::connectivity::vehicle_cost(
                     map.get_l(t.src),
                     map.get_t(*t),
                     PathConstraints::Car,
@@ -191,7 +191,7 @@ impl UberTurnViewer {
                     .build_widget(ctx, "next uber-turn"),
                 ctx.style().btn_close_widget(ctx),
             ]),
-            format!("driving_cost for a Car: {}", sum_cost).text_widget(ctx),
+            format!("vehicle_cost for a Car: {}", sum_cost).text_widget(ctx),
             Widget::row(vec![
                 Toggle::choice(
                     ctx,

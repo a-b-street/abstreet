@@ -177,7 +177,7 @@ fn make_input_graph(
                         from,
                         nodes.get(Node::Lane(turn.id.dst)),
                         round(
-                            driving_cost(l, turn, constraints, map.routing_params(), map)
+                            vehicle_cost(l, turn, constraints, map.routing_params(), map)
                                 + zone_cost(turn, constraints, map),
                         ),
                     );
@@ -190,7 +190,7 @@ fn make_input_graph(
                     let mut sum_cost = 0.0;
                     for t in &ut.path {
                         let turn = map.get_t(*t);
-                        sum_cost += driving_cost(
+                        sum_cost += vehicle_cost(
                             map.get_l(t.src),
                             turn,
                             constraints,
@@ -235,7 +235,7 @@ fn make_input_graph(
 }
 
 /// Different unit based on constraints.
-pub fn driving_cost(
+pub fn vehicle_cost(
     lane: &Lane,
     turn: &Turn,
     constraints: PathConstraints,

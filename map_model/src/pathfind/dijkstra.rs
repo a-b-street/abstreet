@@ -4,7 +4,7 @@ use std::collections::BTreeSet;
 
 use petgraph::graphmap::DiGraphMap;
 
-use crate::pathfind::driving::driving_cost;
+use crate::pathfind::vehicles::vehicle_cost;
 use crate::pathfind::walking::{walking_cost, WalkingNode};
 use crate::pathfind::zone_cost;
 use crate::{LaneID, Map, Path, PathConstraints, PathRequest, PathStep, RoutingParams, TurnID};
@@ -61,7 +61,7 @@ fn calc_path(
         |l| l == req.end.lane(),
         |(_, _, t)| {
             let turn = map.get_t(*t);
-            driving_cost(map.get_l(turn.id.src), turn, req.constraints, params, map)
+            vehicle_cost(map.get_l(turn.id.src), turn, req.constraints, params, map)
                 + zone_cost(turn, req.constraints, map)
         },
         |_| 0.0,
