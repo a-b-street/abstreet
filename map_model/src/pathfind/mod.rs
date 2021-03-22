@@ -11,8 +11,8 @@ use geom::{Distance, Duration, PolyLine, Speed, EPSILON_DIST};
 
 pub use self::ch::ContractionHierarchyPathfinder;
 pub use self::dijkstra::{build_graph_for_pedestrians, build_graph_for_vehicles};
-pub use self::driving::driving_cost;
 pub use self::pathfinder::Pathfinder;
+pub use self::vehicles::vehicle_cost;
 pub use self::walking::{walking_cost, WalkingNode};
 use crate::{
     osm, BuildingID, Lane, LaneID, LaneType, Map, Position, Traversable, Turn, TurnID, UberTurn,
@@ -20,11 +20,11 @@ use crate::{
 
 mod ch;
 mod dijkstra;
-mod driving;
 mod node_map;
 mod pathfinder;
 // TODO tmp
 pub mod uber_turns;
+mod vehicles;
 mod walking;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -672,7 +672,7 @@ pub fn zone_cost(turn: &Turn, constraints: PathConstraints, map: &Map) -> f64 {
             .allow_through_traffic
             .contains(constraints)
     {
-        // TODO Tune this after making driving_cost and walking_cost both roughly represent
+        // TODO Tune this after making vehicles_cost and walking_cost both roughly represent
         // seconds. In the meantime, this penalty seems high enough to achieve the desired effect.
         100_000.0
     } else {

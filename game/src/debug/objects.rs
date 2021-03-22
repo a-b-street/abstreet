@@ -46,7 +46,7 @@ impl ObjectDebugger {
                         if constraint.can_use(l, map) {
                             let mut costs = Vec::new();
                             for turn in map.get_turns_to_lane(l.id) {
-                                costs.push(map_model::connectivity::driving_cost(
+                                costs.push(map_model::connectivity::vehicle_cost(
                                     l,
                                     turn,
                                     constraint,

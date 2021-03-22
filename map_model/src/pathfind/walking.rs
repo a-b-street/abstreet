@@ -10,8 +10,8 @@ use thread_local::ThreadLocal;
 
 use geom::{Distance, Speed};
 
-use crate::pathfind::driving::VehiclePathfinder;
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
+use crate::pathfind::vehicles::VehiclePathfinder;
 use crate::pathfind::zone_cost;
 use crate::{
     BusRoute, BusRouteID, BusStopID, IntersectionID, LaneID, Map, Path, PathConstraints,

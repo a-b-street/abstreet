@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
 
-use crate::pathfind::driving::VehiclePathfinder;
+use crate::pathfind::vehicles::VehiclePathfinder;
 use crate::pathfind::walking::{SidewalkPathfinder, WalkingNode};
 use crate::{BusRouteID, BusStopID, Map, Path, PathConstraints, PathRequest, Position};
 

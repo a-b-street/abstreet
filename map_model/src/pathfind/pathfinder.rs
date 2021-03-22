@@ -64,6 +64,8 @@ impl Pathfinder {
         }
     }
 
+    /// Note this is a slower implementation, never using contraction hierarchies. Used for
+    /// experimental congestion capping.
     pub fn pathfind_avoiding_lanes(
         &self,
         req: PathRequest,

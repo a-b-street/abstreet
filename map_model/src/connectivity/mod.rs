@@ -8,7 +8,7 @@ use geom::{Distance, Duration, Speed};
 
 pub use self::walking::{all_walking_costs_from, WalkingOptions};
 use crate::pathfind::{build_graph_for_vehicles, zone_cost};
-pub use crate::pathfind::{driving_cost, WalkingNode};
+pub use crate::pathfind::{vehicle_cost, WalkingNode};
 use crate::{BuildingID, LaneID, Map, PathConstraints, PathRequest, RoadID};
 
 mod walking;
@@ -83,7 +83,7 @@ pub fn all_vehicle_costs_from(
     if let Some(start_lane) = bldg_to_lane.get(&start) {
         let graph = build_graph_for_vehicles(map, constraints);
         let cost_per_lane = petgraph::algo::dijkstra(&graph, *start_lane, None, |(_, _, turn)| {
-            driving_cost(
+            vehicle_cost(
                 map.get_l(turn.src),
                 map.get_t(*turn),
                 constraints,
@@ -119,7 +119,7 @@ pub fn debug_vehicle_costs(req: PathRequest, map: &Map) -> Option<(f64, HashMap<
         |l| l == req.end.lane(),
         |(_, _, t)| {
             let turn = map.get_t(*t);
-            driving_cost(
+            vehicle_cost(
                 map.get_l(turn.id.src),
                 turn,
                 req.constraints,
@@ -132,7 +132,7 @@ pub fn debug_vehicle_costs(req: PathRequest, map: &Map) -> Option<(f64, HashMap<
 
     let lane_costs = petgraph::algo::dijkstra(&graph, req.start.lane(), None, |(_, _, t)| {
         let turn = map.get_t(*t);
-        driving_cost(
+        vehicle_cost(
             map.get_l(turn.id.src),
             turn,
             req.constraints,
