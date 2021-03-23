@@ -358,6 +358,7 @@
 <span id="355">355</span>
 <span id="356">356</span>
 <span id="357">357</span>
+<span id="358">358</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -700,10 +701,11 @@
     <span class="kw">let</span> <span class="ident">num_pts</span> <span class="op">=</span> <span class="ident">polylines</span>[<span class="number">0</span>].<span class="ident">points</span>().<span class="ident">len</span>();
     <span class="kw">for</span> <span class="ident">pl</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">polylines</span> {
         <span class="kw">if</span> <span class="ident">num_pts</span> <span class="op">!</span><span class="op">=</span> <span class="ident">pl</span>.<span class="ident">points</span>().<span class="ident">len</span>() {
-            <span class="macro">warn</span><span class="macro">!</span>(
-                <span class="string">&quot;Movement between {} and {} can&#39;t make nice geometry&quot;</span>,
-                <span class="ident">from</span>, <span class="ident">to</span>
-            );
+            <span class="comment">// Kiiiiinda spammy</span>
+            <span class="comment">/*warn!(
+                &quot;Movement between {} and {} can&#39;t make nice geometry&quot;,
+                from, to
+            );*/</span>
             <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">polylines</span>[<span class="number">0</span>].<span class="ident">clone</span>());
         }
     }
