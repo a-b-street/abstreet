@@ -53,7 +53,7 @@ impl<A: AppLike + 'static> ImportCity<A> {
                     "Step 4)".text_widget(ctx).centered_vert(),
                     Toggle::choice(
                         ctx,
-                        "drive on the left",
+                        "left handed driving",
                         "drive on the left",
                         "right",
                         None,
@@ -112,7 +112,7 @@ impl<A: AppLike + 'static> State<A> for ImportCity<A> {
                         format!("{}/one_step_import", bin_dir),
                         "boundary.geojson".to_string(),
                     ];
-                    if self.panel.is_checked("drive on the left") {
+                    if self.panel.is_checked("left handed driving") {
                         args.push("--drive_on_left".to_string());
                     }
                     match grab_geojson_from_clipboard() {
