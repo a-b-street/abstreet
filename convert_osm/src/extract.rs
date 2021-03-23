@@ -451,6 +451,13 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
             return false;
         }
     }
+    if highway == "pedestrian"
+        && tags.is("bicycle", "dismount")
+        && opts.map_config.inferred_sidewalks
+    {
+        return false;
+    }
+
     // Import most service roads. Always ignore driveways, golf cart paths, and always reserve
     // parking_aisles for parking lots.
     if highway == "service" && tags.is_any("service", vec!["driveway", "parking_aisle"]) {

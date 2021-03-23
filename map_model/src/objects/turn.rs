@@ -339,10 +339,11 @@ fn movement_geom(
     let num_pts = polylines[0].points().len();
     for pl in &polylines {
         if num_pts != pl.points().len() {
-            warn!(
+            // Kiiiiinda spammy
+            /*warn!(
                 "Movement between {} and {} can't make nice geometry",
                 from, to
-            );
+            );*/
             return Ok(polylines[0].clone());
         }
     }
