@@ -158,25 +158,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                             batch.into_widget(ctx).named("picker"),
                             Widget::col(this_city).centered_vert(),
                         ]),
-                        Widget::custom_row(vec![
-                            "Don't see the place you want?"
-                                .text_widget(ctx)
-                                .centered_vert(),
-                            ctx.style()
-                                .btn_plain
-                                .btn()
-                                // TODO On web, this is a link, so it's styled appropriately. Use a
-                                // different style on native?
-                                .label_styled_text(
-                                    Text::from(
-                                        Line("Import a new city into A/B Street")
-                                            .fg(Color::hex("#4CA4E5"))
-                                            .underlined(),
-                                    ),
-                                    ControlState::Default,
-                                )
-                                .build_widget(ctx, "import new city"),
-                        ]),
+                        "Don't see the place you want?".text_widget(ctx),
                         if cfg!(not(target_arch = "wasm32")) {
                             ctx.style()
                                 .btn_outline
@@ -184,6 +166,21 @@ impl<A: AppLike + 'static> CityPicker<A> {
                                 .build_def(ctx)
                         } else {
                             Widget::nothing()
+                        },
+                        if cfg!(target_arch = "wasm32") {
+                            // On web, this is a link, so it's styled appropriately.
+                            ctx.style()
+                                .btn_plain
+                                .btn()
+                                .label_underlined_text("Import a new city into A/B Street")
+                                .build_widget(ctx, "import new city")
+                        } else {
+                            // On native this shows the "import" instructions modal within
+                            // the app
+                            ctx.style()
+                                .btn_outline
+                                .text("Import a new city into A/B Street")
+                                .build_widget(ctx, "import new city")
                         },
                     ]))
                     .build(ctx),

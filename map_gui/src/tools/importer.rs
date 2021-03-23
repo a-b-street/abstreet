@@ -28,37 +28,53 @@ impl<A: AppLike + 'static> ImportCity<A> {
                 Line("Import a new city").small_heading().into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
-            Widget::row(vec![
-                "Step 1)".text_widget(ctx),
+            Widget::col(vec![
+                Widget::row(vec![
+                    "Step 1)".text_widget(ctx).centered_vert(),
+                    ctx.style()
+                        .btn_plain
+                        .btn()
+                        .label_underlined_text("Go to geojson.io")
+                        .build_def(ctx),
+                ]),
+                Widget::row(vec![
+                    "Step 2)".text_widget(ctx).margin_right(16),
+                    "Draw a polygon boundary where you want to import"
+                        .text_widget(ctx)
+                        .margin_below(16),
+                ])
+                .margin_below(16),
+                Widget::row(vec![
+                    "Step 3)".text_widget(ctx).margin_right(16),
+                    "Copy the JSON text on the right into your clipboard".text_widget(ctx),
+                ])
+                .margin_below(16),
+                Widget::row(vec![
+                    "Step 4)".text_widget(ctx).centered_vert(),
+                    Toggle::choice(
+                        ctx,
+                        "drive on the left",
+                        "drive on the left",
+                        "right",
+                        None,
+                        false,
+                    ),
+                ]),
+                Widget::row(vec![
+                    "Step 5)".text_widget(ctx).centered_vert(),
+                    ctx.style()
+                        .btn_solid_primary
+                        .text("Import the area from your clipboard")
+                        .build_def(ctx),
+                ])
+                .margin_below(32),
                 ctx.style()
-                    .btn_solid_primary
-                    .text("Go to geojson.io")
+                    .btn_plain
+                    .btn()
+                    .label_underlined_text("Alternate instructions")
                     .build_def(ctx),
-            ]),
-            "Step 2) Draw a polygon boundary where you want to import".text_widget(ctx),
-            "Step 3) Copy the JSON text on the right into your clipboard".text_widget(ctx),
-            Widget::row(vec![
-                "Step 4)".text_widget(ctx),
-                Toggle::choice(
-                    ctx,
-                    "driving side",
-                    "drive on the right",
-                    "left",
-                    None,
-                    true,
-                ),
-            ]),
-            Widget::row(vec![
-                "Step 5)".text_widget(ctx),
-                ctx.style()
-                    .btn_solid_primary
-                    .text("Import the area from your clipboard")
-                    .build_def(ctx),
-            ]),
-            ctx.style()
-                .btn_outline
-                .text("Alternate instructions")
-                .build_def(ctx),
+            ])
+            .section(ctx),
         ]))
         .build(ctx);
         Box::new(ImportCity {
@@ -96,7 +112,7 @@ impl<A: AppLike + 'static> State<A> for ImportCity<A> {
                         format!("{}/one_step_import", bin_dir),
                         "boundary.geojson".to_string(),
                     ];
-                    if !self.panel.is_checked("driving side") {
+                    if self.panel.is_checked("drive on the left") {
                         args.push("--drive_on_left".to_string());
                     }
                     match grab_geojson_from_clipboard() {
