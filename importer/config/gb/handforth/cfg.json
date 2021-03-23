@@ -2,7 +2,7 @@
   "osm_url": "https://download.geofabrik.de/europe/great-britain/england/cheshire-latest.osm.pbf",
   "map_config": {
     "driving_side": "Left",
-    "bikes_can_use_bus_lanes": false,
+    "bikes_can_use_bus_lanes": true,
     "inferred_sidewalks": true,
     "street_parking_spot_length": 8.0
   },
