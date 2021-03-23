@@ -185,7 +185,7 @@ impl Toggle {
     // TODO These should actually be radio buttons
     pub fn choice<MK: Into<Option<MultiKey>>>(
         ctx: &EventCtx,
-        label: &str,
+        action: &str,
         left_label: &str,
         right_label: &str,
         hotkey: MK,
@@ -252,7 +252,7 @@ impl Toggle {
                 toggle_right_button.build(ctx, right_label),
                 toggle_left_button.build(ctx, left_label),
             )
-            .named(label)
+            .named(action)
             .centered_vert(),
             right_text_button.build_def(ctx).centered_vert(),
         ])
