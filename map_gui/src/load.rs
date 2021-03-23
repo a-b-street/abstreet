@@ -41,23 +41,28 @@ impl MapLoader {
         }
 
         // TODO Generalize this more, maybe with some kind of country code -> font config
-        let chinese_font = "NotoSerifCJKtc-Regular.otf";
-        if name.city.country == "tw" && !ctx.is_font_loaded(chinese_font) {
-            return RawFileLoader::<A>::new(
-                ctx,
-                abstio::path(format!("system/extra_fonts/{}", chinese_font)),
-                Box::new(move |ctx, app, bytes| match bytes {
-                    Ok(bytes) => {
-                        ctx.load_font(chinese_font, bytes);
-                        Transition::Replace(MapLoader::new(ctx, app, name, on_load))
-                    }
-                    Err(err) => Transition::Replace(PopupMsg::new(
-                        ctx,
-                        "Error",
-                        vec![format!("Couldn't load {}", chinese_font), err.to_string()],
-                    )),
-                }),
-            );
+        if let Some(extra_font) = match name.city.country.as_ref() {
+            "ly" => Some("NotoSansArabic-Regular.ttf"),
+            "tw" => Some("NotoSerifCJKtc-Regular.otf"),
+            _ => None,
+        } {
+            if !ctx.is_font_loaded(extra_font) {
+                return RawFileLoader::<A>::new(
+                    ctx,
+                    abstio::path(format!("system/extra_fonts/{}", extra_font)),
+                    Box::new(move |ctx, app, bytes| match bytes {
+                        Ok(bytes) => {
+                            ctx.load_font(extra_font, bytes);
+                            Transition::Replace(MapLoader::new(ctx, app, name, on_load))
+                        }
+                        Err(err) => Transition::Replace(PopupMsg::new(
+                            ctx,
+                            "Error",
+                            vec![format!("Couldn't load {}", extra_font), err.to_string()],
+                        )),
+                    }),
+                );
+            }
         }
 
         FileLoader::<A, map_model::Map>::new(

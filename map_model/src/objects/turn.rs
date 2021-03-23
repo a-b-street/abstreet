@@ -340,10 +340,12 @@ fn movement_geom(
     for pl in &polylines {
         if num_pts != pl.points().len() {
             // Kiiiiinda spammy
-            /*warn!(
-                "Movement between {} and {} can't make nice geometry",
-                from, to
-            );*/
+            if false {
+                warn!(
+                    "Movement between {} and {} can't make nice geometry",
+                    from, to
+                );
+            }
             return Ok(polylines[0].clone());
         }
     }

@@ -1015,6 +1015,21 @@
       "uncompressed_size_bytes": 14474825,
       "compressed_size_bytes": 3022125
     },
+    "data/input/ly/tripoli/osm/center.osm": {
+      "checksum": "e9b2289791e891153e957d8100eb40c4",
+      "uncompressed_size_bytes": 5799463,
+      "compressed_size_bytes": 695828
+    },
+    "data/input/ly/tripoli/osm/libya-latest.osm.pbf": {
+      "checksum": "e037faeadc44d8ad7423e5363d55a5a5",
+      "uncompressed_size_bytes": 30351959,
+      "compressed_size_bytes": 30303259
+    },
+    "data/input/ly/tripoli/raw_maps/center.bin": {
+      "checksum": "a8dce39801ea9267a0d4be7de41aa4ec",
+      "uncompressed_size_bytes": 4081821,
+      "compressed_size_bytes": 675009
+    },
     "data/input/pl/krakow/osm/center.osm": {
       "checksum": "562ed1102d3e2fc49d2b9eedf0f0d42a",
       "uncompressed_size_bytes": 57269997,
@@ -1564,6 +1579,11 @@
       "checksum": "8851b84789ebdcd397497edae1f51f02",
       "uncompressed_size_bytes": 30680141,
       "compressed_size_bytes": 10115339
+    },
+    "data/system/extra_fonts/NotoSansArabic-Regular.ttf": {
+      "checksum": "9f563abf8532ead724f2d6231983b5d4",
+      "uncompressed_size_bytes": 187000,
+      "compressed_size_bytes": 85904
     },
     "data/system/extra_fonts/NotoSerifCJKtc-Regular.otf": {
       "checksum": "338584d1454293b6dfd84a9137153b3c",
@@ -2604,6 +2624,11 @@
       "checksum": "613fca5c56f76ce11763e66968362c59",
       "uncompressed_size_bytes": 61150098,
       "compressed_size_bytes": 20025374
+    },
+    "data/system/ly/tripoli/maps/center.bin": {
+      "checksum": "e838565b7fc949da69c8f3e20c1afe7b",
+      "uncompressed_size_bytes": 36895843,
+      "compressed_size_bytes": 12687402
     },
     "data/system/pl/krakow/maps/center.bin": {
       "checksum": "9149ad8ec339e328ed6ba07b8fc8e41a",
