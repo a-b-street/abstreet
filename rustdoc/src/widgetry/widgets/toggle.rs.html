@@ -474,7 +474,7 @@
     <span class="comment">// TODO These should actually be radio buttons</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">choice</span><span class="op">&lt;</span><span class="ident">MK</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-        <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+        <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">left_label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">right_label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">hotkey</span>: <span class="ident">MK</span>,
@@ -541,7 +541,7 @@
                 <span class="ident">toggle_right_button</span>.<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">right_label</span>),
                 <span class="ident">toggle_left_button</span>.<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">left_label</span>),
             )
-            .<span class="ident">named</span>(<span class="ident">label</span>)
+            .<span class="ident">named</span>(<span class="ident">action</span>)
             .<span class="ident">centered_vert</span>(),
             <span class="ident">right_text_button</span>.<span class="ident">build_def</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
         ])

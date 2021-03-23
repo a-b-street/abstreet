@@ -515,9 +515,6 @@
 <span id="512">512</span>
 <span id="513">513</span>
 <span id="514">514</span>
-<span id="515">515</span>
-<span id="516">516</span>
-<span id="517">517</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -679,25 +676,7 @@
                             <span class="ident">batch</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;picker&quot;</span>),
                             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">this_city</span>).<span class="ident">centered_vert</span>(),
                         ]),
-                        <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                            <span class="string">&quot;Don&#39;t see the place you want?&quot;</span>
-                                .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
-                                .<span class="ident">centered_vert</span>(),
-                            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                                .<span class="ident">btn_plain</span>
-                                .<span class="ident">btn</span>()
-                                <span class="comment">// TODO On web, this is a link, so it&#39;s styled appropriately. Use a</span>
-                                <span class="comment">// different style on native?</span>
-                                .<span class="ident">label_styled_text</span>(
-                                    <span class="ident">Text</span>::<span class="ident">from</span>(
-                                        <span class="ident">Line</span>(<span class="string">&quot;Import a new city into A/B Street&quot;</span>)
-                                            .<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#4CA4E5&quot;</span>))
-                                            .<span class="ident">underlined</span>(),
-                                    ),
-                                    <span class="ident">ControlState</span>::<span class="ident">Default</span>,
-                                )
-                                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;import new city&quot;</span>),
-                        ]),
+                        <span class="string">&quot;Don&#39;t see the place you want?&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                         <span class="kw">if</span> <span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)) {
                             <span class="ident">ctx</span>.<span class="ident">style</span>()
                                 .<span class="ident">btn_outline</span>
@@ -705,6 +684,21 @@
                                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                         } <span class="kw">else</span> {
                             <span class="ident">Widget</span>::<span class="ident">nothing</span>()
+                        },
+                        <span class="kw">if</span> <span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>) {
+                            <span class="comment">// On web, this is a link, so it&#39;s styled appropriately.</span>
+                            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                                .<span class="ident">btn_plain</span>
+                                .<span class="ident">btn</span>()
+                                .<span class="ident">label_underlined_text</span>(<span class="string">&quot;Import a new city into A/B Street&quot;</span>)
+                                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;import new city&quot;</span>)
+                        } <span class="kw">else</span> {
+                            <span class="comment">// On native this shows the &quot;import&quot; instructions modal within</span>
+                            <span class="comment">// the app</span>
+                            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                                .<span class="ident">btn_outline</span>
+                                .<span class="ident">text</span>(<span class="string">&quot;Import a new city into A/B Street&quot;</span>)
+                                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;import new city&quot;</span>)
                         },
                     ]))
                     .<span class="ident">build</span>(<span class="ident">ctx</span>),
