@@ -1,11 +1,11 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::fs::File;
 use std::io::{BufReader, BufWriter};
 
 use anyhow::Result;
 use geo::prelude::Contains;
 use geo::{LineString, Point, Polygon};
-use osmio::obj_types::{RcNode, RcOSMObj, RcRelation, RcWay};
+use osmio::obj_types::RcOSMObj;
 use osmio::{Node, OSMObj, OSMObjBase, OSMObjectType, OSMReader, OSMWriter, Relation, Way};
 
 use abstutil::CmdArgs;
@@ -32,62 +32,76 @@ fn main() -> Result<()> {
 
 fn clip(pbf_path: &str, boundary: &Polygon<f64>, out_path: &str) -> Result<()> {
     // TODO Maybe just have a single map with RcOSMObj. But then the order we write will be wrong.
-    let mut nodes: HashMap<i64, RcNode> = HashMap::new();
-    let mut ways: HashMap<i64, RcWay> = HashMap::new();
-    let mut relations: HashMap<i64, RcRelation> = HashMap::new();
+    let mut way_node_ids: HashSet<i64> = HashSet::new();
+    let mut way_ids: HashSet<i64> = HashSet::new();
+    let mut relation_ids: HashSet<i64> = HashSet::new();
+    {
+        // First Pass: accumulate the IDs we want to include in the output
+        let mut reader = osmio::pbf::PBFReader::new(BufReader::new(File::open(pbf_path)?));
+        let mut node_ids_within_boundary: HashSet<i64> = HashSet::new();
+        for obj in reader.objects() {
+            match obj.object_type() {
+                OSMObjectType::Node => {
+                    let node = obj.into_node().unwrap();
+                    if let Some(lat_lon) = node.lat_lon() {
+                        if boundary.contains(&to_pt(lat_lon)) {
+                            node_ids_within_boundary.insert(node.id());
+                        }
+                    }
+                }
+                OSMObjectType::Way => {
+                    // Assume all nodes appear before any way.
+                    let way = obj.into_way().unwrap();
+                    if way
+                        .nodes()
+                        .iter()
+                        .any(|id| node_ids_within_boundary.contains(id))
+                    {
+                        way_ids.insert(way.id());
 
+                        // To properly compute border nodes, we include all nodes of ways that are
+                        // at least partially in the boundary.
+                        way_node_ids.extend(way.nodes().into_iter().cloned());
+                    }
+                }
+                OSMObjectType::Relation => {
+                    let relation = obj.into_relation().unwrap();
+                    if relation.members().any(|(obj_type, id, _)| {
+                        (obj_type == OSMObjectType::Node && node_ids_within_boundary.contains(&id))
+                            || (obj_type == OSMObjectType::Way && way_ids.contains(&id))
+                            || (obj_type == OSMObjectType::Relation && relation_ids.contains(&id))
+                    }) {
+                        relation_ids.insert(relation.id());
+                    }
+                }
+            }
+        }
+    }
+
+    let mut writer = osmio::xml::XMLWriter::new(BufWriter::new(File::create(out_path)?));
+    // Second Pass: write the feature for each ID accumulated in the first pass
     let mut reader = osmio::pbf::PBFReader::new(BufReader::new(File::open(pbf_path)?));
     for obj in reader.objects() {
         match obj.object_type() {
             OSMObjectType::Node => {
                 let node = obj.into_node().unwrap();
-                if node.lat_lon().is_some() {
-                    nodes.insert(node.id(), node);
+                if way_node_ids.contains(&node.id()) {
+                    writer.write_obj(&RcOSMObj::Node(node))?;
                 }
             }
             OSMObjectType::Way => {
-                // Assume all nodes appear before any way.
-                let way = obj.into_way().unwrap();
-                if way.nodes().iter().any(|id| {
-                    nodes
-                        .get(id)
-                        .map(|n| boundary.contains(&to_pt(n.lat_lon().unwrap())))
-                        .unwrap_or(false)
-                }) {
-                    ways.insert(way.id(), way);
+                if way_ids.contains(&obj.id()) {
+                    let way = obj.into_way().unwrap();
+                    writer.write_obj(&RcOSMObj::Way(way))?;
                 }
             }
             OSMObjectType::Relation => {
-                let relation = obj.into_relation().unwrap();
-                if relation.members().any(|(obj_type, id, _)| {
-                    (obj_type == OSMObjectType::Node && nodes.contains_key(&id))
-                        || (obj_type == OSMObjectType::Way && ways.contains_key(&id))
-                        || (obj_type == OSMObjectType::Relation && relations.contains_key(&id))
-                }) {
-                    relations.insert(relation.id(), relation);
+                if relation_ids.contains(&obj.id()) {
+                    let relation = obj.into_relation().unwrap();
+                    writer.write_obj(&RcOSMObj::Relation(relation))?;
                 }
             }
         }
-    }
-
-    // Trim out all unused nodes
-    let mut used_nodes = HashSet::new();
-    for way in ways.values() {
-        used_nodes.extend(way.nodes().into_iter().cloned());
-    }
-
-    let mut writer = osmio::xml::XMLWriter::new(BufWriter::new(File::create(out_path)?));
-    // TODO Nondetermistic output because of HashMap!
-    for id in used_nodes {
-        if let Some(node) = nodes.remove(&id) {
-            writer.write_obj(&RcOSMObj::Node(node))?;
-        }
-    }
-    for (_, way) in ways {
-        writer.write_obj(&RcOSMObj::Way(way))?;
-    }
-    for (_, relation) in relations {
-        writer.write_obj(&RcOSMObj::Relation(relation))?;
     }
 
     // Don't call write.close() -- it happens when writer gets dropped, and the implementation
