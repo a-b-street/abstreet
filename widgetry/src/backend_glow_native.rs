@@ -1,15 +1,15 @@
 use abstutil::Timer;
 
 use crate::backend_glow::{build_program, GfxCtxInnards, PrerenderInnards, SpriteTexture};
-use crate::ScreenDims;
+use crate::{ScreenDims, Settings};
 
 pub fn setup(
-    window_title: &str,
+    settings: &Settings,
     timer: &mut Timer,
 ) -> (PrerenderInnards, winit::event_loop::EventLoop<()>) {
     let event_loop = winit::event_loop::EventLoop::new();
     let window = winit::window::WindowBuilder::new()
-        .with_title(window_title)
+        .with_title(&settings.window_title)
         .with_maximized(true);
     // TODO If people are hitting problems with context not matching what their GPU provides, dig up
     // backend_glium.rs from git and bring the fallback behavior here. (Ideally, there'd be

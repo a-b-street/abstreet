@@ -161,7 +161,9 @@ impl<A: SharedAppState> State<A> {
 
 /// Customize how widgetry works. These settings can't be changed after starting.
 pub struct Settings {
-    window_title: String,
+    pub(crate) window_title: String,
+    #[cfg(target_arch = "wasm32")]
+    pub(crate) root_dom_element_id: String,
     dump_raw_events: bool,
     scale_factor: Option<f64>,
     require_minimum_width: Option<f64>,
@@ -175,6 +177,8 @@ impl Settings {
     pub fn new(window_title: &str) -> Settings {
         Settings {
             window_title: window_title.to_string(),
+            #[cfg(target_arch = "wasm32")]
+            root_dom_element_id: "widgetry-canvas".to_string(),
             dump_raw_events: false,
             scale_factor: None,
             require_minimum_width: None,
@@ -202,6 +206,12 @@ impl Settings {
     /// Override the initial HiDPI scale factor from whatever winit initially detects.
     pub fn scale_factor(mut self, scale_factor: f64) -> Self {
         self.scale_factor = Some(scale_factor);
+        self
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    pub fn root_dom_element_id(mut self, element_id: &str) -> Self {
+        self.root_dom_element_id = element_id.to_string();
         self
     }
 
@@ -248,7 +258,7 @@ pub fn run<
     make_app: F,
 ) -> ! {
     let mut timer = Timer::new("setup widgetry");
-    let (prerender_innards, event_loop) = crate::backend::setup(&settings.window_title, &mut timer);
+    let (prerender_innards, event_loop) = crate::backend::setup(&settings, &mut timer);
 
     if let Some(ref path) = settings.window_icon {
         if !cfg!(target_arch = "wasm32") {
