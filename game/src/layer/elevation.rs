@@ -23,12 +23,7 @@ impl Layer for Elevation {
             if let Some(ID::Road(r)) = app.mouseover_unzoomed_roads_and_intersections(ctx) {
                 self.tooltip = Some(Text::from(format!(
                     "{:.1}% incline",
-                    app.primary
-                        .map
-                        .get_r(r)
-                        .percent_incline(&app.primary.map)
-                        .abs()
-                        * 100.0
+                    app.primary.map.get_r(r).percent_incline.abs() * 100.0
                 )));
             }
         }
@@ -58,7 +53,7 @@ impl Elevation {
         let mut steepest = 0.0_f64;
         let mut batch = GeomBatch::new();
         for r in app.primary.map.all_roads() {
-            let pct = r.percent_incline(&app.primary.map);
+            let pct = r.percent_incline;
             steepest = steepest.max(pct.abs());
 
             let color = app.cs.good_to_bad_red.eval(

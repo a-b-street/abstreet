@@ -105,10 +105,11 @@ impl Map {
             let i1 = intersection_id_mapping[&r.src_i];
             let i2 = intersection_id_mapping[&r.dst_i];
 
+            let raw_road = &raw.roads[&r.id];
             let mut road = Road {
                 id: road_id,
-                osm_tags: raw.roads[&r.id].osm_tags.clone(),
-                turn_restrictions: raw.roads[&r.id]
+                osm_tags: raw_road.osm_tags.clone(),
+                turn_restrictions: raw_road
                     .turn_restrictions
                     .iter()
                     .filter_map(|(rt, to)| {
@@ -116,7 +117,7 @@ impl Map {
                         road_id_mapping.get(to).map(|to| (*rt, *to))
                     })
                     .collect(),
-                complicated_turn_restrictions: raw.roads[&r.id]
+                complicated_turn_restrictions: raw_road
                     .complicated_turn_restrictions
                     .iter()
                     .filter_map(|(via, to)| {
@@ -139,7 +140,7 @@ impl Map {
                 src_i: i1,
                 dst_i: i2,
                 speed_limit: Speed::ZERO,
-                zorder: if let Some(layer) = raw.roads[&r.id].osm_tags.get("layer") {
+                zorder: if let Some(layer) = raw_road.osm_tags.get("layer") {
                     match layer.parse::<f64>() {
                         // Just drop .5 for now
                         Ok(l) => l as isize,
@@ -152,6 +153,7 @@ impl Map {
                     0
                 },
                 access_restrictions: AccessRestrictions::new(),
+                percent_incline: raw_road.percent_incline,
             };
             road.speed_limit = road.speed_limit_from_osm();
             road.access_restrictions = road.access_restrictions_from_osm();
@@ -350,22 +352,6 @@ impl Map {
             ));
             timer.stop("setup ContractionHierarchyPathfinder");
         }
-
-        timer.start("check elevation data");
-        for r in map.all_roads() {
-            let pct = r.percent_incline(&map);
-            // Per https://wiki.openstreetmap.org/wiki/Key:incline#Common_.26_extreme_inclines, we
-            // shouldn't often see values outside a certain range. Adjust this when we import
-            // somewhere exceeding this...
-            if pct.abs() > 0.3 {
-                error!(
-                    "{} is unexpectedly steep! Incline is {}%",
-                    r.id,
-                    pct * 100.0
-                );
-            }
-        }
-        timer.stop("check elevation data");
 
         map
     }

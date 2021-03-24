@@ -108,6 +108,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                     osm_tags: way.tags.clone(),
                     turn_restrictions: Vec::new(),
                     complicated_turn_restrictions: Vec::new(),
+                    percent_incline: 0.0,
                 },
             ));
             continue;

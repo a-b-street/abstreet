@@ -104,7 +104,9 @@ fn smoke_test() -> Result<()> {
             && vec!["downtown", "lakeslice", "montlake", "udistrict"].contains(&name.map.as_str()))
             || name == MapName::new("pl", "krakow", "center")
         {
-            dump_route_goldenfile(&map)?;
+            if false {
+                dump_route_goldenfile(&map)?;
+            }
         }
     }
     Ok(())

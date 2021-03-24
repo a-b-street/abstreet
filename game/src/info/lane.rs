@@ -164,7 +164,7 @@ fn debug_body(ctx: &EventCtx, app: &App, id: LaneID) -> Widget {
     ));
     kv.push((
         "Incline / grade".to_string(),
-        format!("{:.1}%", r.percent_incline(map) * 100.0),
+        format!("{:.1}%", r.percent_incline * 100.0),
     ));
     kv.push((
         "Elevation details".to_string(),

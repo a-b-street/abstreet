@@ -123,6 +123,7 @@ fn convert(orig_path: &str, network: Network) -> Result<Map> {
                 speed_limit,
                 access_restrictions: AccessRestrictions::new(),
                 zorder: 0,
+                percent_incline: 0.0,
 
                 lanes_ltr,
 

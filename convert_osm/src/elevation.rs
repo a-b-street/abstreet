@@ -43,7 +43,7 @@ pub fn add_data(map: &mut RawMap, timer: &mut Timer) -> Result<()> {
             ))
             .arg("-t")
             // TODO Upload this to Docker Hub, so it's easier to distribute
-            .arg("elevation_lookups")
+            .arg("elevation_lookups_lidar")
             .arg("python3")
             .arg("main.py")
             .arg("query"),
@@ -78,7 +78,8 @@ fn generate_input(map: &RawMap) -> Result<Vec<OriginalRoad>> {
             while dist <= pl.length() {
                 let (pt, _) = pl.dist_along(dist).unwrap();
                 pts.push(pt);
-                dist += Distance::meters(1.0);
+                // Smaller gives more detail, but is slower.
+                dist += Distance::meters(5.0);
             }
             // Always ask for the intersection
             if *pts.last().unwrap() != pl.last_pt() {
@@ -103,21 +104,50 @@ fn scrape_output(map: &mut RawMap, ids: Vec<OriginalRoad>) -> Result<()> {
         .lines()
         .zip(ids)
     {
+        cnt += 1;
         let line = line?;
         let mut values = Vec::new();
         for x in line.split('\t') {
-            values.push(Distance::meters(x.parse::<f64>()?));
+            let x = x.parse::<f64>()?;
+            if !x.is_finite() {
+                // TODO Warn
+                continue;
+            }
+            values.push(Distance::meters(x));
         }
         if values.len() != 4 {
-            bail!("Elevation output line \"{}\" doesn't have 4 numbers", line);
+            error!("Elevation output line \"{}\" doesn't have 4 numbers", line);
+            continue;
         }
         // TODO Also put total_climb and total_descent on the roads
         map.intersections.get_mut(&id.i1).unwrap().elevation = values[0];
         map.intersections.get_mut(&id.i2).unwrap().elevation = values[1];
-        cnt += 1;
     }
     if cnt != num_ids {
         bail!("Output had {} lines, but we made {} queries", cnt, num_ids);
     }
+
+    // Calculate the incline for each road here, before the road gets trimmed for intersection
+    // geometry. If we did this after trimming, we'd miss some of the horizontal distance.
+    for (id, road) in &mut map.roads {
+        let rise = map.intersections[&id.i2].elevation - map.intersections[&id.i1].elevation;
+        let run = PolyLine::unchecked_new(road.center_points.clone()).length();
+        if !(rise / run).is_finite() {
+            // TODO Warn?
+            continue;
+        }
+        road.percent_incline = rise / run;
+        // Per https://wiki.openstreetmap.org/wiki/Key:incline#Common_.26_extreme_inclines, we
+        // shouldn't often see values outside a certain range. Adjust this when we import
+        // somewhere exceeding this...
+        if road.percent_incline.abs() > 0.3 {
+            error!(
+                "{} is unexpectedly steep! Incline is {}%",
+                id,
+                road.percent_incline * 100.0
+            );
+        }
+    }
+
     Ok(())
 }

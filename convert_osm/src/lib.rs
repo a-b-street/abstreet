@@ -111,7 +111,7 @@ pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
     parking::apply_parking(&mut map, &opts, timer);
 
     // TODO Enable for all when SRTM is ready.
-    if map.name.city == abstio::CityName::seattle() && false {
+    if map.name.city == abstio::CityName::seattle() && true {
         // TODO Make this bail out on failure, after the new dependencies are clearly explained.
         if let Err(err) = elevation::add_data(&mut map, timer) {
             error!("No elevation data: {}", err);

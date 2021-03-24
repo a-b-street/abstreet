@@ -102,6 +102,9 @@ pub struct Road {
     pub speed_limit: Speed,
     pub access_restrictions: AccessRestrictions,
     pub zorder: isize,
+    /// [-1.0, 1.0] theoretically, but in practice, about [-0.25, 0.25]. 0 is flat,
+    /// positive is uphill from src_i -> dst_i, negative is downhill.
+    pub percent_incline: f64,
 
     /// Invariant: A road must contain at least one child
     // TODO Only public for Map::import_minimal. Can we avoid this?
@@ -316,31 +319,6 @@ impl Road {
             stops.extend(map.get_l(id).bus_stops.iter().cloned());
         }
         stops
-    }
-
-    /// Returns [-1.0, 1.0] theoretically, but in practice, about [-0.25, 0.25]. 0 is flat,
-    /// positive is uphill from src_i -> dst_i, negative is downhill.
-    // TODO Or do we care about the total up/down along the possibly long road?
-    pub fn percent_incline(&self, map: &Map) -> f64 {
-        let rise = map.get_i(self.dst_i).elevation - map.get_i(self.src_i).elevation;
-
-        // TODO center_pts is trimmed, but the intersection elevation is measured at the point where
-        // the untrimmed roads originally meet. That point isn't retained. Until we sort thi
-        // out, workaround by assuming the intersection polygon's center was that original
-        // point, and add in the distance from that to this road's endpoint.
-        let mut run = self.center_pts.length();
-        run += map
-            .get_i(self.src_i)
-            .polygon
-            .center()
-            .dist_to(self.center_pts.first_pt());
-        run += map
-            .get_i(self.dst_i)
-            .polygon
-            .center()
-            .dist_to(self.center_pts.last_pt());
-
-        rise / run
     }
 
     pub fn is_light_rail(&self) -> bool {

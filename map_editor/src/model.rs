@@ -290,6 +290,7 @@ impl Model {
                 osm_tags,
                 turn_restrictions: Vec::new(),
                 complicated_turn_restrictions: Vec::new(),
+                percent_incline: 0.0,
             },
         );
         self.road_added(ctx, id);

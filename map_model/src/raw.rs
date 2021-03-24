@@ -446,6 +446,7 @@ pub struct RawRoad {
     pub turn_restrictions: Vec<(RestrictionType, OriginalRoad)>,
     /// (via, to). For turn restrictions where 'via' is an entire road. Only BanTurns.
     pub complicated_turn_restrictions: Vec<(OriginalRoad, OriginalRoad)>,
+    pub percent_incline: f64,
 }
 
 impl RawRoad {
