@@ -82,23 +82,20 @@ fn clip(pbf_path: &str, boundary: &Polygon<f64>, out_path: &str) -> Result<()> {
     // Second Pass: write the feature for each ID accumulated in the first pass
     let mut reader = osmio::pbf::PBFReader::new(BufReader::new(File::open(pbf_path)?));
     for obj in reader.objects() {
-        match obj.object_type() {
-            OSMObjectType::Node => {
-                let node = obj.into_node().unwrap();
+        match &obj {
+            RcOSMObj::Node(node) => {
                 if way_node_ids.contains(&node.id()) {
-                    writer.write_obj(&RcOSMObj::Node(node))?;
+                    writer.write_obj(&obj)?;
                 }
             }
-            OSMObjectType::Way => {
-                if way_ids.contains(&obj.id()) {
-                    let way = obj.into_way().unwrap();
-                    writer.write_obj(&RcOSMObj::Way(way))?;
+            RcOSMObj::Way(way) => {
+                if way_ids.contains(&way.id()) {
+                    writer.write_obj(&obj)?;
                 }
             }
-            OSMObjectType::Relation => {
-                if relation_ids.contains(&obj.id()) {
-                    let relation = obj.into_relation().unwrap();
-                    writer.write_obj(&RcOSMObj::Relation(relation))?;
+            RcOSMObj::Relation(relation) => {
+                if relation_ids.contains(&relation.id()) {
+                    writer.write_obj(&obj)?;
                 }
             }
         }
