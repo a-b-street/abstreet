@@ -601,6 +601,7 @@
 <span id="598">598</span>
 <span id="599">599</span>
 <span id="600">600</span>
+<span id="601">601</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Write</span>;
@@ -894,6 +895,7 @@
                 <span class="ident">osm_tags</span>,
                 <span class="ident">turn_restrictions</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
                 <span class="ident">complicated_turn_restrictions</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+                <span class="ident">percent_incline</span>: <span class="number">0.0</span>,
             },
         );
         <span class="self">self</span>.<span class="ident">road_added</span>(<span class="ident">ctx</span>, <span class="ident">id</span>);

@@ -594,6 +594,7 @@
 <span id="591">591</span>
 <span id="592">592</span>
 <span id="593">593</span>
+<span id="594">594</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate</span>
 <span class="doccomment">//! structure is useful to iterate quickly on parts of the map importing pipeline without having to</span>
@@ -1043,6 +1044,7 @@
     <span class="kw">pub</span> <span class="ident">turn_restrictions</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">RestrictionType</span>, <span class="ident">OriginalRoad</span>)<span class="op">&gt;</span>,
     <span class="doccomment">/// (via, to). For turn restrictions where &#39;via&#39; is an entire road. Only BanTurns.</span>
     <span class="kw">pub</span> <span class="ident">complicated_turn_restrictions</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">OriginalRoad</span>, <span class="ident">OriginalRoad</span>)<span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">percent_incline</span>: <span class="ident">f64</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">RawRoad</span> {

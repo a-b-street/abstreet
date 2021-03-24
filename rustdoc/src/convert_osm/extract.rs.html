@@ -646,6 +646,7 @@
 <span id="643">643</span>
 <span id="644">644</span>
 <span id="645">645</span>
+<span id="646">646</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>};
 
@@ -757,6 +758,7 @@
                     <span class="ident">osm_tags</span>: <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">clone</span>(),
                     <span class="ident">turn_restrictions</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
                     <span class="ident">complicated_turn_restrictions</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+                    <span class="ident">percent_incline</span>: <span class="number">0.0</span>,
                 },
             ));
             <span class="kw">continue</span>;
