@@ -1,3 +1,3 @@
 (function() {var implementors = {};
-implementors["map_model"] = [{"text":"impl EnumSetType for PathConstraints","synthetic":false,"types":[]}];
+implementors["map_model"] = [{"text":"impl EnumSetType for <a class=\"enum\" href=\"map_model/pathfind/enum.PathConstraints.html\" title=\"enum map_model::pathfind::PathConstraints\">PathConstraints</a>","synthetic":false,"types":["map_model::pathfind::PathConstraints"]}];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

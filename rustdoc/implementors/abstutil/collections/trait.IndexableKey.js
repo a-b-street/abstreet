@@ -1,3 +1,3 @@
 (function() {var implementors = {};
-implementors["sim"] = [{"text":"impl IndexableKey for CarID","synthetic":false,"types":[]},{"text":"impl IndexableKey for PedestrianID","synthetic":false,"types":[]}];
+implementors["sim"] = [{"text":"impl <a class=\"trait\" href=\"abstutil/collections/trait.IndexableKey.html\" title=\"trait abstutil::collections::IndexableKey\">IndexableKey</a> for <a class=\"struct\" href=\"sim/struct.CarID.html\" title=\"struct sim::CarID\">CarID</a>","synthetic":false,"types":["sim::CarID"]},{"text":"impl <a class=\"trait\" href=\"abstutil/collections/trait.IndexableKey.html\" title=\"trait abstutil::collections::IndexableKey\">IndexableKey</a> for <a class=\"struct\" href=\"sim/struct.PedestrianID.html\" title=\"struct sim::PedestrianID\">PedestrianID</a>","synthetic":false,"types":["sim::PedestrianID"]}];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
