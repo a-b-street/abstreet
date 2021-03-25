@@ -494,8 +494,25 @@ impl PathCostDebugger {
         draw_path: Polygon,
     ) -> Option<Box<dyn State<App>>> {
         let (full_cost, all_costs) = connectivity::debug_vehicle_costs(req, &app.primary.map)?;
+        let mut batch = GeomBatch::new();
+        // Highlight all roads with a cost less than the cost of the chosen path. This more or less
+        // shows "alternatives considered"; the boundary becomes the point where the chosen path
+        // really did win.
+        for (r, cost) in &all_costs {
+            if *cost <= full_cost {
+                batch.push(
+                    Color::BLUE.alpha(0.5),
+                    app.primary
+                        .map
+                        .get_r(*r)
+                        .get_thick_polygon(&app.primary.map),
+                );
+            }
+        }
+        batch.push(Color::PURPLE, draw_path);
+
         Some(Box::new(PathCostDebugger {
-            draw_path: ctx.upload(GeomBatch::from(vec![(Color::PURPLE, draw_path)])),
+            draw_path: ctx.upload(batch),
             costs: all_costs,
             tooltip: None,
             panel: Panel::new(Widget::col(vec![
