@@ -140,6 +140,7 @@
 <span id="137">137</span>
 <span id="138">138</span>
 <span id="139">139</span>
+<span id="140">140</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
@@ -159,10 +160,11 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Entry</span> {
     <span class="doccomment">/// md5sum of the file</span>
     <span class="kw">pub</span> <span class="ident">checksum</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// Uncompressed size in bytes</span>
-    <span class="kw">pub</span> <span class="ident">uncompressed_size_bytes</span>: <span class="ident">usize</span>,
+    <span class="doccomment">/// Uncompressed size in bytes. Because we have some massive files more than 2^32 bytes</span>
+    <span class="doccomment">/// described by this, explicitly use u64 instead of usize, so wasm doesn&#39;t break.</span>
+    <span class="kw">pub</span> <span class="ident">uncompressed_size_bytes</span>: <span class="ident">u64</span>,
     <span class="doccomment">/// Compressed size in bytes</span>
-    <span class="kw">pub</span> <span class="ident">compressed_size_bytes</span>: <span class="ident">usize</span>,
+    <span class="kw">pub</span> <span class="ident">compressed_size_bytes</span>: <span class="ident">u64</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Manifest</span> {
