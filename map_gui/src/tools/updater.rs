@@ -107,7 +107,7 @@ impl<A: AppLike + 'static> State<A> for Picker<A> {
 }
 
 // For each city, how many total bytes do the runtime files cost to download?
-fn size_per_city(manifest: &Manifest) -> BTreeMap<String, usize> {
+fn size_per_city(manifest: &Manifest) -> BTreeMap<String, u64> {
     let mut per_city = BTreeMap::new();
     for (path, entry) in &manifest.entries {
         let parts = path.split("/").collect::<Vec<_>>();
@@ -122,7 +122,7 @@ fn size_per_city(manifest: &Manifest) -> BTreeMap<String, usize> {
     per_city
 }
 
-fn prettyprint_bytes(bytes: usize) -> String {
+fn prettyprint_bytes(bytes: u64) -> String {
     if bytes < 1024 {
         return format!("{} bytes", bytes);
     }
@@ -220,13 +220,13 @@ pub fn sync_missing_files(timer: &mut Timer) -> Vec<String> {
 }
 
 // Bytes downloaded if succesful
-fn download(url: &str, local_path: String) -> Result<usize> {
+fn download(url: &str, local_path: String) -> Result<u64> {
     let mut resp = reqwest::blocking::get(url)?;
     if !resp.status().is_success() {
         bail!("bad status: {:?}", resp.status());
     }
     let mut buffer: Vec<u8> = Vec::new();
-    let bytes = resp.copy_to(&mut buffer)? as usize;
+    let bytes = resp.copy_to(&mut buffer)?;
 
     info!("Decompressing {} ({})", url, prettyprint_bytes(bytes));
     let mut decoder = flate2::read::GzDecoder::new(&buffer[..]);

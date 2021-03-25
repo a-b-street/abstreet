@@ -156,7 +156,7 @@ fn upload(version: String) {
             // generate_manifest.
             entry.compressed_size_bytes = std::fs::metadata(&remote_path)
                 .expect(&format!("Compressed {} not there?", remote_path))
-                .len() as usize;
+                .len();
             (path, entry)
         },
     ) {
@@ -254,7 +254,7 @@ fn generate_manifest() -> Manifest {
 }
 
 /// Returns (checksum, uncompressed_size_bytes)
-fn md5sum(path: &str) -> (String, usize) {
+fn md5sum(path: &str) -> (String, u64) {
     // since these files can be very large, computes the md5 hash in chunks
     let mut file = File::open(path).unwrap();
     let mut buffer = [0 as u8; MD5_BUF_READ_SIZE];
@@ -267,7 +267,10 @@ fn md5sum(path: &str) -> (String, usize) {
         uncompressed_size_bytes += n;
         context.consume(&buffer[..n]);
     }
-    (format!("{:x}", context.compute()), uncompressed_size_bytes)
+    (
+        format!("{:x}", context.compute()),
+        uncompressed_size_bytes as u64,
+    )
 }
 
 fn rm(path: &str) {

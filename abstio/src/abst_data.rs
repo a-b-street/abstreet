@@ -16,10 +16,11 @@ pub struct Manifest {
 pub struct Entry {
     /// md5sum of the file
     pub checksum: String,
-    /// Uncompressed size in bytes
-    pub uncompressed_size_bytes: usize,
+    /// Uncompressed size in bytes. Because we have some massive files more than 2^32 bytes
+    /// described by this, explicitly use u64 instead of usize, so wasm doesn't break.
+    pub uncompressed_size_bytes: u64,
     /// Compressed size in bytes
-    pub compressed_size_bytes: usize,
+    pub compressed_size_bytes: u64,
 }
 
 impl Manifest {
