@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use abstutil::{prettyprint_usize, Counter, Parallelism, Timer};
-use geom::Polygon;
+use geom::{Duration, Polygon};
 use map_gui::colors::ColorSchemeChoice;
 use map_gui::tools::ColorNetwork;
 use map_gui::{AppLike, ID};
@@ -208,7 +208,7 @@ fn params_to_controls(ctx: &mut EventCtx, mode: TripMode, params: &RoutingParams
             Spinner::widget(
                 ctx,
                 (1, 100),
-                (params.unprotected_turn_penalty * 10.0) as isize,
+                params.unprotected_turn_penalty.inner_seconds() as isize,
             )
             .named("unprotected turn penalty"),
         ]));
@@ -237,13 +237,15 @@ fn params_to_controls(ctx: &mut EventCtx, mode: TripMode, params: &RoutingParams
 fn controls_to_params(panel: &Panel) -> (TripMode, RoutingParams) {
     let mut params = RoutingParams::default();
     if !panel.is_button_enabled("cars") {
-        params.unprotected_turn_penalty = panel.spinner("unprotected turn penalty") as f64 / 10.0;
+        params.unprotected_turn_penalty =
+            Duration::seconds(panel.spinner("unprotected turn penalty") as f64);
         return (TripMode::Drive, params);
     }
     if !panel.is_button_enabled("pedestrians") {
         return (TripMode::Walk, params);
     }
-    params.unprotected_turn_penalty = panel.spinner("unprotected turn penalty") as f64 / 10.0;
+    params.unprotected_turn_penalty =
+        Duration::seconds(panel.spinner("unprotected turn penalty") as f64 / 10.0);
     params.bike_lane_penalty = panel.spinner("bike lane penalty") as f64 / 10.0;
     params.bus_lane_penalty = panel.spinner("bus lane penalty") as f64 / 10.0;
     params.driving_lane_penalty = panel.spinner("driving lane penalty") as f64 / 10.0;
@@ -479,7 +481,7 @@ fn cmp_count(after: usize, before: usize) -> Vec<TextSpan> {
 /// one start.
 pub struct PathCostDebugger {
     draw_path: Drawable,
-    costs: HashMap<RoadID, f64>,
+    costs: HashMap<RoadID, Duration>,
     tooltip: Option<Text>,
     panel: Panel,
 }
@@ -516,8 +518,11 @@ impl State<App> for PathCostDebugger {
         if ctx.redo_mouseover() {
             self.tooltip = None;
             if let Some(ID::Road(r)) = app.mouseover_unzoomed_roads_and_intersections(ctx) {
-                let cost = self.costs.get(&r).cloned().unwrap_or(-1.0);
-                self.tooltip = Some(Text::from(format!("Cost: {}", cost)));
+                if let Some(cost) = self.costs.get(&r) {
+                    self.tooltip = Some(Text::from(format!("Cost: {}", cost)));
+                } else {
+                    self.tooltip = Some(Text::from("No cost"));
+                }
             }
         }
 

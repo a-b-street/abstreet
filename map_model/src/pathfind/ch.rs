@@ -4,6 +4,7 @@
 use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
+use geom::Duration;
 
 use crate::pathfind::vehicles::VehiclePathfinder;
 use crate::pathfind::walking::{SidewalkPathfinder, WalkingNode};
@@ -107,4 +108,9 @@ impl ContractionHierarchyPathfinder {
             .apply_edits(map, &self.bus_graph, &self.train_graph);
         timer.stop("apply edits to pedestrian using transit pathfinding");
     }
+}
+
+pub fn round(cost: Duration) -> usize {
+    // Round up! 0 cost edges are ignored
+    (cost.inner_seconds().round() as usize).max(1)
 }

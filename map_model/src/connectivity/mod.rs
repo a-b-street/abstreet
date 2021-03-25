@@ -4,7 +4,7 @@ use std::collections::{HashMap, HashSet};
 
 use petgraph::graphmap::DiGraphMap;
 
-use geom::{Distance, Duration, Speed};
+use geom::Duration;
 
 pub use self::walking::{all_walking_costs_from, WalkingOptions};
 use crate::pathfind::{build_graph_for_vehicles, zone_cost};
@@ -77,9 +77,6 @@ pub fn all_vehicle_costs_from(
         }
     }
 
-    // TODO Copied from simulation code :(
-    let max_bike_speed = Speed::miles_per_hour(10.0);
-
     if let Some(start_lane) = bldg_to_lane.get(&start) {
         let graph = build_graph_for_vehicles(map, constraints);
         let cost_per_lane = petgraph::algo::dijkstra(&graph, *start_lane, None, |(_, _, turn)| {
@@ -92,9 +89,7 @@ pub fn all_vehicle_costs_from(
             )
         });
         for (b, lane) in bldg_to_lane {
-            if let Some(meters) = cost_per_lane.get(&lane) {
-                let distance = Distance::meters(*meters as f64);
-                let duration = distance / max_bike_speed;
+            if let Some(duration) = cost_per_lane.get(&lane).cloned() {
                 if duration <= time_limit {
                     results.insert(b, duration);
                 }
@@ -106,7 +101,10 @@ pub fn all_vehicle_costs_from(
 }
 
 // TODO Refactor with all_vehicle_costs_from
-pub fn debug_vehicle_costs(req: PathRequest, map: &Map) -> Option<(f64, HashMap<RoadID, f64>)> {
+pub fn debug_vehicle_costs(
+    req: PathRequest,
+    map: &Map,
+) -> Option<(Duration, HashMap<RoadID, Duration>)> {
     // TODO Support this
     if req.constraints == PathConstraints::Pedestrian {
         return None;
@@ -127,7 +125,7 @@ pub fn debug_vehicle_costs(req: PathRequest, map: &Map) -> Option<(f64, HashMap<
                 map,
             ) + zone_cost(turn, req.constraints, map)
         },
-        |_| 0.0,
+        |_| Duration::ZERO,
     )?;
 
     let lane_costs = petgraph::algo::dijkstra(&graph, req.start.lane(), None, |(_, _, t)| {
@@ -145,7 +143,7 @@ pub fn debug_vehicle_costs(req: PathRequest, map: &Map) -> Option<(f64, HashMap<
     let mut road_costs = HashMap::new();
     for (l, cost) in lane_costs {
         let road_cost = road_costs.entry(map.get_l(l).parent).or_insert(cost);
-        *road_cost = road_cost.min(cost);
+        *road_cost = (*road_cost).min(cost);
     }
 
     Some((cost, road_costs))

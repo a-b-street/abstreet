@@ -8,8 +8,9 @@ use fast_paths::{deserialize_32, serialize_32, FastGraph, InputGraph, PathCalcul
 use serde::{Deserialize, Serialize};
 use thread_local::ThreadLocal;
 
-use geom::{Distance, Speed};
+use geom::{Distance, Duration, Speed};
 
+use crate::pathfind::ch::round;
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::pathfind::vehicles::VehiclePathfinder;
 use crate::pathfind::zone_cost;
@@ -237,12 +238,12 @@ fn make_input_graph(
             let mut cost = walking_cost(l.length());
             // TODO Tune this penalty, along with many others.
             if l.is_shoulder() {
-                cost *= 2;
+                cost = 2.0 * cost;
             }
             let n1 = nodes.get(WalkingNode::SidewalkEndpoint(l.id, true));
             let n2 = nodes.get(WalkingNode::SidewalkEndpoint(l.id, false));
-            input_graph.add_edge(n1, n2, cost);
-            input_graph.add_edge(n2, n1, cost);
+            input_graph.add_edge(n1, n2, round(cost));
+            input_graph.add_edge(n2, n1, round(cost));
         }
     }
 
@@ -255,8 +256,9 @@ fn make_input_graph(
             input_graph.add_edge(
                 nodes.get(from),
                 nodes.get(to),
-                walking_cost(t.geom.length())
-                    + zone_cost(t, PathConstraints::Pedestrian, map) as usize,
+                round(
+                    walking_cost(t.geom.length()) + zone_cost(t, PathConstraints::Pedestrian, map),
+                ),
             );
         }
     }
@@ -286,12 +288,12 @@ fn transit_input_graph(
             } else {
                 walking_cost(stop.sidewalk_pos.dist_along())
             };
-            // Add some extra penalty (equivalent to 1m) to using a bus stop. Otherwise a path
-            // might try to pass through it uselessly.
-            let penalty = 100;
+            // Add some extra penalty to using a bus stop. Otherwise a path might try to pass
+            // through it uselessly.
+            let penalty = Duration::seconds(1.0);
             let sidewalk = nodes.get(WalkingNode::SidewalkEndpoint(lane.id, *endpt));
-            input_graph.add_edge(sidewalk, ride_bus, cost + penalty);
-            input_graph.add_edge(ride_bus, sidewalk, cost + penalty);
+            input_graph.add_edge(sidewalk, ride_bus, round(cost + penalty));
+            input_graph.add_edge(ride_bus, sidewalk, round(cost + penalty));
         }
     }
 
@@ -380,12 +382,10 @@ fn transit_input_graph(
     }
 }
 
-/// The cost is time in seconds, rounded to a usize
 // TODO Plumb RoutingParams here, but first, need to also plumb in the turn or lane.
-pub fn walking_cost(dist: Distance) -> usize {
+pub fn walking_cost(dist: Distance) -> Duration {
     let walking_speed = Speed::meters_per_second(1.34);
-    let time = dist / walking_speed;
-    (time.inner_seconds().round() as usize).max(1)
+    dist / walking_speed
 }
 
 pub fn walking_path_to_steps(path: Vec<WalkingNode>, map: &Map) -> Vec<PathStep> {
