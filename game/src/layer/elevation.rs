@@ -1,21 +1,21 @@
 use geom::{ArrowCap, Distance, PolyLine};
-use map_gui::tools::{ColorLegend, ColorNetwork};
+use map_gui::tools::ColorDiscrete;
 use map_gui::ID;
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Panel, Text, TextExt, Widget};
 
 use crate::app::App;
 use crate::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
 
-pub struct Elevation {
+pub struct SteepStreets {
     tooltip: Option<Text>,
     unzoomed: Drawable,
     zoomed: Drawable,
     panel: Panel,
 }
 
-impl Layer for Elevation {
+impl Layer for SteepStreets {
     fn name(&self) -> Option<&'static str> {
-        Some("elevation")
+        Some("steep streets")
     }
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<LayerOutcome> {
         if ctx.redo_mouseover() {
@@ -46,31 +46,44 @@ impl Layer for Elevation {
     }
 }
 
-impl Elevation {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Elevation {
-        let mut colorer = ColorNetwork::new(app);
+impl SteepStreets {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> SteepStreets {
+        let mut colorer = ColorDiscrete::new(
+            app,
+            vec![
+                // Colors and buckets from https://github.com/ITSLeeds/slopes
+                ("3-5% (almost flat)", Color::hex("#689A03")),
+                ("5-8%", Color::hex("#EB9A04")),
+                ("8-10%", Color::hex("#D30800")),
+                ("10-20%", Color::hex("#980104")),
+                (">20% (steep)", Color::hex("#680605")),
+            ],
+        );
 
         let mut steepest = 0.0_f64;
-        let mut batch = GeomBatch::new();
+        let mut arrows = GeomBatch::new();
         for r in app.primary.map.all_roads() {
-            let pct = r.percent_incline;
-            steepest = steepest.max(pct.abs());
+            let pct = r.percent_incline.abs();
+            steepest = steepest.max(pct);
 
-            let color = app.cs.good_to_bad_red.eval(
-                // Treat 30% as the steepest, rounding off
-                (pct.abs() / 0.3).min(1.0),
-            );
-            colorer.add_r(r.id, color);
+            let bucket = if pct < 0.03 {
+                continue;
+            } else if pct < 0.05 {
+                "3-5% (almost flat)"
+            } else if pct < 0.08 {
+                "5-8%"
+            } else if pct < 0.2 {
+                "10-20%"
+            } else {
+                ">20% (steep)"
+            };
+            colorer.add_r(r.id, bucket);
 
             // Draw arrows pointing uphill
             // TODO Draw V's, not arrows.
             // TODO Or try gradient colors.
-            if pct.abs() < 0.01 {
-                // Don't bother with ~flat roads
-                continue;
-            }
             let mut pl = r.center_pts.clone();
-            if pct < 0.0 {
+            if r.percent_incline < 0.0 {
                 pl = pl.reversed();
             }
 
@@ -82,8 +95,8 @@ impl Elevation {
             let mut dist = arrow_len;
             while dist + arrow_len <= len {
                 let (pt, angle) = pl.must_dist_along(dist);
-                batch.push(
-                    Color::BLACK,
+                arrows.push(
+                    Color::WHITE,
                     PolyLine::must_new(vec![
                         pt.project_away(arrow_len / 2.0, angle.opposite()),
                         pt.project_away(arrow_len / 2.0, angle),
@@ -93,20 +106,22 @@ impl Elevation {
                 dist += btwn;
             }
         }
-        colorer.unzoomed.append(batch);
+        colorer.unzoomed.append(arrows);
+        let (unzoomed, zoomed, legend) = colorer.build(ctx);
 
         let panel = Panel::new(Widget::col(vec![
-            header(ctx, "Elevation change"),
+            header(ctx, "Steep streets"),
             format!("Steepest road: {:.0}% incline", steepest * 100.0).text_widget(ctx),
-            ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["flat", "steep"]),
+            "Arrows point uphill".text_widget(ctx),
+            legend,
         ]))
         .aligned_pair(PANEL_PLACEMENT)
         .build(ctx);
 
-        Elevation {
+        SteepStreets {
             tooltip: None,
-            unzoomed: ctx.upload(colorer.unzoomed),
-            zoomed: ctx.upload(colorer.zoomed),
+            unzoomed,
+            zoomed,
             panel,
         }
     }
