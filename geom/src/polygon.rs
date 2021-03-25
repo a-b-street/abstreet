@@ -73,18 +73,14 @@ impl Polygon {
         Polygon::with_holes(outer, rings)
     }
 
-    // TODO Doesn't remember rings yet
-    pub fn from_geojson(raw: &Vec<Vec<Vec<f64>>>) -> Polygon {
-        let (vertices, holes, dims) = earcutr::flatten(raw);
-        let indices = downsize(earcutr::earcut(&vertices, &holes, dims));
-        Polygon {
-            points: vertices
-                .chunks(2)
-                .map(|pair| Pt2D::new(pair[0], pair[1]))
-                .collect(),
-            indices,
-            rings: None,
+    pub fn from_geojson(raw: &Vec<Vec<Vec<f64>>>) -> Result<Polygon> {
+        let mut rings = Vec::new();
+        for pts in raw {
+            let transformed: Vec<Pt2D> =
+                pts.iter().map(|pair| Pt2D::new(pair[0], pair[1])).collect();
+            rings.push(Ring::new(transformed)?);
         }
+        Ok(Polygon::from_rings(rings))
     }
 
     // TODO No guarantee points forms a ring. In fact, the main caller is from SVG->lyon parsing,

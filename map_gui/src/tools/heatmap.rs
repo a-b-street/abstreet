@@ -210,10 +210,9 @@ pub fn make_heatmap(
                     // Don't block the map underneath
                     let color = Color::rgb(c.r as usize, c.g as usize, c.b as usize).alpha(0.6);
                     for p in polygons {
-                        batch.push(
-                            color,
-                            Polygon::from_geojson(&p).scale(opts.resolution as f64),
-                        );
+                        if let Ok(poly) = Polygon::from_geojson(&p) {
+                            batch.push(color, poly.scale(opts.resolution as f64));
+                        }
                     }
                 }
                 _ => unreachable!(),

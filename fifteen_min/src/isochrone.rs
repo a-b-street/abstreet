@@ -180,7 +180,9 @@ impl Isochrone {
             match feature.geometry.unwrap().value {
                 geojson::Value::MultiPolygon(polygons) => {
                     for p in polygons {
-                        batch.push(color, Polygon::from_geojson(&p).scale(resolution_m));
+                        if let Ok(poly) = Polygon::from_geojson(&p) {
+                            batch.push(color, poly.scale(resolution_m));
+                        }
                     }
                 }
                 _ => unreachable!(),
