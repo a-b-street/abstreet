@@ -4,6 +4,8 @@ use std::collections::BTreeSet;
 
 use petgraph::graphmap::DiGraphMap;
 
+use geom::Duration;
+
 use crate::pathfind::vehicles::vehicle_cost;
 use crate::pathfind::walking::{walking_cost, WalkingNode};
 use crate::pathfind::zone_cost;
@@ -64,7 +66,7 @@ fn calc_path(
             vehicle_cost(map.get_l(turn.id.src), turn, req.constraints, params, map)
                 + zone_cost(turn, req.constraints, map)
         },
-        |_| 0.0,
+        |_| Duration::ZERO,
     )?;
 
     let mut steps = Vec::new();
@@ -82,8 +84,8 @@ fn calc_path(
     Some(Path::new(map, steps, req.clone(), Vec::new()))
 }
 
-pub fn build_graph_for_pedestrians(map: &Map) -> DiGraphMap<WalkingNode, usize> {
-    let mut graph: DiGraphMap<WalkingNode, usize> = DiGraphMap::new();
+pub fn build_graph_for_pedestrians(map: &Map) -> DiGraphMap<WalkingNode, Duration> {
+    let mut graph: DiGraphMap<WalkingNode, Duration> = DiGraphMap::new();
     for l in map.all_lanes() {
         if l.is_walkable() {
             let cost = walking_cost(l.length());
@@ -100,7 +102,7 @@ pub fn build_graph_for_pedestrians(map: &Map) -> DiGraphMap<WalkingNode, usize> 
                         map.get_l(turn.id.dst).dst_i == turn.id.parent,
                     ),
                     walking_cost(turn.geom.length())
-                        + zone_cost(turn, PathConstraints::Pedestrian, map) as usize,
+                        + zone_cost(turn, PathConstraints::Pedestrian, map),
                 );
             }
         }
@@ -118,7 +120,7 @@ pub fn simple_walking_path(req: &PathRequest, map: &Map) -> Option<Vec<WalkingNo
         closest_start,
         |end| end == closest_end,
         |(_, _, cost)| *cost,
-        |_| 0,
+        |_| Duration::ZERO,
     )?;
     Some(path)
 }

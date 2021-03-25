@@ -30,7 +30,7 @@ pub fn prebake_all() {
         MapName::seattle("lakeslice"),
         MapName::seattle("phinney"),
         MapName::seattle("qa"),
-        //MapName::seattle("rainier_valley"),   // TODO broken
+        MapName::seattle("rainier_valley"),
         MapName::seattle("wallingford"),
     ] {
         let map = map_model::Map::load_synchronously(name.path(), &mut timer);

@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
 
-use geom::ArrowCap;
+use geom::{ArrowCap, Duration};
 use map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
 use map_gui::tools::PopupMsg;
 use map_gui::ID;
@@ -152,7 +152,7 @@ impl UberTurnViewer {
         for i in &ic.members {
             batch.push(Color::BLUE.alpha(0.5), map.get_i(*i).polygon.clone());
         }
-        let mut sum_cost = 0.0;
+        let mut sum_cost = Duration::ZERO;
         if !ic.uber_turns.is_empty() {
             let ut = &ic.uber_turns[idx];
             batch.push(

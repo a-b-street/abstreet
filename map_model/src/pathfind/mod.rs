@@ -659,7 +659,7 @@ fn validate_zones(map: &Map, steps: &Vec<PathStep>, req: &PathRequest) {
 }
 
 /// Heavily penalize crossing into an access-restricted zone that doesn't allow this mode.
-pub fn zone_cost(turn: &Turn, constraints: PathConstraints, map: &Map) -> f64 {
+pub fn zone_cost(turn: &Turn, constraints: PathConstraints, map: &Map) -> Duration {
     // Detect when we cross into a new zone that doesn't allow constraints.
     if map
         .get_parent(turn.id.src)
@@ -672,11 +672,12 @@ pub fn zone_cost(turn: &Turn, constraints: PathConstraints, map: &Map) -> f64 {
             .allow_through_traffic
             .contains(constraints)
     {
-        // TODO Tune this after making vehicles_cost and walking_cost both roughly represent
-        // seconds. In the meantime, this penalty seems high enough to achieve the desired effect.
-        100_000.0
+        // This should be high enough to achieve the desired effect of somebody not entering
+        // the zone unless absolutely necessary. Someone would violate that and cut through anyway
+        // only when the alternative route would take more than 3 hours longer!
+        Duration::hours(3)
     } else {
-        0.0
+        Duration::ZERO
     }
 }
 
@@ -685,9 +686,10 @@ pub fn zone_cost(turn: &Turn, constraints: PathConstraints, map: &Map) -> f64 {
 // space-expensive change right now.
 #[derive(PartialEq, Serialize, Deserialize)]
 pub struct RoutingParams {
-    // For all vehicles
-    pub unprotected_turn_penalty: f64,
-    // For bike routing
+    // For all vehicles. This is added to the cost of a movement as an additional delay.
+    pub unprotected_turn_penalty: Duration,
+    // For bike routing. Multiplied by the base cost, since spending more time on the wrong lane
+    // type matters.
     pub bike_lane_penalty: f64,
     pub bus_lane_penalty: f64,
     pub driving_lane_penalty: f64,
@@ -696,7 +698,9 @@ pub struct RoutingParams {
 impl RoutingParams {
     pub const fn default() -> RoutingParams {
         RoutingParams {
-            unprotected_turn_penalty: 2.0,
+            // This is a total guess -- it really depends on the traffic patterns of the particular
+            // road at the time we're routing.
+            unprotected_turn_penalty: Duration::const_seconds(30.0),
             bike_lane_penalty: 1.0,
             bus_lane_penalty: 1.1,
             driving_lane_penalty: 1.5,

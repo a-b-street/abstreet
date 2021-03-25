@@ -7,7 +7,9 @@ use serde::{Deserialize, Serialize};
 use thread_local::ThreadLocal;
 
 use abstutil::MultiMap;
+use geom::{Duration, Speed};
 
+use crate::pathfind::ch::round;
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::pathfind::uber_turns::{IntersectionCluster, UberTurn};
 use crate::pathfind::zone_cost;
@@ -187,7 +189,7 @@ fn make_input_graph(
                     any = true;
                     let ut = &uber_turns[*idx];
 
-                    let mut sum_cost = 0.0;
+                    let mut sum_cost = Duration::ZERO;
                     for t in &ut.path {
                         let turn = map.get_t(*t);
                         sum_cost += vehicle_cost(
@@ -234,32 +236,36 @@ fn make_input_graph(
     input_graph
 }
 
-/// Different unit based on constraints.
+/// This returns the pathfinding cost of crossing one lane and turn. This is also expressed in
+/// units of time. It factors in the ideal time to cross the space, along with penalties for
+/// entering an access-restricted zone, taking an unprotected turn, and so on.
 pub fn vehicle_cost(
     lane: &Lane,
     turn: &Turn,
     constraints: PathConstraints,
     params: &RoutingParams,
     map: &Map,
-) -> f64 {
-    // TODO Could cost turns differently.
-
+) -> Duration {
     let base = match constraints {
         PathConstraints::Car | PathConstraints::Train => {
-            // Prefer slightly longer route on faster roads
             let t1 = lane.length() / map.get_r(lane.parent).speed_limit;
             let t2 = turn.geom.length() / map.get_parent(turn.id.dst).speed_limit;
-            (t1 + t2).inner_seconds()
+            t1 + t2
         }
         PathConstraints::Bike => {
-            // Speed limits don't matter, bikes are usually constrained by their own speed limit.
-            let dist = lane.length() + turn.geom.length();
+            // TODO Copied from sim. Probably move to map_model.
+            let max_bike_speed = Speed::miles_per_hour(10.0);
+            // Usually the bike's speed limit matters, not the road's.
+            let t1 = lane.length() / map.get_r(lane.parent).speed_limit.min(max_bike_speed);
+            let t2 =
+                turn.geom.length() / map.get_parent(turn.id.dst).speed_limit.min(max_bike_speed);
+
             // TODO Elevation gain is bad, loss is good.
             // TODO If we're on a driving lane, higher speed limit is worse.
             // TODO Bike lanes next to parking is dangerous.
 
-            // TODO Prefer bike lanes, then bus lanes, then driving lanes. For now, express that as
-            // an extra cost.
+            // TODO Prefer bike lanes, then bus lanes, then driving lanes. For now, express that by
+            // multiplying the base cost.
             let lt_penalty = if lane.is_biking() {
                 params.bike_lane_penalty
             } else if lane.is_bus() {
@@ -269,8 +275,7 @@ pub fn vehicle_cost(
                 params.driving_lane_penalty
             };
 
-            // 1m resolution is fine
-            (lt_penalty * dist).inner_meters()
+            lt_penalty * (t1 + t2)
         }
         PathConstraints::Bus => {
             // Like Car, but prefer bus lanes.
@@ -282,7 +287,7 @@ pub fn vehicle_cost(
                 assert!(lane.is_driving());
                 1.1
             };
-            (lt_penalty * (t1 + t2)).inner_seconds()
+            lt_penalty * (t1 + t2)
         }
         PathConstraints::Pedestrian => unreachable!(),
     };
@@ -299,7 +304,7 @@ pub fn vehicle_cost(
         && rank_from < rank_to
         && map.get_i(turn.id.parent).is_stop_sign()
     {
-        base * params.unprotected_turn_penalty
+        base + params.unprotected_turn_penalty
     } else {
         base
     };
@@ -313,11 +318,8 @@ pub fn vehicle_cost(
     if constraints == PathConstraints::Bike {
         extra_penalty = slow_lane;
     }
+    // TODO These are small integers, just treat them as seconds for now to micro-adjust the
+    // specific choice of lane.
 
-    base + (extra_penalty as f64)
-}
-
-// Round up! 0 cost edges are ignored
-fn round(cost: f64) -> usize {
-    (cost.round() as usize).max(1)
+    base + Duration::seconds(extra_penalty as f64)
 }
