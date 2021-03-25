@@ -103,15 +103,26 @@
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::{<span class="ident">BufReader</span>, <span class="ident">BufWriter</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">geo</span>::<span class="ident">prelude</span>::<span class="ident">Contains</span>;
 <span class="kw">use</span> <span class="ident">geo</span>::{<span class="ident">LineString</span>, <span class="ident">Point</span>, <span class="ident">Polygon</span>};
-<span class="kw">use</span> <span class="ident">osmio</span>::<span class="ident">obj_types</span>::{<span class="ident">RcNode</span>, <span class="ident">RcOSMObj</span>, <span class="ident">RcRelation</span>, <span class="ident">RcWay</span>};
+<span class="kw">use</span> <span class="ident">osmio</span>::<span class="ident">obj_types</span>::<span class="ident">RcOSMObj</span>;
 <span class="kw">use</span> <span class="ident">osmio</span>::{<span class="ident">Node</span>, <span class="ident">OSMObj</span>, <span class="ident">OSMObjBase</span>, <span class="ident">OSMObjectType</span>, <span class="ident">OSMReader</span>, <span class="ident">OSMWriter</span>, <span class="ident">Relation</span>, <span class="ident">Way</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">CmdArgs</span>;
@@ -138,62 +149,73 @@
 
 <span class="kw">fn</span> <span class="ident">clip</span>(<span class="ident">pbf_path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">boundary</span>: <span class="kw-2">&amp;</span><span class="ident">Polygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>, <span class="ident">out_path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="comment">// TODO Maybe just have a single map with RcOSMObj. But then the order we write will be wrong.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nodes</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">RcNode</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ways</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">RcWay</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">relations</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">RcRelation</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">way_node_ids</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">way_ids</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">relation_ids</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
+    {
+        <span class="comment">// First Pass: accumulate the IDs we want to include in the output</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">osmio</span>::<span class="ident">pbf</span>::<span class="ident">PBFReader</span>::<span class="ident">new</span>(<span class="ident">BufReader</span>::<span class="ident">new</span>(<span class="ident">File</span>::<span class="ident">open</span>(<span class="ident">pbf_path</span>)<span class="question-mark">?</span>));
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">node_ids_within_boundary</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
+        <span class="kw">for</span> <span class="ident">obj</span> <span class="kw">in</span> <span class="ident">reader</span>.<span class="ident">objects</span>() {
+            <span class="kw">match</span> <span class="ident">obj</span>.<span class="ident">object_type</span>() {
+                <span class="ident">OSMObjectType</span>::<span class="ident">Node</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">into_node</span>().<span class="ident">unwrap</span>();
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">lat_lon</span>) <span class="op">=</span> <span class="ident">node</span>.<span class="ident">lat_lon</span>() {
+                        <span class="kw">if</span> <span class="ident">boundary</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">to_pt</span>(<span class="ident">lat_lon</span>)) {
+                            <span class="ident">node_ids_within_boundary</span>.<span class="ident">insert</span>(<span class="ident">node</span>.<span class="ident">id</span>());
+                        }
+                    }
+                }
+                <span class="ident">OSMObjectType</span>::<span class="ident">Way</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="comment">// Assume all nodes appear before any way.</span>
+                    <span class="kw">let</span> <span class="ident">way</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">into_way</span>().<span class="ident">unwrap</span>();
+                    <span class="kw">if</span> <span class="ident">way</span>
+                        .<span class="ident">nodes</span>()
+                        .<span class="ident">iter</span>()
+                        .<span class="ident">any</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">node_ids_within_boundary</span>.<span class="ident">contains</span>(<span class="ident">id</span>))
+                    {
+                        <span class="ident">way_ids</span>.<span class="ident">insert</span>(<span class="ident">way</span>.<span class="ident">id</span>());
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">osmio</span>::<span class="ident">pbf</span>::<span class="ident">PBFReader</span>::<span class="ident">new</span>(<span class="ident">BufReader</span>::<span class="ident">new</span>(<span class="ident">File</span>::<span class="ident">open</span>(<span class="ident">pbf_path</span>)<span class="question-mark">?</span>));
-    <span class="kw">for</span> <span class="ident">obj</span> <span class="kw">in</span> <span class="ident">reader</span>.<span class="ident">objects</span>() {
-        <span class="kw">match</span> <span class="ident">obj</span>.<span class="ident">object_type</span>() {
-            <span class="ident">OSMObjectType</span>::<span class="ident">Node</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">into_node</span>().<span class="ident">unwrap</span>();
-                <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">lat_lon</span>().<span class="ident">is_some</span>() {
-                    <span class="ident">nodes</span>.<span class="ident">insert</span>(<span class="ident">node</span>.<span class="ident">id</span>(), <span class="ident">node</span>);
+                        <span class="comment">// To properly compute border nodes, we include all nodes of ways that are</span>
+                        <span class="comment">// at least partially in the boundary.</span>
+                        <span class="ident">way_node_ids</span>.<span class="ident">extend</span>(<span class="ident">way</span>.<span class="ident">nodes</span>().<span class="ident">into_iter</span>().<span class="ident">cloned</span>());
+                    }
                 }
-            }
-            <span class="ident">OSMObjectType</span>::<span class="ident">Way</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="comment">// Assume all nodes appear before any way.</span>
-                <span class="kw">let</span> <span class="ident">way</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">into_way</span>().<span class="ident">unwrap</span>();
-                <span class="kw">if</span> <span class="ident">way</span>.<span class="ident">nodes</span>().<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> {
-                    <span class="ident">nodes</span>
-                        .<span class="ident">get</span>(<span class="ident">id</span>)
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="ident">boundary</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">to_pt</span>(<span class="ident">n</span>.<span class="ident">lat_lon</span>().<span class="ident">unwrap</span>())))
-                        .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
-                }) {
-                    <span class="ident">ways</span>.<span class="ident">insert</span>(<span class="ident">way</span>.<span class="ident">id</span>(), <span class="ident">way</span>);
-                }
-            }
-            <span class="ident">OSMObjectType</span>::<span class="ident">Relation</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">relation</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">into_relation</span>().<span class="ident">unwrap</span>();
-                <span class="kw">if</span> <span class="ident">relation</span>.<span class="ident">members</span>().<span class="ident">any</span>(<span class="op">|</span>(<span class="ident">obj_type</span>, <span class="ident">id</span>, <span class="kw">_</span>)<span class="op">|</span> {
-                    (<span class="ident">obj_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">OSMObjectType</span>::<span class="ident">Node</span> <span class="op">&amp;&amp;</span> <span class="ident">nodes</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>))
-                        <span class="op">|</span><span class="op">|</span> (<span class="ident">obj_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">OSMObjectType</span>::<span class="ident">Way</span> <span class="op">&amp;&amp;</span> <span class="ident">ways</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>))
-                        <span class="op">|</span><span class="op">|</span> (<span class="ident">obj_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">OSMObjectType</span>::<span class="ident">Relation</span> <span class="op">&amp;&amp;</span> <span class="ident">relations</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>))
-                }) {
-                    <span class="ident">relations</span>.<span class="ident">insert</span>(<span class="ident">relation</span>.<span class="ident">id</span>(), <span class="ident">relation</span>);
+                <span class="ident">OSMObjectType</span>::<span class="ident">Relation</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">let</span> <span class="ident">relation</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">into_relation</span>().<span class="ident">unwrap</span>();
+                    <span class="kw">if</span> <span class="ident">relation</span>.<span class="ident">members</span>().<span class="ident">any</span>(<span class="op">|</span>(<span class="ident">obj_type</span>, <span class="ident">id</span>, <span class="kw">_</span>)<span class="op">|</span> {
+                        (<span class="ident">obj_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">OSMObjectType</span>::<span class="ident">Node</span> <span class="op">&amp;&amp;</span> <span class="ident">node_ids_within_boundary</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>))
+                            <span class="op">|</span><span class="op">|</span> (<span class="ident">obj_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">OSMObjectType</span>::<span class="ident">Way</span> <span class="op">&amp;&amp;</span> <span class="ident">way_ids</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>))
+                            <span class="op">|</span><span class="op">|</span> (<span class="ident">obj_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">OSMObjectType</span>::<span class="ident">Relation</span> <span class="op">&amp;&amp;</span> <span class="ident">relation_ids</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>))
+                    }) {
+                        <span class="ident">relation_ids</span>.<span class="ident">insert</span>(<span class="ident">relation</span>.<span class="ident">id</span>());
+                    }
                 }
             }
         }
-    }
-
-    <span class="comment">// Trim out all unused nodes</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">used_nodes</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
-    <span class="kw">for</span> <span class="ident">way</span> <span class="kw">in</span> <span class="ident">ways</span>.<span class="ident">values</span>() {
-        <span class="ident">used_nodes</span>.<span class="ident">extend</span>(<span class="ident">way</span>.<span class="ident">nodes</span>().<span class="ident">into_iter</span>().<span class="ident">cloned</span>());
     }
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">osmio</span>::<span class="ident">xml</span>::<span class="ident">XMLWriter</span>::<span class="ident">new</span>(<span class="ident">BufWriter</span>::<span class="ident">new</span>(<span class="ident">File</span>::<span class="ident">create</span>(<span class="ident">out_path</span>)<span class="question-mark">?</span>));
-    <span class="comment">// TODO Nondetermistic output because of HashMap!</span>
-    <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">used_nodes</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">node</span>) <span class="op">=</span> <span class="ident">nodes</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>) {
-            <span class="ident">writer</span>.<span class="ident">write_obj</span>(<span class="kw-2">&amp;</span><span class="ident">RcOSMObj</span>::<span class="ident">Node</span>(<span class="ident">node</span>))<span class="question-mark">?</span>;
+    <span class="comment">// Second Pass: write the feature for each ID accumulated in the first pass</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">osmio</span>::<span class="ident">pbf</span>::<span class="ident">PBFReader</span>::<span class="ident">new</span>(<span class="ident">BufReader</span>::<span class="ident">new</span>(<span class="ident">File</span>::<span class="ident">open</span>(<span class="ident">pbf_path</span>)<span class="question-mark">?</span>));
+    <span class="kw">for</span> <span class="ident">obj</span> <span class="kw">in</span> <span class="ident">reader</span>.<span class="ident">objects</span>() {
+        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">obj</span> {
+            <span class="ident">RcOSMObj</span>::<span class="ident">Node</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">if</span> <span class="ident">way_node_ids</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">node</span>.<span class="ident">id</span>()) {
+                    <span class="ident">writer</span>.<span class="ident">write_obj</span>(<span class="kw-2">&amp;</span><span class="ident">obj</span>)<span class="question-mark">?</span>;
+                }
+            }
+            <span class="ident">RcOSMObj</span>::<span class="ident">Way</span>(<span class="ident">way</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">if</span> <span class="ident">way_ids</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">way</span>.<span class="ident">id</span>()) {
+                    <span class="ident">writer</span>.<span class="ident">write_obj</span>(<span class="kw-2">&amp;</span><span class="ident">obj</span>)<span class="question-mark">?</span>;
+                }
+            }
+            <span class="ident">RcOSMObj</span>::<span class="ident">Relation</span>(<span class="ident">relation</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">if</span> <span class="ident">relation_ids</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">relation</span>.<span class="ident">id</span>()) {
+                    <span class="ident">writer</span>.<span class="ident">write_obj</span>(<span class="kw-2">&amp;</span><span class="ident">obj</span>)<span class="question-mark">?</span>;
+                }
+            }
         }
-    }
-    <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">way</span>) <span class="kw">in</span> <span class="ident">ways</span> {
-        <span class="ident">writer</span>.<span class="ident">write_obj</span>(<span class="kw-2">&amp;</span><span class="ident">RcOSMObj</span>::<span class="ident">Way</span>(<span class="ident">way</span>))<span class="question-mark">?</span>;
-    }
-    <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">relation</span>) <span class="kw">in</span> <span class="ident">relations</span> {
-        <span class="ident">writer</span>.<span class="ident">write_obj</span>(<span class="kw-2">&amp;</span><span class="ident">RcOSMObj</span>::<span class="ident">Relation</span>(<span class="ident">relation</span>))<span class="question-mark">?</span>;
     }
 
     <span class="comment">// Don&#39;t call write.close() -- it happens when writer gets dropped, and the implementation</span>
