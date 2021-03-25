@@ -414,6 +414,7 @@
 <span id="411">411</span>
 <span id="412">412</span>
 <span id="413">413</span>
+<span id="414">414</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -426,8 +427,9 @@
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ColorDiscrete</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Map</span>,
-    <span class="ident">unzoomed</span>: <span class="ident">GeomBatch</span>,
-    <span class="ident">zoomed</span>: <span class="ident">GeomBatch</span>,
+    <span class="comment">// pub so callers can add stuff in before building</span>
+    <span class="kw">pub</span> <span class="ident">unzoomed</span>: <span class="ident">GeomBatch</span>,
+    <span class="kw">pub</span> <span class="ident">zoomed</span>: <span class="ident">GeomBatch</span>,
     <span class="comment">// Store both, so we can build the legend in the original order later</span>
     <span class="ident">categories</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Color</span>)<span class="op">&gt;</span>,
     <span class="ident">colors</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Color</span><span class="op">&gt;</span>,

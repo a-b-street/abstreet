@@ -406,7 +406,7 @@
                     <span class="string">&quot;Experimental&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;amenities&quot;</span>, <span class="ident">Key</span>::<span class="ident">A</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;backpressure&quot;</span>, <span class="ident">Key</span>::<span class="ident">Z</span>),
-                    <span class="ident">btn</span>(<span class="string">&quot;elevation&quot;</span>, <span class="ident">Key</span>::<span class="ident">V</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;steep streets&quot;</span>, <span class="ident">Key</span>::<span class="ident">V</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;parking efficiency&quot;</span>, <span class="ident">Key</span>::<span class="ident">O</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;blackholes&quot;</span>, <span class="ident">Key</span>::<span class="ident">L</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;congestion caps&quot;</span>, <span class="ident">Key</span>::<span class="ident">C</span>),
@@ -453,8 +453,8 @@
                 <span class="string">&quot;delay&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">traffic</span>::<span class="ident">Delay</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
                 }
-                <span class="string">&quot;elevation&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">elevation</span>::<span class="ident">Elevation</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+                <span class="string">&quot;steep streets&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">elevation</span>::<span class="ident">SteepStreets</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
                 }
                 <span class="string">&quot;map edits&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">map</span>::<span class="ident">Static</span>::<span class="ident">edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
