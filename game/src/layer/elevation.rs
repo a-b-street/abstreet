@@ -72,6 +72,8 @@ impl SteepStreets {
                 "3-5% (almost flat)"
             } else if pct < 0.08 {
                 "5-8%"
+            } else if pct < 0.1 {
+                "8-10%"
             } else if pct < 0.2 {
                 "10-20%"
             } else {
