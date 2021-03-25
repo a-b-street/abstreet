@@ -706,6 +706,10 @@
 <span id="703">703</span>
 <span id="704">704</span>
 <span id="705">705</span>
+<span id="706">706</span>
+<span id="707">707</span>
+<span id="708">708</span>
+<span id="709">709</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Everything related to pathfinding through a map for different types of agents.</span>
 
@@ -1368,7 +1372,7 @@
 }
 
 <span class="doccomment">/// Heavily penalize crossing into an access-restricted zone that doesn&#39;t allow this mode.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zone_cost</span>(<span class="ident">turn</span>: <span class="kw-2">&amp;</span><span class="ident">Turn</span>, <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zone_cost</span>(<span class="ident">turn</span>: <span class="kw-2">&amp;</span><span class="ident">Turn</span>, <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
     <span class="comment">// Detect when we cross into a new zone that doesn&#39;t allow constraints.</span>
     <span class="kw">if</span> <span class="ident">map</span>
         .<span class="ident">get_parent</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">src</span>)
@@ -1381,11 +1385,12 @@
             .<span class="ident">allow_through_traffic</span>
             .<span class="ident">contains</span>(<span class="ident">constraints</span>)
     {
-        <span class="comment">// TODO Tune this after making vehicles_cost and walking_cost both roughly represent</span>
-        <span class="comment">// seconds. In the meantime, this penalty seems high enough to achieve the desired effect.</span>
-        <span class="number">100_000.0</span>
+        <span class="comment">// This should be high enough to achieve the desired effect of somebody not entering</span>
+        <span class="comment">// the zone unless absolutely necessary. Someone would violate that and cut through anyway</span>
+        <span class="comment">// only when the alternative route would take more than 3 hours longer!</span>
+        <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">3</span>)
     } <span class="kw">else</span> {
-        <span class="number">0.0</span>
+        <span class="ident">Duration</span>::<span class="ident">ZERO</span>
     }
 }
 
@@ -1394,9 +1399,10 @@
 <span class="comment">// space-expensive change right now.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RoutingParams</span> {
-    <span class="comment">// For all vehicles</span>
-    <span class="kw">pub</span> <span class="ident">unprotected_turn_penalty</span>: <span class="ident">f64</span>,
-    <span class="comment">// For bike routing</span>
+    <span class="comment">// For all vehicles. This is added to the cost of a movement as an additional delay.</span>
+    <span class="kw">pub</span> <span class="ident">unprotected_turn_penalty</span>: <span class="ident">Duration</span>,
+    <span class="comment">// For bike routing. Multiplied by the base cost, since spending more time on the wrong lane</span>
+    <span class="comment">// type matters.</span>
     <span class="kw">pub</span> <span class="ident">bike_lane_penalty</span>: <span class="ident">f64</span>,
     <span class="kw">pub</span> <span class="ident">bus_lane_penalty</span>: <span class="ident">f64</span>,
     <span class="kw">pub</span> <span class="ident">driving_lane_penalty</span>: <span class="ident">f64</span>,
@@ -1405,7 +1411,9 @@
 <span class="kw">impl</span> <span class="ident">RoutingParams</span> {
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RoutingParams</span> {
         <span class="ident">RoutingParams</span> {
-            <span class="ident">unprotected_turn_penalty</span>: <span class="number">2.0</span>,
+            <span class="comment">// This is a total guess -- it really depends on the traffic patterns of the particular</span>
+            <span class="comment">// road at the time we&#39;re routing.</span>
+            <span class="ident">unprotected_turn_penalty</span>: <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">30.0</span>),
             <span class="ident">bike_lane_penalty</span>: <span class="number">1.0</span>,
             <span class="ident">bus_lane_penalty</span>: <span class="number">1.1</span>,
             <span class="ident">driving_lane_penalty</span>: <span class="number">1.5</span>,

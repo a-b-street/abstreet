@@ -111,6 +111,12 @@
 <span id="108">108</span>
 <span id="109">109</span>
 <span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Uses https://github.com/easbar/fast_paths. Slower creation during map importing, but very fast</span>
 <span class="doccomment">//! queries.</span>
@@ -118,6 +124,7 @@
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
+<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">vehicles</span>::<span class="ident">VehiclePathfinder</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">walking</span>::{<span class="ident">SidewalkPathfinder</span>, <span class="ident">WalkingNode</span>};
@@ -221,6 +228,11 @@
             .<span class="ident">apply_edits</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bus_graph</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">train_graph</span>);
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;apply edits to pedestrian using transit pathfinding&quot;</span>);
     }
+}
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">round</span>(<span class="ident">cost</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="comment">// Round up! 0 cost edges are ignored</span>
+    (<span class="ident">cost</span>.<span class="ident">inner_seconds</span>().<span class="ident">round</span>() <span class="kw">as</span> <span class="ident">usize</span>).<span class="ident">max</span>(<span class="number">1</span>)
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model"></div>
