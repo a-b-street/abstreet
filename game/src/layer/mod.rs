@@ -125,7 +125,7 @@ impl PickLayer {
                     "Experimental".text_widget(ctx),
                     btn("amenities", Key::A),
                     btn("backpressure", Key::Z),
-                    btn("elevation", Key::V),
+                    btn("steep streets", Key::V),
                     btn("parking efficiency", Key::O),
                     btn("blackholes", Key::L),
                     btn("congestion caps", Key::C),
@@ -172,8 +172,8 @@ impl State<App> for PickLayer {
                 "delay" => {
                     app.primary.layer = Some(Box::new(traffic::Delay::new(ctx, app)));
                 }
-                "elevation" => {
-                    app.primary.layer = Some(Box::new(elevation::Elevation::new(ctx, app)));
+                "steep streets" => {
+                    app.primary.layer = Some(Box::new(elevation::SteepStreets::new(ctx, app)));
                 }
                 "map edits" => {
                     app.primary.layer = Some(Box::new(map::Static::edits(ctx, app)));

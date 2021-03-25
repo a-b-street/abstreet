@@ -9,8 +9,9 @@ use crate::AppLike;
 
 pub struct ColorDiscrete<'a> {
     map: &'a Map,
-    unzoomed: GeomBatch,
-    zoomed: GeomBatch,
+    // pub so callers can add stuff in before building
+    pub unzoomed: GeomBatch,
+    pub zoomed: GeomBatch,
     // Store both, so we can build the legend in the original order later
     categories: Vec<(String, Color)>,
     colors: HashMap<String, Color>,
