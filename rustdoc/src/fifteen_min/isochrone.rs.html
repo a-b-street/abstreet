@@ -193,6 +193,8 @@
 <span id="190">190</span>
 <span id="191">191</span>
 <span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -376,7 +378,9 @@
             <span class="kw">match</span> <span class="ident">feature</span>.<span class="ident">geometry</span>.<span class="ident">unwrap</span>().<span class="ident">value</span> {
                 <span class="ident">geojson</span>::<span class="ident">Value</span>::<span class="ident">MultiPolygon</span>(<span class="ident">polygons</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">polygons</span> {
-                        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">Polygon</span>::<span class="ident">from_geojson</span>(<span class="kw-2">&amp;</span><span class="ident">p</span>).<span class="ident">scale</span>(<span class="ident">resolution_m</span>));
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">poly</span>) <span class="op">=</span> <span class="ident">Polygon</span>::<span class="ident">from_geojson</span>(<span class="kw-2">&amp;</span><span class="ident">p</span>) {
+                            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">poly</span>.<span class="ident">scale</span>(<span class="ident">resolution_m</span>));
+                        }
                     }
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
