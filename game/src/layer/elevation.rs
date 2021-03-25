@@ -52,7 +52,8 @@ impl SteepStreets {
             app,
             vec![
                 // Colors and buckets from https://github.com/ITSLeeds/slopes
-                ("3-5% (almost flat)", Color::hex("#689A03")),
+                ("0-3% (flat)", Color::hex("#296B07")),
+                ("3-5%", Color::hex("#689A03")),
                 ("5-8%", Color::hex("#EB9A04")),
                 ("8-10%", Color::hex("#D30800")),
                 ("10-20%", Color::hex("#980104")),
@@ -67,9 +68,9 @@ impl SteepStreets {
             steepest = steepest.max(pct);
 
             let bucket = if pct < 0.03 {
-                continue;
+                "0-3% (flat)"
             } else if pct < 0.05 {
-                "3-5% (almost flat)"
+                "3-5%"
             } else if pct < 0.08 {
                 "5-8%"
             } else if pct < 0.1 {
@@ -84,6 +85,9 @@ impl SteepStreets {
             // Draw arrows pointing uphill
             // TODO Draw V's, not arrows.
             // TODO Or try gradient colors.
+            if pct < 0.03 {
+                continue;
+            }
             let mut pl = r.center_pts.clone();
             if r.percent_incline < 0.0 {
                 pl = pl.reversed();
