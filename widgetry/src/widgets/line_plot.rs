@@ -12,27 +12,27 @@ use crate::{
 };
 
 // The X is always time
-pub struct LinePlot<T: Yvalue<T>> {
+pub struct LinePlot<Y: Yvalue<Y>> {
     draw: Drawable,
 
     // The geometry here is in screen-space.
     max_x: Time,
-    max_y: T,
+    max_y: Y,
     closest: FindClosest<String>,
 
     top_left: ScreenPt,
     dims: ScreenDims,
 }
 
-pub struct PlotOptions<T: Yvalue<T>> {
+pub struct PlotOptions<Y: Yvalue<Y>> {
     pub filterable: bool,
     pub max_x: Option<Time>,
-    pub max_y: Option<T>,
+    pub max_y: Option<Y>,
     pub disabled: HashSet<String>,
 }
 
-impl<T: Yvalue<T>> PlotOptions<T> {
-    pub fn filterable() -> PlotOptions<T> {
+impl<Y: Yvalue<Y>> PlotOptions<Y> {
+    pub fn filterable() -> PlotOptions<Y> {
         PlotOptions {
             filterable: true,
             max_x: None,
@@ -41,7 +41,7 @@ impl<T: Yvalue<T>> PlotOptions<T> {
         }
     }
 
-    pub fn fixed() -> PlotOptions<T> {
+    pub fn fixed() -> PlotOptions<Y> {
         PlotOptions {
             filterable: false,
             max_x: None,
@@ -51,8 +51,8 @@ impl<T: Yvalue<T>> PlotOptions<T> {
     }
 }
 
-impl<T: Yvalue<T>> LinePlot<T> {
-    pub fn new(ctx: &EventCtx, mut series: Vec<Series<T>>, opts: PlotOptions<T>) -> Widget {
+impl<Y: Yvalue<Y>> LinePlot<Y> {
+    pub fn new(ctx: &EventCtx, mut series: Vec<Series<Y>>, opts: PlotOptions<Y>) -> Widget {
         let legend = make_legend(ctx, &series, &opts);
         series.retain(|s| !opts.disabled.contains(&s.label));
 
@@ -78,10 +78,10 @@ impl<T: Yvalue<T>> LinePlot<T> {
                         .iter()
                         .map(|(_, value)| *value)
                         .max()
-                        .unwrap_or(T::zero())
+                        .unwrap_or(Y::zero())
                 })
                 .max()
-                .unwrap_or(T::zero())
+                .unwrap_or(Y::zero())
         });
 
         // TODO Tuned to fit the info panel. Instead these should somehow stretch to fill their
@@ -203,7 +203,7 @@ impl<T: Yvalue<T>> LinePlot<T> {
     }
 }
 
-impl<T: Yvalue<T>> WidgetImpl for LinePlot<T> {
+impl<Y: Yvalue<Y>> WidgetImpl for LinePlot<Y> {
     fn get_dims(&self) -> ScreenDims {
         self.dims
     }
@@ -310,18 +310,45 @@ impl Yvalue<Duration> for Duration {
         Duration::ZERO
     }
 }
+impl Yvalue<Distance> for Distance {
+    fn from_percent(&self, percent: f64) -> Distance {
+        *self * percent
+    }
+    fn to_percent(self, max: Distance) -> f64 {
+        if max == Distance::ZERO {
+            0.0
+        } else {
+            self / max
+        }
+    }
+    fn prettyprint(self) -> String {
+        self.to_string(&UnitFmt {
+            metric: false,
+            round_durations: true,
+        })
+    }
+    fn to_f64(self) -> f64 {
+        self.inner_meters() as f64
+    }
+    fn from_f64(&self, x: f64) -> Distance {
+        Distance::meters(x as f64)
+    }
+    fn zero() -> Distance {
+        Distance::ZERO
+    }
+}
 
-pub struct Series<T> {
+pub struct Series<Y> {
     pub label: String,
     pub color: Color,
     // X-axis is time. Assume this is sorted by X.
-    pub pts: Vec<(Time, T)>,
+    pub pts: Vec<(Time, Y)>,
 }
 
-pub fn make_legend<T: Yvalue<T>>(
+pub fn make_legend<Y: Yvalue<Y>>(
     ctx: &EventCtx,
-    series: &Vec<Series<T>>,
-    opts: &PlotOptions<T>,
+    series: &Vec<Series<Y>>,
+    opts: &PlotOptions<Y>,
 ) -> Widget {
     let mut row = Vec::new();
     let mut seen = HashSet::new();
