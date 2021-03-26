@@ -55,11 +55,13 @@ impl Pathfinder {
             // should only be happening from the debug UI; be very obnoxious if we start calling it
             // from the simulation or something else.
             warn!("Pathfinding slowly for {} with custom params", req);
-            return dijkstra::simple_pathfind(&req, params, map);
+            return dijkstra::simple_pathfind(&req, params, map).map(|(path, _)| path);
         }
 
         match self {
-            Pathfinder::Dijkstra => dijkstra::simple_pathfind(&req, params, map),
+            Pathfinder::Dijkstra => {
+                dijkstra::simple_pathfind(&req, params, map).map(|(path, _)| path)
+            }
             Pathfinder::CH(ref p) => p.simple_pathfind(&req, map),
         }
     }
@@ -72,7 +74,7 @@ impl Pathfinder {
         avoid: BTreeSet<LaneID>,
         map: &Map,
     ) -> Option<Path> {
-        dijkstra::pathfind_avoiding_lanes(req, avoid, map)
+        dijkstra::pathfind_avoiding_lanes(req, avoid, map).map(|(path, _)| path)
     }
 
     // TODO Consider returning the walking-only path in the failure case, to avoid wasting work

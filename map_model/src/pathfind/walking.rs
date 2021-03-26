@@ -11,6 +11,7 @@ use thread_local::ThreadLocal;
 use geom::{Distance, Duration, Speed};
 
 use crate::pathfind::ch::round;
+use crate::pathfind::dijkstra;
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::pathfind::vehicles::VehiclePathfinder;
 use crate::pathfind::zone_cost;
@@ -64,12 +65,7 @@ impl WalkingNode {
 }
 
 impl SidewalkPathfinder {
-    pub fn new(
-        map: &Map,
-        use_transit: bool,
-        bus_graph: &VehiclePathfinder,
-        train_graph: &VehiclePathfinder,
-    ) -> SidewalkPathfinder {
+    pub fn new(map: &Map, use_transit: bool, bus_graph: &VehiclePathfinder) -> SidewalkPathfinder {
         let mut nodes = NodeMap::new();
         // We're assuming that to start with, no sidewalks are closed for construction!
         for l in map.all_lanes() {
@@ -89,13 +85,7 @@ impl SidewalkPathfinder {
             }
         }
 
-        let graph = fast_paths::prepare(&make_input_graph(
-            map,
-            &nodes,
-            use_transit,
-            bus_graph,
-            train_graph,
-        ));
+        let graph = fast_paths::prepare(&make_input_graph(map, &nodes, use_transit, bus_graph));
         SidewalkPathfinder {
             graph,
             nodes,
@@ -104,16 +94,10 @@ impl SidewalkPathfinder {
         }
     }
 
-    pub fn apply_edits(
-        &mut self,
-        map: &Map,
-        bus_graph: &VehiclePathfinder,
-        train_graph: &VehiclePathfinder,
-    ) {
+    pub fn apply_edits(&mut self, map: &Map, bus_graph: &VehiclePathfinder) {
         // The NodeMap is all sidewalks, bus stops, and borders -- it won't change. So we can also
         // reuse the node ordering.
-        let input_graph =
-            make_input_graph(map, &self.nodes, self.use_transit, bus_graph, train_graph);
+        let input_graph = make_input_graph(map, &self.nodes, self.use_transit, bus_graph);
         let node_ordering = self.graph.get_node_ordering();
         self.graph = fast_paths::prepare_with_order(&input_graph, &node_ordering).unwrap();
     }
@@ -229,7 +213,6 @@ fn make_input_graph(
     nodes: &NodeMap<WalkingNode>,
     use_transit: bool,
     bus_graph: &VehiclePathfinder,
-    train_graph: &VehiclePathfinder,
 ) -> InputGraph {
     let mut input_graph = InputGraph::new();
 
@@ -264,7 +247,7 @@ fn make_input_graph(
     }
 
     if use_transit {
-        transit_input_graph(&mut input_graph, map, nodes, bus_graph, train_graph);
+        transit_input_graph(&mut input_graph, map, nodes, bus_graph);
     }
 
     input_graph.freeze();
@@ -276,7 +259,6 @@ fn transit_input_graph(
     map: &Map,
     nodes: &NodeMap<WalkingNode>,
     bus_graph: &VehiclePathfinder,
-    train_graph: &VehiclePathfinder,
 ) {
     // Connect bus stops with both sidewalk endpoints, using the appropriate distance.
     for stop in map.all_bus_stops().values() {
@@ -290,7 +272,7 @@ fn transit_input_graph(
             };
             // Add some extra penalty to using a bus stop. Otherwise a path might try to pass
             // through it uselessly.
-            let penalty = Duration::seconds(1.0);
+            let penalty = Duration::seconds(10.0);
             let sidewalk = nodes.get(WalkingNode::SidewalkEndpoint(lane.id, *endpt));
             input_graph.add_edge(sidewalk, ride_bus, round(cost + penalty));
             input_graph.add_edge(ride_bus, sidewalk, round(cost + penalty));
@@ -305,19 +287,21 @@ fn transit_input_graph(
         // TODO Also plug in border starts
         for pair in route.stops.windows(2) {
             let (stop1, stop2) = (map.get_bs(pair[0]), map.get_bs(pair[1]));
-            let graph = match route.route_type {
-                PathConstraints::Bus => bus_graph,
-                PathConstraints::Train => train_graph,
+            let req = PathRequest {
+                start: stop1.driving_pos,
+                end: stop2.driving_pos,
+                constraints: route.route_type,
+            };
+            let maybe_driving_cost = match route.route_type {
+                PathConstraints::Bus => bus_graph.pathfind(&req, map).map(|(_, cost)| cost),
+                // We always use Dijkstra for trains
+                PathConstraints::Train => {
+                    dijkstra::simple_pathfind(&req, map.routing_params(), map)
+                        .map(|(_, cost)| round(cost))
+                }
                 _ => unreachable!(),
             };
-            if let Some((_, driving_cost)) = graph.pathfind(
-                &PathRequest {
-                    start: stop1.driving_pos,
-                    end: stop2.driving_pos,
-                    constraints: route.route_type,
-                },
-                map,
-            ) {
+            if let Some(driving_cost) = maybe_driving_cost {
                 input_graph.add_edge(
                     nodes.get(WalkingNode::RideBus(stop1.id)),
                     nodes.get(WalkingNode::RideBus(stop2.id)),
@@ -332,20 +316,22 @@ fn transit_input_graph(
         }
 
         if let Some(l) = route.end_border {
-            let graph = match route.route_type {
-                PathConstraints::Bus => bus_graph,
-                PathConstraints::Train => train_graph,
+            let stop1 = map.get_bs(*route.stops.last().unwrap());
+            let req = PathRequest {
+                start: stop1.driving_pos,
+                end: Position::end(l, map),
+                constraints: route.route_type,
+            };
+            let maybe_driving_cost = match route.route_type {
+                PathConstraints::Bus => bus_graph.pathfind(&req, map).map(|(_, cost)| cost),
+                // We always use Dijkstra for trains
+                PathConstraints::Train => {
+                    dijkstra::simple_pathfind(&req, map.routing_params(), map)
+                        .map(|(_, cost)| round(cost))
+                }
                 _ => unreachable!(),
             };
-            let stop1 = map.get_bs(*route.stops.last().unwrap());
-            if let Some((_, driving_cost)) = graph.pathfind(
-                &PathRequest {
-                    start: stop1.driving_pos,
-                    end: Position::end(l, map),
-                    constraints: route.route_type,
-                },
-                map,
-            ) {
+            if let Some(driving_cost) = maybe_driving_cost {
                 let border = map.get_i(map.get_l(l).dst_i);
                 input_graph.add_edge(
                     nodes.get(WalkingNode::RideBus(stop1.id)),

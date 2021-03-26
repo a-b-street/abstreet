@@ -13,7 +13,11 @@ use crate::{LaneID, Map, Path, PathConstraints, PathRequest, PathStep, RoutingPa
 
 // TODO These should maybe keep the DiGraphMaps as state. It's cheap to recalculate it for edits.
 
-pub fn simple_pathfind(req: &PathRequest, params: &RoutingParams, map: &Map) -> Option<Path> {
+pub fn simple_pathfind(
+    req: &PathRequest,
+    params: &RoutingParams,
+    map: &Map,
+) -> Option<(Path, Duration)> {
     let graph = build_graph_for_vehicles(map, req.constraints);
     calc_path(graph, req, params, map)
 }
@@ -37,7 +41,7 @@ pub fn pathfind_avoiding_lanes(
     req: PathRequest,
     avoid: BTreeSet<LaneID>,
     map: &Map,
-) -> Option<Path> {
+) -> Option<(Path, Duration)> {
     assert_eq!(req.constraints, PathConstraints::Car);
     let mut graph: DiGraphMap<LaneID, TurnID> = DiGraphMap::new();
     for l in map.all_lanes() {
@@ -56,8 +60,8 @@ fn calc_path(
     req: &PathRequest,
     params: &RoutingParams,
     map: &Map,
-) -> Option<Path> {
-    let (_, path) = petgraph::algo::astar(
+) -> Option<(Path, Duration)> {
+    let (cost, path) = petgraph::algo::astar(
         &graph,
         req.start.lane(),
         |l| l == req.end.lane(),
@@ -81,7 +85,7 @@ fn calc_path(
     }
     steps.push(PathStep::Lane(req.end.lane()));
     assert_eq!(steps[0], PathStep::Lane(req.start.lane()));
-    Some(Path::new(map, steps, req.clone(), Vec::new()))
+    Some((Path::new(map, steps, req.clone(), Vec::new()), cost))
 }
 
 pub fn build_graph_for_pedestrians(map: &Map) -> DiGraphMap<WalkingNode, Duration> {

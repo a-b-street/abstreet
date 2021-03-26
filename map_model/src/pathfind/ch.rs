@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 use abstutil::Timer;
 use geom::Duration;
 
+use crate::pathfind::dijkstra;
 use crate::pathfind::vehicles::VehiclePathfinder;
 use crate::pathfind::walking::{SidewalkPathfinder, WalkingNode};
 use crate::{BusRouteID, BusStopID, Map, Path, PathConstraints, PathRequest, Position};
@@ -15,7 +16,6 @@ pub struct ContractionHierarchyPathfinder {
     car_graph: VehiclePathfinder,
     bike_graph: VehiclePathfinder,
     bus_graph: VehiclePathfinder,
-    train_graph: VehiclePathfinder,
     walking_graph: SidewalkPathfinder,
     walking_with_transit_graph: SidewalkPathfinder,
 }
@@ -36,24 +36,18 @@ impl ContractionHierarchyPathfinder {
         let bus_graph = VehiclePathfinder::new(map, PathConstraints::Bus, Some(&car_graph));
         timer.stop("prepare pathfinding for buses");
 
-        timer.start("prepare pathfinding for trains");
-        let train_graph = VehiclePathfinder::new(map, PathConstraints::Train, None);
-        timer.stop("prepare pathfinding for trains");
-
         timer.start("prepare pathfinding for pedestrians");
-        let walking_graph = SidewalkPathfinder::new(map, false, &bus_graph, &train_graph);
+        let walking_graph = SidewalkPathfinder::new(map, false, &bus_graph);
         timer.stop("prepare pathfinding for pedestrians");
 
         timer.start("prepare pathfinding for pedestrians using transit");
-        let walking_with_transit_graph =
-            SidewalkPathfinder::new(map, true, &bus_graph, &train_graph);
+        let walking_with_transit_graph = SidewalkPathfinder::new(map, true, &bus_graph);
         timer.stop("prepare pathfinding for pedestrians using transit");
 
         ContractionHierarchyPathfinder {
             car_graph,
             bike_graph,
             bus_graph,
-            train_graph,
             walking_graph,
             walking_with_transit_graph,
         }
@@ -65,7 +59,11 @@ impl ContractionHierarchyPathfinder {
             PathConstraints::Car => self.car_graph.pathfind(req, map).map(|(p, _)| p),
             PathConstraints::Bike => self.bike_graph.pathfind(req, map).map(|(p, _)| p),
             PathConstraints::Bus => self.bus_graph.pathfind(req, map).map(|(p, _)| p),
-            PathConstraints::Train => self.train_graph.pathfind(req, map).map(|(p, _)| p),
+            // Light rail networks are absolutely tiny; using a contraction hierarchy for them is
+            // overkill. And in fact, it costs a bit of memory and file size, so don't do it!
+            PathConstraints::Train => {
+                dijkstra::simple_pathfind(&req, map.routing_params(), map).map(|(path, _)| path)
+            }
         }
     }
 
@@ -96,16 +94,13 @@ impl ContractionHierarchyPathfinder {
         self.bus_graph.apply_edits(map);
         timer.stop("apply edits to bus pathfinding");
 
-        // Can't edit anything related to trains
-
         timer.start("apply edits to pedestrian pathfinding");
-        self.walking_graph
-            .apply_edits(map, &self.bus_graph, &self.train_graph);
+        self.walking_graph.apply_edits(map, &self.bus_graph);
         timer.stop("apply edits to pedestrian pathfinding");
 
         timer.start("apply edits to pedestrian using transit pathfinding");
         self.walking_with_transit_graph
-            .apply_edits(map, &self.bus_graph, &self.train_graph);
+            .apply_edits(map, &self.bus_graph);
         timer.stop("apply edits to pedestrian using transit pathfinding");
     }
 }
