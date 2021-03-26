@@ -1,9 +1,9 @@
 use geom::{Angle, Circle, Distance, Duration, PolyLine, Pt2D, Time};
 
-use crate::widgets::line_plot::{make_legend, Yvalue};
+use crate::widgets::plots::{make_legend, Axis, PlotOptions, Series};
 use crate::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, PlotOptions, ScreenDims, ScreenPt, Series, Text,
-    TextExt, Widget, WidgetImpl, WidgetOutput,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenPt, Text, TextExt, Widget,
+    WidgetImpl, WidgetOutput,
 };
 
 // The X is always time
@@ -15,16 +15,16 @@ pub struct ScatterPlot {
 }
 
 impl ScatterPlot {
-    pub fn new<T: Yvalue<T> + std::ops::AddAssign + std::ops::Div<f64, Output = T>>(
+    pub fn new<Y: Axis<Y> + std::ops::AddAssign + std::ops::Div<f64, Output = Y>>(
         ctx: &EventCtx,
-        mut series: Vec<Series<T>>,
-        opts: PlotOptions<T>,
+        mut series: Vec<Series<Time, Y>>,
+        opts: PlotOptions<Time, Y>,
     ) -> Widget {
         let legend = make_legend(ctx, &series, &opts);
         series.retain(|s| !opts.disabled.contains(&s.label));
 
         // TODO Refactor this part with LinePlot too
-        // Assume min_x is Time::START_OF_DAY and min_y is T::zero()
+        // Assume min_x is Time::START_OF_DAY and min_y is Y::zero()
         let max_x = opts.max_x.unwrap_or_else(|| {
             series
                 .iter()
@@ -46,10 +46,10 @@ impl ScatterPlot {
                         .iter()
                         .map(|(_, value)| *value)
                         .max()
-                        .unwrap_or(T::zero())
+                        .unwrap_or(Y::zero())
                 })
                 .max()
-                .unwrap_or(T::zero())
+                .unwrap_or(Y::zero())
         });
 
         // TODO Tuned to fit the info panel. Instead these should somehow stretch to fill their
@@ -101,7 +101,7 @@ impl ScatterPlot {
         }
 
         let circle = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(4.0)).to_polygon();
-        let mut sum = T::zero();
+        let mut sum = Y::zero();
         let mut cnt = 0;
         for s in series {
             for (t, y) in s.pts {
@@ -117,7 +117,7 @@ impl ScatterPlot {
             }
         }
 
-        if sum != T::zero() {
+        if sum != Y::zero() {
             let avg = (sum / (cnt as f64)).to_percent(max_y);
             batch.extend(
                 Color::hex("#F2F2F2"),

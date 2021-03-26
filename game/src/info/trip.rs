@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use maplit::btreemap;
 
-use geom::{Distance, Duration, Percent, Polygon, Pt2D, Time};
+use geom::{Distance, Duration, Percent, Polygon, Pt2D};
 use map_gui::ID;
 use map_model::{Map, Path, PathStep};
 use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhase, TripPhaseType};
@@ -876,10 +876,7 @@ fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map:
             }
             .to_string(),
             color,
-            pts: pts
-                .into_iter()
-                .map(|(x, y)| (Time::START_OF_DAY + Duration::seconds(x.inner_meters()), y))
-                .collect(),
+            pts,
         }],
         PlotOptions::fixed(),
     )
