@@ -749,9 +749,7 @@ fn make_trip_details(
     for (idx, p) in phases.into_iter().enumerate() {
         let color = color_for_trip_phase(app, p.phase_type).alpha(0.7);
         if let Some(path) = &p.path {
-            if app.opts.dev
-                && (p.phase_type == TripPhaseType::Walking || p.phase_type == TripPhaseType::Biking)
-            {
+            if p.phase_type == TripPhaseType::Walking || p.phase_type == TripPhaseType::Biking {
                 elevation.push(make_elevation(
                     ctx,
                     color,
@@ -852,10 +850,7 @@ fn make_trip_details(
     if path_impossible {
         col.push("Map edits have disconnected the path taken before".text_widget(ctx));
     }
-    // TODO This just needs too much more work
-    if false {
-        col.extend(elevation);
-    }
+    col.extend(elevation);
     highlight_slow_intersections(ctx, app, details, trip_id);
     highlight_slow_lanes(ctx, app, details, trip_id);
     Widget::col(col)
@@ -870,7 +865,6 @@ fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map:
         }
         dist += step.as_traversable().length(map);
     }
-    // TODO Plot needs to support Distance as both X and Y axis. :P
     // TODO Show roughly where we are in the trip; use distance covered by current path for this
     LinePlot::new(
         ctx,
@@ -884,12 +878,7 @@ fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map:
             color,
             pts: pts
                 .into_iter()
-                .map(|(x, y)| {
-                    (
-                        Time::START_OF_DAY + Duration::seconds(x.inner_meters()),
-                        y.inner_meters() as usize,
-                    )
-                })
+                .map(|(x, y)| (Time::START_OF_DAY + Duration::seconds(x.inner_meters()), y))
                 .collect(),
         }],
         PlotOptions::fixed(),
