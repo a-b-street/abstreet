@@ -126,6 +126,7 @@ impl PickLayer {
                     btn("amenities", Key::A),
                     btn("backpressure", Key::Z),
                     btn("steep streets", Key::V),
+                    btn("elevation", Key::G),
                     btn("parking efficiency", Key::O),
                     btn("blackholes", Key::L),
                     btn("congestion caps", Key::C),
@@ -174,6 +175,9 @@ impl State<App> for PickLayer {
                 }
                 "steep streets" => {
                     app.primary.layer = Some(Box::new(elevation::SteepStreets::new(ctx, app)));
+                }
+                "elevation" => {
+                    app.primary.layer = Some(Box::new(elevation::ElevationContours::new(ctx, app)));
                 }
                 "map edits" => {
                     app.primary.layer = Some(Box::new(map::Static::edits(ctx, app)));
