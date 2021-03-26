@@ -22,10 +22,17 @@ pub struct Assets {
     pub(crate) style: RefCell<Style>,
     pub text_opts: RefCell<Options>,
     pub read_svg: Box<dyn Fn(&str) -> Vec<u8>>,
+    // TODO: make non-optional for wasm? Though some apps dont use any assets...
+    // #[cfg(target_arch = "wasm32")]
+    base_url: Option<String>,
 }
 
 impl Assets {
-    pub fn new(style: Style, read_svg: Box<dyn Fn(&str) -> Vec<u8>>) -> Assets {
+    pub fn new(
+        style: Style,
+        base_url: Option<String>,
+        read_svg: Box<dyn Fn(&str) -> Vec<u8>>,
+    ) -> Assets {
         // Many fonts are statically bundled with the library right now, on both native and web.
         // ctx.is_font_loaded and ctx.load_font can be used to dynamically add more later.
         let mut fontdb = fontdb::Database::new();
@@ -44,6 +51,7 @@ impl Assets {
             extra_fonts: RefCell::new(HashSet::new()),
             text_opts: RefCell::new(Options::default()),
             style: RefCell::new(style),
+            base_url,
             read_svg,
         };
         a.text_opts.borrow_mut().fontdb = fontdb;
@@ -76,6 +84,10 @@ impl Assets {
         *a.default_line_height.borrow_mut() =
             a.line_height(text::DEFAULT_FONT, text::DEFAULT_FONT_SIZE);
         a
+    }
+
+    pub fn base_url(&self) -> Option<&str> {
+        self.base_url.as_ref().map(String::as_str)
     }
 
     pub fn is_font_loaded(&self, filename: &str) -> bool {

@@ -211,7 +211,10 @@ mod wasm_loader {
         ) -> Box<dyn State<A>> {
             // The current URL is of the index.html page. We can find the data directory relative
             // to that.
-            let base_url = get_base_url().unwrap();
+            let base_url = ctx
+                .prerender
+                .assets_base_url()
+                .expect("assets_base_url should be specified for wasm builds via `Settings`");
             let file_path = path.strip_prefix(&abstio::path("")).unwrap();
             // Note that files are gzipped on S3 and other deployments. When running locally, we
             // just symlink the data/ directory, where files aren't compressed.

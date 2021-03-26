@@ -610,14 +610,15 @@ fn make_controls(ctx: &mut EventCtx, tabs: &mut TabController) -> Panel {
 use wasm_bindgen::prelude::*;
 
 #[cfg(target_arch = "wasm32")]
-#[wasm_bindgen(js_name = "runWithRootId")]
-pub fn run_in_dom_element(root_dom_id: String) {
+#[wasm_bindgen(js_name = "run")]
+pub fn run_wasm(root_dom_id: String, assets_base_url: String) {
     // Use this to initialize logging.
     abstutil::CmdArgs::new().done();
 
     log::info!("starting with root_dom_id: {}", root_dom_id);
     let settings = Settings::new("widgetry demo")
-        .root_dom_element_id(&root_dom_id)
+        .root_dom_element_id(root_dom_id)
+        .assets_base_url(assets_base_url)
         .read_svg(Box::new(abstio::slurp_bytes));
     run(settings);
 }

@@ -20,7 +20,7 @@ use crate::{path_player, Manifest};
 static SYSTEM_DATA: include_dir::Dir = include_dir::include_dir!(
     "../data/system",
     "assets/",
-    "-assets/music/",
+    // "assets/music/",
     "proposals/",
     "study_areas/"
 );
@@ -71,6 +71,11 @@ pub fn list_dir(dir: String) -> Vec<String> {
 
 pub fn slurp_file<I: AsRef<str>>(path: I) -> Result<Vec<u8>> {
     let path = path.as_ref();
+    debug!(
+        "slurping file: {}, trimmed_path: {}",
+        path,
+        path.trim_start_matches("../data/system/")
+    );
 
     if let Some(raw) = SYSTEM_DATA.get_file(path.trim_start_matches("../data/system/")) {
         Ok(raw.contents().to_vec())

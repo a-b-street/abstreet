@@ -164,6 +164,7 @@ pub struct Settings {
     pub(crate) window_title: String,
     #[cfg(target_arch = "wasm32")]
     pub(crate) root_dom_element_id: String,
+    pub(crate) assets_base_url: Option<String>,
     dump_raw_events: bool,
     scale_factor: Option<f64>,
     require_minimum_width: Option<f64>,
@@ -177,8 +178,11 @@ impl Settings {
     pub fn new(window_title: &str) -> Settings {
         Settings {
             window_title: window_title.to_string(),
+            // TODO: remove default dom_element_id?
             #[cfg(target_arch = "wasm32")]
             root_dom_element_id: "widgetry-canvas".to_string(),
+            // TODO: make wasm only?
+            assets_base_url: None,
             dump_raw_events: false,
             scale_factor: None,
             require_minimum_width: None,
@@ -210,8 +214,8 @@ impl Settings {
     }
 
     #[cfg(target_arch = "wasm32")]
-    pub fn root_dom_element_id(mut self, element_id: &str) -> Self {
-        self.root_dom_element_id = element_id.to_string();
+    pub fn root_dom_element_id(mut self, element_id: String) -> Self {
+        self.root_dom_element_id = element_id;
         self
     }
 
@@ -248,6 +252,11 @@ impl Settings {
         self.read_svg = function;
         self
     }
+
+    pub fn assets_base_url(mut self, value: String) -> Self {
+        self.assets_base_url = Some(value);
+        self
+    }
 }
 
 pub fn run<
@@ -278,7 +287,7 @@ pub fn run<
 
     let monitor_scale_factor = prerender_innards.monitor_scale_factor();
     let mut prerender = Prerender {
-        assets: Assets::new(style.clone(), settings.read_svg),
+        assets: Assets::new(style.clone(), settings.assets_base_url, settings.read_svg),
         num_uploads: Cell::new(0),
         inner: prerender_innards,
         scale_factor: settings.scale_factor.unwrap_or(monitor_scale_factor),
