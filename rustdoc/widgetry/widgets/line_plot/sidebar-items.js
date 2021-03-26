@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["make_legend",""],["thick_lineseries",""]],"struct":[["LinePlot",""],["PlotOptions",""],["Series",""]],"trait":[["Yvalue",""]]});
+initSidebarItems({"struct":[["LinePlot",""]]});

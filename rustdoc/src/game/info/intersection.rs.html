@@ -883,7 +883,7 @@
             <span class="ident">by_type</span>.<span class="ident">get_mut</span>(<span class="ident">agent_type</span>).<span class="ident">unwrap</span>().<span class="ident">push</span>((<span class="kw-2">*</span><span class="ident">t</span>, <span class="kw-2">*</span><span class="ident">dt</span>));
         }
     }
-    <span class="kw">let</span> <span class="ident">series</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Series</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">by_type</span>
+    <span class="kw">let</span> <span class="ident">series</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Series</span><span class="op">&lt;</span><span class="ident">Time</span>, <span class="ident">Duration</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">by_type</span>
         .<span class="ident">into_iter</span>()
         .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">agent_type</span>, <span class="ident">pts</span>)<span class="op">|</span> <span class="ident">Series</span> {
             <span class="ident">label</span>: <span class="ident">agent_type</span>.<span class="ident">noun</span>().<span class="ident">to_string</span>(),
