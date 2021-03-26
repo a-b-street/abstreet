@@ -165,6 +165,7 @@ pub struct Settings {
     #[cfg(target_arch = "wasm32")]
     pub(crate) root_dom_element_id: String,
     pub(crate) assets_base_url: Option<String>,
+    pub(crate) assets_are_gzipped: bool,
     dump_raw_events: bool,
     scale_factor: Option<f64>,
     require_minimum_width: Option<f64>,
@@ -183,6 +184,7 @@ impl Settings {
             root_dom_element_id: "widgetry-canvas".to_string(),
             // TODO: make wasm only?
             assets_base_url: None,
+            assets_are_gzipped: false,
             dump_raw_events: false,
             scale_factor: None,
             require_minimum_width: None,
@@ -257,6 +259,11 @@ impl Settings {
         self.assets_base_url = Some(value);
         self
     }
+
+    pub fn assets_are_gzipped(mut self, value: bool) -> Self {
+        self.assets_are_gzipped = value;
+        self
+    }
 }
 
 pub fn run<
@@ -287,7 +294,12 @@ pub fn run<
 
     let monitor_scale_factor = prerender_innards.monitor_scale_factor();
     let mut prerender = Prerender {
-        assets: Assets::new(style.clone(), settings.assets_base_url, settings.read_svg),
+        assets: Assets::new(
+            style.clone(),
+            settings.assets_base_url,
+            settings.assets_are_gzipped,
+            settings.read_svg,
+        ),
         num_uploads: Cell::new(0),
         inner: prerender_innards,
         scale_factor: settings.scale_factor.unwrap_or(monitor_scale_factor),

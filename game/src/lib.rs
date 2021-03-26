@@ -10,7 +10,7 @@ use map_gui::options::Options;
 use map_gui::tools::URLManager;
 use map_model::Map;
 use sim::{Sim, SimFlags};
-use widgetry::{EventCtx, State, Transition};
+use widgetry::{EventCtx, Settings, State, Transition};
 
 use crate::app::{App, Flags};
 use crate::common::jump_to_time_upon_startup;
@@ -29,6 +29,18 @@ mod pregame;
 mod sandbox;
 
 pub fn main() {
+    let settings = Settings::new("A/B Street");
+    run(settings);
+}
+
+fn run(mut settings: Settings) {
+    settings = settings
+        .read_svg(Box::new(abstio::slurp_bytes))
+        .window_icon(abstio::path("system/assets/pregame/icon.png"))
+        .loading_tips(map_gui::tools::loading_tips())
+        // This is approximately how much the 3 top panels in sandbox mode require.
+        .require_minimum_width(1500.0);
+
     let mut args = CmdArgs::new();
     if args.enabled("--prebake") {
         challenges::prebake::prebake_all();
@@ -42,12 +54,7 @@ pub fn main() {
     let mut opts = Options::default();
     opts.toggle_day_night_colors = true;
     opts.update_from_args(&mut args);
-    let mut settings = widgetry::Settings::new("A/B Street")
-        .read_svg(Box::new(abstio::slurp_bytes))
-        .window_icon(abstio::path("system/assets/pregame/icon.png"))
-        .loading_tips(map_gui::tools::loading_tips())
-        // This is approximately how much the 3 top panels in sandbox mode require.
-        .require_minimum_width(1500.0);
+
     if args.enabled("--dump_raw_events") {
         settings = settings.dump_raw_events();
     }
@@ -329,7 +336,12 @@ fn finish_app_setup(
 use wasm_bindgen::prelude::*;
 
 #[cfg(target_arch = "wasm32")]
-#[wasm_bindgen(start)]
-pub fn run() {
-    main();
+#[wasm_bindgen(js_name = "run")]
+pub fn run_wasm(root_dom_id: String, assets_base_url: String, assets_are_gzipped: bool) {
+    let settings = Settings::new("A/B Street")
+        .root_dom_element_id(root_dom_id)
+        .assets_base_url(assets_base_url)
+        .assets_are_gzipped(assets_are_gzipped);
+
+    run(settings);
 }

@@ -1,0 +1,6 @@
+for file in "$@"
+do
+    # concatenate all input files, removing any reference to importing widgetry
+    # assuming it's one of the input files being concatenated
+    cat $file | grep -v "from '../widgetry.js'" | grep -v 'from "../widgetry.js"'
+done

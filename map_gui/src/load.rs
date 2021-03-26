@@ -218,16 +218,11 @@ mod wasm_loader {
             let file_path = path.strip_prefix(&abstio::path("")).unwrap();
             // Note that files are gzipped on S3 and other deployments. When running locally, we
             // just symlink the data/ directory, where files aren't compressed.
-            let url =
-                if base_url.contains("http://0.0.0.0") || base_url.contains("http://localhost") {
-                    format!("{}/{}", base_url, file_path)
-                } else if base_url.contains("abstreet.s3-website") {
-                    // The directory structure on S3 is a little weird -- the base directory has
-                    // data/ alongside game/, fifteen_min/, etc.
-                    format!("{}/../data/{}.gz", base_url, file_path)
-                } else {
-                    format!("{}/{}.gz", base_url, file_path)
-                };
+            let url = if ctx.prerender.assets_are_gzipped() {
+                format!("{}/{}.gz", base_url, file_path)
+            } else {
+                format!("{}/{}", base_url, file_path)
+            };
 
             // Make the HTTP request nonblockingly. When the response is received, send it through
             // the channel.
@@ -337,16 +332,11 @@ mod wasm_loader {
             let file_path = path.strip_prefix(&abstio::path("")).unwrap();
             // Note that files are gzipped on S3 and other deployments. When running locally, we
             // just symlink the data/ directory, where files aren't compressed.
-            let url =
-                if base_url.contains("http://0.0.0.0") || base_url.contains("http://localhost") {
-                    format!("{}/{}", base_url, file_path)
-                } else if base_url.contains("abstreet.s3-website") {
-                    // The directory structure on S3 is a little weird -- the base directory has
-                    // data/ alongside game/, fifteen_min/, etc.
-                    format!("{}/../data/{}.gz", base_url, file_path)
-                } else {
-                    format!("{}/{}.gz", base_url, file_path)
-                };
+            let url = if ctx.prerender.assets_are_gzipped() {
+                format!("{}/{}.gz", base_url, file_path)
+            } else {
+                format!("{}/{}", base_url, file_path)
+            };
 
             // Make the HTTP request nonblockingly. When the response is received, send it through
             // the channel.

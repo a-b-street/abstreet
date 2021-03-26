@@ -1,0 +1,36 @@
+#!/bin/bash
+set -euf -o pipefail
+
+PROJECT_ROOT=$(git rev-parse --show-toplevel)
+
+BIN_NAME=$0
+function usage {
+    cat <<EOS
+Usage:
+    $BIN_NAME <crate name> <js pkg name if different from crate name>
+Example:
+    $BIN_NAME widgetry_demo
+    $BIN_NAME game abstreet
+EOS
+}
+
+if [ $# -eq 0 ]; then
+    usage
+    exit1
+fi
+
+CRATE_NAME="${1}"
+
+shift
+
+if [ $# -eq 0 ]; then
+JS_NAME="${CRATE_NAME}"
+else
+JS_NAME="${1}"
+fi
+
+# Default to a dev build
+WASM_PACK_FLAGS="${WASM_PACK_FLAGS:-"--dev"}"
+
+cd $PROJECT_ROOT/$CRATE_NAME
+wasm-pack build $WASM_PACK_FLAGS --target web --out-dir "${PROJECT_ROOT}/web/src/${JS_NAME}/wasm_pkg" -- --no-default-features --features wasm

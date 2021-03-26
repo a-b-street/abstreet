@@ -25,12 +25,14 @@ pub struct Assets {
     // TODO: make non-optional for wasm? Though some apps dont use any assets...
     // #[cfg(target_arch = "wasm32")]
     base_url: Option<String>,
+    are_gzipped: bool,
 }
 
 impl Assets {
     pub fn new(
         style: Style,
         base_url: Option<String>,
+        are_gzipped: bool,
         read_svg: Box<dyn Fn(&str) -> Vec<u8>>,
     ) -> Assets {
         // Many fonts are statically bundled with the library right now, on both native and web.
@@ -52,6 +54,7 @@ impl Assets {
             text_opts: RefCell::new(Options::default()),
             style: RefCell::new(style),
             base_url,
+            are_gzipped,
             read_svg,
         };
         a.text_opts.borrow_mut().fontdb = fontdb;
@@ -88,6 +91,10 @@ impl Assets {
 
     pub fn base_url(&self) -> Option<&str> {
         self.base_url.as_ref().map(String::as_str)
+    }
+
+    pub fn are_gzipped(&self) -> bool {
+        self.are_gzipped
     }
 
     pub fn is_font_loaded(&self, filename: &str) -> bool {

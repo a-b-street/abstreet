@@ -288,6 +288,10 @@ impl Prerender {
     pub fn assets_base_url(&self) -> Option<&str> {
         self.assets.base_url()
     }
+
+    pub fn assets_are_gzipped(&self) -> bool {
+        self.assets.are_gzipped()
+    }
 }
 
 impl std::convert::AsRef<Prerender> for GfxCtx<'_> {

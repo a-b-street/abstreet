@@ -1,0 +1,21 @@
+<html>
+<head>
+    <link rel="stylesheet" href="abstreet.css">
+</head>
+<body>
+
+<script type="module">
+  import { WidgetryDemo } from "./widgetry_demo/widgetry_demo.bundle.js";
+  let widgetryDemo = new WidgetryDemo("app");
+
+  document.addEventListener("DOMContentLoaded", function(event) { 
+    widgetryDemo.loadAndStart();
+  });
+</script> 
+
+<div class="widgetry-app full-screen-widgetry-app" id="app">
+    <div class="preloading"><h1>Widgetry Demo</h1></div>
+</div>
+
+</body>
+</html>

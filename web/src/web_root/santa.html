@@ -1,0 +1,24 @@
+<html>
+<head>
+    <link rel="stylesheet" href="abstreet.css">
+</head>
+<body>
+
+<script type="module">
+  import { Santa } from "./santa/santa.bundle.js";
+
+  let app = new Santa("app");
+
+  document.addEventListener("DOMContentLoaded", function(event) { 
+    app.loadAndStart();
+  });
+</script> 
+
+<div class="widgetry-app full-screen-widgetry-app" id="app">
+    <div class="preloading">
+        <h1>Fifteen Minute Santa</h1>
+    </div>
+</div>
+
+</body>
+</html>
