@@ -29,6 +29,7 @@ pub mod line_plot;
 pub mod menu;
 mod panel;
 pub mod persistent_split;
+pub mod plots;
 pub mod scatter_plot;
 pub mod slider;
 pub mod spinner;

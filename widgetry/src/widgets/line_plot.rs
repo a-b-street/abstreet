@@ -1,22 +1,16 @@
-use std::collections::HashSet;
+use geom::{Angle, Bounds, Circle, Distance, FindClosest, PolyLine, Pt2D};
 
-use abstutil::prettyprint_usize;
-use geom::{
-    Angle, Bounds, Circle, Distance, Duration, FindClosest, Percent, PolyLine, Polygon, Pt2D, Time,
-    UnitFmt,
-};
-
+use crate::widgets::plots::{make_legend, thick_lineseries, Axis, PlotOptions, Series};
 use crate::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenPt, ScreenRectangle, Text,
-    TextExt, Toggle, Widget, WidgetImpl, WidgetOutput,
+    TextExt, Widget, WidgetImpl, WidgetOutput,
 };
 
-// The X is always time
-pub struct LinePlot<Y: Yvalue<Y>> {
+pub struct LinePlot<X: Axis<X>, Y: Axis<Y>> {
     draw: Drawable,
 
     // The geometry here is in screen-space.
-    max_x: Time,
+    max_x: X,
     max_y: Y,
     closest: FindClosest<String>,
 
@@ -24,51 +18,18 @@ pub struct LinePlot<Y: Yvalue<Y>> {
     dims: ScreenDims,
 }
 
-pub struct PlotOptions<Y: Yvalue<Y>> {
-    pub filterable: bool,
-    pub max_x: Option<Time>,
-    pub max_y: Option<Y>,
-    pub disabled: HashSet<String>,
-}
-
-impl<Y: Yvalue<Y>> PlotOptions<Y> {
-    pub fn filterable() -> PlotOptions<Y> {
-        PlotOptions {
-            filterable: true,
-            max_x: None,
-            max_y: None,
-            disabled: HashSet::new(),
-        }
-    }
-
-    pub fn fixed() -> PlotOptions<Y> {
-        PlotOptions {
-            filterable: false,
-            max_x: None,
-            max_y: None,
-            disabled: HashSet::new(),
-        }
-    }
-}
-
-impl<Y: Yvalue<Y>> LinePlot<Y> {
-    pub fn new(ctx: &EventCtx, mut series: Vec<Series<Y>>, opts: PlotOptions<Y>) -> Widget {
+impl<X: Axis<X>, Y: Axis<Y>> LinePlot<X, Y> {
+    pub fn new(ctx: &EventCtx, mut series: Vec<Series<X, Y>>, opts: PlotOptions<X, Y>) -> Widget {
         let legend = make_legend(ctx, &series, &opts);
         series.retain(|s| !opts.disabled.contains(&s.label));
 
-        // Assume min_x is Time::START_OF_DAY and min_y is T::zero()
+        // Assume min_x is X::zero() and min_y is Y::zero()
         let max_x = opts.max_x.unwrap_or_else(|| {
             series
                 .iter()
-                .map(|s| {
-                    s.pts
-                        .iter()
-                        .map(|(t, _)| *t)
-                        .max()
-                        .unwrap_or(Time::START_OF_DAY)
-                })
+                .map(|s| s.pts.iter().map(|(x, _)| *x).max().unwrap_or(X::zero()))
                 .max()
-                .unwrap_or(Time::START_OF_DAY)
+                .unwrap_or(X::zero())
         });
         let max_y = opts.max_y.unwrap_or_else(|| {
             series
@@ -113,10 +74,10 @@ impl<Y: Yvalue<Y>> LinePlot<Y> {
             }
         }
         // X axis grid
-        if max_x != Time::START_OF_DAY {
-            let order_of_mag = 10.0_f64.powf(max_x.inner_seconds().log10().ceil());
+        if max_x != X::zero() {
+            let order_of_mag = 10.0_f64.powf(max_x.to_f64().log10().ceil());
             for i in 0..10 {
-                let x = Time::START_OF_DAY + Duration::seconds(order_of_mag / 10.0 * (i as f64));
+                let x = max_x.from_f64(order_of_mag / 10.0 * (i as f64));
                 let pct = x.to_percent(max_x);
                 if pct > 1.0 {
                     break;
@@ -137,7 +98,7 @@ impl<Y: Yvalue<Y>> LinePlot<Y> {
             Pt2D::new(width, height),
         ]));
         for s in series {
-            if max_x == Time::START_OF_DAY {
+            if max_x == X::zero() {
                 continue;
             }
 
@@ -174,9 +135,9 @@ impl<Y: Yvalue<Y>> LinePlot<Y> {
         let mut row = Vec::new();
         for i in 0..num_x_labels {
             let percent_x = (i as f64) / ((num_x_labels - 1) as f64);
-            let t = max_x.percent_of(percent_x);
+            let x = max_x.from_percent(percent_x);
             // TODO Need ticks now to actually see where this goes
-            let batch = Text::from(t.to_string())
+            let batch = Text::from(x.prettyprint())
                 .render(ctx)
                 .rotate(Angle::degrees(-15.0))
                 .autocrop();
@@ -203,7 +164,7 @@ impl<Y: Yvalue<Y>> LinePlot<Y> {
     }
 }
 
-impl<Y: Yvalue<Y>> WidgetImpl for LinePlot<Y> {
+impl<X: Axis<X>, Y: Axis<Y>> WidgetImpl for LinePlot<X, Y> {
     fn get_dims(&self) -> ScreenDims {
         self.dims
     }
@@ -225,15 +186,15 @@ impl<Y: Yvalue<Y>> WidgetImpl for LinePlot<Y> {
                     Pt2D::new(cursor.x - self.top_left.x, cursor.y - self.top_left.y),
                     radius,
                 ) {
-                    // TODO If some/all of the matches have the same t, write it once?
-                    let t = self.max_x.percent_of(pt.x() / self.dims.width);
+                    // TODO If some/all of the matches have the same x, write it once?
+                    let x = self.max_x.from_percent(pt.x() / self.dims.width);
                     let y_percent = 1.0 - (pt.y() / self.dims.height);
 
                     // TODO Draw this info in the ColorLegend
                     txt.add_line(format!(
                         "{}: at {}, {}",
                         label,
-                        t.ampm_tostring(),
+                        x.prettyprint(),
                         self.max_y.from_percent(y_percent).prettyprint()
                     ));
                 }
@@ -246,171 +207,4 @@ impl<Y: Yvalue<Y>> WidgetImpl for LinePlot<Y> {
             }
         }
     }
-}
-
-pub trait Yvalue<T>: 'static + Copy + std::cmp::Ord {
-    // percent is [0.0, 1.0]
-    fn from_percent(&self, percent: f64) -> T;
-    fn to_percent(self, max: T) -> f64;
-    fn prettyprint(self) -> String;
-    // For order of magnitude calculations
-    fn to_f64(self) -> f64;
-    fn from_f64(&self, x: f64) -> T;
-    fn zero() -> T;
-}
-
-impl Yvalue<usize> for usize {
-    fn from_percent(&self, percent: f64) -> usize {
-        ((*self as f64) * percent) as usize
-    }
-    fn to_percent(self, max: usize) -> f64 {
-        if max == 0 {
-            0.0
-        } else {
-            (self as f64) / (max as f64)
-        }
-    }
-    fn prettyprint(self) -> String {
-        prettyprint_usize(self)
-    }
-    fn to_f64(self) -> f64 {
-        self as f64
-    }
-    fn from_f64(&self, x: f64) -> usize {
-        x as usize
-    }
-    fn zero() -> usize {
-        0
-    }
-}
-impl Yvalue<Duration> for Duration {
-    fn from_percent(&self, percent: f64) -> Duration {
-        *self * percent
-    }
-    fn to_percent(self, max: Duration) -> f64 {
-        if max == Duration::ZERO {
-            0.0
-        } else {
-            self / max
-        }
-    }
-    fn prettyprint(self) -> String {
-        self.to_string(&UnitFmt {
-            metric: false,
-            round_durations: true,
-        })
-    }
-    fn to_f64(self) -> f64 {
-        self.inner_seconds() as f64
-    }
-    fn from_f64(&self, x: f64) -> Duration {
-        Duration::seconds(x as f64)
-    }
-    fn zero() -> Duration {
-        Duration::ZERO
-    }
-}
-impl Yvalue<Distance> for Distance {
-    fn from_percent(&self, percent: f64) -> Distance {
-        *self * percent
-    }
-    fn to_percent(self, max: Distance) -> f64 {
-        if max == Distance::ZERO {
-            0.0
-        } else {
-            self / max
-        }
-    }
-    fn prettyprint(self) -> String {
-        self.to_string(&UnitFmt {
-            metric: false,
-            round_durations: true,
-        })
-    }
-    fn to_f64(self) -> f64 {
-        self.inner_meters() as f64
-    }
-    fn from_f64(&self, x: f64) -> Distance {
-        Distance::meters(x as f64)
-    }
-    fn zero() -> Distance {
-        Distance::ZERO
-    }
-}
-
-pub struct Series<Y> {
-    pub label: String,
-    pub color: Color,
-    // X-axis is time. Assume this is sorted by X.
-    pub pts: Vec<(Time, Y)>,
-}
-
-pub fn make_legend<Y: Yvalue<Y>>(
-    ctx: &EventCtx,
-    series: &Vec<Series<Y>>,
-    opts: &PlotOptions<Y>,
-) -> Widget {
-    let mut row = Vec::new();
-    let mut seen = HashSet::new();
-    for s in series {
-        if seen.contains(&s.label) {
-            continue;
-        }
-        seen.insert(s.label.clone());
-        if opts.filterable {
-            row.push(Toggle::colored_checkbox(
-                ctx,
-                &s.label,
-                s.color,
-                !opts.disabled.contains(&s.label),
-            ));
-        } else {
-            let radius = 15.0;
-            row.push(Widget::row(vec![
-                GeomBatch::from(vec![(
-                    s.color,
-                    Circle::new(Pt2D::new(radius, radius), Distance::meters(radius)).to_polygon(),
-                )])
-                .into_widget(ctx),
-                s.label.clone().text_widget(ctx),
-            ]));
-        }
-    }
-    Widget::custom_row(row).flex_wrap(ctx, Percent::int(24))
-}
-
-// TODO If this proves useful, lift to geom
-pub fn thick_lineseries(pts: Vec<Pt2D>, width: Distance) -> Polygon {
-    use lyon::math::{point, Point};
-    use lyon::path::Path;
-    use lyon::tessellation::geometry_builder::{BuffersBuilder, Positions, VertexBuffers};
-    use lyon::tessellation::{StrokeOptions, StrokeTessellator};
-
-    let mut builder = Path::builder();
-    for (idx, pt) in pts.into_iter().enumerate() {
-        let pt = point(pt.x() as f32, pt.y() as f32);
-        if idx == 0 {
-            builder.move_to(pt);
-        } else {
-            builder.line_to(pt);
-        }
-    }
-    let path = builder.build();
-
-    let mut geom: VertexBuffers<Point, u32> = VertexBuffers::new();
-    let mut buffer = BuffersBuilder::new(&mut geom, Positions);
-    StrokeTessellator::new()
-        .tessellate(
-            &path,
-            &StrokeOptions::tolerance(0.01).with_line_width(width.inner_meters() as f32),
-            &mut buffer,
-        )
-        .unwrap();
-    Polygon::precomputed(
-        geom.vertices
-            .into_iter()
-            .map(|v| Pt2D::new(f64::from(v.x), f64::from(v.y)))
-            .collect(),
-        geom.indices.into_iter().map(|idx| idx as usize).collect(),
-    )
 }

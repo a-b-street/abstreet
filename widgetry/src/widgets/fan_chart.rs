@@ -4,10 +4,10 @@ use geom::{
     Angle, Distance, Duration, HgramValue, Histogram, PolyLine, Polygon, Pt2D, Statistic, Time,
 };
 
-use crate::widgets::line_plot::{make_legend, thick_lineseries, Yvalue};
+use crate::widgets::plots::{make_legend, thick_lineseries, Axis, PlotOptions};
 use crate::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, PlotOptions, ScreenDims, ScreenPt, Series, Text,
-    TextExt, Widget, WidgetImpl, WidgetOutput,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenPt, Series, Text, TextExt,
+    Widget, WidgetImpl, WidgetOutput,
 };
 
 // The X is always time
@@ -19,16 +19,16 @@ pub struct FanChart {
 }
 
 impl FanChart {
-    pub fn new<T: Yvalue<T> + HgramValue<T>>(
+    pub fn new<Y: Axis<Y> + HgramValue<Y>>(
         ctx: &EventCtx,
-        mut series: Vec<Series<T>>,
-        opts: PlotOptions<T>,
+        mut series: Vec<Series<Time, Y>>,
+        opts: PlotOptions<Time, Y>,
     ) -> Widget {
         let legend = make_legend(ctx, &series, &opts);
         series.retain(|s| !opts.disabled.contains(&s.label));
 
         // TODO Refactor this part with LinePlot too
-        // Assume min_x is Time::START_OF_DAY and min_y is T::zero()
+        // Assume min_x is Time::START_OF_DAY and min_y is Y::zero()
         let max_x = opts.max_x.unwrap_or_else(|| {
             series
                 .iter()
@@ -50,10 +50,10 @@ impl FanChart {
                         .iter()
                         .map(|(_, value)| *value)
                         .max()
-                        .unwrap_or(T::zero())
+                        .unwrap_or(Y::zero())
                 })
                 .max()
-                .unwrap_or(T::zero())
+                .unwrap_or(Y::zero())
         });
 
         // TODO Tuned to fit the info panel. Instead these should somehow stretch to fill their
@@ -104,7 +104,7 @@ impl FanChart {
             }
         }
 
-        let transform = |input: Vec<(Time, T)>| {
+        let transform = |input: Vec<(Time, Y)>| {
             // TODO Copied from LinePlot...
             let mut pts = Vec::new();
             for (t, y) in input {
@@ -196,14 +196,14 @@ impl WidgetImpl for FanChart {
 }
 
 // Returns (P50, P90, P99)
-fn slidey_window<T: HgramValue<T>>(
-    input: Vec<(Time, T)>,
+fn slidey_window<Y: HgramValue<Y>>(
+    input: Vec<(Time, Y)>,
     window_size: Duration,
-) -> (Vec<(Time, T)>, Vec<(Time, T)>, Vec<(Time, T)>) {
-    let mut p50: Vec<(Time, T)> = Vec::new();
-    let mut p90: Vec<(Time, T)> = Vec::new();
-    let mut p99: Vec<(Time, T)> = Vec::new();
-    let mut window: VecDeque<(Time, T)> = VecDeque::new();
+) -> (Vec<(Time, Y)>, Vec<(Time, Y)>, Vec<(Time, Y)>) {
+    let mut p50: Vec<(Time, Y)> = Vec::new();
+    let mut p90: Vec<(Time, Y)> = Vec::new();
+    let mut p99: Vec<(Time, Y)> = Vec::new();
+    let mut window: VecDeque<(Time, Y)> = VecDeque::new();
     let mut hgram = Histogram::new();
 
     let mut last_sample = Time::START_OF_DAY;

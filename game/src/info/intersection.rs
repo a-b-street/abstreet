@@ -401,7 +401,7 @@ fn delay_plot(
             by_type.get_mut(agent_type).unwrap().push((*t, *dt));
         }
     }
-    let series: Vec<Series<Duration>> = by_type
+    let series: Vec<Series<Time, Duration>> = by_type
         .into_iter()
         .map(|(agent_type, pts)| Series {
             label: agent_type.noun().to_string(),
