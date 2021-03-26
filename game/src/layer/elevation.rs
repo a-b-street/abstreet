@@ -1,4 +1,4 @@
-use geom::{ArrowCap, Distance, PolyLine};
+use geom::{ArrowCap, Distance, PolyLine, Pt2D};
 use map_gui::tools::ColorDiscrete;
 use map_gui::ID;
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Panel, Text, TextExt, Widget};
@@ -61,6 +61,8 @@ impl SteepStreets {
             ],
         );
 
+        let arrow_len = Distance::meters(5.0);
+        let thickness = Distance::meters(1.0);
         let mut steepest = 0.0_f64;
         let mut arrows = GeomBatch::new();
         for r in app.primary.map.all_roads() {
@@ -93,9 +95,7 @@ impl SteepStreets {
                 pl = pl.reversed();
             }
 
-            let arrow_len = Distance::meters(5.0);
             let btwn = Distance::meters(10.0);
-            let thickness = Distance::meters(1.0);
             let len = pl.length();
 
             let mut dist = arrow_len;
@@ -117,9 +117,22 @@ impl SteepStreets {
 
         let panel = Panel::new(Widget::col(vec![
             header(ctx, "Steep streets"),
-            format!("Steepest road: {:.0}% incline", steepest * 100.0).text_widget(ctx),
-            "Arrows point uphill".text_widget(ctx),
+            Widget::row(vec![
+                GeomBatch::from(vec![(
+                    ctx.style().text_fg_color,
+                    PolyLine::must_new(vec![
+                        Pt2D::new(0.0, 0.0),
+                        Pt2D::new(arrow_len.inner_meters(), 0.0),
+                    ])
+                    .make_arrow(thickness, ArrowCap::Triangle)
+                    .scale(10.0),
+                )])
+                .autocrop()
+                .into_widget(ctx),
+                "points uphill".text_widget(ctx).centered_vert(),
+            ]),
             legend,
+            format!("Steepest road: {:.0}% incline", steepest * 100.0).text_widget(ctx),
         ]))
         .aligned_pair(PANEL_PLACEMENT)
         .build(ctx);
