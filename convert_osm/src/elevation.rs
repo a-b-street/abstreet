@@ -43,10 +43,13 @@ pub fn add_data(map: &mut RawMap, timer: &mut Timer) -> Result<()> {
             ))
             .arg("-t")
             // TODO Upload this to Docker Hub, so it's easier to distribute
-            .arg("elevation_lookups_lidar")
+            .arg("elevation_lookups_srtm")
             .arg("python3")
             .arg("main.py")
-            .arg("query"),
+            .arg("query")
+            // TODO How to tune this? Pretty machine dependant, and using ALL available cores may
+            // melt memory.
+            .arg("--n_threads=1"),
     );
     timer.stop("run elevation_lookups");
 
@@ -108,12 +111,20 @@ fn scrape_output(map: &mut RawMap, ids: Vec<OriginalRoad>) -> Result<()> {
         let line = line?;
         let mut values = Vec::new();
         for x in line.split('\t') {
-            let x = x.parse::<f64>()?;
-            if !x.is_finite() {
-                // TODO Warn
+            if let Ok(x) = x.parse::<f64>() {
+                if !x.is_finite() {
+                    // TODO Warn
+                    continue;
+                }
+                if x < 0.0 {
+                    // TODO Temporary
+                    continue;
+                }
+                values.push(Distance::meters(x));
+            } else {
+                // Blank lines mean the tool failed to figure out what happened
                 continue;
             }
-            values.push(Distance::meters(x));
         }
         if values.len() != 4 {
             error!("Elevation output line \"{}\" doesn't have 4 numbers", line);
