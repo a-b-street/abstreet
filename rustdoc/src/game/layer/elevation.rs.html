@@ -311,9 +311,10 @@
 <span id="308">308</span>
 <span id="309">309</span>
 <span id="310">310</span>
+<span id="311">311</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Parallelism</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">ColorDiscrete</span>, <span class="ident">ColorScale</span>, <span class="ident">Grid</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
@@ -377,7 +378,7 @@
         );
 
         <span class="kw">let</span> <span class="ident">arrow_len</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">5.0</span>);
-        <span class="kw">let</span> <span class="ident">thickness</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.0</span>);
+        <span class="kw">let</span> <span class="ident">thickness</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">2.0</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">steepest</span> <span class="op">=</span> <span class="number">0.0_f64</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">arrows</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_roads</span>() {
@@ -410,7 +411,7 @@
                 <span class="ident">pl</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">reversed</span>();
             }
 
-            <span class="kw">let</span> <span class="ident">btwn</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">10.0</span>);
+            <span class="kw">let</span> <span class="ident">btwn</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">15.0</span>);
             <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">length</span>();
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist</span> <span class="op">=</span> <span class="ident">arrow_len</span>;
@@ -419,10 +420,11 @@
                 <span class="ident">arrows</span>.<span class="ident">push</span>(
                     <span class="ident">Color</span>::<span class="ident">WHITE</span>,
                     <span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">arrow_len</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">angle</span>.<span class="ident">opposite</span>()),
-                        <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">arrow_len</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">angle</span>),
+                        <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">arrow_len</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">135.0</span>)),
+                        <span class="ident">pt</span>,
+                        <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">arrow_len</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">135.0</span>)),
                     ])
-                    .<span class="ident">make_arrow</span>(<span class="ident">thickness</span>, <span class="ident">ArrowCap</span>::<span class="ident">Triangle</span>),
+                    .<span class="ident">make_polygons</span>(<span class="ident">thickness</span>),
                 );
                 <span class="ident">dist</span> <span class="op">+</span><span class="op">=</span> <span class="ident">btwn</span>;
             }
@@ -430,20 +432,20 @@
         <span class="ident">colorer</span>.<span class="ident">unzoomed</span>.<span class="ident">append</span>(<span class="ident">arrows</span>);
         <span class="kw">let</span> (<span class="ident">unzoomed</span>, <span class="ident">zoomed</span>, <span class="ident">legend</span>) <span class="op">=</span> <span class="ident">colorer</span>.<span class="ident">build</span>(<span class="ident">ctx</span>);
 
+        <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>);
+        <span class="kw">let</span> <span class="ident">panel_arrow</span> <span class="op">=</span> <span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">arrow_len</span>, <span class="ident">Angle</span>::<span class="ident">degrees</span>(<span class="op">-</span><span class="number">135.0</span>)),
+            <span class="ident">pt</span>,
+            <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">arrow_len</span>, <span class="ident">Angle</span>::<span class="ident">degrees</span>(<span class="number">135.0</span>)),
+        ])
+        .<span class="ident">make_polygons</span>(<span class="ident">thickness</span>)
+        .<span class="ident">scale</span>(<span class="number">5.0</span>);
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Steep streets&quot;</span>),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(
-                    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_fg_color</span>,
-                    <span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
-                        <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">arrow_len</span>.<span class="ident">inner_meters</span>(), <span class="number">0.0</span>),
-                    ])
-                    .<span class="ident">make_arrow</span>(<span class="ident">thickness</span>, <span class="ident">ArrowCap</span>::<span class="ident">Triangle</span>)
-                    .<span class="ident">scale</span>(<span class="number">10.0</span>),
-                )])
-                .<span class="ident">autocrop</span>()
-                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_fg_color</span>, <span class="ident">panel_arrow</span>)])
+                    .<span class="ident">autocrop</span>()
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="string">&quot;points uphill&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
             ]),
             <span class="ident">legend</span>,
