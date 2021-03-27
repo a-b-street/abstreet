@@ -154,6 +154,17 @@
 <span id="151">151</span>
 <span id="152">152</span>
 <span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::{<span class="ident">BufRead</span>, <span class="ident">BufReader</span>, <span class="ident">BufWriter</span>, <span class="ident">Write</span>};
@@ -200,10 +211,13 @@
             ))
             .<span class="ident">arg</span>(<span class="string">&quot;-t&quot;</span>)
             <span class="comment">// TODO Upload this to Docker Hub, so it&#39;s easier to distribute</span>
-            .<span class="ident">arg</span>(<span class="string">&quot;elevation_lookups_lidar&quot;</span>)
+            .<span class="ident">arg</span>(<span class="string">&quot;elevation_lookups_srtm&quot;</span>)
             .<span class="ident">arg</span>(<span class="string">&quot;python3&quot;</span>)
             .<span class="ident">arg</span>(<span class="string">&quot;main.py&quot;</span>)
-            .<span class="ident">arg</span>(<span class="string">&quot;query&quot;</span>),
+            .<span class="ident">arg</span>(<span class="string">&quot;query&quot;</span>)
+            <span class="comment">// TODO How to tune this? Pretty machine dependant, and using ALL available cores may</span>
+            <span class="comment">// melt memory.</span>
+            .<span class="ident">arg</span>(<span class="string">&quot;--n_threads=1&quot;</span>),
     );
     <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;run elevation_lookups&quot;</span>);
 
@@ -265,12 +279,20 @@
         <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">line</span><span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">values</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">line</span>.<span class="ident">split</span>(<span class="string">&#39;\t&#39;</span>) {
-            <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">x</span>.<span class="ident">is_finite</span>() {
-                <span class="comment">// TODO Warn</span>
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>() {
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">x</span>.<span class="ident">is_finite</span>() {
+                    <span class="comment">// TODO Warn</span>
+                    <span class="kw">continue</span>;
+                }
+                <span class="kw">if</span> <span class="ident">x</span> <span class="op">&lt;</span> <span class="number">0.0</span> {
+                    <span class="comment">// TODO Temporary</span>
+                    <span class="kw">continue</span>;
+                }
+                <span class="ident">values</span>.<span class="ident">push</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="ident">x</span>));
+            } <span class="kw">else</span> {
+                <span class="comment">// Blank lines mean the tool failed to figure out what happened</span>
                 <span class="kw">continue</span>;
             }
-            <span class="ident">values</span>.<span class="ident">push</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="ident">x</span>));
         }
         <span class="kw">if</span> <span class="ident">values</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">4</span> {
             <span class="macro">error</span><span class="macro">!</span>(<span class="string">&quot;Elevation output line \&quot;{}\&quot; doesn&#39;t have 4 numbers&quot;</span>, <span class="ident">line</span>);
