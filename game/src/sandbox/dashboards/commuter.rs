@@ -462,6 +462,7 @@ fn group_bldgs(
     for group in partition_sidewalk_loops(app) {
         let block_id = blocks.len();
         let mut polygons = Vec::new();
+        // TODO Whoops, maybe JUST include buildings
         let mut lanes = HashSet::new();
         for b in &group.bldgs {
             bldg_to_block.insert(*b, block_id);
@@ -478,11 +479,18 @@ fn group_bldgs(
                 polygons.push(app.primary.draw_map.get_l(l).polygon.clone());
             }
         }
+        let mut save = None;
+        /*if group.bldgs.contains(&BuildingID(2288)) {
+            save = Some("large");
+        }*/
+        /*if group.bldgs.contains(&BuildingID(2104)) {
+            save = Some("buggy");
+        }*/
         blocks.push(Block {
             id: block_id,
             bldgs: group.bldgs,
             borders: HashSet::new(),
-            shape: Polygon::convex_hull(polygons),
+            shape: Polygon::concave_hull(polygons, 10, save),
         });
     }
 

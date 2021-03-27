@@ -140,7 +140,7 @@ impl GameplayMode {
             let mut rng = sim::fork_rng(&mut rng);
 
             LoadScenario::Future(Box::pin(async move {
-                let areas = popdat::CensusArea::fetch_all_for_map(&map_area, &map_bounds).await?;
+                /*let areas = popdat::CensusArea::fetch_all_for_map(&map_area, &map_bounds).await?;
 
                 let scenario_from_app: Box<dyn Send + FnOnce(&App) -> Scenario> =
                     Box::new(move |app: &App| {
@@ -154,7 +154,8 @@ impl GameplayMode {
                         )
                     });
 
-                Ok(scenario_from_app)
+                Ok(scenario_from_app)*/
+                todo!("incompat geo")
             }))
         } else {
             LoadScenario::Path(abstio::path_scenario(map.get_name(), &name))

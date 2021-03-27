@@ -1303,7 +1303,6 @@ dependencies = [
  "map_model",
  "maplit",
  "petname",
- "popdat",
  "rand",
  "rand_xorshift",
  "serde",
@@ -1321,7 +1320,7 @@ source = "git+https://github.com/georust/gdal#29a9585059d8612b89587b1fbdb670f0da
 dependencies = [
  "bitflags",
  "gdal-sys",
- "geo-types",
+ "geo-types 0.7.0",
  "libc",
  "semver 0.11.0",
  "thiserror",
@@ -1371,11 +1370,24 @@ version = "0.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "479219490dcbbf2a374908457df0b4d5b1d8eb62eb48b0ee897f9af9e7c44210"
 dependencies = [
- "geo-types",
+ "geo-types 0.7.0",
  "geographiclib-rs",
  "num-traits 0.2.14",
  "robust",
  "rstar",
+]
+
+[[package]]
+name = "geo"
+version = "0.17.1"
+source = "git+https://github.com/Maximkaaa/geo?branch=feature/k_nearest_concave_hull#751e39a94216eb00e3af00fecf97130899a8ed62"
+dependencies = [
+ "geo-types 0.7.1",
+ "geographiclib-rs",
+ "num-traits 0.2.14",
+ "robust",
+ "rstar",
+ "serde",
 ]
 
 [[package]]
@@ -1384,7 +1396,7 @@ version = "0.3.2"
 source = "git+https://github.com/michaelkirk/rust-geo-booleanop?branch=mkirk/geo-types-0.7#c1c6680bc5540d1378e0f6d269665281bf612169"
 dependencies = [
  "float_next_after",
- "geo-types",
+ "geo-types 0.7.0",
  "num-traits 0.2.14",
  "robust",
 ]
@@ -1398,6 +1410,17 @@ dependencies = [
  "approx",
  "num-traits 0.2.14",
  "rstar",
+]
+
+[[package]]
+name = "geo-types"
+version = "0.7.1"
+source = "git+https://github.com/Maximkaaa/geo?branch=feature/k_nearest_concave_hull#751e39a94216eb00e3af00fecf97130899a8ed62"
+dependencies = [
+ "approx",
+ "num-traits 0.2.14",
+ "rstar",
+ "serde",
 ]
 
 [[package]]
@@ -1415,7 +1438,7 @@ version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a510a4ab1fbcc4058e030c438838ae3bc660065009d3bc3ad2a2e4658b3d0cf3"
 dependencies = [
- "geo-types",
+ "geo-types 0.7.0",
  "serde",
  "serde_json",
  "thiserror",
@@ -1426,10 +1449,11 @@ name = "geom"
 version = "0.1.0"
 dependencies = [
  "aabb-quadtree",
+ "abstio",
  "abstutil",
  "anyhow",
  "earcutr",
- "geo",
+ "geo 0.17.1",
  "geo-booleanop",
  "geojson",
  "histogram",
@@ -1456,7 +1480,7 @@ version = "0.6.1"
 source = "git+https://github.com/michaelkirk/geozero?branch=mkirk/geo-types-0.7#f3dd735d488d68067d046b8f2639cdd0ec6667a9"
 dependencies = [
  "bytes 0.5.6",
- "geo-types",
+ "geo-types 0.7.0",
  "geojson",
  "geozero",
  "scroll",
@@ -1797,7 +1821,7 @@ dependencies = [
  "convert_osm",
  "csv",
  "gdal",
- "geo",
+ "geo 0.17.0",
  "geojson",
  "geom",
  "kml",
@@ -2870,7 +2894,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7c4b37986714209d5198eee1c296faf9dd1122abd43b374636a80d7dbe0c8dfb"
 dependencies = [
  "cbindgen",
- "geo",
+ "geo 0.17.0",
  "libc",
  "num-traits 0.2.14",
  "thiserror",
@@ -2884,7 +2908,7 @@ dependencies = [
  "anyhow",
  "flatgeobuf",
  "futures",
- "geo",
+ "geo 0.17.0",
  "geo-booleanop",
  "geojson",
  "geom",

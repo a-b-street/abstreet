@@ -6,10 +6,11 @@ edition = "2018"
 
 [dependencies]
 aabb-quadtree = "0.1.0"
+abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = "1.0.38"
 earcutr = "0.1.1"
-geo = "0.17"
+geo = { git = "https://github.com/Maximkaaa/geo", branch = "feature/k_nearest_concave_hull", features=["use-serde"] }
 geo-booleanop = "= 0.3.2"
 geojson = "0.22"
 histogram = "0.6.9"
