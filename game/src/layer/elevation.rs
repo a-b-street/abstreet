@@ -1,5 +1,5 @@
 use abstutil::Parallelism;
-use geom::{ArrowCap, Distance, FindClosest, PolyLine, Polygon, Pt2D};
+use geom::{Angle, Distance, FindClosest, PolyLine, Polygon, Pt2D};
 use map_gui::tools::{ColorDiscrete, ColorScale, Grid};
 use map_gui::ID;
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Panel, Text, TextExt, Widget};
@@ -63,7 +63,7 @@ impl SteepStreets {
         );
 
         let arrow_len = Distance::meters(5.0);
-        let thickness = Distance::meters(1.0);
+        let thickness = Distance::meters(2.0);
         let mut steepest = 0.0_f64;
         let mut arrows = GeomBatch::new();
         for r in app.primary.map.all_roads() {
@@ -96,7 +96,7 @@ impl SteepStreets {
                 pl = pl.reversed();
             }
 
-            let btwn = Distance::meters(10.0);
+            let btwn = Distance::meters(15.0);
             let len = pl.length();
 
             let mut dist = arrow_len;
@@ -105,10 +105,11 @@ impl SteepStreets {
                 arrows.push(
                     Color::WHITE,
                     PolyLine::must_new(vec![
-                        pt.project_away(arrow_len / 2.0, angle.opposite()),
-                        pt.project_away(arrow_len / 2.0, angle),
+                        pt.project_away(arrow_len, angle.rotate_degs(-135.0)),
+                        pt,
+                        pt.project_away(arrow_len, angle.rotate_degs(135.0)),
                     ])
-                    .make_arrow(thickness, ArrowCap::Triangle),
+                    .make_polygons(thickness),
                 );
                 dist += btwn;
             }
@@ -116,20 +117,20 @@ impl SteepStreets {
         colorer.unzoomed.append(arrows);
         let (unzoomed, zoomed, legend) = colorer.build(ctx);
 
+        let pt = Pt2D::new(0.0, 0.0);
+        let panel_arrow = PolyLine::must_new(vec![
+            pt.project_away(arrow_len, Angle::degrees(-135.0)),
+            pt,
+            pt.project_away(arrow_len, Angle::degrees(135.0)),
+        ])
+        .make_polygons(thickness)
+        .scale(5.0);
         let panel = Panel::new(Widget::col(vec![
             header(ctx, "Steep streets"),
             Widget::row(vec![
-                GeomBatch::from(vec![(
-                    ctx.style().text_fg_color,
-                    PolyLine::must_new(vec![
-                        Pt2D::new(0.0, 0.0),
-                        Pt2D::new(arrow_len.inner_meters(), 0.0),
-                    ])
-                    .make_arrow(thickness, ArrowCap::Triangle)
-                    .scale(10.0),
-                )])
-                .autocrop()
-                .into_widget(ctx),
+                GeomBatch::from(vec![(ctx.style().text_fg_color, panel_arrow)])
+                    .autocrop()
+                    .into_widget(ctx),
                 "points uphill".text_widget(ctx).centered_vert(),
             ]),
             legend,
