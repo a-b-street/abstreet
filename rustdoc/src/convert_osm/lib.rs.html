@@ -192,9 +192,6 @@
 <span id="189">189</span>
 <span id="190">190</span>
 <span id="191">191</span>
-<span id="192">192</span>
-<span id="193">193</span>
-<span id="194">194</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
@@ -308,12 +305,9 @@
 
     <span class="ident">parking</span>::<span class="ident">apply_parking</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>, <span class="ident">timer</span>);
 
-    <span class="comment">// TODO Enable for all when SRTM is ready.</span>
-    <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">city</span> <span class="op">=</span><span class="op">=</span> <span class="ident">abstio</span>::<span class="ident">CityName</span>::<span class="ident">seattle</span>() {
-        <span class="comment">// TODO Make this bail out on failure, after the new dependencies are clearly explained.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">elevation</span>::<span class="ident">add_data</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>, <span class="ident">timer</span>) {
-            <span class="macro">error</span><span class="macro">!</span>(<span class="string">&quot;No elevation data: {}&quot;</span>, <span class="ident">err</span>);
-        }
+    <span class="comment">// TODO Make this bail out on failure, after the new dependencies are clearly explained.</span>
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">elevation</span>::<span class="ident">add_data</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>, <span class="ident">timer</span>) {
+        <span class="macro">error</span><span class="macro">!</span>(<span class="string">&quot;No elevation data: {}&quot;</span>, <span class="ident">err</span>);
     }
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">path</span>) <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">extra_buildings</span> {
         <span class="ident">add_extra_buildings</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>, <span class="ident">path</span>).<span class="ident">unwrap</span>();
