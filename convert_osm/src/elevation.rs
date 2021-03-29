@@ -43,7 +43,7 @@ pub fn add_data(map: &mut RawMap, timer: &mut Timer) -> Result<()> {
             ))
             .arg("-t")
             // TODO Upload this to Docker Hub, so it's easier to distribute
-            .arg("elevation_lookups_srtm")
+            .arg("elevation_lookups")
             .arg("python3")
             .arg("main.py")
             .arg("query")
