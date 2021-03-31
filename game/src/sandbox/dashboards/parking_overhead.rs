@@ -1,7 +1,9 @@
 use geom::Duration;
 use sim::{TripEndpoint, TripID, TripPhaseType};
 use widgetry::table::{Col, Filter, Table};
-use widgetry::{EventCtx, Filler, GfxCtx, Line, Outcome, Panel, State, Text, Toggle, Widget};
+use widgetry::{
+    EventCtx, Filler, GeomBatch, GfxCtx, Line, Outcome, Panel, State, Text, Toggle, Widget,
+};
 
 use crate::app::{App, Transition};
 use crate::sandbox::dashboards::generic_trip_table::{open_trip_transition, preview_trip};
@@ -96,7 +98,7 @@ impl State<App> for ParkingOverhead {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
-        preview_trip(g, app, &self.panel);
+        preview_trip(g, app, &self.panel, GeomBatch::new());
     }
 }
 

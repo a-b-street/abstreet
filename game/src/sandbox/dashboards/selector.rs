@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use geom::{Polygon, Pt2D};
 use widgetry::{
-    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, TextExt,
+    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
     VerticalAlignment, Widget,
 };
 
@@ -26,8 +26,23 @@ impl RectangularSelector {
                         .into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                // TODO Key style
-                "Hold control, then click and drag to draw".text_widget(ctx),
+                Text::from_all(vec![
+                    Line("Hold "),
+                    Line(Key::LeftControl.describe()).fg(ctx.style().text_hotkey_color),
+                    Line(", then click and drag to draw"),
+                ])
+                .into_widget(ctx),
+                Widget::row(vec![
+                    ctx.style()
+                        .btn_solid_primary
+                        .text("Apply")
+                        .hotkey(Key::Enter)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_solid_destructive
+                        .text("Clear")
+                        .build_def(ctx),
+                ]),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
@@ -62,8 +77,13 @@ impl State<App> for RectangularSelector {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
-                    // TODO Apply button?
-                    // TODO Some way to clear it
+                    return Transition::Pop;
+                }
+                "Clear" => {
+                    self.region.replace(None);
+                    return Transition::Pop;
+                }
+                "Apply" => {
                     if let Some(rect) = self
                         .corners
                         .and_then(|(pt1, pt2, _)| Polygon::rectangle_two_corners(pt1, pt2))

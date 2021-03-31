@@ -5,8 +5,8 @@ use geom::{Duration, Polygon, Time};
 use sim::{TripEndpoint, TripID, TripMode};
 use widgetry::table::{Col, Filter, Table};
 use widgetry::{
-    EventCtx, Filler, GfxCtx, Line, Outcome, Panel, Stash, State, TabController, Text, Toggle,
-    Widget,
+    Color, EventCtx, Filler, GeomBatch, GfxCtx, Line, Outcome, Panel, Stash, State, TabController,
+    Text, Toggle, Widget,
 };
 
 use super::generic_trip_table::{open_trip_transition, preview_trip};
@@ -22,7 +22,7 @@ pub struct TripTable {
     finished_trips_table: Table<App, FinishedTrip, Filters>,
     cancelled_trips_table: Table<App, CancelledTrip, Filters>,
     unfinished_trips_table: Table<App, UnfinishedTrip, Filters>,
-    dirty: bool,
+    recompute_filters: bool,
 }
 
 impl TripTable {
@@ -112,7 +112,7 @@ impl TripTable {
             finished_trips_table,
             cancelled_trips_table,
             unfinished_trips_table,
-            dirty: false,
+            recompute_filters: false,
         }
     }
 }
@@ -141,15 +141,15 @@ impl State<App> for TripTable {
                 } else if self.table_tabs.handle_action(ctx, &x, &mut self.panel) {
                     // if true, tabs handled the action
                 } else if x == "filter starts" {
-                    // Set the dirty bit, so we re-apply the filters when the selector state is
-                    // done.
-                    self.dirty = true;
+                    // Set the recompute_filters bit, so we re-apply the filters when the selector
+                    // state is done.
+                    self.recompute_filters = true;
                     return Transition::Push(RectangularSelector::new(
                         ctx,
                         self.panel.stash("starts_in"),
                     ));
                 } else if x == "filter ends" {
-                    self.dirty = true;
+                    self.recompute_filters = true;
                     return Transition::Push(RectangularSelector::new(
                         ctx,
                         self.panel.stash("ends_in"),
@@ -163,13 +163,13 @@ impl State<App> for TripTable {
                     return t;
                 }
 
-                self.dirty = true;
+                self.recompute_filters = true;
             }
             _ => {}
         }
 
-        if self.dirty {
-            self.dirty = false;
+        if self.recompute_filters {
+            self.recompute_filters = false;
             match self.table_tabs.active_tab_idx() {
                 0 => {
                     self.finished_trips_table.panel_changed(&self.panel);
@@ -195,7 +195,14 @@ impl State<App> for TripTable {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
-        preview_trip(g, app, &self.panel);
+        let mut batch = GeomBatch::new();
+        if let Some(p) = self.panel.clone_stashed("starts_in") {
+            batch.push(Color::RED.alpha(0.5), p);
+        }
+        if let Some(p) = self.panel.clone_stashed("ends_in") {
+            batch.push(Color::BLUE.alpha(0.5), p);
+        }
+        preview_trip(g, app, &self.panel, batch);
     }
 }
 
@@ -417,20 +424,12 @@ fn make_table_finished_trips(app: &App) -> Table<App, FinishedTrip, Filters> {
                 return false;
             }
             if let Some(ref polygon) = state.starts_in {
-                if x.start
-                    .pos(x.mode, true, &app.primary.map)
-                    .map(|pos| !polygon.contains_pt(pos.pt(&app.primary.map)))
-                    .unwrap_or(true)
-                {
+                if !polygon.contains_pt(x.start.pt(&app.primary.map)) {
                     return false;
                 }
             }
             if let Some(ref polygon) = state.ends_in {
-                if x.end
-                    .pos(x.mode, false, &app.primary.map)
-                    .map(|pos| !polygon.contains_pt(pos.pt(&app.primary.map)))
-                    .unwrap_or(true)
-                {
+                if !polygon.contains_pt(x.end.pt(&app.primary.map)) {
                     return false;
                 }
             }
@@ -607,20 +606,12 @@ fn make_table_cancelled_trips(app: &App) -> Table<App, CancelledTrip, Filters> {
                 return false;
             }
             if let Some(ref polygon) = state.starts_in {
-                if x.start
-                    .pos(x.mode, true, &app.primary.map)
-                    .map(|pos| !polygon.contains_pt(pos.pt(&app.primary.map)))
-                    .unwrap_or(true)
-                {
+                if !polygon.contains_pt(x.start.pt(&app.primary.map)) {
                     return false;
                 }
             }
             if let Some(ref polygon) = state.ends_in {
-                if x.end
-                    .pos(x.mode, false, &app.primary.map)
-                    .map(|pos| !polygon.contains_pt(pos.pt(&app.primary.map)))
-                    .unwrap_or(true)
-                {
+                if !polygon.contains_pt(x.end.pt(&app.primary.map)) {
                     return false;
                 }
             }
