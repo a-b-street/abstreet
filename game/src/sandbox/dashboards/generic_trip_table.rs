@@ -26,7 +26,7 @@ pub(crate) fn open_trip_transition(app: &App, idx: usize) -> Transition {
     ])
 }
 
-pub(crate) fn preview_trip(g: &mut GfxCtx, app: &App, panel: &Panel) {
+pub(crate) fn preview_trip(g: &mut GfxCtx, app: &App, panel: &Panel, mut batch: GeomBatch) {
     let inner_rect = panel.rect_of("preview").clone();
     let map_bounds = app.primary.map.get_bounds().clone();
     let zoom = 0.15 * g.canvas.window_width / map_bounds.width().max(map_bounds.height());
@@ -49,16 +49,16 @@ pub(crate) fn preview_trip(g: &mut GfxCtx, app: &App, panel: &Panel) {
     if let Some(x) = panel.currently_hovering() {
         if let Ok(idx) = x.parse::<usize>() {
             let trip = TripID(idx);
-            preview_route(g, app, trip).draw(g);
+            preview_route(g, app, trip, &mut batch);
         }
     }
+    batch.draw(g);
 
     g.disable_clipping();
     g.unfork();
 }
 
-fn preview_route(g: &mut GfxCtx, app: &App, id: TripID) -> GeomBatch {
-    let mut batch = GeomBatch::new();
+fn preview_route(g: &mut GfxCtx, app: &App, id: TripID, batch: &mut GeomBatch) {
     for p in app
         .primary
         .sim
@@ -94,6 +94,4 @@ fn preview_route(g: &mut GfxCtx, app: &App, id: TripID) -> GeomBatch {
         },
         10.0,
     ));
-
-    batch
 }
