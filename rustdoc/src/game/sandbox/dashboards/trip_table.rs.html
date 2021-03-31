@@ -699,21 +699,83 @@
 <span id="696">696</span>
 <span id="697">697</span>
 <span id="698">698</span>
+<span id="699">699</span>
+<span id="700">700</span>
+<span id="701">701</span>
+<span id="702">702</span>
+<span id="703">703</span>
+<span id="704">704</span>
+<span id="705">705</span>
+<span id="706">706</span>
+<span id="707">707</span>
+<span id="708">708</span>
+<span id="709">709</span>
+<span id="710">710</span>
+<span id="711">711</span>
+<span id="712">712</span>
+<span id="713">713</span>
+<span id="714">714</span>
+<span id="715">715</span>
+<span id="716">716</span>
+<span id="717">717</span>
+<span id="718">718</span>
+<span id="719">719</span>
+<span id="720">720</span>
+<span id="721">721</span>
+<span id="722">722</span>
+<span id="723">723</span>
+<span id="724">724</span>
+<span id="725">725</span>
+<span id="726">726</span>
+<span id="727">727</span>
+<span id="728">728</span>
+<span id="729">729</span>
+<span id="730">730</span>
+<span id="731">731</span>
+<span id="732">732</span>
+<span id="733">733</span>
+<span id="734">734</span>
+<span id="735">735</span>
+<span id="736">736</span>
+<span id="737">737</span>
+<span id="738">738</span>
+<span id="739">739</span>
+<span id="740">740</span>
+<span id="741">741</span>
+<span id="742">742</span>
+<span id="743">743</span>
+<span id="744">744</span>
+<span id="745">745</span>
+<span id="746">746</span>
+<span id="747">747</span>
+<span id="748">748</span>
+<span id="749">749</span>
+<span id="750">750</span>
+<span id="751">751</span>
+<span id="752">752</span>
+<span id="753">753</span>
+<span id="754">754</span>
+<span id="755">755</span>
+<span id="756">756</span>
+<span id="757">757</span>
+<span id="758">758</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripID</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::<span class="ident">table</span>::{<span class="ident">Col</span>, <span class="ident">Filter</span>, <span class="ident">Table</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">EventCtx</span>, <span class="ident">Filler</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">TabController</span>, <span class="ident">Text</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>,
+    <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">Filler</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Stash</span>, <span class="ident">State</span>, <span class="ident">TabController</span>,
+    <span class="ident">Text</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">generic_trip_table</span>::{<span class="ident">open_trip_transition</span>, <span class="ident">preview_trip</span>};
+<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">selector</span>::<span class="ident">RectangularSelector</span>;
+<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">DashTab</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">checkbox_per_mode</span>, <span class="ident">cmp_duration_shorter</span>, <span class="ident">color_for_mode</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">dashboards</span>::<span class="ident">DashTab</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TripTable</span> {
     <span class="ident">tab</span>: <span class="ident">DashTab</span>,
@@ -722,6 +784,7 @@
     <span class="ident">finished_trips_table</span>: <span class="ident">Table</span><span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">FinishedTrip</span>, <span class="ident">Filters</span><span class="op">&gt;</span>,
     <span class="ident">cancelled_trips_table</span>: <span class="ident">Table</span><span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">CancelledTrip</span>, <span class="ident">Filters</span><span class="op">&gt;</span>,
     <span class="ident">unfinished_trips_table</span>: <span class="ident">Table</span><span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">UnfinishedTrip</span>, <span class="ident">Filters</span><span class="op">&gt;</span>,
+    <span class="ident">recompute_filters</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">TripTable</span> {
@@ -811,6 +874,7 @@
             <span class="ident">finished_trips_table</span>,
             <span class="ident">cancelled_trips_table</span>,
             <span class="ident">unfinished_trips_table</span>,
+            <span class="ident">recompute_filters</span>: <span class="bool-val">false</span>,
         }
     }
 }
@@ -838,6 +902,20 @@
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">table_tabs</span>.<span class="ident">handle_action</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">x</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">panel</span>) {
                     <span class="comment">// if true, tabs handled the action</span>
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;filter starts&quot;</span> {
+                    <span class="comment">// Set the recompute_filters bit, so we re-apply the filters when the selector</span>
+                    <span class="comment">// state is done.</span>
+                    <span class="self">self</span>.<span class="ident">recompute_filters</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">RectangularSelector</span>::<span class="ident">new</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">stash</span>(<span class="string">&quot;starts_in&quot;</span>),
+                    ));
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;filter ends&quot;</span> {
+                    <span class="self">self</span>.<span class="ident">recompute_filters</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">RectangularSelector</span>::<span class="ident">new</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">stash</span>(<span class="string">&quot;ends_in&quot;</span>),
+                    ));
                 } <span class="kw">else</span> {
                     <span class="macro">unreachable</span><span class="macro">!</span>(<span class="string">&quot;unhandled action: {}&quot;</span>, <span class="ident">x</span>)
                 }
@@ -847,26 +925,31 @@
                     <span class="kw">return</span> <span class="ident">t</span>;
                 }
 
-                <span class="kw">match</span> <span class="self">self</span>.<span class="ident">table_tabs</span>.<span class="ident">active_tab_idx</span>() {
-                    <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="self">self</span>.<span class="ident">finished_trips_table</span>.<span class="ident">panel_changed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
-                        <span class="self">self</span>.<span class="ident">finished_trips_table</span>
-                            .<span class="ident">replace_render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">panel</span>);
-                    }
-                    <span class="number">1</span> <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="self">self</span>.<span class="ident">cancelled_trips_table</span>.<span class="ident">panel_changed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
-                        <span class="self">self</span>.<span class="ident">cancelled_trips_table</span>
-                            .<span class="ident">replace_render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">panel</span>);
-                    }
-                    <span class="number">2</span> <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="self">self</span>.<span class="ident">unfinished_trips_table</span>.<span class="ident">panel_changed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
-                        <span class="self">self</span>.<span class="ident">unfinished_trips_table</span>
-                            .<span class="ident">replace_render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">panel</span>);
-                    }
-                    <span class="ident">other</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented</span><span class="macro">!</span>(<span class="string">&quot;unknown tab: {}&quot;</span>, <span class="ident">other</span>),
-                }
+                <span class="self">self</span>.<span class="ident">recompute_filters</span> <span class="op">=</span> <span class="bool-val">true</span>;
             }
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+        }
+
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">recompute_filters</span> {
+            <span class="self">self</span>.<span class="ident">recompute_filters</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">table_tabs</span>.<span class="ident">active_tab_idx</span>() {
+                <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="self">self</span>.<span class="ident">finished_trips_table</span>.<span class="ident">panel_changed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
+                    <span class="self">self</span>.<span class="ident">finished_trips_table</span>
+                        .<span class="ident">replace_render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">panel</span>);
+                }
+                <span class="number">1</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="self">self</span>.<span class="ident">cancelled_trips_table</span>.<span class="ident">panel_changed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
+                    <span class="self">self</span>.<span class="ident">cancelled_trips_table</span>
+                        .<span class="ident">replace_render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">panel</span>);
+                }
+                <span class="number">2</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="self">self</span>.<span class="ident">unfinished_trips_table</span>.<span class="ident">panel_changed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
+                    <span class="self">self</span>.<span class="ident">unfinished_trips_table</span>
+                        .<span class="ident">replace_render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">panel</span>);
+                }
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            }
         }
 
         <span class="ident">Transition</span>::<span class="ident">Keep</span>
@@ -874,7 +957,14 @@
 
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="ident">preview_trip</span>(<span class="ident">g</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">clone_stashed</span>(<span class="string">&quot;starts_in&quot;</span>) {
+            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">RED</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">p</span>);
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">clone_stashed</span>(<span class="string">&quot;ends_in&quot;</span>) {
+            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">BLUE</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">p</span>);
+        }
+        <span class="ident">preview_trip</span>(<span class="ident">g</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>, <span class="ident">batch</span>);
     }
 }
 
@@ -883,8 +973,8 @@
     <span class="ident">mode</span>: <span class="ident">TripMode</span>,
     <span class="ident">modified</span>: <span class="ident">bool</span>,
     <span class="ident">capped</span>: <span class="ident">bool</span>,
-    <span class="ident">starts_off_map</span>: <span class="ident">bool</span>,
-    <span class="ident">ends_off_map</span>: <span class="ident">bool</span>,
+    <span class="ident">start</span>: <span class="ident">TripEndpoint</span>,
+    <span class="ident">end</span>: <span class="ident">TripEndpoint</span>,
     <span class="ident">departure</span>: <span class="ident">Time</span>,
     <span class="ident">duration_after</span>: <span class="ident">Duration</span>,
     <span class="ident">duration_before</span>: <span class="ident">Duration</span>,
@@ -896,8 +986,8 @@
     <span class="ident">id</span>: <span class="ident">TripID</span>,
     <span class="ident">mode</span>: <span class="ident">TripMode</span>,
     <span class="ident">departure</span>: <span class="ident">Time</span>,
-    <span class="ident">starts_off_map</span>: <span class="ident">bool</span>,
-    <span class="ident">ends_off_map</span>: <span class="ident">bool</span>,
+    <span class="ident">start</span>: <span class="ident">TripEndpoint</span>,
+    <span class="ident">end</span>: <span class="ident">TripEndpoint</span>,
     <span class="ident">duration_before</span>: <span class="ident">Duration</span>,
     <span class="ident">reason</span>: <span class="ident">String</span>,
 }
@@ -914,6 +1004,8 @@
     <span class="ident">modes</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TripMode</span><span class="op">&gt;</span>,
     <span class="ident">off_map_starts</span>: <span class="ident">bool</span>,
     <span class="ident">off_map_ends</span>: <span class="ident">bool</span>,
+    <span class="ident">starts_in</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>,
+    <span class="ident">ends_in</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>,
     <span class="ident">unmodified_trips</span>: <span class="ident">bool</span>,
     <span class="ident">modified_trips</span>: <span class="ident">bool</span>,
     <span class="ident">uncapped_trips</span>: <span class="ident">bool</span>,
@@ -940,14 +1032,6 @@
     <span class="kw">let</span> <span class="ident">sim</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>;
     <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">id</span>, <span class="ident">mode</span>, <span class="ident">maybe_duration_after</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">finished_trips</span> {
         <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">trip_info</span>(<span class="kw-2">*</span><span class="ident">id</span>);
-        <span class="kw">let</span> <span class="ident">starts_off_map</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">start</span> {
-            <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-        };
-        <span class="kw">let</span> <span class="ident">ends_off_map</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">end</span> {
-            <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-        };
         <span class="kw">let</span> <span class="ident">duration_before</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">times</span>) <span class="op">=</span> <span class="ident">trip_times_before</span> {
             <span class="ident">times</span>.<span class="ident">get</span>(<span class="ident">id</span>).<span class="ident">cloned</span>()
         } <span class="kw">else</span> {
@@ -962,8 +1046,8 @@
                 <span class="ident">id</span>: <span class="kw-2">*</span><span class="ident">id</span>,
                 <span class="ident">mode</span>: <span class="kw-2">*</span><span class="ident">mode</span>,
                 <span class="ident">departure</span>: <span class="ident">trip</span>.<span class="ident">departure</span>,
-                <span class="ident">starts_off_map</span>,
-                <span class="ident">ends_off_map</span>,
+                <span class="ident">start</span>: <span class="ident">trip</span>.<span class="ident">start</span>,
+                <span class="ident">end</span>: <span class="ident">trip</span>.<span class="ident">end</span>,
                 <span class="ident">duration_before</span>: <span class="ident">duration_before</span>.<span class="ident">unwrap_or</span>(<span class="ident">Duration</span>::<span class="ident">ZERO</span>),
                 <span class="ident">reason</span>,
             });
@@ -979,8 +1063,8 @@
             <span class="ident">departure</span>: <span class="ident">trip</span>.<span class="ident">departure</span>,
             <span class="ident">modified</span>: <span class="ident">trip</span>.<span class="ident">modified</span>,
             <span class="ident">capped</span>: <span class="ident">trip</span>.<span class="ident">capped</span>,
-            <span class="ident">starts_off_map</span>,
-            <span class="ident">ends_off_map</span>,
+            <span class="ident">start</span>: <span class="ident">trip</span>.<span class="ident">start</span>,
+            <span class="ident">end</span>: <span class="ident">trip</span>.<span class="ident">end</span>,
             <span class="ident">duration_after</span>,
             <span class="ident">duration_before</span>: <span class="ident">duration_before</span>.<span class="ident">unwrap</span>(),
             <span class="ident">waiting</span>,
@@ -1004,6 +1088,8 @@
             <span class="ident">modes</span>: <span class="ident">TripMode</span>::<span class="ident">all</span>().<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
             <span class="ident">off_map_starts</span>: <span class="bool-val">true</span>,
             <span class="ident">off_map_ends</span>: <span class="bool-val">true</span>,
+            <span class="ident">starts_in</span>: <span class="prelude-val">None</span>,
+            <span class="ident">ends_in</span>: <span class="prelude-val">None</span>,
             <span class="ident">unmodified_trips</span>: <span class="bool-val">true</span>,
             <span class="ident">modified_trips</span>: <span class="bool-val">true</span>,
             <span class="ident">uncapped_trips</span>: <span class="bool-val">true</span>,
@@ -1015,6 +1101,10 @@
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;starting off-map&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">state</span>.<span class="ident">off_map_starts</span>),
                     <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;ending off-map&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">state</span>.<span class="ident">off_map_ends</span>),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain</span>.<span class="ident">text</span>(<span class="string">&quot;filter starts&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain</span>.<span class="ident">text</span>(<span class="string">&quot;filter ends&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Stash</span>::<span class="ident">new</span>(<span class="string">&quot;starts_in&quot;</span>, <span class="ident">state</span>.<span class="ident">starts_in</span>.<span class="ident">clone</span>()),
+                    <span class="ident">Stash</span>::<span class="ident">new</span>(<span class="string">&quot;ends_in&quot;</span>, <span class="ident">state</span>.<span class="ident">ends_in</span>.<span class="ident">clone</span>()),
                     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">has_modified_trips</span> {
                         <span class="ident">Toggle</span>::<span class="ident">switch</span>(
                             <span class="ident">ctx</span>,
@@ -1069,6 +1159,8 @@
                 <span class="ident">modes</span>,
                 <span class="ident">off_map_starts</span>: <span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;starting off-map&quot;</span>),
                 <span class="ident">off_map_ends</span>: <span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;ending off-map&quot;</span>),
+                <span class="ident">starts_in</span>: <span class="ident">panel</span>.<span class="ident">clone_stashed</span>(<span class="string">&quot;starts_in&quot;</span>),
+                <span class="ident">ends_in</span>: <span class="ident">panel</span>.<span class="ident">clone_stashed</span>(<span class="string">&quot;ends_in&quot;</span>),
                 <span class="ident">unmodified_trips</span>: <span class="ident">panel</span>
                     .<span class="ident">maybe_is_checked</span>(<span class="string">&quot;trips unmodified by experiment&quot;</span>)
                     .<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>),
@@ -1083,15 +1175,25 @@
                     .<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>),
             }
         }),
-        <span class="ident">apply</span>: <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">x</span><span class="op">|</span> {
+        <span class="ident">apply</span>: <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">x</span>, <span class="ident">app</span><span class="op">|</span> {
             <span class="kw">if</span> <span class="op">!</span><span class="ident">state</span>.<span class="ident">modes</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">x</span>.<span class="ident">mode</span>) {
                 <span class="kw">return</span> <span class="bool-val">false</span>;
             }
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">state</span>.<span class="ident">off_map_starts</span> <span class="op">&amp;&amp;</span> <span class="ident">x</span>.<span class="ident">starts_off_map</span> {
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">state</span>.<span class="ident">off_map_starts</span> <span class="op">&amp;&amp;</span> <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">start</span>, <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>)) {
                 <span class="kw">return</span> <span class="bool-val">false</span>;
             }
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">state</span>.<span class="ident">off_map_ends</span> <span class="op">&amp;&amp;</span> <span class="ident">x</span>.<span class="ident">ends_off_map</span> {
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">state</span>.<span class="ident">off_map_ends</span> <span class="op">&amp;&amp;</span> <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">end</span>, <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>)) {
                 <span class="kw">return</span> <span class="bool-val">false</span>;
+            }
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">polygon</span>) <span class="op">=</span> <span class="ident">state</span>.<span class="ident">starts_in</span> {
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">polygon</span>.<span class="ident">contains_pt</span>(<span class="ident">x</span>.<span class="ident">start</span>.<span class="ident">pt</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)) {
+                    <span class="kw">return</span> <span class="bool-val">false</span>;
+                }
+            }
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">polygon</span>) <span class="op">=</span> <span class="ident">state</span>.<span class="ident">ends_in</span> {
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">polygon</span>.<span class="ident">contains_pt</span>(<span class="ident">x</span>.<span class="ident">end</span>.<span class="ident">pt</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)) {
+                    <span class="kw">return</span> <span class="bool-val">false</span>;
+                }
             }
             <span class="kw">if</span> <span class="op">!</span><span class="ident">state</span>.<span class="ident">unmodified_trips</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">x</span>.<span class="ident">modified</span> {
                 <span class="kw">return</span> <span class="bool-val">false</span>;
@@ -1220,6 +1322,8 @@
             <span class="ident">modes</span>: <span class="ident">TripMode</span>::<span class="ident">all</span>().<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
             <span class="ident">off_map_starts</span>: <span class="bool-val">true</span>,
             <span class="ident">off_map_ends</span>: <span class="bool-val">true</span>,
+            <span class="ident">starts_in</span>: <span class="prelude-val">None</span>,
+            <span class="ident">ends_in</span>: <span class="prelude-val">None</span>,
             <span class="ident">unmodified_trips</span>: <span class="bool-val">true</span>,
             <span class="ident">modified_trips</span>: <span class="bool-val">true</span>,
             <span class="ident">uncapped_trips</span>: <span class="bool-val">true</span>,
@@ -1245,21 +1349,33 @@
                 <span class="ident">modes</span>,
                 <span class="ident">off_map_starts</span>: <span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;starting off-map&quot;</span>),
                 <span class="ident">off_map_ends</span>: <span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;ending off-map&quot;</span>),
+                <span class="ident">starts_in</span>: <span class="ident">panel</span>.<span class="ident">clone_stashed</span>(<span class="string">&quot;starts_in&quot;</span>),
+                <span class="ident">ends_in</span>: <span class="ident">panel</span>.<span class="ident">clone_stashed</span>(<span class="string">&quot;ends_in&quot;</span>),
                 <span class="ident">unmodified_trips</span>: <span class="bool-val">true</span>,
                 <span class="ident">modified_trips</span>: <span class="bool-val">true</span>,
                 <span class="ident">uncapped_trips</span>: <span class="bool-val">true</span>,
                 <span class="ident">capped_trips</span>: <span class="bool-val">true</span>,
             }
         }),
-        <span class="ident">apply</span>: <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">x</span><span class="op">|</span> {
+        <span class="ident">apply</span>: <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">x</span>, <span class="ident">app</span><span class="op">|</span> {
             <span class="kw">if</span> <span class="op">!</span><span class="ident">state</span>.<span class="ident">modes</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">x</span>.<span class="ident">mode</span>) {
                 <span class="kw">return</span> <span class="bool-val">false</span>;
             }
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">state</span>.<span class="ident">off_map_starts</span> <span class="op">&amp;&amp;</span> <span class="ident">x</span>.<span class="ident">starts_off_map</span> {
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">state</span>.<span class="ident">off_map_starts</span> <span class="op">&amp;&amp;</span> <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">start</span>, <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>)) {
                 <span class="kw">return</span> <span class="bool-val">false</span>;
             }
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">state</span>.<span class="ident">off_map_ends</span> <span class="op">&amp;&amp;</span> <span class="ident">x</span>.<span class="ident">ends_off_map</span> {
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">state</span>.<span class="ident">off_map_ends</span> <span class="op">&amp;&amp;</span> <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">end</span>, <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>)) {
                 <span class="kw">return</span> <span class="bool-val">false</span>;
+            }
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">polygon</span>) <span class="op">=</span> <span class="ident">state</span>.<span class="ident">starts_in</span> {
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">polygon</span>.<span class="ident">contains_pt</span>(<span class="ident">x</span>.<span class="ident">start</span>.<span class="ident">pt</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)) {
+                    <span class="kw">return</span> <span class="bool-val">false</span>;
+                }
+            }
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">polygon</span>) <span class="op">=</span> <span class="ident">state</span>.<span class="ident">ends_in</span> {
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">polygon</span>.<span class="ident">contains_pt</span>(<span class="ident">x</span>.<span class="ident">end</span>.<span class="ident">pt</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)) {
+                    <span class="kw">return</span> <span class="bool-val">false</span>;
+                }
             }
             <span class="bool-val">true</span>
         }),
@@ -1335,6 +1451,8 @@
             <span class="ident">modes</span>: <span class="ident">TripMode</span>::<span class="ident">all</span>().<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
             <span class="ident">off_map_starts</span>: <span class="bool-val">true</span>,
             <span class="ident">off_map_ends</span>: <span class="bool-val">true</span>,
+            <span class="ident">starts_in</span>: <span class="prelude-val">None</span>,
+            <span class="ident">ends_in</span>: <span class="prelude-val">None</span>,
             <span class="ident">unmodified_trips</span>: <span class="bool-val">true</span>,
             <span class="ident">modified_trips</span>: <span class="bool-val">true</span>,
             <span class="ident">uncapped_trips</span>: <span class="bool-val">true</span>,
@@ -1352,13 +1470,15 @@
                 <span class="ident">modes</span>,
                 <span class="ident">off_map_starts</span>: <span class="bool-val">true</span>,
                 <span class="ident">off_map_ends</span>: <span class="bool-val">true</span>,
+                <span class="ident">starts_in</span>: <span class="ident">panel</span>.<span class="ident">clone_stashed</span>(<span class="string">&quot;starts_in&quot;</span>),
+                <span class="ident">ends_in</span>: <span class="ident">panel</span>.<span class="ident">clone_stashed</span>(<span class="string">&quot;ends_in&quot;</span>),
                 <span class="ident">unmodified_trips</span>: <span class="bool-val">true</span>,
                 <span class="ident">modified_trips</span>: <span class="bool-val">true</span>,
                 <span class="ident">uncapped_trips</span>: <span class="bool-val">true</span>,
                 <span class="ident">capped_trips</span>: <span class="bool-val">true</span>,
             }
         }),
-        <span class="ident">apply</span>: <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">x</span><span class="op">|</span> {
+        <span class="ident">apply</span>: <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">x</span>, <span class="kw">_</span><span class="op">|</span> {
             <span class="kw">if</span> <span class="op">!</span><span class="ident">state</span>.<span class="ident">modes</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">x</span>.<span class="ident">mode</span>) {
                 <span class="kw">return</span> <span class="bool-val">false</span>;
             }

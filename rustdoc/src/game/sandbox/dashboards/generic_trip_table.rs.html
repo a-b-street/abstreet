@@ -98,8 +98,6 @@
 <span id="95">95</span>
 <span id="96">96</span>
 <span id="97">97</span>
-<span id="98">98</span>
-<span id="99">99</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripID</span>};
@@ -129,7 +127,7 @@
     ])
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">preview_trip</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">preview_trip</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>, <span class="kw-2">mut</span> <span class="ident">batch</span>: <span class="ident">GeomBatch</span>) {
     <span class="kw">let</span> <span class="ident">inner_rect</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">rect_of</span>(<span class="string">&quot;preview&quot;</span>).<span class="ident">clone</span>();
     <span class="kw">let</span> <span class="ident">map_bounds</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>().<span class="ident">clone</span>();
     <span class="kw">let</span> <span class="ident">zoom</span> <span class="op">=</span> <span class="number">0.15</span> <span class="op">*</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span> <span class="op">/</span> <span class="ident">map_bounds</span>.<span class="ident">width</span>().<span class="ident">max</span>(<span class="ident">map_bounds</span>.<span class="ident">height</span>());
@@ -152,16 +150,16 @@
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">currently_hovering</span>() {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>() {
             <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="ident">TripID</span>(<span class="ident">idx</span>);
-            <span class="ident">preview_route</span>(<span class="ident">g</span>, <span class="ident">app</span>, <span class="ident">trip</span>).<span class="ident">draw</span>(<span class="ident">g</span>);
+            <span class="ident">preview_route</span>(<span class="ident">g</span>, <span class="ident">app</span>, <span class="ident">trip</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>);
         }
     }
+    <span class="ident">batch</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
 
     <span class="ident">g</span>.<span class="ident">disable_clipping</span>();
     <span class="ident">g</span>.<span class="ident">unfork</span>();
 }
 
-<span class="kw">fn</span> <span class="ident">preview_route</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">TripID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+<span class="kw">fn</span> <span class="ident">preview_route</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">TripID</span>, <span class="ident">batch</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GeomBatch</span>) {
     <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">app</span>
         .<span class="ident">primary</span>
         .<span class="ident">sim</span>
@@ -197,8 +195,6 @@
         },
         <span class="number">10.0</span>,
     ));
-
-    <span class="ident">batch</span>
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="game"></div>

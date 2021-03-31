@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Stash","An invisible widget that stores some arbitrary data on the Panel. Users of the panel can read and write the value. This is one method for \"returning\" data when a State completes."]]});
