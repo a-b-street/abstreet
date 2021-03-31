@@ -366,7 +366,7 @@ impl TripEndpoint {
         }
     }
 
-    fn pos(self, mode: TripMode, from: bool, map: &Map) -> Option<Position> {
+    pub fn pos(self, mode: TripMode, from: bool, map: &Map) -> Option<Position> {
         match mode {
             TripMode::Walk | TripMode::Transit => (if from {
                 self.start_sidewalk_spot(map)
