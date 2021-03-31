@@ -9,9 +9,10 @@ use widgetry::{
 };
 
 use super::generic_trip_table::{open_trip_transition, preview_trip};
+use super::selector::RectangularSelector;
+use super::DashTab;
 use crate::app::{App, Transition};
 use crate::common::{checkbox_per_mode, cmp_duration_shorter, color_for_mode};
-use crate::sandbox::dashboards::DashTab;
 
 pub struct TripTable {
     tab: DashTab,
@@ -136,6 +137,10 @@ impl State<App> for TripTable {
                     return Transition::Pop;
                 } else if self.table_tabs.handle_action(ctx, &x, &mut self.panel) {
                     // if true, tabs handled the action
+                } else if x == "filter starts" {
+                    return Transition::Push(RectangularSelector::new(ctx, None));
+                } else if x == "filter ends" {
+                    return Transition::Push(RectangularSelector::new(ctx, None));
                 } else {
                     unreachable!("unhandled action: {}", x)
                 }
@@ -313,6 +318,8 @@ fn make_table_finished_trips(app: &App) -> Table<App, FinishedTrip, Filters> {
                 Widget::row(vec![
                     Toggle::switch(ctx, "starting off-map", None, state.off_map_starts),
                     Toggle::switch(ctx, "ending off-map", None, state.off_map_ends),
+                    ctx.style().btn_plain.text("filter starts").build_def(ctx),
+                    ctx.style().btn_plain.text("filter ends").build_def(ctx),
                     if app.primary.has_modified_trips {
                         Toggle::switch(
                             ctx,
