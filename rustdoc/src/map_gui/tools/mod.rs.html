@@ -206,6 +206,8 @@
 <span id="203">203</span>
 <span id="204">204</span>
 <span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Assorted tools and UI states that&#39;re useful for applications built to display maps.</span>
 
@@ -217,6 +219,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">city_picker</span>::<span class="ident">CityPicker</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">colors</span>::{<span class="ident">ColorDiscrete</span>, <span class="ident">ColorLegend</span>, <span class="ident">ColorNetwork</span>, <span class="ident">ColorScale</span>, <span class="ident">DivergingScale</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">heatmap</span>::{<span class="ident">make_heatmap</span>, <span class="ident">Grid</span>, <span class="ident">HeatmapOptions</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">icons</span>::{<span class="ident">goal_marker</span>, <span class="ident">start_marker</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">minimap</span>::{<span class="ident">Minimap</span>, <span class="ident">MinimapControls</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">navigate</span>::<span class="ident">Navigator</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">turn_explorer</span>::<span class="ident">TurnExplorer</span>;
@@ -233,6 +236,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
 <span class="kw">mod</span> <span class="ident">command</span>;
 <span class="kw">mod</span> <span class="ident">heatmap</span>;
+<span class="kw">mod</span> <span class="ident">icons</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
 <span class="kw">mod</span> <span class="ident">importer</span>;
 <span class="kw">mod</span> <span class="ident">minimap</span>;

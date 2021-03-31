@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["goal_marker","Draw a goal marker pointing at something."],["start_marker","Draw a start marker pointing at something."]]});

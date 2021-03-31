@@ -388,9 +388,6 @@
 <span id="385">385</span>
 <span id="386">386</span>
 <span id="387">387</span>
-<span id="388">388</span>
-<span id="389">389</span>
-<span id="390">390</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>};
 
@@ -500,10 +497,7 @@
                 .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">LeftInset</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">TopInset</span>)
                 .<span class="ident">build</span>(<span class="ident">ctx</span>);
 
-                <span class="kw">let</span> <span class="ident">draw_start</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/timeline/start_pos.svg&quot;</span>)
-                    .<span class="ident">scale</span>(<span class="number">3.0</span>)
-                    .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">RED</span>))
-                    .<span class="ident">centered_on</span>(<span class="ident">start</span>);
+                <span class="kw">let</span> <span class="ident">draw_start</span> <span class="op">=</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">start_marker</span>(<span class="ident">ctx</span>, <span class="ident">start</span>, <span class="number">3.0</span>);
 
                 <span class="kw">let</span> <span class="ident">current_picks</span> <span class="op">=</span> <span class="ident">app</span>
                     .<span class="ident">session</span>

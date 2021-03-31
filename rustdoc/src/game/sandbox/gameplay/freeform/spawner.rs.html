@@ -302,22 +302,6 @@
 <span id="299">299</span>
 <span id="300">300</span>
 <span id="301">301</span>
-<span id="302">302</span>
-<span id="303">303</span>
-<span id="304">304</span>
-<span id="305">305</span>
-<span id="306">306</span>
-<span id="307">307</span>
-<span id="308">308</span>
-<span id="309">309</span>
-<span id="310">310</span>
-<span id="311">311</span>
-<span id="312">312</span>
-<span id="313">313</span>
-<span id="314">314</span>
-<span id="315">315</span>
-<span id="316">316</span>
-<span id="317">317</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
@@ -326,8 +310,8 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">IndividTrip</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
-    <span class="ident">RewriteColor</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Spinner</span>,
+    <span class="ident">State</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
@@ -610,26 +594,10 @@
         <span class="ident">CommonState</span>::<span class="ident">draw_osd</span>(<span class="ident">g</span>, <span class="ident">app</span>);
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">center</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">start</span> {
-            <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">g</span>, <span class="string">&quot;system/assets/timeline/start_pos.svg&quot;</span>)
-                .<span class="ident">scale</span>(<span class="number">3.0</span>)
-                .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">Color</span>::<span class="ident">BLACK</span>))
-                .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(
-                    <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#5B5B5B&quot;</span>),
-                    <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#CC4121&quot;</span>),
-                ))
-                .<span class="ident">centered_on</span>(<span class="ident">center</span>)
-                .<span class="ident">draw</span>(<span class="ident">g</span>);
+            <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">start_marker</span>(<span class="ident">g</span>, <span class="ident">center</span>, <span class="number">3.0</span>).<span class="ident">draw</span>(<span class="ident">g</span>);
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">center</span>, <span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">path_poly</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">goal</span> {
-            <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">g</span>, <span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
-                .<span class="ident">scale</span>(<span class="number">3.0</span>)
-                .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">Color</span>::<span class="ident">BLACK</span>))
-                .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(
-                    <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#5B5B5B&quot;</span>),
-                    <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#CC4121&quot;</span>),
-                ))
-                .<span class="ident">centered_on</span>(<span class="ident">center</span>)
-                .<span class="ident">draw</span>(<span class="ident">g</span>);
+            <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">goal_marker</span>(<span class="ident">g</span>, <span class="ident">center</span>, <span class="number">3.0</span>).<span class="ident">draw</span>(<span class="ident">g</span>);
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">path_poly</span> {
                 <span class="ident">g</span>.<span class="ident">draw_polygon</span>(<span class="ident">Color</span>::<span class="ident">PURPLE</span>, <span class="ident">p</span>.<span class="ident">clone</span>());
             }
