@@ -1,4 +1,6 @@
+use std::cell::RefCell;
 use std::collections::HashSet;
+use std::rc::Rc;
 
 use stretch::geometry::Size;
 use stretch::node::Stretch;
@@ -11,8 +13,8 @@ use crate::widgets::slider;
 use crate::widgets::Container;
 use crate::{
     Autocomplete, Button, Color, Dropdown, EventCtx, GfxCtx, HorizontalAlignment, Menu, Outcome,
-    PersistentSplit, ScreenDims, ScreenPt, ScreenRectangle, Slider, Spinner, TextBox, Toggle,
-    VerticalAlignment, Widget, WidgetImpl, WidgetOutput,
+    PersistentSplit, ScreenDims, ScreenPt, ScreenRectangle, Slider, Spinner, Stash, TextBox,
+    Toggle, VerticalAlignment, Widget, WidgetImpl, WidgetOutput,
 };
 
 pub struct Panel {
@@ -404,6 +406,16 @@ impl Panel {
 
     pub fn autocomplete_done<T: 'static + Clone>(&self, name: &str) -> Option<Vec<T>> {
         self.find::<Autocomplete<T>>(name).final_value()
+    }
+
+    /// Grab a stashed value, with the ability to pass it around and modify it.
+    pub fn stash<T: 'static>(&self, name: &str) -> Rc<RefCell<T>> {
+        self.find::<Stash<T>>(name).get_value()
+    }
+
+    /// Grab a stashed value and clone it.
+    pub fn clone_stashed<T: 'static + Clone>(&self, name: &str) -> T {
+        self.find::<Stash<T>>(name).get_value().borrow().clone()
     }
 
     pub fn is_button_enabled(&self, name: &str) -> bool {

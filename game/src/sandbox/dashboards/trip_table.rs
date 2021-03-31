@@ -1,11 +1,12 @@
 use std::collections::{BTreeSet, HashMap};
 
 use abstutil::prettyprint_usize;
-use geom::{Duration, Time};
+use geom::{Duration, Polygon, Time};
 use sim::{TripEndpoint, TripID, TripMode};
 use widgetry::table::{Col, Filter, Table};
 use widgetry::{
-    EventCtx, Filler, GfxCtx, Line, Outcome, Panel, State, TabController, Text, Toggle, Widget,
+    EventCtx, Filler, GfxCtx, Line, Outcome, Panel, Stash, State, TabController, Text, Toggle,
+    Widget,
 };
 
 use super::generic_trip_table::{open_trip_transition, preview_trip};
@@ -138,9 +139,15 @@ impl State<App> for TripTable {
                 } else if self.table_tabs.handle_action(ctx, &x, &mut self.panel) {
                     // if true, tabs handled the action
                 } else if x == "filter starts" {
-                    return Transition::Push(RectangularSelector::new(ctx, None));
+                    return Transition::Push(RectangularSelector::new(
+                        ctx,
+                        self.panel.stash("starts_in"),
+                    ));
                 } else if x == "filter ends" {
-                    return Transition::Push(RectangularSelector::new(ctx, None));
+                    return Transition::Push(RectangularSelector::new(
+                        ctx,
+                        self.panel.stash("ends_in"),
+                    ));
                 } else {
                     unreachable!("unhandled action: {}", x)
                 }
@@ -217,6 +224,8 @@ struct Filters {
     modes: BTreeSet<TripMode>,
     off_map_starts: bool,
     off_map_ends: bool,
+    starts_in: Option<Polygon>,
+    ends_in: Option<Polygon>,
     unmodified_trips: bool,
     modified_trips: bool,
     uncapped_trips: bool,
@@ -307,6 +316,8 @@ fn make_table_finished_trips(app: &App) -> Table<App, FinishedTrip, Filters> {
             modes: TripMode::all().into_iter().collect(),
             off_map_starts: true,
             off_map_ends: true,
+            starts_in: None,
+            ends_in: None,
             unmodified_trips: true,
             modified_trips: true,
             uncapped_trips: true,
@@ -320,6 +331,8 @@ fn make_table_finished_trips(app: &App) -> Table<App, FinishedTrip, Filters> {
                     Toggle::switch(ctx, "ending off-map", None, state.off_map_ends),
                     ctx.style().btn_plain.text("filter starts").build_def(ctx),
                     ctx.style().btn_plain.text("filter ends").build_def(ctx),
+                    Stash::new("starts_in", state.starts_in.clone()),
+                    Stash::new("ends_in", state.ends_in.clone()),
                     if app.primary.has_modified_trips {
                         Toggle::switch(
                             ctx,
@@ -374,6 +387,8 @@ fn make_table_finished_trips(app: &App) -> Table<App, FinishedTrip, Filters> {
                 modes,
                 off_map_starts: panel.is_checked("starting off-map"),
                 off_map_ends: panel.is_checked("ending off-map"),
+                starts_in: panel.clone_stashed("starts_in"),
+                ends_in: panel.clone_stashed("ends_in"),
                 unmodified_trips: panel
                     .maybe_is_checked("trips unmodified by experiment")
                     .unwrap_or(true),
@@ -525,6 +540,8 @@ fn make_table_cancelled_trips(app: &App) -> Table<App, CancelledTrip, Filters> {
             modes: TripMode::all().into_iter().collect(),
             off_map_starts: true,
             off_map_ends: true,
+            starts_in: None,
+            ends_in: None,
             unmodified_trips: true,
             modified_trips: true,
             uncapped_trips: true,
@@ -550,6 +567,8 @@ fn make_table_cancelled_trips(app: &App) -> Table<App, CancelledTrip, Filters> {
                 modes,
                 off_map_starts: panel.is_checked("starting off-map"),
                 off_map_ends: panel.is_checked("ending off-map"),
+                starts_in: panel.clone_stashed("starts_in"),
+                ends_in: panel.clone_stashed("ends_in"),
                 unmodified_trips: true,
                 modified_trips: true,
                 uncapped_trips: true,
@@ -640,6 +659,8 @@ fn make_table_unfinished_trips(app: &App) -> Table<App, UnfinishedTrip, Filters>
             modes: TripMode::all().into_iter().collect(),
             off_map_starts: true,
             off_map_ends: true,
+            starts_in: None,
+            ends_in: None,
             unmodified_trips: true,
             modified_trips: true,
             uncapped_trips: true,
@@ -657,6 +678,8 @@ fn make_table_unfinished_trips(app: &App) -> Table<App, UnfinishedTrip, Filters>
                 modes,
                 off_map_starts: true,
                 off_map_ends: true,
+                starts_in: panel.clone_stashed("starts_in"),
+                ends_in: panel.clone_stashed("ends_in"),
                 unmodified_trips: true,
                 modified_trips: true,
                 uncapped_trips: true,
