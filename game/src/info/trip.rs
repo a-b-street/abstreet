@@ -8,7 +8,7 @@ use map_model::{Map, Path, PathStep};
 use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhase, TripPhaseType};
 use widgetry::{
     Color, ControlState, DrawWithTooltips, EventCtx, GeomBatch, Line, LinePlot, PlotOptions,
-    RewriteColor, Series, Text, TextExt, Widget,
+    Series, Text, TextExt, Widget,
 };
 
 use crate::app::App;
@@ -683,25 +683,12 @@ fn make_trip_details(
             .warpers
             .insert(format!("jump to start of {}", trip_id), id);
 
-        details.unzoomed.append(
-            GeomBatch::load_svg(ctx, "system/assets/timeline/start_pos.svg")
-                .scale(3.0)
-                .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
-                .color(RewriteColor::Change(
-                    Color::hex("#5B5B5B"),
-                    Color::hex("#CC4121"),
-                ))
-                .centered_on(center),
-        );
-        details.zoomed.append(
-            GeomBatch::load_svg(ctx, "system/assets/timeline/start_pos.svg")
-                .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
-                .color(RewriteColor::Change(
-                    Color::hex("#5B5B5B"),
-                    Color::hex("#CC4121"),
-                ))
-                .centered_on(center),
-        );
+        details
+            .unzoomed
+            .append(map_gui::tools::start_marker(ctx, center, 3.0));
+        details
+            .zoomed
+            .append(map_gui::tools::start_marker(ctx, center, 1.0));
 
         ctx.style()
             .btn_plain
@@ -716,25 +703,12 @@ fn make_trip_details(
             .warpers
             .insert(format!("jump to goal of {}", trip_id), id);
 
-        details.unzoomed.append(
-            GeomBatch::load_svg(ctx, "system/assets/timeline/goal_pos.svg")
-                .scale(3.0)
-                .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
-                .color(RewriteColor::Change(
-                    Color::hex("#5B5B5B"),
-                    Color::hex("#CC4121"),
-                ))
-                .centered_on(center),
-        );
-        details.zoomed.append(
-            GeomBatch::load_svg(ctx, "system/assets/timeline/goal_pos.svg")
-                .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
-                .color(RewriteColor::Change(
-                    Color::hex("#5B5B5B"),
-                    Color::hex("#CC4121"),
-                ))
-                .centered_on(center),
-        );
+        details
+            .unzoomed
+            .append(map_gui::tools::goal_marker(ctx, center, 3.0));
+        details
+            .zoomed
+            .append(map_gui::tools::goal_marker(ctx, center, 1.0));
 
         ctx.style()
             .btn_plain

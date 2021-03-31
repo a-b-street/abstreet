@@ -106,10 +106,7 @@ impl Picker {
                 .aligned(HorizontalAlignment::LeftInset, VerticalAlignment::TopInset)
                 .build(ctx);
 
-                let draw_start = GeomBatch::load_svg(ctx, "system/assets/timeline/start_pos.svg")
-                    .scale(3.0)
-                    .color(RewriteColor::ChangeAll(Color::RED))
-                    .centered_on(start);
+                let draw_start = map_gui::tools::start_marker(ctx, start, 3.0);
 
                 let current_picks = app
                     .session

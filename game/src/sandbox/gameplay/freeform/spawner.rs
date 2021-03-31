@@ -5,8 +5,8 @@ use map_gui::ID;
 use map_model::{BuildingID, NORMAL_LANE_THICKNESS};
 use sim::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 use widgetry::{
-    Choice, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    RewriteColor, Spinner, State, TextExt, VerticalAlignment, Widget,
+    Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Spinner,
+    State, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -289,26 +289,10 @@ impl State<App> for AgentSpawner {
         CommonState::draw_osd(g, app);
 
         if let Some((_, center)) = self.start {
-            GeomBatch::load_svg(g, "system/assets/timeline/start_pos.svg")
-                .scale(3.0)
-                .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
-                .color(RewriteColor::Change(
-                    Color::hex("#5B5B5B"),
-                    Color::hex("#CC4121"),
-                ))
-                .centered_on(center)
-                .draw(g);
+            map_gui::tools::start_marker(g, center, 3.0).draw(g);
         }
         if let Some((_, center, _, ref path_poly)) = self.goal {
-            GeomBatch::load_svg(g, "system/assets/timeline/goal_pos.svg")
-                .scale(3.0)
-                .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
-                .color(RewriteColor::Change(
-                    Color::hex("#5B5B5B"),
-                    Color::hex("#CC4121"),
-                ))
-                .centered_on(center)
-                .draw(g);
+            map_gui::tools::goal_marker(g, center, 3.0).draw(g);
             if let Some(p) = path_poly {
                 g.draw_polygon(Color::PURPLE, p.clone());
             }

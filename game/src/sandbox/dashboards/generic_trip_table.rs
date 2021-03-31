@@ -1,6 +1,6 @@
 use geom::{Distance, Pt2D};
 use sim::{TripEndpoint, TripID};
-use widgetry::{Color, GeomBatch, GfxCtx, Panel, RewriteColor, ScreenPt};
+use widgetry::{GeomBatch, GfxCtx, Panel, ScreenPt};
 
 use crate::app::{App, Transition};
 use crate::common::color_for_trip_phase;
@@ -76,34 +76,24 @@ fn preview_route(g: &mut GfxCtx, app: &App, id: TripID) -> GeomBatch {
     }
 
     let trip = app.primary.sim.trip_info(id);
-    batch.append(
-        GeomBatch::load_svg(g, "system/assets/timeline/start_pos.svg")
-            .scale(10.0)
-            .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
-            .color(RewriteColor::Change(
-                Color::hex("#5B5B5B"),
-                Color::hex("#CC4121"),
-            ))
-            .centered_on(match trip.start {
-                TripEndpoint::Bldg(b) => app.primary.map.get_b(b).label_center,
-                TripEndpoint::Border(i) => app.primary.map.get_i(i).polygon.center(),
-                TripEndpoint::SuddenlyAppear(pos) => pos.pt(&app.primary.map),
-            }),
-    );
-    batch.append(
-        GeomBatch::load_svg(g, "system/assets/timeline/goal_pos.svg")
-            .scale(10.0)
-            .color(RewriteColor::Change(Color::WHITE, Color::BLACK))
-            .color(RewriteColor::Change(
-                Color::hex("#5B5B5B"),
-                Color::hex("#CC4121"),
-            ))
-            .centered_on(match trip.end {
-                TripEndpoint::Bldg(b) => app.primary.map.get_b(b).label_center,
-                TripEndpoint::Border(i) => app.primary.map.get_i(i).polygon.center(),
-                TripEndpoint::SuddenlyAppear(pos) => pos.pt(&app.primary.map),
-            }),
-    );
+    batch.append(map_gui::tools::start_marker(
+        g,
+        match trip.start {
+            TripEndpoint::Bldg(b) => app.primary.map.get_b(b).label_center,
+            TripEndpoint::Border(i) => app.primary.map.get_i(i).polygon.center(),
+            TripEndpoint::SuddenlyAppear(pos) => pos.pt(&app.primary.map),
+        },
+        10.0,
+    ));
+    batch.append(map_gui::tools::goal_marker(
+        g,
+        match trip.end {
+            TripEndpoint::Bldg(b) => app.primary.map.get_b(b).label_center,
+            TripEndpoint::Border(i) => app.primary.map.get_i(i).polygon.center(),
+            TripEndpoint::SuddenlyAppear(pos) => pos.pt(&app.primary.map),
+        },
+        10.0,
+    ));
 
     batch
 }

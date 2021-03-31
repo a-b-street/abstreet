@@ -8,6 +8,7 @@ pub use self::camera::CameraState;
 pub use self::city_picker::CityPicker;
 pub use self::colors::{ColorDiscrete, ColorLegend, ColorNetwork, ColorScale, DivergingScale};
 pub use self::heatmap::{make_heatmap, Grid, HeatmapOptions};
+pub use self::icons::{goal_marker, start_marker};
 pub use self::minimap::{Minimap, MinimapControls};
 pub use self::navigate::Navigator;
 pub use self::turn_explorer::TurnExplorer;
@@ -24,6 +25,7 @@ mod colors;
 #[cfg(not(target_arch = "wasm32"))]
 mod command;
 mod heatmap;
+mod icons;
 #[cfg(not(target_arch = "wasm32"))]
 mod importer;
 mod minimap;
