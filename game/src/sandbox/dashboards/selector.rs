@@ -1,3 +1,6 @@
+use std::cell::RefCell;
+use std::rc::Rc;
+
 use geom::{Polygon, Pt2D};
 use widgetry::{
     Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, TextExt,
@@ -9,12 +12,12 @@ use crate::app::{App, Transition};
 // TODO Lift to widgetry
 pub struct RectangularSelector {
     panel: Panel,
-    region: Option<Polygon>,
+    region: Rc<RefCell<Option<Polygon>>>,
     corners: Option<(Pt2D, Pt2D, bool)>,
 }
 
 impl RectangularSelector {
-    pub fn new(ctx: &mut EventCtx, region: Option<Polygon>) -> Box<dyn State<App>> {
+    pub fn new(ctx: &mut EventCtx, region: Rc<RefCell<Option<Polygon>>>) -> Box<dyn State<App>> {
         Box::new(RectangularSelector {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
@@ -59,6 +62,14 @@ impl State<App> for RectangularSelector {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
+                    // TODO Apply button?
+                    // TODO Some way to clear it
+                    if let Some(rect) = self
+                        .corners
+                        .and_then(|(pt1, pt2, _)| Polygon::rectangle_two_corners(pt1, pt2))
+                    {
+                        self.region.replace(Some(rect));
+                    }
                     return Transition::Pop;
                 }
                 _ => unreachable!(),
@@ -71,7 +82,7 @@ impl State<App> for RectangularSelector {
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.panel.draw(g);
-        if let Some(p) = self.region.clone() {
+        if let Some(p) = self.region.borrow().clone() {
             g.draw_polygon(Color::BLUE.alpha(0.5), p);
         }
         if let Some((pt1, pt2, _)) = self.corners {
