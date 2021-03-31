@@ -11,6 +11,7 @@ mod commuter;
 mod generic_trip_table;
 mod misc;
 mod parking_overhead;
+mod selector;
 mod summaries;
 mod traffic_signals;
 mod trip_table;
