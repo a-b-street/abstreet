@@ -1,27 +1,27 @@
+mod spawner;
+
 use rand::seq::SliceRandom;
 use rand::Rng;
 
 use abstutil::Timer;
-use geom::{Distance, Duration, Polygon};
+use geom::{Distance, Duration};
 use map_gui::tools::{
     grey_out_map, nice_map_name, open_browser, CityPicker, PopupMsg, PromptInput, URLManager,
 };
 use map_gui::ID;
-use map_model::{BuildingID, IntersectionID, Position, NORMAL_LANE_THICKNESS};
+use map_model::{IntersectionID, Position};
 use sim::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 use widgetry::{
-    lctrl, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    SimpleState, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, SimpleState, State,
+    Text, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
-use crate::common::{jump_to_time_upon_startup, CommonState};
-use crate::debug::PathCostDebugger;
+use crate::common::jump_to_time_upon_startup;
 use crate::edit::EditMode;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{Actions, SandboxControls, SandboxMode};
 
-// TODO Maybe remember what things were spawned, offer to replay this later
 pub struct Freeform {
     top_right: Panel,
 }
@@ -81,7 +81,9 @@ impl GameplayState for Freeform {
                     app,
                     GameplayMode::Freeform(app.primary.map.get_name().clone()),
                 ))),
-                "Start a new trip" => Some(Transition::Push(AgentSpawner::new(ctx, app, None))),
+                "Start a new trip" => {
+                    Some(Transition::Push(spawner::AgentSpawner::new(ctx, app, None)))
+                }
                 "Record trips as a scenario" => Some(Transition::Push(PromptInput::new(
                     ctx,
                     "Name this scenario",
@@ -300,301 +302,6 @@ impl SimpleState<App> for ChangeScenario {
     }
 }
 
-struct AgentSpawner {
-    panel: Panel,
-    source: Option<TripEndpoint>,
-    // (goal, feasible path, draw the path). Even if we can't draw the path, remember if the path
-    // exists at all.
-    goal: Option<(TripEndpoint, bool, Option<Polygon>)>,
-    confirmed: bool,
-}
-
-impl AgentSpawner {
-    fn new(ctx: &mut EventCtx, app: &App, start: Option<BuildingID>) -> Box<dyn State<App>> {
-        let mut spawner = AgentSpawner {
-            source: None,
-            goal: None,
-            confirmed: false,
-            panel: Panel::new(Widget::col(vec![
-                Widget::row(vec![
-                    Line("New trip").small_heading().into_widget(ctx),
-                    ctx.style().btn_close_widget(ctx),
-                ]),
-                "Click a building or border to specify start"
-                    .text_widget(ctx)
-                    .named("instructions"),
-                Widget::row(vec![
-                    "Type of trip:".text_widget(ctx),
-                    Widget::dropdown(
-                        ctx,
-                        "mode",
-                        TripMode::Drive,
-                        TripMode::all()
-                            .into_iter()
-                            .map(|m| Choice::new(m.ongoing_verb(), m))
-                            .collect(),
-                    ),
-                ]),
-                Widget::row(vec![
-                    "Number of trips:".text_widget(ctx),
-                    Spinner::widget(ctx, (1, 1000), 1).named("number"),
-                ]),
-                if app.opts.dev {
-                    ctx.style()
-                        .btn_plain_destructive
-                        .text("Debug all costs")
-                        .build_def(ctx)
-                } else {
-                    Widget::nothing()
-                },
-                ctx.style()
-                    .btn_solid_primary
-                    .text("Confirm")
-                    .disabled(true)
-                    .build_def(ctx),
-            ]))
-            .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
-            .build(ctx),
-        };
-        if let Some(b) = start {
-            spawner.source = Some(TripEndpoint::Bldg(b));
-            spawner.panel.replace(
-                ctx,
-                "instructions",
-                "Click a building or border to specify end".text_widget(ctx),
-            );
-        }
-        Box::new(spawner)
-    }
-}
-
-impl State<App> for AgentSpawner {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
-                "close" => {
-                    return Transition::Pop;
-                }
-                "Confirm" => {
-                    let map = &app.primary.map;
-                    let mut scenario = Scenario::empty(map, "one-shot");
-                    let from = self.source.take().unwrap();
-                    let to = self.goal.take().unwrap().0;
-                    for _ in 0..self.panel.spinner("number") as usize {
-                        scenario.people.push(PersonSpec {
-                            orig_id: None,
-                            origin: from.clone(),
-                            trips: vec![IndividTrip::new(
-                                app.primary.sim.time(),
-                                TripPurpose::Shopping,
-                                to.clone(),
-                                self.panel.dropdown_value("mode"),
-                            )],
-                        });
-                    }
-                    let mut rng = app.primary.current_flags.sim_flags.make_rng();
-                    scenario.instantiate(
-                        &mut app.primary.sim,
-                        map,
-                        &mut rng,
-                        &mut Timer::new("spawn trip"),
-                    );
-                    app.primary.sim.tiny_step(map, &mut app.primary.sim_cb);
-                    app.recalculate_current_selection(ctx);
-                    return Transition::Pop;
-                }
-                "Debug all costs" => {
-                    if let Some(state) = self
-                        .goal
-                        .as_ref()
-                        .and_then(|(to, _, _)| {
-                            TripEndpoint::path_req(
-                                self.source.clone().unwrap(),
-                                to.clone(),
-                                self.panel.dropdown_value("mode"),
-                                &app.primary.map,
-                            )
-                        })
-                        .and_then(|req| app.primary.map.pathfind(req).ok())
-                        .and_then(|path| {
-                            path.trace(&app.primary.map).map(|pl| {
-                                (
-                                    path.get_req().clone(),
-                                    pl.make_polygons(NORMAL_LANE_THICKNESS),
-                                )
-                            })
-                        })
-                        .and_then(|(req, draw_path)| {
-                            PathCostDebugger::maybe_new(ctx, app, req, draw_path)
-                        })
-                    {
-                        return Transition::Push(state);
-                    } else {
-                        return Transition::Push(PopupMsg::new(
-                            ctx,
-                            "Error",
-                            vec!["Couldn't launch cost debugger for some reason"],
-                        ));
-                    }
-                }
-                _ => unreachable!(),
-            },
-            Outcome::Changed => {
-                // We need to recalculate the path to see if this is sane. Otherwise we could trick
-                // a pedestrian into wandering on/off a highway border.
-                if self.goal.is_some() {
-                    let to = self.goal.as_ref().unwrap().0.clone();
-                    if let Some(path) = TripEndpoint::path_req(
-                        self.source.clone().unwrap(),
-                        to.clone(),
-                        self.panel.dropdown_value("mode"),
-                        &app.primary.map,
-                    )
-                    .and_then(|req| app.primary.map.pathfind(req).ok())
-                    {
-                        self.goal = Some((
-                            to,
-                            true,
-                            path.trace(&app.primary.map)
-                                .map(|pl| pl.make_polygons(NORMAL_LANE_THICKNESS)),
-                        ));
-                    } else {
-                        self.goal = None;
-                        self.confirmed = false;
-                        self.panel.replace(
-                            ctx,
-                            "instructions",
-                            "Click a building or border to specify end".text_widget(ctx),
-                        );
-                        self.panel.replace(
-                            ctx,
-                            "Confirm",
-                            ctx.style()
-                                .btn_solid_primary
-                                .text("Confirm")
-                                .disabled(true)
-                                .build_def(ctx),
-                        );
-                    }
-                }
-            }
-            _ => {}
-        }
-
-        ctx.canvas_movement();
-
-        if self.confirmed {
-            return Transition::Keep;
-        }
-
-        if ctx.redo_mouseover() {
-            app.primary.current_selection = app.mouseover_unzoomed_everything(ctx);
-            if match app.primary.current_selection {
-                Some(ID::Intersection(i)) => !app.primary.map.get_i(i).is_border(),
-                Some(ID::Building(_)) => false,
-                _ => true,
-            } {
-                app.primary.current_selection = None;
-            }
-        }
-        if let Some(hovering) = match app.primary.current_selection {
-            Some(ID::Intersection(i)) => Some(TripEndpoint::Border(i)),
-            Some(ID::Building(b)) => Some(TripEndpoint::Bldg(b)),
-            None => None,
-            _ => unreachable!(),
-        } {
-            if self.source.is_none() && app.per_obj.left_click(ctx, "start here") {
-                self.source = Some(hovering);
-                self.panel.replace(
-                    ctx,
-                    "instructions",
-                    "Click a building or border to specify end".text_widget(ctx),
-                );
-            } else if self.source.is_some() && self.source != Some(hovering.clone()) {
-                if self
-                    .goal
-                    .as_ref()
-                    .map(|(to, _, _)| to != &hovering)
-                    .unwrap_or(true)
-                {
-                    if let Some(path) = TripEndpoint::path_req(
-                        self.source.clone().unwrap(),
-                        hovering.clone(),
-                        self.panel.dropdown_value("mode"),
-                        &app.primary.map,
-                    )
-                    .and_then(|req| app.primary.map.pathfind(req).ok())
-                    {
-                        self.goal = Some((
-                            hovering,
-                            true,
-                            path.trace(&app.primary.map)
-                                .map(|pl| pl.make_polygons(NORMAL_LANE_THICKNESS)),
-                        ));
-                    } else {
-                        // Don't constantly recalculate a failed path
-                        self.goal = Some((hovering, false, None));
-                    }
-                }
-
-                if self.goal.as_ref().map(|(_, ok, _)| *ok).unwrap_or(false)
-                    && app.per_obj.left_click(ctx, "end here")
-                {
-                    app.primary.current_selection = None;
-                    self.confirmed = true;
-                    self.panel.replace(
-                        ctx,
-                        "instructions",
-                        "Confirm the trip settings".text_widget(ctx),
-                    );
-                    self.panel.replace(
-                        ctx,
-                        "Confirm",
-                        ctx.style()
-                            .btn_solid_primary
-                            .text("Confirm")
-                            .hotkey(Key::Enter)
-                            .build_def(ctx),
-                    );
-                }
-            }
-        } else {
-            self.goal = None;
-        }
-
-        Transition::Keep
-    }
-
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.panel.draw(g);
-        CommonState::draw_osd(g, app);
-
-        if let Some(ref endpt) = self.source {
-            g.draw_polygon(
-                Color::BLUE.alpha(0.8),
-                match endpt {
-                    TripEndpoint::Border(i) => app.primary.map.get_i(*i).polygon.clone(),
-                    TripEndpoint::Bldg(b) => app.primary.map.get_b(*b).polygon.clone(),
-                    TripEndpoint::SuddenlyAppear(_) => unreachable!(),
-                },
-            );
-        }
-        if let Some((ref endpt, _, ref poly)) = self.goal {
-            g.draw_polygon(
-                Color::GREEN.alpha(0.8),
-                match endpt {
-                    TripEndpoint::Border(i) => app.primary.map.get_i(*i).polygon.clone(),
-                    TripEndpoint::Bldg(b) => app.primary.map.get_b(*b).polygon.clone(),
-                    TripEndpoint::SuddenlyAppear(_) => unreachable!(),
-                },
-            );
-            if let Some(p) = poly {
-                g.draw_polygon(Color::PURPLE, p.clone());
-            }
-        }
-    }
-}
-
 pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
     let map = &app.primary.map;
     let mut rng = app.primary.current_flags.sim_flags.make_rng();
@@ -674,7 +381,7 @@ pub fn actions(_: &App, id: ID) -> Vec<(Key, String)> {
 pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: &str) -> Transition {
     match (id, action.as_ref()) {
         (ID::Building(b), "start a trip here") => {
-            Transition::Push(AgentSpawner::new(ctx, app, Some(b)))
+            Transition::Push(spawner::AgentSpawner::new(ctx, app, Some(b)))
         }
         (ID::Intersection(id), "spawn agents here") => {
             spawn_agents_around(id, app);

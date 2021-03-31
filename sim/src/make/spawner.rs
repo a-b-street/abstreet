@@ -4,6 +4,7 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
+use geom::Pt2D;
 use map_model::{
     BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathConstraints, PathRequest, Position,
 };
@@ -395,6 +396,15 @@ impl TripEndpoint {
                     .ok()
                     .and_then(|goal| goal.goal_pos(mode.to_constraints(), map))
             }
+        }
+    }
+
+    /// Returns a point representing where this endpoint is.
+    pub fn pt(&self, map: &Map) -> Pt2D {
+        match self {
+            TripEndpoint::Bldg(b) => map.get_b(*b).polygon.center(),
+            TripEndpoint::Border(i) => map.get_i(*i).polygon.center(),
+            TripEndpoint::SuddenlyAppear(pos) => pos.pt(map),
         }
     }
 }
