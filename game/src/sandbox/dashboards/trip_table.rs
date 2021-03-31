@@ -22,6 +22,7 @@ pub struct TripTable {
     finished_trips_table: Table<App, FinishedTrip, Filters>,
     cancelled_trips_table: Table<App, CancelledTrip, Filters>,
     unfinished_trips_table: Table<App, UnfinishedTrip, Filters>,
+    dirty: bool,
 }
 
 impl TripTable {
@@ -111,6 +112,7 @@ impl TripTable {
             finished_trips_table,
             cancelled_trips_table,
             unfinished_trips_table,
+            dirty: false,
         }
     }
 }
@@ -139,11 +141,15 @@ impl State<App> for TripTable {
                 } else if self.table_tabs.handle_action(ctx, &x, &mut self.panel) {
                     // if true, tabs handled the action
                 } else if x == "filter starts" {
+                    // Set the dirty bit, so we re-apply the filters when the selector state is
+                    // done.
+                    self.dirty = true;
                     return Transition::Push(RectangularSelector::new(
                         ctx,
                         self.panel.stash("starts_in"),
                     ));
                 } else if x == "filter ends" {
+                    self.dirty = true;
                     return Transition::Push(RectangularSelector::new(
                         ctx,
                         self.panel.stash("ends_in"),
@@ -157,26 +163,31 @@ impl State<App> for TripTable {
                     return t;
                 }
 
-                match self.table_tabs.active_tab_idx() {
-                    0 => {
-                        self.finished_trips_table.panel_changed(&self.panel);
-                        self.finished_trips_table
-                            .replace_render(ctx, app, &mut self.panel);
-                    }
-                    1 => {
-                        self.cancelled_trips_table.panel_changed(&self.panel);
-                        self.cancelled_trips_table
-                            .replace_render(ctx, app, &mut self.panel);
-                    }
-                    2 => {
-                        self.unfinished_trips_table.panel_changed(&self.panel);
-                        self.unfinished_trips_table
-                            .replace_render(ctx, app, &mut self.panel);
-                    }
-                    other => unimplemented!("unknown tab: {}", other),
-                }
+                self.dirty = true;
             }
             _ => {}
+        }
+
+        if self.dirty {
+            self.dirty = false;
+            match self.table_tabs.active_tab_idx() {
+                0 => {
+                    self.finished_trips_table.panel_changed(&self.panel);
+                    self.finished_trips_table
+                        .replace_render(ctx, app, &mut self.panel);
+                }
+                1 => {
+                    self.cancelled_trips_table.panel_changed(&self.panel);
+                    self.cancelled_trips_table
+                        .replace_render(ctx, app, &mut self.panel);
+                }
+                2 => {
+                    self.unfinished_trips_table.panel_changed(&self.panel);
+                    self.unfinished_trips_table
+                        .replace_render(ctx, app, &mut self.panel);
+                }
+                _ => unreachable!(),
+            }
         }
 
         Transition::Keep
@@ -193,8 +204,8 @@ struct FinishedTrip {
     mode: TripMode,
     modified: bool,
     capped: bool,
-    starts_off_map: bool,
-    ends_off_map: bool,
+    start: TripEndpoint,
+    end: TripEndpoint,
     departure: Time,
     duration_after: Duration,
     duration_before: Duration,
@@ -206,8 +217,8 @@ struct CancelledTrip {
     id: TripID,
     mode: TripMode,
     departure: Time,
-    starts_off_map: bool,
-    ends_off_map: bool,
+    start: TripEndpoint,
+    end: TripEndpoint,
     duration_before: Duration,
     reason: String,
 }
@@ -252,14 +263,6 @@ fn produce_raw_data(app: &App) -> (Vec<FinishedTrip>, Vec<CancelledTrip>) {
     let sim = &app.primary.sim;
     for (_, id, mode, maybe_duration_after) in &sim.get_analytics().finished_trips {
         let trip = sim.trip_info(*id);
-        let starts_off_map = match trip.start {
-            TripEndpoint::Border(_) => true,
-            _ => false,
-        };
-        let ends_off_map = match trip.end {
-            TripEndpoint::Border(_) => true,
-            _ => false,
-        };
         let duration_before = if let Some(ref times) = trip_times_before {
             times.get(id).cloned()
         } else {
@@ -274,8 +277,8 @@ fn produce_raw_data(app: &App) -> (Vec<FinishedTrip>, Vec<CancelledTrip>) {
                 id: *id,
                 mode: *mode,
                 departure: trip.departure,
-                starts_off_map,
-                ends_off_map,
+                start: trip.start,
+                end: trip.end,
                 duration_before: duration_before.unwrap_or(Duration::ZERO),
                 reason,
             });
@@ -291,8 +294,8 @@ fn produce_raw_data(app: &App) -> (Vec<FinishedTrip>, Vec<CancelledTrip>) {
             departure: trip.departure,
             modified: trip.modified,
             capped: trip.capped,
-            starts_off_map,
-            ends_off_map,
+            start: trip.start,
+            end: trip.end,
             duration_after,
             duration_before: duration_before.unwrap(),
             waiting,
@@ -403,15 +406,33 @@ fn make_table_finished_trips(app: &App) -> Table<App, FinishedTrip, Filters> {
                     .unwrap_or(true),
             }
         }),
-        apply: Box::new(|state, x| {
+        apply: Box::new(|state, x, app| {
             if !state.modes.contains(&x.mode) {
                 return false;
             }
-            if !state.off_map_starts && x.starts_off_map {
+            if !state.off_map_starts && matches!(x.start, TripEndpoint::Border(_)) {
                 return false;
             }
-            if !state.off_map_ends && x.ends_off_map {
+            if !state.off_map_ends && matches!(x.end, TripEndpoint::Border(_)) {
                 return false;
+            }
+            if let Some(ref polygon) = state.starts_in {
+                if x.start
+                    .pos(x.mode, true, &app.primary.map)
+                    .map(|pos| !polygon.contains_pt(pos.pt(&app.primary.map)))
+                    .unwrap_or(true)
+                {
+                    return false;
+                }
+            }
+            if let Some(ref polygon) = state.ends_in {
+                if x.end
+                    .pos(x.mode, false, &app.primary.map)
+                    .map(|pos| !polygon.contains_pt(pos.pt(&app.primary.map)))
+                    .unwrap_or(true)
+                {
+                    return false;
+                }
             }
             if !state.unmodified_trips && !x.modified {
                 return false;
@@ -575,15 +596,33 @@ fn make_table_cancelled_trips(app: &App) -> Table<App, CancelledTrip, Filters> {
                 capped_trips: true,
             }
         }),
-        apply: Box::new(|state, x| {
+        apply: Box::new(|state, x, app| {
             if !state.modes.contains(&x.mode) {
                 return false;
             }
-            if !state.off_map_starts && x.starts_off_map {
+            if !state.off_map_starts && matches!(x.start, TripEndpoint::Border(_)) {
                 return false;
             }
-            if !state.off_map_ends && x.ends_off_map {
+            if !state.off_map_ends && matches!(x.end, TripEndpoint::Border(_)) {
                 return false;
+            }
+            if let Some(ref polygon) = state.starts_in {
+                if x.start
+                    .pos(x.mode, true, &app.primary.map)
+                    .map(|pos| !polygon.contains_pt(pos.pt(&app.primary.map)))
+                    .unwrap_or(true)
+                {
+                    return false;
+                }
+            }
+            if let Some(ref polygon) = state.ends_in {
+                if x.end
+                    .pos(x.mode, false, &app.primary.map)
+                    .map(|pos| !polygon.contains_pt(pos.pt(&app.primary.map)))
+                    .unwrap_or(true)
+                {
+                    return false;
+                }
             }
             true
         }),
@@ -686,7 +725,7 @@ fn make_table_unfinished_trips(app: &App) -> Table<App, UnfinishedTrip, Filters>
                 capped_trips: true,
             }
         }),
-        apply: Box::new(|state, x| {
+        apply: Box::new(|state, x, _| {
             if !state.modes.contains(&x.mode) {
                 return false;
             }

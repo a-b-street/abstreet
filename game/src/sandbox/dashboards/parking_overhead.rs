@@ -190,7 +190,7 @@ fn make_table(app: &App) -> Table<App, Entry, Filters> {
             starts_off_map: panel.is_checked("starting off-map"),
             ends_off_map: panel.is_checked("ending off-map"),
         }),
-        apply: Box::new(|state, x| {
+        apply: Box::new(|state, x, _| {
             if !state.starts_off_map && x.starts_off_map {
                 return false;
             }

@@ -35,7 +35,7 @@ pub struct Filter<A, T, F> {
     pub state: F,
     pub to_controls: Box<dyn Fn(&mut EventCtx, &A, &F) -> Widget>,
     pub from_controls: Box<dyn Fn(&Panel) -> F>,
-    pub apply: Box<dyn Fn(&F, &T) -> bool>,
+    pub apply: Box<dyn Fn(&F, &T, &A) -> bool>,
 }
 
 impl<A, T, F> Table<A, T, F> {
@@ -82,7 +82,7 @@ impl<A, T, F> Table<A, T, F> {
 
         // Filter
         for row in &self.data {
-            if (self.filter.apply)(&self.filter.state, row) {
+            if (self.filter.apply)(&self.filter.state, row, app) {
                 data.push(row);
             }
         }
@@ -186,7 +186,7 @@ impl<A, T> Filter<A, T, ()> {
             state: (),
             to_controls: Box::new(|_, _, _| Widget::nothing()),
             from_controls: Box::new(|_| ()),
-            apply: Box::new(|_, _| true),
+            apply: Box::new(|_, _, _| true),
         }
     }
 }
