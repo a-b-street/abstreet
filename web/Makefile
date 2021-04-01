@@ -10,6 +10,7 @@ REPO_ROOT:=$(shell git rev-parse --show-toplevel)
 APPS=abstreet fifteen_min osm_viewer santa widgetry_demo 
 
 .PHONY: server clean run dev release $(APPS)
+.PRECIOUS: src/%/wasm_pkg
 
 TSC=npx tsc --lib dom,es2020 --module es2020 --target es6 --strict --noEmitOnError --outDir build
 
