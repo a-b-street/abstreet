@@ -322,10 +322,6 @@
 <span id="319">319</span>
 <span id="320">320</span>
 <span id="321">321</span>
-<span id="322">322</span>
-<span id="323">323</span>
-<span id="324">324</span>
-<span id="325">325</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Pathfinding for cars, bikes, buses, and trains using contraction hierarchies</span>
 
@@ -336,7 +332,7 @@
 <span class="kw">use</span> <span class="ident">thread_local</span>::<span class="ident">ThreadLocal</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">MultiMap</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Speed</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">ch</span>::<span class="ident">round</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">node_map</span>::{<span class="ident">deserialize_nodemap</span>, <span class="ident">NodeMap</span>};
@@ -344,7 +340,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">zone_cost</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">DrivingSide</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>, <span class="ident">RoutingParams</span>,
-    <span class="ident">Turn</span>, <span class="ident">TurnID</span>, <span class="ident">TurnType</span>,
+    <span class="ident">Traversable</span>, <span class="ident">Turn</span>, <span class="ident">TurnID</span>, <span class="ident">TurnType</span>,
 };
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -575,21 +571,19 @@
     <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span>,
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
-    <span class="kw">let</span> <span class="ident">base</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">constraints</span> {
-        <span class="ident">PathConstraints</span>::<span class="ident">Car</span> <span class="op">|</span> <span class="ident">PathConstraints</span>::<span class="ident">Train</span> <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">lane</span>.<span class="ident">parent</span>).<span class="ident">speed_limit</span>;
-            <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">speed_limit</span>;
-            <span class="ident">t1</span> <span class="op">+</span> <span class="ident">t2</span>
-        }
-        <span class="ident">PathConstraints</span>::<span class="ident">Bike</span> <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="comment">// TODO Copied from sim. Probably move to map_model.</span>
-            <span class="kw">let</span> <span class="ident">max_bike_speed</span> <span class="op">=</span> <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">10.0</span>);
-            <span class="comment">// Usually the bike&#39;s speed limit matters, not the road&#39;s.</span>
-            <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">lane</span>.<span class="ident">parent</span>).<span class="ident">speed_limit</span>.<span class="ident">min</span>(<span class="ident">max_bike_speed</span>);
-            <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span>
-                <span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">speed_limit</span>.<span class="ident">min</span>(<span class="ident">max_bike_speed</span>);
+    <span class="kw">let</span> <span class="ident">max_speed</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">constraints</span> {
+        <span class="ident">PathConstraints</span>::<span class="ident">Car</span> <span class="op">|</span> <span class="ident">PathConstraints</span>::<span class="ident">Bus</span> <span class="op">|</span> <span class="ident">PathConstraints</span>::<span class="ident">Train</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+        <span class="ident">PathConstraints</span>::<span class="ident">Bike</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw">crate</span>::<span class="ident">MAX_BIKE_SPEED</span>),
+        <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+    };
+    <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span>
+        <span class="ident">lane</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="ident">Traversable</span>::<span class="ident">Lane</span>(<span class="ident">lane</span>.<span class="ident">id</span>).<span class="ident">max_speed_along</span>(<span class="ident">max_speed</span>, <span class="ident">constraints</span>, <span class="ident">map</span>);
+    <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">length</span>()
+        <span class="op">/</span> <span class="ident">Traversable</span>::<span class="ident">Turn</span>(<span class="ident">turn</span>.<span class="ident">id</span>).<span class="ident">max_speed_along</span>(<span class="ident">max_speed</span>, <span class="ident">constraints</span>, <span class="ident">map</span>);
 
-            <span class="comment">// TODO Elevation gain is bad, loss is good.</span>
+    <span class="kw">let</span> <span class="ident">base</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">constraints</span> {
+        <span class="ident">PathConstraints</span>::<span class="ident">Car</span> <span class="op">|</span> <span class="ident">PathConstraints</span>::<span class="ident">Train</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">t1</span> <span class="op">+</span> <span class="ident">t2</span>,
+        <span class="ident">PathConstraints</span>::<span class="ident">Bike</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="comment">// TODO If we&#39;re on a driving lane, higher speed limit is worse.</span>
             <span class="comment">// TODO Bike lanes next to parking is dangerous.</span>
 
@@ -608,8 +602,6 @@
         }
         <span class="ident">PathConstraints</span>::<span class="ident">Bus</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="comment">// Like Car, but prefer bus lanes.</span>
-            <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">lane</span>.<span class="ident">parent</span>).<span class="ident">speed_limit</span>;
-            <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">speed_limit</span>;
             <span class="kw">let</span> <span class="ident">lt_penalty</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_bus</span>() {
                 <span class="number">1.0</span>
             } <span class="kw">else</span> {

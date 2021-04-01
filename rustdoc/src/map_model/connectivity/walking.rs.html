@@ -142,14 +142,22 @@
 <span id="139">139</span>
 <span id="140">140</span>
 <span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BinaryHeap</span>, <span class="ident">HashMap</span>};
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Speed</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Speed</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">WalkingNode</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">BuildingID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">BuildingID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">Traversable</span>};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">WalkingOptions</span> {
@@ -176,10 +184,6 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_speed</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Speed</span> {
         <span class="ident">WalkingOptions</span>::<span class="ident">common_speeds</span>()[<span class="number">0</span>].<span class="number">1</span>
-    }
-
-    <span class="kw">fn</span> <span class="ident">cost</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dist</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
-        <span class="ident">dist</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">walking_speed</span>
     }
 }
 
@@ -245,7 +249,13 @@
         <span class="comment">// Cross the lane</span>
         <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">allow_shoulders</span> <span class="op">|</span><span class="op">|</span> <span class="ident">lane</span>.<span class="ident">lane_type</span> <span class="op">!</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Shoulder</span> {
             <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">Item</span> {
-                <span class="ident">cost</span>: <span class="ident">current</span>.<span class="ident">cost</span> <span class="op">+</span> <span class="ident">opts</span>.<span class="ident">cost</span>(<span class="ident">lane</span>.<span class="ident">length</span>()),
+                <span class="ident">cost</span>: <span class="ident">current</span>.<span class="ident">cost</span>
+                    <span class="op">+</span> <span class="ident">lane</span>.<span class="ident">length</span>()
+                        <span class="op">/</span> <span class="ident">Traversable</span>::<span class="ident">Lane</span>(<span class="ident">lane</span>.<span class="ident">id</span>).<span class="ident">max_speed_along</span>(
+                            <span class="prelude-val">Some</span>(<span class="ident">opts</span>.<span class="ident">walking_speed</span>),
+                            <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
+                            <span class="ident">map</span>,
+                        ),
                 <span class="ident">node</span>: <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">lane</span>.<span class="ident">id</span>, <span class="op">!</span><span class="ident">is_dst_i</span>),
             });
         }
@@ -255,7 +265,13 @@
                 <span class="kw">continue</span>;
             }
             <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">Item</span> {
-                <span class="ident">cost</span>: <span class="ident">current</span>.<span class="ident">cost</span> <span class="op">+</span> <span class="ident">opts</span>.<span class="ident">cost</span>(<span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">length</span>()),
+                <span class="ident">cost</span>: <span class="ident">current</span>.<span class="ident">cost</span>
+                    <span class="op">+</span> <span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">length</span>()
+                        <span class="op">/</span> <span class="ident">Traversable</span>::<span class="ident">Turn</span>(<span class="ident">turn</span>.<span class="ident">id</span>).<span class="ident">max_speed_along</span>(
+                            <span class="prelude-val">Some</span>(<span class="ident">opts</span>.<span class="ident">walking_speed</span>),
+                            <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
+                            <span class="ident">map</span>,
+                        ),
                 <span class="ident">node</span>: <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(
                     <span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>,
                     <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">parent</span>,

@@ -1282,9 +1282,6 @@
 <span id="1279">1279</span>
 <span id="1280">1280</span>
 <span id="1281">1281</span>
-<span id="1282">1282</span>
-<span id="1283">1283</span>
-<span id="1284">1284</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
@@ -1561,19 +1558,16 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="ident">car</span>.<span class="ident">state</span> {
             <span class="ident">CarState</span>::<span class="ident">Crossing</span>(<span class="ident">time_int</span>, <span class="ident">dist_int</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">time_cross</span> <span class="op">=</span> <span class="ident">now</span> <span class="op">-</span> <span class="ident">time_int</span>.<span class="ident">start</span>;
-                <span class="kw">if</span> <span class="ident">time_cross</span> <span class="op">&gt;</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span> {
-                    <span class="kw">let</span> <span class="ident">avg_speed</span> <span class="op">=</span> <span class="ident">Speed</span>::<span class="ident">from_dist_time</span>(<span class="ident">dist_int</span>.<span class="ident">length</span>(), <span class="ident">time_cross</span>);
-
-                    <span class="kw">let</span> <span class="ident">route</span> <span class="op">=</span> <span class="ident">car</span>.<span class="ident">router</span>.<span class="ident">head</span>();
-                    <span class="kw">let</span> <span class="ident">max_speed</span> <span class="op">=</span> <span class="ident">route</span>.<span class="ident">speed_limit</span>(<span class="ident">ctx</span>.<span class="ident">map</span>).<span class="ident">min</span>(
-                        <span class="ident">car</span>.<span class="ident">vehicle</span>
-                            .<span class="ident">max_speed</span>
-                            .<span class="ident">unwrap_or</span>(<span class="ident">Speed</span>::<span class="ident">meters_per_second</span>(<span class="number">100.0</span>)),
-                    );
-
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">trip</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">car</span>.<span class="ident">trip_and_person</span> {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Traversable</span>::<span class="ident">Lane</span>(<span class="ident">lane</span>) <span class="op">=</span> <span class="ident">route</span> {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">trip</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">car</span>.<span class="ident">trip_and_person</span> {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Traversable</span>::<span class="ident">Lane</span>(<span class="ident">lane</span>) <span class="op">=</span> <span class="ident">car</span>.<span class="ident">router</span>.<span class="ident">head</span>() {
+                        <span class="kw">let</span> <span class="ident">time_to_cross</span> <span class="op">=</span> <span class="ident">now</span> <span class="op">-</span> <span class="ident">time_int</span>.<span class="ident">start</span>;
+                        <span class="kw">if</span> <span class="ident">time_to_cross</span> <span class="op">&gt;</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span> {
+                            <span class="kw">let</span> <span class="ident">avg_speed</span> <span class="op">=</span> <span class="ident">Speed</span>::<span class="ident">from_dist_time</span>(<span class="ident">dist_int</span>.<span class="ident">length</span>(), <span class="ident">time_to_cross</span>);
+                            <span class="kw">let</span> <span class="ident">max_speed</span> <span class="op">=</span> <span class="ident">car</span>.<span class="ident">router</span>.<span class="ident">head</span>().<span class="ident">max_speed_along</span>(
+                                <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">max_speed</span>,
+                                <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">vehicle_type</span>.<span class="ident">to_constraints</span>(),
+                                <span class="ident">ctx</span>.<span class="ident">map</span>,
+                            );
                             <span class="self">self</span>.<span class="ident">events</span>
                                 .<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">LaneSpeedPercentage</span>(<span class="ident">trip</span>, <span class="ident">lane</span>, <span class="ident">avg_speed</span>, <span class="ident">max_speed</span>));
                         }
@@ -1685,14 +1679,14 @@
                 <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">from</span> <span class="op">!</span><span class="op">=</span> <span class="ident">goto</span>);
 
                 <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Traversable</span>::<span class="ident">Turn</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">goto</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">speed</span> <span class="op">=</span> <span class="ident">goto</span>.<span class="ident">speed_limit</span>(<span class="ident">ctx</span>.<span class="ident">map</span>);
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">max_speed</span> {
-                        <span class="ident">speed</span> <span class="op">=</span> <span class="ident">speed</span>.<span class="ident">min</span>(<span class="ident">s</span>);
-                    }
                     <span class="kw">if</span> <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">intersections</span>.<span class="ident">maybe_start_turn</span>(
                         <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>),
                         <span class="ident">t</span>,
-                        <span class="ident">speed</span>,
+                        <span class="ident">goto</span>.<span class="ident">max_speed_along</span>(
+                            <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">max_speed</span>,
+                            <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">vehicle_type</span>.<span class="ident">to_constraints</span>(),
+                            <span class="ident">ctx</span>.<span class="ident">map</span>,
+                        ),
                         <span class="ident">now</span>,
                         <span class="ident">ctx</span>.<span class="ident">map</span>,
                         <span class="ident">ctx</span>.<span class="ident">scheduler</span>,

@@ -888,6 +888,15 @@
 <span id="885">885</span>
 <span id="886">886</span>
 <span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
@@ -896,8 +905,8 @@
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_multimap</span>, <span class="ident">serialize_multimap</span>, <span class="ident">FixedMap</span>, <span class="ident">IndexableKey</span>, <span class="ident">MultiMap</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Speed</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">DrivingSide</span>, <span class="ident">Map</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Path</span>, <span class="ident">PathStep</span>, <span class="ident">Traversable</span>,
-    <span class="ident">SIDEWALK_THICKNESS</span>,
+    <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">DrivingSide</span>, <span class="ident">Map</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathStep</span>,
+    <span class="ident">Traversable</span>, <span class="ident">SIDEWALK_THICKNESS</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sim</span>::<span class="ident">Ctx</span>;
@@ -1514,7 +1523,12 @@
             }
         };
         <span class="kw">let</span> <span class="ident">dist_int</span> <span class="op">=</span> <span class="ident">DistanceInterval</span>::<span class="ident">new_walking</span>(<span class="ident">start_dist</span>, <span class="ident">end_dist</span>);
-        <span class="kw">let</span> <span class="ident">time_int</span> <span class="op">=</span> <span class="ident">TimeInterval</span>::<span class="ident">new</span>(<span class="ident">start_time</span>, <span class="ident">start_time</span> <span class="op">+</span> <span class="ident">dist_int</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="self">self</span>.<span class="ident">speed</span>);
+        <span class="kw">let</span> <span class="ident">speed</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">as_traversable</span>().<span class="ident">max_speed_along</span>(
+            <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">speed</span>),
+            <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
+            <span class="ident">map</span>,
+        );
+        <span class="kw">let</span> <span class="ident">time_int</span> <span class="op">=</span> <span class="ident">TimeInterval</span>::<span class="ident">new</span>(<span class="ident">start_time</span>, <span class="ident">start_time</span> <span class="op">+</span> <span class="ident">dist_int</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="ident">speed</span>);
         <span class="ident">PedState</span>::<span class="ident">Crossing</span>(<span class="ident">dist_int</span>, <span class="ident">time_int</span>)
     }
 
@@ -1660,7 +1674,11 @@
             <span class="kw">if</span> <span class="op">!</span><span class="ident">intersections</span>.<span class="ident">maybe_start_turn</span>(
                 <span class="ident">AgentID</span>::<span class="ident">Pedestrian</span>(<span class="self">self</span>.<span class="ident">id</span>),
                 <span class="ident">t</span>,
-                <span class="self">self</span>.<span class="ident">speed</span>,
+                <span class="ident">Traversable</span>::<span class="ident">Turn</span>(<span class="ident">t</span>).<span class="ident">max_speed_along</span>(
+                    <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">speed</span>),
+                    <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
+                    <span class="ident">map</span>,
+                ),
                 <span class="ident">now</span>,
                 <span class="ident">map</span>,
                 <span class="ident">scheduler</span>,

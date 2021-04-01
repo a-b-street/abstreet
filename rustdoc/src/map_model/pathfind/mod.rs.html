@@ -704,12 +704,6 @@
 <span id="701">701</span>
 <span id="702">702</span>
 <span id="703">703</span>
-<span id="704">704</span>
-<span id="705">705</span>
-<span id="706">706</span>
-<span id="707">707</span>
-<span id="708">708</span>
-<span id="709">709</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Everything related to pathfinding through a map for different types of agents.</span>
 
@@ -726,7 +720,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">dijkstra</span>::{<span class="ident">build_graph_for_pedestrians</span>, <span class="ident">build_graph_for_vehicles</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">pathfinder</span>::<span class="ident">Pathfinder</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">vehicles</span>::<span class="ident">vehicle_cost</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">walking</span>::{<span class="ident">walking_cost</span>, <span class="ident">WalkingNode</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">walking</span>::<span class="ident">WalkingNode</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">osm</span>, <span class="ident">BuildingID</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">Position</span>, <span class="ident">Traversable</span>, <span class="ident">Turn</span>, <span class="ident">TurnID</span>, <span class="ident">UberTurn</span>,
 };
@@ -1135,15 +1129,9 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>;
         <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">steps</span> {
             <span class="kw">let</span> <span class="ident">dist</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">dist_crossed_from_step</span>(<span class="ident">map</span>, <span class="ident">step</span>);
-            <span class="kw">let</span> <span class="ident">speed_limit</span> <span class="op">=</span> <span class="ident">step</span>.<span class="ident">as_traversable</span>().<span class="ident">speed_limit</span>(<span class="ident">map</span>);
-            <span class="kw">let</span> <span class="ident">speed</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">constraints</span> <span class="op">=</span><span class="op">=</span> <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span> {
-                <span class="comment">// Pedestrians don&#39;t care about the road&#39;s speed limit</span>
-                <span class="ident">max_speed</span>.<span class="ident">unwrap</span>()
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">max</span>) <span class="op">=</span> <span class="ident">max_speed</span> {
-                <span class="ident">speed_limit</span>.<span class="ident">min</span>(<span class="ident">max</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">speed_limit</span>
-            };
+            <span class="kw">let</span> <span class="ident">speed</span> <span class="op">=</span> <span class="ident">step</span>
+                .<span class="ident">as_traversable</span>()
+                .<span class="ident">max_speed_along</span>(<span class="ident">max_speed</span>, <span class="ident">constraints</span>, <span class="ident">map</span>);
             <span class="ident">total</span> <span class="op">+</span><span class="op">=</span> <span class="ident">dist</span> <span class="op">/</span> <span class="ident">speed</span>;
         }
         <span class="ident">total</span>

@@ -423,6 +423,12 @@
 <span id="420">420</span>
 <span id="421">421</span>
 <span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -433,7 +439,7 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::{
     <span class="ident">BuildingID</span>, <span class="ident">Map</span>, <span class="ident">OffstreetParking</span>, <span class="ident">ParkingLotID</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">RoadID</span>,
 };
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">ParkingSpot</span>, <span class="ident">Scenario</span>, <span class="ident">VehicleType</span>};
+<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">ParkingSpot</span>, <span class="ident">VehicleType</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
@@ -804,28 +810,34 @@
                 })
                 .<span class="ident">collect</span>();
             <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;gather requests&quot;</span>);
-            <span class="kw">for</span> (<span class="ident">car_pt</span>, <span class="ident">dist</span>) <span class="kw">in</span> <span class="ident">timer</span>
+            <span class="kw">for</span> (<span class="ident">car_pt</span>, <span class="ident">time</span>) <span class="kw">in</span> <span class="ident">timer</span>
                 .<span class="ident">parallelize</span>(<span class="string">&quot;calculate paths&quot;</span>, <span class="ident">Parallelism</span>::<span class="ident">Fastest</span>, <span class="ident">requests</span>, <span class="op">|</span><span class="ident">req</span><span class="op">|</span> {
                     <span class="kw">let</span> <span class="ident">car_pt</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">pt</span>(<span class="ident">map</span>);
                     <span class="comment">// TODO Walking paths should really return some indication of &quot;zero length</span>
                     <span class="comment">// path&quot; for this</span>
                     <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">start</span> <span class="op">=</span><span class="op">=</span> <span class="ident">req</span>.<span class="ident">end</span> {
-                        <span class="prelude-val">Some</span>((<span class="ident">car_pt</span>, <span class="ident">Distance</span>::<span class="ident">ZERO</span>))
+                        <span class="prelude-val">Some</span>((<span class="ident">car_pt</span>, <span class="ident">Duration</span>::<span class="ident">ZERO</span>))
                     } <span class="kw">else</span> {
-                        <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>)
-                            .<span class="ident">ok</span>()
-                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> (<span class="ident">car_pt</span>, <span class="ident">path</span>.<span class="ident">total_length</span>()))
+                        <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>).<span class="ident">ok</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> {
+                            (
+                                <span class="ident">car_pt</span>,
+                                <span class="ident">path</span>.<span class="ident">estimate_duration</span>(
+                                    <span class="ident">map</span>,
+                                    <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
+                                    <span class="prelude-val">Some</span>(<span class="ident">map_model</span>::<span class="ident">MAX_WALKING_SPEED</span>),
+                                ),
+                            )
+                        })
                     }
                 })
                 .<span class="ident">into_iter</span>()
                 .<span class="ident">flatten</span>()
             {
-                <span class="comment">// TODO Actual car shapes? At least cache the circle?</span>
-                <span class="kw">let</span> <span class="ident">time</span> <span class="op">=</span> <span class="ident">dist</span> <span class="op">/</span> <span class="ident">Scenario</span>::<span class="ident">max_ped_speed</span>();
                 <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">app</span>
                     .<span class="ident">cs</span>
                     .<span class="ident">good_to_bad_red</span>
                     .<span class="ident">eval</span>((<span class="ident">time</span> <span class="op">/</span> <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">10</span>)).<span class="ident">min</span>(<span class="number">1.0</span>));
+                <span class="comment">// TODO Actual car shapes? At least cache the circle?</span>
                 <span class="ident">unzoomed</span>.<span class="ident">push</span>(
                     <span class="ident">color</span>,
                     <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">car_pt</span>, <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">5.0</span>)).<span class="ident">to_polygon</span>(),
