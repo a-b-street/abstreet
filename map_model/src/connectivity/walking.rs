@@ -1,10 +1,10 @@
 use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashMap};
 
-use geom::{Distance, Duration, Speed};
+use geom::{Duration, Speed};
 
 use crate::pathfind::WalkingNode;
-use crate::{BuildingID, LaneType, Map, PathConstraints};
+use crate::{BuildingID, LaneType, Map, PathConstraints, Traversable};
 
 #[derive(Clone)]
 pub struct WalkingOptions {
@@ -31,10 +31,6 @@ impl WalkingOptions {
 
     pub fn default_speed() -> Speed {
         WalkingOptions::common_speeds()[0].1
-    }
-
-    fn cost(&self, dist: Distance) -> Duration {
-        dist / self.walking_speed
     }
 }
 
@@ -100,7 +96,13 @@ pub fn all_walking_costs_from(
         // Cross the lane
         if opts.allow_shoulders || lane.lane_type != LaneType::Shoulder {
             queue.push(Item {
-                cost: current.cost + opts.cost(lane.length()),
+                cost: current.cost
+                    + lane.length()
+                        / Traversable::Lane(lane.id).max_speed_along(
+                            Some(opts.walking_speed),
+                            PathConstraints::Pedestrian,
+                            map,
+                        ),
                 node: WalkingNode::SidewalkEndpoint(lane.id, !is_dst_i),
             });
         }
@@ -110,7 +112,13 @@ pub fn all_walking_costs_from(
                 continue;
             }
             queue.push(Item {
-                cost: current.cost + opts.cost(turn.geom.length()),
+                cost: current.cost
+                    + turn.geom.length()
+                        / Traversable::Turn(turn.id).max_speed_along(
+                            Some(opts.walking_speed),
+                            PathConstraints::Pedestrian,
+                            map,
+                        ),
                 node: WalkingNode::SidewalkEndpoint(
                     turn.id.dst,
                     map.get_l(turn.id.dst).dst_i == turn.id.parent,

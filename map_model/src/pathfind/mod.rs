@@ -13,7 +13,7 @@ pub use self::ch::ContractionHierarchyPathfinder;
 pub use self::dijkstra::{build_graph_for_pedestrians, build_graph_for_vehicles};
 pub use self::pathfinder::Pathfinder;
 pub use self::vehicles::vehicle_cost;
-pub use self::walking::{walking_cost, WalkingNode};
+pub use self::walking::WalkingNode;
 use crate::{
     osm, BuildingID, Lane, LaneID, LaneType, Map, Position, Traversable, Turn, TurnID, UberTurn,
 };

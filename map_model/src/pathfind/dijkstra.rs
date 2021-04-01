@@ -7,9 +7,11 @@ use petgraph::graphmap::DiGraphMap;
 use geom::Duration;
 
 use crate::pathfind::vehicles::vehicle_cost;
-use crate::pathfind::walking::{walking_cost, WalkingNode};
+use crate::pathfind::walking::WalkingNode;
 use crate::pathfind::zone_cost;
-use crate::{LaneID, Map, Path, PathConstraints, PathRequest, PathStep, RoutingParams, TurnID};
+use crate::{
+    LaneID, Map, Path, PathConstraints, PathRequest, PathStep, RoutingParams, Traversable, TurnID,
+};
 
 // TODO These should maybe keep the DiGraphMaps as state. It's cheap to recalculate it for edits.
 
@@ -89,10 +91,16 @@ fn calc_path(
 }
 
 pub fn build_graph_for_pedestrians(map: &Map) -> DiGraphMap<WalkingNode, Duration> {
+    let max_speed = Some(crate::MAX_WALKING_SPEED);
     let mut graph: DiGraphMap<WalkingNode, Duration> = DiGraphMap::new();
     for l in map.all_lanes() {
         if l.is_walkable() {
-            let cost = walking_cost(l.length());
+            let cost = l.length()
+                / Traversable::Lane(l.id).max_speed_along(
+                    max_speed,
+                    PathConstraints::Pedestrian,
+                    map,
+                );
             let n1 = WalkingNode::SidewalkEndpoint(l.id, true);
             let n2 = WalkingNode::SidewalkEndpoint(l.id, false);
             graph.add_edge(n1, n2, cost);
@@ -105,7 +113,12 @@ pub fn build_graph_for_pedestrians(map: &Map) -> DiGraphMap<WalkingNode, Duratio
                         turn.id.dst,
                         map.get_l(turn.id.dst).dst_i == turn.id.parent,
                     ),
-                    walking_cost(turn.geom.length())
+                    turn.geom.length()
+                        / Traversable::Turn(turn.id).max_speed_along(
+                            max_speed,
+                            PathConstraints::Pedestrian,
+                            map,
+                        )
                         + zone_cost(turn, PathConstraints::Pedestrian, map),
                 );
             }

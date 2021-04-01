@@ -5,8 +5,8 @@ use serde::{Deserialize, Serialize};
 use abstutil::{deserialize_multimap, serialize_multimap, FixedMap, IndexableKey, MultiMap};
 use geom::{Distance, Duration, Line, PolyLine, Speed, Time};
 use map_model::{
-    BuildingID, BusRouteID, DrivingSide, Map, ParkingLotID, Path, PathStep, Traversable,
-    SIDEWALK_THICKNESS,
+    BuildingID, BusRouteID, DrivingSide, Map, ParkingLotID, Path, PathConstraints, PathStep,
+    Traversable, SIDEWALK_THICKNESS,
 };
 
 use crate::sim::Ctx;
@@ -623,7 +623,12 @@ impl Pedestrian {
             }
         };
         let dist_int = DistanceInterval::new_walking(start_dist, end_dist);
-        let time_int = TimeInterval::new(start_time, start_time + dist_int.length() / self.speed);
+        let speed = self.path.current_step().as_traversable().max_speed_along(
+            Some(self.speed),
+            PathConstraints::Pedestrian,
+            map,
+        );
+        let time_int = TimeInterval::new(start_time, start_time + dist_int.length() / speed);
         PedState::Crossing(dist_int, time_int)
     }
 
@@ -769,7 +774,11 @@ impl Pedestrian {
             if !intersections.maybe_start_turn(
                 AgentID::Pedestrian(self.id),
                 t,
-                self.speed,
+                Traversable::Turn(t).max_speed_along(
+                    Some(self.speed),
+                    PathConstraints::Pedestrian,
+                    map,
+                ),
                 now,
                 map,
                 scheduler,

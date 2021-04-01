@@ -8,7 +8,7 @@ use fast_paths::{deserialize_32, serialize_32, FastGraph, InputGraph, PathCalcul
 use serde::{Deserialize, Serialize};
 use thread_local::ThreadLocal;
 
-use geom::{Distance, Duration, Speed};
+use geom::{Distance, Duration};
 
 use crate::pathfind::ch::round;
 use crate::pathfind::dijkstra;
@@ -17,7 +17,7 @@ use crate::pathfind::vehicles::VehiclePathfinder;
 use crate::pathfind::zone_cost;
 use crate::{
     BusRoute, BusRouteID, BusStopID, IntersectionID, LaneID, Map, Path, PathConstraints,
-    PathRequest, PathStep, Position,
+    PathRequest, PathStep, Position, Traversable,
 };
 
 #[derive(Serialize, Deserialize)]
@@ -214,11 +214,17 @@ fn make_input_graph(
     use_transit: bool,
     bus_graph: &VehiclePathfinder,
 ) -> InputGraph {
+    let max_speed = Some(crate::MAX_WALKING_SPEED);
     let mut input_graph = InputGraph::new();
 
     for l in map.all_lanes() {
         if l.is_walkable() {
-            let mut cost = walking_cost(l.length());
+            let mut cost = l.length()
+                / Traversable::Lane(l.id).max_speed_along(
+                    max_speed,
+                    PathConstraints::Pedestrian,
+                    map,
+                );
             // TODO Tune this penalty, along with many others.
             if l.is_shoulder() {
                 cost = 2.0 * cost;
@@ -236,12 +242,16 @@ fn make_input_graph(
                 WalkingNode::SidewalkEndpoint(t.id.src, map.get_l(t.id.src).dst_i == t.id.parent);
             let to =
                 WalkingNode::SidewalkEndpoint(t.id.dst, map.get_l(t.id.dst).dst_i == t.id.parent);
+            let cost = t.geom.length()
+                / Traversable::Turn(t.id).max_speed_along(
+                    max_speed,
+                    PathConstraints::Pedestrian,
+                    map,
+                );
             input_graph.add_edge(
                 nodes.get(from),
                 nodes.get(to),
-                round(
-                    walking_cost(t.geom.length()) + zone_cost(t, PathConstraints::Pedestrian, map),
-                ),
+                round(cost + zone_cost(t, PathConstraints::Pedestrian, map)),
             );
         }
     }
@@ -260,16 +270,23 @@ fn transit_input_graph(
     nodes: &NodeMap<WalkingNode>,
     bus_graph: &VehiclePathfinder,
 ) {
+    let max_speed = Some(crate::MAX_WALKING_SPEED);
     // Connect bus stops with both sidewalk endpoints, using the appropriate distance.
     for stop in map.all_bus_stops().values() {
         let ride_bus = nodes.get(WalkingNode::RideBus(stop.id));
         let lane = map.get_l(stop.sidewalk_pos.lane());
         for endpt in &[true, false] {
-            let cost = if *endpt {
-                walking_cost(lane.length() - stop.sidewalk_pos.dist_along())
+            let dist = if *endpt {
+                lane.length() - stop.sidewalk_pos.dist_along()
             } else {
-                walking_cost(stop.sidewalk_pos.dist_along())
+                stop.sidewalk_pos.dist_along()
             };
+            let cost = dist
+                / Traversable::Lane(lane.id).max_speed_along(
+                    max_speed,
+                    PathConstraints::Pedestrian,
+                    map,
+                );
             // Add some extra penalty to using a bus stop. Otherwise a path might try to pass
             // through it uselessly.
             let penalty = Duration::seconds(10.0);
@@ -366,12 +383,6 @@ fn transit_input_graph(
             );
         }
     }
-}
-
-// TODO Plumb RoutingParams here, but first, need to also plumb in the turn or lane.
-pub fn walking_cost(dist: Distance) -> Duration {
-    let walking_speed = Speed::meters_per_second(1.34);
-    dist / walking_speed
 }
 
 pub fn walking_path_to_steps(path: Vec<WalkingNode>, map: &Map) -> Vec<PathStep> {

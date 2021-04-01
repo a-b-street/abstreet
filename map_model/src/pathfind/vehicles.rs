@@ -246,20 +246,19 @@ pub fn vehicle_cost(
     params: &RoutingParams,
     map: &Map,
 ) -> Duration {
-    let base = match constraints {
-        PathConstraints::Car | PathConstraints::Train => {
-            let t1 = lane.length() / map.get_r(lane.parent).speed_limit;
-            let t2 = turn.geom.length() / map.get_parent(turn.id.dst).speed_limit;
-            t1 + t2
-        }
-        PathConstraints::Bike => {
-            // We assume MAX_BIKE_SPEED for pathfinding.
-            let max_speed = Some(crate::MAX_BIKE_SPEED);
-            let t1 = lane.length()
-                / Traversable::Lane(lane.id).max_speed_along(max_speed, constraints, map);
-            let t2 = turn.geom.length()
-                / Traversable::Turn(turn.id).max_speed_along(max_speed, constraints, map);
+    let max_speed = match constraints {
+        PathConstraints::Car | PathConstraints::Bus | PathConstraints::Train => None,
+        PathConstraints::Bike => Some(crate::MAX_BIKE_SPEED),
+        PathConstraints::Pedestrian => unreachable!(),
+    };
+    let t1 =
+        lane.length() / Traversable::Lane(lane.id).max_speed_along(max_speed, constraints, map);
+    let t2 = turn.geom.length()
+        / Traversable::Turn(turn.id).max_speed_along(max_speed, constraints, map);
 
+    let base = match constraints {
+        PathConstraints::Car | PathConstraints::Train => t1 + t2,
+        PathConstraints::Bike => {
             // TODO If we're on a driving lane, higher speed limit is worse.
             // TODO Bike lanes next to parking is dangerous.
 
@@ -278,8 +277,6 @@ pub fn vehicle_cost(
         }
         PathConstraints::Bus => {
             // Like Car, but prefer bus lanes.
-            let t1 = lane.length() / map.get_r(lane.parent).speed_limit;
-            let t2 = turn.geom.length() / map.get_parent(turn.id.dst).speed_limit;
             let lt_penalty = if lane.is_bus() {
                 1.0
             } else {

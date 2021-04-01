@@ -4,7 +4,6 @@ use maplit::btreeset;
 
 use geom::{Distance, Duration};
 use map_model::IntersectionID;
-use sim::Scenario;
 use widgetry::{
     Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, RewriteColor,
     SimpleState, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
@@ -244,7 +243,7 @@ impl TuneRelative {
                 )),
                 Line(format!(
                     "  about {} for a pedestrian",
-                    dist_btwn / Scenario::max_ped_speed()
+                    dist_btwn / map_model::MAX_WALKING_SPEED
                 )),
             ])
             .into_widget(ctx),

@@ -7,7 +7,7 @@ use map_gui::tools::{ColorLegend, ColorNetwork};
 use map_model::{
     BuildingID, Map, OffstreetParking, ParkingLotID, PathConstraints, PathRequest, RoadID,
 };
-use sim::{ParkingSpot, Scenario, VehicleType};
+use sim::{ParkingSpot, VehicleType};
 use widgetry::{Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Panel, Text, Toggle, Widget};
 
 use crate::app::App;
@@ -378,28 +378,34 @@ impl Efficiency {
                 })
                 .collect();
             timer.stop("gather requests");
-            for (car_pt, dist) in timer
+            for (car_pt, time) in timer
                 .parallelize("calculate paths", Parallelism::Fastest, requests, |req| {
                     let car_pt = req.start.pt(map);
                     // TODO Walking paths should really return some indication of "zero length
                     // path" for this
                     if req.start == req.end {
-                        Some((car_pt, Distance::ZERO))
+                        Some((car_pt, Duration::ZERO))
                     } else {
-                        map.pathfind(req)
-                            .ok()
-                            .map(|path| (car_pt, path.total_length()))
+                        map.pathfind(req).ok().map(|path| {
+                            (
+                                car_pt,
+                                path.estimate_duration(
+                                    map,
+                                    PathConstraints::Pedestrian,
+                                    Some(map_model::MAX_WALKING_SPEED),
+                                ),
+                            )
+                        })
                     }
                 })
                 .into_iter()
                 .flatten()
             {
-                // TODO Actual car shapes? At least cache the circle?
-                let time = dist / Scenario::max_ped_speed();
                 let color = app
                     .cs
                     .good_to_bad_red
                     .eval((time / Duration::minutes(10)).min(1.0));
+                // TODO Actual car shapes? At least cache the circle?
                 unzoomed.push(
                     color,
                     Circle::new(car_pt, Distance::meters(5.0)).to_polygon(),

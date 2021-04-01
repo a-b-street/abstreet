@@ -220,7 +220,14 @@ impl Traversable {
                         max_speed_on_flat_ground.unwrap(),
                         map.get_parent(*l).percent_incline,
                     )
+                } else if constraints == PathConstraints::Pedestrian {
+                    // We assume every pedestrian has a max_speed defined.
+                    walking_speed_on_incline(
+                        max_speed_on_flat_ground.unwrap(),
+                        map.get_parent(*l).percent_incline,
+                    )
                 } else {
+                    // Incline doesn't affect cars, buses, or trains
                     map.get_parent(*l).speed_limit
                 }
             }
@@ -240,8 +247,15 @@ impl Traversable {
 
 // 10mph
 pub const MAX_BIKE_SPEED: Speed = Speed::const_meters_per_second(4.4704);
+// 3mph
+pub const MAX_WALKING_SPEED: Speed = Speed::const_meters_per_second(1.34);
 
 fn bike_speed_on_incline(max_speed: Speed, _percent_incline: f64) -> Speed {
+    // TODO Incorporate percent_incline here
+    max_speed
+}
+
+fn walking_speed_on_incline(max_speed: Speed, _percent_incline: f64) -> Speed {
     // TODO Incorporate percent_incline here
     max_speed
 }
