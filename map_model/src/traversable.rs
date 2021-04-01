@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use geom::{Angle, Distance, PolyLine, Pt2D, Speed};
 
-use crate::{LaneID, Map, TurnID};
+use crate::{LaneID, Map, PathConstraints, TurnID};
 
 /// Represents a specific point some distance along a lane.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -197,17 +197,51 @@ impl Traversable {
         }
     }
 
-    pub fn speed_limit(&self, map: &Map) -> Speed {
-        match *self {
-            Traversable::Lane(id) => map.get_parent(id).speed_limit,
-            Traversable::Turn(id) => map.get_parent(id.dst).speed_limit,
-        }
-    }
-
     pub fn get_zorder(&self, map: &Map) -> isize {
         match *self {
             Traversable::Lane(id) => map.get_parent(id).zorder,
             Traversable::Turn(id) => map.get_i(id.parent).get_zorder(map),
         }
     }
+
+    /// The single definitive place to determine how fast somebody could go along a single road or
+    /// turn. This should be used for pathfinding and simulation.
+    pub fn max_speed_along(
+        &self,
+        max_speed_on_flat_ground: Option<Speed>,
+        constraints: PathConstraints,
+        map: &Map,
+    ) -> Speed {
+        let base = match self {
+            Traversable::Lane(l) => {
+                if constraints == PathConstraints::Bike {
+                    // We assume every bike has a max_speed defined.
+                    bike_speed_on_incline(
+                        max_speed_on_flat_ground.unwrap(),
+                        map.get_parent(*l).percent_incline,
+                    )
+                } else {
+                    map.get_parent(*l).speed_limit
+                }
+            }
+            // TODO Ignore elevation on turns?
+            Traversable::Turn(t) => map
+                .get_parent(t.src)
+                .speed_limit
+                .min(map.get_parent(t.dst).speed_limit),
+        };
+        if let Some(s) = max_speed_on_flat_ground {
+            base.min(s)
+        } else {
+            base
+        }
+    }
+}
+
+// 10mph
+pub const MAX_BIKE_SPEED: Speed = Speed::const_meters_per_second(4.4704);
+
+fn bike_speed_on_incline(max_speed: Speed, _percent_incline: f64) -> Speed {
+    // TODO Incorporate percent_incline here
+    max_speed
 }

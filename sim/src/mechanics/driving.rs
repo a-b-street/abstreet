@@ -273,19 +273,16 @@ impl DrivingSimState {
     ) -> bool {
         match car.state {
             CarState::Crossing(time_int, dist_int) => {
-                let time_cross = now - time_int.start;
-                if time_cross > Duration::ZERO {
-                    let avg_speed = Speed::from_dist_time(dist_int.length(), time_cross);
-
-                    let route = car.router.head();
-                    let max_speed = route.speed_limit(ctx.map).min(
-                        car.vehicle
-                            .max_speed
-                            .unwrap_or(Speed::meters_per_second(100.0)),
-                    );
-
-                    if let Some((trip, _)) = car.trip_and_person {
-                        if let Traversable::Lane(lane) = route {
+                if let Some((trip, _)) = car.trip_and_person {
+                    if let Traversable::Lane(lane) = car.router.head() {
+                        let time_to_cross = now - time_int.start;
+                        if time_to_cross > Duration::ZERO {
+                            let avg_speed = Speed::from_dist_time(dist_int.length(), time_to_cross);
+                            let max_speed = car.router.head().max_speed_along(
+                                car.vehicle.max_speed,
+                                car.vehicle.vehicle_type.to_constraints(),
+                                ctx.map,
+                            );
                             self.events
                                 .push(Event::LaneSpeedPercentage(trip, lane, avg_speed, max_speed));
                         }
@@ -397,14 +394,14 @@ impl DrivingSimState {
                 assert!(from != goto);
 
                 if let Traversable::Turn(t) = goto {
-                    let mut speed = goto.speed_limit(ctx.map);
-                    if let Some(s) = car.vehicle.max_speed {
-                        speed = speed.min(s);
-                    }
                     if !ctx.intersections.maybe_start_turn(
                         AgentID::Car(car.vehicle.id),
                         t,
-                        speed,
+                        goto.max_speed_along(
+                            car.vehicle.max_speed,
+                            car.vehicle.vehicle_type.to_constraints(),
+                            ctx.map,
+                        ),
                         now,
                         ctx.map,
                         ctx.scheduler,

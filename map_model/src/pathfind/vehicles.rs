@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use thread_local::ThreadLocal;
 
 use abstutil::MultiMap;
-use geom::{Duration, Speed};
+use geom::Duration;
 
 use crate::pathfind::ch::round;
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
@@ -15,7 +15,7 @@ use crate::pathfind::uber_turns::{IntersectionCluster, UberTurn};
 use crate::pathfind::zone_cost;
 use crate::{
     DrivingSide, Lane, LaneID, Map, Path, PathConstraints, PathRequest, PathStep, RoutingParams,
-    Turn, TurnID, TurnType,
+    Traversable, Turn, TurnID, TurnType,
 };
 
 #[derive(Serialize, Deserialize)]
@@ -253,14 +253,13 @@ pub fn vehicle_cost(
             t1 + t2
         }
         PathConstraints::Bike => {
-            // TODO Copied from sim. Probably move to map_model.
-            let max_bike_speed = Speed::miles_per_hour(10.0);
-            // Usually the bike's speed limit matters, not the road's.
-            let t1 = lane.length() / map.get_r(lane.parent).speed_limit.min(max_bike_speed);
-            let t2 =
-                turn.geom.length() / map.get_parent(turn.id.dst).speed_limit.min(max_bike_speed);
+            // We assume MAX_BIKE_SPEED for pathfinding.
+            let max_speed = Some(crate::MAX_BIKE_SPEED);
+            let t1 = lane.length()
+                / Traversable::Lane(lane.id).max_speed_along(max_speed, constraints, map);
+            let t2 = turn.geom.length()
+                / Traversable::Turn(turn.id).max_speed_along(max_speed, constraints, map);
 
-            // TODO Elevation gain is bad, loss is good.
             // TODO If we're on a driving lane, higher speed limit is worse.
             // TODO Bike lanes next to parking is dangerous.
 

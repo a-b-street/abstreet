@@ -47,11 +47,11 @@ impl Car {
         start_time: Time,
         map: &Map,
     ) -> CarState {
-        let on = self.router.head();
-        let mut speed = on.speed_limit(map);
-        if let Some(s) = self.vehicle.max_speed {
-            speed = speed.min(s);
-        }
+        let speed = self.router.head().max_speed_along(
+            self.vehicle.max_speed,
+            self.vehicle.vehicle_type.to_constraints(),
+            map,
+        );
         let dt = (dist_int.end - dist_int.start) / speed;
         CarState::Crossing(TimeInterval::new(start_time, start_time + dt), dist_int)
     }

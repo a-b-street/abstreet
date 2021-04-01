@@ -237,9 +237,10 @@ impl TuneRelative {
                     "  about {} for a car if there's no congestion",
                     car_dt
                 )),
+                // TODO We could calculate a full path and incorporate incline
                 Line(format!(
                     "  about {} for a bike",
-                    dist_btwn / Scenario::max_bike_speed()
+                    dist_btwn / map_model::MAX_BIKE_SPEED
                 )),
                 Line(format!(
                     "  about {} for a pedestrian",
