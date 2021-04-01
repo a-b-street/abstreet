@@ -57,8 +57,9 @@ build/dist/%/wasm_pkg: src/%/wasm_pkg
 	mkdir -p $(dir $@)
 	cp -r "${<}" "${@}"
 
-# Concatenate the target crate's js file with 
-# the generic widgetry loading code.
+# Concatenate the target crate's js file with the generic widgetry loading
+# code.
+#
 # Alternatives and their downsides would be:
 #  1. import outside of pkg root
 #  	 - pkg is less portable
