@@ -11,7 +11,7 @@ APPS=abstreet fifteen_min osm_viewer santa widgetry_demo
 
 .PHONY: server clean run dev release $(APPS)
 
-TSC=tsc --lib dom,es2020 --module es2020 --target es6 --strict --noEmitOnError --outDir build
+TSC=npx tsc --lib dom,es2020 --module es2020 --target es6 --strict --noEmitOnError --outDir build
 
 server:
 	python -m http.server $(SERVER_PORT) --directory build/dist
