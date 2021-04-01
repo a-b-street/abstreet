@@ -1,13 +1,7 @@
-// and should be stable. `InitOutput` on the other hand will vary from app to app.
-// To be loaded by AppLoader, the wasm module is expected to have exported a
-// `run` method, which configures `widgetry::Settings` and launches the program.
+// WidgetryApp is a wrapper for a rust Widgetry app which has been compiled to a wasm package using wasm_bindgen.
 //
-// Additionally, it is assumed that the `init` method and `InitOutput` type are
-// available, since they are automatically created by wasm_bindgen:
-//
-// Note that the type signatures for both `init` and `InitInput` were
-// copy/pasted from the wasm_bindgen generated ts.d files. Those parts, at
-// least, should be stable.
+// The type signatures of `InitInput` and `initializeWasm` were copy/pasted from the wasm_bindgen
+// generated ts.d files. They should be stable, unless wasm_bindgen has breaking changes.
 export type InitInput =
   | RequestInfo
   | URL
