@@ -9,7 +9,7 @@ REPO_ROOT:=$(shell git rev-parse --show-toplevel)
 
 APPS=abstreet fifteen_min osm_viewer santa widgetry_demo 
 
-.PHONY: server clean run dev release $(APPS)
+.PHONY: server clean dev release $(APPS)
 .PRECIOUS: src/%/wasm_pkg
 
 TSC=npx tsc --lib dom,es2020 --module es2020 --target es6 --strict --noEmitOnError --outDir build
@@ -20,10 +20,6 @@ server:
 clean:
 	rm -fr build
 	rm -fr src/*/wasm_pkg
-
-run: dev
-	echo "Make sure server is up and running first!"
-	open http://localhost:$(SERVER_PORT)
 
 # Build all of our apps
 build: $(APPS) build/dist/index.html
@@ -84,9 +80,6 @@ build/%.js: src/%.ts
 ##
 
 ## A/BStreet
-run_abstreet: abstreet build/dist/data
-	echo "Make sure server is up and running!"
-	open http://localhost:$(SERVER_PORT)/abstreet.html
 
 abstreet: build/dist/abstreet/wasm_pkg build/dist/abstreet/abstreet.bundle.js build/dist/abstreet build/dist/abstreet.html
 
@@ -98,36 +91,24 @@ src/abstreet/wasm_pkg:
 build/dist/abstreet/abstreet.bundle.js: build/widgetry.js build/abstreet/abstreet.js
 
 ## Fifteen Minute Tool
-run_fifteen_min: fifteen_min build/dist/data
-	echo "Make sure server is up and running!"
-	open http://localhost:$(SERVER_PORT)/fifteen_min.html
 
 fifteen_min: build/dist/fifteen_min/wasm_pkg build/dist/fifteen_min/fifteen_min.bundle.js build/dist/fifteen_min.html
 
 build/dist/fifteen_min/fifteen_min.bundle.js: build/widgetry.js build/fifteen_min/fifteen_min.js
 
 ## OSM Viewer
-run_osm_viewer: osm_viewer build/dist/data
-	echo "Make sure server is up and running!"
-	open http://localhost:$(SERVER_PORT)/osm_viewer.html
 
 osm_viewer: build/dist/osm_viewer/wasm_pkg build/dist/osm_viewer/osm_viewer.bundle.js build/dist/osm_viewer.html
 
 build/dist/osm_viewer/osm_viewer.bundle.js: build/widgetry.js build/osm_viewer/osm_viewer.js
 
 ## Widgetry Demo
-run_widgetry_demo: widgetry_demo build/dist/data
-	echo "Make sure server is up and running first!"
-	open http://localhost:$(SERVER_PORT)/widgetry_demo.html
 
 widgetry_demo: build/dist/widgetry_demo/wasm_pkg build/dist/widgetry_demo/widgetry_demo.bundle.js build/dist/widgetry_demo.html
 
 build/dist/widgetry_demo/widgetry_demo.bundle.js: build/widgetry.js build/widgetry_demo/widgetry_demo.js
 
 ## Santa
-run_santa: santa build/dist/data
-	echo "Make sure server is up and running!"
-	open http://localhost:$(SERVER_PORT)/santa.html
 
 santa: build/dist/santa/wasm_pkg build/dist/santa/santa.bundle.js build/dist/santa.html
 
