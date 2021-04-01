@@ -20,7 +20,7 @@ use crate::{path_player, Manifest};
 static SYSTEM_DATA: include_dir::Dir = include_dir::include_dir!(
     "../data/system",
     "assets/",
-    // "assets/music/",
+    "-assets/music/",
     "proposals/",
     "study_areas/"
 );
