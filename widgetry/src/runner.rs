@@ -179,10 +179,8 @@ impl Settings {
     pub fn new(window_title: &str) -> Settings {
         Settings {
             window_title: window_title.to_string(),
-            // TODO: remove default dom_element_id?
             #[cfg(target_arch = "wasm32")]
             root_dom_element_id: "widgetry-canvas".to_string(),
-            // TODO: make wasm only?
             assets_base_url: None,
             assets_are_gzipped: false,
             dump_raw_events: false,

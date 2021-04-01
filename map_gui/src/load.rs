@@ -106,7 +106,7 @@ impl<A: AppLike + 'static> State<A> for MapAlreadyLoaded<A> {
 mod native_loader {
     use super::*;
 
-    // This loads a JSON or bincoded file, then deserializes it
+    /// Loads a JSON or bincoded file, then deserializes it
     pub struct FileLoader<A: AppLike, T> {
         path: String,
         // Wrapped in an Option just to make calling from event() work. Technically this is unsafe
@@ -142,7 +142,9 @@ mod native_loader {
         }
     }
 
-    // TODO Ideally merge with FileLoader
+    /// Loads a file without deserializing it.
+    ///
+    /// TODO Ideally merge with FileLoader
     pub struct RawFileLoader<A: AppLike> {
         path: String,
         // Wrapped in an Option just to make calling from event() work. Technically this is unsafe
@@ -191,9 +193,11 @@ mod wasm_loader {
 
     use super::*;
 
-    // Instead of blockingly reading a file within ctx.loading_screen, on the web have to
-    // asynchronously make an HTTP request and keep "polling" for completion in a way that's
-    // compatible with winit's event loop.
+    /// Loads a JSON or bincoded file, then deserializes it
+    ///
+    /// Instead of blockingly reading a file within ctx.loading_screen, on the web have to
+    /// asynchronously make an HTTP request and keep "polling" for completion in a way that's
+    /// compatible with winit's event loop.
     pub struct FileLoader<A: AppLike, T> {
         response: oneshot::Receiver<Result<Vec<u8>>>,
         on_load:
@@ -209,19 +213,17 @@ mod wasm_loader {
             path: String,
             on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, &mut Timer, Result<T>) -> Transition<A>>,
         ) -> Box<dyn State<A>> {
-            // The current URL is of the index.html page. We can find the data directory relative
-            // to that.
             let base_url = ctx
                 .prerender
                 .assets_base_url()
-                .expect("assets_base_url should be specified for wasm builds via `Settings`");
-            let file_path = path.strip_prefix(&abstio::path("")).unwrap();
+                .expect("assets_base_url must be specified for wasm builds via `Settings`");
+
             // Note that files are gzipped on S3 and other deployments. When running locally, we
             // just symlink the data/ directory, where files aren't compressed.
             let url = if ctx.prerender.assets_are_gzipped() {
-                format!("{}/{}.gz", base_url, file_path)
+                format!("{}/{}.gz", base_url, path)
             } else {
-                format!("{}/{}", base_url, file_path)
+                format!("{}/{}", base_url, path)
             };
 
             // Make the HTTP request nonblockingly. When the response is received, send it through
@@ -310,8 +312,10 @@ mod wasm_loader {
         }
     }
 
-    // TODO This is a horrible copy of FileLoader. Make the serde FileLoader just build on top of
-    // this one!!!
+    /// This loads a file without deserializing it.
+    ///
+    /// TODO This is a horrible copy of FileLoader. Make the serde FileLoader just build on top of
+    /// this one!!!
     pub struct RawFileLoader<A: AppLike> {
         response: oneshot::Receiver<Result<Vec<u8>>>,
         on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut A, Result<Vec<u8>>) -> Transition<A>>>,
@@ -326,16 +330,17 @@ mod wasm_loader {
             path: String,
             on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, Result<Vec<u8>>) -> Transition<A>>,
         ) -> Box<dyn State<A>> {
-            // The current URL is of the index.html page. We can find the data directory relative
-            // to that.
-            let base_url = get_base_url().unwrap();
-            let file_path = path.strip_prefix(&abstio::path("")).unwrap();
+            let base_url = ctx
+                .prerender
+                .assets_base_url()
+                .expect("assets_base_url must be specified for wasm builds via `Settings`");
+
             // Note that files are gzipped on S3 and other deployments. When running locally, we
             // just symlink the data/ directory, where files aren't compressed.
             let url = if ctx.prerender.assets_are_gzipped() {
-                format!("{}/{}.gz", base_url, file_path)
+                format!("{}/{}.gz", base_url, path)
             } else {
-                format!("{}/{}", base_url, file_path)
+                format!("{}/{}", base_url, path)
             };
 
             // Make the HTTP request nonblockingly. When the response is received, send it through
@@ -416,26 +421,6 @@ mod wasm_loader {
             g.clear(Color::BLACK);
             self.panel.draw(g);
         }
-    }
-
-    /// Returns the base URL where the game is running, excluding query parameters and the
-    /// implicit index.html that might be there.
-    fn get_base_url() -> Result<String> {
-        let window = web_sys::window().ok_or(anyhow!("no window?"))?;
-        let url = window.location().href().map_err(|err| {
-            anyhow!(err
-                .as_string()
-                .unwrap_or("window.location.href failed".to_string()))
-        })?;
-        // Consider using a proper url parsing crate. This works fine for now, though.
-        let url = url.split("?").next().ok_or(anyhow!("empty URL?"))?;
-        Ok(url
-            .trim_end_matches("index.html")
-            // TODO This is brittle; we should strip off the trailing filename no matter what it
-            // is.
-            .trim_end_matches("prefetch.html")
-            .trim_end_matches("/")
-            .to_string())
     }
 }
 

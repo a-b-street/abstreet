@@ -22,8 +22,6 @@ pub struct Assets {
     pub(crate) style: RefCell<Style>,
     pub text_opts: RefCell<Options>,
     pub read_svg: Box<dyn Fn(&str) -> Vec<u8>>,
-    // TODO: make non-optional for wasm? Though some apps dont use any assets...
-    // #[cfg(target_arch = "wasm32")]
     base_url: Option<String>,
     are_gzipped: bool,
 }
