@@ -615,6 +615,15 @@
 <span id="612">612</span>
 <span id="613">613</span>
 <span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -625,30 +634,33 @@
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ContentMode</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Fill</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
     <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PersistentSplit</span>, <span class="ident">PlotOptions</span>,
-    <span class="ident">ScreenDims</span>, <span class="ident">Series</span>, <span class="ident">SharedAppState</span>, <span class="ident">State</span>, <span class="ident">TabController</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Texture</span>, <span class="ident">Toggle</span>,
-    <span class="ident">Transition</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">ScreenDims</span>, <span class="ident">Series</span>, <span class="ident">Settings</span>, <span class="ident">SharedAppState</span>, <span class="ident">State</span>, <span class="ident">TabController</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Texture</span>,
+    <span class="ident">Toggle</span>, <span class="ident">Transition</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">main</span>() {
     <span class="comment">// Use this to initialize logging.</span>
     <span class="ident">abstutil</span>::<span class="ident">CmdArgs</span>::<span class="ident">new</span>().<span class="ident">done</span>();
 
+    <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">Settings</span>::<span class="ident">new</span>(<span class="string">&quot;widgetry demo&quot;</span>);
+    <span class="ident">run</span>(<span class="ident">settings</span>);
+}
+
+<span class="kw">fn</span> <span class="ident">run</span>(<span class="kw-2">mut</span> <span class="ident">settings</span>: <span class="ident">Settings</span>) {
+    <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">read_svg</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">abstio</span>::<span class="ident">slurp_bytes</span>));
     <span class="comment">// Control flow surrendered here. App implements State, which has an event handler and a draw</span>
     <span class="comment">// callback.</span>
     <span class="comment">//</span>
     <span class="comment">// TODO The demo loads a .svg file, so to make it work on both native and web, for now we use</span>
     <span class="comment">// read_svg. But we should have a more minimal example of how to do that here.</span>
-    <span class="ident">widgetry</span>::<span class="ident">run</span>(
-        <span class="ident">widgetry</span>::<span class="ident">Settings</span>::<span class="ident">new</span>(<span class="string">&quot;widgetry demo&quot;</span>).<span class="ident">read_svg</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">abstio</span>::<span class="ident">slurp_bytes</span>)),
-        <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
-            <span class="comment">// TODO: remove Style::pregame and make light_bg the default.</span>
-            <span class="ident">ctx</span>.<span class="ident">set_style</span>(<span class="ident">widgetry</span>::<span class="ident">Style</span>::<span class="ident">light_bg</span>());
-            <span class="comment">// TODO: Add a toggle to switch theme in demo (and recreate UI in that new theme)</span>
-            <span class="comment">// ctx.set_style(widgetry::Style::dark_bg());</span>
+    <span class="ident">widgetry</span>::<span class="ident">run</span>(<span class="ident">settings</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
+        <span class="comment">// TODO: remove Style::pregame and make light_bg the default.</span>
+        <span class="ident">ctx</span>.<span class="ident">set_style</span>(<span class="ident">widgetry</span>::<span class="ident">Style</span>::<span class="ident">light_bg</span>());
+        <span class="comment">// TODO: Add a toggle to switch theme in demo (and recreate UI in that new theme)</span>
+        <span class="comment">// ctx.set_style(widgetry::Style::dark_bg());</span>
 
-            (<span class="ident">App</span> {}, <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Demo</span>::<span class="ident">new</span>(<span class="ident">ctx</span>))])
-        },
-    );
+        (<span class="ident">App</span> {}, <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Demo</span>::<span class="ident">new</span>(<span class="ident">ctx</span>))])
+    });
 }
 
 <span class="kw">struct</span> <span class="ident">App</span> {}
@@ -1226,9 +1238,15 @@
 <span class="kw">use</span> <span class="ident">wasm_bindgen</span>::<span class="ident">prelude</span>::<span class="kw-2">*</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">wasm_bindgen</span>(<span class="ident">start</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span>() {
-    <span class="ident">main</span>();
+<span class="attribute">#[<span class="ident">wasm_bindgen</span>(<span class="ident">js_name</span> <span class="op">=</span> <span class="string">&quot;run&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_wasm</span>(<span class="ident">root_dom_id</span>: <span class="ident">String</span>, <span class="ident">assets_base_url</span>: <span class="ident">String</span>, <span class="ident">assets_are_gzipped</span>: <span class="ident">bool</span>) {
+    <span class="comment">// Use this to initialize logging.</span>
+    <span class="ident">abstutil</span>::<span class="ident">CmdArgs</span>::<span class="ident">new</span>().<span class="ident">done</span>();
+    <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">Settings</span>::<span class="ident">new</span>(<span class="string">&quot;widgetry demo&quot;</span>)
+        .<span class="ident">root_dom_element_id</span>(<span class="ident">root_dom_id</span>)
+        .<span class="ident">assets_base_url</span>(<span class="ident">assets_base_url</span>)
+        .<span class="ident">assets_are_gzipped</span>(<span class="ident">assets_are_gzipped</span>);
+    <span class="ident">run</span>(<span class="ident">settings</span>);
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry_demo"></div>

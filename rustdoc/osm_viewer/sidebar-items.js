@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["main",""]],"mod":[["viewer",""]]});
+initSidebarItems({"fn":[["main",""],["run",""]],"mod":[["viewer",""]]});

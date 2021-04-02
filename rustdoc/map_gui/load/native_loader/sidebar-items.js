@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["FileLoader",""],["RawFileLoader",""]]});
+initSidebarItems({"struct":[["FileLoader","Loads a JSON or bincoded file, then deserializes it"],["RawFileLoader","Loads a file without deserializing it."]]});

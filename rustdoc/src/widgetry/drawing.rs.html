@@ -306,6 +306,14 @@
 <span id="303">303</span>
 <span id="304">304</span>
 <span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">Cell</span>;
 
@@ -592,6 +600,14 @@
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">window_resized</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">new_size</span>: <span class="ident">ScreenDims</span>) {
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">window_resized</span>(<span class="ident">new_size</span>, <span class="self">self</span>.<span class="ident">get_scale_factor</span>())
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">assets_base_url</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">assets</span>.<span class="ident">base_url</span>()
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">assets_are_gzipped</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">assets</span>.<span class="ident">are_gzipped</span>()
     }
 }
 

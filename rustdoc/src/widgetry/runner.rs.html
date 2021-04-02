@@ -412,6 +412,35 @@
 <span id="409">409</span>
 <span id="410">410</span>
 <span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">Cell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">panic</span>;
@@ -576,7 +605,11 @@
 
 <span class="doccomment">/// Customize how widgetry works. These settings can&#39;t be changed after starting.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Settings</span> {
-    <span class="ident">window_title</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">window_title</span>: <span class="ident">String</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">root_dom_element_id</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">assets_base_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">assets_are_gzipped</span>: <span class="ident">bool</span>,
     <span class="ident">dump_raw_events</span>: <span class="ident">bool</span>,
     <span class="ident">scale_factor</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
     <span class="ident">require_minimum_width</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
@@ -590,6 +623,10 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">window_title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Settings</span> {
         <span class="ident">Settings</span> {
             <span class="ident">window_title</span>: <span class="ident">window_title</span>.<span class="ident">to_string</span>(),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
+            <span class="ident">root_dom_element_id</span>: <span class="string">&quot;widgetry-canvas&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">assets_base_url</span>: <span class="prelude-val">None</span>,
+            <span class="ident">assets_are_gzipped</span>: <span class="bool-val">false</span>,
             <span class="ident">dump_raw_events</span>: <span class="bool-val">false</span>,
             <span class="ident">scale_factor</span>: <span class="prelude-val">None</span>,
             <span class="ident">require_minimum_width</span>: <span class="prelude-val">None</span>,
@@ -617,6 +654,12 @@
     <span class="doccomment">/// Override the initial HiDPI scale factor from whatever winit initially detects.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scale_factor</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scale_factor</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">scale_factor</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">scale_factor</span>);
+        <span class="self">self</span>
+    }
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">root_dom_element_id</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">element_id</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">root_dom_element_id</span> <span class="op">=</span> <span class="ident">element_id</span>;
         <span class="self">self</span>
     }
 
@@ -653,6 +696,16 @@
         <span class="self">self</span>.<span class="ident">read_svg</span> <span class="op">=</span> <span class="ident">function</span>;
         <span class="self">self</span>
     }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">assets_base_url</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">assets_base_url</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>);
+        <span class="self">self</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">assets_are_gzipped</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">assets_are_gzipped</span> <span class="op">=</span> <span class="ident">value</span>;
+        <span class="self">self</span>
+    }
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span><span class="op">&lt;</span>
@@ -663,7 +716,7 @@
     <span class="ident">make_app</span>: <span class="ident">F</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="op">!</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;setup widgetry&quot;</span>);
-    <span class="kw">let</span> (<span class="ident">prerender_innards</span>, <span class="ident">event_loop</span>) <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">backend</span>::<span class="ident">setup</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>.<span class="ident">window_title</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
+    <span class="kw">let</span> (<span class="ident">prerender_innards</span>, <span class="ident">event_loop</span>) <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">backend</span>::<span class="ident">setup</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
 
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">path</span>) <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">window_icon</span> {
         <span class="kw">if</span> <span class="op">!</span><span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>) {
@@ -683,7 +736,12 @@
 
     <span class="kw">let</span> <span class="ident">monitor_scale_factor</span> <span class="op">=</span> <span class="ident">prerender_innards</span>.<span class="ident">monitor_scale_factor</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">prerender</span> <span class="op">=</span> <span class="ident">Prerender</span> {
-        <span class="ident">assets</span>: <span class="ident">Assets</span>::<span class="ident">new</span>(<span class="ident">style</span>.<span class="ident">clone</span>(), <span class="ident">settings</span>.<span class="ident">read_svg</span>),
+        <span class="ident">assets</span>: <span class="ident">Assets</span>::<span class="ident">new</span>(
+            <span class="ident">style</span>.<span class="ident">clone</span>(),
+            <span class="ident">settings</span>.<span class="ident">assets_base_url</span>,
+            <span class="ident">settings</span>.<span class="ident">assets_are_gzipped</span>,
+            <span class="ident">settings</span>.<span class="ident">read_svg</span>,
+        ),
         <span class="ident">num_uploads</span>: <span class="ident">Cell</span>::<span class="ident">new</span>(<span class="number">0</span>),
         <span class="ident">inner</span>: <span class="ident">prerender_innards</span>,
         <span class="ident">scale_factor</span>: <span class="ident">settings</span>.<span class="ident">scale_factor</span>.<span class="ident">unwrap_or</span>(<span class="ident">monitor_scale_factor</span>),
