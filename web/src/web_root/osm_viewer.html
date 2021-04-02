@@ -1,0 +1,23 @@
+<html>
+<head>
+    <link rel="stylesheet" href="abstreet.css">
+</head>
+<body>
+
+<script type="module">
+  import { OSMViewer } from "./osm_viewer/osm_viewer.bundle.js";
+  let app = new OSMViewer("app");
+
+  document.addEventListener("DOMContentLoaded", function(event) { 
+    app.loadAndStart();
+  });
+</script> 
+
+<div class="widgetry-app full-screen-widgetry-app" id="app">
+    <div class="preloading">
+        <h1>OSM Viewer</h1>
+    </div>
+</div>
+
+</body>
+</html>

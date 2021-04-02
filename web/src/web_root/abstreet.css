@@ -1,0 +1,15 @@
+body {
+    font-family: Arial;
+    background: white;
+    color: #4a4a4a;
+}
+
+.full-screen-widgetry-app {
+  height: 100%;
+  width: 100%;
+}
+
+.widgetry-app .preloading {
+    padding: 16px;
+    color: white;
+}

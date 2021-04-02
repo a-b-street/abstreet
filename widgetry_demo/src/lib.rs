@@ -7,30 +7,33 @@ use geom::{Angle, Duration, Percent, Polygon, Pt2D, Time};
 use widgetry::{
     lctrl, Choice, Color, ContentMode, Drawable, EventCtx, Fill, GeomBatch, GfxCtx,
     HorizontalAlignment, Image, Key, Line, LinePlot, Outcome, Panel, PersistentSplit, PlotOptions,
-    ScreenDims, Series, SharedAppState, State, TabController, Text, TextExt, Texture, Toggle,
-    Transition, UpdateType, VerticalAlignment, Widget,
+    ScreenDims, Series, Settings, SharedAppState, State, TabController, Text, TextExt, Texture,
+    Toggle, Transition, UpdateType, VerticalAlignment, Widget,
 };
 
 pub fn main() {
     // Use this to initialize logging.
     abstutil::CmdArgs::new().done();
 
+    let settings = Settings::new("widgetry demo");
+    run(settings);
+}
+
+fn run(mut settings: Settings) {
+    settings = settings.read_svg(Box::new(abstio::slurp_bytes));
     // Control flow surrendered here. App implements State, which has an event handler and a draw
     // callback.
     //
     // TODO The demo loads a .svg file, so to make it work on both native and web, for now we use
     // read_svg. But we should have a more minimal example of how to do that here.
-    widgetry::run(
-        widgetry::Settings::new("widgetry demo").read_svg(Box::new(abstio::slurp_bytes)),
-        |ctx| {
-            // TODO: remove Style::pregame and make light_bg the default.
-            ctx.set_style(widgetry::Style::light_bg());
-            // TODO: Add a toggle to switch theme in demo (and recreate UI in that new theme)
-            // ctx.set_style(widgetry::Style::dark_bg());
+    widgetry::run(settings, |ctx| {
+        // TODO: remove Style::pregame and make light_bg the default.
+        ctx.set_style(widgetry::Style::light_bg());
+        // TODO: Add a toggle to switch theme in demo (and recreate UI in that new theme)
+        // ctx.set_style(widgetry::Style::dark_bg());
 
-            (App {}, vec![Box::new(Demo::new(ctx))])
-        },
-    );
+        (App {}, vec![Box::new(Demo::new(ctx))])
+    });
 }
 
 struct App {}
@@ -608,7 +611,13 @@ fn make_controls(ctx: &mut EventCtx, tabs: &mut TabController) -> Panel {
 use wasm_bindgen::prelude::*;
 
 #[cfg(target_arch = "wasm32")]
-#[wasm_bindgen(start)]
-pub fn run() {
-    main();
+#[wasm_bindgen(js_name = "run")]
+pub fn run_wasm(root_dom_id: String, assets_base_url: String, assets_are_gzipped: bool) {
+    // Use this to initialize logging.
+    abstutil::CmdArgs::new().done();
+    let settings = Settings::new("widgetry demo")
+        .root_dom_element_id(root_dom_id)
+        .assets_base_url(assets_base_url)
+        .assets_are_gzipped(assets_are_gzipped);
+    run(settings);
 }

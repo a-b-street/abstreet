@@ -284,6 +284,14 @@ impl Prerender {
     pub(crate) fn window_resized(&self, new_size: ScreenDims) {
         self.inner.window_resized(new_size, self.get_scale_factor())
     }
+
+    pub fn assets_base_url(&self) -> Option<&str> {
+        self.assets.base_url()
+    }
+
+    pub fn assets_are_gzipped(&self) -> bool {
+        self.assets.are_gzipped()
+    }
 }
 
 impl std::convert::AsRef<Prerender> for GfxCtx<'_> {

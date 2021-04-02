@@ -5,10 +5,10 @@ use winit::platform::web::WindowExtWebSys;
 use abstutil::Timer;
 
 use crate::backend_glow::{build_program, GfxCtxInnards, PrerenderInnards, SpriteTexture};
-use crate::ScreenDims;
+use crate::{ScreenDims, Settings};
 
 pub fn setup(
-    window_title: &str,
+    settings: &Settings,
     timer: &mut Timer,
 ) -> (PrerenderInnards, winit::event_loop::EventLoop<()>) {
     info!("Setting up widgetry");
@@ -18,33 +18,32 @@ pub fn setup(
         error!("Panicked: {}", info);
     }));
 
-    let event_loop = winit::event_loop::EventLoop::new();
-    let get_full_size = || {
-        // TODO Not sure how to get scrollbar dims
-        let scrollbars = 30.0;
-        let win = web_sys::window().unwrap();
-        // `inner_width` corresponds to the browser's `self.innerWidth` function, which are in
-        // Logical, not Physical, pixels
-        winit::dpi::LogicalSize::new(
-            win.inner_width().unwrap().as_f64().unwrap() - scrollbars,
-            win.inner_height().unwrap().as_f64().unwrap() - scrollbars,
-        )
+    let window = web_sys::window().unwrap();
+    let document = window.document().unwrap();
+    let root_element = document
+        .get_element_by_id(&settings.root_dom_element_id)
+        .expect("failed to find root widgetry element");
+
+    // Clear out any loading messages
+    root_element.set_inner_html("");
+
+    let root_element_size = {
+        let root_element = root_element.clone();
+        move || {
+            winit::dpi::LogicalSize::new(root_element.client_width(), root_element.client_height())
+        }
     };
+
+    let event_loop = winit::event_loop::EventLoop::new();
     let winit_window = winit::window::WindowBuilder::new()
-        .with_title(window_title)
-        .with_inner_size(get_full_size())
+        .with_title(&settings.window_title)
+        .with_inner_size(root_element_size())
         .build(&event_loop)
         .unwrap();
     let canvas = winit_window.canvas();
-    let window = web_sys::window().unwrap();
-    let document = window.document().unwrap();
-    let div = document
-        .get_element_by_id("widgetry-canvas")
-        .expect("no widgetry-canvas div");
-    // Clear out any loading messages
-    div.set_inner_html("");
-    div.append_child(&canvas)
-        .expect("can't append canvas to widgetry-canvas div");
+    root_element
+        .append_child(&canvas)
+        .expect("failed to append canvas to widgetry root element");
 
     let winit_window = Rc::new(winit_window);
 
@@ -53,8 +52,7 @@ pub fn setup(
         let winit_window = winit_window.clone();
         let closure = wasm_bindgen::closure::Closure::wrap(Box::new(move |e: web_sys::Event| {
             debug!("handling resize event: {:?}", e);
-            let size = get_full_size();
-            winit_window.set_inner_size(size)
+            winit_window.set_inner_size(root_element_size());
         }) as Box<dyn FnMut(_)>);
         window
             .add_event_listener_with_callback("resize", closure.as_ref().unchecked_ref())

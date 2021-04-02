@@ -1,0 +1,12 @@
+{
+  "author": "Michael Kirk<michael.code@endoftheworl.de",
+  "name": "widgetry-apps",
+  "version": "0.1.0",
+  "scripts": {
+    "fmt": "prettier --write src"
+  },
+  "devDependencies": {
+    "prettier": "^2.2.1",
+    "typescript": "^4.2.3"
+  }
+}

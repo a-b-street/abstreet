@@ -1,0 +1,22 @@
+<html>
+<head>
+    <link rel="stylesheet" href="abstreet.css">
+</head>
+<body>
+<script type="module">
+  import { FifteenMinute } from "./fifteen_min/fifteen_min.bundle.js";
+  let app = new FifteenMinute("app");
+
+  document.addEventListener("DOMContentLoaded", function(event) { 
+    app.loadAndStart();
+  });
+</script> 
+
+<div class="widgetry-app full-screen-widgetry-app" id="app">
+    <div class="preloading">
+        <h1>Fifteen Minute Neighborhood</h1>
+    </div>
+</div>
+
+</body>
+</html>

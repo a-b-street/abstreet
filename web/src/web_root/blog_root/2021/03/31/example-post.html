@@ -1,0 +1,167 @@
+<html>
+<head>
+    <link rel="stylesheet" href="../../../../abstreet.css">
+</head>
+<body>
+
+<script type="module">
+  import { ABStreet } from "../../../../abstreet/abstreet.bundle.js";
+  let app = new ABStreet("app");
+
+  // Path is relative to this page's URL. 
+  //
+  // To be intuitive, it should be the same kind of relative path you'd use,
+  // for an <img src=...> tag, for example.
+  app.setAssetsBaseURL("../../../../data");
+
+  document.addEventListener("DOMContentLoaded", function(event) { 
+    app.loadAndStart();
+  });
+</script> 
+
+<!-- custom styles for my example blog -->
+<style type="text/css">
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    margin: 0;
+    padding: 0;
+}
+
+.widgetry-app {
+    height: 400px;
+    border: 
+}
+
+#header {
+    width: 100%;
+    background: #5B2333;
+    color: white;
+    text-align: center;
+    padding: 32px;
+}
+
+#navigation ul li {
+    display: inline-block;
+    margin-left: 30px;
+    margin-right: 30px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+#navigation ul li a {
+    color: white;
+}
+
+#main-content {
+    padding: 16px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.media-box img {
+    max-width:100%;
+    max-height:100%;
+}
+
+.media-box {
+    background: #5B2333;
+    padding: 16px;
+}
+
+.media-box-caption {
+    color: white;
+    margin-top: 16px;
+}
+</style>
+
+<div id="header">
+    <h1>My Blog</h1>
+    <div id="navigation">
+        <ul>
+            <!-- some filler-content links -->
+            <li><a href="https://hypertextbook.com/chaos/">Some Link</a></li>
+            <li><a href="https://hypertextbook.com/chaos/">Another Link</a></li>
+            <li><a href="https://hypertextbook.com/chaos/">A Link to the Past</a></li>
+        </ul>
+    </div>
+</div>
+
+<div id="main-content">
+    <h2>Another Day, Another Post</h2>
+    <strong>By Jane Jacobs</strong>
+    <p>
+    This page is a bunch of fake content as example of how you might go about
+    embedding a Widgetry app into a web page, like a blog post. 
+    </p>
+    <p>
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer ornare
+    tempus est sed placerat. In venenatis faucibus finibus. Vivamus vel
+    fringilla velit, id sagittis leo. Fusce at ligula vitae risus rutrum
+    blandit. Aenean non leo ligula. Orci varius natoque penatibus et magnis dis
+    parturient montes, nascetur ridiculus mus. Ut eget pharetra arcu, id congue
+    mi. Donec tempor dignissim hendrerit. Praesent molestie arcu ligula, vel
+    ornare lectus blandit sit amet. In hac habitasse platea dictumst.
+    </p>
+    <div class="media-box">
+        <div class="widgetry-app" id="app">
+            <div class="preloading">
+                <h1>A/B Street</h1>
+            </div>
+        </div>
+        <div class="media-box-caption">
+           As the above simulation shows, the results are very true.
+        </div>
+    </div>
+    <p>
+    Sed luctus luctus volutpat. Morbi urna turpis, commodo nec ex ac, vulputate
+    dignissim ante. Nunc ac nisi consectetur, sodales sem in, laoreet lorem.
+    Cras id mauris eu leo dictum elementum vitae sed dolor. Sed non ex
+    faucibus, sollicitudin odio sed, sollicitudin risus. Phasellus gravida
+    velit consectetur odio malesuada venenatis a quis turpis. Praesent eros mi,
+    molestie rhoncus sem eget, pellentesque suscipit velit. Sed efficitur
+    rhoncus justo, at malesuada dui hendrerit sed. Aenean ac placerat elit.
+    </p>
+    <p>
+    Etiam ullamcorper leo quis consequat posuere. Proin sem felis, bibendum ac
+    porttitor nec, tristique sit amet nibh. Proin ac nibh a orci porta pharetra
+    gravida in nisl. In mollis hendrerit lacus, a commodo tortor fermentum
+    eget. Vivamus metus felis, sagittis a fermentum sit amet, mollis quis
+    augue. Nullam eros sem, accumsan non convallis non, condimentum id quam.
+    Fusce efficitur in nulla sit amet ornare. Aliquam id est tempor, consequat
+    risus ornare, porttitor urna.
+    </p>
+    <div class="media-box">
+        <img src="../../../static_assets/snow_bike.jpg">
+        <div class="media-box-caption">
+           It was a snowy, bikey day.
+        </div>
+    </div>
+    <p>
+    Nullam dignissim eu eros ut pharetra. Phasellus euismod vitae velit non
+    ornare. Nulla turpis tortor, interdum at purus quis, vulputate congue
+    velit. Morbi a elit ac magna sagittis molestie. Maecenas ut ipsum faucibus,
+    aliquet nulla ac, commodo risus. Donec pretium et lorem non laoreet. Morbi
+    eu aliquet ex. Aliquam faucibus nibh quis ligula sollicitudin, quis maximus
+    urna cursus.
+    </p>
+    <p>
+    Suspendisse a nibh diam. Mauris nec ante in felis ullamcorper blandit
+    tincidunt pulvinar enim. Maecenas tempus ante at convallis scelerisque.
+    Vivamus hendrerit dui dui, et mattis libero pulvinar ut. Nullam facilisis
+    nisl eget viverra consectetur. Quisque et elit at urna iaculis venenatis.
+    Vestibulum dapibus dignissim sapien porta tempus. Nam commodo tempus dui in
+    imperdiet. Vestibulum consequat nisl sed leo feugiat, sed convallis sem
+    lobortis. In eget purus mi. Morbi tincidunt, nibh posuere iaculis blandit,
+    erat ex malesuada magna, et posuere lacus eros id risus. Fusce non orci
+    molestie, sagittis sem eu, vulputate tellus.
+    </p>
+</div>
+
+</body>
+</html>
