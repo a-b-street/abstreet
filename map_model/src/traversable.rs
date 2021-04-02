@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use geom::{Angle, Distance, PolyLine, Pt2D, Speed};
 
-use crate::{LaneID, Map, PathConstraints, TurnID};
+use crate::{Direction, LaneID, Map, PathConstraints, TurnID};
 
 /// Represents a specific point some distance along a lane.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -214,21 +214,22 @@ impl Traversable {
     ) -> Speed {
         let base = match self {
             Traversable::Lane(l) => {
+                let road = map.get_parent(*l);
+                let percent_incline = if road.dir(*l) == Direction::Fwd {
+                    road.percent_incline
+                } else {
+                    -road.percent_incline
+                };
+
                 if constraints == PathConstraints::Bike {
                     // We assume every bike has a max_speed defined.
-                    bike_speed_on_incline(
-                        max_speed_on_flat_ground.unwrap(),
-                        map.get_parent(*l).percent_incline,
-                    )
+                    bike_speed_on_incline(max_speed_on_flat_ground.unwrap(), percent_incline)
                 } else if constraints == PathConstraints::Pedestrian {
                     // We assume every pedestrian has a max_speed defined.
-                    walking_speed_on_incline(
-                        max_speed_on_flat_ground.unwrap(),
-                        map.get_parent(*l).percent_incline,
-                    )
+                    walking_speed_on_incline(max_speed_on_flat_ground.unwrap(), percent_incline)
                 } else {
                     // Incline doesn't affect cars, buses, or trains
-                    map.get_parent(*l).speed_limit
+                    road.speed_limit
                 }
             }
             // TODO Ignore elevation on turns?
@@ -250,12 +251,78 @@ pub const MAX_BIKE_SPEED: Speed = Speed::const_meters_per_second(4.4704);
 // 3mph
 pub const MAX_WALKING_SPEED: Speed = Speed::const_meters_per_second(1.34);
 
-fn bike_speed_on_incline(max_speed: Speed, _percent_incline: f64) -> Speed {
-    // TODO Incorporate percent_incline here
-    max_speed
+fn bike_speed_on_incline(max_speed: Speed, percent_incline: f64) -> Speed {
+    // There doesn't seem to be a straightforward way of calculating how an "average" cyclist's
+    // speed is affected by hills. http://www.kreuzotter.de/english/espeed.htm has lots of detail,
+    // but we'd need to guess values like body size, type of bike, etc.
+    // https://github.com/ibi-group/OpenTripPlanner/blob/65dcf0a4142e31028cf9d1b2c15ad32dd1084252/src/main/java/org/opentripplanner/routing/edgetype/StreetEdge.java#L934-L1082
+    // is built from this, but seems to be more appropriate for motorized micromobility devices
+    // like e-scooters.
+
+    // So, we'll adapt the table from Valhalla --
+    // https://valhalla.readthedocs.io/en/latest/sif/elevation_costing/ describes how this works.
+    // Their "weighted grade" should be roughly equivalent to how the elevation_lookups package we
+    // use calculates things.  This table comes from
+    // https://github.com/valhalla/valhalla/blob/f899a940ccbd0bc986769197dec5bb9383014afb/src/sif/bicyclecost.cc#L139.
+    // Valhalla is MIT licensed: https://github.com/valhalla/valhalla/blob/master/COPYING.
+
+    // TODO Could binary search or do something a bit faster here, but doesn't matter much
+    let pct = percent_incline * 100.0;
+    for (grade, factor) in vec![
+        (-10.0, 2.2),
+        (-8.0, 2.0),
+        (-6.5, 1.9),
+        (-5.0, 1.7),
+        (-3.0, 1.4),
+        (-1.5, 1.2),
+        (0.0, 1.0),
+        (1.5, 0.95),
+        (3.0, 0.85),
+        (5.0, 0.75),
+        (6.5, 0.65),
+        (8.0, 0.55),
+        (10.0, 0.5),
+        (11.5, 0.45),
+        (13.0, 0.4),
+    ] {
+        if pct <= grade {
+            return factor * max_speed;
+        }
+    }
+    // The last pair is a factor of 0.3 for grades of 15%, but we'll use it for anything steeper
+    // than 15%
+    0.3 * max_speed
 }
 
 fn walking_speed_on_incline(max_speed: Speed, _percent_incline: f64) -> Speed {
     // TODO Incorporate percent_incline here
     max_speed
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_bike_speed_on_incline() {
+        let base_speed = Speed::miles_per_hour(3.0);
+        assert_approx_eq(
+            Speed::miles_per_hour(3.0),
+            bike_speed_on_incline(base_speed, 0.0),
+        );
+        assert_approx_eq(
+            Speed::miles_per_hour(6.6),
+            bike_speed_on_incline(base_speed, -0.15),
+        );
+        assert_approx_eq(
+            Speed::miles_per_hour(0.9),
+            bike_speed_on_incline(base_speed, 0.15),
+        );
+    }
+
+    fn assert_approx_eq(s1: Speed, s2: Speed) {
+        if (s1.inner_meters_per_second() - s2.inner_meters_per_second()).abs() > 0.001 {
+            panic!("{:?} != {:?}", s1, s2);
+        }
+    }
 }
