@@ -30,7 +30,7 @@ all common browsers since late 2014. https://caniuse.com/?search=webgl
 
 ## Examples
 
-See [`examples/*.js`](examples/) for code examples.
+See [`src/web_root/*.js`](examples/) for code examples.
 
 You can build and see the examples in your webbrowser with:
 
