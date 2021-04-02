@@ -4,7 +4,7 @@ use std::process::Command;
 
 use anyhow::Result;
 
-use abstutil::{must_run_cmd, Timer};
+use abstutil::Timer;
 use geom::{Distance, PolyLine};
 use map_model::raw::{OriginalRoad, RawMap};
 
@@ -19,38 +19,40 @@ pub fn add_data(map: &mut RawMap, timer: &mut Timer) -> Result<()> {
     std::fs::create_dir_all("elevation_output")?;
     std::fs::create_dir_all("data/input/shared/elevation")?;
     let pwd = std::env::current_dir()?.display().to_string();
-    must_run_cmd(
-        // Because elevation_lookups has so many dependencies, just depend on Docker.
-        Command::new("docker")
-            .arg("run")
-            // Bind the input directory to the temporary place we just created
-            .arg("--mount")
-            .arg(format!(
-                "type=bind,source={}/elevation_input,target=/elevation/input,readonly",
-                pwd
-            ))
-            // We want to cache the elevation data sources in A/B Street's S3 bucket, so bind to
-            // our data/input/shared directory.
-            .arg("--mount")
-            .arg(format!(
-                "type=bind,source={}/data/input/shared/elevation,target=/elevation/data",
-                pwd
-            ))
-            .arg("--mount")
-            .arg(format!(
-                "type=bind,source={}/elevation_output,target=/elevation/output",
-                pwd
-            ))
-            .arg("-t")
-            // TODO Upload this to Docker Hub, so it's easier to distribute
-            .arg("elevation_lookups")
-            .arg("python3")
-            .arg("main.py")
-            .arg("query")
-            // TODO How to tune this? Pretty machine dependant, and using ALL available cores may
-            // melt memory.
-            .arg("--n_threads=1"),
-    );
+    // Because elevation_lookups has so many dependencies, just depend on Docker.
+    let status = Command::new("docker")
+        .arg("run")
+        // Bind the input directory to the temporary place we just created
+        .arg("--mount")
+        .arg(format!(
+            "type=bind,source={}/elevation_input,target=/elevation/input,readonly",
+            pwd
+        ))
+        // We want to cache the elevation data sources in A/B Street's S3 bucket, so bind to
+        // our data/input/shared directory.
+        .arg("--mount")
+        .arg(format!(
+            "type=bind,source={}/data/input/shared/elevation,target=/elevation/data",
+            pwd
+        ))
+        .arg("--mount")
+        .arg(format!(
+            "type=bind,source={}/elevation_output,target=/elevation/output",
+            pwd
+        ))
+        .arg("-t")
+        // TODO Upload this to Docker Hub, so it's easier to distribute
+        .arg("elevation_lookups")
+        .arg("python3")
+        .arg("main.py")
+        .arg("query")
+        // TODO How to tune this? Pretty machine dependant, and using ALL available cores may
+        // melt memory.
+        .arg("--n_threads=1")
+        .status()?;
+    if !status.success() {
+        bail!("Command failed: {}", status);
+    }
     timer.stop("run elevation_lookups");
 
     timer.start("grab output");

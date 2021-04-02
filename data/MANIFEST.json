@@ -1195,6 +1195,11 @@
       "uncompressed_size_bytes": 3580247,
       "compressed_size_bytes": 3573142
     },
+    "data/input/shared/elevation/srtm/srtm.0.0.tif": {
+      "checksum": "bae4b3951ee0b0175ca399f08fbbec67",
+      "uncompressed_size_bytes": 940473,
+      "compressed_size_bytes": 919138
+    },
     "data/input/shared/elevation/srtm/srtm.0.51.tif": {
       "checksum": "21717c05accba4a7214d1e08e8142db6",
       "uncompressed_size_bytes": 2987375,
