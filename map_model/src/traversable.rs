@@ -246,10 +246,10 @@ impl Traversable {
     }
 }
 
-// 10mph
+// 10 mph
 pub const MAX_BIKE_SPEED: Speed = Speed::const_meters_per_second(4.4704);
-// 3mph
-pub const MAX_WALKING_SPEED: Speed = Speed::const_meters_per_second(1.34);
+// 3 mph
+pub const MAX_WALKING_SPEED: Speed = Speed::const_meters_per_second(1.34112);
 
 fn bike_speed_on_incline(max_speed: Speed, percent_incline: f64) -> Speed {
     // There doesn't seem to be a straightforward way of calculating how an "average" cyclist's
@@ -294,9 +294,22 @@ fn bike_speed_on_incline(max_speed: Speed, percent_incline: f64) -> Speed {
     0.3 * max_speed
 }
 
-fn walking_speed_on_incline(max_speed: Speed, _percent_incline: f64) -> Speed {
-    // TODO Incorporate percent_incline here
-    max_speed
+fn walking_speed_on_incline(max_speed: Speed, percent_incline: f64) -> Speed {
+    // https://en.wikipedia.org/wiki/Tobler%27s_hiking_function
+    let exp = -3.5 * (percent_incline + 0.05).abs();
+    let tobler = Speed::km_per_hour(6.0 * std::f64::consts::E.powf(exp));
+    // Tobler's hiking function assumes a flat speed of 5km/hr, but that's different than ours.
+    // Just scale our max_speed proportionally.
+    let result = (tobler / Speed::km_per_hour(5.0)) * max_speed;
+    // Data quality issues, y'know...
+    if result == Speed::ZERO {
+        error!(
+            "walking_speed_on_incline saw an incline of {}. Not going to reduce the speed to 0!",
+            percent_incline
+        );
+        return 0.1 * max_speed;
+    }
+    result
 }
 
 #[cfg(test)]
@@ -305,24 +318,46 @@ mod tests {
 
     #[test]
     fn test_bike_speed_on_incline() {
-        let base_speed = Speed::miles_per_hour(3.0);
+        let base_speed = MAX_BIKE_SPEED;
         assert_approx_eq(
-            Speed::miles_per_hour(3.0),
+            Speed::miles_per_hour(10.0),
             bike_speed_on_incline(base_speed, 0.0),
         );
         assert_approx_eq(
-            Speed::miles_per_hour(6.6),
+            Speed::miles_per_hour(22.0),
             bike_speed_on_incline(base_speed, -0.15),
         );
         assert_approx_eq(
-            Speed::miles_per_hour(0.9),
+            Speed::miles_per_hour(3.0),
             bike_speed_on_incline(base_speed, 0.15),
         );
     }
 
+    #[test]
+    fn test_walking_speed_on_incline() {
+        let base_speed = MAX_WALKING_SPEED;
+        assert_approx_eq(
+            Speed::miles_per_hour(3.0),
+            walking_speed_on_incline(base_speed, 0.0),
+        );
+        assert_approx_eq(
+            Speed::miles_per_hour(2.54),
+            walking_speed_on_incline(base_speed, -0.15),
+        );
+        assert_approx_eq(
+            Speed::miles_per_hour(1.79),
+            walking_speed_on_incline(base_speed, 0.15),
+        );
+    }
+
     fn assert_approx_eq(s1: Speed, s2: Speed) {
-        if (s1.inner_meters_per_second() - s2.inner_meters_per_second()).abs() > 0.001 {
-            panic!("{:?} != {:?}", s1, s2);
+        if (s1.inner_meters_per_second() - s2.inner_meters_per_second()).abs() > 0.1 {
+            // Print in mph without rounding
+            panic!(
+                "{} != {}",
+                2.23694 * s1.inner_meters_per_second(),
+                2.23694 * s2.inner_meters_per_second()
+            );
         }
     }
 }
