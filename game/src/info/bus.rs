@@ -4,7 +4,7 @@ use map_gui::tools::ColorNetwork;
 use map_gui::ID;
 use map_model::{BusRoute, BusRouteID, BusStopID, PathStep};
 use sim::{AgentID, CarID};
-use widgetry::{Color, EventCtx, Key, Line, Text, TextExt, Widget};
+use widgetry::{Color, ControlState, EventCtx, Key, Line, RewriteColor, Text, TextExt, Widget};
 
 use crate::app::App;
 use crate::info::{header_btns, make_tabs, Details, Tab};
@@ -272,7 +272,8 @@ fn route_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRoute
         rows.push(Widget::row(vec![
             ctx.style()
                 .btn_plain
-                .icon("system/assets/timeline/goal_pos.svg")
+                .icon("system/assets/timeline/start_pos.svg")
+                .image_color(RewriteColor::NoOp, ControlState::Default)
                 .build_widget(ctx, &name),
             name.clone().text_widget(ctx),
         ]));
@@ -307,6 +308,7 @@ fn route_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRoute
             ctx.style()
                 .btn_plain
                 .icon("system/assets/timeline/goal_pos.svg")
+                .image_color(RewriteColor::NoOp, ControlState::Default)
                 .build_widget(ctx, &name),
             name.clone().text_widget(ctx),
         ]));

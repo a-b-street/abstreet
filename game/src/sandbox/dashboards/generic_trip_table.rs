@@ -83,7 +83,7 @@ fn preview_route(g: &mut GfxCtx, app: &App, id: TripID, batch: &mut GeomBatch) {
             TripEndpoint::Border(i) => app.primary.map.get_i(i).polygon.center(),
             TripEndpoint::SuddenlyAppear(pos) => pos.pt(&app.primary.map),
         },
-        10.0,
+        5.0,
     ));
     batch.append(map_gui::tools::goal_marker(
         g,
@@ -92,6 +92,6 @@ fn preview_route(g: &mut GfxCtx, app: &App, id: TripID, batch: &mut GeomBatch) {
             TripEndpoint::Border(i) => app.primary.map.get_i(i).polygon.center(),
             TripEndpoint::SuddenlyAppear(pos) => pos.pt(&app.primary.map),
         },
-        10.0,
+        5.0,
     ));
 }

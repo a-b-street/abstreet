@@ -327,7 +327,7 @@ fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) ->
         Widget::row(vec![
             ctx.style()
                 .btn_plain
-                .icon("system/assets/timeline/goal_pos.svg")
+                .icon("system/assets/tools/pin.svg")
                 .disabled(matches!(mode, Mode::PlacingMarker))
                 .hotkey(Key::M)
                 .build_widget(ctx, "new marker"),

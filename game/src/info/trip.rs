@@ -8,7 +8,7 @@ use map_model::{Map, Path, PathStep};
 use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhase, TripPhaseType};
 use widgetry::{
     Color, ControlState, DrawWithTooltips, EventCtx, GeomBatch, Line, LinePlot, PlotOptions,
-    Series, Text, TextExt, Widget,
+    RewriteColor, Series, Text, TextExt, Widget,
 };
 
 use crate::app::App;
@@ -685,14 +685,15 @@ fn make_trip_details(
 
         details
             .unzoomed
-            .append(map_gui::tools::start_marker(ctx, center, 3.0));
+            .append(map_gui::tools::start_marker(ctx, center, 2.0));
         details
             .zoomed
-            .append(map_gui::tools::start_marker(ctx, center, 1.0));
+            .append(map_gui::tools::start_marker(ctx, center, 0.5));
 
         ctx.style()
             .btn_plain
             .icon("system/assets/timeline/start_pos.svg")
+            .image_color(RewriteColor::NoOp, ControlState::Default)
             .tooltip(name)
             .build_widget(ctx, format!("jump to start of {}", trip_id))
     };
@@ -705,14 +706,15 @@ fn make_trip_details(
 
         details
             .unzoomed
-            .append(map_gui::tools::goal_marker(ctx, center, 3.0));
+            .append(map_gui::tools::goal_marker(ctx, center, 2.0));
         details
             .zoomed
-            .append(map_gui::tools::goal_marker(ctx, center, 1.0));
+            .append(map_gui::tools::goal_marker(ctx, center, 0.5));
 
         ctx.style()
             .btn_plain
             .icon("system/assets/timeline/goal_pos.svg")
+            .image_color(RewriteColor::NoOp, ControlState::Default)
             .tooltip(name)
             .build_widget(ctx, format!("jump to goal of {}", trip_id))
     };
@@ -762,6 +764,7 @@ fn make_trip_details(
     }
 
     let mut col = vec![
+        // TODO Button alignment is off. The timeline has some negative coordinates...
         Widget::custom_row(vec![
             start_btn.align_bottom(),
             timeline,

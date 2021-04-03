@@ -62,7 +62,7 @@ impl RoadSelector {
                 .build_widget(ctx, "erase"),
             ctx.style()
                 .btn_plain
-                .icon("system/assets/timeline/start_pos.svg")
+                .icon("system/assets/tools/pin.svg")
                 .hotkey(Key::R)
                 .disabled(matches!(self.mode, Mode::Route { .. }))
                 .build_widget(ctx, "select along route"),
@@ -274,7 +274,7 @@ impl RoadSelector {
                 Mode::Pan => None,
                 Mode::Paint => Some("system/assets/tools/pencil.svg"),
                 Mode::Erase => Some("system/assets/tools/eraser.svg"),
-                Mode::Route { .. } => Some("system/assets/timeline/start_pos.svg"),
+                Mode::Route { .. } => Some("system/assets/tools/pin.svg"),
             } {
                 let mut batch = GeomBatch::new();
                 batch.append(

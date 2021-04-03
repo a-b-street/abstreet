@@ -289,10 +289,10 @@ impl State<App> for AgentSpawner {
         CommonState::draw_osd(g, app);
 
         if let Some((_, center)) = self.start {
-            map_gui::tools::start_marker(g, center, 3.0).draw(g);
+            map_gui::tools::start_marker(g, center, 2.0).draw(g);
         }
         if let Some((_, center, _, ref path_poly)) = self.goal {
-            map_gui::tools::goal_marker(g, center, 3.0).draw(g);
+            map_gui::tools::goal_marker(g, center, 2.0).draw(g);
             if let Some(p) = path_poly {
                 g.draw_polygon(Color::PURPLE, p.clone());
             }
