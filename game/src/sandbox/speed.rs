@@ -275,7 +275,7 @@ impl TimePanel {
                     "{} more than baseline",
                     prettyprint_usize(difference)
                 ))
-                .fg(ctx.style().text_tooltip_color)
+                .fg(Color::GREEN)
             } else {
                 Line("No change from baseline")
             };
