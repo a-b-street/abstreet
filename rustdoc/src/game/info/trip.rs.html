@@ -887,6 +887,9 @@
 <span id="884">884</span>
 <span id="885">885</span>
 <span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -898,7 +901,7 @@
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentID</span>, <span class="ident">PersonID</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripID</span>, <span class="ident">TripPhase</span>, <span class="ident">TripPhaseType</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">PlotOptions</span>,
-    <span class="ident">Series</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
+    <span class="ident">RewriteColor</span>, <span class="ident">Series</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
@@ -1575,14 +1578,15 @@
 
         <span class="ident">details</span>
             .<span class="ident">unzoomed</span>
-            .<span class="ident">append</span>(<span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">start_marker</span>(<span class="ident">ctx</span>, <span class="ident">center</span>, <span class="number">3.0</span>));
+            .<span class="ident">append</span>(<span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">start_marker</span>(<span class="ident">ctx</span>, <span class="ident">center</span>, <span class="number">2.0</span>));
         <span class="ident">details</span>
             .<span class="ident">zoomed</span>
-            .<span class="ident">append</span>(<span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">start_marker</span>(<span class="ident">ctx</span>, <span class="ident">center</span>, <span class="number">1.0</span>));
+            .<span class="ident">append</span>(<span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">start_marker</span>(<span class="ident">ctx</span>, <span class="ident">center</span>, <span class="number">0.5</span>));
 
         <span class="ident">ctx</span>.<span class="ident">style</span>()
             .<span class="ident">btn_plain</span>
             .<span class="ident">icon</span>(<span class="string">&quot;system/assets/timeline/start_pos.svg&quot;</span>)
+            .<span class="ident">image_color</span>(<span class="ident">RewriteColor</span>::<span class="ident">NoOp</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
             .<span class="ident">tooltip</span>(<span class="ident">name</span>)
             .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;jump to start of {}&quot;</span>, <span class="ident">trip_id</span>))
     };
@@ -1595,14 +1599,15 @@
 
         <span class="ident">details</span>
             .<span class="ident">unzoomed</span>
-            .<span class="ident">append</span>(<span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">goal_marker</span>(<span class="ident">ctx</span>, <span class="ident">center</span>, <span class="number">3.0</span>));
+            .<span class="ident">append</span>(<span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">goal_marker</span>(<span class="ident">ctx</span>, <span class="ident">center</span>, <span class="number">2.0</span>));
         <span class="ident">details</span>
             .<span class="ident">zoomed</span>
-            .<span class="ident">append</span>(<span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">goal_marker</span>(<span class="ident">ctx</span>, <span class="ident">center</span>, <span class="number">1.0</span>));
+            .<span class="ident">append</span>(<span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">goal_marker</span>(<span class="ident">ctx</span>, <span class="ident">center</span>, <span class="number">0.5</span>));
 
         <span class="ident">ctx</span>.<span class="ident">style</span>()
             .<span class="ident">btn_plain</span>
             .<span class="ident">icon</span>(<span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
+            .<span class="ident">image_color</span>(<span class="ident">RewriteColor</span>::<span class="ident">NoOp</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
             .<span class="ident">tooltip</span>(<span class="ident">name</span>)
             .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;jump to goal of {}&quot;</span>, <span class="ident">trip_id</span>))
     };
@@ -1652,6 +1657,7 @@
     }
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
+        <span class="comment">// TODO Button alignment is off. The timeline has some negative coordinates...</span>
         <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">start_btn</span>.<span class="ident">align_bottom</span>(),
             <span class="ident">timeline</span>,

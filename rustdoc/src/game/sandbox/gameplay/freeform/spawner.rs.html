@@ -594,10 +594,10 @@
         <span class="ident">CommonState</span>::<span class="ident">draw_osd</span>(<span class="ident">g</span>, <span class="ident">app</span>);
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">center</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">start</span> {
-            <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">start_marker</span>(<span class="ident">g</span>, <span class="ident">center</span>, <span class="number">3.0</span>).<span class="ident">draw</span>(<span class="ident">g</span>);
+            <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">start_marker</span>(<span class="ident">g</span>, <span class="ident">center</span>, <span class="number">2.0</span>).<span class="ident">draw</span>(<span class="ident">g</span>);
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">center</span>, <span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">path_poly</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">goal</span> {
-            <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">goal_marker</span>(<span class="ident">g</span>, <span class="ident">center</span>, <span class="number">3.0</span>).<span class="ident">draw</span>(<span class="ident">g</span>);
+            <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">goal_marker</span>(<span class="ident">g</span>, <span class="ident">center</span>, <span class="number">2.0</span>).<span class="ident">draw</span>(<span class="ident">g</span>);
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">path_poly</span> {
                 <span class="ident">g</span>.<span class="ident">draw_polygon</span>(<span class="ident">Color</span>::<span class="ident">PURPLE</span>, <span class="ident">p</span>.<span class="ident">clone</span>());
             }
