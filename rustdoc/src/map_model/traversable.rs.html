@@ -262,6 +262,108 @@
 <span id="259">259</span>
 <span id="260">260</span>
 <span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
@@ -270,7 +372,7 @@
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Speed</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">TurnID</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Direction</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">TurnID</span>};
 
 <span class="doccomment">/// Represents a specific point some distance along a lane.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -479,21 +581,22 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Speed</span> {
         <span class="kw">let</span> <span class="ident">base</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">Traversable</span>::<span class="ident">Lane</span>(<span class="ident">l</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="kw-2">*</span><span class="ident">l</span>);
+                <span class="kw">let</span> <span class="ident">percent_incline</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">dir</span>(<span class="kw-2">*</span><span class="ident">l</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span> {
+                    <span class="ident">road</span>.<span class="ident">percent_incline</span>
+                } <span class="kw">else</span> {
+                    <span class="op">-</span><span class="ident">road</span>.<span class="ident">percent_incline</span>
+                };
+
                 <span class="kw">if</span> <span class="ident">constraints</span> <span class="op">=</span><span class="op">=</span> <span class="ident">PathConstraints</span>::<span class="ident">Bike</span> {
                     <span class="comment">// We assume every bike has a max_speed defined.</span>
-                    <span class="ident">bike_speed_on_incline</span>(
-                        <span class="ident">max_speed_on_flat_ground</span>.<span class="ident">unwrap</span>(),
-                        <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">percent_incline</span>,
-                    )
+                    <span class="ident">bike_speed_on_incline</span>(<span class="ident">max_speed_on_flat_ground</span>.<span class="ident">unwrap</span>(), <span class="ident">percent_incline</span>)
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">constraints</span> <span class="op">=</span><span class="op">=</span> <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span> {
                     <span class="comment">// We assume every pedestrian has a max_speed defined.</span>
-                    <span class="ident">walking_speed_on_incline</span>(
-                        <span class="ident">max_speed_on_flat_ground</span>.<span class="ident">unwrap</span>(),
-                        <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">percent_incline</span>,
-                    )
+                    <span class="ident">walking_speed_on_incline</span>(<span class="ident">max_speed_on_flat_ground</span>.<span class="ident">unwrap</span>(), <span class="ident">percent_incline</span>)
                 } <span class="kw">else</span> {
                     <span class="comment">// Incline doesn&#39;t affect cars, buses, or trains</span>
-                    <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">speed_limit</span>
+                    <span class="ident">road</span>.<span class="ident">speed_limit</span>
                 }
             }
             <span class="comment">// TODO Ignore elevation on turns?</span>
@@ -510,19 +613,120 @@
     }
 }
 
-<span class="comment">// 10mph</span>
+<span class="comment">// 10 mph</span>
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">MAX_BIKE_SPEED</span>: <span class="ident">Speed</span> <span class="op">=</span> <span class="ident">Speed</span>::<span class="ident">const_meters_per_second</span>(<span class="number">4.4704</span>);
-<span class="comment">// 3mph</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">MAX_WALKING_SPEED</span>: <span class="ident">Speed</span> <span class="op">=</span> <span class="ident">Speed</span>::<span class="ident">const_meters_per_second</span>(<span class="number">1.34</span>);
+<span class="comment">// 3 mph</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">MAX_WALKING_SPEED</span>: <span class="ident">Speed</span> <span class="op">=</span> <span class="ident">Speed</span>::<span class="ident">const_meters_per_second</span>(<span class="number">1.34112</span>);
 
-<span class="kw">fn</span> <span class="ident">bike_speed_on_incline</span>(<span class="ident">max_speed</span>: <span class="ident">Speed</span>, <span class="ident">_percent_incline</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Speed</span> {
-    <span class="comment">// TODO Incorporate percent_incline here</span>
-    <span class="ident">max_speed</span>
+<span class="kw">fn</span> <span class="ident">bike_speed_on_incline</span>(<span class="ident">max_speed</span>: <span class="ident">Speed</span>, <span class="ident">percent_incline</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Speed</span> {
+    <span class="comment">// There doesn&#39;t seem to be a straightforward way of calculating how an &quot;average&quot; cyclist&#39;s</span>
+    <span class="comment">// speed is affected by hills. http://www.kreuzotter.de/english/espeed.htm has lots of detail,</span>
+    <span class="comment">// but we&#39;d need to guess values like body size, type of bike, etc.</span>
+    <span class="comment">// https://github.com/ibi-group/OpenTripPlanner/blob/65dcf0a4142e31028cf9d1b2c15ad32dd1084252/src/main/java/org/opentripplanner/routing/edgetype/StreetEdge.java#L934-L1082</span>
+    <span class="comment">// is built from this, but seems to be more appropriate for motorized micromobility devices</span>
+    <span class="comment">// like e-scooters.</span>
+
+    <span class="comment">// So, we&#39;ll adapt the table from Valhalla --</span>
+    <span class="comment">// https://valhalla.readthedocs.io/en/latest/sif/elevation_costing/ describes how this works.</span>
+    <span class="comment">// Their &quot;weighted grade&quot; should be roughly equivalent to how the elevation_lookups package we</span>
+    <span class="comment">// use calculates things.  This table comes from</span>
+    <span class="comment">// https://github.com/valhalla/valhalla/blob/f899a940ccbd0bc986769197dec5bb9383014afb/src/sif/bicyclecost.cc#L139.</span>
+    <span class="comment">// Valhalla is MIT licensed: https://github.com/valhalla/valhalla/blob/master/COPYING.</span>
+
+    <span class="comment">// TODO Could binary search or do something a bit faster here, but doesn&#39;t matter much</span>
+    <span class="kw">let</span> <span class="ident">pct</span> <span class="op">=</span> <span class="ident">percent_incline</span> <span class="op">*</span> <span class="number">100.0</span>;
+    <span class="kw">for</span> (<span class="ident">grade</span>, <span class="ident">factor</span>) <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[
+        (<span class="op">-</span><span class="number">10.0</span>, <span class="number">2.2</span>),
+        (<span class="op">-</span><span class="number">8.0</span>, <span class="number">2.0</span>),
+        (<span class="op">-</span><span class="number">6.5</span>, <span class="number">1.9</span>),
+        (<span class="op">-</span><span class="number">5.0</span>, <span class="number">1.7</span>),
+        (<span class="op">-</span><span class="number">3.0</span>, <span class="number">1.4</span>),
+        (<span class="op">-</span><span class="number">1.5</span>, <span class="number">1.2</span>),
+        (<span class="number">0.0</span>, <span class="number">1.0</span>),
+        (<span class="number">1.5</span>, <span class="number">0.95</span>),
+        (<span class="number">3.0</span>, <span class="number">0.85</span>),
+        (<span class="number">5.0</span>, <span class="number">0.75</span>),
+        (<span class="number">6.5</span>, <span class="number">0.65</span>),
+        (<span class="number">8.0</span>, <span class="number">0.55</span>),
+        (<span class="number">10.0</span>, <span class="number">0.5</span>),
+        (<span class="number">11.5</span>, <span class="number">0.45</span>),
+        (<span class="number">13.0</span>, <span class="number">0.4</span>),
+    ] {
+        <span class="kw">if</span> <span class="ident">pct</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">grade</span> {
+            <span class="kw">return</span> <span class="ident">factor</span> <span class="op">*</span> <span class="ident">max_speed</span>;
+        }
+    }
+    <span class="comment">// The last pair is a factor of 0.3 for grades of 15%, but we&#39;ll use it for anything steeper</span>
+    <span class="comment">// than 15%</span>
+    <span class="number">0.3</span> <span class="op">*</span> <span class="ident">max_speed</span>
 }
 
-<span class="kw">fn</span> <span class="ident">walking_speed_on_incline</span>(<span class="ident">max_speed</span>: <span class="ident">Speed</span>, <span class="ident">_percent_incline</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Speed</span> {
-    <span class="comment">// TODO Incorporate percent_incline here</span>
-    <span class="ident">max_speed</span>
+<span class="kw">fn</span> <span class="ident">walking_speed_on_incline</span>(<span class="ident">max_speed</span>: <span class="ident">Speed</span>, <span class="ident">percent_incline</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Speed</span> {
+    <span class="comment">// https://en.wikipedia.org/wiki/Tobler%27s_hiking_function</span>
+    <span class="kw">let</span> <span class="ident">exp</span> <span class="op">=</span> <span class="op">-</span><span class="number">3.5</span> <span class="op">*</span> (<span class="ident">percent_incline</span> <span class="op">+</span> <span class="number">0.05</span>).<span class="ident">abs</span>();
+    <span class="kw">let</span> <span class="ident">tobler</span> <span class="op">=</span> <span class="ident">Speed</span>::<span class="ident">km_per_hour</span>(<span class="number">6.0</span> <span class="op">*</span> <span class="ident">std</span>::<span class="ident">f64</span>::<span class="ident">consts</span>::<span class="ident">E</span>.<span class="ident">powf</span>(<span class="ident">exp</span>));
+    <span class="comment">// Tobler&#39;s hiking function assumes a flat speed of 5km/hr, but that&#39;s different than ours.</span>
+    <span class="comment">// Just scale our max_speed proportionally.</span>
+    <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> (<span class="ident">tobler</span> <span class="op">/</span> <span class="ident">Speed</span>::<span class="ident">km_per_hour</span>(<span class="number">5.0</span>)) <span class="op">*</span> <span class="ident">max_speed</span>;
+    <span class="comment">// Data quality issues, y&#39;know...</span>
+    <span class="kw">if</span> <span class="ident">result</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Speed</span>::<span class="ident">ZERO</span> {
+        <span class="macro">error</span><span class="macro">!</span>(
+            <span class="string">&quot;walking_speed_on_incline saw an incline of {}. Not going to reduce the speed to 0!&quot;</span>,
+            <span class="ident">percent_incline</span>
+        );
+        <span class="kw">return</span> <span class="number">0.1</span> <span class="op">*</span> <span class="ident">max_speed</span>;
+    }
+    <span class="ident">result</span>
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_bike_speed_on_incline</span>() {
+        <span class="kw">let</span> <span class="ident">base_speed</span> <span class="op">=</span> <span class="ident">MAX_BIKE_SPEED</span>;
+        <span class="ident">assert_approx_eq</span>(
+            <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">10.0</span>),
+            <span class="ident">bike_speed_on_incline</span>(<span class="ident">base_speed</span>, <span class="number">0.0</span>),
+        );
+        <span class="ident">assert_approx_eq</span>(
+            <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">22.0</span>),
+            <span class="ident">bike_speed_on_incline</span>(<span class="ident">base_speed</span>, <span class="op">-</span><span class="number">0.15</span>),
+        );
+        <span class="ident">assert_approx_eq</span>(
+            <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">3.0</span>),
+            <span class="ident">bike_speed_on_incline</span>(<span class="ident">base_speed</span>, <span class="number">0.15</span>),
+        );
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_walking_speed_on_incline</span>() {
+        <span class="kw">let</span> <span class="ident">base_speed</span> <span class="op">=</span> <span class="ident">MAX_WALKING_SPEED</span>;
+        <span class="ident">assert_approx_eq</span>(
+            <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">3.0</span>),
+            <span class="ident">walking_speed_on_incline</span>(<span class="ident">base_speed</span>, <span class="number">0.0</span>),
+        );
+        <span class="ident">assert_approx_eq</span>(
+            <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">2.54</span>),
+            <span class="ident">walking_speed_on_incline</span>(<span class="ident">base_speed</span>, <span class="op">-</span><span class="number">0.15</span>),
+        );
+        <span class="ident">assert_approx_eq</span>(
+            <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">1.79</span>),
+            <span class="ident">walking_speed_on_incline</span>(<span class="ident">base_speed</span>, <span class="number">0.15</span>),
+        );
+    }
+
+    <span class="kw">fn</span> <span class="ident">assert_approx_eq</span>(<span class="ident">s1</span>: <span class="ident">Speed</span>, <span class="ident">s2</span>: <span class="ident">Speed</span>) {
+        <span class="kw">if</span> (<span class="ident">s1</span>.<span class="ident">inner_meters_per_second</span>() <span class="op">-</span> <span class="ident">s2</span>.<span class="ident">inner_meters_per_second</span>()).<span class="ident">abs</span>() <span class="op">&gt;</span> <span class="number">0.1</span> {
+            <span class="comment">// Print in mph without rounding</span>
+            <span class="macro">panic</span><span class="macro">!</span>(
+                <span class="string">&quot;{} != {}&quot;</span>,
+                <span class="number">2.23694</span> <span class="op">*</span> <span class="ident">s1</span>.<span class="ident">inner_meters_per_second</span>(),
+                <span class="number">2.23694</span> <span class="op">*</span> <span class="ident">s2</span>.<span class="ident">inner_meters_per_second</span>()
+            );
+        }
+    }
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="map_model"></div>
