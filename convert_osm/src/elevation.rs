@@ -17,7 +17,7 @@ pub fn add_data(map: &mut RawMap, timer: &mut Timer) -> Result<()> {
 
     timer.start("run elevation_lookups");
     std::fs::create_dir_all("elevation_output")?;
-    std::fs::create_dir_all("data/input/shared/elevation")?;
+    std::fs::create_dir_all(abstio::path_shared_input("elevation"))?;
     let pwd = std::env::current_dir()?.display().to_string();
     // Because elevation_lookups has so many dependencies, just depend on Docker.
     let status = Command::new("docker")
@@ -32,8 +32,8 @@ pub fn add_data(map: &mut RawMap, timer: &mut Timer) -> Result<()> {
         // our data/input/shared directory.
         .arg("--mount")
         .arg(format!(
-            "type=bind,source={}/data/input/shared/elevation,target=/elevation/data",
-            pwd
+            "type=bind,source={},target=/elevation/data",
+            abstio::path_shared_input("elevation")
         ))
         .arg("--mount")
         .arg(format!(
