@@ -19,6 +19,7 @@ pub struct RunCommand<A: AppLike> {
     lines: VecDeque<String>,
     max_capacity: usize,
     started: Instant,
+    last_drawn: Instant,
     // Wrapped in an Option just to make calling from event() work. The bool is success, and the
     // strings are the last lines of output.
     on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut A, bool, Vec<String>) -> Transition<A>>>,
@@ -55,6 +56,7 @@ impl<A: AppLike + 'static> RunCommand<A> {
                     lines: VecDeque::new(),
                     max_capacity,
                     started: Instant::now(),
+                    last_drawn: Instant::now(),
                     on_load: Some(on_load),
                 })
             }
@@ -111,18 +113,21 @@ impl<A: AppLike + 'static> State<A> for RunCommand<A> {
 
         self.read_output();
 
-        // Throttle rerendering?
-        let mut txt = Text::from(
-            Line(format!(
-                "Running command... {} so far",
-                geom::Duration::realtime_elapsed(self.started)
-            ))
-            .small_heading(),
-        );
-        for line in &self.lines {
-            txt.add_line(line);
+        // Throttle rerendering
+        if abstutil::elapsed_seconds(self.last_drawn) > 0.1 {
+            let mut txt = Text::from(
+                Line(format!(
+                    "Running command... {} so far",
+                    geom::Duration::realtime_elapsed(self.started)
+                ))
+                .small_heading(),
+            );
+            for line in &self.lines {
+                txt.add_line(line);
+            }
+            self.panel = ctx.make_loading_screen(txt);
+            self.last_drawn = Instant::now();
         }
-        self.panel = ctx.make_loading_screen(txt);
 
         if let Some(status) = self.p.poll() {
             // Make sure to grab all remaining output.
