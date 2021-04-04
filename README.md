@@ -7,9 +7,9 @@ users, and pedestrians. It works anywhere in the world, thanks to
 [OpenStreetMap](https://www.openstreetmap.org/about).
 
 - Play on
-  [Windows](https://github.com/a-b-street/abstreet/releases/download/v0.2.37/abstreet_windows_v0_2_37.zip),
-  [Mac](https://github.com/a-b-street/abstreet/releases/download/v0.2.37/abstreet_mac_v0_2_37.zip),
-  [Linux](https://github.com/a-b-street/abstreet/releases/download/v0.2.37/abstreet_linux_v0_2_37.zip),
+  [Windows](https://github.com/a-b-street/abstreet/releases/download/v0.2.38/abstreet_windows_v0_2_38.zip),
+  [Mac](https://github.com/a-b-street/abstreet/releases/download/v0.2.38/abstreet_mac_v0_2_38.zip),
+  [Linux](https://github.com/a-b-street/abstreet/releases/download/v0.2.38/abstreet_linux_v0_2_38.zip),
   [FreeBSD](https://www.freshports.org/games/abstreet/),
   [your web browser](http://abstreet.s3-website.us-east-2.amazonaws.com/dev/abstreet.html),
   or [read all instructions](https://a-b-street.github.io/docs/howto/index.html)
