@@ -187,7 +187,7 @@
 
     <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;run elevation_lookups&quot;</span>);
     <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">create_dir_all</span>(<span class="string">&quot;elevation_output&quot;</span>)<span class="question-mark">?</span>;
-    <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">create_dir_all</span>(<span class="string">&quot;data/input/shared/elevation&quot;</span>)<span class="question-mark">?</span>;
+    <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">create_dir_all</span>(<span class="ident">abstio</span>::<span class="ident">path_shared_input</span>(<span class="string">&quot;elevation&quot;</span>))<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">pwd</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">env</span>::<span class="ident">current_dir</span>()<span class="question-mark">?</span>.<span class="ident">display</span>().<span class="ident">to_string</span>();
     <span class="comment">// Because elevation_lookups has so many dependencies, just depend on Docker.</span>
     <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="ident">Command</span>::<span class="ident">new</span>(<span class="string">&quot;docker&quot;</span>)
@@ -202,8 +202,8 @@
         <span class="comment">// our data/input/shared directory.</span>
         .<span class="ident">arg</span>(<span class="string">&quot;--mount&quot;</span>)
         .<span class="ident">arg</span>(<span class="macro">format</span><span class="macro">!</span>(
-            <span class="string">&quot;type=bind,source={}/data/input/shared/elevation,target=/elevation/data&quot;</span>,
-            <span class="ident">pwd</span>
+            <span class="string">&quot;type=bind,source={},target=/elevation/data&quot;</span>,
+            <span class="ident">abstio</span>::<span class="ident">path_shared_input</span>(<span class="string">&quot;elevation&quot;</span>)
         ))
         .<span class="ident">arg</span>(<span class="string">&quot;--mount&quot;</span>)
         .<span class="ident">arg</span>(<span class="macro">format</span><span class="macro">!</span>(
