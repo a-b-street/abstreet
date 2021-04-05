@@ -14,7 +14,7 @@ use crate::render::car::DrawCar;
 pub use crate::render::intersection::{calculate_corners, DrawIntersection};
 pub use crate::render::map::DrawMap;
 pub use crate::render::pedestrian::{DrawPedCrowd, DrawPedestrian};
-pub use crate::render::turn::{DrawMovement, DrawUberTurnGroup};
+pub use crate::render::turn::DrawMovement;
 use crate::{AppLike, ID};
 
 mod agents;

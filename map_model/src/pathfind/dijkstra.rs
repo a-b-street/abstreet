@@ -1,5 +1,7 @@
 //! Pathfinding without needing to build a separate contraction hierarchy.
 
+// TODO Dijkstra's for vehicles currently ignores uber-turns!
+
 use std::collections::BTreeSet;
 
 use petgraph::graphmap::DiGraphMap;

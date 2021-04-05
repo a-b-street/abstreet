@@ -14,7 +14,6 @@ use widgetry::{
     Key, Line, Menu, Outcome, Panel, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
-pub use self::cluster_traffic_signals::ClusterTrafficSignalEditor;
 pub use self::lanes::LaneEditor;
 pub use self::routes::RouteEditor;
 pub use self::stop_signs::StopSignEditor;
@@ -26,7 +25,6 @@ use crate::debug::DebugMode;
 use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 
 mod bulk;
-mod cluster_traffic_signals;
 mod lanes;
 mod routes;
 mod select;

@@ -12,7 +12,6 @@ use widgetry::{
 
 use crate::app::{App, ShowEverything, Transition};
 use crate::common::CommonState;
-use crate::edit::ClusterTrafficSignalEditor;
 
 pub struct UberTurnPicker {
     members: BTreeSet<IntersectionID>,
@@ -41,11 +40,6 @@ impl UberTurnPicker {
                 .build_def(ctx),
             ctx.style()
                 .btn_outline
-                .text("Edit")
-                .hotkey(Key::E)
-                .build_def(ctx),
-            ctx.style()
-                .btn_outline
                 .text("Detect all clusters")
                 .hotkey(Key::D)
                 .build_def(ctx),
@@ -69,20 +63,6 @@ impl SimpleState<App> for UberTurnPicker {
                     ));
                 }
                 Transition::Replace(UberTurnViewer::new(ctx, app, self.members.clone(), 0, true))
-            }
-            "Edit" => {
-                if self.members.len() < 2 {
-                    return Transition::Push(PopupMsg::new(
-                        ctx,
-                        "Error",
-                        vec!["Select at least two intersections"],
-                    ));
-                }
-                Transition::Replace(ClusterTrafficSignalEditor::new(
-                    ctx,
-                    app,
-                    &IntersectionCluster::new(self.members.clone(), &app.primary.map).0,
-                ))
             }
             "Detect all clusters" => {
                 self.members.clear();
