@@ -57,8 +57,10 @@ one road attached.</p>
 does.</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.Movement.html" title="map_model::Movement struct">Movement</a></td><td class="docblock-short"><p>A Movement groups all turns from one road to another, letting traffic signals operate at a
 higher level of abstraction.
-This is only useful for traffic signals currently.</p>
-</td></tr><tr class="module-item"><td><a class="struct" href="struct.MovementID.html" title="map_model::MovementID struct">MovementID</a></td><td class="docblock-short"><p>One road usually has 4 crosswalks, each a singleton Movement. We need all of the information
+This is used for pathfinding and traffic signals currently; other places focus instead on turns.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.MovementID.html" title="map_model::MovementID struct">MovementID</a></td><td class="docblock-short"><p>A movement is like a turn, but with less detail -- it identifies a movement from one directed
+road to another.
+One road usually has 4 crosswalks, each a singleton Movement. We need all of the information
 here to keep each crosswalk separate.</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.NamePerLanguage.html" title="map_model::NamePerLanguage struct">NamePerLanguage</a></td><td class="docblock-short"><p>None corresponds to the native name</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.ParkingLot.html" title="map_model::ParkingLot struct">ParkingLot</a></td><td class="docblock-short"><p>Parking lots have some fixed capacity for cars, and are connected to a sidewalk and road.</p>
@@ -72,7 +74,7 @@ likely to change.</p>
 sidewalks are bidirectional.)</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.TurnID.html" title="map_model::TurnID struct">TurnID</a></td><td class="docblock-short"><p>Turns are uniquely identified by their (src, dst) lanes and their parent intersection.
 Intersection is needed to distinguish crosswalks that exist at two ends of a sidewalk.</p>
-</td></tr><tr class="module-item"><td><a class="struct" href="struct.UberTurn.html" title="map_model::UberTurn struct">UberTurn</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="struct" href="struct.UberTurnGroup.html" title="map_model::UberTurnGroup struct">UberTurnGroup</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="struct" href="struct.Zone.html" title="map_model::Zone struct">Zone</a></td><td class="docblock-short"><p>A contiguous set of roads with access restrictions. This is derived from all the map's roads and
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.UberTurn.html" title="map_model::UberTurn struct">UberTurn</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="struct" href="struct.Zone.html" title="map_model::Zone struct">Zone</a></td><td class="docblock-short"><p>A contiguous set of roads with access restrictions. This is derived from all the map's roads and
 kept cached for performance.</p>
 </td></tr></table><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
 <table><tr class="module-item"><td><a class="enum" href="enum.AmenityType.html" title="map_model::AmenityType enum">AmenityType</a></td><td class="docblock-short"><p>Businesses are categorized into one of these types.</p>

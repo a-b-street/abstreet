@@ -361,6 +361,8 @@
 <span id="358">358</span>
 <span id="359">359</span>
 <span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -530,6 +532,8 @@
     }
 }
 
+<span class="doccomment">/// A movement is like a turn, but with less detail -- it identifies a movement from one directed</span>
+<span class="doccomment">/// road to another.</span>
 <span class="doccomment">/// One road usually has 4 crosswalks, each a singleton Movement. We need all of the information</span>
 <span class="doccomment">/// here to keep each crosswalk separate.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -550,7 +554,7 @@
 
 <span class="doccomment">/// A Movement groups all turns from one road to another, letting traffic signals operate at a</span>
 <span class="doccomment">/// higher level of abstraction.</span>
-<span class="doccomment">/// This is only useful for traffic signals currently.</span>
+<span class="doccomment">/// This is used for pathfinding and traffic signals currently; other places focus instead on turns.</span>
 <span class="comment">// TODO Unclear how this plays with different lane types</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Movement</span> {
