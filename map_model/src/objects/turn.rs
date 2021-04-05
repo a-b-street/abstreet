@@ -166,6 +166,8 @@ impl Turn {
     }
 }
 
+/// A movement is like a turn, but with less detail -- it identifies a movement from one directed
+/// road to another.
 /// One road usually has 4 crosswalks, each a singleton Movement. We need all of the information
 /// here to keep each crosswalk separate.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -186,7 +188,7 @@ pub struct CompressedMovementID {
 
 /// A Movement groups all turns from one road to another, letting traffic signals operate at a
 /// higher level of abstraction.
-/// This is only useful for traffic signals currently.
+/// This is used for pathfinding and traffic signals currently; other places focus instead on turns.
 // TODO Unclear how this plays with different lane types
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct Movement {

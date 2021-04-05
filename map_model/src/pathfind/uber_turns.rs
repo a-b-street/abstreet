@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use geom::{Distance, PolyLine};
 
-use crate::{IntersectionID, LaneID, Map, TurnID};
+use crate::{IntersectionID, LaneID, Map, MovementID, TurnID};
 
 /// This only applies to VehiclePathfinder; walking through these intersections is nothing special.
 // TODO I haven't seen any cases yet with "interior" intersections. Some stuff might break.
@@ -252,5 +252,32 @@ impl UberTurn {
             pl = pl.must_extend(map.get_t(pair[1]).geom.clone());
         }
         pl
+    }
+}
+
+/// A sequence of movements through a cluster of intersections. Like UberTurn, but at the
+/// granularity of directed roads, not lanes.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub struct UberTurnV2 {
+    pub path: Vec<MovementID>,
+}
+
+impl IntersectionCluster {
+    /// Group lane-based uber-turns into road-based UberTurnV2s.
+    pub fn to_v2(self, map: &Map) -> Vec<UberTurnV2> {
+        let mut result = BTreeSet::new();
+        for ut in self.uber_turns {
+            let mut path = Vec::new();
+            for turn in ut.path {
+                path.push(MovementID {
+                    from: map.get_l(turn.src).get_directed_parent(map),
+                    to: map.get_l(turn.dst).get_directed_parent(map),
+                    parent: turn.parent,
+                    crosswalk: false,
+                });
+            }
+            result.insert(UberTurnV2 { path });
+        }
+        result.into_iter().collect()
     }
 }
