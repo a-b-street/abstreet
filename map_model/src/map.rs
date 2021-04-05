@@ -13,10 +13,10 @@ use geom::{Bounds, Distance, GPSBounds, Polygon, Pt2D, Ring, Time};
 use crate::raw::{OriginalRoad, RawMap};
 use crate::{
     osm, Area, AreaID, AreaType, Building, BuildingID, BuildingType, BusRoute, BusRouteID, BusStop,
-    BusStopID, ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, Lane, LaneID,
-    LaneType, Map, MapEdits, MovementID, OffstreetParking, ParkingLot, ParkingLotID, Path,
-    PathConstraints, PathRequest, Pathfinder, Position, Road, RoadID, RoutingParams, Turn, TurnID,
-    TurnType, Zone,
+    BusStopID, ControlStopSign, ControlTrafficSignal, DirectedRoadID, Intersection, IntersectionID,
+    Lane, LaneID, LaneType, Map, MapEdits, MovementID, OffstreetParking, ParkingLot, ParkingLotID,
+    Path, PathConstraints, PathRequest, Pathfinder, Position, Road, RoadID, RoutingParams, Turn,
+    TurnID, TurnType, Zone,
 };
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -391,6 +391,25 @@ impl Map {
         turns
     }
 
+    /// Find all movements from one road to another that're usable by someone.
+    pub fn get_movements_for(
+        &self,
+        from: DirectedRoadID,
+        constraints: PathConstraints,
+    ) -> Vec<MovementID> {
+        let mut result = BTreeSet::new();
+        for t in &self.get_i(from.dst_i(self)).turns {
+            if self.get_l(t.src).get_directed_parent(self) == from
+                && constraints.can_use(self.get_l(t.dst), self)
+            {
+                result.insert(t.to_movement(self));
+            }
+        }
+        // TODO Sidewalks are bidirectional
+        assert!(constraints != PathConstraints::Pedestrian);
+        result.into_iter().collect()
+    }
+
     pub fn get_next_roads(&self, from: RoadID) -> BTreeSet<RoadID> {
         let mut roads: BTreeSet<RoadID> = BTreeSet::new();
         let r = self.get_r(from);
@@ -474,6 +493,20 @@ impl Map {
             }
         }
         result
+    }
+
+    /// Find all directed roads usable by somebody.
+    pub(crate) fn all_directed_roads_for(
+        &self,
+        constraints: PathConstraints,
+    ) -> Vec<DirectedRoadID> {
+        let mut result = BTreeSet::new();
+        for l in &self.lanes {
+            if constraints.can_use(l, self) {
+                result.insert(l.get_directed_parent(self));
+            }
+        }
+        result.into_iter().collect()
     }
 
     pub fn save(&self) {

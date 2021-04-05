@@ -269,12 +269,7 @@ impl IntersectionCluster {
         for ut in self.uber_turns {
             let mut path = Vec::new();
             for turn in ut.path {
-                path.push(MovementID {
-                    from: map.get_l(turn.src).get_directed_parent(map),
-                    to: map.get_l(turn.dst).get_directed_parent(map),
-                    parent: turn.parent,
-                    crosswalk: false,
-                });
+                path.push(turn.to_movement(map));
             }
             result.insert(UberTurnV2 { path });
         }

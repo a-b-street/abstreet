@@ -15,7 +15,8 @@ pub use self::pathfinder::Pathfinder;
 pub use self::vehicles::vehicle_cost;
 pub use self::walking::WalkingNode;
 use crate::{
-    osm, BuildingID, Lane, LaneID, LaneType, Map, Position, Traversable, Turn, TurnID, UberTurn,
+    osm, BuildingID, Lane, LaneID, LaneType, Map, MovementID, Position, Traversable, Turn, TurnID,
+    UberTurn,
 };
 
 mod ch;
@@ -24,6 +25,7 @@ mod node_map;
 mod pathfinder;
 // TODO tmp
 pub mod uber_turns;
+mod v2;
 mod vehicles;
 mod walking;
 
@@ -662,6 +664,29 @@ pub fn zone_cost(turn: &Turn, constraints: PathConstraints, map: &Map) -> Durati
         .contains(constraints)
         && !map
             .get_parent(turn.id.dst)
+            .access_restrictions
+            .allow_through_traffic
+            .contains(constraints)
+    {
+        // This should be high enough to achieve the desired effect of somebody not entering
+        // the zone unless absolutely necessary. Someone would violate that and cut through anyway
+        // only when the alternative route would take more than 3 hours longer!
+        Duration::hours(3)
+    } else {
+        Duration::ZERO
+    }
+}
+
+/// Heavily penalize crossing into an access-restricted zone that doesn't allow this mode.
+pub fn zone_cost_v2(mvmnt: MovementID, constraints: PathConstraints, map: &Map) -> Duration {
+    // Detect when we cross into a new zone that doesn't allow constraints.
+    if map
+        .get_r(mvmnt.from.id)
+        .access_restrictions
+        .allow_through_traffic
+        .contains(constraints)
+        && !map
+            .get_r(mvmnt.to.id)
             .access_restrictions
             .allow_through_traffic
             .contains(constraints)

@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use geom::{Angle, Distance, PolyLine, Pt2D, Speed};
 
-use crate::{Direction, LaneID, Map, PathConstraints, TurnID};
+use crate::{DirectedRoadID, Direction, LaneID, Map, MovementID, PathConstraints, TurnID};
 
 /// Represents a specific point some distance along a lane.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -212,32 +212,68 @@ impl Traversable {
         constraints: PathConstraints,
         map: &Map,
     ) -> Speed {
-        let base = match self {
-            Traversable::Lane(l) => {
-                let road = map.get_parent(*l);
-                let percent_incline = if road.dir(*l) == Direction::Fwd {
-                    road.percent_incline
-                } else {
-                    -road.percent_incline
-                };
+        match self {
+            Traversable::Lane(l) => Traversable::max_speed_along_road(
+                map.get_l(*l).get_directed_parent(map),
+                max_speed_on_flat_ground,
+                constraints,
+                map,
+            ),
+            Traversable::Turn(t) => Traversable::max_speed_along_movement(
+                t.to_movement(map),
+                max_speed_on_flat_ground,
+                constraints,
+                map,
+            ),
+        }
+    }
 
-                if constraints == PathConstraints::Bike {
-                    // We assume every bike has a max_speed defined.
-                    bike_speed_on_incline(max_speed_on_flat_ground.unwrap(), percent_incline)
-                } else if constraints == PathConstraints::Pedestrian {
-                    // We assume every pedestrian has a max_speed defined.
-                    walking_speed_on_incline(max_speed_on_flat_ground.unwrap(), percent_incline)
-                } else {
-                    // Incline doesn't affect cars, buses, or trains
-                    road.speed_limit
-                }
-            }
-            // TODO Ignore elevation on turns?
-            Traversable::Turn(t) => map
-                .get_parent(t.src)
-                .speed_limit
-                .min(map.get_parent(t.dst).speed_limit),
+    /// The single definitive place to determine how fast somebody could go along a single road.
+    /// This should be used for pathfinding and simulation.
+    pub fn max_speed_along_road(
+        dr: DirectedRoadID,
+        max_speed_on_flat_ground: Option<Speed>,
+        constraints: PathConstraints,
+        map: &Map,
+    ) -> Speed {
+        let road = map.get_r(dr.id);
+        let percent_incline = if dr.dir == Direction::Fwd {
+            road.percent_incline
+        } else {
+            -road.percent_incline
         };
+
+        let base = if constraints == PathConstraints::Bike {
+            // We assume every bike has a max_speed defined.
+            bike_speed_on_incline(max_speed_on_flat_ground.unwrap(), percent_incline)
+        } else if constraints == PathConstraints::Pedestrian {
+            // We assume every pedestrian has a max_speed defined.
+            walking_speed_on_incline(max_speed_on_flat_ground.unwrap(), percent_incline)
+        } else {
+            // Incline doesn't affect cars, buses, or trains
+            road.speed_limit
+        };
+
+        if let Some(s) = max_speed_on_flat_ground {
+            base.min(s)
+        } else {
+            base
+        }
+    }
+
+    /// The single definitive place to determine how fast somebody could go along a single
+    /// movement.  This should be used for pathfinding and simulation.
+    pub fn max_speed_along_movement(
+        mvmnt: MovementID,
+        max_speed_on_flat_ground: Option<Speed>,
+        _: PathConstraints,
+        map: &Map,
+    ) -> Speed {
+        // TODO Ignore elevation on turns?
+        let base = map
+            .get_r(mvmnt.from.id)
+            .speed_limit
+            .min(map.get_r(mvmnt.to.id).speed_limit);
         if let Some(s) = max_speed_on_flat_ground {
             base.min(s)
         } else {
