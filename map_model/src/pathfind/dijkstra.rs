@@ -1,18 +1,18 @@
 //! Pathfinding without needing to build a separate contraction hierarchy.
 
-// TODO Dijkstra's for vehicles currently ignores uber-turns!
-
 use std::collections::BTreeSet;
 
 use petgraph::graphmap::DiGraphMap;
 
 use geom::Duration;
 
-use crate::pathfind::vehicles::vehicle_cost;
+use crate::pathfind::v2::path_v2_to_v1;
+use crate::pathfind::vehicles::{vehicle_cost, vehicle_cost_v2};
 use crate::pathfind::walking::WalkingNode;
-use crate::pathfind::zone_cost;
+use crate::pathfind::{zone_cost, zone_cost_v2};
 use crate::{
-    LaneID, Map, Path, PathConstraints, PathRequest, PathStep, RoutingParams, Traversable, TurnID,
+    DirectedRoadID, LaneID, Map, MovementID, Path, PathConstraints, PathRequest, PathStep,
+    RoutingParams, Traversable, TurnID,
 };
 
 // TODO These should maybe keep the DiGraphMaps as state. It's cheap to recalculate it for edits.
@@ -22,8 +22,8 @@ pub fn simple_pathfind(
     params: &RoutingParams,
     map: &Map,
 ) -> Option<(Path, Duration)> {
-    let graph = build_graph_for_vehicles(map, req.constraints);
-    calc_path(graph, req, params, map)
+    let graph = build_graph_for_vehicles_v2(map, req.constraints);
+    calc_path_v2(graph, req, params, map)
 }
 
 pub fn build_graph_for_vehicles(
@@ -36,6 +36,19 @@ pub fn build_graph_for_vehicles(
             for turn in map.get_turns_for(l.id, constraints) {
                 graph.add_edge(turn.id.src, turn.id.dst, turn.id);
             }
+        }
+    }
+    graph
+}
+
+fn build_graph_for_vehicles_v2(
+    map: &Map,
+    constraints: PathConstraints,
+) -> DiGraphMap<DirectedRoadID, MovementID> {
+    let mut graph = DiGraphMap::new();
+    for dr in map.all_directed_roads_for(constraints) {
+        for mvmnt in map.get_movements_for(dr, constraints) {
+            graph.add_edge(mvmnt.from, mvmnt.to, mvmnt);
         }
     }
     graph
@@ -89,7 +102,35 @@ fn calc_path(
     }
     steps.push(PathStep::Lane(req.end.lane()));
     assert_eq!(steps[0], PathStep::Lane(req.start.lane()));
+    // TODO Dijkstra's for vehicles currently ignores uber-turns!
     Some((Path::new(map, steps, req.clone(), Vec::new()), cost))
+}
+
+fn calc_path_v2(
+    graph: DiGraphMap<DirectedRoadID, MovementID>,
+    req: &PathRequest,
+    params: &RoutingParams,
+    map: &Map,
+) -> Option<(Path, Duration)> {
+    let end = map.get_l(req.end.lane()).get_directed_parent(map);
+    let (cost, path) = petgraph::algo::astar(
+        &graph,
+        map.get_l(req.start.lane()).get_directed_parent(map),
+        |dr| dr == end,
+        |(_, _, mvmnt)| {
+            vehicle_cost_v2(mvmnt.from, *mvmnt, req.constraints, params, map)
+                + zone_cost_v2(*mvmnt, req.constraints, map)
+        },
+        |_| Duration::ZERO,
+    )?;
+
+    let mut steps = Vec::new();
+    for pair in path.windows(2) {
+        steps.push(pair[0]);
+    }
+    steps.push(end);
+    let path = path_v2_to_v1(req.clone(), steps, map).ok()?;
+    Some((path, cost))
 }
 
 pub fn build_graph_for_pedestrians(map: &Map) -> DiGraphMap<WalkingNode, Duration> {

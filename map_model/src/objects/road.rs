@@ -87,6 +87,16 @@ impl DirectedRoadID {
         let r = map.get_r(self.id);
         constraints.filter_lanes(r.children(self.dir).iter().map(|(l, _)| *l).collect(), map)
     }
+
+    /// Does this directed road have any lanes of a certain type?
+    pub fn has_lanes(self, lane_type: LaneType, map: &Map) -> bool {
+        for (_, lt) in map.get_r(self.id).children(self.dir) {
+            if lt == lane_type {
+                return true;
+            }
+        }
+        false
+    }
 }
 
 /// A Road represents a segment between exactly two Intersections. It contains Lanes as children.

@@ -14,8 +14,8 @@ use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::pathfind::uber_turns::{IntersectionCluster, UberTurn};
 use crate::pathfind::zone_cost;
 use crate::{
-    DrivingSide, Lane, LaneID, Map, Path, PathConstraints, PathRequest, PathStep, RoutingParams,
-    Traversable, Turn, TurnID, TurnType,
+    DirectedRoadID, DrivingSide, Lane, LaneID, LaneType, Map, MovementID, Path, PathConstraints,
+    PathRequest, PathStep, RoutingParams, Traversable, Turn, TurnID, TurnType,
 };
 
 #[derive(Serialize, Deserialize)]
@@ -318,4 +318,74 @@ pub fn vehicle_cost(
     // specific choice of lane.
 
     base + Duration::seconds(extra_penalty as f64)
+}
+
+/// This returns the pathfinding cost of crossing one road and turn. This is also expressed in
+/// units of time. It factors in the ideal time to cross the space, along with penalties for
+/// entering an access-restricted zone, taking an unprotected turn, and so on.
+// TODO Remove vehicle_cost after pathfinding v2 transition is done.
+pub fn vehicle_cost_v2(
+    dr: DirectedRoadID,
+    mvmnt: MovementID,
+    constraints: PathConstraints,
+    params: &RoutingParams,
+    map: &Map,
+) -> Duration {
+    let mvmnt = mvmnt.get(map).unwrap();
+    let max_speed = match constraints {
+        PathConstraints::Car | PathConstraints::Bus | PathConstraints::Train => None,
+        PathConstraints::Bike => Some(crate::MAX_BIKE_SPEED),
+        PathConstraints::Pedestrian => unreachable!(),
+    };
+    let t1 = map.get_r(dr.id).center_pts.length()
+        / Traversable::max_speed_along_road(dr, max_speed, constraints, map);
+    let t2 = mvmnt.geom.length()
+        / Traversable::max_speed_along_movement(mvmnt.id, max_speed, constraints, map);
+
+    let base = match constraints {
+        PathConstraints::Car | PathConstraints::Train => t1 + t2,
+        PathConstraints::Bike => {
+            // TODO If we're on a driving lane, higher speed limit is worse.
+            // TODO Bike lanes next to parking is dangerous.
+
+            // TODO Prefer bike lanes, then bus lanes, then driving lanes. For now, express that by
+            // multiplying the base cost.
+            let lt_penalty = if dr.has_lanes(LaneType::Biking, map) {
+                params.bike_lane_penalty
+            } else if dr.has_lanes(LaneType::Bus, map) {
+                params.bus_lane_penalty
+            } else {
+                params.driving_lane_penalty
+            };
+
+            lt_penalty * (t1 + t2)
+        }
+        PathConstraints::Bus => {
+            // Like Car, but prefer bus lanes.
+            let lt_penalty = if dr.has_lanes(LaneType::Bus, map) {
+                1.0
+            } else {
+                1.1
+            };
+            lt_penalty * (t1 + t2)
+        }
+        PathConstraints::Pedestrian => unreachable!(),
+    };
+
+    // Penalize unprotected turns at a stop sign from smaller to larger roads.
+    let unprotected_turn_type = if map.get_config().driving_side == DrivingSide::Right {
+        TurnType::Left
+    } else {
+        TurnType::Right
+    };
+    let rank_from = map.get_r(dr.id).get_detailed_rank();
+    let rank_to = map.get_r(mvmnt.id.to.id).get_detailed_rank();
+    if mvmnt.turn_type == unprotected_turn_type
+        && rank_from < rank_to
+        && map.get_i(mvmnt.id.parent).is_stop_sign()
+    {
+        base + params.unprotected_turn_penalty
+    } else {
+        base
+    }
 }

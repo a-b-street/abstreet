@@ -178,6 +178,13 @@ pub struct MovementID {
     pub crosswalk: bool,
 }
 
+impl MovementID {
+    // TODO Expensive! Should we natively store movements everywhere?
+    pub(crate) fn get(self, map: &Map) -> Result<Movement> {
+        Ok(Movement::for_i(self.parent, map)?.remove(&self).unwrap())
+    }
+}
+
 /// This is cheaper to store than a MovementID. It simply indexes into the list of movements.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct CompressedMovementID {
@@ -359,4 +366,15 @@ fn movement_geom(
         ));
     }
     PolyLine::deduping_new(pts)
+}
+
+impl TurnID {
+    pub fn to_movement(self, map: &Map) -> MovementID {
+        MovementID {
+            from: map.get_l(self.src).get_directed_parent(map),
+            to: map.get_l(self.dst).get_directed_parent(map),
+            parent: self.parent,
+            crosswalk: map.get_l(self.src).is_walkable(),
+        }
+    }
 }
