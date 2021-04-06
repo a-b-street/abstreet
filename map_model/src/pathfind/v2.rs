@@ -5,7 +5,7 @@
 use anyhow::Result;
 
 use crate::pathfind::uber_turns::UberTurnV2;
-use crate::{DirectedRoadID, Map, Path, PathRequest, PathStep, TurnID, UberTurn};
+use crate::{DirectedRoadID, Map, Path, PathConstraints, PathRequest, PathStep, TurnID, UberTurn};
 
 /// Transform a sequence of roads representing a path into the current lane-based path, by picking
 /// particular lanes and turns to use.
@@ -42,9 +42,21 @@ pub fn path_v2_to_v1(
         &graph,
         req.start.lane(),
         |l| l == req.end.lane(),
-        // TODO We could include the old lane-changing penalties here, but I'm not sure it's worth
-        // the complication. The simulation layer will end up tuning those anyway.
-        |_| 1,
+        |(_, _, t)| {
+            // Normally opportunistic lane-changing adjusts the path live, but that doesn't work
+            // near uber-turns. So still use some of the penalties here.
+            let (lt, lc, slow_lane) = map.get_t(*t).penalty(map);
+            let mut extra_penalty = lt + lc;
+            if req.constraints == PathConstraints::Bike {
+                extra_penalty = slow_lane;
+            }
+            // Always treat every lane/turn as at least cost 1; otherwise A* can't understand that
+            // a final path with 10 steps costs more than one with 5. The road-based pathfinding
+            // has already chosen the overall route; when we're picking individual lanes, the
+            // length of each lane along one road is going to be about the same.
+            let base = 1;
+            base + extra_penalty
+        },
         |_| 0,
     ) {
         Some((_, path)) => {
