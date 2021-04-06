@@ -124,12 +124,8 @@ fn calc_path_v2(
         |_| Duration::ZERO,
     )?;
 
-    let mut steps = Vec::new();
-    for pair in path.windows(2) {
-        steps.push(pair[0]);
-    }
-    steps.push(end);
-    let path = path_v2_to_v1(req.clone(), steps, map).ok()?;
+    // TODO No uber-turns yet
+    let path = path_v2_to_v1(req.clone(), path, Vec::new(), map).ok()?;
     Some((path, cost))
 }
 

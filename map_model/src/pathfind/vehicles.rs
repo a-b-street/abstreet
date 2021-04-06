@@ -7,15 +7,16 @@ use serde::{Deserialize, Serialize};
 use thread_local::ThreadLocal;
 
 use abstutil::MultiMap;
-use geom::Duration;
+use geom::{Distance, Duration};
 
 use crate::pathfind::ch::round;
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
-use crate::pathfind::uber_turns::{IntersectionCluster, UberTurn};
-use crate::pathfind::zone_cost;
+use crate::pathfind::uber_turns::{IntersectionCluster, UberTurnV2};
+use crate::pathfind::v2::path_v2_to_v1;
+use crate::pathfind::zone_cost_v2;
 use crate::{
-    DirectedRoadID, DrivingSide, Lane, LaneID, LaneType, Map, MovementID, Path, PathConstraints,
-    PathRequest, PathStep, RoutingParams, Traversable, Turn, TurnID, TurnType,
+    DirectedRoadID, Direction, DrivingSide, Lane, LaneType, Map, MovementID, Path, PathConstraints,
+    PathRequest, RoadID, RoutingParams, Traversable, Turn, TurnType,
 };
 
 #[derive(Serialize, Deserialize)]
@@ -24,7 +25,7 @@ pub struct VehiclePathfinder {
     graph: FastGraph,
     #[serde(deserialize_with = "deserialize_nodemap")]
     nodes: NodeMap<Node>,
-    uber_turns: Vec<UberTurn>,
+    uber_turns: Vec<UberTurnV2>,
     constraints: PathConstraints,
 
     #[serde(skip_serializing, skip_deserializing)]
@@ -33,7 +34,7 @@ pub struct VehiclePathfinder {
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug, Serialize, Deserialize)]
 enum Node {
-    Lane(LaneID),
+    Road(DirectedRoadID),
     UberTurn(usize),
 }
 
@@ -43,18 +44,25 @@ impl VehiclePathfinder {
         constraints: PathConstraints,
         seed: Option<&VehiclePathfinder>,
     ) -> VehiclePathfinder {
-        // Insert every lane as a node. Even if the lane type is wrong now, it might change later,
-        // and we want the node in the graph. Do this first, so the IDs of all the nodes doesn't
-        // depend on lane types and turns and such.
+        // Insert every road as a node.
         let mut nodes = NodeMap::new();
-        for l in map.all_lanes() {
-            nodes.get_or_insert(Node::Lane(l.id));
+        for r in map.all_roads() {
+            // Regardless of current lane types or even directions, add both. These could change
+            // later, and we want the node IDs to match up.
+            nodes.get_or_insert(Node::Road(DirectedRoadID {
+                id: r.id,
+                dir: Direction::Fwd,
+            }));
+            nodes.get_or_insert(Node::Road(DirectedRoadID {
+                id: r.id,
+                dir: Direction::Back,
+            }));
         }
 
         // Find all uber-turns and make a node for them too.
         let mut uber_turns = Vec::new();
         for ic in IntersectionCluster::find_all(map) {
-            for ut in ic.uber_turns {
+            for ut in ic.to_v2(map) {
                 nodes.get_or_insert(Node::UberTurn(uber_turns.len()));
                 uber_turns.push(ut);
             }
@@ -62,7 +70,7 @@ impl VehiclePathfinder {
 
         let input_graph = make_input_graph(map, &nodes, &uber_turns, constraints);
 
-        // All VehiclePathfinders have the same nodes (lanes), so if we're not the first being
+        // All VehiclePathfinders have the same nodes (roads), so if we're not the first being
         // built, seed from the node ordering.
         info!(
             "Contraction hierarchy input graph for {:?} has {} nodes",
@@ -93,47 +101,38 @@ impl VehiclePathfinder {
             .borrow_mut();
         let raw_path = calc.calc_path(
             &self.graph,
-            self.nodes.get(Node::Lane(req.start.lane())),
-            self.nodes.get(Node::Lane(req.end.lane())),
+            self.nodes.get(Node::Road(
+                map.get_l(req.start.lane()).get_directed_parent(map),
+            )),
+            self.nodes.get(Node::Road(
+                map.get_l(req.end.lane()).get_directed_parent(map),
+            )),
         )?;
-        let mut steps = Vec::new();
+        let mut road_steps = Vec::new();
         let mut uber_turns = Vec::new();
-        for pair in self.nodes.translate(&raw_path).windows(2) {
-            match (pair[0], pair[1]) {
-                (Node::Lane(l1), Node::Lane(l2)) => {
-                    steps.push(PathStep::Lane(l1));
-                    // We don't need to look for this turn in the map; we know it exists.
-                    steps.push(PathStep::Turn(TurnID {
-                        parent: map.get_l(l1).dst_i,
-                        src: l1,
-                        dst: l2,
-                    }));
+        for node in self.nodes.translate(&raw_path) {
+            match node {
+                Node::Road(dr) => {
+                    road_steps.push(dr);
                 }
-                (Node::Lane(l), Node::UberTurn(ut)) => {
-                    steps.push(PathStep::Lane(l));
-                    let ut = self.uber_turns[ut].clone();
-                    for t in &ut.path {
-                        steps.push(PathStep::Turn(*t));
-                        steps.push(PathStep::Lane(t.dst));
+                Node::UberTurn(ut) => {
+                    // Flatten the uber-turn into the roads it crosses.
+                    for mvmnt in &self.uber_turns[ut].path {
+                        road_steps.push(mvmnt.to);
                     }
-                    steps.pop();
-                    uber_turns.push(ut);
+                    road_steps.pop();
+                    // Also remember the uber-turn exists, so we can reconstruct it in
+                    // path_v2_to_v1.
+                    uber_turns.push(self.uber_turns[ut].clone());
                 }
-                (Node::UberTurn(_), Node::Lane(_)) => {
-                    // Don't add anything; the lane will be added by some other case
-                }
-                (Node::UberTurn(_), Node::UberTurn(_)) => unreachable!(),
             }
         }
-        steps.push(PathStep::Lane(req.end.lane()));
-        Some((
-            Path::new(map, steps, req.clone(), uber_turns),
-            raw_path.get_weight(),
-        ))
+        let path = path_v2_to_v1(req.clone(), road_steps, uber_turns, map).ok()?;
+        Some((path, raw_path.get_weight()))
     }
 
     pub fn apply_edits(&mut self, map: &Map) {
-        // The NodeMap is just all lanes and uber-turns -- it won't change. So we can also reuse
+        // The NodeMap is just all roads and uber-turns -- it won't change. So we can also reuse
         // the node ordering.
         // TODO Make sure the result of this is deterministic and equivalent to computing from
         // scratch.
@@ -146,85 +145,113 @@ impl VehiclePathfinder {
 fn make_input_graph(
     map: &Map,
     nodes: &NodeMap<Node>,
-    uber_turns: &Vec<UberTurn>,
+    uber_turns: &Vec<UberTurnV2>,
     constraints: PathConstraints,
 ) -> InputGraph {
     let mut input_graph = InputGraph::new();
 
-    // From some lanes, instead of adding edges to turns, add edges to these (indexed) uber-turns.
-    let mut uber_turn_entrances: MultiMap<LaneID, usize> = MultiMap::new();
+    // From some roads, instead of adding edges to movements, add edges to these (indexed)
+    // uber-turns.
+    let mut uber_turn_entrances: MultiMap<DirectedRoadID, usize> = MultiMap::new();
     for (idx, ut) in uber_turns.iter().enumerate() {
         // Force the nodes to always match up in the graph for different vehicle types.
         nodes.get(Node::UberTurn(idx));
 
-        // But actually, make sure this uber-turn only contains lanes that can be used by this
+        // But actually, make sure this uber-turn only contains roads that can be used by this
         // vehicle.
         // TODO Need to test editing lanes inside an IntersectionCluster very carefully. See Mercer
         // and Dexter.
         if ut
             .path
             .iter()
-            .all(|t| constraints.can_use(map.get_l(t.dst), map))
+            .all(|mvmnt| !mvmnt.to.lanes(constraints, map).is_empty())
         {
             uber_turn_entrances.insert(ut.entry(), idx);
         }
     }
 
-    let num_lanes = map.all_lanes().len();
+    let num_roads = 2 * map.all_roads().len();
     let mut used_last_uber_turn = false;
-    for l in map.all_lanes() {
-        let from = nodes.get(Node::Lane(l.id));
-        let mut any = false;
-        if constraints.can_use(l, map) {
-            let indices = uber_turn_entrances.get(l.id);
-            if indices.is_empty() {
-                for turn in map.get_turns_for(l.id, constraints) {
-                    any = true;
-                    input_graph.add_edge(
-                        from,
-                        nodes.get(Node::Lane(turn.id.dst)),
-                        round(
-                            vehicle_cost(l, turn, constraints, map.routing_params(), map)
-                                + zone_cost(turn, constraints, map),
-                        ),
-                    );
-                }
-            } else {
-                for idx in indices {
-                    any = true;
-                    let ut = &uber_turns[*idx];
-
-                    let mut sum_cost = Duration::ZERO;
-                    for t in &ut.path {
-                        let turn = map.get_t(*t);
-                        sum_cost += vehicle_cost(
-                            map.get_l(t.src),
-                            turn,
-                            constraints,
-                            map.routing_params(),
-                            map,
-                        ) + zone_cost(turn, constraints, map);
+    for r in map.all_roads() {
+        for dr in vec![
+            DirectedRoadID {
+                id: r.id,
+                dir: Direction::Fwd,
+            },
+            DirectedRoadID {
+                id: r.id,
+                dir: Direction::Back,
+            },
+        ] {
+            let from = nodes.get(Node::Road(dr));
+            let mut any = false;
+            if !dr.lanes(constraints, map).is_empty() {
+                let indices = uber_turn_entrances.get(dr);
+                if indices.is_empty() {
+                    for mvmnt in map.get_movements_for(dr, constraints) {
+                        any = true;
+                        input_graph.add_edge(
+                            from,
+                            nodes.get(Node::Road(mvmnt.to)),
+                            round(
+                                vehicle_cost_v2(
+                                    mvmnt.from,
+                                    mvmnt,
+                                    constraints,
+                                    map.routing_params(),
+                                    map,
+                                ) + zone_cost_v2(mvmnt, constraints, map),
+                            ),
+                        );
                     }
-                    input_graph.add_edge(from, nodes.get(Node::UberTurn(*idx)), round(sum_cost));
-                    input_graph.add_edge(
-                        nodes.get(Node::UberTurn(*idx)),
-                        nodes.get(Node::Lane(ut.exit())),
-                        // The cost is already captured for entering the uber-turn
-                        1,
-                    );
-                    if *idx == uber_turns.len() - 1 {
-                        used_last_uber_turn = true;
+                } else {
+                    for idx in indices {
+                        any = true;
+                        let ut = &uber_turns[*idx];
+
+                        let mut sum_cost = Duration::ZERO;
+                        for mvmnt in &ut.path {
+                            sum_cost += vehicle_cost_v2(
+                                mvmnt.from,
+                                *mvmnt,
+                                constraints,
+                                map.routing_params(),
+                                map,
+                            ) + zone_cost_v2(*mvmnt, constraints, map);
+                        }
+                        input_graph.add_edge(
+                            from,
+                            nodes.get(Node::UberTurn(*idx)),
+                            round(sum_cost),
+                        );
+                        input_graph.add_edge(
+                            nodes.get(Node::UberTurn(*idx)),
+                            nodes.get(Node::Road(ut.exit())),
+                            // The cost is already captured for entering the uber-turn
+                            1,
+                        );
+                        if *idx == uber_turns.len() - 1 {
+                            used_last_uber_turn = true;
+                        }
                     }
                 }
             }
-        }
-        // The nodes in the graph MUST exactly be all of the lanes, so we can reuse node ordering
-        // later. If the last lane doesn't have any edges, then this won't work -- fast_paths trims
-        // out unused nodes at the end. So pretend like it points to some arbitrary other node.
-        // Since no paths will start from this unused node, this won't affect results.
-        // TODO Upstream a method in InputGraph to do this more clearly.
-        if !any && l.id.0 == num_lanes - 1 {
-            input_graph.add_edge(from, nodes.get(Node::Lane(LaneID(0))), 1);
+            // The nodes in the graph MUST exactly be all of the roads, so we can reuse node
+            // ordering later. If the last road doesn't have any edges, then this won't
+            // work -- fast_paths trims out unused nodes at the end. So pretend like it
+            // points to some arbitrary other node. Since no paths will start from this
+            // unused node, this won't affect results. TODO Upstream a method in
+            // InputGraph to do this more clearly.
+            if !any && r.id.0 == num_roads - 1 && dr.dir == Direction::Back {
+                input_graph.add_edge(
+                    from,
+                    nodes.get(Node::Road(DirectedRoadID {
+                        id: RoadID(0),
+                        dir: Direction::Fwd,
+                    })),
+                    1,
+                );
+            }
         }
     }
 
@@ -336,7 +363,12 @@ pub fn vehicle_cost_v2(
     params: &RoutingParams,
     map: &Map,
 ) -> Duration {
-    let mvmnt = mvmnt.get(map).unwrap();
+    // TODO Creating the consolidated polyline sometimes fails. It's rare, so just workaround
+    // temporarily by pretending the turn is 1m long.
+    let (mvmnt_length, mvmnt_turn_type) = mvmnt
+        .get(map)
+        .map(|m| (m.geom.length(), m.turn_type))
+        .unwrap_or((Distance::meters(1.0), TurnType::Straight));
     let max_speed = match constraints {
         PathConstraints::Car | PathConstraints::Bus | PathConstraints::Train => None,
         PathConstraints::Bike => Some(crate::MAX_BIKE_SPEED),
@@ -344,8 +376,8 @@ pub fn vehicle_cost_v2(
     };
     let t1 = map.get_r(dr.id).center_pts.length()
         / Traversable::max_speed_along_road(dr, max_speed, constraints, map);
-    let t2 = mvmnt.geom.length()
-        / Traversable::max_speed_along_movement(mvmnt.id, max_speed, constraints, map);
+    let t2 =
+        mvmnt_length / Traversable::max_speed_along_movement(mvmnt, max_speed, constraints, map);
 
     let base = match constraints {
         PathConstraints::Car | PathConstraints::Train => t1 + t2,
@@ -384,10 +416,10 @@ pub fn vehicle_cost_v2(
         TurnType::Right
     };
     let rank_from = map.get_r(dr.id).get_detailed_rank();
-    let rank_to = map.get_r(mvmnt.id.to.id).get_detailed_rank();
-    if mvmnt.turn_type == unprotected_turn_type
+    let rank_to = map.get_r(mvmnt.to.id).get_detailed_rank();
+    if mvmnt_turn_type == unprotected_turn_type
         && rank_from < rank_to
-        && map.get_i(mvmnt.id.parent).is_stop_sign()
+        && map.get_i(mvmnt.parent).is_stop_sign()
     {
         base + params.unprotected_turn_penalty
     } else {

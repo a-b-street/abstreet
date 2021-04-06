@@ -4,11 +4,17 @@
 
 use anyhow::Result;
 
-use crate::{DirectedRoadID, Map, Path, PathRequest, PathStep, TurnID};
+use crate::pathfind::uber_turns::UberTurnV2;
+use crate::{DirectedRoadID, Map, Path, PathRequest, PathStep, TurnID, UberTurn};
 
 /// Transform a sequence of roads representing a path into the current lane-based path, by picking
 /// particular lanes and turns to use.
-pub fn path_v2_to_v1(req: PathRequest, road_steps: Vec<DirectedRoadID>, map: &Map) -> Result<Path> {
+pub fn path_v2_to_v1(
+    req: PathRequest,
+    road_steps: Vec<DirectedRoadID>,
+    uber_turns_v2: Vec<UberTurnV2>,
+    map: &Map,
+) -> Result<Path> {
     // This is a somewhat brute-force method: run Dijkstra's algorithm on a graph of lanes and
     // turns, but only build the graph along the path of roads we've already found. This handles
     // arbitrary lookahead needed, and forces use of the original start/end lanes requested.
@@ -54,14 +60,57 @@ pub fn path_v2_to_v1(req: PathRequest, road_steps: Vec<DirectedRoadID>, map: &Ma
             }
             steps.push(PathStep::Lane(req.end.lane()));
             assert_eq!(steps[0], PathStep::Lane(req.start.lane()));
-            // TODO No uber-turns yet!
-            Ok(Path::new(map, steps, req, Vec::new()))
+            let uber_turns = find_uber_turns(&steps, map, uber_turns_v2);
+            Ok(Path::new(map, steps, req, uber_turns))
         }
         None => bail!(
             "path_v2_to_v1 found road-based path, but not a lane-based path matching it for {}",
             req
         ),
     }
+}
+
+fn find_uber_turns(
+    steps: &Vec<PathStep>,
+    map: &Map,
+    mut uber_turns_v2: Vec<UberTurnV2>,
+) -> Vec<UberTurn> {
+    // Pathfinding v1 needs to know the uber turns that the path crosses, for the simulation layer.
+    // Since we now construct the path in two stages, it's easiest to just reconstruct the uber
+    // turns after building the lane-based path.
+
+    let num_uts = uber_turns_v2.len();
+    let mut result = Vec::new();
+    let mut current_ut = Vec::new();
+    for step in steps {
+        // Optimization
+        if uber_turns_v2.is_empty() {
+            break;
+        }
+
+        if let PathStep::Turn(t) = step {
+            if current_ut.is_empty() {
+                if uber_turns_v2[0].path[0].from == map.get_l(t.src).get_directed_parent(map) {
+                    current_ut.push(*t);
+                }
+            }
+
+            if !current_ut.is_empty() {
+                if current_ut.last() != Some(t) {
+                    current_ut.push(*t);
+                }
+                if uber_turns_v2[0].path[0].to == map.get_l(t.dst).get_directed_parent(map) {
+                    result.push(UberTurn {
+                        path: current_ut.drain(..).collect(),
+                    });
+                    uber_turns_v2.remove(0);
+                }
+            }
+        }
+    }
+    assert!(current_ut.is_empty());
+    assert_eq!(num_uts, result.len());
+    result
 }
 
 // TODO This is an attempt that looks at windows of 2 roads at a time to pick particular lanes and
