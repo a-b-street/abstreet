@@ -196,11 +196,13 @@ impl State<App> for TripTable {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
         let mut batch = GeomBatch::new();
-        if let Some(p) = self.panel.clone_stashed("starts_in") {
-            batch.push(Color::RED.alpha(0.5), p);
-        }
-        if let Some(p) = self.panel.clone_stashed("ends_in") {
-            batch.push(Color::BLUE.alpha(0.5), p);
+        if self.panel.has_widget("starts_in") {
+            if let Some(p) = self.panel.clone_stashed("starts_in") {
+                batch.push(Color::RED.alpha(0.5), p);
+            }
+            if let Some(p) = self.panel.clone_stashed("ends_in") {
+                batch.push(Color::BLUE.alpha(0.5), p);
+            }
         }
         preview_trip(g, app, &self.panel, batch);
     }
@@ -587,8 +589,8 @@ fn make_table_cancelled_trips(app: &App) -> Table<App, CancelledTrip, Filters> {
                 modes,
                 off_map_starts: panel.is_checked("starting off-map"),
                 off_map_ends: panel.is_checked("ending off-map"),
-                starts_in: panel.clone_stashed("starts_in"),
-                ends_in: panel.clone_stashed("ends_in"),
+                starts_in: None,
+                ends_in: None,
                 unmodified_trips: true,
                 modified_trips: true,
                 uncapped_trips: true,
@@ -708,8 +710,8 @@ fn make_table_unfinished_trips(app: &App) -> Table<App, UnfinishedTrip, Filters>
                 modes,
                 off_map_starts: true,
                 off_map_ends: true,
-                starts_in: panel.clone_stashed("starts_in"),
-                ends_in: panel.clone_stashed("ends_in"),
+                starts_in: None,
+                ends_in: None,
                 unmodified_trips: true,
                 modified_trips: true,
                 uncapped_trips: true,
