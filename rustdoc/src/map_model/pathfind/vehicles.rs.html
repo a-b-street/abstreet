@@ -322,6 +322,76 @@
 <span id="319">319</span>
 <span id="320">320</span>
 <span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Pathfinding for cars, bikes, buses, and trains using contraction hierarchies</span>
 
@@ -339,8 +409,8 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">uber_turns</span>::{<span class="ident">IntersectionCluster</span>, <span class="ident">UberTurn</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">zone_cost</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">DrivingSide</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>, <span class="ident">RoutingParams</span>,
-    <span class="ident">Traversable</span>, <span class="ident">Turn</span>, <span class="ident">TurnID</span>, <span class="ident">TurnType</span>,
+    <span class="ident">DirectedRoadID</span>, <span class="ident">DrivingSide</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>,
+    <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>, <span class="ident">RoutingParams</span>, <span class="ident">Traversable</span>, <span class="ident">Turn</span>, <span class="ident">TurnID</span>, <span class="ident">TurnType</span>,
 };
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -643,6 +713,76 @@
     <span class="comment">// specific choice of lane.</span>
 
     <span class="ident">base</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="ident">extra_penalty</span> <span class="kw">as</span> <span class="ident">f64</span>)
+}
+
+<span class="doccomment">/// This returns the pathfinding cost of crossing one road and turn. This is also expressed in</span>
+<span class="doccomment">/// units of time. It factors in the ideal time to cross the space, along with penalties for</span>
+<span class="doccomment">/// entering an access-restricted zone, taking an unprotected turn, and so on.</span>
+<span class="comment">// TODO Remove vehicle_cost after pathfinding v2 transition is done.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vehicle_cost_v2</span>(
+    <span class="ident">dr</span>: <span class="ident">DirectedRoadID</span>,
+    <span class="ident">mvmnt</span>: <span class="ident">MovementID</span>,
+    <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
+    <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span>,
+    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
+    <span class="kw">let</span> <span class="ident">mvmnt</span> <span class="op">=</span> <span class="ident">mvmnt</span>.<span class="ident">get</span>(<span class="ident">map</span>).<span class="ident">unwrap</span>();
+    <span class="kw">let</span> <span class="ident">max_speed</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">constraints</span> {
+        <span class="ident">PathConstraints</span>::<span class="ident">Car</span> <span class="op">|</span> <span class="ident">PathConstraints</span>::<span class="ident">Bus</span> <span class="op">|</span> <span class="ident">PathConstraints</span>::<span class="ident">Train</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+        <span class="ident">PathConstraints</span>::<span class="ident">Bike</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw">crate</span>::<span class="ident">MAX_BIKE_SPEED</span>),
+        <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+    };
+    <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">dr</span>.<span class="ident">id</span>).<span class="ident">center_pts</span>.<span class="ident">length</span>()
+        <span class="op">/</span> <span class="ident">Traversable</span>::<span class="ident">max_speed_along_road</span>(<span class="ident">dr</span>, <span class="ident">max_speed</span>, <span class="ident">constraints</span>, <span class="ident">map</span>);
+    <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="ident">mvmnt</span>.<span class="ident">geom</span>.<span class="ident">length</span>()
+        <span class="op">/</span> <span class="ident">Traversable</span>::<span class="ident">max_speed_along_movement</span>(<span class="ident">mvmnt</span>.<span class="ident">id</span>, <span class="ident">max_speed</span>, <span class="ident">constraints</span>, <span class="ident">map</span>);
+
+    <span class="kw">let</span> <span class="ident">base</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">constraints</span> {
+        <span class="ident">PathConstraints</span>::<span class="ident">Car</span> <span class="op">|</span> <span class="ident">PathConstraints</span>::<span class="ident">Train</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">t1</span> <span class="op">+</span> <span class="ident">t2</span>,
+        <span class="ident">PathConstraints</span>::<span class="ident">Bike</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="comment">// TODO If we&#39;re on a driving lane, higher speed limit is worse.</span>
+            <span class="comment">// TODO Bike lanes next to parking is dangerous.</span>
+
+            <span class="comment">// TODO Prefer bike lanes, then bus lanes, then driving lanes. For now, express that by</span>
+            <span class="comment">// multiplying the base cost.</span>
+            <span class="kw">let</span> <span class="ident">lt_penalty</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">dr</span>.<span class="ident">has_lanes</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>, <span class="ident">map</span>) {
+                <span class="ident">params</span>.<span class="ident">bike_lane_penalty</span>
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">dr</span>.<span class="ident">has_lanes</span>(<span class="ident">LaneType</span>::<span class="ident">Bus</span>, <span class="ident">map</span>) {
+                <span class="ident">params</span>.<span class="ident">bus_lane_penalty</span>
+            } <span class="kw">else</span> {
+                <span class="ident">params</span>.<span class="ident">driving_lane_penalty</span>
+            };
+
+            <span class="ident">lt_penalty</span> <span class="op">*</span> (<span class="ident">t1</span> <span class="op">+</span> <span class="ident">t2</span>)
+        }
+        <span class="ident">PathConstraints</span>::<span class="ident">Bus</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="comment">// Like Car, but prefer bus lanes.</span>
+            <span class="kw">let</span> <span class="ident">lt_penalty</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">dr</span>.<span class="ident">has_lanes</span>(<span class="ident">LaneType</span>::<span class="ident">Bus</span>, <span class="ident">map</span>) {
+                <span class="number">1.0</span>
+            } <span class="kw">else</span> {
+                <span class="number">1.1</span>
+            };
+            <span class="ident">lt_penalty</span> <span class="op">*</span> (<span class="ident">t1</span> <span class="op">+</span> <span class="ident">t2</span>)
+        }
+        <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+    };
+
+    <span class="comment">// Penalize unprotected turns at a stop sign from smaller to larger roads.</span>
+    <span class="kw">let</span> <span class="ident">unprotected_turn_type</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide</span>::<span class="ident">Right</span> {
+        <span class="ident">TurnType</span>::<span class="ident">Left</span>
+    } <span class="kw">else</span> {
+        <span class="ident">TurnType</span>::<span class="ident">Right</span>
+    };
+    <span class="kw">let</span> <span class="ident">rank_from</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">dr</span>.<span class="ident">id</span>).<span class="ident">get_detailed_rank</span>();
+    <span class="kw">let</span> <span class="ident">rank_to</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">mvmnt</span>.<span class="ident">id</span>.<span class="ident">to</span>.<span class="ident">id</span>).<span class="ident">get_detailed_rank</span>();
+    <span class="kw">if</span> <span class="ident">mvmnt</span>.<span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">unprotected_turn_type</span>
+        <span class="op">&amp;&amp;</span> <span class="ident">rank_from</span> <span class="op">&lt;</span> <span class="ident">rank_to</span>
+        <span class="op">&amp;&amp;</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">mvmnt</span>.<span class="ident">id</span>.<span class="ident">parent</span>).<span class="ident">is_stop_sign</span>()
+    {
+        <span class="ident">base</span> <span class="op">+</span> <span class="ident">params</span>.<span class="ident">unprotected_turn_penalty</span>
+    } <span class="kw">else</span> {
+        <span class="ident">base</span>
+    }
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model"></div>

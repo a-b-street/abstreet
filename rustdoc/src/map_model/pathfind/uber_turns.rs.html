@@ -279,11 +279,6 @@
 <span id="276">276</span>
 <span id="277">277</span>
 <span id="278">278</span>
-<span id="279">279</span>
-<span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
-<span id="283">283</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! To deal with complicated intersections and short roads in OSM, cluster intersections close</span>
 <span class="doccomment">//! together and then calculate UberTurns that string together several turns.</span>
@@ -556,12 +551,7 @@
         <span class="kw">for</span> <span class="ident">ut</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">uber_turns</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
             <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="ident">ut</span>.<span class="ident">path</span> {
-                <span class="ident">path</span>.<span class="ident">push</span>(<span class="ident">MovementID</span> {
-                    <span class="ident">from</span>: <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">src</span>).<span class="ident">get_directed_parent</span>(<span class="ident">map</span>),
-                    <span class="ident">to</span>: <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">dst</span>).<span class="ident">get_directed_parent</span>(<span class="ident">map</span>),
-                    <span class="ident">parent</span>: <span class="ident">turn</span>.<span class="ident">parent</span>,
-                    <span class="ident">crosswalk</span>: <span class="bool-val">false</span>,
-                });
+                <span class="ident">path</span>.<span class="ident">push</span>(<span class="ident">turn</span>.<span class="ident">to_movement</span>(<span class="ident">map</span>));
             }
             <span class="ident">result</span>.<span class="ident">insert</span>(<span class="ident">UberTurnV2</span> { <span class="ident">path</span> });
         }
