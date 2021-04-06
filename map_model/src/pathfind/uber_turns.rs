@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use geom::{Distance, PolyLine};
 
-use crate::{IntersectionID, LaneID, Map, MovementID, TurnID};
+use crate::{DirectedRoadID, IntersectionID, LaneID, Map, MovementID, TurnID};
 
 /// This only applies to VehiclePathfinder; walking through these intersections is nothing special.
 // TODO I haven't seen any cases yet with "interior" intersections. Some stuff might break.
@@ -274,5 +274,14 @@ impl IntersectionCluster {
             result.insert(UberTurnV2 { path });
         }
         result.into_iter().collect()
+    }
+}
+
+impl UberTurnV2 {
+    pub fn entry(&self) -> DirectedRoadID {
+        self.path[0].from
+    }
+    pub fn exit(&self) -> DirectedRoadID {
+        self.path.last().unwrap().to
     }
 }
