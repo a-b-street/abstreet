@@ -250,7 +250,7 @@ impl Traversable {
             // We assume every pedestrian has a max_speed defined.
             walking_speed_on_incline(max_speed_on_flat_ground.unwrap(), percent_incline)
         } else {
-            debug_assert!(max_speen_on_flat_ground.is_none());
+            debug_assert!(max_speed_on_flat_ground.is_none());
             // Incline doesn't affect cars, buses, or trains
             road.speed_limit
         };
