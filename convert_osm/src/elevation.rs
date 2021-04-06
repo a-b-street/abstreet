@@ -11,6 +11,8 @@ use map_model::raw::{OriginalRoad, RawMap};
 pub fn add_data(map: &mut RawMap, timer: &mut Timer) -> Result<()> {
     timer.start("add elevation data");
 
+    // TODO General problem: If we bail out early, the timer gets screwed up and later crashes. I
+    // think we need to start using scoped objects that call timer.stop() when dropped.
     timer.start("generate input");
     let ids = generate_input(map)?;
     timer.stop("generate input");
@@ -33,7 +35,8 @@ pub fn add_data(map: &mut RawMap, timer: &mut Timer) -> Result<()> {
         .arg("--mount")
         .arg(format!(
             "type=bind,source={},target=/elevation/data",
-            abstio::path_shared_input("elevation")
+            // Docker requires absolute paths
+            format!("{}/{}", pwd, abstio::path_shared_input("elevation"))
         ))
         .arg("--mount")
         .arg(format!(
