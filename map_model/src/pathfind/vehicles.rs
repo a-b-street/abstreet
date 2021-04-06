@@ -102,11 +102,10 @@ impl VehiclePathfinder {
         let raw_path = calc.calc_path(
             &self.graph,
             self.nodes.get(Node::Road(
-                map.get_l(req.start.lane()).get_directed_parent(map),
+                map.get_l(req.start.lane()).get_directed_parent(),
             )),
-            self.nodes.get(Node::Road(
-                map.get_l(req.end.lane()).get_directed_parent(map),
-            )),
+            self.nodes
+                .get(Node::Road(map.get_l(req.end.lane()).get_directed_parent())),
         )?;
         let mut road_steps = Vec::new();
         let mut uber_turns = Vec::new();

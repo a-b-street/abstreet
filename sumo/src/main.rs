@@ -80,6 +80,7 @@ fn convert(orig_path: &str, network: Network) -> Result<Map> {
                 lane_type,
                 lane_center_pts: lane.center_line.clone(),
                 width: lane.width,
+                dir: direction,
 
                 src_i,
                 dst_i,

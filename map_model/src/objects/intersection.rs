@@ -163,13 +163,13 @@ impl Intersection {
     pub fn some_outgoing_road(&self, map: &Map) -> Option<DirectedRoadID> {
         self.outgoing_lanes
             .get(0)
-            .map(|l| map.get_l(*l).get_directed_parent(map))
+            .map(|l| map.get_l(*l).get_directed_parent())
     }
 
     pub fn some_incoming_road(&self, map: &Map) -> Option<DirectedRoadID> {
         self.incoming_lanes
             .get(0)
-            .map(|l| map.get_l(*l).get_directed_parent(map))
+            .map(|l| map.get_l(*l).get_directed_parent())
     }
 
     pub fn name(&self, lang: Option<&String>, map: &Map) -> String {

@@ -70,29 +70,32 @@ impl Position {
         }
     }
 
+    /// Given a position along a lane, find the equivalent position along another lane on the same
+    /// road.
     pub fn equiv_pos(&self, lane: LaneID, map: &Map) -> Position {
         self.equiv_pos_for_long_object(lane, Distance::ZERO, map)
     }
     pub fn equiv_pos_for_long_object(
         &self,
-        lane: LaneID,
-        our_len: Distance,
+        other_lane: LaneID,
+        object_length: Distance,
         map: &Map,
     ) -> Position {
-        let r = map.get_parent(lane);
-        assert_eq!(map.get_l(self.lane).parent, r.id);
+        let our_lane = map.get_l(self.lane);
+        let other_lane = map.get_l(other_lane);
+        assert_eq!(our_lane.parent, other_lane.parent);
 
         // TODO Project perpendicular
-        let len = map.get_l(lane).length();
+        let len = other_lane.length();
         // The two lanes may be on opposite sides of the road; this often happens on one-ways with
         // sidewalks on both sides.
-        if r.dir(lane) == r.dir(self.lane) {
-            Position::new(lane, self.dist_along.min(len))
+        if other_lane.dir == our_lane.dir {
+            Position::new(other_lane.id, self.dist_along.min(len))
         } else {
             Position::new(
-                lane,
+                other_lane.id,
                 // TODO I don't understand what this is doing anymore in the one case, revisit
-                (len - self.dist_along + our_len)
+                (len - self.dist_along + object_length)
                     .max(Distance::ZERO)
                     .min(len),
             )
@@ -214,7 +217,7 @@ impl Traversable {
     ) -> Speed {
         match self {
             Traversable::Lane(l) => Traversable::max_speed_along_road(
-                map.get_l(*l).get_directed_parent(map),
+                map.get_l(*l).get_directed_parent(),
                 max_speed_on_flat_ground,
                 constraints,
                 map,

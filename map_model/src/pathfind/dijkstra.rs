@@ -112,10 +112,10 @@ fn calc_path_v2(
     params: &RoutingParams,
     map: &Map,
 ) -> Option<(Path, Duration)> {
-    let end = map.get_l(req.end.lane()).get_directed_parent(map);
+    let end = map.get_l(req.end.lane()).get_directed_parent();
     let (cost, path) = petgraph::algo::astar(
         &graph,
-        map.get_l(req.start.lane()).get_directed_parent(map),
+        map.get_l(req.start.lane()).get_directed_parent(),
         |dr| dr == end,
         |(_, _, mvmnt)| {
             vehicle_cost_v2(mvmnt.from, *mvmnt, req.constraints, params, map)

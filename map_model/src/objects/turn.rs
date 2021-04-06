@@ -112,7 +112,7 @@ impl Turn {
         let from_idx = {
             let mut cnt = 0;
             let r = map.get_r(from.parent);
-            for (l, lt) in r.children(r.dir(from.id)).iter().rev() {
+            for (l, lt) in r.children(from.dir).iter().rev() {
                 if from.lane_type != *lt {
                     continue;
                 }
@@ -135,7 +135,7 @@ impl Turn {
         let to_idx = {
             let mut cnt = 0;
             let r = map.get_r(to.parent);
-            for (l, lt) in r.children(r.dir(to.id)).iter().rev() {
+            for (l, lt) in r.children(to.dir).iter().rev() {
                 if to.lane_type != *lt {
                     continue;
                 }
@@ -212,8 +212,8 @@ impl Movement {
         let mut results = BTreeMap::new();
         let mut movements: MultiMap<(DirectedRoadID, DirectedRoadID), TurnID> = MultiMap::new();
         for turn in map.get_turns_in_intersection(i) {
-            let from = map.get_l(turn.id.src).get_directed_parent(map);
-            let to = map.get_l(turn.id.dst).get_directed_parent(map);
+            let from = map.get_l(turn.id.src).get_directed_parent();
+            let to = map.get_l(turn.id.dst).get_directed_parent();
             match turn.turn_type {
                 TurnType::SharedSidewalkCorner => {}
                 TurnType::Crosswalk => {
@@ -371,8 +371,8 @@ fn movement_geom(
 impl TurnID {
     pub fn to_movement(self, map: &Map) -> MovementID {
         MovementID {
-            from: map.get_l(self.src).get_directed_parent(map),
-            to: map.get_l(self.dst).get_directed_parent(map),
+            from: map.get_l(self.src).get_directed_parent(),
+            to: map.get_l(self.dst).get_directed_parent(),
             parent: self.parent,
             crosswalk: map.get_l(self.src).is_walkable(),
         }

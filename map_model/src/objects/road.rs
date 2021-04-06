@@ -150,10 +150,12 @@ impl Road {
         panic!("{} doesn't contain {}", self.id, lane);
     }
 
-    pub fn dir(&self, lane: LaneID) -> Direction {
-        for (l, dir, _) in self.lanes_ltr() {
-            if lane == l {
-                return dir;
+    /// lane must belong to this road. Offset 0 is the centermost lane on each side of a road, then
+    /// it counts up from there. Note this is a different offset than `offset`!
+    pub(crate) fn dir_and_offset(&self, lane: LaneID) -> (Direction, usize) {
+        for &dir in [Direction::Fwd, Direction::Back].iter() {
+            if let Some(idx) = self.children(dir).iter().position(|pair| pair.0 == lane) {
+                return (dir, idx);
             }
         }
         panic!("{} doesn't contain {}", self.id, lane);
@@ -242,7 +244,7 @@ impl Road {
         } else {
             lane.lane_center_pts.must_shift_right(lane.width / 2.0)
         };
-        if self.dir(lane.id) == Direction::Fwd {
+        if lane.dir == Direction::Fwd {
             shifted
         } else {
             shifted.reversed()
@@ -432,17 +434,6 @@ impl Road {
         }
         result.reverse();
         result
-    }
-
-    /// lane must belong to this road. Offset 0 is the centermost lane on each side of a road, then
-    /// it counts up from there.
-    pub(crate) fn dir_and_offset(&self, lane: LaneID) -> (Direction, usize) {
-        for &dir in [Direction::Fwd, Direction::Back].iter() {
-            if let Some(idx) = self.children(dir).iter().position(|pair| pair.0 == lane) {
-                return (dir, idx);
-            }
-        }
-        panic!("{} doesn't contain {}", self.id, lane);
     }
 
     // TODO Deprecated
