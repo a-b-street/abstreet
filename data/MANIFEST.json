@@ -1620,6 +1620,11 @@
       "uncompressed_size_bytes": 107169124,
       "compressed_size_bytes": 23225649
     },
+    "data/input/us/seattle/popdat.bin": {
+      "checksum": "7ac4103b224714bf28e6441e12bed4b5",
+      "uncompressed_size_bytes": 445888310,
+      "compressed_size_bytes": 205056519
+    },
     "data/input/us/seattle/raw_maps/arboretum.bin": {
       "checksum": "880892d2312f8e662f2aeb77403c5699",
       "uncompressed_size_bytes": 3460496,
@@ -1634,6 +1639,11 @@
       "checksum": "96dbc9cafc6c60399f30a87fdafa0856",
       "uncompressed_size_bytes": 8475279,
       "compressed_size_bytes": 2045833
+    },
+    "data/input/us/seattle/raw_maps/huge_seattle.bin": {
+      "checksum": "c6053485c6ddc4703424c934d53db9e2",
+      "uncompressed_size_bytes": 137824767,
+      "compressed_size_bytes": 32229687
     },
     "data/input/us/seattle/raw_maps/lakeslice.bin": {
       "checksum": "0b4fd8d3d39d5bd0531837997aa46be0",
@@ -2909,6 +2919,11 @@
       "checksum": "d36c9d6467d548cde3faaf41c6797829",
       "uncompressed_size_bytes": 32048113,
       "compressed_size_bytes": 11077460
+    },
+    "data/system/us/seattle/maps/huge_seattle.bin": {
+      "checksum": "bc004f231865ecd1b00e6a9489701ee0",
+      "uncompressed_size_bytes": 371891381,
+      "compressed_size_bytes": 133777908
     },
     "data/system/us/seattle/maps/lakeslice.bin": {
       "checksum": "136f7fcb0511c8a9acce8d61f1b418a7",

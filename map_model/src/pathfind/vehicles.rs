@@ -64,6 +64,11 @@ impl VehiclePathfinder {
 
         // All VehiclePathfinders have the same nodes (lanes), so if we're not the first being
         // built, seed from the node ordering.
+        info!(
+            "Contraction hierarchy input graph for {:?} has {} nodes",
+            constraints,
+            abstutil::prettyprint_usize(input_graph.get_num_nodes())
+        );
         let graph = if let Some(seed) = seed {
             let node_ordering = seed.graph.get_node_ordering();
             fast_paths::prepare_with_order(&input_graph, &node_ordering).unwrap()
