@@ -111,6 +111,7 @@ pub struct Lane {
     pub lane_type: LaneType,
     pub lane_center_pts: PolyLine,
     pub width: Distance,
+    pub dir: Direction,
 
     pub src_i: IntersectionID,
     pub dst_i: IntersectionID,
@@ -220,12 +221,10 @@ impl Lane {
         self.lane_type == LaneType::LightRail
     }
 
-    // TODO Store this natively if this winds up being useful.
-    pub fn get_directed_parent(&self, map: &Map) -> DirectedRoadID {
-        let r = map.get_r(self.parent);
+    pub fn get_directed_parent(&self) -> DirectedRoadID {
         DirectedRoadID {
-            id: r.id,
-            dir: r.dir(self.id),
+            id: self.parent,
+            dir: self.dir,
         }
     }
 
@@ -234,12 +233,11 @@ impl Lane {
             return None;
         }
 
-        let dir = road.dir(self.id);
-        let all = if dir == Direction::Fwd && road.osm_tags.contains_key(osm::ENDPT_FWD) {
+        let all = if self.dir == Direction::Fwd && road.osm_tags.contains_key(osm::ENDPT_FWD) {
             road.osm_tags
                 .get("turn:lanes:forward")
                 .or_else(|| road.osm_tags.get("turn:lanes"))?
-        } else if dir == Direction::Back && road.osm_tags.contains_key(osm::ENDPT_BACK) {
+        } else if self.dir == Direction::Back && road.osm_tags.contains_key(osm::ENDPT_BACK) {
             road.osm_tags.get("turn:lanes:backward")?
         } else {
             return None;
@@ -247,7 +245,7 @@ impl Lane {
         let parts: Vec<&str> = all.split('|').collect();
         // Verify the number of parts matches the road's lanes
         let lanes: Vec<LaneID> = road
-            .children(dir)
+            .children(self.dir)
             .into_iter()
             .filter(|(_, lt)| *lt == LaneType::Driving || *lt == LaneType::Bus)
             .map(|(id, _)| id)

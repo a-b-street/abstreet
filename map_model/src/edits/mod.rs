@@ -318,6 +318,7 @@ impl EditCmd {
                         road.lanes_ltr[idx].1 = dir;
                         std::mem::swap(&mut lane.src_i, &mut lane.dst_i);
                         lane.lane_center_pts = lane.lane_center_pts.reversed();
+                        lane.dir = dir;
                     }
                 }
 

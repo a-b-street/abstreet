@@ -268,7 +268,7 @@ impl BuildingsAlongRoad {
         for b in app.map.all_buildings() {
             // TODO Happily assuming road and lane length is roughly the same
             let road = app.map.get_parent(b.sidewalk_pos.lane());
-            let dist = match road.dir(b.sidewalk_pos.lane()) {
+            let dist = match app.map.get_l(b.sidewalk_pos.lane()).dir {
                 Direction::Fwd => b.sidewalk_pos.dist_along(),
                 Direction::Back => road.center_pts.length() - b.sidewalk_pos.dist_along(),
             };

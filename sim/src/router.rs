@@ -399,7 +399,7 @@ impl Router {
             // Look for other candidates, and assign a cost to each.
             let mut original_cost = None;
             let constraints = self.owner.1.to_constraints();
-            let dir = parent.dir(orig_target_lane);
+            let dir = map.get_l(orig_target_lane).dir;
             let best = parent
                 .lanes_ltr()
                 .into_iter()

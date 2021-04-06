@@ -206,6 +206,7 @@ impl Map {
                     src_i,
                     dst_i,
                     lane_type: lane.lt,
+                    dir: lane.dir,
                     parent: road_id,
                     bus_stops: BTreeSet::new(),
                     driving_blackhole: false,

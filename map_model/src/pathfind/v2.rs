@@ -102,7 +102,7 @@ fn find_uber_turns(
 
         if let PathStep::Turn(t) = step {
             if current_ut.is_empty() {
-                if uber_turns_v2[0].path[0].from == map.get_l(t.src).get_directed_parent(map) {
+                if uber_turns_v2[0].path[0].from == map.get_l(t.src).get_directed_parent() {
                     current_ut.push(*t);
                 }
             }
@@ -111,7 +111,7 @@ fn find_uber_turns(
                 if current_ut.last() != Some(t) {
                     current_ut.push(*t);
                 }
-                if uber_turns_v2[0].path[0].to == map.get_l(t.dst).get_directed_parent(map) {
+                if uber_turns_v2[0].path[0].to == map.get_l(t.dst).get_directed_parent() {
                     result.push(UberTurn {
                         path: current_ut.drain(..).collect(),
                     });
@@ -149,7 +149,7 @@ fn _broken_path_v2_to_v1(
         }
         path_steps.push(PathStep::Lane(req.start.lane()));
     }
-    let last_road = map.get_l(req.end.lane()).get_directed_parent(map);
+    let last_road = map.get_l(req.end.lane()).get_directed_parent();
 
     for road in road_steps {
         let prev_lane = if let Some(PathStep::Lane(l)) = path_steps.last() {

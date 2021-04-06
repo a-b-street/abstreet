@@ -399,7 +399,7 @@ impl Map {
     ) -> Vec<MovementID> {
         let mut result = BTreeSet::new();
         for t in &self.get_i(from.dst_i(self)).turns {
-            if self.get_l(t.src).get_directed_parent(self) == from
+            if self.get_l(t.src).get_directed_parent() == from
                 && constraints.can_use(self.get_l(t.dst), self)
             {
                 result.insert(t.to_movement(self));
@@ -503,7 +503,7 @@ impl Map {
         let mut result = BTreeSet::new();
         for l in &self.lanes {
             if constraints.can_use(l, self) {
-                result.insert(l.get_directed_parent(self));
+                result.insert(l.get_directed_parent());
             }
         }
         result.into_iter().collect()

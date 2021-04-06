@@ -364,10 +364,9 @@ fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Polygon> {
 fn calculate_one_way_markings(lane: &Lane, parent: &Road) -> Vec<Polygon> {
     let mut results = Vec::new();
     let lanes = parent.lanes_ltr();
-    let dir = parent.dir(lane.id);
     if lanes
         .into_iter()
-        .any(|(_, d, lt)| dir != d && lt == LaneType::Driving)
+        .any(|(_, d, lt)| lane.dir != d && lt == LaneType::Driving)
     {
         // Not a one-way
         return results;
