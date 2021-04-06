@@ -167,6 +167,9 @@
 <span id="164">164</span>
 <span id="165">165</span>
 <span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::{<span class="ident">BufRead</span>, <span class="ident">BufReader</span>, <span class="ident">BufWriter</span>, <span class="ident">Write</span>};
@@ -181,6 +184,8 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_data</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;add elevation data&quot;</span>);
 
+    <span class="comment">// TODO General problem: If we bail out early, the timer gets screwed up and later crashes. I</span>
+    <span class="comment">// think we need to start using scoped objects that call timer.stop() when dropped.</span>
     <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;generate input&quot;</span>);
     <span class="kw">let</span> <span class="ident">ids</span> <span class="op">=</span> <span class="ident">generate_input</span>(<span class="ident">map</span>)<span class="question-mark">?</span>;
     <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;generate input&quot;</span>);
@@ -203,7 +208,8 @@
         .<span class="ident">arg</span>(<span class="string">&quot;--mount&quot;</span>)
         .<span class="ident">arg</span>(<span class="macro">format</span><span class="macro">!</span>(
             <span class="string">&quot;type=bind,source={},target=/elevation/data&quot;</span>,
-            <span class="ident">abstio</span>::<span class="ident">path_shared_input</span>(<span class="string">&quot;elevation&quot;</span>)
+            <span class="comment">// Docker requires absolute paths</span>
+            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/{}&quot;</span>, <span class="ident">pwd</span>, <span class="ident">abstio</span>::<span class="ident">path_shared_input</span>(<span class="string">&quot;elevation&quot;</span>))
         ))
         .<span class="ident">arg</span>(<span class="string">&quot;--mount&quot;</span>)
         .<span class="ident">arg</span>(<span class="macro">format</span><span class="macro">!</span>(
