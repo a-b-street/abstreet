@@ -140,16 +140,19 @@ pub fn build_graph_for_pedestrians(map: &Map) -> DiGraphMap<WalkingNode, Duratio
                     PathConstraints::Pedestrian,
                     map,
                 );
-            let n1 = WalkingNode::SidewalkEndpoint(l.id, true);
-            let n2 = WalkingNode::SidewalkEndpoint(l.id, false);
+            let n1 = WalkingNode::SidewalkEndpoint(l.get_directed_parent(), true);
+            let n2 = WalkingNode::SidewalkEndpoint(l.get_directed_parent(), false);
             graph.add_edge(n1, n2, cost);
             graph.add_edge(n2, n1, cost);
 
             for turn in map.get_turns_for(l.id, PathConstraints::Pedestrian) {
                 graph.add_edge(
-                    WalkingNode::SidewalkEndpoint(l.id, l.dst_i == turn.id.parent),
                     WalkingNode::SidewalkEndpoint(
-                        turn.id.dst,
+                        l.get_directed_parent(),
+                        l.dst_i == turn.id.parent,
+                    ),
+                    WalkingNode::SidewalkEndpoint(
+                        map.get_l(turn.id.dst).get_directed_parent(),
                         map.get_l(turn.id.dst).dst_i == turn.id.parent,
                     ),
                     turn.geom.length()

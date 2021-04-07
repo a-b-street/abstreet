@@ -16,7 +16,7 @@ use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::pathfind::vehicles::VehiclePathfinder;
 use crate::pathfind::zone_cost;
 use crate::{
-    BusRoute, BusRouteID, BusStopID, IntersectionID, LaneID, Map, Path, PathConstraints,
+    BusRoute, BusRouteID, BusStopID, DirectedRoadID, IntersectionID, Map, Path, PathConstraints,
     PathRequest, PathStep, Position, Traversable,
 };
 
@@ -35,7 +35,7 @@ pub struct SidewalkPathfinder {
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug, Hash, Serialize, Deserialize)]
 pub enum WalkingNode {
     /// false is src_i, true is dst_i
-    SidewalkEndpoint(LaneID, bool),
+    SidewalkEndpoint(DirectedRoadID, bool),
     // TODO Lots of complexity below could be avoided by explicitly sticking BusRouteID here too.
     // Worth it?
     RideBus(BusStopID),
@@ -44,8 +44,9 @@ pub enum WalkingNode {
 
 impl WalkingNode {
     pub fn closest(pos: Position, map: &Map) -> WalkingNode {
-        let dst_i = map.get_l(pos.lane()).length() - pos.dist_along() <= pos.dist_along();
-        WalkingNode::SidewalkEndpoint(pos.lane(), dst_i)
+        let lane = map.get_l(pos.lane());
+        let dst_i = lane.length() - pos.dist_along() <= pos.dist_along();
+        WalkingNode::SidewalkEndpoint(lane.get_directed_parent(), dst_i)
     }
 
     fn end_transit(pos: Position, map: &Map) -> WalkingNode {
@@ -67,11 +68,15 @@ impl WalkingNode {
 impl SidewalkPathfinder {
     pub fn new(map: &Map, use_transit: bool, bus_graph: &VehiclePathfinder) -> SidewalkPathfinder {
         let mut nodes = NodeMap::new();
-        // We're assuming that to start with, no sidewalks are closed for construction!
+        // We're assuming sidewalks aren't editable, so what exists initially will always be true.
         for l in map.all_lanes() {
             if l.is_walkable() {
-                nodes.get_or_insert(WalkingNode::SidewalkEndpoint(l.id, true));
-                nodes.get_or_insert(WalkingNode::SidewalkEndpoint(l.id, false));
+                // We're also assuming there's only one walkable lane per side of the road.
+                nodes.get_or_insert(WalkingNode::SidewalkEndpoint(l.get_directed_parent(), true));
+                nodes.get_or_insert(WalkingNode::SidewalkEndpoint(
+                    l.get_directed_parent(),
+                    false,
+                ));
             }
         }
         if use_transit {
@@ -229,8 +234,11 @@ fn make_input_graph(
             if l.is_shoulder() {
                 cost = 2.0 * cost;
             }
-            let n1 = nodes.get(WalkingNode::SidewalkEndpoint(l.id, true));
-            let n2 = nodes.get(WalkingNode::SidewalkEndpoint(l.id, false));
+            let n1 = nodes.get(WalkingNode::SidewalkEndpoint(l.get_directed_parent(), true));
+            let n2 = nodes.get(WalkingNode::SidewalkEndpoint(
+                l.get_directed_parent(),
+                false,
+            ));
             input_graph.add_edge(n1, n2, round(cost));
             input_graph.add_edge(n2, n1, round(cost));
         }
@@ -238,10 +246,12 @@ fn make_input_graph(
 
     for t in map.all_turns().values() {
         if t.between_sidewalks() {
+            let src = map.get_l(t.id.src);
+            let dst = map.get_l(t.id.dst);
             let from =
-                WalkingNode::SidewalkEndpoint(t.id.src, map.get_l(t.id.src).dst_i == t.id.parent);
+                WalkingNode::SidewalkEndpoint(src.get_directed_parent(), src.dst_i == t.id.parent);
             let to =
-                WalkingNode::SidewalkEndpoint(t.id.dst, map.get_l(t.id.dst).dst_i == t.id.parent);
+                WalkingNode::SidewalkEndpoint(dst.get_directed_parent(), dst.dst_i == t.id.parent);
             let cost = t.geom.length()
                 / Traversable::Turn(t.id).max_speed_along(
                     max_speed,
@@ -290,7 +300,10 @@ fn transit_input_graph(
             // Add some extra penalty to using a bus stop. Otherwise a path might try to pass
             // through it uselessly.
             let penalty = Duration::seconds(10.0);
-            let sidewalk = nodes.get(WalkingNode::SidewalkEndpoint(lane.id, *endpt));
+            let sidewalk = nodes.get(WalkingNode::SidewalkEndpoint(
+                lane.get_directed_parent(),
+                *endpt,
+            ));
             input_graph.add_edge(sidewalk, ride_bus, round(cost + penalty));
             input_graph.add_edge(ride_bus, sidewalk, round(cost + penalty));
         }
@@ -378,7 +391,10 @@ fn transit_input_graph(
                 .expect("no sidewalks in map");
             input_graph.add_edge(
                 nodes.get(WalkingNode::LeaveMap(i.id)),
-                nodes.get(WalkingNode::SidewalkEndpoint(some_sidewalk.id, true)),
+                nodes.get(WalkingNode::SidewalkEndpoint(
+                    some_sidewalk.get_directed_parent(),
+                    true,
+                )),
                 1,
             );
         }
@@ -389,16 +405,19 @@ pub fn walking_path_to_steps(path: Vec<WalkingNode>, map: &Map) -> Vec<PathStep>
     let mut steps: Vec<PathStep> = Vec::new();
 
     for pair in path.windows(2) {
-        let (l1, l1_endpt) = match pair[0] {
-            WalkingNode::SidewalkEndpoint(l, endpt) => (l, endpt),
+        let (r1, l1_endpt) = match pair[0] {
+            WalkingNode::SidewalkEndpoint(r, endpt) => (r, endpt),
             WalkingNode::RideBus(_) => unreachable!(),
             WalkingNode::LeaveMap(_) => unreachable!(),
         };
-        let l2 = match pair[1] {
-            WalkingNode::SidewalkEndpoint(l, _) => l,
+        let r2 = match pair[1] {
+            WalkingNode::SidewalkEndpoint(r, _) => r,
             WalkingNode::RideBus(_) => unreachable!(),
             WalkingNode::LeaveMap(_) => unreachable!(),
         };
+
+        let l1 = r1.must_get_sidewalk(map);
+        let l2 = r2.must_get_sidewalk(map);
 
         if l1 == l2 {
             if l1_endpt {

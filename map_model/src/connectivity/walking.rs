@@ -88,11 +88,11 @@ pub fn all_walking_costs_from(
         }
         cost_per_node.insert(current.node, current.cost);
 
-        let (l, is_dst_i) = match current.node {
-            WalkingNode::SidewalkEndpoint(l, is_dst_i) => (l, is_dst_i),
+        let (r, is_dst_i) = match current.node {
+            WalkingNode::SidewalkEndpoint(r, is_dst_i) => (r, is_dst_i),
             _ => unreachable!(),
         };
-        let lane = map.get_l(l);
+        let lane = map.get_l(r.must_get_sidewalk(map));
         // Cross the lane
         if opts.allow_shoulders || lane.lane_type != LaneType::Shoulder {
             queue.push(Item {
@@ -103,7 +103,7 @@ pub fn all_walking_costs_from(
                             PathConstraints::Pedestrian,
                             map,
                         ),
-                node: WalkingNode::SidewalkEndpoint(lane.id, !is_dst_i),
+                node: WalkingNode::SidewalkEndpoint(r, !is_dst_i),
             });
         }
         // All turns from the lane
@@ -120,7 +120,7 @@ pub fn all_walking_costs_from(
                             map,
                         ),
                 node: WalkingNode::SidewalkEndpoint(
-                    turn.id.dst,
+                    map.get_l(turn.id.dst).get_directed_parent(),
                     map.get_l(turn.id.dst).dst_i == turn.id.parent,
                 ),
             });

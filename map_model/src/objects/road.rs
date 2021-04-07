@@ -88,6 +88,20 @@ impl DirectedRoadID {
         constraints.filter_lanes(r.children(self.dir).iter().map(|(l, _)| *l).collect(), map)
     }
 
+    /// Get the only sidewalk or shoulder on this side of the road, and panic otherwise.
+    pub fn must_get_sidewalk(self, map: &Map) -> LaneID {
+        let mut found = Vec::new();
+        for (l, lt) in map.get_r(self.id).children(self.dir) {
+            if lt == LaneType::Sidewalk || lt == LaneType::Shoulder {
+                found.push(l);
+            }
+        }
+        if found.len() != 1 {
+            panic!("must_get_sidewalk broken by {}", self);
+        }
+        found[0]
+    }
+
     /// Does this directed road have any lanes of a certain type?
     pub fn has_lanes(self, lane_type: LaneType, map: &Map) -> bool {
         for (_, lt) in map.get_r(self.id).children(self.dir) {
