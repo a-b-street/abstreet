@@ -196,17 +196,13 @@
 <span id="193">193</span>
 <span id="194">194</span>
 <span id="195">195</span>
-<span id="196">196</span>
-<span id="197">197</span>
-<span id="198">198</span>
-<span id="199">199</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathStep</span>, <span class="ident">TurnID</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathStep</span>, <span class="ident">RoadID</span>, <span class="ident">TurnID</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechanics</span>::<span class="ident">IntersectionSimState</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">CarID</span>, <span class="ident">SimOptions</span>, <span class="ident">VehicleType</span>};
@@ -227,7 +223,7 @@
 <span class="comment">// TODO I&#39;m not sure a single struct is the right way to manage these combinations.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">CapSimState</span> {
-    <span class="ident">lane_to_zone</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">ZoneIdx</span><span class="op">&gt;</span>,
+    <span class="ident">road_to_zone</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">RoadID</span>, <span class="ident">ZoneIdx</span><span class="op">&gt;</span>,
     <span class="ident">zones</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Zone</span><span class="op">&gt;</span>,
 
     <span class="ident">cancel_drivers_delay_threshold</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
@@ -253,7 +249,7 @@
 <span class="kw">impl</span> <span class="ident">CapSimState</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">SimOptions</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CapSimState</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">CapSimState</span> {
-            <span class="ident">lane_to_zone</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
+            <span class="ident">road_to_zone</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
             <span class="ident">zones</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
             <span class="ident">cancel_drivers_delay_threshold</span>: <span class="ident">opts</span>.<span class="ident">cancel_drivers_delay_threshold</span>.<span class="ident">clone</span>(),
             <span class="ident">delay_trips_instead_of_cancelling</span>: <span class="ident">opts</span>.<span class="ident">delay_trips_instead_of_cancelling</span>.<span class="ident">clone</span>(),
@@ -262,11 +258,7 @@
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cap</span>) <span class="op">=</span> <span class="ident">z</span>.<span class="ident">restrictions</span>.<span class="ident">cap_vehicles_per_hour</span> {
                 <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">zones</span>.<span class="ident">len</span>();
                 <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">z</span>.<span class="ident">members</span> {
-                    <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">all_lanes</span>() {
-                        <span class="kw">if</span> <span class="ident">PathConstraints</span>::<span class="ident">Car</span>.<span class="ident">can_use</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>), <span class="ident">map</span>) {
-                            <span class="ident">sim</span>.<span class="ident">lane_to_zone</span>.<span class="ident">insert</span>(<span class="ident">l</span>, <span class="ident">idx</span>);
-                        }
-                    }
+                    <span class="ident">sim</span>.<span class="ident">road_to_zone</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="ident">idx</span>);
                 }
                 <span class="ident">sim</span>.<span class="ident">zones</span>.<span class="ident">push</span>(<span class="ident">Zone</span> {
                     <span class="ident">cap</span>,
@@ -301,20 +293,20 @@
             }
         }
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">trip_under_cap</span>(<span class="ident">now</span>, <span class="ident">car</span>, <span class="kw-2">&amp;</span><span class="ident">path</span>) {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">trip_under_cap</span>(<span class="ident">now</span>, <span class="ident">car</span>, <span class="kw-2">&amp;</span><span class="ident">path</span>, <span class="ident">map</span>) {
             <span class="kw">return</span> <span class="ident">CapResult</span>::<span class="ident">OK</span>(<span class="ident">path</span>);
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">avoid_lanes</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
-        <span class="kw">for</span> (<span class="ident">l</span>, <span class="ident">idx</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">lane_to_zone</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">avoid_roads</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
+        <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">idx</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">road_to_zone</span> {
             <span class="kw">let</span> <span class="ident">zone</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">zones</span>[<span class="kw-2">*</span><span class="ident">idx</span>];
             <span class="kw">if</span> <span class="ident">zone</span>.<span class="ident">entered_in_last_hour</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">zone</span>.<span class="ident">cap</span>
                 <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">zone</span>.<span class="ident">entered_in_last_hour</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">car</span>)
             {
-                <span class="ident">avoid_lanes</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">l</span>);
+                <span class="ident">avoid_roads</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">r</span>);
             }
         }
-        <span class="kw">match</span> <span class="ident">map</span>.<span class="ident">pathfind_avoiding_lanes</span>(<span class="ident">path</span>.<span class="ident">get_req</span>().<span class="ident">clone</span>(), <span class="ident">avoid_lanes</span>) {
+        <span class="kw">match</span> <span class="ident">map</span>.<span class="ident">pathfind_avoiding_roads</span>(<span class="ident">path</span>.<span class="ident">get_req</span>().<span class="ident">clone</span>(), <span class="ident">avoid_roads</span>) {
             <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CapResult</span>::<span class="ident">Reroute</span>(<span class="ident">path</span>),
             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">delay</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">delay_trips_instead_of_cancelling</span> {
@@ -331,21 +323,21 @@
 
 <span class="comment">// Specific to the cap-per-road mechanism</span>
 <span class="kw">impl</span> <span class="ident">CapSimState</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_cap_counter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">lane_to_zone</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">l</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_cap_counter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">r</span>: <span class="ident">RoadID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">road_to_zone</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>) {
             <span class="self">self</span>.<span class="ident">zones</span>[<span class="kw-2">*</span><span class="ident">idx</span>].<span class="ident">entered_in_last_hour</span>.<span class="ident">len</span>()
         } <span class="kw">else</span> {
             <span class="number">0</span>
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">trip_under_cap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">car</span>: <span class="ident">CarID</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="ident">car</span>.<span class="number">1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Car</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">lane_to_zone</span>.<span class="ident">is_empty</span>() {
+    <span class="kw">fn</span> <span class="ident">trip_under_cap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">car</span>: <span class="ident">CarID</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">if</span> <span class="ident">car</span>.<span class="number">1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Car</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">road_to_zone</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> <span class="bool-val">true</span>;
         }
         <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">get_steps</span>() {
             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep</span>::<span class="ident">Lane</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">step</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">lane_to_zone</span>.<span class="ident">get</span>(<span class="ident">l</span>) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">road_to_zone</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">parent</span>) {
                     <span class="kw">let</span> <span class="ident">zone</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">zones</span>[<span class="kw-2">*</span><span class="ident">idx</span>];
 
                     <span class="kw">if</span> <span class="ident">now</span> <span class="op">-</span> <span class="ident">zone</span>.<span class="ident">hour_started</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">1</span>) {
