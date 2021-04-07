@@ -359,7 +359,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">node_map</span>::{<span class="ident">deserialize_nodemap</span>, <span class="ident">NodeMap</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">uber_turns</span>::{<span class="ident">IntersectionCluster</span>, <span class="ident">UberTurnV2</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">v2</span>::<span class="ident">path_v2_to_v1</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">zone_cost_v2</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">zone_cost</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>,
     <span class="ident">PathRequest</span>, <span class="ident">RoadID</span>, <span class="ident">RoutingParams</span>, <span class="ident">Traversable</span>, <span class="ident">TurnType</span>,
@@ -539,13 +539,13 @@
                             <span class="ident">from</span>,
                             <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">Node</span>::<span class="ident">Road</span>(<span class="ident">mvmnt</span>.<span class="ident">to</span>)),
                             <span class="ident">round</span>(
-                                <span class="ident">vehicle_cost_v2</span>(
+                                <span class="ident">vehicle_cost</span>(
                                     <span class="ident">mvmnt</span>.<span class="ident">from</span>,
                                     <span class="ident">mvmnt</span>,
                                     <span class="ident">constraints</span>,
                                     <span class="ident">map</span>.<span class="ident">routing_params</span>(),
                                     <span class="ident">map</span>,
-                                ) <span class="op">+</span> <span class="ident">zone_cost_v2</span>(<span class="ident">mvmnt</span>, <span class="ident">constraints</span>, <span class="ident">map</span>),
+                                ) <span class="op">+</span> <span class="ident">zone_cost</span>(<span class="ident">mvmnt</span>, <span class="ident">constraints</span>, <span class="ident">map</span>),
                             ),
                         );
                     }
@@ -556,13 +556,13 @@
 
                         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sum_cost</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>;
                         <span class="kw">for</span> <span class="ident">mvmnt</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">ut</span>.<span class="ident">path</span> {
-                            <span class="ident">sum_cost</span> <span class="op">+</span><span class="op">=</span> <span class="ident">vehicle_cost_v2</span>(
+                            <span class="ident">sum_cost</span> <span class="op">+</span><span class="op">=</span> <span class="ident">vehicle_cost</span>(
                                 <span class="ident">mvmnt</span>.<span class="ident">from</span>,
                                 <span class="kw-2">*</span><span class="ident">mvmnt</span>,
                                 <span class="ident">constraints</span>,
                                 <span class="ident">map</span>.<span class="ident">routing_params</span>(),
                                 <span class="ident">map</span>,
-                            ) <span class="op">+</span> <span class="ident">zone_cost_v2</span>(<span class="kw-2">*</span><span class="ident">mvmnt</span>, <span class="ident">constraints</span>, <span class="ident">map</span>);
+                            ) <span class="op">+</span> <span class="ident">zone_cost</span>(<span class="kw-2">*</span><span class="ident">mvmnt</span>, <span class="ident">constraints</span>, <span class="ident">map</span>);
                         }
                         <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(
                             <span class="ident">from</span>,
@@ -616,7 +616,7 @@
 <span class="doccomment">/// This returns the pathfinding cost of crossing one road and turn. This is also expressed in</span>
 <span class="doccomment">/// units of time. It factors in the ideal time to cross the space, along with penalties for</span>
 <span class="doccomment">/// entering an access-restricted zone, taking an unprotected turn, and so on.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vehicle_cost_v2</span>(
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vehicle_cost</span>(
     <span class="ident">dr</span>: <span class="ident">DirectedRoadID</span>,
     <span class="ident">mvmnt</span>: <span class="ident">MovementID</span>,
     <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,

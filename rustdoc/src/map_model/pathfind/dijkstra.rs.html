@@ -148,7 +148,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">v2</span>::<span class="ident">path_v2_to_v1</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">walking</span>::<span class="ident">WalkingNode</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::{<span class="ident">vehicle_cost_v2</span>, <span class="ident">zone_cost</span>, <span class="ident">zone_cost_v2</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::{<span class="ident">vehicle_cost</span>, <span class="ident">zone_cost</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">DirectedRoadID</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">RoadID</span>, <span class="ident">RoutingParams</span>,
     <span class="ident">Traversable</span>,
@@ -161,11 +161,11 @@
     <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span>,
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Path</span>, <span class="ident">Duration</span>)<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">graph</span> <span class="op">=</span> <span class="ident">build_graph_for_vehicles_v2</span>(<span class="ident">map</span>, <span class="ident">req</span>.<span class="ident">constraints</span>);
-    <span class="ident">calc_path_v2</span>(<span class="ident">graph</span>, <span class="ident">req</span>, <span class="ident">params</span>, <span class="ident">map</span>)
+    <span class="kw">let</span> <span class="ident">graph</span> <span class="op">=</span> <span class="ident">build_graph_for_vehicles</span>(<span class="ident">map</span>, <span class="ident">req</span>.<span class="ident">constraints</span>);
+    <span class="ident">calc_path</span>(<span class="ident">graph</span>, <span class="ident">req</span>, <span class="ident">params</span>, <span class="ident">map</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_graph_for_vehicles_v2</span>(
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_graph_for_vehicles</span>(
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DiGraphMap</span><span class="op">&lt;</span><span class="ident">DirectedRoadID</span>, <span class="ident">MovementID</span><span class="op">&gt;</span> {
@@ -194,10 +194,10 @@
         }
     }
 
-    <span class="ident">calc_path_v2</span>(<span class="ident">graph</span>, <span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>.<span class="ident">routing_params</span>(), <span class="ident">map</span>)
+    <span class="ident">calc_path</span>(<span class="ident">graph</span>, <span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>.<span class="ident">routing_params</span>(), <span class="ident">map</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">calc_path_v2</span>(
+<span class="kw">fn</span> <span class="ident">calc_path</span>(
     <span class="ident">graph</span>: <span class="ident">DiGraphMap</span><span class="op">&lt;</span><span class="ident">DirectedRoadID</span>, <span class="ident">MovementID</span><span class="op">&gt;</span>,
     <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">PathRequest</span>,
     <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span>,
@@ -209,8 +209,8 @@
         <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>()).<span class="ident">get_directed_parent</span>(),
         <span class="op">|</span><span class="ident">dr</span><span class="op">|</span> <span class="ident">dr</span> <span class="op">=</span><span class="op">=</span> <span class="ident">end</span>,
         <span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">mvmnt</span>)<span class="op">|</span> {
-            <span class="ident">vehicle_cost_v2</span>(<span class="ident">mvmnt</span>.<span class="ident">from</span>, <span class="kw-2">*</span><span class="ident">mvmnt</span>, <span class="ident">req</span>.<span class="ident">constraints</span>, <span class="ident">params</span>, <span class="ident">map</span>)
-                <span class="op">+</span> <span class="ident">zone_cost_v2</span>(<span class="kw-2">*</span><span class="ident">mvmnt</span>, <span class="ident">req</span>.<span class="ident">constraints</span>, <span class="ident">map</span>)
+            <span class="ident">vehicle_cost</span>(<span class="ident">mvmnt</span>.<span class="ident">from</span>, <span class="kw-2">*</span><span class="ident">mvmnt</span>, <span class="ident">req</span>.<span class="ident">constraints</span>, <span class="ident">params</span>, <span class="ident">map</span>)
+                <span class="op">+</span> <span class="ident">zone_cost</span>(<span class="kw-2">*</span><span class="ident">mvmnt</span>, <span class="ident">req</span>.<span class="ident">constraints</span>, <span class="ident">map</span>)
         },
         <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>,
     )<span class="question-mark">?</span>;
@@ -252,7 +252,7 @@
                             <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
                             <span class="ident">map</span>,
                         )
-                        <span class="op">+</span> <span class="ident">zone_cost</span>(<span class="ident">turn</span>, <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>, <span class="ident">map</span>),
+                        <span class="op">+</span> <span class="ident">zone_cost</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">to_movement</span>(<span class="ident">map</span>), <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>, <span class="ident">map</span>),
                 );
             }
         }

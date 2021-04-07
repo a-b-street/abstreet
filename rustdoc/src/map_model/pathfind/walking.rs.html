@@ -761,7 +761,7 @@
             <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(
                 <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">from</span>),
                 <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">to</span>),
-                <span class="ident">round</span>(<span class="ident">cost</span> <span class="op">+</span> <span class="ident">zone_cost</span>(<span class="ident">t</span>, <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>, <span class="ident">map</span>)),
+                <span class="ident">round</span>(<span class="ident">cost</span> <span class="op">+</span> <span class="ident">zone_cost</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">to_movement</span>(<span class="ident">map</span>), <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>, <span class="ident">map</span>)),
             );
         }
     }
