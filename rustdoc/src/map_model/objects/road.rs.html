@@ -470,15 +470,6 @@
 <span id="467">467</span>
 <span id="468">468</span>
 <span id="469">469</span>
-<span id="470">470</span>
-<span id="471">471</span>
-<span id="472">472</span>
-<span id="473">473</span>
-<span id="474">474</span>
-<span id="475">475</span>
-<span id="476">476</span>
-<span id="477">477</span>
-<span id="478">478</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
@@ -632,10 +623,12 @@
         <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;{} doesn&#39;t contain {}&quot;</span>, <span class="self">self</span>.<span class="ident">id</span>, <span class="ident">lane</span>);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dir</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">lane</span>: <span class="ident">LaneID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Direction</span> {
-        <span class="kw">for</span> (<span class="ident">l</span>, <span class="ident">dir</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">lanes_ltr</span>() {
-            <span class="kw">if</span> <span class="ident">lane</span> <span class="op">=</span><span class="op">=</span> <span class="ident">l</span> {
-                <span class="kw">return</span> <span class="ident">dir</span>;
+    <span class="doccomment">/// lane must belong to this road. Offset 0 is the centermost lane on each side of a road, then</span>
+    <span class="doccomment">/// it counts up from there. Note this is a different offset than `offset`!</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">dir_and_offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">lane</span>: <span class="ident">LaneID</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Direction</span>, <span class="ident">usize</span>) {
+        <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">dir</span> <span class="kw">in</span> [<span class="ident">Direction</span>::<span class="ident">Fwd</span>, <span class="ident">Direction</span>::<span class="ident">Back</span>].<span class="ident">iter</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">children</span>(<span class="ident">dir</span>).<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">pair</span>.<span class="number">0</span> <span class="op">=</span><span class="op">=</span> <span class="ident">lane</span>) {
+                <span class="kw">return</span> (<span class="ident">dir</span>, <span class="ident">idx</span>);
             }
         }
         <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;{} doesn&#39;t contain {}&quot;</span>, <span class="self">self</span>.<span class="ident">id</span>, <span class="ident">lane</span>);
@@ -724,7 +717,7 @@
         } <span class="kw">else</span> {
             <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>.<span class="ident">must_shift_right</span>(<span class="ident">lane</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>)
         };
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">dir</span>(<span class="ident">lane</span>.<span class="ident">id</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span> {
+        <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span> {
             <span class="ident">shifted</span>
         } <span class="kw">else</span> {
             <span class="ident">shifted</span>.<span class="ident">reversed</span>()
@@ -914,17 +907,6 @@
         }
         <span class="ident">result</span>.<span class="ident">reverse</span>();
         <span class="ident">result</span>
-    }
-
-    <span class="doccomment">/// lane must belong to this road. Offset 0 is the centermost lane on each side of a road, then</span>
-    <span class="doccomment">/// it counts up from there.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">dir_and_offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">lane</span>: <span class="ident">LaneID</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Direction</span>, <span class="ident">usize</span>) {
-        <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">dir</span> <span class="kw">in</span> [<span class="ident">Direction</span>::<span class="ident">Fwd</span>, <span class="ident">Direction</span>::<span class="ident">Back</span>].<span class="ident">iter</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">children</span>(<span class="ident">dir</span>).<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">pair</span>.<span class="number">0</span> <span class="op">=</span><span class="op">=</span> <span class="ident">lane</span>) {
-                <span class="kw">return</span> (<span class="ident">dir</span>, <span class="ident">idx</span>);
-            }
-        }
-        <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;{} doesn&#39;t contain {}&quot;</span>, <span class="self">self</span>.<span class="ident">id</span>, <span class="ident">lane</span>);
     }
 
     <span class="comment">// TODO Deprecated</span>

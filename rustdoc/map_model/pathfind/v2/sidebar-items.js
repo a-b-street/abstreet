@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["_broken_path_v2_to_v1",""],["path_v2_to_v1","Transform a sequence of roads representing a path into the current lane-based path, by picking particular lanes and turns to use."]]});
+initSidebarItems({"fn":[["_broken_path_v2_to_v1",""],["find_uber_turns",""],["path_v2_to_v1","Transform a sequence of roads representing a path into the current lane-based path, by picking particular lanes and turns to use."]]});

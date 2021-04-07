@@ -183,10 +183,6 @@
 <span id="180">180</span>
 <span id="181">181</span>
 <span id="182">182</span>
-<span id="183">183</span>
-<span id="184">184</span>
-<span id="185">185</span>
-<span id="186">186</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Pathfinding without needing to build a separate contraction hierarchy.</span>
 
@@ -302,10 +298,10 @@
     <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span>,
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Path</span>, <span class="ident">Duration</span>)<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">lane</span>()).<span class="ident">get_directed_parent</span>(<span class="ident">map</span>);
+    <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">lane</span>()).<span class="ident">get_directed_parent</span>();
     <span class="kw">let</span> (<span class="ident">cost</span>, <span class="ident">path</span>) <span class="op">=</span> <span class="ident">petgraph</span>::<span class="ident">algo</span>::<span class="ident">astar</span>(
         <span class="kw-2">&amp;</span><span class="ident">graph</span>,
-        <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>()).<span class="ident">get_directed_parent</span>(<span class="ident">map</span>),
+        <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>()).<span class="ident">get_directed_parent</span>(),
         <span class="op">|</span><span class="ident">dr</span><span class="op">|</span> <span class="ident">dr</span> <span class="op">=</span><span class="op">=</span> <span class="ident">end</span>,
         <span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">mvmnt</span>)<span class="op">|</span> {
             <span class="ident">vehicle_cost_v2</span>(<span class="ident">mvmnt</span>.<span class="ident">from</span>, <span class="kw-2">*</span><span class="ident">mvmnt</span>, <span class="ident">req</span>.<span class="ident">constraints</span>, <span class="ident">params</span>, <span class="ident">map</span>)
@@ -314,12 +310,8 @@
         <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>,
     )<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">steps</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
-        <span class="ident">steps</span>.<span class="ident">push</span>(<span class="ident">pair</span>[<span class="number">0</span>]);
-    }
-    <span class="ident">steps</span>.<span class="ident">push</span>(<span class="ident">end</span>);
-    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path_v2_to_v1</span>(<span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">steps</span>, <span class="ident">map</span>).<span class="ident">ok</span>()<span class="question-mark">?</span>;
+    <span class="comment">// TODO No uber-turns yet</span>
+    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path_v2_to_v1</span>(<span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">path</span>, <span class="ident">Vec</span>::<span class="ident">new</span>(), <span class="ident">map</span>).<span class="ident">ok</span>()<span class="question-mark">?</span>;
     <span class="prelude-val">Some</span>((<span class="ident">path</span>, <span class="ident">cost</span>))
 }
 

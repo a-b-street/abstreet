@@ -673,6 +673,7 @@
 <span id="670">670</span>
 <span id="671">671</span>
 <span id="672">672</span>
+<span id="673">673</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Once a Map exists, the player can edit it in the UI (producing `MapEdits` in-memory), then save</span>
 <span class="doccomment">//! the changes to a file (as `PermanentMapEdits`). See</span>
@@ -994,6 +995,7 @@
                         <span class="ident">road</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="number">1</span> <span class="op">=</span> <span class="ident">dir</span>;
                         <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">swap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lane</span>.<span class="ident">src_i</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lane</span>.<span class="ident">dst_i</span>);
                         <span class="ident">lane</span>.<span class="ident">lane_center_pts</span> <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>.<span class="ident">reversed</span>();
+                        <span class="ident">lane</span>.<span class="ident">dir</span> <span class="op">=</span> <span class="ident">dir</span>;
                     }
                 }
 

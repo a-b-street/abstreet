@@ -279,6 +279,15 @@
 <span id="276">276</span>
 <span id="277">277</span>
 <span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! To deal with complicated intersections and short roads in OSM, cluster intersections close</span>
 <span class="doccomment">//! together and then calculate UberTurns that string together several turns.</span>
@@ -290,7 +299,7 @@
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">PolyLine</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>, <span class="ident">TurnID</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">DirectedRoadID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>, <span class="ident">TurnID</span>};
 
 <span class="doccomment">/// This only applies to VehiclePathfinder; walking through these intersections is nothing special.</span>
 <span class="comment">// TODO I haven&#39;t seen any cases yet with &quot;interior&quot; intersections. Some stuff might break.</span>
@@ -556,6 +565,15 @@
             <span class="ident">result</span>.<span class="ident">insert</span>(<span class="ident">UberTurnV2</span> { <span class="ident">path</span> });
         }
         <span class="ident">result</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>()
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">UberTurnV2</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">entry</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DirectedRoadID</span> {
+        <span class="self">self</span>.<span class="ident">path</span>[<span class="number">0</span>].<span class="ident">from</span>
+    }
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DirectedRoadID</span> {
+        <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">to</span>
     }
 }
 </pre></div>
