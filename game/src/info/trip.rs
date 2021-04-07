@@ -5,7 +5,7 @@ use maplit::btreemap;
 use geom::{Distance, Duration, Percent, Polygon, Pt2D};
 use map_gui::ID;
 use map_model::{Map, Path, PathStep};
-use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhase, TripPhaseType};
+use sim::{AgentID, PersonID, TripEndpoint, TripID, TripMode, TripPhase, TripPhaseType};
 use widgetry::{
     Color, ControlState, DrawWithTooltips, EventCtx, GeomBatch, Line, LinePlot, PlotOptions,
     RewriteColor, Series, Text, TextExt, Widget,
@@ -725,7 +725,11 @@ fn make_trip_details(
     for (idx, p) in phases.into_iter().enumerate() {
         let color = color_for_trip_phase(app, p.phase_type).alpha(0.7);
         if let Some(path) = &p.path {
-            if p.phase_type == TripPhaseType::Walking || p.phase_type == TripPhaseType::Biking {
+            // Don't show the elevation plot for somebody walking to their car
+            if ((trip.mode == TripMode::Walk || trip.mode == TripMode::Transit)
+                && p.phase_type == TripPhaseType::Walking)
+                || (trip.mode == TripMode::Bike && p.phase_type == TripPhaseType::Biking)
+            {
                 elevation.push(make_elevation(
                     ctx,
                     color,
