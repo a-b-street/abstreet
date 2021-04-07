@@ -137,21 +137,6 @@
 <span id="134">134</span>
 <span id="135">135</span>
 <span id="136">136</span>
-<span id="137">137</span>
-<span id="138">138</span>
-<span id="139">139</span>
-<span id="140">140</span>
-<span id="141">141</span>
-<span id="142">142</span>
-<span id="143">143</span>
-<span id="144">144</span>
-<span id="145">145</span>
-<span id="146">146</span>
-<span id="147">147</span>
-<span id="148">148</span>
-<span id="149">149</span>
-<span id="150">150</span>
-<span id="151">151</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Pathfinding without needing to build a separate contraction hierarchy.</span>
 
@@ -165,8 +150,8 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">walking</span>::<span class="ident">WalkingNode</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::{<span class="ident">vehicle_cost_v2</span>, <span class="ident">zone_cost</span>, <span class="ident">zone_cost_v2</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">DirectedRoadID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">RoadID</span>,
-    <span class="ident">RoutingParams</span>, <span class="ident">Traversable</span>, <span class="ident">TurnID</span>,
+    <span class="ident">DirectedRoadID</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">RoadID</span>, <span class="ident">RoutingParams</span>,
+    <span class="ident">Traversable</span>,
 };
 
 <span class="comment">// TODO These should maybe keep the DiGraphMaps as state. It&#39;s cheap to recalculate it for edits.</span>
@@ -178,21 +163,6 @@
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Path</span>, <span class="ident">Duration</span>)<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">graph</span> <span class="op">=</span> <span class="ident">build_graph_for_vehicles_v2</span>(<span class="ident">map</span>, <span class="ident">req</span>.<span class="ident">constraints</span>);
     <span class="ident">calc_path_v2</span>(<span class="ident">graph</span>, <span class="ident">req</span>, <span class="ident">params</span>, <span class="ident">map</span>)
-}
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_graph_for_vehicles</span>(
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DiGraphMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">TurnID</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">graph</span>: <span class="ident">DiGraphMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">TurnID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">DiGraphMap</span>::<span class="ident">new</span>();
-    <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>() {
-        <span class="kw">if</span> <span class="ident">constraints</span>.<span class="ident">can_use</span>(<span class="ident">l</span>, <span class="ident">map</span>) {
-            <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_turns_for</span>(<span class="ident">l</span>.<span class="ident">id</span>, <span class="ident">constraints</span>) {
-                <span class="ident">graph</span>.<span class="ident">add_edge</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">src</span>, <span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>, <span class="ident">turn</span>.<span class="ident">id</span>);
-            }
-        }
-    }
-    <span class="ident">graph</span>
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_graph_for_vehicles_v2</span>(
