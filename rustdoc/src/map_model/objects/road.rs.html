@@ -470,6 +470,20 @@
 <span id="467">467</span>
 <span id="468">468</span>
 <span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
@@ -559,6 +573,20 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lanes</span>(<span class="self">self</span>, <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">id</span>);
         <span class="ident">constraints</span>.<span class="ident">filter_lanes</span>(<span class="ident">r</span>.<span class="ident">children</span>(<span class="self">self</span>.<span class="ident">dir</span>).<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">l</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">collect</span>(), <span class="ident">map</span>)
+    }
+
+    <span class="doccomment">/// Get the only sidewalk or shoulder on this side of the road, and panic otherwise.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">must_get_sidewalk</span>(<span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LaneID</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">found</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">for</span> (<span class="ident">l</span>, <span class="ident">lt</span>) <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">id</span>).<span class="ident">children</span>(<span class="self">self</span>.<span class="ident">dir</span>) {
+            <span class="kw">if</span> <span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span> <span class="op">|</span><span class="op">|</span> <span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Shoulder</span> {
+                <span class="ident">found</span>.<span class="ident">push</span>(<span class="ident">l</span>);
+            }
+        }
+        <span class="kw">if</span> <span class="ident">found</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">1</span> {
+            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;must_get_sidewalk broken by {}&quot;</span>, <span class="self">self</span>);
+        }
+        <span class="ident">found</span>[<span class="number">0</span>]
     }
 
     <span class="doccomment">/// Does this directed road have any lanes of a certain type?</span>

@@ -183,6 +183,9 @@
 <span id="180">180</span>
 <span id="181">181</span>
 <span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Pathfinding without needing to build a separate contraction hierarchy.</span>
 
@@ -326,16 +329,19 @@
                     <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
                     <span class="ident">map</span>,
                 );
-            <span class="kw">let</span> <span class="ident">n1</span> <span class="op">=</span> <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">l</span>.<span class="ident">id</span>, <span class="bool-val">true</span>);
-            <span class="kw">let</span> <span class="ident">n2</span> <span class="op">=</span> <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">l</span>.<span class="ident">id</span>, <span class="bool-val">false</span>);
+            <span class="kw">let</span> <span class="ident">n1</span> <span class="op">=</span> <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">l</span>.<span class="ident">get_directed_parent</span>(), <span class="bool-val">true</span>);
+            <span class="kw">let</span> <span class="ident">n2</span> <span class="op">=</span> <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">l</span>.<span class="ident">get_directed_parent</span>(), <span class="bool-val">false</span>);
             <span class="ident">graph</span>.<span class="ident">add_edge</span>(<span class="ident">n1</span>, <span class="ident">n2</span>, <span class="ident">cost</span>);
             <span class="ident">graph</span>.<span class="ident">add_edge</span>(<span class="ident">n2</span>, <span class="ident">n1</span>, <span class="ident">cost</span>);
 
             <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_turns_for</span>(<span class="ident">l</span>.<span class="ident">id</span>, <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>) {
                 <span class="ident">graph</span>.<span class="ident">add_edge</span>(
-                    <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">l</span>.<span class="ident">id</span>, <span class="ident">l</span>.<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">parent</span>),
                     <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(
-                        <span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>,
+                        <span class="ident">l</span>.<span class="ident">get_directed_parent</span>(),
+                        <span class="ident">l</span>.<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">parent</span>,
+                    ),
+                    <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(
+                        <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">get_directed_parent</span>(),
                         <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">parent</span>,
                     ),
                     <span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">length</span>()

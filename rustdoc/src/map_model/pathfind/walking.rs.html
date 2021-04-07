@@ -478,6 +478,25 @@
 <span id="475">475</span>
 <span id="476">476</span>
 <span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Pathfinding for pedestrians using contraction hierarchies, as well as figuring out if somebody</span>
 <span class="doccomment">//! should use public transit.</span>
@@ -497,7 +516,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">vehicles</span>::<span class="ident">VehiclePathfinder</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">zone_cost</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">BusRoute</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>,
+    <span class="ident">BusRoute</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>,
     <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>, <span class="ident">Position</span>, <span class="ident">Traversable</span>,
 };
 
@@ -516,7 +535,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Debug</span>, <span class="ident">Hash</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">WalkingNode</span> {
     <span class="doccomment">/// false is src_i, true is dst_i</span>
-    <span class="ident">SidewalkEndpoint</span>(<span class="ident">LaneID</span>, <span class="ident">bool</span>),
+    <span class="ident">SidewalkEndpoint</span>(<span class="ident">DirectedRoadID</span>, <span class="ident">bool</span>),
     <span class="comment">// TODO Lots of complexity below could be avoided by explicitly sticking BusRouteID here too.</span>
     <span class="comment">// Worth it?</span>
     <span class="ident">RideBus</span>(<span class="ident">BusStopID</span>),
@@ -525,8 +544,9 @@
 
 <span class="kw">impl</span> <span class="ident">WalkingNode</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">closest</span>(<span class="ident">pos</span>: <span class="ident">Position</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">WalkingNode</span> {
-        <span class="kw">let</span> <span class="ident">dst_i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">pos</span>.<span class="ident">lane</span>()).<span class="ident">length</span>() <span class="op">-</span> <span class="ident">pos</span>.<span class="ident">dist_along</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">pos</span>.<span class="ident">dist_along</span>();
-        <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">pos</span>.<span class="ident">lane</span>(), <span class="ident">dst_i</span>)
+        <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">pos</span>.<span class="ident">lane</span>());
+        <span class="kw">let</span> <span class="ident">dst_i</span> <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">pos</span>.<span class="ident">dist_along</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">pos</span>.<span class="ident">dist_along</span>();
+        <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">lane</span>.<span class="ident">get_directed_parent</span>(), <span class="ident">dst_i</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">end_transit</span>(<span class="ident">pos</span>: <span class="ident">Position</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">WalkingNode</span> {
@@ -548,11 +568,15 @@
 <span class="kw">impl</span> <span class="ident">SidewalkPathfinder</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">use_transit</span>: <span class="ident">bool</span>, <span class="ident">bus_graph</span>: <span class="kw-2">&amp;</span><span class="ident">VehiclePathfinder</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SidewalkPathfinder</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nodes</span> <span class="op">=</span> <span class="ident">NodeMap</span>::<span class="ident">new</span>();
-        <span class="comment">// We&#39;re assuming that to start with, no sidewalks are closed for construction!</span>
+        <span class="comment">// We&#39;re assuming sidewalks aren&#39;t editable, so what exists initially will always be true.</span>
         <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>() {
             <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">is_walkable</span>() {
-                <span class="ident">nodes</span>.<span class="ident">get_or_insert</span>(<span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">l</span>.<span class="ident">id</span>, <span class="bool-val">true</span>));
-                <span class="ident">nodes</span>.<span class="ident">get_or_insert</span>(<span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">l</span>.<span class="ident">id</span>, <span class="bool-val">false</span>));
+                <span class="comment">// We&#39;re also assuming there&#39;s only one walkable lane per side of the road.</span>
+                <span class="ident">nodes</span>.<span class="ident">get_or_insert</span>(<span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">l</span>.<span class="ident">get_directed_parent</span>(), <span class="bool-val">true</span>));
+                <span class="ident">nodes</span>.<span class="ident">get_or_insert</span>(<span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(
+                    <span class="ident">l</span>.<span class="ident">get_directed_parent</span>(),
+                    <span class="bool-val">false</span>,
+                ));
             }
         }
         <span class="kw">if</span> <span class="ident">use_transit</span> {
@@ -710,8 +734,11 @@
             <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">is_shoulder</span>() {
                 <span class="ident">cost</span> <span class="op">=</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">cost</span>;
             }
-            <span class="kw">let</span> <span class="ident">n1</span> <span class="op">=</span> <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">l</span>.<span class="ident">id</span>, <span class="bool-val">true</span>));
-            <span class="kw">let</span> <span class="ident">n2</span> <span class="op">=</span> <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">l</span>.<span class="ident">id</span>, <span class="bool-val">false</span>));
+            <span class="kw">let</span> <span class="ident">n1</span> <span class="op">=</span> <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">l</span>.<span class="ident">get_directed_parent</span>(), <span class="bool-val">true</span>));
+            <span class="kw">let</span> <span class="ident">n2</span> <span class="op">=</span> <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(
+                <span class="ident">l</span>.<span class="ident">get_directed_parent</span>(),
+                <span class="bool-val">false</span>,
+            ));
             <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(<span class="ident">n1</span>, <span class="ident">n2</span>, <span class="ident">round</span>(<span class="ident">cost</span>));
             <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(<span class="ident">n2</span>, <span class="ident">n1</span>, <span class="ident">round</span>(<span class="ident">cost</span>));
         }
@@ -719,10 +746,12 @@
 
     <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_turns</span>().<span class="ident">values</span>() {
         <span class="kw">if</span> <span class="ident">t</span>.<span class="ident">between_sidewalks</span>() {
+            <span class="kw">let</span> <span class="ident">src</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span>);
+            <span class="kw">let</span> <span class="ident">dst</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span>);
             <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span>
-                <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span>, <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span>).<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">parent</span>);
+                <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">src</span>.<span class="ident">get_directed_parent</span>(), <span class="ident">src</span>.<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">parent</span>);
             <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span>
-                <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span>, <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">parent</span>);
+                <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">dst</span>.<span class="ident">get_directed_parent</span>(), <span class="ident">dst</span>.<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">parent</span>);
             <span class="kw">let</span> <span class="ident">cost</span> <span class="op">=</span> <span class="ident">t</span>.<span class="ident">geom</span>.<span class="ident">length</span>()
                 <span class="op">/</span> <span class="ident">Traversable</span>::<span class="ident">Turn</span>(<span class="ident">t</span>.<span class="ident">id</span>).<span class="ident">max_speed_along</span>(
                     <span class="ident">max_speed</span>,
@@ -771,7 +800,10 @@
             <span class="comment">// Add some extra penalty to using a bus stop. Otherwise a path might try to pass</span>
             <span class="comment">// through it uselessly.</span>
             <span class="kw">let</span> <span class="ident">penalty</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">10.0</span>);
-            <span class="kw">let</span> <span class="ident">sidewalk</span> <span class="op">=</span> <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">lane</span>.<span class="ident">id</span>, <span class="kw-2">*</span><span class="ident">endpt</span>));
+            <span class="kw">let</span> <span class="ident">sidewalk</span> <span class="op">=</span> <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(
+                <span class="ident">lane</span>.<span class="ident">get_directed_parent</span>(),
+                <span class="kw-2">*</span><span class="ident">endpt</span>,
+            ));
             <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(<span class="ident">sidewalk</span>, <span class="ident">ride_bus</span>, <span class="ident">round</span>(<span class="ident">cost</span> <span class="op">+</span> <span class="ident">penalty</span>));
             <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(<span class="ident">ride_bus</span>, <span class="ident">sidewalk</span>, <span class="ident">round</span>(<span class="ident">cost</span> <span class="op">+</span> <span class="ident">penalty</span>));
         }
@@ -859,7 +891,10 @@
                 .<span class="ident">expect</span>(<span class="string">&quot;no sidewalks in map&quot;</span>);
             <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(
                 <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode</span>::<span class="ident">LeaveMap</span>(<span class="ident">i</span>.<span class="ident">id</span>)),
-                <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">some_sidewalk</span>.<span class="ident">id</span>, <span class="bool-val">true</span>)),
+                <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(
+                    <span class="ident">some_sidewalk</span>.<span class="ident">get_directed_parent</span>(),
+                    <span class="bool-val">true</span>,
+                )),
                 <span class="number">1</span>,
             );
         }
@@ -870,16 +905,19 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">steps</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathStep</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
 
     <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
-        <span class="kw">let</span> (<span class="ident">l1</span>, <span class="ident">l1_endpt</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">pair</span>[<span class="number">0</span>] {
-            <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">l</span>, <span class="ident">endpt</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">l</span>, <span class="ident">endpt</span>),
+        <span class="kw">let</span> (<span class="ident">r1</span>, <span class="ident">l1_endpt</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">pair</span>[<span class="number">0</span>] {
+            <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">r</span>, <span class="ident">endpt</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">r</span>, <span class="ident">endpt</span>),
             <span class="ident">WalkingNode</span>::<span class="ident">RideBus</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             <span class="ident">WalkingNode</span>::<span class="ident">LeaveMap</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         };
-        <span class="kw">let</span> <span class="ident">l2</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">pair</span>[<span class="number">1</span>] {
-            <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">l</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">l</span>,
+        <span class="kw">let</span> <span class="ident">r2</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">pair</span>[<span class="number">1</span>] {
+            <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">r</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">r</span>,
             <span class="ident">WalkingNode</span>::<span class="ident">RideBus</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             <span class="ident">WalkingNode</span>::<span class="ident">LeaveMap</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         };
+
+        <span class="kw">let</span> <span class="ident">l1</span> <span class="op">=</span> <span class="ident">r1</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>);
+        <span class="kw">let</span> <span class="ident">l2</span> <span class="op">=</span> <span class="ident">r2</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>);
 
         <span class="kw">if</span> <span class="ident">l1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">l2</span> {
             <span class="kw">if</span> <span class="ident">l1_endpt</span> {
