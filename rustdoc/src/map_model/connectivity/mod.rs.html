@@ -238,7 +238,7 @@
         <span class="kw">return</span> <span class="prelude-val">None</span>;
     }
 
-    <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">cost</span>) <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">dijkstra</span>::<span class="ident">simple_pathfind</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>.<span class="ident">routing_params</span>(), <span class="ident">map</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">cost</span>) <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">dijkstra</span>::<span class="ident">pathfind</span>(<span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">map</span>.<span class="ident">routing_params</span>(), <span class="ident">map</span>)<span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">graph</span> <span class="op">=</span> <span class="ident">build_graph_for_vehicles</span>(<span class="ident">map</span>, <span class="ident">req</span>.<span class="ident">constraints</span>);
     <span class="kw">let</span> <span class="ident">road_costs</span> <span class="op">=</span> <span class="ident">petgraph</span>::<span class="ident">algo</span>::<span class="ident">dijkstra</span>(
