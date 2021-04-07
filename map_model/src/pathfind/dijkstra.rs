@@ -7,9 +7,8 @@ use petgraph::graphmap::DiGraphMap;
 use geom::Duration;
 
 use crate::pathfind::v2::path_v2_to_v1;
-use crate::pathfind::vehicles::vehicle_cost_v2;
 use crate::pathfind::walking::WalkingNode;
-use crate::pathfind::{zone_cost, zone_cost_v2};
+use crate::pathfind::{vehicle_cost_v2, zone_cost, zone_cost_v2};
 use crate::{
     DirectedRoadID, LaneID, Map, MovementID, Path, PathConstraints, PathRequest, RoadID,
     RoutingParams, Traversable, TurnID,
@@ -41,7 +40,7 @@ pub fn build_graph_for_vehicles(
     graph
 }
 
-fn build_graph_for_vehicles_v2(
+pub fn build_graph_for_vehicles_v2(
     map: &Map,
     constraints: PathConstraints,
 ) -> DiGraphMap<DirectedRoadID, MovementID> {

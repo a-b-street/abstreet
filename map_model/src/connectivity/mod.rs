@@ -7,16 +7,16 @@ use petgraph::graphmap::DiGraphMap;
 use geom::Duration;
 
 pub use self::walking::{all_walking_costs_from, WalkingOptions};
-use crate::pathfind::{build_graph_for_vehicles, zone_cost};
-pub use crate::pathfind::{vehicle_cost, WalkingNode};
+use crate::pathfind::{build_graph_for_vehicles, build_graph_for_vehicles_v2, zone_cost};
+pub use crate::pathfind::{vehicle_cost, vehicle_cost_v2, WalkingNode};
 use crate::{BuildingID, LaneID, Map, PathConstraints, PathRequest, RoadID};
 
 mod walking;
 
-/// Calculate the srongy connected components (SCC) of the part of the map accessible by constraints
-/// (ie, the graph of sidewalks or driving+bike lanes). The largest component is the "main" graph;
-/// the rest is disconnected. Returns (lanes in the largest "main" component, all other disconnected
-/// lanes)
+/// Calculate the strongly connected components (SCC) of the part of the map accessible by
+/// constraints (ie, the graph of sidewalks or driving+bike lanes). The largest component is the
+/// "main" graph; the rest is disconnected. Returns (lanes in the largest "main" component, all
+/// other disconnected lanes)
 pub fn find_scc(map: &Map, constraints: PathConstraints) -> (HashSet<LaneID>, HashSet<LaneID>) {
     let mut graph = DiGraphMap::new();
     for turn in map.all_turns().values() {
@@ -61,35 +61,29 @@ pub fn all_vehicle_costs_from(
     assert!(constraints != PathConstraints::Pedestrian);
     let mut results = HashMap::new();
 
-    // TODO We have a graph of LaneIDs, but mapping a building to one isn't straightforward. In
-    // the common case it'll be fine, but some buildings are isolated from the graph by some
-    // sidewalks.
-    let mut bldg_to_lane = HashMap::new();
+    // TODO We have a graph of DirectedRoadIDs, but mapping a building to one isn't
+    // straightforward. In the common case it'll be fine, but some buildings are isolated from the
+    // graph by some sidewalks.
+    let mut bldg_to_road = HashMap::new();
     for b in map.all_buildings() {
         if constraints == PathConstraints::Car {
             if let Some((pos, _)) = b.driving_connection(map) {
-                bldg_to_lane.insert(b.id, pos.lane());
+                bldg_to_road.insert(b.id, map.get_l(pos.lane()).get_directed_parent());
             }
         } else if constraints == PathConstraints::Bike {
             if let Some((pos, _)) = b.biking_connection(map) {
-                bldg_to_lane.insert(b.id, pos.lane());
+                bldg_to_road.insert(b.id, map.get_l(pos.lane()).get_directed_parent());
             }
         }
     }
 
-    if let Some(start_lane) = bldg_to_lane.get(&start) {
-        let graph = build_graph_for_vehicles(map, constraints);
-        let cost_per_lane = petgraph::algo::dijkstra(&graph, *start_lane, None, |(_, _, turn)| {
-            vehicle_cost(
-                map.get_l(turn.src),
-                map.get_t(*turn),
-                constraints,
-                map.routing_params(),
-                map,
-            )
+    if let Some(start_road) = bldg_to_road.get(&start) {
+        let graph = build_graph_for_vehicles_v2(map, constraints);
+        let cost_per_road = petgraph::algo::dijkstra(&graph, *start_road, None, |(_, _, mvmnt)| {
+            vehicle_cost_v2(mvmnt.from, *mvmnt, constraints, map.routing_params(), map)
         });
-        for (b, lane) in bldg_to_lane {
-            if let Some(duration) = cost_per_lane.get(&lane).cloned() {
+        for (b, road) in bldg_to_road {
+            if let Some(duration) = cost_per_road.get(&road).cloned() {
                 if duration <= time_limit {
                     results.insert(b, duration);
                 }
