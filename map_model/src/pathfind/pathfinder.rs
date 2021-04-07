@@ -8,7 +8,7 @@ use crate::pathfind::ch::ContractionHierarchyPathfinder;
 use crate::pathfind::dijkstra;
 use crate::pathfind::walking::{one_step_walking_path, walking_path_to_steps};
 use crate::{
-    BusRouteID, BusStopID, LaneID, Map, Path, PathConstraints, PathRequest, Position, RoutingParams,
+    BusRouteID, BusStopID, Map, Path, PathConstraints, PathRequest, Position, RoadID, RoutingParams,
 };
 
 /// Most of the time, prefer using the faster contraction hierarchies. But sometimes, callers can
@@ -68,13 +68,13 @@ impl Pathfinder {
 
     /// Note this is a slower implementation, never using contraction hierarchies. Used for
     /// experimental congestion capping.
-    pub fn pathfind_avoiding_lanes(
+    pub fn pathfind_avoiding_roads(
         &self,
         req: PathRequest,
-        avoid: BTreeSet<LaneID>,
+        avoid: BTreeSet<RoadID>,
         map: &Map,
     ) -> Option<Path> {
-        dijkstra::pathfind_avoiding_lanes(req, avoid, map).map(|(path, _)| path)
+        dijkstra::pathfind_avoiding_roads(req, avoid, map).map(|(path, _)| path)
     }
 
     // TODO Consider returning the walking-only path in the failure case, to avoid wasting work

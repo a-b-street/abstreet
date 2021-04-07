@@ -4,7 +4,7 @@ use abstutil::{prettyprint_usize, Counter};
 use geom::{Distance, Time};
 use map_gui::tools::{ColorDiscrete, ColorLegend, ColorNetwork};
 use map_gui::ID;
-use map_model::{AmenityType, LaneType, PathConstraints};
+use map_model::{AmenityType, LaneType};
 use sim::AgentType;
 use widgetry::{Color, Drawable, EventCtx, GfxCtx, Line, Panel, Text, TextExt, Widget};
 
@@ -408,15 +408,9 @@ impl CongestionCaps {
         for r in map.all_roads() {
             if let Some(cap) = r.access_restrictions.cap_vehicles_per_hour {
                 num_roads += 1;
-                if let Some(l) = r
-                    .all_lanes()
-                    .into_iter()
-                    .find(|l| PathConstraints::Car.can_use(map.get_l(*l), map))
-                {
-                    let current = app.primary.sim.get_cap_counter(l);
-                    let pct = ((current as f64) / (cap as f64)).min(1.0);
-                    colorer.add_r(r.id, app.cs.good_to_bad_red.eval(pct));
-                }
+                let current = app.primary.sim.get_cap_counter(r.id);
+                let pct = ((current as f64) / (cap as f64)).min(1.0);
+                colorer.add_r(r.id, app.cs.good_to_bad_red.eval(pct));
             }
         }
 

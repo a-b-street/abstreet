@@ -8,7 +8,7 @@ use abstutil::Counter;
 use geom::{Distance, Duration, PolyLine, Pt2D, Time};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, IntersectionID, Lane, LaneID, Map, Path, PathConstraints,
-    Position, Traversable, TurnID,
+    Position, RoadID, Traversable, TurnID,
 };
 
 use crate::analytics::Window;
@@ -381,8 +381,8 @@ impl Sim {
         self.trips.generate_scenario(map, name)
     }
 
-    pub fn get_cap_counter(&self, l: LaneID) -> usize {
-        self.cap.get_cap_counter(l)
+    pub fn get_cap_counter(&self, r: RoadID) -> usize {
+        self.cap.get_cap_counter(r)
     }
 
     pub fn infinite_parking(&self) -> bool {

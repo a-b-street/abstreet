@@ -41,7 +41,7 @@ fn info_body(ctx: &EventCtx, app: &App, id: LaneID) -> Widget {
                 "Cap for vehicles this hour",
                 format!(
                     "{} / {}",
-                    prettyprint_usize(app.primary.sim.get_cap_counter(l.id)),
+                    prettyprint_usize(app.primary.sim.get_cap_counter(r.id)),
                     prettyprint_usize(cap)
                 ),
             ));

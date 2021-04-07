@@ -3,7 +3,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use serde::{Deserialize, Serialize};
 
 use geom::{Duration, Time};
-use map_model::{LaneID, Map, Path, PathConstraints, PathStep, TurnID};
+use map_model::{Map, Path, PathStep, RoadID, TurnID};
 
 use crate::mechanics::IntersectionSimState;
 use crate::{CarID, SimOptions, VehicleType};
@@ -24,7 +24,7 @@ type ZoneIdx = usize;
 // TODO I'm not sure a single struct is the right way to manage these combinations.
 #[derive(Serialize, Deserialize, Clone)]
 pub(crate) struct CapSimState {
-    lane_to_zone: BTreeMap<LaneID, ZoneIdx>,
+    road_to_zone: BTreeMap<RoadID, ZoneIdx>,
     zones: Vec<Zone>,
 
     cancel_drivers_delay_threshold: Option<Duration>,
@@ -50,7 +50,7 @@ struct Zone {
 impl CapSimState {
     pub fn new(map: &Map, opts: &SimOptions) -> CapSimState {
         let mut sim = CapSimState {
-            lane_to_zone: BTreeMap::new(),
+            road_to_zone: BTreeMap::new(),
             zones: Vec::new(),
             cancel_drivers_delay_threshold: opts.cancel_drivers_delay_threshold.clone(),
             delay_trips_instead_of_cancelling: opts.delay_trips_instead_of_cancelling.clone(),
@@ -59,11 +59,7 @@ impl CapSimState {
             if let Some(cap) = z.restrictions.cap_vehicles_per_hour {
                 let idx = sim.zones.len();
                 for r in &z.members {
-                    for l in map.get_r(*r).all_lanes() {
-                        if PathConstraints::Car.can_use(map.get_l(l), map) {
-                            sim.lane_to_zone.insert(l, idx);
-                        }
-                    }
+                    sim.road_to_zone.insert(*r, idx);
                 }
                 sim.zones.push(Zone {
                     cap,
@@ -98,20 +94,20 @@ impl CapSimState {
             }
         }
 
-        if self.trip_under_cap(now, car, &path) {
+        if self.trip_under_cap(now, car, &path, map) {
             return CapResult::OK(path);
         }
 
-        let mut avoid_lanes: BTreeSet<LaneID> = BTreeSet::new();
-        for (l, idx) in &self.lane_to_zone {
+        let mut avoid_roads: BTreeSet<RoadID> = BTreeSet::new();
+        for (r, idx) in &self.road_to_zone {
             let zone = &self.zones[*idx];
             if zone.entered_in_last_hour.len() >= zone.cap
                 && !zone.entered_in_last_hour.contains(&car)
             {
-                avoid_lanes.insert(*l);
+                avoid_roads.insert(*r);
             }
         }
-        match map.pathfind_avoiding_lanes(path.get_req().clone(), avoid_lanes) {
+        match map.pathfind_avoiding_roads(path.get_req().clone(), avoid_roads) {
             Some(path) => CapResult::Reroute(path),
             None => {
                 if let Some(delay) = self.delay_trips_instead_of_cancelling {
@@ -128,21 +124,21 @@ impl CapSimState {
 
 // Specific to the cap-per-road mechanism
 impl CapSimState {
-    pub fn get_cap_counter(&self, l: LaneID) -> usize {
-        if let Some(idx) = self.lane_to_zone.get(&l) {
+    pub fn get_cap_counter(&self, r: RoadID) -> usize {
+        if let Some(idx) = self.road_to_zone.get(&r) {
             self.zones[*idx].entered_in_last_hour.len()
         } else {
             0
         }
     }
 
-    fn trip_under_cap(&mut self, now: Time, car: CarID, path: &Path) -> bool {
-        if car.1 != VehicleType::Car || self.lane_to_zone.is_empty() {
+    fn trip_under_cap(&mut self, now: Time, car: CarID, path: &Path, map: &Map) -> bool {
+        if car.1 != VehicleType::Car || self.road_to_zone.is_empty() {
             return true;
         }
         for step in path.get_steps() {
             if let PathStep::Lane(l) = step {
-                if let Some(idx) = self.lane_to_zone.get(l) {
+                if let Some(idx) = self.road_to_zone.get(&map.get_l(*l).parent) {
                     let zone = &mut self.zones[*idx];
 
                     if now - zone.hour_started >= Duration::hours(1) {

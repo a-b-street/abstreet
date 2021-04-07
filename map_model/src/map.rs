@@ -583,13 +583,13 @@ impl Map {
             .pathfind(req.clone(), self)
             .ok_or_else(|| anyhow!("can't fulfill {}", req))
     }
-    pub fn pathfind_avoiding_lanes(
+    pub fn pathfind_avoiding_roads(
         &self,
         req: PathRequest,
-        avoid: BTreeSet<LaneID>,
+        avoid: BTreeSet<RoadID>,
     ) -> Option<Path> {
         assert!(!self.pathfinder_dirty);
-        self.pathfinder.pathfind_avoiding_lanes(req, avoid, self)
+        self.pathfinder.pathfind_avoiding_roads(req, avoid, self)
     }
     pub fn pathfind_with_params(&self, req: PathRequest, params: &RoutingParams) -> Result<Path> {
         assert!(!self.pathfinder_dirty);

@@ -7,11 +7,11 @@ use petgraph::graphmap::DiGraphMap;
 use geom::Duration;
 
 use crate::pathfind::v2::path_v2_to_v1;
-use crate::pathfind::vehicles::{vehicle_cost, vehicle_cost_v2};
+use crate::pathfind::vehicles::vehicle_cost_v2;
 use crate::pathfind::walking::WalkingNode;
 use crate::pathfind::{zone_cost, zone_cost_v2};
 use crate::{
-    DirectedRoadID, LaneID, Map, MovementID, Path, PathConstraints, PathRequest, PathStep,
+    DirectedRoadID, LaneID, Map, MovementID, Path, PathConstraints, PathRequest, RoadID,
     RoutingParams, Traversable, TurnID,
 };
 
@@ -54,56 +54,23 @@ fn build_graph_for_vehicles_v2(
     graph
 }
 
-pub fn pathfind_avoiding_lanes(
+pub fn pathfind_avoiding_roads(
     req: PathRequest,
-    avoid: BTreeSet<LaneID>,
+    avoid: BTreeSet<RoadID>,
     map: &Map,
 ) -> Option<(Path, Duration)> {
     assert_eq!(req.constraints, PathConstraints::Car);
-    let mut graph: DiGraphMap<LaneID, TurnID> = DiGraphMap::new();
-    for l in map.all_lanes() {
-        if req.constraints.can_use(l, map) && !avoid.contains(&l.id) {
-            for turn in map.get_turns_for(l.id, req.constraints) {
-                graph.add_edge(turn.id.src, turn.id.dst, turn.id);
-            }
+    let mut graph = DiGraphMap::new();
+    for dr in map.all_directed_roads_for(req.constraints) {
+        if avoid.contains(&dr.id) {
+            continue;
+        }
+        for mvmnt in map.get_movements_for(dr, req.constraints) {
+            graph.add_edge(mvmnt.from, mvmnt.to, mvmnt);
         }
     }
 
-    calc_path(graph, &req, map.routing_params(), map)
-}
-
-fn calc_path(
-    graph: DiGraphMap<LaneID, TurnID>,
-    req: &PathRequest,
-    params: &RoutingParams,
-    map: &Map,
-) -> Option<(Path, Duration)> {
-    let (cost, path) = petgraph::algo::astar(
-        &graph,
-        req.start.lane(),
-        |l| l == req.end.lane(),
-        |(_, _, t)| {
-            let turn = map.get_t(*t);
-            vehicle_cost(map.get_l(turn.id.src), turn, req.constraints, params, map)
-                + zone_cost(turn, req.constraints, map)
-        },
-        |_| Duration::ZERO,
-    )?;
-
-    let mut steps = Vec::new();
-    for pair in path.windows(2) {
-        steps.push(PathStep::Lane(pair[0]));
-        // We don't need to look for this turn in the map; we know it exists.
-        steps.push(PathStep::Turn(TurnID {
-            parent: map.get_l(pair[0]).dst_i,
-            src: pair[0],
-            dst: pair[1],
-        }));
-    }
-    steps.push(PathStep::Lane(req.end.lane()));
-    assert_eq!(steps[0], PathStep::Lane(req.start.lane()));
-    // TODO Dijkstra's for vehicles currently ignores uber-turns!
-    Some((Path::new(map, steps, req.clone(), Vec::new()), cost))
+    calc_path_v2(graph, &req, map.routing_params(), map)
 }
 
 fn calc_path_v2(
