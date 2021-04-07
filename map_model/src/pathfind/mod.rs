@@ -10,11 +10,9 @@ use serde::{Deserialize, Serialize};
 use geom::{Distance, Duration, PolyLine, Speed, EPSILON_DIST};
 
 pub use self::ch::ContractionHierarchyPathfinder;
-pub use self::dijkstra::{
-    build_graph_for_pedestrians, build_graph_for_vehicles, build_graph_for_vehicles_v2,
-};
+pub use self::dijkstra::{build_graph_for_pedestrians, build_graph_for_vehicles_v2};
 pub use self::pathfinder::Pathfinder;
-pub use self::vehicles::{vehicle_cost, vehicle_cost_v2};
+pub use self::vehicles::vehicle_cost_v2;
 pub use self::walking::WalkingNode;
 use crate::{
     osm, BuildingID, Lane, LaneID, LaneType, Map, MovementID, Position, Traversable, Turn, TurnID,
@@ -22,7 +20,7 @@ use crate::{
 };
 
 mod ch;
-mod dijkstra;
+pub mod dijkstra;
 mod node_map;
 mod pathfinder;
 // TODO tmp

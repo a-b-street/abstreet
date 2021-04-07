@@ -1,5 +1,6 @@
 use std::fmt;
 
+use anyhow::Result;
 use enumset::EnumSet;
 use serde::{Deserialize, Serialize};
 
@@ -276,6 +277,33 @@ impl Road {
     pub fn get_thick_polygon(&self, map: &Map) -> Polygon {
         self.center_pts
             .make_polygons(self.get_half_width(map) * 2.0)
+    }
+
+    /// Creates the thick polygon representing one half of the road. For roads with multipe
+    /// direction changes (like a two-way cycletrack adjacent to a regular two-way road), the
+    /// results are probably weird.
+    pub fn get_half_polygon(&self, dir: Direction, map: &Map) -> Result<Polygon> {
+        let mut width_fwd = Distance::ZERO;
+        let mut width_back = Distance::ZERO;
+        for (l, dir, _) in self.lanes_ltr() {
+            if dir == Direction::Fwd {
+                width_fwd += map.get_l(l).width;
+            } else {
+                width_back += map.get_l(l).width;
+            }
+        }
+        let center = self.get_dir_change_pl(map);
+
+        // TODO Test on UK maps...
+        if dir == Direction::Fwd {
+            Ok(center
+                .shift_right(width_fwd / 2.0)?
+                .make_polygons(width_fwd))
+        } else {
+            Ok(center
+                .shift_left(width_back / 2.0)?
+                .make_polygons(width_back))
+        }
     }
 
     pub fn get_name(&self, lang: Option<&String>) -> String {

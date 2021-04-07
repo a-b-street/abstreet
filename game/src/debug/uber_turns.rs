@@ -1,10 +1,10 @@
 use std::collections::BTreeSet;
 
-use geom::{ArrowCap, Duration};
+use geom::ArrowCap;
 use map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
 use map_gui::tools::PopupMsg;
 use map_gui::ID;
-use map_model::{IntersectionCluster, IntersectionID, PathConstraints};
+use map_model::{IntersectionCluster, IntersectionID};
 use widgetry::{
     Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
     Panel, SimpleState, State, Text, TextExt, Toggle, VerticalAlignment, Widget,
@@ -132,7 +132,6 @@ impl UberTurnViewer {
         for i in &ic.members {
             batch.push(Color::BLUE.alpha(0.5), map.get_i(*i).polygon.clone());
         }
-        let mut sum_cost = Duration::ZERO;
         if !ic.uber_turns.is_empty() {
             let ut = &ic.uber_turns[idx];
             batch.push(
@@ -140,16 +139,6 @@ impl UberTurnViewer {
                 ut.geom(map)
                     .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle),
             );
-
-            for t in &ut.path {
-                sum_cost += map_model::connectivity::vehicle_cost(
-                    map.get_l(t.src),
-                    map.get_t(*t),
-                    PathConstraints::Car,
-                    map.routing_params(),
-                    map,
-                );
-            }
         }
 
         let panel = Panel::new(Widget::col(vec![
@@ -171,7 +160,6 @@ impl UberTurnViewer {
                     .build_widget(ctx, "next uber-turn"),
                 ctx.style().btn_close_widget(ctx),
             ]),
-            format!("vehicle_cost for a Car: {}", sum_cost).text_widget(ctx),
             Widget::row(vec![
                 Toggle::choice(
                     ctx,

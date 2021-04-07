@@ -10,8 +10,8 @@ use crate::pathfind::v2::path_v2_to_v1;
 use crate::pathfind::walking::WalkingNode;
 use crate::pathfind::{vehicle_cost_v2, zone_cost, zone_cost_v2};
 use crate::{
-    DirectedRoadID, LaneID, Map, MovementID, Path, PathConstraints, PathRequest, RoadID,
-    RoutingParams, Traversable, TurnID,
+    DirectedRoadID, Map, MovementID, Path, PathConstraints, PathRequest, RoadID, RoutingParams,
+    Traversable,
 };
 
 // TODO These should maybe keep the DiGraphMaps as state. It's cheap to recalculate it for edits.
@@ -23,21 +23,6 @@ pub fn simple_pathfind(
 ) -> Option<(Path, Duration)> {
     let graph = build_graph_for_vehicles_v2(map, req.constraints);
     calc_path_v2(graph, req, params, map)
-}
-
-pub fn build_graph_for_vehicles(
-    map: &Map,
-    constraints: PathConstraints,
-) -> DiGraphMap<LaneID, TurnID> {
-    let mut graph: DiGraphMap<LaneID, TurnID> = DiGraphMap::new();
-    for l in map.all_lanes() {
-        if constraints.can_use(l, map) {
-            for turn in map.get_turns_for(l.id, constraints) {
-                graph.add_edge(turn.id.src, turn.id.dst, turn.id);
-            }
-        }
-    }
-    graph
 }
 
 pub fn build_graph_for_vehicles_v2(

@@ -1,5 +1,5 @@
 use map_gui::ID;
-use map_model::{Map, PathConstraints};
+use map_model::Map;
 use sim::{AgentID, Sim};
 use widgetry::{GfxCtx, Key, Text};
 
@@ -36,28 +36,6 @@ impl ObjectDebugger {
                 let r = map.get_parent(id);
                 println!("Parent {} ({}) points to {}", r.id, r.orig_id, r.dst_i);
                 println!("{}", abstutil::to_json(r));
-
-                if l.lane_type.is_for_moving_vehicles() {
-                    for constraint in vec![
-                        PathConstraints::Car,
-                        PathConstraints::Bike,
-                        PathConstraints::Bus,
-                    ] {
-                        if constraint.can_use(l, map) {
-                            let mut costs = Vec::new();
-                            for turn in map.get_turns_to_lane(l.id) {
-                                costs.push(map_model::connectivity::vehicle_cost(
-                                    l,
-                                    turn,
-                                    constraint,
-                                    map.routing_params(),
-                                    map,
-                                ));
-                            }
-                            println!("Costs for {:?}: {:?}", constraint, costs);
-                        }
-                    }
-                }
             }
             ID::Intersection(id) => {
                 let i = map.get_i(id);

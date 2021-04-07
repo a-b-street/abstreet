@@ -6,7 +6,8 @@ use map_gui::colors::ColorSchemeChoice;
 use map_gui::tools::ColorNetwork;
 use map_gui::{AppLike, ID};
 use map_model::{
-    connectivity, PathRequest, RoadID, RoutingParams, Traversable, NORMAL_LANE_THICKNESS,
+    connectivity, DirectedRoadID, Direction, PathRequest, RoadID, RoutingParams, Traversable,
+    NORMAL_LANE_THICKNESS,
 };
 use sim::{TripEndpoint, TripMode};
 use widgetry::{
@@ -481,7 +482,7 @@ fn cmp_count(after: usize, before: usize) -> Vec<TextSpan> {
 /// one start.
 pub struct PathCostDebugger {
     draw_path: Drawable,
-    costs: HashMap<RoadID, Duration>,
+    costs: HashMap<DirectedRoadID, Duration>,
     tooltip: Option<Text>,
     panel: Panel,
 }
@@ -495,18 +496,19 @@ impl PathCostDebugger {
     ) -> Option<Box<dyn State<App>>> {
         let (full_cost, all_costs) = connectivity::debug_vehicle_costs(req, &app.primary.map)?;
         let mut batch = GeomBatch::new();
-        // Highlight all roads with a cost less than the cost of the chosen path. This more or less
-        // shows "alternatives considered"; the boundary becomes the point where the chosen path
-        // really did win.
-        for (r, cost) in &all_costs {
+        // Highlight all directed roads with a cost less than the cost of the chosen path. This
+        // more or less shows "alternatives considered"; the boundary becomes the point where the
+        // chosen path really did win.
+        for (dr, cost) in &all_costs {
             if *cost <= full_cost {
-                batch.push(
-                    Color::BLUE.alpha(0.5),
-                    app.primary
-                        .map
-                        .get_r(*r)
-                        .get_thick_polygon(&app.primary.map),
-                );
+                if let Ok(p) = app
+                    .primary
+                    .map
+                    .get_r(dr.id)
+                    .get_half_polygon(dr.dir, &app.primary.map)
+                {
+                    batch.push(Color::BLUE.alpha(0.5), p);
+                }
             }
         }
         batch.push(Color::PURPLE, draw_path);
@@ -535,11 +537,16 @@ impl State<App> for PathCostDebugger {
         if ctx.redo_mouseover() {
             self.tooltip = None;
             if let Some(ID::Road(r)) = app.mouseover_unzoomed_roads_and_intersections(ctx) {
-                if let Some(cost) = self.costs.get(&r) {
-                    self.tooltip = Some(Text::from(format!("Cost: {}", cost)));
-                } else {
-                    self.tooltip = Some(Text::from("No cost"));
+                // TODO In lieu of mousing over each half of a road, just show both costs.
+                let mut txt = Text::new();
+                for dir in vec![Direction::Fwd, Direction::Back] {
+                    if let Some(cost) = self.costs.get(&DirectedRoadID { id: r, dir }) {
+                        txt.add_line(format!("Cost {:?}: {}", dir, cost));
+                    } else {
+                        txt.add_line(format!("No cost {:?}", dir));
+                    }
                 }
+                self.tooltip = Some(txt);
             }
         }
 

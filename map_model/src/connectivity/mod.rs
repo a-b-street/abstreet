@@ -7,9 +7,9 @@ use petgraph::graphmap::DiGraphMap;
 use geom::Duration;
 
 pub use self::walking::{all_walking_costs_from, WalkingOptions};
-use crate::pathfind::{build_graph_for_vehicles, build_graph_for_vehicles_v2, zone_cost};
-pub use crate::pathfind::{vehicle_cost, vehicle_cost_v2, WalkingNode};
-use crate::{BuildingID, LaneID, Map, PathConstraints, PathRequest, RoadID};
+use crate::pathfind::{build_graph_for_vehicles_v2, zone_cost_v2};
+pub use crate::pathfind::{vehicle_cost_v2, WalkingNode};
+use crate::{BuildingID, DirectedRoadID, LaneID, Map, PathConstraints, PathRequest};
 
 mod walking;
 
@@ -94,51 +94,35 @@ pub fn all_vehicle_costs_from(
     results
 }
 
-// TODO Refactor with all_vehicle_costs_from
+/// Return the cost of a single path, and also a mapping from every directed road to the cost of
+/// getting there from the same start. This can be used to understand why an alternative route
+/// wasn't chosen.
 pub fn debug_vehicle_costs(
     req: PathRequest,
     map: &Map,
-) -> Option<(Duration, HashMap<RoadID, Duration>)> {
+) -> Option<(Duration, HashMap<DirectedRoadID, Duration>)> {
     // TODO Support this
     if req.constraints == PathConstraints::Pedestrian {
         return None;
     }
-    let graph = build_graph_for_vehicles(map, req.constraints);
 
-    let (cost, _) = petgraph::algo::astar(
+    let (_, cost) = crate::pathfind::dijkstra::simple_pathfind(&req, map.routing_params(), map)?;
+
+    let graph = build_graph_for_vehicles_v2(map, req.constraints);
+    let road_costs = petgraph::algo::dijkstra(
         &graph,
-        req.start.lane(),
-        |l| l == req.end.lane(),
-        |(_, _, t)| {
-            let turn = map.get_t(*t);
-            vehicle_cost(
-                map.get_l(turn.id.src),
-                turn,
+        map.get_l(req.start.lane()).get_directed_parent(),
+        None,
+        |(_, _, mvmnt)| {
+            vehicle_cost_v2(
+                mvmnt.from,
+                *mvmnt,
                 req.constraints,
                 map.routing_params(),
                 map,
-            ) + zone_cost(turn, req.constraints, map)
+            ) + zone_cost_v2(*mvmnt, req.constraints, map)
         },
-        |_| Duration::ZERO,
-    )?;
-
-    let lane_costs = petgraph::algo::dijkstra(&graph, req.start.lane(), None, |(_, _, t)| {
-        let turn = map.get_t(*t);
-        vehicle_cost(
-            map.get_l(turn.id.src),
-            turn,
-            req.constraints,
-            map.routing_params(),
-            map,
-        ) + zone_cost(turn, req.constraints, map)
-    });
-    // Express the costs per road for an easier debug experince. Take the LOWEST cost per road,
-    // since we don't want noise from considering the opposite direction.
-    let mut road_costs = HashMap::new();
-    for (l, cost) in lane_costs {
-        let road_cost = road_costs.entry(map.get_l(l).parent).or_insert(cost);
-        *road_cost = (*road_cost).min(cost);
-    }
+    );
 
     Some((cost, road_costs))
 }

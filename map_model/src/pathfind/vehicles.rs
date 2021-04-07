@@ -15,8 +15,8 @@ use crate::pathfind::uber_turns::{IntersectionCluster, UberTurnV2};
 use crate::pathfind::v2::path_v2_to_v1;
 use crate::pathfind::zone_cost_v2;
 use crate::{
-    DirectedRoadID, Direction, DrivingSide, Lane, LaneType, Map, MovementID, Path, PathConstraints,
-    PathRequest, RoadID, RoutingParams, Traversable, Turn, TurnType,
+    DirectedRoadID, Direction, DrivingSide, LaneType, Map, MovementID, Path, PathConstraints,
+    PathRequest, RoadID, RoutingParams, Traversable, TurnType,
 };
 
 #[derive(Serialize, Deserialize)]
@@ -267,94 +267,9 @@ fn make_input_graph(
     input_graph
 }
 
-/// This returns the pathfinding cost of crossing one lane and turn. This is also expressed in
-/// units of time. It factors in the ideal time to cross the space, along with penalties for
-/// entering an access-restricted zone, taking an unprotected turn, and so on.
-pub fn vehicle_cost(
-    lane: &Lane,
-    turn: &Turn,
-    constraints: PathConstraints,
-    params: &RoutingParams,
-    map: &Map,
-) -> Duration {
-    let max_speed = match constraints {
-        PathConstraints::Car | PathConstraints::Bus | PathConstraints::Train => None,
-        PathConstraints::Bike => Some(crate::MAX_BIKE_SPEED),
-        PathConstraints::Pedestrian => unreachable!(),
-    };
-    let t1 =
-        lane.length() / Traversable::Lane(lane.id).max_speed_along(max_speed, constraints, map);
-    let t2 = turn.geom.length()
-        / Traversable::Turn(turn.id).max_speed_along(max_speed, constraints, map);
-
-    let base = match constraints {
-        PathConstraints::Car | PathConstraints::Train => t1 + t2,
-        PathConstraints::Bike => {
-            // TODO If we're on a driving lane, higher speed limit is worse.
-            // TODO Bike lanes next to parking is dangerous.
-
-            // TODO Prefer bike lanes, then bus lanes, then driving lanes. For now, express that by
-            // multiplying the base cost.
-            let lt_penalty = if lane.is_biking() {
-                params.bike_lane_penalty
-            } else if lane.is_bus() {
-                params.bus_lane_penalty
-            } else {
-                assert!(lane.is_driving());
-                params.driving_lane_penalty
-            };
-
-            lt_penalty * (t1 + t2)
-        }
-        PathConstraints::Bus => {
-            // Like Car, but prefer bus lanes.
-            let lt_penalty = if lane.is_bus() {
-                1.0
-            } else {
-                assert!(lane.is_driving());
-                1.1
-            };
-            lt_penalty * (t1 + t2)
-        }
-        PathConstraints::Pedestrian => unreachable!(),
-    };
-
-    // Penalize unprotected turns at a stop sign from smaller to larger roads.
-    let unprotected_turn_type = if map.get_config().driving_side == DrivingSide::Right {
-        TurnType::Left
-    } else {
-        TurnType::Right
-    };
-    let rank_from = map.get_r(lane.parent).get_detailed_rank();
-    let rank_to = map.get_parent(turn.id.dst).get_detailed_rank();
-    let base = if turn.turn_type == unprotected_turn_type
-        && rank_from < rank_to
-        && map.get_i(turn.id.parent).is_stop_sign()
-    {
-        base + params.unprotected_turn_penalty
-    } else {
-        base
-    };
-
-    // Normally opportunistic lane-changing adjusts the path live, but that doesn't work near
-    // uber-turns. So still use some of the penalties here.
-    let (lt, lc, slow_lane) = turn.penalty(map);
-    // TODO Since these costs wind up mattering most for particular lane choice, I guess just
-    // adding is reasonable?
-    let mut extra_penalty = lt + lc;
-    if constraints == PathConstraints::Bike {
-        extra_penalty = slow_lane;
-    }
-    // TODO These are small integers, just treat them as seconds for now to micro-adjust the
-    // specific choice of lane.
-
-    base + Duration::seconds(extra_penalty as f64)
-}
-
 /// This returns the pathfinding cost of crossing one road and turn. This is also expressed in
 /// units of time. It factors in the ideal time to cross the space, along with penalties for
 /// entering an access-restricted zone, taking an unprotected turn, and so on.
-// TODO Remove vehicle_cost after pathfinding v2 transition is done.
 pub fn vehicle_cost_v2(
     dr: DirectedRoadID,
     mvmnt: MovementID,
