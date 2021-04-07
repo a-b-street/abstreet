@@ -8,7 +8,7 @@ use geom::Duration;
 
 use crate::pathfind::v2::path_v2_to_v1;
 use crate::pathfind::walking::WalkingNode;
-use crate::pathfind::{vehicle_cost_v2, zone_cost, zone_cost_v2};
+use crate::pathfind::{vehicle_cost_v2, zone_cost_v2};
 use crate::{
     DirectedRoadID, Map, MovementID, Path, PathConstraints, PathRequest, RoadID, RoutingParams,
     Traversable,
@@ -112,7 +112,7 @@ pub fn build_graph_for_pedestrians(map: &Map) -> DiGraphMap<WalkingNode, Duratio
                             PathConstraints::Pedestrian,
                             map,
                         )
-                        + zone_cost(turn, PathConstraints::Pedestrian, map),
+                        + zone_cost_v2(turn.id.to_movement(map), PathConstraints::Pedestrian, map),
                 );
             }
         }
