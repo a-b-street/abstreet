@@ -6,10 +6,7 @@ use abstutil::Timer;
 
 use crate::pathfind::ch::ContractionHierarchyPathfinder;
 use crate::pathfind::dijkstra;
-use crate::pathfind::walking::{one_step_walking_path, walking_path_to_steps};
-use crate::{
-    BusRouteID, BusStopID, Map, Path, PathConstraints, PathRequest, Position, RoadID, RoutingParams,
-};
+use crate::{BusRouteID, BusStopID, Map, Path, PathRequest, Position, RoadID, RoutingParams};
 
 /// Most of the time, prefer using the faster contraction hierarchies. But sometimes, callers can
 /// explicitly opt into a slower (but preparation-free) pathfinder that just uses Dijkstra's
@@ -34,35 +31,17 @@ impl Pathfinder {
         params: &RoutingParams,
         map: &Map,
     ) -> Option<Path> {
-        if req.start.lane() == req.end.lane() && req.constraints == PathConstraints::Pedestrian {
-            return Some(one_step_walking_path(&req, map));
-        }
-
-        if req.constraints == PathConstraints::Pedestrian {
-            if req.start.lane() == req.end.lane() {
-                return Some(one_step_walking_path(&req, map));
-            }
-            let nodes = match self {
-                Pathfinder::Dijkstra => dijkstra::simple_walking_path(&req, map)?,
-                Pathfinder::CH(ref p) => p.simple_walking_path(&req, map)?,
-            };
-            let steps = walking_path_to_steps(nodes, map);
-            return Some(Path::new(map, steps, req, Vec::new()));
-        }
-
         if params != map.routing_params() {
             // If the params differ from the ones baked into the map, the CHs won't match. This
             // should only be happening from the debug UI; be very obnoxious if we start calling it
             // from the simulation or something else.
             warn!("Pathfinding slowly for {} with custom params", req);
-            return dijkstra::simple_pathfind(&req, params, map).map(|(path, _)| path);
+            return dijkstra::pathfind(req, params, map).map(|(path, _)| path);
         }
 
         match self {
-            Pathfinder::Dijkstra => {
-                dijkstra::simple_pathfind(&req, params, map).map(|(path, _)| path)
-            }
-            Pathfinder::CH(ref p) => p.simple_pathfind(&req, map),
+            Pathfinder::Dijkstra => dijkstra::pathfind(req, params, map).map(|(path, _)| path),
+            Pathfinder::CH(ref p) => p.pathfind(req, map),
         }
     }
 

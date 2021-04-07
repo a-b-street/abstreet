@@ -106,7 +106,7 @@ pub fn debug_vehicle_costs(
         return None;
     }
 
-    let (_, cost) = crate::pathfind::dijkstra::simple_pathfind(&req, map.routing_params(), map)?;
+    let (_, cost) = crate::pathfind::dijkstra::pathfind(req.clone(), map.routing_params(), map)?;
 
     let graph = build_graph_for_vehicles(map, req.constraints);
     let road_costs = petgraph::algo::dijkstra(

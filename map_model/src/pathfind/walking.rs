@@ -107,9 +107,11 @@ impl SidewalkPathfinder {
         self.graph = fast_paths::prepare_with_order(&input_graph, &node_ordering).unwrap();
     }
 
-    /// Returns the raw nodes
-    pub fn pathfind(&self, req: &PathRequest, map: &Map) -> Option<Vec<WalkingNode>> {
-        assert_ne!(req.start.lane(), req.end.lane());
+    pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<(Path, Duration)> {
+        if req.start.lane() == req.end.lane() {
+            return Some(one_step_walking_path(req, map));
+        }
+
         let mut calc = self
             .path_calc
             .get_or(|| RefCell::new(fast_paths::create_calculator(&self.graph)))
@@ -119,7 +121,10 @@ impl SidewalkPathfinder {
             self.nodes.get(WalkingNode::closest(req.start, map)),
             self.nodes.get(WalkingNode::closest(req.end, map)),
         )?;
-        Some(self.nodes.translate(&raw_path))
+        let nodes = self.nodes.translate(&raw_path);
+        let steps = walking_path_to_steps(nodes, map);
+        let cost = Duration::seconds(raw_path.get_weight() as f64);
+        Some((Path::new(map, steps, req, Vec::new()), cost))
     }
 
     /// Attempt the pathfinding and see if we should ride a bus. If so, says (stop1, optional stop
@@ -323,11 +328,10 @@ fn transit_input_graph(
                 constraints: route.route_type,
             };
             let maybe_driving_cost = match route.route_type {
-                PathConstraints::Bus => bus_graph.pathfind(&req, map).map(|(_, cost)| cost),
+                PathConstraints::Bus => bus_graph.pathfind(req, map).map(|(_, cost)| cost),
                 // We always use Dijkstra for trains
                 PathConstraints::Train => {
-                    dijkstra::simple_pathfind(&req, map.routing_params(), map)
-                        .map(|(_, cost)| round(cost))
+                    dijkstra::pathfind(req, map.routing_params(), map).map(|(_, cost)| cost)
                 }
                 _ => unreachable!(),
             };
@@ -335,7 +339,7 @@ fn transit_input_graph(
                 input_graph.add_edge(
                     nodes.get(WalkingNode::RideBus(stop1.id)),
                     nodes.get(WalkingNode::RideBus(stop2.id)),
-                    driving_cost,
+                    round(driving_cost),
                 );
             } else {
                 panic!(
@@ -353,11 +357,10 @@ fn transit_input_graph(
                 constraints: route.route_type,
             };
             let maybe_driving_cost = match route.route_type {
-                PathConstraints::Bus => bus_graph.pathfind(&req, map).map(|(_, cost)| cost),
+                PathConstraints::Bus => bus_graph.pathfind(req, map).map(|(_, cost)| cost),
                 // We always use Dijkstra for trains
                 PathConstraints::Train => {
-                    dijkstra::simple_pathfind(&req, map.routing_params(), map)
-                        .map(|(_, cost)| round(cost))
+                    dijkstra::pathfind(req, map.routing_params(), map).map(|(_, cost)| cost)
                 }
                 _ => unreachable!(),
             };
@@ -366,7 +369,7 @@ fn transit_input_graph(
                 input_graph.add_edge(
                     nodes.get(WalkingNode::RideBus(stop1.id)),
                     nodes.get(WalkingNode::LeaveMap(border.id)),
-                    driving_cost,
+                    round(driving_cost),
                 );
                 used_border_nodes.insert(border.id);
             } else {
@@ -468,29 +471,25 @@ pub fn walking_path_to_steps(path: Vec<WalkingNode>, map: &Map) -> Vec<PathStep>
     steps
 }
 
-pub fn one_step_walking_path(req: &PathRequest, map: &Map) -> Path {
+// TODO Do we even need this at all?
+pub fn one_step_walking_path(req: PathRequest, map: &Map) -> (Path, Duration) {
     // Weird case, but it can happen for walking from a building path to a bus stop that're
     // actually at the same spot.
-    if req.start.dist_along() == req.end.dist_along() {
-        Path::new(
-            map,
-            vec![PathStep::Lane(req.start.lane())],
-            req.clone(),
-            Vec::new(),
-        )
+    let steps = if req.start.dist_along() == req.end.dist_along() {
+        vec![PathStep::Lane(req.start.lane())]
     } else if req.start.dist_along() < req.end.dist_along() {
-        Path::new(
-            map,
-            vec![PathStep::Lane(req.start.lane())],
-            req.clone(),
-            Vec::new(),
-        )
+        vec![PathStep::Lane(req.start.lane())]
     } else {
-        Path::new(
+        vec![PathStep::ContraflowLane(req.start.lane())]
+    };
+    let mut cost = (req.start.dist_along() - req.end.dist_along()).abs()
+        / Traversable::Lane(req.start.lane()).max_speed_along(
+            Some(crate::MAX_WALKING_SPEED),
+            PathConstraints::Pedestrian,
             map,
-            vec![PathStep::ContraflowLane(req.start.lane())],
-            req.clone(),
-            Vec::new(),
-        )
+        );
+    if map.get_l(req.start.lane()).is_shoulder() {
+        cost = 2.0 * cost;
     }
+    (Path::new(map, steps, req, Vec::new()), cost)
 }

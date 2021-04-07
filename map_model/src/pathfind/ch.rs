@@ -8,7 +8,7 @@ use geom::Duration;
 
 use crate::pathfind::dijkstra;
 use crate::pathfind::vehicles::VehiclePathfinder;
-use crate::pathfind::walking::{SidewalkPathfinder, WalkingNode};
+use crate::pathfind::walking::SidewalkPathfinder;
 use crate::{BusRouteID, BusStopID, Map, Path, PathConstraints, PathRequest, Position};
 
 #[derive(Serialize, Deserialize)]
@@ -53,22 +53,17 @@ impl ContractionHierarchyPathfinder {
         }
     }
 
-    pub fn simple_pathfind(&self, req: &PathRequest, map: &Map) -> Option<Path> {
-        match req.constraints {
-            PathConstraints::Pedestrian => unreachable!(),
-            PathConstraints::Car => self.car_graph.pathfind(req, map).map(|(p, _)| p),
-            PathConstraints::Bike => self.bike_graph.pathfind(req, map).map(|(p, _)| p),
-            PathConstraints::Bus => self.bus_graph.pathfind(req, map).map(|(p, _)| p),
+    pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<Path> {
+        (match req.constraints {
+            PathConstraints::Pedestrian => self.walking_graph.pathfind(req, map),
+            PathConstraints::Car => self.car_graph.pathfind(req, map),
+            PathConstraints::Bike => self.bike_graph.pathfind(req, map),
+            PathConstraints::Bus => self.bus_graph.pathfind(req, map),
             // Light rail networks are absolutely tiny; using a contraction hierarchy for them is
             // overkill. And in fact, it costs a bit of memory and file size, so don't do it!
-            PathConstraints::Train => {
-                dijkstra::simple_pathfind(&req, map.routing_params(), map).map(|(path, _)| path)
-            }
-        }
-    }
-
-    pub fn simple_walking_path(&self, req: &PathRequest, map: &Map) -> Option<Vec<WalkingNode>> {
-        self.walking_graph.pathfind(req, map)
+            PathConstraints::Train => dijkstra::pathfind(req, map.routing_params(), map),
+        })
+        .map(|(path, _)| path)
     }
 
     pub fn should_use_transit(

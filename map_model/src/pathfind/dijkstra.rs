@@ -7,7 +7,7 @@ use petgraph::graphmap::DiGraphMap;
 use geom::Duration;
 
 use crate::pathfind::v2::path_v2_to_v1;
-use crate::pathfind::walking::WalkingNode;
+use crate::pathfind::walking::{one_step_walking_path, walking_path_to_steps, WalkingNode};
 use crate::pathfind::{vehicle_cost, zone_cost};
 use crate::{
     DirectedRoadID, Map, MovementID, Path, PathConstraints, PathRequest, RoadID, RoutingParams,
@@ -16,13 +16,13 @@ use crate::{
 
 // TODO These should maybe keep the DiGraphMaps as state. It's cheap to recalculate it for edits.
 
-pub fn simple_pathfind(
-    req: &PathRequest,
-    params: &RoutingParams,
-    map: &Map,
-) -> Option<(Path, Duration)> {
-    let graph = build_graph_for_vehicles(map, req.constraints);
-    calc_path(graph, req, params, map)
+pub fn pathfind(req: PathRequest, params: &RoutingParams, map: &Map) -> Option<(Path, Duration)> {
+    if req.constraints == PathConstraints::Pedestrian {
+        pathfind_walking(req, map)
+    } else {
+        let graph = build_graph_for_vehicles(map, req.constraints);
+        calc_path(graph, req, params, map)
+    }
 }
 
 pub fn build_graph_for_vehicles(
@@ -54,12 +54,12 @@ pub fn pathfind_avoiding_roads(
         }
     }
 
-    calc_path(graph, &req, map.routing_params(), map)
+    calc_path(graph, req, map.routing_params(), map)
 }
 
 fn calc_path(
     graph: DiGraphMap<DirectedRoadID, MovementID>,
-    req: &PathRequest,
+    req: PathRequest,
     params: &RoutingParams,
     map: &Map,
 ) -> Option<(Path, Duration)> {
@@ -76,7 +76,7 @@ fn calc_path(
     )?;
 
     // TODO No uber-turns yet
-    let path = path_v2_to_v1(req.clone(), path, Vec::new(), map).ok()?;
+    let path = path_v2_to_v1(req, path, Vec::new(), map).ok()?;
     Some((path, cost))
 }
 
@@ -120,17 +120,22 @@ pub fn build_graph_for_pedestrians(map: &Map) -> DiGraphMap<WalkingNode, Duratio
     graph
 }
 
-pub fn simple_walking_path(req: &PathRequest, map: &Map) -> Option<Vec<WalkingNode>> {
+fn pathfind_walking(req: PathRequest, map: &Map) -> Option<(Path, Duration)> {
+    if req.start.lane() == req.end.lane() {
+        return Some(one_step_walking_path(req, map));
+    }
+
     let graph = build_graph_for_pedestrians(map);
 
     let closest_start = WalkingNode::closest(req.start, map);
     let closest_end = WalkingNode::closest(req.end, map);
-    let (_, path) = petgraph::algo::astar(
+    let (cost, nodes) = petgraph::algo::astar(
         &graph,
         closest_start,
         |end| end == closest_end,
         |(_, _, cost)| *cost,
         |_| Duration::ZERO,
     )?;
-    Some(path)
+    let steps = walking_path_to_steps(nodes, map);
+    Some((Path::new(map, steps, req, Vec::new()), cost))
 }

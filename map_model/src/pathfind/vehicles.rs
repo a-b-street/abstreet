@@ -93,7 +93,7 @@ impl VehiclePathfinder {
         }
     }
 
-    pub fn pathfind(&self, req: &PathRequest, map: &Map) -> Option<(Path, usize)> {
+    pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<(Path, Duration)> {
         assert!(!map.get_l(req.start.lane()).is_walkable());
         let mut calc = self
             .path_calc
@@ -126,8 +126,8 @@ impl VehiclePathfinder {
                 }
             }
         }
-        let path = path_v2_to_v1(req.clone(), road_steps, uber_turns, map).ok()?;
-        Some((path, raw_path.get_weight()))
+        let path = path_v2_to_v1(req, road_steps, uber_turns, map).ok()?;
+        Some((path, Duration::seconds(raw_path.get_weight() as f64)))
     }
 
     pub fn apply_edits(&mut self, map: &Map) {
