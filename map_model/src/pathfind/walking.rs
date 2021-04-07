@@ -14,7 +14,7 @@ use crate::pathfind::ch::round;
 use crate::pathfind::dijkstra;
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::pathfind::vehicles::VehiclePathfinder;
-use crate::pathfind::zone_cost_v2;
+use crate::pathfind::zone_cost;
 use crate::{
     BusRoute, BusRouteID, BusStopID, DirectedRoadID, IntersectionID, Map, Path, PathConstraints,
     PathRequest, PathStep, Position, Traversable,
@@ -261,7 +261,7 @@ fn make_input_graph(
             input_graph.add_edge(
                 nodes.get(from),
                 nodes.get(to),
-                round(cost + zone_cost_v2(t.id.to_movement(map), PathConstraints::Pedestrian, map)),
+                round(cost + zone_cost(t.id.to_movement(map), PathConstraints::Pedestrian, map)),
             );
         }
     }

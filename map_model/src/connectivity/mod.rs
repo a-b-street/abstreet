@@ -7,8 +7,8 @@ use petgraph::graphmap::DiGraphMap;
 use geom::Duration;
 
 pub use self::walking::{all_walking_costs_from, WalkingOptions};
-use crate::pathfind::{build_graph_for_vehicles_v2, zone_cost_v2};
-pub use crate::pathfind::{vehicle_cost_v2, WalkingNode};
+use crate::pathfind::{build_graph_for_vehicles, zone_cost};
+pub use crate::pathfind::{vehicle_cost, WalkingNode};
 use crate::{BuildingID, DirectedRoadID, LaneID, Map, PathConstraints, PathRequest};
 
 mod walking;
@@ -78,9 +78,9 @@ pub fn all_vehicle_costs_from(
     }
 
     if let Some(start_road) = bldg_to_road.get(&start) {
-        let graph = build_graph_for_vehicles_v2(map, constraints);
+        let graph = build_graph_for_vehicles(map, constraints);
         let cost_per_road = petgraph::algo::dijkstra(&graph, *start_road, None, |(_, _, mvmnt)| {
-            vehicle_cost_v2(mvmnt.from, *mvmnt, constraints, map.routing_params(), map)
+            vehicle_cost(mvmnt.from, *mvmnt, constraints, map.routing_params(), map)
         });
         for (b, road) in bldg_to_road {
             if let Some(duration) = cost_per_road.get(&road).cloned() {
@@ -108,19 +108,19 @@ pub fn debug_vehicle_costs(
 
     let (_, cost) = crate::pathfind::dijkstra::simple_pathfind(&req, map.routing_params(), map)?;
 
-    let graph = build_graph_for_vehicles_v2(map, req.constraints);
+    let graph = build_graph_for_vehicles(map, req.constraints);
     let road_costs = petgraph::algo::dijkstra(
         &graph,
         map.get_l(req.start.lane()).get_directed_parent(),
         None,
         |(_, _, mvmnt)| {
-            vehicle_cost_v2(
+            vehicle_cost(
                 mvmnt.from,
                 *mvmnt,
                 req.constraints,
                 map.routing_params(),
                 map,
-            ) + zone_cost_v2(*mvmnt, req.constraints, map)
+            ) + zone_cost(*mvmnt, req.constraints, map)
         },
     );
 

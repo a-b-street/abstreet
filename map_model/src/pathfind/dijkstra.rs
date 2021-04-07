@@ -8,7 +8,7 @@ use geom::Duration;
 
 use crate::pathfind::v2::path_v2_to_v1;
 use crate::pathfind::walking::WalkingNode;
-use crate::pathfind::{vehicle_cost_v2, zone_cost_v2};
+use crate::pathfind::{vehicle_cost, zone_cost};
 use crate::{
     DirectedRoadID, Map, MovementID, Path, PathConstraints, PathRequest, RoadID, RoutingParams,
     Traversable,
@@ -21,11 +21,11 @@ pub fn simple_pathfind(
     params: &RoutingParams,
     map: &Map,
 ) -> Option<(Path, Duration)> {
-    let graph = build_graph_for_vehicles_v2(map, req.constraints);
-    calc_path_v2(graph, req, params, map)
+    let graph = build_graph_for_vehicles(map, req.constraints);
+    calc_path(graph, req, params, map)
 }
 
-pub fn build_graph_for_vehicles_v2(
+pub fn build_graph_for_vehicles(
     map: &Map,
     constraints: PathConstraints,
 ) -> DiGraphMap<DirectedRoadID, MovementID> {
@@ -54,10 +54,10 @@ pub fn pathfind_avoiding_roads(
         }
     }
 
-    calc_path_v2(graph, &req, map.routing_params(), map)
+    calc_path(graph, &req, map.routing_params(), map)
 }
 
-fn calc_path_v2(
+fn calc_path(
     graph: DiGraphMap<DirectedRoadID, MovementID>,
     req: &PathRequest,
     params: &RoutingParams,
@@ -69,8 +69,8 @@ fn calc_path_v2(
         map.get_l(req.start.lane()).get_directed_parent(),
         |dr| dr == end,
         |(_, _, mvmnt)| {
-            vehicle_cost_v2(mvmnt.from, *mvmnt, req.constraints, params, map)
-                + zone_cost_v2(*mvmnt, req.constraints, map)
+            vehicle_cost(mvmnt.from, *mvmnt, req.constraints, params, map)
+                + zone_cost(*mvmnt, req.constraints, map)
         },
         |_| Duration::ZERO,
     )?;
@@ -112,7 +112,7 @@ pub fn build_graph_for_pedestrians(map: &Map) -> DiGraphMap<WalkingNode, Duratio
                             PathConstraints::Pedestrian,
                             map,
                         )
-                        + zone_cost_v2(turn.id.to_movement(map), PathConstraints::Pedestrian, map),
+                        + zone_cost(turn.id.to_movement(map), PathConstraints::Pedestrian, map),
                 );
             }
         }

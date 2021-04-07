@@ -10,9 +10,9 @@ use serde::{Deserialize, Serialize};
 use geom::{Distance, Duration, PolyLine, Speed, EPSILON_DIST};
 
 pub use self::ch::ContractionHierarchyPathfinder;
-pub use self::dijkstra::{build_graph_for_pedestrians, build_graph_for_vehicles_v2};
+pub use self::dijkstra::{build_graph_for_pedestrians, build_graph_for_vehicles};
 pub use self::pathfinder::Pathfinder;
-pub use self::vehicles::vehicle_cost_v2;
+pub use self::vehicles::vehicle_cost;
 pub use self::walking::WalkingNode;
 use crate::{
     osm, BuildingID, Lane, LaneID, LaneType, Map, MovementID, Position, Traversable, TurnID,
@@ -655,7 +655,7 @@ fn validate_zones(map: &Map, steps: &Vec<PathStep>, req: &PathRequest) {
 }
 
 /// Heavily penalize crossing into an access-restricted zone that doesn't allow this mode.
-pub fn zone_cost_v2(mvmnt: MovementID, constraints: PathConstraints, map: &Map) -> Duration {
+pub fn zone_cost(mvmnt: MovementID, constraints: PathConstraints, map: &Map) -> Duration {
     // Detect when we cross into a new zone that doesn't allow constraints.
     if map
         .get_r(mvmnt.from.id)

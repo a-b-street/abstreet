@@ -13,7 +13,7 @@ use crate::pathfind::ch::round;
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::pathfind::uber_turns::{IntersectionCluster, UberTurnV2};
 use crate::pathfind::v2::path_v2_to_v1;
-use crate::pathfind::zone_cost_v2;
+use crate::pathfind::zone_cost;
 use crate::{
     DirectedRoadID, Direction, DrivingSide, LaneType, Map, MovementID, Path, PathConstraints,
     PathRequest, RoadID, RoutingParams, Traversable, TurnType,
@@ -193,13 +193,13 @@ fn make_input_graph(
                             from,
                             nodes.get(Node::Road(mvmnt.to)),
                             round(
-                                vehicle_cost_v2(
+                                vehicle_cost(
                                     mvmnt.from,
                                     mvmnt,
                                     constraints,
                                     map.routing_params(),
                                     map,
-                                ) + zone_cost_v2(mvmnt, constraints, map),
+                                ) + zone_cost(mvmnt, constraints, map),
                             ),
                         );
                     }
@@ -210,13 +210,13 @@ fn make_input_graph(
 
                         let mut sum_cost = Duration::ZERO;
                         for mvmnt in &ut.path {
-                            sum_cost += vehicle_cost_v2(
+                            sum_cost += vehicle_cost(
                                 mvmnt.from,
                                 *mvmnt,
                                 constraints,
                                 map.routing_params(),
                                 map,
-                            ) + zone_cost_v2(*mvmnt, constraints, map);
+                            ) + zone_cost(*mvmnt, constraints, map);
                         }
                         input_graph.add_edge(
                             from,
@@ -270,7 +270,7 @@ fn make_input_graph(
 /// This returns the pathfinding cost of crossing one road and turn. This is also expressed in
 /// units of time. It factors in the ideal time to cross the space, along with penalties for
 /// entering an access-restricted zone, taking an unprotected turn, and so on.
-pub fn vehicle_cost_v2(
+pub fn vehicle_cost(
     dr: DirectedRoadID,
     mvmnt: MovementID,
     constraints: PathConstraints,
