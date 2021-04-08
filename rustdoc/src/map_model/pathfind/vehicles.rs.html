@@ -341,8 +341,6 @@
 <span id="338">338</span>
 <span id="339">339</span>
 <span id="340">340</span>
-<span id="341">341</span>
-<span id="342">342</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Pathfinding for cars, bikes, buses, and trains using contraction hierarchies</span>
 
@@ -358,11 +356,10 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">ch</span>::<span class="ident">round</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">node_map</span>::{<span class="ident">deserialize_nodemap</span>, <span class="ident">NodeMap</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">uber_turns</span>::{<span class="ident">IntersectionCluster</span>, <span class="ident">UberTurnV2</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">v2</span>::<span class="ident">path_v2_to_v1</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">zone_cost</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>,
-    <span class="ident">PathRequest</span>, <span class="ident">RoadID</span>, <span class="ident">RoutingParams</span>, <span class="ident">Traversable</span>, <span class="ident">TurnType</span>,
+    <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>, <span class="ident">PathConstraints</span>,
+    <span class="ident">PathRequest</span>, <span class="ident">PathV2</span>, <span class="ident">RoadID</span>, <span class="ident">RoutingParams</span>, <span class="ident">Traversable</span>, <span class="ident">TurnType</span>,
 };
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -439,7 +436,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">PathRequest</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Path</span>, <span class="ident">Duration</span>)<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">PathRequest</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathV2</span><span class="op">&gt;</span> {
         <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>()).<span class="ident">is_walkable</span>());
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">calc</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">path_calc</span>
@@ -466,14 +463,13 @@
                         <span class="ident">road_steps</span>.<span class="ident">push</span>(<span class="ident">mvmnt</span>.<span class="ident">to</span>);
                     }
                     <span class="ident">road_steps</span>.<span class="ident">pop</span>();
-                    <span class="comment">// Also remember the uber-turn exists, so we can reconstruct it in</span>
-                    <span class="comment">// path_v2_to_v1.</span>
+                    <span class="comment">// Also remember the uber-turn exists.</span>
                     <span class="ident">uber_turns</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">uber_turns</span>[<span class="ident">ut</span>].<span class="ident">clone</span>());
                 }
             }
         }
-        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path_v2_to_v1</span>(<span class="ident">req</span>, <span class="ident">road_steps</span>, <span class="ident">uber_turns</span>, <span class="ident">map</span>).<span class="ident">ok</span>()<span class="question-mark">?</span>;
-        <span class="prelude-val">Some</span>((<span class="ident">path</span>, <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="ident">raw_path</span>.<span class="ident">get_weight</span>() <span class="kw">as</span> <span class="ident">f64</span>)))
+        <span class="kw">let</span> <span class="ident">cost</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="ident">raw_path</span>.<span class="ident">get_weight</span>() <span class="kw">as</span> <span class="ident">f64</span>);
+        <span class="prelude-val">Some</span>(<span class="ident">PathV2</span>::<span class="ident">from_roads</span>(<span class="ident">road_steps</span>, <span class="ident">req</span>, <span class="ident">cost</span>, <span class="ident">uber_turns</span>, <span class="ident">map</span>))
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">apply_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {

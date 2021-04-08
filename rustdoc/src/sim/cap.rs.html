@@ -307,13 +307,13 @@
             }
         }
         <span class="kw">match</span> <span class="ident">map</span>.<span class="ident">pathfind_avoiding_roads</span>(<span class="ident">path</span>.<span class="ident">get_req</span>().<span class="ident">clone</span>(), <span class="ident">avoid_roads</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CapResult</span>::<span class="ident">Reroute</span>(<span class="ident">path</span>),
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Ok</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CapResult</span>::<span class="ident">Reroute</span>(<span class="ident">path</span>),
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">delay</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">delay_trips_instead_of_cancelling</span> {
                     <span class="ident">CapResult</span>::<span class="ident">Delay</span>(<span class="ident">delay</span>)
                 } <span class="kw">else</span> {
                     <span class="ident">CapResult</span>::<span class="ident">Cancel</span> {
-                        <span class="ident">reason</span>: <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;no path avoiding caps: {}&quot;</span>, <span class="ident">path</span>.<span class="ident">get_req</span>()),
+                        <span class="ident">reason</span>: <span class="ident">err</span>.<span class="ident">to_string</span>(),
                     }
                 }
             }
