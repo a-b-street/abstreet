@@ -14,6 +14,9 @@ pub fn prompt_for_lanes(ctx: &mut EventCtx, road: &Road) -> Box<dyn State<App>> 
         "Define lanes_ltr",
         lanes_to_string(road),
         Box::new(move |string, ctx, app| {
+            // We're selecting a lane before this, but the ID is probably about to be invalidated.
+            app.primary.current_selection = None;
+
             let mut edits = app.primary.map.get_edits().clone();
             edits.commands.push(app.primary.map.edit_road_cmd(r, |new| {
                 new.lanes_ltr = string_to_lanes(string.clone());
