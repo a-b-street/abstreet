@@ -69,7 +69,7 @@ impl SidewalkPathfinder {
     pub fn new(map: &Map, use_transit: bool, bus_graph: &VehiclePathfinder) -> SidewalkPathfinder {
         let mut nodes = NodeMap::new();
         // We're assuming sidewalks aren't editable, so what exists initially will always be true.
-        for l in map.all_lanes() {
+        for l in map.all_lanes().values() {
             if l.is_walkable() {
                 // We're also assuming there's only one walkable lane per side of the road.
                 nodes.get_or_insert(WalkingNode::SidewalkEndpoint(l.get_directed_parent(), true));
@@ -227,7 +227,7 @@ fn make_input_graph(
     let max_speed = Some(crate::MAX_WALKING_SPEED);
     let mut input_graph = InputGraph::new();
 
-    for l in map.all_lanes() {
+    for l in map.all_lanes().values() {
         if l.is_walkable() {
             let mut cost = l.length()
                 / Traversable::Lane(l.id).max_speed_along(
@@ -389,7 +389,7 @@ fn transit_input_graph(
         if !used_border_nodes.contains(&i.id) {
             let some_sidewalk = map
                 .all_lanes()
-                .into_iter()
+                .values()
                 .find(|l| l.is_walkable())
                 .expect("no sidewalks in map");
             input_graph.add_edge(

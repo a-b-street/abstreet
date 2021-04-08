@@ -72,7 +72,7 @@ impl DrivingSimState {
             sim.time_to_park_offstreet = Duration::seconds(0.1);
         }
 
-        for l in map.all_lanes() {
+        for l in map.all_lanes().values() {
             if l.lane_type.is_for_moving_vehicles() {
                 let q = Queue::new(Traversable::Lane(l.id), map);
                 sim.queues.insert(q.id, q);
@@ -897,7 +897,7 @@ impl DrivingSimState {
     pub fn handle_live_edits(&mut self, map: &Map) {
         // Calculate all queues that should exist now.
         let mut new_queues = HashSet::new();
-        for l in map.all_lanes() {
+        for l in map.all_lanes().values() {
             if l.lane_type.is_for_moving_vehicles() {
                 new_queues.insert(Traversable::Lane(l.id));
             }

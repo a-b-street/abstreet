@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 
 use anyhow::Result;
 use maplit::btreemap;
-use rand::seq::SliceRandom;
+use rand::seq::{IteratorRandom, SliceRandom};
 
 use abstio::MapName;
 use abstutil::{Tags, Timer};
@@ -691,8 +691,9 @@ impl PerMap {
             .or_else(|| {
                 self.map
                     .all_lanes()
+                    .keys()
                     .choose(&mut rng)
-                    .and_then(|l| self.canonical_point(ID::Lane(l.id)))
+                    .and_then(|l| self.canonical_point(ID::Lane(*l)))
             })
             .unwrap_or_else(|| self.map.get_bounds().center());
 

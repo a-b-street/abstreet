@@ -144,7 +144,7 @@ impl Map {
     pub fn blank() -> Map {
         Map {
             roads: Vec::new(),
-            lanes: Vec::new(),
+            lanes: BTreeMap::new(),
             intersections: Vec::new(),
             turns: BTreeMap::new(),
             buildings: Vec::new(),
@@ -182,7 +182,7 @@ impl Map {
         &self.roads
     }
 
-    pub fn all_lanes(&self) -> &Vec<Lane> {
+    pub fn all_lanes(&self) -> &BTreeMap<LaneID, Lane> {
         &self.lanes
     }
 
@@ -215,7 +215,7 @@ impl Map {
     }
 
     pub fn maybe_get_l(&self, id: LaneID) -> Option<&Lane> {
-        self.lanes.get(id.0)
+        self.lanes.get(&id)
     }
 
     pub fn maybe_get_i(&self, id: IntersectionID) -> Option<&Intersection> {
@@ -259,7 +259,7 @@ impl Map {
     }
 
     pub fn get_l(&self, id: LaneID) -> &Lane {
-        &self.lanes[id.0]
+        &self.lanes[&id]
     }
 
     pub fn get_i(&self, id: IntersectionID) -> &Intersection {
@@ -501,7 +501,7 @@ impl Map {
         constraints: PathConstraints,
     ) -> Vec<DirectedRoadID> {
         let mut result = BTreeSet::new();
-        for l in &self.lanes {
+        for l in self.lanes.values() {
             if constraints.can_use(l, self) {
                 result.insert(l.get_directed_parent());
             }

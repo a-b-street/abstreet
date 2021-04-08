@@ -20,7 +20,7 @@ use crate::{AppLike, ID};
 
 pub struct DrawMap {
     pub roads: Vec<DrawRoad>,
-    pub lanes: Vec<DrawLane>,
+    pub lanes: HashMap<LaneID, DrawLane>,
     pub intersections: Vec<DrawIntersection>,
     pub buildings: Vec<DrawBuilding>,
     pub parking_lots: Vec<DrawParkingLot>,
@@ -60,11 +60,11 @@ impl DrawMap {
             high_z = high_z.max(r.zorder);
         }
 
-        let mut lanes: Vec<DrawLane> = Vec::new();
+        let mut lanes: HashMap<LaneID, DrawLane> = HashMap::new();
         timer.start_iter("make DrawLanes", map.all_lanes().len());
-        for l in map.all_lanes() {
+        for l in map.all_lanes().values() {
             timer.next();
-            lanes.push(DrawLane::new(l, map));
+            lanes.insert(l.id, DrawLane::new(l, map));
         }
 
         let mut intersections: Vec<DrawIntersection> = Vec::new();
@@ -144,7 +144,7 @@ impl DrawMap {
         for obj in &roads {
             quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
         }
-        for obj in &lanes {
+        for (_, obj) in &lanes {
             quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
         }
         for obj in &intersections {
@@ -251,7 +251,7 @@ impl DrawMap {
     }
 
     pub fn get_l(&self, id: LaneID) -> &DrawLane {
-        &self.lanes[id.0]
+        &self.lanes[&id]
     }
 
     pub fn get_i(&self, id: IntersectionID) -> &DrawIntersection {
@@ -406,7 +406,7 @@ impl DrawMap {
             batch.append(DrawParkingLot::new(ctx, pl, cs, &mut GeomBatch::new()).render(app));
         }
 
-        for l in map.all_lanes() {
+        for l in map.all_lanes().values() {
             batch.append(DrawLane::new(l, map).render(ctx, app));
         }
 

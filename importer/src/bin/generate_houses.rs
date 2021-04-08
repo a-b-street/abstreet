@@ -62,7 +62,7 @@ fn generate_buildings_on_empty_residential_roads(
 
     // Find all sidewalks belonging to residential roads that have no buildings
     let mut empty_sidewalks = Vec::new();
-    for l in map.all_lanes() {
+    for l in map.all_lanes().values() {
         if l.is_sidewalk()
             && !lanes_with_buildings.contains(&l.id)
             && map.get_r(l.parent).osm_tags.is(osm::HIGHWAY, "residential")

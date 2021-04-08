@@ -34,7 +34,11 @@ pub fn make_stops_and_routes(map: &mut Map, raw_routes: &Vec<RawBusRoute>, timer
         .collect::<Vec<_>>()
     {
         map.bus_stops.remove(&id);
-        map.lanes[id.sidewalk.0].bus_stops.remove(&id);
+        map.lanes
+            .get_mut(&id.sidewalk)
+            .unwrap()
+            .bus_stops
+            .remove(&id);
     }
 
     timer.stop("make transit stops and routes");
@@ -65,7 +69,11 @@ fn make_route(
                         idx: map.get_l(sidewalk_pos.lane()).bus_stops.len(),
                     };
                     pt_to_stop.insert((sidewalk_pos, driving_pos), id);
-                    map.lanes[sidewalk_pos.lane().0].bus_stops.insert(id);
+                    map.lanes
+                        .get_mut(&sidewalk_pos.lane())
+                        .unwrap()
+                        .bus_stops
+                        .insert(id);
                     map.bus_stops.insert(
                         id,
                         BusStop {

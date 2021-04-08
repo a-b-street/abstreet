@@ -309,7 +309,7 @@ impl EditCmd {
                 road.access_restrictions = new.access_restrictions.clone();
                 assert_eq!(road.lanes_ltr.len(), new.lanes_ltr.len());
                 for (idx, (lt, dir)) in new.lanes_ltr.clone().into_iter().enumerate() {
-                    let lane = &mut map.lanes[(road.lanes_ltr[idx].0).0];
+                    let lane = map.lanes.get_mut(&road.lanes_ltr[idx].0).unwrap();
                     road.lanes_ltr[idx].2 = lt;
                     lane.lane_type = lt;
 
@@ -330,10 +330,10 @@ impl EditCmd {
                     i.incoming_lanes.clear();
                     for r in &i.roads {
                         for (l, _, _) in map.roads[r.0].lanes_ltr() {
-                            if map.lanes[l.0].src_i == i.id {
+                            if map.lanes[&l].src_i == i.id {
                                 i.outgoing_lanes.push(l);
                             } else {
-                                assert_eq!(map.lanes[l.0].dst_i, i.id);
+                                assert_eq!(map.lanes[&l].dst_i, i.id);
                                 i.incoming_lanes.push(l);
                             }
                         }
@@ -646,15 +646,15 @@ impl Map {
 
         // Also recompute blackholes. This is cheap enough to do from scratch.
         timer.start("recompute blackholes");
-        for l in self.lanes.iter_mut() {
+        for l in self.lanes.values_mut() {
             l.driving_blackhole = false;
             l.biking_blackhole = false;
         }
         for l in connectivity::find_scc(self, PathConstraints::Car).1 {
-            self.lanes[l.0].driving_blackhole = true;
+            self.lanes.get_mut(&l).unwrap().driving_blackhole = true;
         }
         for l in connectivity::find_scc(self, PathConstraints::Bike).1 {
-            self.lanes[l.0].biking_blackhole = true;
+            self.lanes.get_mut(&l).unwrap().biking_blackhole = true;
         }
         timer.stop("recompute blackholes");
 

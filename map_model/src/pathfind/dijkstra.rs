@@ -82,7 +82,7 @@ fn calc_path(
 pub fn build_graph_for_pedestrians(map: &Map) -> DiGraphMap<WalkingNode, Duration> {
     let max_speed = Some(crate::MAX_WALKING_SPEED);
     let mut graph: DiGraphMap<WalkingNode, Duration> = DiGraphMap::new();
-    for l in map.all_lanes() {
+    for l in map.all_lanes().values() {
         if l.is_walkable() {
             let cost = l.length()
                 / Traversable::Lane(l.id).max_speed_along(
