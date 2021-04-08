@@ -6,17 +6,16 @@ use petgraph::graphmap::DiGraphMap;
 
 use geom::Duration;
 
-use crate::pathfind::v2::path_v2_to_v1;
 use crate::pathfind::walking::{one_step_walking_path, walking_path_to_steps, WalkingNode};
 use crate::pathfind::{vehicle_cost, zone_cost};
 use crate::{
-    DirectedRoadID, Map, MovementID, Path, PathConstraints, PathRequest, RoadID, RoutingParams,
+    DirectedRoadID, Map, MovementID, PathConstraints, PathRequest, PathV2, RoadID, RoutingParams,
     Traversable,
 };
 
 // TODO These should maybe keep the DiGraphMaps as state. It's cheap to recalculate it for edits.
 
-pub fn pathfind(req: PathRequest, params: &RoutingParams, map: &Map) -> Option<(Path, Duration)> {
+pub fn pathfind(req: PathRequest, params: &RoutingParams, map: &Map) -> Option<PathV2> {
     if req.constraints == PathConstraints::Pedestrian {
         pathfind_walking(req, map)
     } else {
@@ -42,7 +41,7 @@ pub fn pathfind_avoiding_roads(
     req: PathRequest,
     avoid: BTreeSet<RoadID>,
     map: &Map,
-) -> Option<(Path, Duration)> {
+) -> Option<PathV2> {
     assert_eq!(req.constraints, PathConstraints::Car);
     let mut graph = DiGraphMap::new();
     for dr in map.all_directed_roads_for(req.constraints) {
@@ -62,9 +61,9 @@ fn calc_path(
     req: PathRequest,
     params: &RoutingParams,
     map: &Map,
-) -> Option<(Path, Duration)> {
+) -> Option<PathV2> {
     let end = map.get_l(req.end.lane()).get_directed_parent();
-    let (cost, path) = petgraph::algo::astar(
+    let (cost, steps) = petgraph::algo::astar(
         &graph,
         map.get_l(req.start.lane()).get_directed_parent(),
         |dr| dr == end,
@@ -74,10 +73,8 @@ fn calc_path(
         },
         |_| Duration::ZERO,
     )?;
-
     // TODO No uber-turns yet
-    let path = path_v2_to_v1(req, path, Vec::new(), map).ok()?;
-    Some((path, cost))
+    Some(PathV2::from_roads(steps, req, cost, Vec::new(), map))
 }
 
 pub fn build_graph_for_pedestrians(map: &Map) -> DiGraphMap<WalkingNode, Duration> {
@@ -120,7 +117,7 @@ pub fn build_graph_for_pedestrians(map: &Map) -> DiGraphMap<WalkingNode, Duratio
     graph
 }
 
-fn pathfind_walking(req: PathRequest, map: &Map) -> Option<(Path, Duration)> {
+fn pathfind_walking(req: PathRequest, map: &Map) -> Option<PathV2> {
     if req.start.lane() == req.end.lane() {
         return Some(one_step_walking_path(req, map));
     }
@@ -137,5 +134,5 @@ fn pathfind_walking(req: PathRequest, map: &Map) -> Option<(Path, Duration)> {
         |_| Duration::ZERO,
     )?;
     let steps = walking_path_to_steps(nodes, map);
-    Some((Path::new(map, steps, req, Vec::new()), cost))
+    Some(PathV2::new(steps, req, cost, Vec::new()))
 }

@@ -579,9 +579,11 @@ impl Map {
 
     pub fn pathfind(&self, req: PathRequest) -> Result<Path> {
         assert!(!self.pathfinder_dirty);
-        self.pathfinder
+        let path = self
+            .pathfinder
             .pathfind(req.clone(), self)
-            .ok_or_else(|| anyhow!("can't fulfill {}", req))
+            .ok_or_else(|| anyhow!("can't fulfill {}", req))?;
+        path.to_v1(self)
     }
     pub fn pathfind_avoiding_roads(
         &self,
@@ -589,13 +591,16 @@ impl Map {
         avoid: BTreeSet<RoadID>,
     ) -> Option<Path> {
         assert!(!self.pathfinder_dirty);
-        self.pathfinder.pathfind_avoiding_roads(req, avoid, self)
+        let path = self.pathfinder.pathfind_avoiding_roads(req, avoid, self)?;
+        path.to_v1(self).ok()
     }
     pub fn pathfind_with_params(&self, req: PathRequest, params: &RoutingParams) -> Result<Path> {
         assert!(!self.pathfinder_dirty);
-        self.pathfinder
+        let path = self
+            .pathfinder
             .pathfind_with_params(req.clone(), params, self)
-            .ok_or_else(|| anyhow!("can't fulfill {}", req))
+            .ok_or_else(|| anyhow!("can't fulfill {}", req))?;
+        path.to_v1(self)
     }
 
     pub fn should_use_transit(
