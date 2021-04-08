@@ -104,6 +104,15 @@ impl LaneEditor {
                 .text("Change access restrictions")
                 .hotkey(Key::A)
                 .build_def(ctx),
+            if app.opts.dev {
+                ctx.style()
+                    .btn_plain_destructive
+                    .text("Modify entire road")
+                    .hotkey(Key::R)
+                    .build_def(ctx)
+            } else {
+                Widget::nothing()
+            },
             ctx.style()
                 .btn_solid_primary
                 .text("Finish")
@@ -130,6 +139,10 @@ impl SimpleState<App> for LaneEditor {
                 ctx,
                 app,
                 app.primary.map.get_l(self.l).parent,
+            )),
+            "Modify entire road" => Transition::Push(crate::edit::roads::prompt_for_lanes(
+                ctx,
+                app.primary.map.get_parent(self.l),
             )),
             "Finish" => Transition::Pop,
             x => {
