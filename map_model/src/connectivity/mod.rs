@@ -38,7 +38,7 @@ pub fn find_scc(map: &Map, constraints: PathConstraints) -> (HashSet<LaneID>, Ha
         .collect();
     let disconnected = map
         .all_lanes()
-        .iter()
+        .values()
         .filter_map(|l| {
             if constraints.can_use(l, map) && !largest_group.contains(&l.id) {
                 Some(l.id)

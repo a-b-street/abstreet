@@ -49,7 +49,7 @@ impl Map {
 
         let mut map = Map {
             roads: Vec::new(),
-            lanes: Vec::new(),
+            lanes: BTreeMap::new(),
             intersections: Vec::new(),
             turns: BTreeMap::new(),
             buildings: Vec::new(),
@@ -199,19 +199,22 @@ impl Map {
                 };
                 width_so_far += lane.width;
 
-                map.lanes.push(Lane {
+                map.lanes.insert(
                     id,
-                    lane_center_pts,
-                    width: lane.width,
-                    src_i,
-                    dst_i,
-                    lane_type: lane.lt,
-                    dir: lane.dir,
-                    parent: road_id,
-                    bus_stops: BTreeSet::new(),
-                    driving_blackhole: false,
-                    biking_blackhole: false,
-                });
+                    Lane {
+                        id,
+                        lane_center_pts,
+                        width: lane.width,
+                        src_i,
+                        dst_i,
+                        lane_type: lane.lt,
+                        dir: lane.dir,
+                        parent: road_id,
+                        bus_stops: BTreeSet::new(),
+                        driving_blackhole: false,
+                        biking_blackhole: false,
+                    },
+                );
             }
             map.roads.push(road);
         }
@@ -266,10 +269,10 @@ impl Map {
 
         timer.start("find blackholes");
         for l in connectivity::find_scc(&map, PathConstraints::Car).1 {
-            map.lanes[l.0].driving_blackhole = true;
+            map.lanes.get_mut(&l).unwrap().driving_blackhole = true;
         }
         for l in connectivity::find_scc(&map, PathConstraints::Bike).1 {
-            map.lanes[l.0].biking_blackhole = true;
+            map.lanes.get_mut(&l).unwrap().biking_blackhole = true;
         }
         timer.stop("find blackholes");
 
@@ -377,7 +380,7 @@ impl Map {
         map.boundary_polygon = map.bounds.get_rectangle();
         map.intersections = intersections;
         map.roads = roads;
-        map.lanes = lanes;
+        map.lanes = lanes.into_iter().map(|l| (l.id, l)).collect();
         map.turns = turns.into_iter().map(|turn| (turn.id, turn)).collect();
 
         let stop_signs = map
@@ -404,7 +407,7 @@ impl Map {
 fn match_points_to_lanes<F: Fn(&Lane) -> bool>(
     bounds: &Bounds,
     pts: HashSet<HashablePt2D>,
-    lanes: &Vec<Lane>,
+    lanes: &BTreeMap<LaneID, Lane>,
     filter: F,
     buffer: Distance,
     max_dist_away: Distance,
@@ -416,7 +419,7 @@ fn match_points_to_lanes<F: Fn(&Lane) -> bool>(
 
     let mut closest: FindClosest<LaneID> = FindClosest::new(bounds);
     timer.start_iter("index lanes", lanes.len());
-    for l in lanes {
+    for l in lanes.values() {
         timer.next();
         if filter(l) && l.length() > (buffer + EPSILON_DIST) * 2.0 {
             closest.add(
@@ -437,13 +440,13 @@ fn match_points_to_lanes<F: Fn(&Lane) -> bool>(
             pts.into_iter().collect(),
             |query_pt| {
                 if let Some((l, pt)) = closest.closest_pt(query_pt.to_pt2d(), max_dist_away) {
-                    if let Some(dist_along) = lanes[l.0].dist_along_of_point(pt) {
+                    if let Some(dist_along) = lanes[&l].dist_along_of_point(pt) {
                         Some((query_pt, Position::new(l, dist_along)))
                     } else {
                         panic!(
                             "{} isn't on {} according to dist_along_of_point, even though \
                              closest_point thinks it is.\n{}",
-                            pt, l, lanes[l.0].lane_center_pts
+                            pt, l, lanes[&l].lane_center_pts
                         );
                     }
                 } else {

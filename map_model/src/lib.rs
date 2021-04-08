@@ -83,7 +83,7 @@ pub(crate) const SHOULDER_THICKNESS: Distance = Distance::const_meters(0.5);
 #[derive(Serialize, Deserialize)]
 pub struct Map {
     roads: Vec<Road>,
-    lanes: Vec<Lane>,
+    lanes: BTreeMap<LaneID, Lane>,
     intersections: Vec<Intersection>,
     #[serde(
         serialize_with = "serialize_btreemap",

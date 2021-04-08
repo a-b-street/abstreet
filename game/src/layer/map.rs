@@ -77,7 +77,7 @@ impl BikeActivity {
         let mut intersections_on = Counter::new();
         let mut intersections_off = Counter::new();
         // Make sure all bikes lanes show up no matter what
-        for l in app.primary.map.all_lanes() {
+        for l in app.primary.map.all_lanes().values() {
             if l.is_biking() {
                 on_bike_lanes.add(l.parent, 0);
                 intersections_on.add(l.src_i, 0);
@@ -294,7 +294,7 @@ impl Static {
 
     pub fn no_sidewalks(ctx: &mut EventCtx, app: &App) -> Static {
         let mut colorer = ColorDiscrete::new(app, vec![("no sidewalks", Color::RED)]);
-        for l in app.primary.map.all_lanes() {
+        for l in app.primary.map.all_lanes().values() {
             if l.is_shoulder() {
                 colorer.add_r(l.parent, "no sidewalks");
             }
@@ -317,7 +317,7 @@ impl Static {
                 ("driving + biking blackhole", Color::BLUE),
             ],
         );
-        for l in app.primary.map.all_lanes() {
+        for l in app.primary.map.all_lanes().values() {
             if l.driving_blackhole && l.biking_blackhole {
                 colorer.add_l(l.id, "driving + biking blackhole");
             } else if l.driving_blackhole {

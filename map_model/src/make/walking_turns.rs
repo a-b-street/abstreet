@@ -1,4 +1,4 @@
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 use abstutil::wraparound_get;
 use geom::{Distance, Line, PolyLine, Pt2D, Ring};
@@ -202,9 +202,9 @@ pub fn _make_walking_turns_v2(map: &Map, i: &Intersection) -> Vec<Turn> {
         for (l, dir, lt) in r.lanes_ltr() {
             if lt == LaneType::Sidewalk || lt == LaneType::Shoulder {
                 if dir == Direction::Fwd {
-                    fwd = Some(&all_lanes[l.0]);
+                    fwd = Some(&all_lanes[&l]);
                 } else {
-                    back = Some(&all_lanes[l.0]);
+                    back = Some(&all_lanes[&l]);
                 }
             }
         }
@@ -378,7 +378,7 @@ fn make_crosswalks(
 // Only one physical crosswalk for degenerate intersections, right in the middle.
 fn make_degenerate_crosswalks(
     i: IntersectionID,
-    lanes: &Vec<Lane>,
+    lanes: &BTreeMap<LaneID, Lane>,
     r1: &Road,
     r2: &Road,
 ) -> Option<Vec<Turn>> {
@@ -538,10 +538,13 @@ fn turn_id(parent: IntersectionID, src: LaneID, dst: LaneID) -> TurnID {
     TurnID { parent, src, dst }
 }
 
-fn get_sidewalk<'a>(lanes: &'a Vec<Lane>, children: Vec<(LaneID, LaneType)>) -> Option<&'a Lane> {
+fn get_sidewalk<'a>(
+    lanes: &'a BTreeMap<LaneID, Lane>,
+    children: Vec<(LaneID, LaneType)>,
+) -> Option<&'a Lane> {
     for (id, lt) in children {
         if lt == LaneType::Sidewalk || lt == LaneType::Shoulder {
-            return Some(&lanes[id.0]);
+            return Some(&lanes[&id]);
         }
     }
     None

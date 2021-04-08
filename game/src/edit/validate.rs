@@ -63,7 +63,7 @@ pub fn check_blackholes(
     let orig_edits = app.primary.map.get_edits().clone();
     let mut driving_ok_originally = BTreeSet::new();
     let mut biking_ok_originally = BTreeSet::new();
-    for l in app.primary.map.all_lanes() {
+    for l in app.primary.map.all_lanes().values() {
         if !l.driving_blackhole {
             driving_ok_originally.insert(l.id);
         }
