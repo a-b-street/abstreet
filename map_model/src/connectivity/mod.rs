@@ -81,6 +81,7 @@ pub fn all_vehicle_costs_from(
         let graph = build_graph_for_vehicles(map, constraints);
         let cost_per_road = petgraph::algo::dijkstra(&graph, *start_road, None, |(_, _, mvmnt)| {
             vehicle_cost(mvmnt.from, *mvmnt, constraints, map.routing_params(), map)
+                + zone_cost(*mvmnt, constraints, map)
         });
         for (b, road) in bldg_to_road {
             if let Some(duration) = cost_per_road.get(&road).cloned() {

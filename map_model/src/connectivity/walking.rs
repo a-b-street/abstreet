@@ -3,7 +3,7 @@ use std::collections::{BinaryHeap, HashMap};
 
 use geom::{Duration, Speed};
 
-use crate::pathfind::WalkingNode;
+use crate::pathfind::{zone_cost, WalkingNode};
 use crate::{BuildingID, LaneType, Map, PathConstraints, Traversable};
 
 #[derive(Clone)]
@@ -118,7 +118,8 @@ pub fn all_walking_costs_from(
                             Some(opts.walking_speed),
                             PathConstraints::Pedestrian,
                             map,
-                        ),
+                        )
+                    + zone_cost(turn.id.to_movement(map), PathConstraints::Pedestrian, map),
                 node: WalkingNode::SidewalkEndpoint(
                     map.get_l(turn.id.dst).get_directed_parent(),
                     map.get_l(turn.id.dst).dst_i == turn.id.parent,
