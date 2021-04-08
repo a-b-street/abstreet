@@ -127,6 +127,7 @@ pub enum EditCmd {
 
 pub struct EditEffects {
     pub changed_roads: BTreeSet<RoadID>,
+    pub deleted_lanes: BTreeSet<LaneID>,
     pub changed_intersections: BTreeSet<IntersectionID>,
     pub added_turns: BTreeSet<TurnID>,
     pub deleted_turns: BTreeSet<TurnID>,
@@ -233,6 +234,7 @@ impl MapEdits {
     }
 
     /// Pick apart changed_roads and figure out if an entire road was edited, or just a few lanes.
+    /// Doesn't return deleted lanes.
     pub fn changed_lanes(&self, map: &Map) -> (BTreeSet<LaneID>, BTreeSet<RoadID>) {
         let mut lanes = BTreeSet::new();
         let mut roads = BTreeSet::new();
@@ -246,9 +248,15 @@ impl MapEdits {
                 roads.insert(r.id);
             } else {
                 let lanes_ltr = r.lanes_ltr();
-                for (idx, (lt, dir)) in orig.lanes_ltr.into_iter().enumerate() {
-                    if lanes_ltr[idx].1 != dir || lanes_ltr[idx].2 != lt {
-                        lanes.insert(lanes_ltr[idx].0);
+                if lanes_ltr.len() != orig.lanes_ltr.len() {
+                    // If a lane was added or deleted, figuring out if any were modified is kind of
+                    // unclear -- just mark the entire road.
+                    roads.insert(r.id);
+                } else {
+                    for (idx, (lt, dir)) in orig.lanes_ltr.into_iter().enumerate() {
+                        if lanes_ltr[idx].1 != dir || lanes_ltr[idx].2 != lt {
+                            lanes.insert(lanes_ltr[idx].0);
+                        }
                     }
                 }
             }
@@ -267,6 +275,7 @@ impl EditEffects {
     pub fn new() -> EditEffects {
         EditEffects {
             changed_roads: BTreeSet::new(),
+            deleted_lanes: BTreeSet::new(),
             changed_intersections: BTreeSet::new(),
             added_turns: BTreeSet::new(),
             deleted_turns: BTreeSet::new(),
@@ -307,20 +316,25 @@ impl EditCmd {
                 let road = &mut map.roads[r.0];
                 road.speed_limit = new.speed_limit;
                 road.access_restrictions = new.access_restrictions.clone();
-                assert_eq!(road.lanes_ltr.len(), new.lanes_ltr.len());
-                for (idx, (lt, dir)) in new.lanes_ltr.clone().into_iter().enumerate() {
-                    let lane = map.lanes.get_mut(&road.lanes_ltr[idx].0).unwrap();
-                    road.lanes_ltr[idx].2 = lt;
-                    lane.lane_type = lt;
+                if road.lanes_ltr.len() == new.lanes_ltr.len() {
+                    for (idx, (lt, dir)) in new.lanes_ltr.clone().into_iter().enumerate() {
+                        let lane = map.lanes.get_mut(&road.lanes_ltr[idx].0).unwrap();
+                        road.lanes_ltr[idx].2 = lt;
+                        lane.lane_type = lt;
 
-                    // Direction change?
-                    if road.lanes_ltr[idx].1 != dir {
-                        road.lanes_ltr[idx].1 = dir;
-                        std::mem::swap(&mut lane.src_i, &mut lane.dst_i);
-                        lane.lane_center_pts = lane.lane_center_pts.reversed();
-                        lane.dir = dir;
+                        // Direction change?
+                        if road.lanes_ltr[idx].1 != dir {
+                            road.lanes_ltr[idx].1 = dir;
+                            std::mem::swap(&mut lane.src_i, &mut lane.dst_i);
+                            lane.lane_center_pts = lane.lane_center_pts.reversed();
+                            lane.dir = dir;
+                        }
                     }
+                } else {
+                    modify_road_width(map, *r, new.lanes_ltr.clone(), effects);
                 }
+                // Re-borrow
+                let road = &mut map.roads[r.0];
 
                 effects.changed_roads.insert(road.id);
                 for i in vec![road.src_i, road.dst_i] {
@@ -454,6 +468,49 @@ fn recalculate_turns(id: IntersectionID, map: &mut Map, effects: &mut EditEffect
     }
 }
 
+fn modify_road_width(
+    map: &mut Map,
+    r: RoadID,
+    lanes_ltr: Vec<(LaneType, Direction)>,
+    effects: &mut EditEffects,
+) {
+    let before = map.roads[r.0].lanes_ltr.len();
+    let after = lanes_ltr.len();
+
+    if after < before {
+        // Same as the normal case...
+        let road = &mut map.roads[r.0];
+        for (idx, (lt, dir)) in lanes_ltr.into_iter().enumerate() {
+            let lane = map.lanes.get_mut(&road.lanes_ltr[idx].0).unwrap();
+            road.lanes_ltr[idx].2 = lt;
+            lane.lane_type = lt;
+
+            // Direction change?
+            if road.lanes_ltr[idx].1 != dir {
+                road.lanes_ltr[idx].1 = dir;
+                std::mem::swap(&mut lane.src_i, &mut lane.dst_i);
+                lane.lane_center_pts = lane.lane_center_pts.reversed();
+                lane.dir = dir;
+            }
+        }
+
+        // Delete some stuff!
+        for _ in 0..before - after {
+            let (l, _, _) = road.lanes_ltr.pop().unwrap();
+            map.lanes.remove(&l).unwrap();
+            effects.deleted_lanes.insert(l);
+        }
+    } else {
+        // TODO Adding lanes
+    }
+
+    // TODO We need to recalculate the road center line, all of the lane geometry, the intersection
+    // geometry...
+
+    // TODO We need to update buildings, bus stops, and parking lots -- they may refer to an old
+    // ID.
+}
+
 impl Map {
     pub fn new_edits(&self) -> MapEdits {
         let mut edits = MapEdits::new();
@@ -519,11 +576,13 @@ impl Map {
         edits.save(self);
     }
 
+    /// Returns (roads_changed, lanes_deleted, turns_deleted, turns_added, modified_intersections)
     pub fn must_apply_edits(
         &mut self,
         new_edits: MapEdits,
     ) -> (
         BTreeSet<RoadID>,
+        BTreeSet<LaneID>,
         BTreeSet<TurnID>,
         BTreeSet<TurnID>,
         BTreeSet<IntersectionID>,
@@ -536,14 +595,14 @@ impl Map {
     }
 
     // new_edits don't necessarily have to be valid; this could be used for speculatively testing
-    // edits. Returns roads changed, turns deleted, turns added, intersections modified. Doesn't
-    // update pathfinding yet.
+    // edits. Doesn't update pathfinding yet.
     fn apply_edits(
         &mut self,
         mut new_edits: MapEdits,
         enforce_valid: bool,
     ) -> (
         BTreeSet<RoadID>,
+        BTreeSet<LaneID>,
         BTreeSet<TurnID>,
         BTreeSet<TurnID>,
         BTreeSet<IntersectionID>,
@@ -551,6 +610,7 @@ impl Map {
         // Short-circuit to avoid marking pathfinder_dirty
         if self.edits == new_edits {
             return (
+                BTreeSet::new(),
                 BTreeSet::new(),
                 BTreeSet::new(),
                 BTreeSet::new(),
@@ -622,6 +682,7 @@ impl Map {
 
         (
             effects.changed_roads,
+            effects.deleted_lanes,
             effects.deleted_turns,
             // Some of these might've been added, then later deleted.
             effects

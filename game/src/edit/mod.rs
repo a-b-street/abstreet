@@ -1,5 +1,3 @@
-use std::collections::BTreeSet;
-
 use maplit::btreeset;
 
 use abstutil::{prettyprint_usize, Timer};
@@ -676,7 +674,7 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Panel {
 pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
     let mut timer = Timer::new("apply map edits");
 
-    let (roads_changed, turns_deleted, turns_added, mut modified_intersections) =
+    let (roads_changed, lanes_deleted, turns_deleted, turns_added, mut modified_intersections) =
         app.primary.map.must_apply_edits(edits);
 
     if !roads_changed.is_empty() || !modified_intersections.is_empty() {
@@ -702,13 +700,14 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
         }
     }
 
-    let mut lanes_of_modified_turns: BTreeSet<LaneID> = BTreeSet::new();
+    for l in lanes_deleted {
+        app.primary.draw_map.delete_lane(l);
+    }
+
     for t in turns_deleted {
-        lanes_of_modified_turns.insert(t.src);
         modified_intersections.insert(t.parent);
     }
     for t in &turns_added {
-        lanes_of_modified_turns.insert(t.src);
         modified_intersections.insert(t.parent);
     }
 

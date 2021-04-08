@@ -145,6 +145,7 @@ impl Map {
         Map {
             roads: Vec::new(),
             lanes: BTreeMap::new(),
+            lane_id_counter: 0,
             intersections: Vec::new(),
             turns: BTreeMap::new(),
             buildings: Vec::new(),

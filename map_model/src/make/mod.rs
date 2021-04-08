@@ -50,6 +50,7 @@ impl Map {
         let mut map = Map {
             roads: Vec::new(),
             lanes: BTreeMap::new(),
+            lane_id_counter: 0,
             intersections: Vec::new(),
             turns: BTreeMap::new(),
             buildings: Vec::new(),
@@ -173,7 +174,8 @@ impl Map {
 
             let mut width_so_far = Distance::ZERO;
             for lane in &r.lane_specs_ltr {
-                let id = LaneID(map.lanes.len());
+                let id = LaneID(map.lane_id_counter);
+                map.lane_id_counter += 1;
 
                 let (src_i, dst_i) = if lane.dir == Direction::Fwd {
                     (i1, i2)
