@@ -19,7 +19,7 @@ pub enum PathStepV2 {
     Along(DirectedRoadID),
     /// Opposite direction, sidewalks only
     Contraflow(DirectedRoadID),
-    Turn(MovementID),
+    Movement(MovementID),
 }
 
 /// A path between two endpoints for a particular mode. This representation is immutable and doesn't
@@ -63,7 +63,7 @@ impl PathV2 {
         let mut steps = Vec::new();
         for pair in roads.windows(2) {
             steps.push(PathStepV2::Along(pair[0]));
-            steps.push(PathStepV2::Turn(MovementID {
+            steps.push(PathStepV2::Movement(MovementID {
                 from: pair[0],
                 to: pair[1],
                 parent: pair[0].dst_i(map),
@@ -103,7 +103,7 @@ impl PathV2 {
         // arbitrary lookahead needed, and forces use of the original start/end lanes requested.
         let mut graph = petgraph::graphmap::DiGraphMap::new();
         for step in &self.steps {
-            if let PathStepV2::Turn(mvmnt) = step {
+            if let PathStepV2::Movement(mvmnt) = step {
                 for src in mvmnt.from.lanes(self.req.constraints, map) {
                     for dst in mvmnt.to.lanes(self.req.constraints, map) {
                         let turn = TurnID {
@@ -170,7 +170,7 @@ impl PathV2 {
             steps.push(match step {
                 PathStepV2::Along(r) => PathStep::Lane(r.must_get_sidewalk(map)),
                 PathStepV2::Contraflow(r) => PathStep::ContraflowLane(r.must_get_sidewalk(map)),
-                PathStepV2::Turn(mvmnt) => PathStep::Turn(TurnID {
+                PathStepV2::Movement(mvmnt) => PathStep::Turn(TurnID {
                     src: mvmnt.from.must_get_sidewalk(map),
                     dst: mvmnt.to.must_get_sidewalk(map),
                     parent: mvmnt.parent,

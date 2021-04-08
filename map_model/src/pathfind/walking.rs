@@ -436,7 +436,7 @@ pub fn walking_path_to_steps(path: Vec<WalkingNode>, map: &Map) -> Vec<PathStepV
                 .get_turn_between(r1.must_get_sidewalk(map), r2.must_get_sidewalk(map), i)
                 .is_some()
             {
-                steps.push(PathStepV2::Turn(MovementID {
+                steps.push(PathStepV2::Movement(MovementID {
                     from: r1,
                     to: r2,
                     parent: i,
@@ -460,14 +460,14 @@ pub fn walking_path_to_steps(path: Vec<WalkingNode>, map: &Map) -> Vec<PathStepV
     }
 
     // Don't start or end a path in a turn; sim layer breaks.
-    if let PathStepV2::Turn(mvmnt) = steps[0] {
+    if let PathStepV2::Movement(mvmnt) = steps[0] {
         if mvmnt.from.src_i(map) == mvmnt.parent {
             steps.insert(0, PathStepV2::Contraflow(mvmnt.from));
         } else {
             steps.insert(0, PathStepV2::Along(mvmnt.from));
         }
     }
-    if let PathStepV2::Turn(mvmnt) = steps.last().cloned().unwrap() {
+    if let PathStepV2::Movement(mvmnt) = steps.last().cloned().unwrap() {
         if mvmnt.to.src_i(map) == mvmnt.parent {
             steps.push(PathStepV2::Along(mvmnt.to));
         } else {
