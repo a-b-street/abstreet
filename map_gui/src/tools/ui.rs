@@ -74,6 +74,7 @@ impl<A: AppLike + 'static> PromptInput<A> {
     pub fn new(
         ctx: &mut EventCtx,
         query: &str,
+        initial: String,
         cb: Box<dyn Fn(String, &mut EventCtx, &mut A) -> Transition<A>>,
     ) -> Box<dyn State<A>> {
         Box::new(PromptInput {
@@ -82,7 +83,7 @@ impl<A: AppLike + 'static> PromptInput<A> {
                     Line(query).small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                Widget::text_entry(ctx, String::new(), true).named("input"),
+                Widget::text_entry(ctx, initial, true).named("input"),
                 ctx.style()
                     .btn_outline
                     .text("confirm")

@@ -26,6 +26,7 @@ use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 
 mod bulk;
 mod lanes;
+mod roads;
 mod routes;
 mod select;
 mod stop_signs;

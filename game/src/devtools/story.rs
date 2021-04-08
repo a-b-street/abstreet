@@ -185,6 +185,7 @@ impl State<App> for StoryMapEditor {
                         return Transition::Push(PromptInput::new(
                             ctx,
                             "Name this story map",
+                            String::new(),
                             Box::new(|name, _, _| {
                                 Transition::Multi(vec![
                                     Transition::Pop,

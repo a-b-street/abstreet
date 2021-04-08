@@ -87,6 +87,7 @@ impl GameplayState for Freeform {
                 "Record trips as a scenario" => Some(Transition::Push(PromptInput::new(
                     ctx,
                     "Name this scenario",
+                    String::new(),
                     Box::new(|name, ctx, app| {
                         if abstio::file_exists(abstio::path_scenario(
                             app.primary.map.get_name(),

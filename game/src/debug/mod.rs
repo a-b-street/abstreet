@@ -275,6 +275,7 @@ impl State<App> for DebugMode {
                     return Transition::Push(PromptInput::new(
                         ctx,
                         "Search for what?",
+                        String::new(),
                         Box::new(search_osm),
                     ));
                 }
