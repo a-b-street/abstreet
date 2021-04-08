@@ -589,10 +589,10 @@ impl Map {
         &self,
         req: PathRequest,
         avoid: BTreeSet<RoadID>,
-    ) -> Option<Path> {
+    ) -> Result<Path> {
         assert!(!self.pathfinder_dirty);
         let path = self.pathfinder.pathfind_avoiding_roads(req, avoid, self)?;
-        path.to_v1(self).ok()
+        path.to_v1(self)
     }
     pub fn pathfind_with_params(&self, req: PathRequest, params: &RoutingParams) -> Result<Path> {
         assert!(!self.pathfinder_dirty);

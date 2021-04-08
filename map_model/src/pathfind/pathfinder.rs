@@ -1,5 +1,6 @@
 use std::collections::BTreeSet;
 
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
@@ -52,7 +53,7 @@ impl Pathfinder {
         req: PathRequest,
         avoid: BTreeSet<RoadID>,
         map: &Map,
-    ) -> Option<PathV2> {
+    ) -> Result<PathV2> {
         dijkstra::pathfind_avoiding_roads(req, avoid, map)
     }
 

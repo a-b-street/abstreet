@@ -2,6 +2,7 @@
 
 use std::collections::BTreeSet;
 
+use anyhow::Result;
 use petgraph::graphmap::DiGraphMap;
 
 use geom::Duration;
@@ -41,7 +42,7 @@ pub fn pathfind_avoiding_roads(
     req: PathRequest,
     avoid: BTreeSet<RoadID>,
     map: &Map,
-) -> Option<PathV2> {
+) -> Result<PathV2> {
     assert_eq!(req.constraints, PathConstraints::Car);
     let mut graph = DiGraphMap::new();
     for dr in map.all_directed_roads_for(req.constraints) {
@@ -53,7 +54,8 @@ pub fn pathfind_avoiding_roads(
         }
     }
 
-    calc_path(graph, req, map.routing_params(), map)
+    calc_path(graph, req.clone(), map.routing_params(), map)
+        .ok_or_else(|| anyhow!("No path for {} avoiding {} roads", req, avoid.len()))
 }
 
 fn calc_path(
