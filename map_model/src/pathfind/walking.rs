@@ -16,8 +16,8 @@ use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::pathfind::vehicles::VehiclePathfinder;
 use crate::pathfind::zone_cost;
 use crate::{
-    BusRoute, BusRouteID, BusStopID, DirectedRoadID, IntersectionID, Map, Path, PathConstraints,
-    PathRequest, PathStep, Position, Traversable,
+    BusRoute, BusRouteID, BusStopID, DirectedRoadID, IntersectionID, Map, MovementID,
+    PathConstraints, PathRequest, PathStepV2, PathV2, Position, Traversable,
 };
 
 #[derive(Serialize, Deserialize)]
@@ -107,7 +107,7 @@ impl SidewalkPathfinder {
         self.graph = fast_paths::prepare_with_order(&input_graph, &node_ordering).unwrap();
     }
 
-    pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<(Path, Duration)> {
+    pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<PathV2> {
         if req.start.lane() == req.end.lane() {
             return Some(one_step_walking_path(req, map));
         }
@@ -124,7 +124,7 @@ impl SidewalkPathfinder {
         let nodes = self.nodes.translate(&raw_path);
         let steps = walking_path_to_steps(nodes, map);
         let cost = Duration::seconds(raw_path.get_weight() as f64);
-        Some((Path::new(map, steps, req, Vec::new()), cost))
+        Some(PathV2::new(steps, req, cost, Vec::new()))
     }
 
     /// Attempt the pathfinding and see if we should ride a bus. If so, says (stop1, optional stop
@@ -328,10 +328,10 @@ fn transit_input_graph(
                 constraints: route.route_type,
             };
             let maybe_driving_cost = match route.route_type {
-                PathConstraints::Bus => bus_graph.pathfind(req, map).map(|(_, cost)| cost),
+                PathConstraints::Bus => bus_graph.pathfind(req, map).map(|p| p.get_cost()),
                 // We always use Dijkstra for trains
                 PathConstraints::Train => {
-                    dijkstra::pathfind(req, map.routing_params(), map).map(|(_, cost)| cost)
+                    dijkstra::pathfind(req, map.routing_params(), map).map(|p| p.get_cost())
                 }
                 _ => unreachable!(),
             };
@@ -357,10 +357,10 @@ fn transit_input_graph(
                 constraints: route.route_type,
             };
             let maybe_driving_cost = match route.route_type {
-                PathConstraints::Bus => bus_graph.pathfind(req, map).map(|(_, cost)| cost),
+                PathConstraints::Bus => bus_graph.pathfind(req, map).map(|p| p.get_cost()),
                 // We always use Dijkstra for trains
                 PathConstraints::Train => {
-                    dijkstra::pathfind(req, map.routing_params(), map).map(|(_, cost)| cost)
+                    dijkstra::pathfind(req, map.routing_params(), map).map(|p| p.get_cost())
                 }
                 _ => unreachable!(),
             };
@@ -404,11 +404,11 @@ fn transit_input_graph(
     }
 }
 
-pub fn walking_path_to_steps(path: Vec<WalkingNode>, map: &Map) -> Vec<PathStep> {
-    let mut steps: Vec<PathStep> = Vec::new();
+pub fn walking_path_to_steps(path: Vec<WalkingNode>, map: &Map) -> Vec<PathStepV2> {
+    let mut steps = Vec::new();
 
     for pair in path.windows(2) {
-        let (r1, l1_endpt) = match pair[0] {
+        let (r1, r1_endpt) = match pair[0] {
             WalkingNode::SidewalkEndpoint(r, endpt) => (r, endpt),
             WalkingNode::RideBus(_) => unreachable!(),
             WalkingNode::LeaveMap(_) => unreachable!(),
@@ -419,52 +419,59 @@ pub fn walking_path_to_steps(path: Vec<WalkingNode>, map: &Map) -> Vec<PathStep>
             WalkingNode::LeaveMap(_) => unreachable!(),
         };
 
-        let l1 = r1.must_get_sidewalk(map);
-        let l2 = r2.must_get_sidewalk(map);
-
-        if l1 == l2 {
-            if l1_endpt {
-                steps.push(PathStep::ContraflowLane(l1));
+        if r1 == r2 {
+            if r1_endpt {
+                steps.push(PathStepV2::Contraflow(r1));
             } else {
-                steps.push(PathStep::Lane(l1));
+                steps.push(PathStepV2::Along(r1));
             }
         } else {
-            let i = {
-                let l = map.get_l(l1);
-                if l1_endpt {
-                    l.dst_i
-                } else {
-                    l.src_i
-                }
+            let i = if r1_endpt {
+                r1.dst_i(map)
+            } else {
+                r1.src_i(map)
             };
-            // Could assert the intersection matches (l2, l2_endpt).
-            if let Some(turn) = map.get_turn_between(l1, l2, i) {
-                steps.push(PathStep::Turn(turn));
+            // Could assert the intersection matches (r2, r2_endpt).
+            if map
+                .get_turn_between(r1.must_get_sidewalk(map), r2.must_get_sidewalk(map), i)
+                .is_some()
+            {
+                steps.push(PathStepV2::Movement(MovementID {
+                    from: r1,
+                    to: r2,
+                    parent: i,
+                    crosswalk: true,
+                }));
             } else {
                 println!("walking_path_to_steps has a weird path:");
                 for s in &path {
                     println!("- {:?}", s);
                 }
-                panic!("No turn from {} to {} at {}", l1, l2, i);
+                panic!(
+                    "No turn from {} ({}) to {} ({}) at {}",
+                    r1,
+                    r1.must_get_sidewalk(map),
+                    r2,
+                    r2.must_get_sidewalk(map),
+                    i
+                );
             }
         }
     }
 
     // Don't start or end a path in a turn; sim layer breaks.
-    if let PathStep::Turn(t) = steps[0] {
-        let lane = map.get_l(t.src);
-        if lane.src_i == t.parent {
-            steps.insert(0, PathStep::ContraflowLane(lane.id));
+    if let PathStepV2::Movement(mvmnt) = steps[0] {
+        if mvmnt.from.src_i(map) == mvmnt.parent {
+            steps.insert(0, PathStepV2::Contraflow(mvmnt.from));
         } else {
-            steps.insert(0, PathStep::Lane(lane.id));
+            steps.insert(0, PathStepV2::Along(mvmnt.from));
         }
     }
-    if let PathStep::Turn(t) = steps.last().unwrap() {
-        let lane = map.get_l(t.dst);
-        if lane.src_i == t.parent {
-            steps.push(PathStep::Lane(lane.id));
+    if let PathStepV2::Movement(mvmnt) = steps.last().cloned().unwrap() {
+        if mvmnt.to.src_i(map) == mvmnt.parent {
+            steps.push(PathStepV2::Along(mvmnt.to));
         } else {
-            steps.push(PathStep::ContraflowLane(lane.id));
+            steps.push(PathStepV2::Contraflow(mvmnt.to));
         }
     }
 
@@ -472,15 +479,13 @@ pub fn walking_path_to_steps(path: Vec<WalkingNode>, map: &Map) -> Vec<PathStep>
 }
 
 // TODO Do we even need this at all?
-pub fn one_step_walking_path(req: PathRequest, map: &Map) -> (Path, Duration) {
+pub fn one_step_walking_path(req: PathRequest, map: &Map) -> PathV2 {
     // Weird case, but it can happen for walking from a building path to a bus stop that're
     // actually at the same spot.
-    let steps = if req.start.dist_along() == req.end.dist_along() {
-        vec![PathStep::Lane(req.start.lane())]
-    } else if req.start.dist_along() < req.end.dist_along() {
-        vec![PathStep::Lane(req.start.lane())]
+    let step = if req.start.dist_along() <= req.end.dist_along() {
+        PathStepV2::Along(map.get_l(req.start.lane()).get_directed_parent())
     } else {
-        vec![PathStep::ContraflowLane(req.start.lane())]
+        PathStepV2::Contraflow(map.get_l(req.start.lane()).get_directed_parent())
     };
     let mut cost = (req.start.dist_along() - req.end.dist_along()).abs()
         / Traversable::Lane(req.start.lane()).max_speed_along(
@@ -491,5 +496,5 @@ pub fn one_step_walking_path(req: PathRequest, map: &Map) -> (Path, Duration) {
     if map.get_l(req.start.lane()).is_shoulder() {
         cost = 2.0 * cost;
     }
-    (Path::new(map, steps, req, Vec::new()), cost)
+    PathV2::new(vec![step], req, cost, Vec::new())
 }

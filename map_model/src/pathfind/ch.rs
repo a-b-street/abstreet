@@ -9,7 +9,7 @@ use geom::Duration;
 use crate::pathfind::dijkstra;
 use crate::pathfind::vehicles::VehiclePathfinder;
 use crate::pathfind::walking::SidewalkPathfinder;
-use crate::{BusRouteID, BusStopID, Map, Path, PathConstraints, PathRequest, Position};
+use crate::{BusRouteID, BusStopID, Map, PathConstraints, PathRequest, PathV2, Position};
 
 #[derive(Serialize, Deserialize)]
 pub struct ContractionHierarchyPathfinder {
@@ -53,8 +53,8 @@ impl ContractionHierarchyPathfinder {
         }
     }
 
-    pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<Path> {
-        (match req.constraints {
+    pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<PathV2> {
+        match req.constraints {
             PathConstraints::Pedestrian => self.walking_graph.pathfind(req, map),
             PathConstraints::Car => self.car_graph.pathfind(req, map),
             PathConstraints::Bike => self.bike_graph.pathfind(req, map),
@@ -62,8 +62,7 @@ impl ContractionHierarchyPathfinder {
             // Light rail networks are absolutely tiny; using a contraction hierarchy for them is
             // overkill. And in fact, it costs a bit of memory and file size, so don't do it!
             PathConstraints::Train => dijkstra::pathfind(req, map.routing_params(), map),
-        })
-        .map(|(path, _)| path)
+        }
     }
 
     pub fn should_use_transit(

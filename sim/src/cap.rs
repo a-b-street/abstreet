@@ -108,13 +108,13 @@ impl CapSimState {
             }
         }
         match map.pathfind_avoiding_roads(path.get_req().clone(), avoid_roads) {
-            Some(path) => CapResult::Reroute(path),
-            None => {
+            Ok(path) => CapResult::Reroute(path),
+            Err(err) => {
                 if let Some(delay) = self.delay_trips_instead_of_cancelling {
                     CapResult::Delay(delay)
                 } else {
                     CapResult::Cancel {
-                        reason: format!("no path avoiding caps: {}", path.get_req()),
+                        reason: err.to_string(),
                     }
                 }
             }

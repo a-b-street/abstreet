@@ -12,11 +12,10 @@ use geom::{Distance, Duration};
 use crate::pathfind::ch::round;
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::pathfind::uber_turns::{IntersectionCluster, UberTurnV2};
-use crate::pathfind::v2::path_v2_to_v1;
 use crate::pathfind::zone_cost;
 use crate::{
-    DirectedRoadID, Direction, DrivingSide, LaneType, Map, MovementID, Path, PathConstraints,
-    PathRequest, RoadID, RoutingParams, Traversable, TurnType,
+    DirectedRoadID, Direction, DrivingSide, LaneType, Map, MovementID, PathConstraints,
+    PathRequest, PathV2, RoadID, RoutingParams, Traversable, TurnType,
 };
 
 #[derive(Serialize, Deserialize)]
@@ -93,7 +92,7 @@ impl VehiclePathfinder {
         }
     }
 
-    pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<(Path, Duration)> {
+    pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<PathV2> {
         assert!(!map.get_l(req.start.lane()).is_walkable());
         let mut calc = self
             .path_calc
@@ -120,14 +119,13 @@ impl VehiclePathfinder {
                         road_steps.push(mvmnt.to);
                     }
                     road_steps.pop();
-                    // Also remember the uber-turn exists, so we can reconstruct it in
-                    // path_v2_to_v1.
+                    // Also remember the uber-turn exists.
                     uber_turns.push(self.uber_turns[ut].clone());
                 }
             }
         }
-        let path = path_v2_to_v1(req, road_steps, uber_turns, map).ok()?;
-        Some((path, Duration::seconds(raw_path.get_weight() as f64)))
+        let cost = Duration::seconds(raw_path.get_weight() as f64);
+        Some(PathV2::from_roads(road_steps, req, cost, uber_turns, map))
     }
 
     pub fn apply_edits(&mut self, map: &Map) {
