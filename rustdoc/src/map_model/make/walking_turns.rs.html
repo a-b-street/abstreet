@@ -549,8 +549,11 @@
 <span id="546">546</span>
 <span id="547">547</span>
 <span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">wraparound_get</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
@@ -754,9 +757,9 @@
         <span class="kw">for</span> (<span class="ident">l</span>, <span class="ident">dir</span>, <span class="ident">lt</span>) <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">lanes_ltr</span>() {
             <span class="kw">if</span> <span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span> <span class="op">|</span><span class="op">|</span> <span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Shoulder</span> {
                 <span class="kw">if</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span> {
-                    <span class="ident">fwd</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">all_lanes</span>[<span class="ident">l</span>.<span class="number">0</span>]);
+                    <span class="ident">fwd</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">all_lanes</span>[<span class="kw-2">&amp;</span><span class="ident">l</span>]);
                 } <span class="kw">else</span> {
-                    <span class="ident">back</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">all_lanes</span>[<span class="ident">l</span>.<span class="number">0</span>]);
+                    <span class="ident">back</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">all_lanes</span>[<span class="kw-2">&amp;</span><span class="ident">l</span>]);
                 }
             }
         }
@@ -930,7 +933,7 @@
 <span class="comment">// Only one physical crosswalk for degenerate intersections, right in the middle.</span>
 <span class="kw">fn</span> <span class="ident">make_degenerate_crosswalks</span>(
     <span class="ident">i</span>: <span class="ident">IntersectionID</span>,
-    <span class="ident">lanes</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Lane</span><span class="op">&gt;</span>,
+    <span class="ident">lanes</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">Lane</span><span class="op">&gt;</span>,
     <span class="ident">r1</span>: <span class="kw-2">&amp;</span><span class="ident">Road</span>,
     <span class="ident">r2</span>: <span class="kw-2">&amp;</span><span class="ident">Road</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span><span class="op">&gt;</span> {
@@ -1090,10 +1093,13 @@
     <span class="ident">TurnID</span> { <span class="ident">parent</span>, <span class="ident">src</span>, <span class="ident">dst</span> }
 }
 
-<span class="kw">fn</span> <span class="ident">get_sidewalk</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">lanes</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Lane</span><span class="op">&gt;</span>, <span class="ident">children</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">LaneID</span>, <span class="ident">LaneType</span>)<span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Lane</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">get_sidewalk</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
+    <span class="ident">lanes</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">Lane</span><span class="op">&gt;</span>,
+    <span class="ident">children</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">LaneID</span>, <span class="ident">LaneType</span>)<span class="op">&gt;</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Lane</span><span class="op">&gt;</span> {
     <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">lt</span>) <span class="kw">in</span> <span class="ident">children</span> {
         <span class="kw">if</span> <span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span> <span class="op">|</span><span class="op">|</span> <span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Shoulder</span> {
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">lanes</span>[<span class="ident">id</span>.<span class="number">0</span>]);
+            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">lanes</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>]);
         }
     }
     <span class="prelude-val">None</span>

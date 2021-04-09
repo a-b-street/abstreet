@@ -122,6 +122,7 @@
 <span id="119">119</span>
 <span id="120">120</span>
 <span id="121">121</span>
+<span id="122">122</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! `map_model` describes the world where simulations occur. Importing a map from OSM partly happens</span>
 <span class="doccomment">//! in `convert_osm` and here.</span>
@@ -170,7 +171,7 @@
 };
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">bus_stop</span>::{<span class="ident">BusRoute</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStop</span>, <span class="ident">BusStopID</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">intersection</span>::{<span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">lane</span>::{<span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">PARKING_LOT_SPOT_LENGTH</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">lane</span>::{<span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneSpec</span>, <span class="ident">LaneType</span>, <span class="ident">PARKING_LOT_SPOT_LENGTH</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">parking_lot</span>::{<span class="ident">ParkingLot</span>, <span class="ident">ParkingLotID</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">road</span>::{<span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">stop_signs</span>::{<span class="ident">ControlStopSign</span>, <span class="ident">RoadWithStopSign</span>};
@@ -208,7 +209,8 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Map</span> {
     <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Road</span><span class="op">&gt;</span>,
-    <span class="ident">lanes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Lane</span><span class="op">&gt;</span>,
+    <span class="ident">lanes</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">Lane</span><span class="op">&gt;</span>,
+    <span class="ident">lane_id_counter</span>: <span class="ident">usize</span>,
     <span class="ident">intersections</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Intersection</span><span class="op">&gt;</span>,
     <span class="attribute">#[<span class="ident">serde</span>(
         <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_btreemap&quot;</span>,

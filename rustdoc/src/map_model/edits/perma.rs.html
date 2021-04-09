@@ -388,7 +388,7 @@
             <span class="ident">map_name</span>: <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>(),
             <span class="ident">edits_name</span>: <span class="self">self</span>.<span class="ident">edits_name</span>.<span class="ident">clone</span>(),
             <span class="comment">// Increase this every time there&#39;s a schema change</span>
-            <span class="ident">version</span>: <span class="number">8</span>,
+            <span class="ident">version</span>: <span class="number">9</span>,
             <span class="ident">proposal_description</span>: <span class="self">self</span>.<span class="ident">proposal_description</span>.<span class="ident">clone</span>(),
             <span class="ident">proposal_link</span>: <span class="self">self</span>.<span class="ident">proposal_link</span>.<span class="ident">clone</span>(),
             <span class="ident">commands</span>: <span class="self">self</span>.<span class="ident">commands</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">cmd</span><span class="op">|</span> <span class="ident">cmd</span>.<span class="ident">to_perma</span>(<span class="ident">map</span>)).<span class="ident">collect</span>(),

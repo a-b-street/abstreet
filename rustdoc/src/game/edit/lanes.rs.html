@@ -239,6 +239,19 @@
 <span id="236">236</span>
 <span id="237">237</span>
 <span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">render</span>::<span class="ident">Renderable</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
@@ -346,6 +359,15 @@
                 .<span class="ident">text</span>(<span class="string">&quot;Change access restrictions&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">A</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_plain_destructive</span>
+                    .<span class="ident">text</span>(<span class="string">&quot;Modify entire road&quot;</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">R</span>)
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
+            } <span class="kw">else</span> {
+                <span class="ident">Widget</span>::<span class="ident">nothing</span>()
+            },
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_solid_primary</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Finish&quot;</span>)
@@ -372,6 +394,10 @@
                 <span class="ident">ctx</span>,
                 <span class="ident">app</span>,
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="self">self</span>.<span class="ident">l</span>).<span class="ident">parent</span>,
+            )),
+            <span class="string">&quot;Modify entire road&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">roads</span>::<span class="ident">prompt_for_lanes</span>(
+                <span class="ident">ctx</span>,
+                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="self">self</span>.<span class="ident">l</span>),
             )),
             <span class="string">&quot;Finish&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>,
             <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -475,7 +501,7 @@
     <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l</span>);
     <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">offset</span>(<span class="ident">l</span>);
     <span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="ident">r</span>.<span class="ident">id</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
-        <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="number">1</span> <span class="op">=</span> <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="number">1</span>.<span class="ident">opposite</span>();
+        <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="ident">dir</span> <span class="op">=</span> <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="ident">dir</span>.<span class="ident">opposite</span>();
     })
 }
 </pre></div>

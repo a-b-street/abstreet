@@ -560,32 +560,16 @@
 <span id="557">557</span>
 <span id="558">558</span>
 <span id="559">559</span>
-<span id="560">560</span>
-<span id="561">561</span>
-<span id="562">562</span>
-<span id="563">563</span>
-<span id="564">564</span>
-<span id="565">565</span>
-<span id="566">566</span>
-<span id="567">567</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/// Purely from OSM tags, determine the lanes that a road segment has.</span>
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">iter</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Tags</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Distance</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">osm</span>, <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">LaneType</span>, <span class="ident">MapConfig</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>,
+    <span class="ident">osm</span>, <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">LaneSpec</span>, <span class="ident">LaneType</span>, <span class="ident">MapConfig</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>,
     <span class="ident">SERVICE_ROAD_LANE_THICKNESS</span>, <span class="ident">SHOULDER_THICKNESS</span>, <span class="ident">SIDEWALK_THICKNESS</span>,
 };
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LaneSpec</span> {
-    <span class="kw">pub</span> <span class="ident">lt</span>: <span class="ident">LaneType</span>,
-    <span class="kw">pub</span> <span class="ident">dir</span>: <span class="ident">Direction</span>,
-    <span class="kw">pub</span> <span class="ident">width</span>: <span class="ident">Distance</span>,
-}
 
 <span class="kw">fn</span> <span class="ident">fwd</span>(<span class="ident">lt</span>: <span class="ident">LaneType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LaneSpec</span> {
     <span class="ident">LaneSpec</span> {

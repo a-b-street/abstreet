@@ -231,7 +231,7 @@
 
     <span class="comment">// Find all sidewalks belonging to residential roads that have no buildings</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">empty_sidewalks</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>() {
+    <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>().<span class="ident">values</span>() {
         <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">is_sidewalk</span>()
             <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">lanes_with_buildings</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">l</span>.<span class="ident">id</span>)
             <span class="op">&amp;&amp;</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">l</span>.<span class="ident">parent</span>).<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="ident">osm</span>::<span class="ident">HIGHWAY</span>, <span class="string">&quot;residential&quot;</span>)

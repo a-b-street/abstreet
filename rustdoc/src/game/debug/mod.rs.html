@@ -941,6 +941,7 @@
 <span id="938">938</span>
 <span id="939">939</span>
 <span id="940">940</span>
+<span id="941">941</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -1219,6 +1220,7 @@
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PromptInput</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Search for what?&quot;</span>,
+                        <span class="ident">String</span>::<span class="ident">new</span>(),
                         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">search_osm</span>),
                     ));
                 }

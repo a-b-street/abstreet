@@ -393,6 +393,7 @@
 <span id="390">390</span>
 <span id="391">391</span>
 <span id="392">392</span>
+<span id="393">393</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">spawner</span>;
 
@@ -483,6 +484,7 @@
                 <span class="string">&quot;Record trips as a scenario&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PromptInput</span>::<span class="ident">new</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;Name this scenario&quot;</span>,
+                    <span class="ident">String</span>::<span class="ident">new</span>(),
                     <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">name</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
                         <span class="kw">if</span> <span class="ident">abstio</span>::<span class="ident">file_exists</span>(<span class="ident">abstio</span>::<span class="ident">path_scenario</span>(
                             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(),

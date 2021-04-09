@@ -764,6 +764,7 @@
 <span id="761">761</span>
 <span id="762">762</span>
 <span id="763">763</span>
+<span id="764">764</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.</span>
 
@@ -911,7 +912,8 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">blank</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Map</span> {
         <span class="ident">Map</span> {
             <span class="ident">roads</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
-            <span class="ident">lanes</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+            <span class="ident">lanes</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
+            <span class="ident">lane_id_counter</span>: <span class="number">0</span>,
             <span class="ident">intersections</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
             <span class="ident">turns</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
             <span class="ident">buildings</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
@@ -949,7 +951,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_lanes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Lane</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_lanes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">Lane</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">lanes</span>
     }
 
@@ -982,7 +984,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_get_l</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Lane</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">lanes</span>.<span class="ident">get</span>(<span class="ident">id</span>.<span class="number">0</span>)
+        <span class="self">self</span>.<span class="ident">lanes</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_get_i</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Intersection</span><span class="op">&gt;</span> {
@@ -1026,7 +1028,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_l</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Lane</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">lanes</span>[<span class="ident">id</span>.<span class="number">0</span>]
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">lanes</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>]
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_i</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Intersection</span> {
@@ -1268,7 +1270,7 @@
         <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DirectedRoadID</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
-        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">lanes</span> {
+        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">lanes</span>.<span class="ident">values</span>() {
             <span class="kw">if</span> <span class="ident">constraints</span>.<span class="ident">can_use</span>(<span class="ident">l</span>, <span class="self">self</span>) {
                 <span class="ident">result</span>.<span class="ident">insert</span>(<span class="ident">l</span>.<span class="ident">get_directed_parent</span>());
             }

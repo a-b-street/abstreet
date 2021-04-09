@@ -561,6 +561,7 @@
 <span id="558">558</span>
 <span id="559">559</span>
 <span id="560">560</span>
+<span id="561">561</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -749,6 +750,7 @@
                         <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PromptInput</span>::<span class="ident">new</span>(
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;Name this story map&quot;</span>,
+                            <span class="ident">String</span>::<span class="ident">new</span>(),
                             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">name</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {
                                 <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
                                     <span class="ident">Transition</span>::<span class="ident">Pop</span>,

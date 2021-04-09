@@ -919,13 +919,14 @@
 <span id="916">916</span>
 <span id="917">917</span>
 <span id="918">918</span>
+<span id="919">919</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreemap</span>;
-<span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">seq</span>::<span class="ident">SliceRandom</span>;
+<span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">seq</span>::{<span class="ident">IteratorRandom</span>, <span class="ident">SliceRandom</span>};
 
 <span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Tags</span>, <span class="ident">Timer</span>};
@@ -1613,8 +1614,9 @@
             .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> {
                 <span class="self">self</span>.<span class="ident">map</span>
                     .<span class="ident">all_lanes</span>()
+                    .<span class="ident">keys</span>()
                     .<span class="ident">choose</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>)
-                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">canonical_point</span>(<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>.<span class="ident">id</span>)))
+                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">canonical_point</span>(<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="kw-2">*</span><span class="ident">l</span>)))
             })
             .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>().<span class="ident">center</span>());
 
