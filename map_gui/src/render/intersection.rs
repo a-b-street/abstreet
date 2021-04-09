@@ -31,11 +31,6 @@ impl DrawIntersection {
         }
     }
 
-    pub fn clear_rendering(&mut self) {
-        *self.draw_default.borrow_mut() = None;
-        *self.draw_traffic_signal.borrow_mut() = None;
-    }
-
     pub fn render<P: AsRef<Prerender>>(&self, prerender: &P, app: &dyn AppLike) -> GeomBatch {
         let map = app.map();
         let i = map.get_i(self.id);

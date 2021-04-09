@@ -707,7 +707,9 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
     }
 
     for i in modified_intersections {
-        app.primary.draw_map.intersections[i.0].clear_rendering();
+        app.primary
+            .draw_map
+            .recreate_intersection(i, &app.primary.map);
     }
 
     if app.primary.layer.as_ref().and_then(|l| l.name()) == Some("map edits") {

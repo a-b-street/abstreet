@@ -5,14 +5,14 @@
 //! 3) "Trimming back" the center lines to avoid the overlap
 //! 4) Producing a polygon for the intersection itsef
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use anyhow::Result;
 
 use abstutil::wraparound_get;
 use geom::{Circle, Distance, Line, PolyLine, Polygon, Pt2D, Ring, EPSILON_DIST};
 
-use crate::make::initial::{Intersection, Road};
+use crate::make::initial::Road;
 use crate::osm;
 use crate::raw::OriginalRoad;
 
@@ -24,11 +24,12 @@ const DEGENERATE_INTERSECTION_HALF_LENGTH: Distance = Distance::const_meters(2.5
 /// roads -- it just carves up part of that space, doesn't reach past it. But that's not always true
 /// yet.
 pub fn intersection_polygon(
-    i: &Intersection,
+    intersection_id: osm::NodeID,
+    intersection_roads: BTreeSet<OriginalRoad>,
     roads: &mut BTreeMap<OriginalRoad, Road>,
 ) -> Result<(Polygon, Vec<(String, Polygon)>)> {
-    if i.roads.is_empty() {
-        panic!("{} has no roads", i.id);
+    if intersection_roads.is_empty() {
+        panic!("{} has no roads", intersection_id);
     }
 
     // Turn all of the incident roads into two PolyLines (the "forwards" and "backwards" borders of
@@ -36,17 +37,20 @@ pub fn intersection_polygon(
     // at the intersection
     // TODO Maybe express the two incoming PolyLines as the "right" and "left"
     let mut lines: Vec<(OriginalRoad, Pt2D, PolyLine, PolyLine)> = Vec::new();
-    // This is guaranteed to get set, since i.roads is non-empty
+    // This is guaranteed to get set, since intersection_roads is non-empty
     let mut intersection_center = Pt2D::new(0.0, 0.0);
-    for id in &i.roads {
+    for id in &intersection_roads {
         let r = &roads[id];
 
-        let pl = if r.src_i == i.id {
+        let pl = if r.src_i == intersection_id {
             r.trimmed_center_pts.reversed()
-        } else if r.dst_i == i.id {
+        } else if r.dst_i == intersection_id {
             r.trimmed_center_pts.clone()
         } else {
-            panic!("Incident road {} doesn't have an endpoint at {}", id, i.id);
+            panic!(
+                "Incident road {} doesn't have an endpoint at {}",
+                id, intersection_id
+            );
         };
         let pl_normal = pl.shift_right(r.half_width)?;
         let pl_reverse = pl.shift_left(r.half_width)?;
@@ -61,19 +65,19 @@ pub fn intersection_polygon(
     lines.sort_by_key(|(_, pt, _, _)| pt.angle_to(intersection_center).normalized_degrees() as i64);
 
     if lines.len() == 1 {
-        return deadend(roads, i.id, &lines);
+        return deadend(roads, intersection_id, &lines);
     }
     let rollback = lines
         .iter()
         .map(|(r, _, _, _)| (*r, roads[r].trimmed_center_pts.clone()))
         .collect::<Vec<_>>();
-    if let Some(result) = on_off_ramp(roads, i.id, lines.clone()) {
+    if let Some(result) = on_off_ramp(roads, intersection_id, lines.clone()) {
         Ok(result)
     } else {
         for (r, trimmed_center_pts) in rollback {
             roads.get_mut(&r).unwrap().trimmed_center_pts = trimmed_center_pts;
         }
-        generalized_trim_back(roads, i.id, &lines)
+        generalized_trim_back(roads, intersection_id, &lines)
     }
 }
 
