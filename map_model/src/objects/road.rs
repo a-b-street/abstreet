@@ -152,6 +152,17 @@ impl Road {
         self.lanes_ltr.clone()
     }
 
+    pub fn lane_specs(&self, map: &Map) -> Vec<LaneSpec> {
+        self.lanes_ltr()
+            .into_iter()
+            .map(|(l, dir, lt)| LaneSpec {
+                lt,
+                dir,
+                width: map.get_l(l).width,
+            })
+            .collect()
+    }
+
     pub fn get_left_side(&self, map: &Map) -> PolyLine {
         self.center_pts.must_shift_left(self.get_half_width(map))
     }
