@@ -512,6 +512,11 @@
 <span id="509">509</span>
 <span id="510">510</span>
 <span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
@@ -810,13 +815,18 @@
         <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_dir_change_pl</span>(<span class="ident">map</span>);
 
         <span class="comment">// TODO Test on UK maps...</span>
+        <span class="kw">let</span> <span class="ident">shift</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide</span>::<span class="ident">Right</span> {
+            <span class="number">1.0</span>
+        } <span class="kw">else</span> {
+            <span class="op">-</span><span class="number">1.0</span>
+        };
         <span class="kw">if</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span> {
             <span class="prelude-val">Ok</span>(<span class="ident">center</span>
-                .<span class="ident">shift_right</span>(<span class="ident">width_fwd</span> <span class="op">/</span> <span class="number">2.0</span>)<span class="question-mark">?</span>
+                .<span class="ident">shift_right</span>(<span class="ident">shift</span> <span class="op">*</span> <span class="ident">width_fwd</span> <span class="op">/</span> <span class="number">2.0</span>)<span class="question-mark">?</span>
                 .<span class="ident">make_polygons</span>(<span class="ident">width_fwd</span>))
         } <span class="kw">else</span> {
             <span class="prelude-val">Ok</span>(<span class="ident">center</span>
-                .<span class="ident">shift_left</span>(<span class="ident">width_back</span> <span class="op">/</span> <span class="number">2.0</span>)<span class="question-mark">?</span>
+                .<span class="ident">shift_left</span>(<span class="ident">shift</span> <span class="op">*</span> <span class="ident">width_back</span> <span class="op">/</span> <span class="number">2.0</span>)<span class="question-mark">?</span>
                 .<span class="ident">make_polygons</span>(<span class="ident">width_back</span>))
         }
     }
