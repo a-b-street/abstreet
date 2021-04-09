@@ -8,7 +8,7 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 use abstutil::{retain_btreemap, retain_btreeset, Timer};
-use geom::{Distance, Polygon, Speed, Time};
+use geom::{Distance, Speed, Time};
 
 pub use self::perma::PermanentMapEdits;
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
@@ -481,21 +481,27 @@ fn modify_lanes(map: &mut Map, r: RoadID, lanes_ltr: Vec<LaneSpec>, effects: &mu
         return;
     }
 
-    // First update intersection geometry.
+    // First update intersection geometry and re-trim the road centers.
+    let mut road_geom_changed = Vec::new();
     {
         let (src_i, dst_i) = (road.src_i, road.dst_i);
         let changed_road_width = lanes_ltr.iter().map(|spec| spec.width).sum();
-        map.intersections[src_i.0].polygon =
-            recalculate_intersection_polygon(map, r, changed_road_width, src_i);
-        map.intersections[dst_i.0].polygon =
-            recalculate_intersection_polygon(map, r, changed_road_width, dst_i);
+        road_geom_changed.extend(recalculate_intersection_polygon(
+            map,
+            r,
+            changed_road_width,
+            src_i,
+        ));
+        road_geom_changed.extend(recalculate_intersection_polygon(
+            map,
+            r,
+            changed_road_width,
+            dst_i,
+        ));
     }
 
     // Reborrow
     let road = &mut map.roads[r.0];
-
-    // road.center_pts doesn't need to change; we'll keep the true physical center of the road and
-    // build around it.
 
     // We may be adding lanes, deleting lanes, or just modifying existing ones. The width of
     // existing lanes may change. We could try to preserve existing LaneIDs and modify them, but
@@ -518,24 +524,49 @@ fn modify_lanes(map: &mut Map, r: RoadID, lanes_ltr: Vec<LaneSpec>, effects: &mu
         map.lanes.insert(lane.id, lane);
     }
 
+    // We might've affected the geometry of other nearby roads. Recalculate the lanes for them as
+    // well, but don't change the IDs.
+    for r in road_geom_changed {
+        effects.changed_roads.insert(r);
+        let mut dummy_id_counter = 0;
+        let lanes_ltr = map.get_r(r).lane_specs(map);
+        let real_lane_ids: Vec<LaneID> = map
+            .get_r(r)
+            .lanes_ltr()
+            .into_iter()
+            .map(|(l, _, _)| l)
+            .collect();
+        for (lane, id) in map
+            .get_r(r)
+            .create_lanes(lanes_ltr, &mut dummy_id_counter)
+            .into_iter()
+            .zip(real_lane_ids.into_iter())
+        {
+            map.lanes.get_mut(&id).unwrap().lane_center_pts = lane.lane_center_pts;
+        }
+    }
+
     // TODO We need to update buildings, bus stops, and parking lots -- they may refer to an old
     // ID.
 }
 
+// Returns the other roads affected by this change, not counting changed_road.
 fn recalculate_intersection_polygon(
-    map: &Map,
+    map: &mut Map,
     changed_road: RoadID,
     changed_road_width: Distance,
     i: IntersectionID,
-) -> Polygon {
+) -> Vec<RoadID> {
     use crate::make::initial;
 
-    let i = map.get_i(i);
+    let intersection = map.get_i(i);
 
     let mut intersection_roads = BTreeSet::new();
     let mut roads = BTreeMap::new();
-    for r in &i.roads {
+    let mut modify_roads = Vec::new();
+    for r in &intersection.roads {
         let r = map.get_r(*r);
+        modify_roads.push((r.orig_id, r.id));
         intersection_roads.insert(r.orig_id);
         let half_width = if r.id == changed_road {
             changed_road_width / 2.0
@@ -558,9 +589,21 @@ fn recalculate_intersection_polygon(
         );
     }
 
-    initial::intersection_polygon(i.orig_id, intersection_roads, &mut roads)
-        .unwrap()
-        .0
+    let polygon =
+        initial::intersection_polygon(intersection.orig_id, intersection_roads.clone(), &mut roads)
+            .unwrap()
+            .0;
+
+    map.intersections[i.0].polygon = polygon;
+    // Copy over the re-trimmed road centers
+    let mut affected = Vec::new();
+    for (orig_id, id) in modify_roads {
+        map.roads[id.0].center_pts = roads.remove(&orig_id).unwrap().trimmed_center_pts;
+        if id != changed_road {
+            affected.push(id);
+        }
+    }
+    affected
 }
 
 impl Map {
@@ -590,15 +633,7 @@ impl Map {
     pub fn get_r_edit(&self, r: RoadID) -> EditRoad {
         let r = self.get_r(r);
         EditRoad {
-            lanes_ltr: r
-                .lanes_ltr()
-                .into_iter()
-                .map(|(l, dir, lt)| LaneSpec {
-                    lt,
-                    dir,
-                    width: self.get_l(l).width,
-                })
-                .collect(),
+            lanes_ltr: r.lane_specs(self),
             speed_limit: r.speed_limit,
             access_restrictions: r.access_restrictions.clone(),
         }
