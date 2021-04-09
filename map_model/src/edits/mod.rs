@@ -314,28 +314,10 @@ impl EditCmd {
                     return;
                 }
 
+                modify_lanes(map, *r, new.lanes_ltr.clone(), effects);
                 let road = &mut map.roads[r.0];
                 road.speed_limit = new.speed_limit;
                 road.access_restrictions = new.access_restrictions.clone();
-                if road.lanes_ltr.len() == new.lanes_ltr.len() {
-                    for (idx, (lt, dir)) in new.lanes_ltr.clone().into_iter().enumerate() {
-                        let lane = map.lanes.get_mut(&road.lanes_ltr[idx].0).unwrap();
-                        road.lanes_ltr[idx].2 = lt;
-                        lane.lane_type = lt;
-
-                        // Direction change?
-                        if road.lanes_ltr[idx].1 != dir {
-                            road.lanes_ltr[idx].1 = dir;
-                            std::mem::swap(&mut lane.src_i, &mut lane.dst_i);
-                            lane.lane_center_pts = lane.lane_center_pts.reversed();
-                            lane.dir = dir;
-                        }
-                    }
-                } else {
-                    modify_road_width(map, *r, new.lanes_ltr.clone(), effects);
-                }
-                // Re-borrow
-                let road = &mut map.roads[r.0];
 
                 effects.changed_roads.insert(road.id);
                 for i in vec![road.src_i, road.dst_i] {
@@ -469,70 +451,48 @@ fn recalculate_turns(id: IntersectionID, map: &mut Map, effects: &mut EditEffect
     }
 }
 
-fn modify_road_width(
+fn modify_lanes(
     map: &mut Map,
     r: RoadID,
     lanes_ltr: Vec<(LaneType, Direction)>,
     effects: &mut EditEffects,
 ) {
-    let before = map.roads[r.0].lanes_ltr.len();
-    let after = lanes_ltr.len();
+    // TODO If none of the lanes have changed, just return early. Otherwise when we change speed
+    // limits, we needlessly churn lane IDs.
 
-    // Tell the UI to delete all of the old lanes, then recreate whatever ones survived or were
-    // created. Even lanes not directly modified will have their geometry shift.
-    for (l, _, _) in map.roads[r.0].lanes_ltr() {
-        effects.deleted_lanes.insert(l);
-    }
-
-    if after < before {
-        // Same as the normal case...
-        let road = &mut map.roads[r.0];
-        for (idx, (lt, dir)) in lanes_ltr.into_iter().enumerate() {
-            let lane = map.lanes.get_mut(&road.lanes_ltr[idx].0).unwrap();
-            road.lanes_ltr[idx].2 = lt;
-            lane.lane_type = lt;
-
-            // Direction change?
-            if road.lanes_ltr[idx].1 != dir {
-                road.lanes_ltr[idx].1 = dir;
-                std::mem::swap(&mut lane.src_i, &mut lane.dst_i);
-                lane.lane_center_pts = lane.lane_center_pts.reversed();
-                lane.dir = dir;
-            }
-        }
-
-        // Delete some stuff!
-        for _ in 0..before - after {
-            let (l, _, _) = road.lanes_ltr.pop().unwrap();
-            map.lanes.remove(&l).unwrap();
-            effects.deleted_lanes.insert(l);
-        }
-    } else {
-        // TODO Adding lanes
-    }
+    // We may be adding lanes, deleting lanes, or just modifying existing ones. The width of
+    // existing lanes may change. We could try to preserve existing LaneIDs and modify them, but
+    // it's simpler to just delete all of the lanes and create them again.
 
     // road.center_pts doesn't need to change; we'll keep the true physical center of the road and
     // build around it.
 
-    // Recalculate lane geometry.
+    let road = &mut map.roads[r.0];
+    for (l, _, _) in road.lanes_ltr.drain(..) {
+        map.lanes.remove(&l).unwrap();
+        effects.deleted_lanes.insert(l);
+    }
+
+    // Create all of the road's lanes again, assigning new IDs.
+    // This approach creates gaps in the lane ID space, since it deletes the contiguous block of a
+    // road's lanes, then creates it again at the end. If this winds up mattering, we could use
+    // different approaches for "filling in the gaps."
     let mut lane_specs_ltr = Vec::new();
-    let mut lane_ids = Vec::new();
-    for (id, dir, lt) in map.get_r(r).lanes_ltr() {
+    for (lt, dir) in lanes_ltr {
         lane_specs_ltr.push(LaneSpec {
             lt,
             dir,
-            width: map.get_l(id).width,
+            // TODO Plumb in width (an entire LaneSpec, in fact) through edits directly. Then we
+            // can preserve existing lane width and/or allow modifying width.
+            width: crate::NORMAL_LANE_THICKNESS,
         });
-        lane_ids.push(id);
     }
-    let mut id_counter = 0;
-    for (new_lane, id) in map
-        .get_r(r)
-        .create_lanes(lane_specs_ltr, &mut id_counter)
-        .into_iter()
-        .zip(lane_ids)
-    {
-        map.lanes.get_mut(&id).unwrap().lane_center_pts = new_lane.lane_center_pts;
+    let new_lanes = road.create_lanes(lane_specs_ltr, &mut map.lane_id_counter);
+    for lane in &new_lanes {
+        road.lanes_ltr.push((lane.id, lane.dir, lane.lane_type));
+    }
+    for lane in new_lanes {
+        map.lanes.insert(lane.id, lane);
     }
 
     // TODO Recalculate intersection geometry.
