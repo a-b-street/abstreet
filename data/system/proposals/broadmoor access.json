@@ -7,7 +7,7 @@
     "map": "arboretum"
   },
   "edits_name": "broadmoor access",
-  "version": 8,
+  "version": 9,
   "commands": [
     {
       "ChangeRoad": {
@@ -18,22 +18,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -43,22 +47,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -77,22 +85,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -102,22 +114,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -136,22 +152,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -161,22 +181,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -195,22 +219,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -220,22 +248,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -254,22 +286,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -279,22 +315,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -313,22 +353,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -338,22 +382,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -372,22 +420,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -397,22 +449,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -431,22 +487,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -456,22 +516,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -490,22 +554,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -515,22 +583,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -549,22 +621,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -574,22 +650,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -608,22 +688,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -633,22 +717,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -667,22 +755,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -692,22 +784,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -726,22 +822,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -751,22 +851,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -785,22 +889,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -810,22 +918,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -844,18 +956,21 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -865,18 +980,21 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -895,22 +1013,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -920,22 +1042,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -954,22 +1080,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -979,22 +1109,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1013,22 +1147,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1038,22 +1176,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1072,22 +1214,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1097,22 +1243,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1131,22 +1281,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1156,22 +1310,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1190,22 +1348,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1215,22 +1377,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1249,22 +1415,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1274,22 +1444,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1308,22 +1482,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1333,22 +1511,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1367,22 +1549,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1392,22 +1578,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1426,22 +1616,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1451,22 +1645,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1485,22 +1683,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1510,22 +1712,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1544,22 +1750,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1569,22 +1779,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1603,22 +1817,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1628,22 +1846,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1662,22 +1884,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1687,22 +1913,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1721,22 +1951,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1746,22 +1980,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1780,18 +2018,21 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 8.9408,
           "access_restrictions": {
@@ -1801,18 +2042,21 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 8.9408,
           "access_restrictions": {
@@ -1831,22 +2075,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1856,22 +2104,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1890,22 +2142,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1915,22 +2171,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1949,22 +2209,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -1974,22 +2238,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -2008,22 +2276,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -2033,22 +2305,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -2061,8 +2337,8 @@
   ],
   "merge_zones": true,
   "proposal_description": [
-	  "Allow bike and foot traffic through Broadmoor",
-	  "Create a new connection between Montlake and Madison Park by allowing cyclists and pedestrians to use Broadmoor Drive East, which is currently a gated neighborhood."
+    "Allow bike and foot traffic through Broadmoor",
+    "Create a new connection between Montlake and Madison Park by allowing cyclists and pedestrians to use Broadmoor Drive East, which is currently a gated neighborhood."
   ],
   "proposal_link": null
 }

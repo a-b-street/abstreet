@@ -7,7 +7,7 @@
     "map": "udistrict"
   },
   "edits_name": "simplify where Corliss, Pacific, and the Burke cross",
-  "version": 8,
+  "version": 9,
   "commands": [
     {
       "ChangeRoad": {
@@ -18,14 +18,16 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Construction",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Construction",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -35,14 +37,16 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -61,14 +65,16 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Construction",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Construction",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
@@ -78,14 +84,16 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            }
           ],
           "speed_limit": 11.176,
           "access_restrictions": {
