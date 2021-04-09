@@ -447,6 +447,12 @@ impl DrawMap {
     }
 
     pub fn create_lane(&mut self, l: LaneID, map: &Map) {
+        // If we're recreating an existing lane, don't create a duplicate quadtree entry for it!
+        // quadtree.insert_with_box isn't idempotent.
+        if let Some(item_id) = self.lane_ids.remove(&l) {
+            self.quadtree.remove(item_id).unwrap();
+        }
+
         let draw = DrawLane::new(map.get_l(l), map);
         let item_id = self
             .quadtree
