@@ -7,7 +7,7 @@
     "map": "center"
   },
   "edits_name": "poundbury one-ways",
-  "version": 8,
+  "version": 9,
   "commands": [
     {
       "ChangeRoad": {
@@ -18,22 +18,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Biking",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Biking",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -43,22 +47,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -77,22 +85,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Biking",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Biking",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -102,22 +114,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -136,22 +152,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Biking",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Biking",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -161,22 +181,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -195,22 +219,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Biking",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Biking",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -220,22 +248,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -254,22 +286,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Biking",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Biking",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -279,22 +315,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -313,22 +353,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Biking",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Biking",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -338,22 +382,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -372,22 +420,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Biking",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Biking",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -397,22 +449,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -431,22 +487,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Biking",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Biking",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -456,22 +516,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -490,22 +554,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Biking",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Biking",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -515,22 +583,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -549,22 +621,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Biking",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Biking",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -574,22 +650,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -608,22 +688,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Biking",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Biking",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -633,22 +717,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -667,22 +755,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Biking",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Biking",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -692,22 +784,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -726,22 +822,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Biking",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Biking",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -751,22 +851,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -785,22 +889,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Biking",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Biking",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -810,22 +918,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -844,22 +956,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Biking",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Biking",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -869,22 +985,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -903,22 +1023,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Biking",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Biking",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -928,22 +1052,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -962,22 +1090,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Biking",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Biking",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -987,22 +1119,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -1021,22 +1157,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Biking",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Biking",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -1046,22 +1186,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -1080,22 +1224,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Biking",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Biking",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -1105,22 +1253,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -1139,22 +1291,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Biking",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Biking",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -1164,22 +1320,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -1198,22 +1358,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Biking",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Biking",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -1223,22 +1387,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -1257,22 +1425,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Biking",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Biking",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -1282,22 +1454,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -1316,22 +1492,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Biking",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Biking",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -1341,22 +1521,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -1375,22 +1559,26 @@
         },
         "new": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Biking",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Biking",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -1400,22 +1588,26 @@
         },
         "old": {
           "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Sidewalk",
-              "Back"
-            ]
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 1.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 2.5
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 2.5
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 1.5
+            }
           ],
           "speed_limit": 17.8816,
           "access_restrictions": {
@@ -1428,9 +1620,9 @@
   ],
   "merge_zones": true,
   "proposal_description": [
-	  "Carve out room for cyclists in Poundbury by making a pair of one-ways",
-	  "Many routes between Poundbury and Dorchester use Bridport and Damers Road. To reduce contention between drivers and cyclists, make both roads one-way.",
-	  "Note this is just a demonstration of A/B Street edits, not a real proposal."
+    "Carve out room for cyclists in Poundbury by making a pair of one-ways",
+    "Many routes between Poundbury and Dorchester use Bridport and Damers Road. To reduce contention between drivers and cyclists, make both roads one-way.",
+    "Note this is just a demonstration of A/B Street edits, not a real proposal."
   ],
   "proposal_link": null
 }
