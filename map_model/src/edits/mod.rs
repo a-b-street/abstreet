@@ -457,8 +457,26 @@ fn modify_lanes(
     lanes_ltr: Vec<(LaneType, Direction)>,
     effects: &mut EditEffects,
 ) {
-    // TODO If none of the lanes have changed, just return early. Otherwise when we change speed
-    // limits, we needlessly churn lane IDs.
+    let road = &mut map.roads[r.0];
+
+    // TODO Widening roads is still experimental. If we're just modifying lane types, preserve
+    // LaneIDs.
+    if road.lanes_ltr.len() == lanes_ltr.len() {
+        for (idx, (lt, dir)) in lanes_ltr.into_iter().enumerate() {
+            let lane = map.lanes.get_mut(&road.lanes_ltr[idx].0).unwrap();
+            road.lanes_ltr[idx].2 = lt;
+            lane.lane_type = lt;
+
+            // Direction change?
+            if road.lanes_ltr[idx].1 != dir {
+                road.lanes_ltr[idx].1 = dir;
+                std::mem::swap(&mut lane.src_i, &mut lane.dst_i);
+                lane.lane_center_pts = lane.lane_center_pts.reversed();
+                lane.dir = dir;
+            }
+        }
+        return;
+    }
 
     // We may be adding lanes, deleting lanes, or just modifying existing ones. The width of
     // existing lanes may change. We could try to preserve existing LaneIDs and modify them, but
@@ -467,7 +485,6 @@ fn modify_lanes(
     // road.center_pts doesn't need to change; we'll keep the true physical center of the road and
     // build around it.
 
-    let road = &mut map.roads[r.0];
     for (l, _, _) in road.lanes_ltr.drain(..) {
         map.lanes.remove(&l).unwrap();
         effects.deleted_lanes.insert(l);
