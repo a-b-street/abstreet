@@ -11,8 +11,8 @@ use crate::pathfind::Pathfinder;
 use crate::raw::{OriginalRoad, RawMap};
 use crate::{
     connectivity, osm, AccessRestrictions, Area, AreaID, AreaType, ControlStopSign,
-    ControlTrafficSignal, Direction, Intersection, IntersectionID, IntersectionType, Lane, LaneID,
-    Map, MapEdits, Movement, PathConstraints, Position, Road, RoadID, RoutingParams, Turn, Zone,
+    ControlTrafficSignal, Intersection, IntersectionID, IntersectionType, Lane, LaneID, Map,
+    MapEdits, Movement, PathConstraints, Position, Road, RoadID, RoutingParams, Turn, Zone,
 };
 
 mod bridges;
@@ -99,7 +99,7 @@ impl Map {
         }
 
         timer.start_iter("expand roads to lanes", initial_map.roads.len());
-        for r in initial_map.roads.values() {
+        for (_, r) in initial_map.roads {
             timer.next();
 
             let road_id = road_id_mapping[&r.id];
@@ -137,7 +137,7 @@ impl Map {
                     .collect(),
                 orig_id: r.id,
                 lanes_ltr: Vec::new(),
-                center_pts: r.trimmed_center_pts.clone(),
+                center_pts: r.trimmed_center_pts,
                 src_i: i1,
                 dst_i: i2,
                 speed_limit: Speed::ZERO,
@@ -159,65 +159,13 @@ impl Map {
             road.speed_limit = road.speed_limit_from_osm();
             road.access_restrictions = road.access_restrictions_from_osm();
 
-            let mut total_back_width = Distance::ZERO;
-            for lane in &r.lane_specs_ltr {
-                if lane.dir == Direction::Back {
-                    total_back_width += lane.width;
-                }
+            for lane in road.create_lanes(r.lane_specs_ltr, &mut map.lane_id_counter) {
+                map.intersections[lane.src_i.0].outgoing_lanes.push(lane.id);
+                map.intersections[lane.dst_i.0].incoming_lanes.push(lane.id);
+                road.lanes_ltr.push((lane.id, lane.dir, lane.lane_type));
+                map.lanes.insert(lane.id, lane);
             }
-            // TODO Maybe easier to use the road's "yellow center line" and shift left/right from
-            // there.
-            let road_left_pts = road
-                .center_pts
-                .shift_left(r.half_width)
-                .unwrap_or_else(|_| road.center_pts.clone());
 
-            let mut width_so_far = Distance::ZERO;
-            for lane in &r.lane_specs_ltr {
-                let id = LaneID(map.lane_id_counter);
-                map.lane_id_counter += 1;
-
-                let (src_i, dst_i) = if lane.dir == Direction::Fwd {
-                    (i1, i2)
-                } else {
-                    (i2, i1)
-                };
-                map.intersections[src_i.0].outgoing_lanes.push(id);
-                map.intersections[dst_i.0].incoming_lanes.push(id);
-
-                road.lanes_ltr.push((id, lane.dir, lane.lt));
-
-                let pl =
-                    if let Ok(pl) = road_left_pts.shift_right(width_so_far + (lane.width / 2.0)) {
-                        pl
-                    } else {
-                        error!("{} geometry broken; lane not shifted!", id);
-                        road_left_pts.clone()
-                    };
-                let lane_center_pts = if lane.dir == Direction::Fwd {
-                    pl
-                } else {
-                    pl.reversed()
-                };
-                width_so_far += lane.width;
-
-                map.lanes.insert(
-                    id,
-                    Lane {
-                        id,
-                        lane_center_pts,
-                        width: lane.width,
-                        src_i,
-                        dst_i,
-                        lane_type: lane.lt,
-                        dir: lane.dir,
-                        parent: road_id,
-                        bus_stops: BTreeSet::new(),
-                        driving_blackhole: false,
-                        biking_blackhole: false,
-                    },
-                );
-            }
             map.roads.push(road);
         }
 

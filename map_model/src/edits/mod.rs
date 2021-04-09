@@ -12,6 +12,7 @@ use geom::{Speed, Time};
 
 pub use self::perma::PermanentMapEdits;
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
+use crate::make::initial::LaneSpec;
 use crate::{
     connectivity, AccessRestrictions, BusRouteID, ControlStopSign, ControlTrafficSignal, Direction,
     IntersectionID, IntersectionType, LaneID, LaneType, Map, MapConfig, PathConstraints,
@@ -477,6 +478,12 @@ fn modify_road_width(
     let before = map.roads[r.0].lanes_ltr.len();
     let after = lanes_ltr.len();
 
+    // Tell the UI to delete all of the old lanes, then recreate whatever ones survived or were
+    // created. Even lanes not directly modified will have their geometry shift.
+    for (l, _, _) in map.roads[r.0].lanes_ltr() {
+        effects.deleted_lanes.insert(l);
+    }
+
     if after < before {
         // Same as the normal case...
         let road = &mut map.roads[r.0];
@@ -504,8 +511,31 @@ fn modify_road_width(
         // TODO Adding lanes
     }
 
-    // TODO We need to recalculate the road center line, all of the lane geometry, the intersection
-    // geometry...
+    // road.center_pts doesn't need to change; we'll keep the true physical center of the road and
+    // build around it.
+
+    // Recalculate lane geometry.
+    let mut lane_specs_ltr = Vec::new();
+    let mut lane_ids = Vec::new();
+    for (id, dir, lt) in map.get_r(r).lanes_ltr() {
+        lane_specs_ltr.push(LaneSpec {
+            lt,
+            dir,
+            width: map.get_l(id).width,
+        });
+        lane_ids.push(id);
+    }
+    let mut id_counter = 0;
+    for (new_lane, id) in map
+        .get_r(r)
+        .create_lanes(lane_specs_ltr, &mut id_counter)
+        .into_iter()
+        .zip(lane_ids)
+    {
+        map.lanes.get_mut(&id).unwrap().lane_center_pts = new_lane.lane_center_pts;
+    }
+
+    // TODO Recalculate intersection geometry.
 
     // TODO We need to update buildings, bus stops, and parking lots -- they may refer to an old
     // ID.
@@ -576,7 +606,7 @@ impl Map {
         edits.save(self);
     }
 
-    /// Returns (roads_changed, lanes_deleted, turns_deleted, turns_added, modified_intersections)
+    /// Returns (changed_roads, deleted_lanes, deleted_turns, added_turns, changed_intersections)
     pub fn must_apply_edits(
         &mut self,
         new_edits: MapEdits,

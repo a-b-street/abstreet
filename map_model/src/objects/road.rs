@@ -1,3 +1,4 @@
+use std::collections::BTreeSet;
 use std::fmt;
 
 use anyhow::Result;
@@ -7,6 +8,7 @@ use serde::{Deserialize, Serialize};
 use abstutil::{deserialize_usize, serialize_usize, Tags};
 use geom::{Distance, PolyLine, Polygon, Speed};
 
+use crate::make::initial::LaneSpec;
 use crate::raw::{OriginalRoad, RestrictionType};
 use crate::{
     osm, AccessRestrictions, BusStopID, DrivingSide, IntersectionID, Lane, LaneID, LaneType, Map,
@@ -454,6 +456,68 @@ impl Road {
     /// method uses a hardcoded threshold to detect these cases.
     pub fn is_extremely_short(&self) -> bool {
         self.center_pts.length() < Distance::meters(2.0)
+    }
+
+    pub(crate) fn create_lanes(
+        &self,
+        lane_specs_ltr: Vec<LaneSpec>,
+        lane_id_counter: &mut usize,
+    ) -> Vec<Lane> {
+        let mut total_back_width = Distance::ZERO;
+        let mut total_width = Distance::ZERO;
+        for lane in &lane_specs_ltr {
+            total_width += lane.width;
+            if lane.dir == Direction::Back {
+                total_back_width += lane.width;
+            }
+        }
+        // TODO Maybe easier to use the road's "yellow center line" and shift left/right from
+        // there.
+        let road_left_pts = self
+            .center_pts
+            .shift_left(total_width / 2.0)
+            .unwrap_or_else(|_| self.center_pts.clone());
+
+        let mut width_so_far = Distance::ZERO;
+        let mut lanes = Vec::new();
+        for lane in lane_specs_ltr {
+            let id = LaneID(*lane_id_counter);
+            *lane_id_counter += 1;
+
+            let (src_i, dst_i) = if lane.dir == Direction::Fwd {
+                (self.src_i, self.dst_i)
+            } else {
+                (self.dst_i, self.src_i)
+            };
+
+            let pl = if let Ok(pl) = road_left_pts.shift_right(width_so_far + (lane.width / 2.0)) {
+                pl
+            } else {
+                error!("{} geometry broken; lane not shifted!", id);
+                road_left_pts.clone()
+            };
+            let lane_center_pts = if lane.dir == Direction::Fwd {
+                pl
+            } else {
+                pl.reversed()
+            };
+            width_so_far += lane.width;
+
+            lanes.push(Lane {
+                id,
+                lane_center_pts,
+                width: lane.width,
+                src_i,
+                dst_i,
+                lane_type: lane.lt,
+                dir: lane.dir,
+                parent: self.id,
+                bus_stops: BTreeSet::new(),
+                driving_blackhole: false,
+                biking_blackhole: false,
+            });
+        }
+        lanes
     }
 }
 
