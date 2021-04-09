@@ -295,13 +295,18 @@ impl Road {
         let center = self.get_dir_change_pl(map);
 
         // TODO Test on UK maps...
+        let shift = if map.get_config().driving_side == DrivingSide::Right {
+            1.0
+        } else {
+            -1.0
+        };
         if dir == Direction::Fwd {
             Ok(center
-                .shift_right(width_fwd / 2.0)?
+                .shift_right(shift * width_fwd / 2.0)?
                 .make_polygons(width_fwd))
         } else {
             Ok(center
-                .shift_left(width_back / 2.0)?
+                .shift_left(shift * width_back / 2.0)?
                 .make_polygons(width_back))
         }
     }
