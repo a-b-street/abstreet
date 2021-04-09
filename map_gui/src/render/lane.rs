@@ -26,10 +26,6 @@ impl DrawLane {
         }
     }
 
-    pub fn clear_rendering(&mut self) {
-        *self.draw_default.borrow_mut() = None;
-    }
-
     pub fn render<P: AsRef<Prerender>>(&self, prerender: &P, app: &dyn AppLike) -> GeomBatch {
         let map = app.map();
         let lane = map.get_l(self.id);

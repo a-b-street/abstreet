@@ -121,7 +121,7 @@ pub fn try_change_lt(
     let cmd = {
         let r = map.get_l(l).parent;
         map.edit_road_cmd(r, |new| {
-            new.lanes_ltr[map.get_r(r).offset(l)].0 = new_lt;
+            new.lanes_ltr[map.get_r(r).offset(l)].lt = new_lt;
         })
     };
     edits.commands.push(cmd.clone());

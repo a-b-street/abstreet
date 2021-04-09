@@ -9,9 +9,8 @@ use abstutil::{Tags, Timer};
 use geom::{Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
 
 pub use self::geometry::intersection_polygon;
-pub use crate::make::initial::lane_specs::LaneSpec;
 use crate::raw::{OriginalRoad, RawMap, RawRoad};
-use crate::{osm, IntersectionType, MapConfig};
+use crate::{osm, IntersectionType, LaneSpec, MapConfig};
 
 mod geometry;
 pub mod lane_specs;

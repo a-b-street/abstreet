@@ -125,6 +125,13 @@ pub struct Lane {
     pub biking_blackhole: bool,
 }
 
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct LaneSpec {
+    pub lt: LaneType,
+    pub dir: Direction,
+    pub width: Distance,
+}
+
 impl Lane {
     // TODO most of these are wrappers; stop doing this?
     pub fn first_pt(&self) -> Pt2D {

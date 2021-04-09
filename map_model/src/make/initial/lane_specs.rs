@@ -2,19 +2,11 @@
 use std::iter;
 
 use abstutil::Tags;
-use geom::Distance;
 
 use crate::{
-    osm, Direction, DrivingSide, LaneType, MapConfig, NORMAL_LANE_THICKNESS,
+    osm, Direction, DrivingSide, LaneSpec, LaneType, MapConfig, NORMAL_LANE_THICKNESS,
     SERVICE_ROAD_LANE_THICKNESS, SHOULDER_THICKNESS, SIDEWALK_THICKNESS,
 };
-
-#[derive(PartialEq)]
-pub struct LaneSpec {
-    pub lt: LaneType,
-    pub dir: Direction,
-    pub width: Distance,
-}
 
 fn fwd(lt: LaneType) -> LaneSpec {
     LaneSpec {

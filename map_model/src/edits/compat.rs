@@ -9,7 +9,8 @@ use geom::Speed;
 
 use crate::raw::OriginalRoad;
 use crate::{
-    osm, AccessRestrictions, Direction, EditCmd, EditRoad, LaneType, Map, PermanentMapEdits, RoadID,
+    osm, AccessRestrictions, Direction, EditCmd, EditRoad, LaneSpec, LaneType, Map,
+    PermanentMapEdits, RoadID,
 };
 
 /// When the PermanentMapEdits format changes, add a transformation here to automatically convert
@@ -88,6 +89,13 @@ pub fn upgrade(mut value: Value, map: &Map) -> Result<PermanentMapEdits> {
             .as_object_mut()
             .unwrap()
             .insert("version".to_string(), Value::Number(8.into()));
+    }
+    if value["version"] == Value::Number(8.into()) {
+        fix_lane_widths(&mut value, map)?;
+        value
+            .as_object_mut()
+            .unwrap()
+            .insert("version".to_string(), Value::Number(9.into()));
     }
 
     abstutil::from_json(&value.to_string().into_bytes())
@@ -190,10 +198,10 @@ fn fix_old_lane_cmds(value: &mut Value, map: &Map) -> Result<()> {
             let obj: ChangeLaneType = serde_json::from_value(obj).unwrap();
             let (r, idx) = obj.id.lookup(map)?;
             let road = modified.entry(r).or_insert_with(|| map.get_r_edit(r));
-            if road.lanes_ltr[idx].0 != obj.orig_lt {
+            if road.lanes_ltr[idx].lt != obj.orig_lt {
                 bail!("{:?} lane type has changed", obj);
             }
-            road.lanes_ltr[idx].0 = obj.lt;
+            road.lanes_ltr[idx].lt = obj.lt;
         } else if let Some(obj) = cmd.remove("ReverseLane") {
             let obj: ReverseLane = serde_json::from_value(obj).unwrap();
             let (r, idx) = obj.l.lookup(map)?;
@@ -206,10 +214,10 @@ fn fix_old_lane_cmds(value: &mut Value, map: &Map) -> Result<()> {
             } else {
                 bail!("{:?}'s road doesn't point to dst_i at all", obj);
             };
-            if road.lanes_ltr[idx].1 == edits_dir {
+            if road.lanes_ltr[idx].dir == edits_dir {
                 bail!("{:?}'s road already points to dst_i", obj);
             }
-            road.lanes_ltr[idx].1 = edits_dir;
+            road.lanes_ltr[idx].dir = edits_dir;
         } else if let Some(obj) = cmd.remove("ChangeSpeedLimit") {
             let obj: ChangeSpeedLimit = serde_json::from_value(obj).unwrap();
             let r = map.find_r_by_osm_id(obj.id)?;
@@ -340,6 +348,44 @@ fn fix_city_name(value: &mut Value) {
             serde_json::to_value(CityName::new(&country, &name)).unwrap(),
         );
     }
+}
+
+// 0e09c1decfece370eff72d3433ae00b4aff3332f added lane width to EditRoad.
+fn fix_lane_widths(value: &mut Value, map: &Map) -> Result<()> {
+    for orig in value.as_object_mut().unwrap()["commands"]
+        .as_array_mut()
+        .unwrap()
+    {
+        let cmd = orig.as_object_mut().unwrap();
+        if let Some(cmd) = cmd.get_mut("ChangeRoad") {
+            let road_id: OriginalRoad = serde_json::from_value(cmd["r"].clone()).unwrap();
+            let road = map.get_r(map.find_r_by_osm_id(road_id)?);
+            let cmd = cmd.as_object_mut().unwrap();
+
+            for key in vec!["old", "new"] {
+                let mut lanes_ltr = Vec::new();
+                for (idx, mut pair) in cmd[key]["lanes_ltr"]
+                    .as_array_mut()
+                    .unwrap()
+                    .drain(..)
+                    .enumerate()
+                {
+                    let pair = pair.as_array_mut().unwrap();
+                    let lt: LaneType = serde_json::from_value(pair[0].clone()).unwrap();
+                    let dir: Direction = serde_json::from_value(pair[1].clone()).unwrap();
+                    lanes_ltr.push(LaneSpec {
+                        lt,
+                        dir,
+                        // Before this commit, lane widths weren't modifiable, so this lookup works
+                        // for both "old" and "new".
+                        width: map.get_l(road.lanes_ltr()[idx].0).width,
+                    });
+                }
+                cmd[key]["lanes_ltr"] = serde_json::to_value(lanes_ltr).unwrap();
+            }
+        }
+    }
+    Ok(())
 }
 
 // These're old structs used in fix_old_lane_cmds.

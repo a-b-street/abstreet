@@ -246,6 +246,6 @@ fn reverse_lane(map: &Map, l: LaneID) -> EditCmd {
     let r = map.get_parent(l);
     let idx = r.offset(l);
     map.edit_road_cmd(r.id, |new| {
-        new.lanes_ltr[idx].1 = new.lanes_ltr[idx].1.opposite();
+        new.lanes_ltr[idx].dir = new.lanes_ltr[idx].dir.opposite();
     })
 }
