@@ -8,7 +8,7 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 use abstutil::{retain_btreemap, retain_btreeset, Timer};
-use geom::{Speed, Time};
+use geom::{Distance, Polygon, Speed, Time};
 
 pub use self::perma::PermanentMapEdits;
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
@@ -481,12 +481,25 @@ fn modify_lanes(map: &mut Map, r: RoadID, lanes_ltr: Vec<LaneSpec>, effects: &mu
         return;
     }
 
-    // We may be adding lanes, deleting lanes, or just modifying existing ones. The width of
-    // existing lanes may change. We could try to preserve existing LaneIDs and modify them, but
-    // it's simpler to just delete all of the lanes and create them again.
+    // First update intersection geometry.
+    {
+        let (src_i, dst_i) = (road.src_i, road.dst_i);
+        let changed_road_width = lanes_ltr.iter().map(|spec| spec.width).sum();
+        map.intersections[src_i.0].polygon =
+            recalculate_intersection_polygon(map, r, changed_road_width, src_i);
+        map.intersections[dst_i.0].polygon =
+            recalculate_intersection_polygon(map, r, changed_road_width, dst_i);
+    }
+
+    // Reborrow
+    let road = &mut map.roads[r.0];
 
     // road.center_pts doesn't need to change; we'll keep the true physical center of the road and
     // build around it.
+
+    // We may be adding lanes, deleting lanes, or just modifying existing ones. The width of
+    // existing lanes may change. We could try to preserve existing LaneIDs and modify them, but
+    // it's simpler to just delete all of the lanes and create them again.
 
     for (l, _, _) in road.lanes_ltr.drain(..) {
         map.lanes.remove(&l).unwrap();
@@ -505,10 +518,49 @@ fn modify_lanes(map: &mut Map, r: RoadID, lanes_ltr: Vec<LaneSpec>, effects: &mu
         map.lanes.insert(lane.id, lane);
     }
 
-    // TODO Recalculate intersection geometry.
-
     // TODO We need to update buildings, bus stops, and parking lots -- they may refer to an old
     // ID.
+}
+
+fn recalculate_intersection_polygon(
+    map: &Map,
+    changed_road: RoadID,
+    changed_road_width: Distance,
+    i: IntersectionID,
+) -> Polygon {
+    use crate::make::initial;
+
+    let i = map.get_i(i);
+
+    let mut intersection_roads = BTreeSet::new();
+    let mut roads = BTreeMap::new();
+    for r in &i.roads {
+        let r = map.get_r(*r);
+        intersection_roads.insert(r.orig_id);
+        let half_width = if r.id == changed_road {
+            changed_road_width / 2.0
+        } else {
+            r.get_half_width(map)
+        };
+        roads.insert(
+            r.orig_id,
+            initial::Road {
+                id: r.orig_id,
+                src_i: r.orig_id.i1,
+                dst_i: r.orig_id.i2,
+                // TODO Untrim?
+                trimmed_center_pts: r.center_pts.clone(),
+                half_width,
+                // Unused
+                lane_specs_ltr: Vec::new(),
+                osm_tags: r.osm_tags.clone(),
+            },
+        );
+    }
+
+    initial::intersection_polygon(i.orig_id, intersection_roads, &mut roads)
+        .unwrap()
+        .0
 }
 
 impl Map {

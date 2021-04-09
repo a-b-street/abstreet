@@ -39,8 +39,9 @@ pub struct DrawMap {
     pub show_zorder: isize,
 
     quadtree: QuadTree<ID>,
-    // Remember these so we can delete lanes.
+    // Remember these so we can modify the bounding box of some objects.
     lane_ids: HashMap<LaneID, aabb_quadtree::ItemId>,
+    intersection_ids: HashMap<IntersectionID, aabb_quadtree::ItemId>,
 }
 
 impl DrawMap {
@@ -143,6 +144,7 @@ impl DrawMap {
         timer.start("create quadtree");
         let mut quadtree = QuadTree::default(map.get_bounds().as_bbox());
         let mut lane_ids = HashMap::new();
+        let mut intersection_ids = HashMap::new();
         // TODO use iter chain if everything was boxed as a renderable...
         for obj in &roads {
             quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
@@ -153,7 +155,9 @@ impl DrawMap {
             lane_ids.insert(obj.id, item_id);
         }
         for obj in &intersections {
-            quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
+            let item_id =
+                quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
+            intersection_ids.insert(obj.id, item_id);
         }
         for obj in &buildings {
             quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
@@ -193,6 +197,7 @@ impl DrawMap {
 
             quadtree,
             lane_ids,
+            intersection_ids,
 
             zorder_range: (low_z, high_z),
             show_zorder: high_z,
@@ -465,5 +470,17 @@ impl DrawMap {
         self.lanes.remove(&l).unwrap();
         let item_id = self.lane_ids.remove(&l).unwrap();
         self.quadtree.remove(item_id).unwrap();
+    }
+
+    pub fn recreate_intersection(&mut self, i: IntersectionID, map: &Map) {
+        let item_id = self.intersection_ids.remove(&i).unwrap();
+        self.quadtree.remove(item_id).unwrap();
+
+        let draw = DrawIntersection::new(map.get_i(i), map);
+        let item_id = self
+            .quadtree
+            .insert_with_box(draw.get_id(), draw.get_outline(map).get_bounds().as_bbox());
+        self.intersection_ids.insert(i, item_id);
+        self.intersections[i.0] = draw;
     }
 }

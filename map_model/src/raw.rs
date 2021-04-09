@@ -2,7 +2,7 @@
 //! structure is useful to iterate quickly on parts of the map importing pipeline without having to
 //! constantly read .osm files, and to visualize the intermediate state with map_editor.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 
 use crate::anyhow::Context;
@@ -12,7 +12,7 @@ use serde::{Deserialize, Serialize};
 
 use abstio::{CityName, MapName};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Tags};
-use geom::{Circle, Distance, GPSBounds, PolyLine, Polygon, Pt2D};
+use geom::{Distance, GPSBounds, PolyLine, Polygon, Pt2D};
 
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
 use crate::{
@@ -174,22 +174,18 @@ impl RawMap {
     ) -> (Polygon, Vec<Polygon>, Vec<(String, Polygon)>) {
         use crate::make::initial;
 
-        let i = initial::Intersection {
-            id,
-            polygon: Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(1.0)).to_polygon(),
-            roads: self.roads_per_intersection(id).into_iter().collect(),
-            intersection_type: self.intersections[&id].intersection_type,
-            elevation: self.intersections[&id].elevation,
-        };
+        let intersection_roads: BTreeSet<OriginalRoad> =
+            self.roads_per_intersection(id).into_iter().collect();
         let mut roads = BTreeMap::new();
-        for r in &i.roads {
+        for r in &intersection_roads {
             roads.insert(
                 *r,
                 initial::Road::new(*r, &self.roads[r], &self.config).unwrap(),
             );
         }
 
-        let (poly, debug) = initial::intersection_polygon(&i, &mut roads).unwrap();
+        let (poly, debug) =
+            initial::intersection_polygon(id, intersection_roads, &mut roads).unwrap();
         (
             poly,
             roads
@@ -214,14 +210,12 @@ impl RawMap {
             }
         }
         for id in vec![road.i1, road.i2] {
-            let i = initial::Intersection {
+            initial::intersection_polygon(
                 id,
-                polygon: Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(1.0)).to_polygon(),
-                roads: self.roads_per_intersection(id).into_iter().collect(),
-                intersection_type: self.intersections[&id].intersection_type,
-                elevation: self.intersections[&id].elevation,
-            };
-            initial::intersection_polygon(&i, &mut roads).unwrap();
+                self.roads_per_intersection(id).into_iter().collect(),
+                &mut roads,
+            )
+            .unwrap();
         }
 
         Some(roads.remove(&road).unwrap().trimmed_center_pts)
