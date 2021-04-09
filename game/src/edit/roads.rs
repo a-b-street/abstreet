@@ -1,5 +1,5 @@
 use map_gui::tools::PromptInput;
-use map_model::{Direction, LaneType, Road};
+use map_model::{Direction, LaneSpec, LaneType, Road};
 use widgetry::{EventCtx, State};
 
 use crate::app::{App, Transition};
@@ -47,7 +47,7 @@ fn lanes_to_string(road: &Road) -> String {
     string
 }
 
-fn string_to_lanes(string: String) -> Vec<(LaneType, Direction)> {
+fn string_to_lanes(string: String) -> Vec<LaneSpec> {
     let mut lanes = Vec::new();
     let mut dir = Direction::Back;
     for x in string.chars() {
@@ -60,7 +60,11 @@ fn string_to_lanes(string: String) -> Vec<(LaneType, Direction)> {
             .find(|(_, code)| *code == x)
             .unwrap()
             .0;
-        lanes.push((lt, dir));
+        lanes.push(LaneSpec {
+            lt,
+            dir,
+            width: map_model::NORMAL_LANE_THICKNESS,
+        });
     }
     lanes
 }

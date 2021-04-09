@@ -8,11 +8,10 @@ use serde::{Deserialize, Serialize};
 use abstutil::{deserialize_usize, serialize_usize, Tags};
 use geom::{Distance, PolyLine, Polygon, Speed};
 
-use crate::make::initial::LaneSpec;
 use crate::raw::{OriginalRoad, RestrictionType};
 use crate::{
-    osm, AccessRestrictions, BusStopID, DrivingSide, IntersectionID, Lane, LaneID, LaneType, Map,
-    PathConstraints, Zone,
+    osm, AccessRestrictions, BusStopID, DrivingSide, IntersectionID, Lane, LaneID, LaneSpec,
+    LaneType, Map, PathConstraints, Zone,
 };
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]

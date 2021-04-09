@@ -100,14 +100,18 @@ fn alter_turn_destinations(sim: &Sim, map: &Map, rng: &mut XorShiftRng, edits: &
         info!("Closing someone's target {}", l);
         let r = map.get_parent(l);
         edits.commands.push(map.edit_road_cmd(r.id, |new| {
-            new.lanes_ltr[r.offset(l)].0 = LaneType::Construction;
+            new.lanes_ltr[r.offset(l)].lt = LaneType::Construction;
 
             // If we're getting rid of the last driving lane, also remove any parking lanes. This
             // mimics the check that the UI does.
-            if new.lanes_ltr.iter().all(|(lt, _)| *lt != LaneType::Driving) {
-                for (lt, _) in &mut new.lanes_ltr {
-                    if *lt == LaneType::Parking {
-                        *lt = LaneType::Construction;
+            if new
+                .lanes_ltr
+                .iter()
+                .all(|spec| spec.lt != LaneType::Driving)
+            {
+                for spec in &mut new.lanes_ltr {
+                    if spec.lt == LaneType::Parking {
+                        spec.lt = LaneType::Construction;
                     }
                 }
             }
@@ -129,7 +133,7 @@ fn nuke_random_parking(map: &Map, rng: &mut XorShiftRng, edits: &mut MapEdits) {
         info!("Closing parking {}", l);
         let r = map.get_parent(l);
         edits.commands.push(map.edit_road_cmd(r.id, |new| {
-            new.lanes_ltr[r.offset(l)].0 = LaneType::Construction;
+            new.lanes_ltr[r.offset(l)].lt = LaneType::Construction;
         }));
     }
 }

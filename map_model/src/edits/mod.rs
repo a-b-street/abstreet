@@ -12,10 +12,9 @@ use geom::{Speed, Time};
 
 pub use self::perma::PermanentMapEdits;
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
-use crate::make::initial::LaneSpec;
 use crate::{
-    connectivity, AccessRestrictions, BusRouteID, ControlStopSign, ControlTrafficSignal, Direction,
-    IntersectionID, IntersectionType, LaneID, LaneType, Map, MapConfig, PathConstraints,
+    connectivity, AccessRestrictions, BusRouteID, ControlStopSign, ControlTrafficSignal,
+    IntersectionID, IntersectionType, LaneID, LaneSpec, Map, MapConfig, PathConstraints,
     Pathfinder, Road, RoadID, TurnID, Zone,
 };
 
@@ -57,7 +56,7 @@ pub enum EditIntersection {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct EditRoad {
-    pub lanes_ltr: Vec<(LaneType, Direction)>,
+    pub lanes_ltr: Vec<LaneSpec>,
     pub speed_limit: Speed,
     pub access_restrictions: AccessRestrictions,
 }
@@ -65,10 +64,7 @@ pub struct EditRoad {
 impl EditRoad {
     pub fn get_orig_from_osm(r: &Road, cfg: &MapConfig) -> EditRoad {
         EditRoad {
-            lanes_ltr: get_lane_specs_ltr(&r.osm_tags, cfg)
-                .into_iter()
-                .map(|spec| (spec.lt, spec.dir))
-                .collect(),
+            lanes_ltr: get_lane_specs_ltr(&r.osm_tags, cfg),
             speed_limit: r.speed_limit_from_osm(),
             access_restrictions: r.access_restrictions_from_osm(),
         }
@@ -77,12 +73,16 @@ impl EditRoad {
     fn diff(&self, other: &EditRoad) -> Vec<String> {
         let mut lt = 0;
         let mut dir = 0;
-        for ((lt1, dir1), (lt2, dir2)) in self.lanes_ltr.iter().zip(other.lanes_ltr.iter()) {
-            if lt1 != lt2 {
+        let mut width = 0;
+        for (spec1, spec2) in self.lanes_ltr.iter().zip(other.lanes_ltr.iter()) {
+            if spec1.lt != spec2.lt {
                 lt += 1;
             }
-            if dir1 != dir2 {
+            if spec1.dir != spec2.dir {
                 dir += 1;
+            }
+            if spec1.width != spec2.width {
+                width += 1;
             }
         }
 
@@ -95,7 +95,12 @@ impl EditRoad {
         if dir == 1 {
             changes.push(format!("1 lane reversal"));
         } else if dir > 1 {
-            changes.push(format!("{} lane reversal", dir));
+            changes.push(format!("{} lane reversals", dir));
+        }
+        if width == 1 {
+            changes.push(format!("1 lane width"));
+        } else {
+            changes.push(format!("{} lane widths", width));
         }
         if self.speed_limit != other.speed_limit {
             changes.push(format!("speed limit"));
@@ -254,9 +259,9 @@ impl MapEdits {
                     // unclear -- just mark the entire road.
                     roads.insert(r.id);
                 } else {
-                    for (idx, (lt, dir)) in orig.lanes_ltr.into_iter().enumerate() {
-                        if lanes_ltr[idx].1 != dir || lanes_ltr[idx].2 != lt {
-                            lanes.insert(lanes_ltr[idx].0);
+                    for ((l, dir, lt), spec) in lanes_ltr.into_iter().zip(orig.lanes_ltr.iter()) {
+                        if dir != spec.dir || lt != spec.lt || map.get_l(l).width != spec.width {
+                            lanes.insert(l);
                         }
                     }
                 }
@@ -451,29 +456,27 @@ fn recalculate_turns(id: IntersectionID, map: &mut Map, effects: &mut EditEffect
     }
 }
 
-fn modify_lanes(
-    map: &mut Map,
-    r: RoadID,
-    lanes_ltr: Vec<(LaneType, Direction)>,
-    effects: &mut EditEffects,
-) {
+fn modify_lanes(map: &mut Map, r: RoadID, lanes_ltr: Vec<LaneSpec>, effects: &mut EditEffects) {
     let road = &mut map.roads[r.0];
 
     // TODO Widening roads is still experimental. If we're just modifying lane types, preserve
     // LaneIDs.
     if road.lanes_ltr.len() == lanes_ltr.len() {
-        for (idx, (lt, dir)) in lanes_ltr.into_iter().enumerate() {
+        for (idx, spec) in lanes_ltr.into_iter().enumerate() {
             let lane = map.lanes.get_mut(&road.lanes_ltr[idx].0).unwrap();
-            road.lanes_ltr[idx].2 = lt;
-            lane.lane_type = lt;
+            road.lanes_ltr[idx].2 = spec.lt;
+            lane.lane_type = spec.lt;
 
             // Direction change?
-            if road.lanes_ltr[idx].1 != dir {
-                road.lanes_ltr[idx].1 = dir;
+            if road.lanes_ltr[idx].1 != spec.dir {
+                road.lanes_ltr[idx].1 = spec.dir;
                 std::mem::swap(&mut lane.src_i, &mut lane.dst_i);
                 lane.lane_center_pts = lane.lane_center_pts.reversed();
-                lane.dir = dir;
+                lane.dir = spec.dir;
             }
+
+            // TODO If width is changing and the number of lanes isn't, we'll ignore the width
+            // change. Don't use this old code-path for that!
         }
         return;
     }
@@ -494,17 +497,7 @@ fn modify_lanes(
     // This approach creates gaps in the lane ID space, since it deletes the contiguous block of a
     // road's lanes, then creates it again at the end. If this winds up mattering, we could use
     // different approaches for "filling in the gaps."
-    let mut lane_specs_ltr = Vec::new();
-    for (lt, dir) in lanes_ltr {
-        lane_specs_ltr.push(LaneSpec {
-            lt,
-            dir,
-            // TODO Plumb in width (an entire LaneSpec, in fact) through edits directly. Then we
-            // can preserve existing lane width and/or allow modifying width.
-            width: crate::NORMAL_LANE_THICKNESS,
-        });
-    }
-    let new_lanes = road.create_lanes(lane_specs_ltr, &mut map.lane_id_counter);
+    let new_lanes = road.create_lanes(lanes_ltr, &mut map.lane_id_counter);
     for lane in &new_lanes {
         road.lanes_ltr.push((lane.id, lane.dir, lane.lane_type));
     }
@@ -548,7 +541,11 @@ impl Map {
             lanes_ltr: r
                 .lanes_ltr()
                 .into_iter()
-                .map(|(_, dir, lt)| (lt, dir))
+                .map(|(l, dir, lt)| LaneSpec {
+                    lt,
+                    dir,
+                    width: self.get_l(l).width,
+                })
                 .collect(),
             speed_limit: r.speed_limit,
             access_restrictions: r.access_restrictions.clone(),
