@@ -446,6 +446,15 @@ impl DrawMap {
         batch
     }
 
+    pub fn create_lane(&mut self, l: LaneID, map: &Map) {
+        let draw = DrawLane::new(map.get_l(l), map);
+        let item_id = self
+            .quadtree
+            .insert_with_box(draw.get_id(), draw.get_outline(map).get_bounds().as_bbox());
+        self.lane_ids.insert(l, item_id);
+        self.lanes.insert(l, draw);
+    }
+
     pub fn delete_lane(&mut self, l: LaneID) {
         self.lanes.remove(&l).unwrap();
         let item_id = self.lane_ids.remove(&l).unwrap();
