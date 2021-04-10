@@ -690,7 +690,7 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
 
     for r in roads_changed {
         let road = app.primary.map.get_r(r);
-        app.primary.draw_map.roads[r.0].clear_rendering();
+        app.primary.draw_map.recreate_road(road, &app.primary.map);
 
         // An edit to one lane potentially affects markings in all lanes in the same road, because
         // of one-way markings, driving lines, etc.

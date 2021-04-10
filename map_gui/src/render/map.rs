@@ -4,7 +4,9 @@ use aabb_quadtree::QuadTree;
 
 use abstutil::Timer;
 use geom::{Bounds, Polygon};
-use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID};
+use map_model::{
+    AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, Road, RoadID,
+};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch};
 
 use crate::colors::ColorScheme;
@@ -145,7 +147,9 @@ impl DrawMap {
         let mut quadtree_ids = HashMap::new();
         // TODO use iter chain if everything was boxed as a renderable...
         for obj in &roads {
-            quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
+            let item_id =
+                quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
+            quadtree_ids.insert(obj.get_id(), item_id);
         }
         for (_, obj) in &lanes {
             let item_id =
@@ -479,5 +483,17 @@ impl DrawMap {
             .insert_with_box(draw.get_id(), draw.get_outline(map).get_bounds().as_bbox());
         self.quadtree_ids.insert(draw.get_id(), item_id);
         self.intersections[i.0] = draw;
+    }
+
+    pub fn recreate_road(&mut self, road: &Road, map: &Map) {
+        let item_id = self.quadtree_ids.remove(&ID::Road(road.id)).unwrap();
+        self.quadtree.remove(item_id).unwrap();
+
+        let draw = DrawRoad::new(road);
+        let item_id = self
+            .quadtree
+            .insert_with_box(draw.get_id(), draw.get_outline(map).get_bounds().as_bbox());
+        self.quadtree_ids.insert(draw.get_id(), item_id);
+        self.roads[road.id.0] = draw;
     }
 }
