@@ -470,6 +470,36 @@
 <span id="467">467</span>
 <span id="468">468</span>
 <span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -477,7 +507,9 @@
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Polygon</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">AreaID</span>, <span class="ident">BuildingID</span>, <span class="ident">BusStopID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">ParkingLotID</span>, <span class="ident">RoadID</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{
+    <span class="ident">AreaID</span>, <span class="ident">BuildingID</span>, <span class="ident">BusStopID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>,
+};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">colors</span>::<span class="ident">ColorScheme</span>;
@@ -512,8 +544,8 @@
     <span class="kw">pub</span> <span class="ident">show_zorder</span>: <span class="ident">isize</span>,
 
     <span class="ident">quadtree</span>: <span class="ident">QuadTree</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span>,
-    <span class="comment">// Remember these so we can delete lanes.</span>
-    <span class="ident">lane_ids</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">aabb_quadtree</span>::<span class="ident">ItemId</span><span class="op">&gt;</span>,
+    <span class="comment">// Remember these so we can modify the bounding box of some objects.</span>
+    <span class="ident">quadtree_ids</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">ID</span>, <span class="ident">aabb_quadtree</span>::<span class="ident">ItemId</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">DrawMap</span> {
@@ -615,18 +647,22 @@
 
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;create quadtree&quot;</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">quadtree</span> <span class="op">=</span> <span class="ident">QuadTree</span>::<span class="ident">default</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lane_ids</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">quadtree_ids</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
         <span class="comment">// TODO use iter chain if everything was boxed as a renderable...</span>
         <span class="kw">for</span> <span class="ident">obj</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">roads</span> {
-            <span class="ident">quadtree</span>.<span class="ident">insert_with_box</span>(<span class="ident">obj</span>.<span class="ident">get_id</span>(), <span class="ident">obj</span>.<span class="ident">get_outline</span>(<span class="ident">map</span>).<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
+            <span class="kw">let</span> <span class="ident">item_id</span> <span class="op">=</span>
+                <span class="ident">quadtree</span>.<span class="ident">insert_with_box</span>(<span class="ident">obj</span>.<span class="ident">get_id</span>(), <span class="ident">obj</span>.<span class="ident">get_outline</span>(<span class="ident">map</span>).<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
+            <span class="ident">quadtree_ids</span>.<span class="ident">insert</span>(<span class="ident">obj</span>.<span class="ident">get_id</span>(), <span class="ident">item_id</span>);
         }
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">obj</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">lanes</span> {
             <span class="kw">let</span> <span class="ident">item_id</span> <span class="op">=</span>
                 <span class="ident">quadtree</span>.<span class="ident">insert_with_box</span>(<span class="ident">obj</span>.<span class="ident">get_id</span>(), <span class="ident">obj</span>.<span class="ident">get_outline</span>(<span class="ident">map</span>).<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
-            <span class="ident">lane_ids</span>.<span class="ident">insert</span>(<span class="ident">obj</span>.<span class="ident">id</span>, <span class="ident">item_id</span>);
+            <span class="ident">quadtree_ids</span>.<span class="ident">insert</span>(<span class="ident">obj</span>.<span class="ident">get_id</span>(), <span class="ident">item_id</span>);
         }
         <span class="kw">for</span> <span class="ident">obj</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">intersections</span> {
-            <span class="ident">quadtree</span>.<span class="ident">insert_with_box</span>(<span class="ident">obj</span>.<span class="ident">get_id</span>(), <span class="ident">obj</span>.<span class="ident">get_outline</span>(<span class="ident">map</span>).<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
+            <span class="kw">let</span> <span class="ident">item_id</span> <span class="op">=</span>
+                <span class="ident">quadtree</span>.<span class="ident">insert_with_box</span>(<span class="ident">obj</span>.<span class="ident">get_id</span>(), <span class="ident">obj</span>.<span class="ident">get_outline</span>(<span class="ident">map</span>).<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
+            <span class="ident">quadtree_ids</span>.<span class="ident">insert</span>(<span class="ident">obj</span>.<span class="ident">get_id</span>(), <span class="ident">item_id</span>);
         }
         <span class="kw">for</span> <span class="ident">obj</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">buildings</span> {
             <span class="ident">quadtree</span>.<span class="ident">insert_with_box</span>(<span class="ident">obj</span>.<span class="ident">get_id</span>(), <span class="ident">obj</span>.<span class="ident">get_outline</span>(<span class="ident">map</span>).<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
@@ -665,7 +701,7 @@
             <span class="ident">draw_all_areas</span>,
 
             <span class="ident">quadtree</span>,
-            <span class="ident">lane_ids</span>,
+            <span class="ident">quadtree_ids</span>,
 
             <span class="ident">zorder_range</span>: (<span class="ident">low_z</span>, <span class="ident">high_z</span>),
             <span class="ident">show_zorder</span>: <span class="ident">high_z</span>,
@@ -922,7 +958,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_lane</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
         <span class="comment">// If we&#39;re recreating an existing lane, don&#39;t create a duplicate quadtree entry for it!</span>
         <span class="comment">// quadtree.insert_with_box isn&#39;t idempotent.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">item_id</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">lane_ids</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">l</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">item_id</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">quadtree_ids</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)) {
             <span class="self">self</span>.<span class="ident">quadtree</span>.<span class="ident">remove</span>(<span class="ident">item_id</span>).<span class="ident">unwrap</span>();
         }
 
@@ -930,14 +966,38 @@
         <span class="kw">let</span> <span class="ident">item_id</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">quadtree</span>
             .<span class="ident">insert_with_box</span>(<span class="ident">draw</span>.<span class="ident">get_id</span>(), <span class="ident">draw</span>.<span class="ident">get_outline</span>(<span class="ident">map</span>).<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
-        <span class="self">self</span>.<span class="ident">lane_ids</span>.<span class="ident">insert</span>(<span class="ident">l</span>, <span class="ident">item_id</span>);
+        <span class="self">self</span>.<span class="ident">quadtree_ids</span>.<span class="ident">insert</span>(<span class="ident">draw</span>.<span class="ident">get_id</span>(), <span class="ident">item_id</span>);
         <span class="self">self</span>.<span class="ident">lanes</span>.<span class="ident">insert</span>(<span class="ident">l</span>, <span class="ident">draw</span>);
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete_lane</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) {
         <span class="self">self</span>.<span class="ident">lanes</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">l</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">item_id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">lane_ids</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">l</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">item_id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">quadtree_ids</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)).<span class="ident">unwrap</span>();
         <span class="self">self</span>.<span class="ident">quadtree</span>.<span class="ident">remove</span>(<span class="ident">item_id</span>).<span class="ident">unwrap</span>();
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">recreate_intersection</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
+        <span class="kw">let</span> <span class="ident">item_id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">quadtree_ids</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>)).<span class="ident">unwrap</span>();
+        <span class="self">self</span>.<span class="ident">quadtree</span>.<span class="ident">remove</span>(<span class="ident">item_id</span>).<span class="ident">unwrap</span>();
+
+        <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">DrawIntersection</span>::<span class="ident">new</span>(<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>), <span class="ident">map</span>);
+        <span class="kw">let</span> <span class="ident">item_id</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">quadtree</span>
+            .<span class="ident">insert_with_box</span>(<span class="ident">draw</span>.<span class="ident">get_id</span>(), <span class="ident">draw</span>.<span class="ident">get_outline</span>(<span class="ident">map</span>).<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
+        <span class="self">self</span>.<span class="ident">quadtree_ids</span>.<span class="ident">insert</span>(<span class="ident">draw</span>.<span class="ident">get_id</span>(), <span class="ident">item_id</span>);
+        <span class="self">self</span>.<span class="ident">intersections</span>[<span class="ident">i</span>.<span class="number">0</span>] <span class="op">=</span> <span class="ident">draw</span>;
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">recreate_road</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">road</span>: <span class="kw-2">&amp;</span><span class="ident">Road</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
+        <span class="kw">let</span> <span class="ident">item_id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">quadtree_ids</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">ID</span>::<span class="ident">Road</span>(<span class="ident">road</span>.<span class="ident">id</span>)).<span class="ident">unwrap</span>();
+        <span class="self">self</span>.<span class="ident">quadtree</span>.<span class="ident">remove</span>(<span class="ident">item_id</span>).<span class="ident">unwrap</span>();
+
+        <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">DrawRoad</span>::<span class="ident">new</span>(<span class="ident">road</span>);
+        <span class="kw">let</span> <span class="ident">item_id</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">quadtree</span>
+            .<span class="ident">insert_with_box</span>(<span class="ident">draw</span>.<span class="ident">get_id</span>(), <span class="ident">draw</span>.<span class="ident">get_outline</span>(<span class="ident">map</span>).<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
+        <span class="self">self</span>.<span class="ident">quadtree_ids</span>.<span class="ident">insert</span>(<span class="ident">draw</span>.<span class="ident">get_id</span>(), <span class="ident">item_id</span>);
+        <span class="self">self</span>.<span class="ident">roads</span>[<span class="ident">road</span>.<span class="ident">id</span>.<span class="number">0</span>] <span class="op">=</span> <span class="ident">draw</span>;
     }
 }
 </pre></div>

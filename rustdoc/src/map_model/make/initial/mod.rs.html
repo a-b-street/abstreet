@@ -157,6 +157,8 @@
 <span id="154">154</span>
 <span id="155">155</span>
 <span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Naming is confusing, but RawMap -&gt; InitialMap -&gt; Map. InitialMap is separate pretty much just</span>
 <span class="doccomment">//! for the step of producing &lt;https://a-b-street.github.io/docs/map/importing/geometry.html&gt;.</span>
@@ -261,7 +263,7 @@
         <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;find each intersection polygon&quot;</span>, <span class="ident">m</span>.<span class="ident">intersections</span>.<span class="ident">len</span>());
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">m</span>.<span class="ident">intersections</span>.<span class="ident">values_mut</span>() {
             <span class="ident">timer</span>.<span class="ident">next</span>();
-            <span class="kw">match</span> <span class="ident">intersection_polygon</span>(<span class="ident">i</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">m</span>.<span class="ident">roads</span>) {
+            <span class="kw">match</span> <span class="ident">intersection_polygon</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">i</span>.<span class="ident">roads</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">m</span>.<span class="ident">roads</span>) {
                 <span class="prelude-val">Ok</span>((<span class="ident">poly</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">i</span>.<span class="ident">polygon</span> <span class="op">=</span> <span class="ident">poly</span>;
                 }
@@ -304,7 +306,9 @@
                     .<span class="ident">extend_to_length</span>(<span class="ident">min_len</span>)
                     .<span class="ident">reversed</span>();
             }
-            <span class="ident">i</span>.<span class="ident">polygon</span> <span class="op">=</span> <span class="ident">intersection_polygon</span>(<span class="ident">i</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">m</span>.<span class="ident">roads</span>).<span class="ident">unwrap</span>().<span class="number">0</span>;
+            <span class="ident">i</span>.<span class="ident">polygon</span> <span class="op">=</span> <span class="ident">intersection_polygon</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">i</span>.<span class="ident">roads</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">m</span>.<span class="ident">roads</span>)
+                .<span class="ident">unwrap</span>()
+                .<span class="number">0</span>;
             <span class="macro">info</span><span class="macro">!</span>(
                 <span class="string">&quot;Shifted border {} out a bit to make the road a reasonable length&quot;</span>,
                 <span class="ident">i</span>.<span class="ident">id</span>
