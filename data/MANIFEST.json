@@ -1065,6 +1065,21 @@
       "uncompressed_size_bytes": 36472661,
       "compressed_size_bytes": 8053481
     },
+    "data/input/sg/jurong/osm/center.osm": {
+      "checksum": "d91b6aba774bea844f07f90d33cb9307",
+      "uncompressed_size_bytes": 41790581,
+      "compressed_size_bytes": 4037713
+    },
+    "data/input/sg/jurong/osm/malaysia-singapore-brunei-latest.osm.pbf": {
+      "checksum": "d53ec2d2dd9e4dcdc621f514e68d9e36",
+      "uncompressed_size_bytes": 175817162,
+      "compressed_size_bytes": 175643384
+    },
+    "data/input/sg/jurong/raw_maps/center.bin": {
+      "checksum": "6064ae652f8b0ba492b8204fa2abc834",
+      "uncompressed_size_bytes": 10906465,
+      "compressed_size_bytes": 2740352
+    },
     "data/input/shared/Road Safety Data - Accidents 2019.csv": {
       "checksum": "ce30e6f7743be7b451e298583c65f99a",
       "uncompressed_size_bytes": 16138801,
@@ -1214,6 +1229,11 @@
       "checksum": "89917da7028d79fa110f476ff43c0584",
       "uncompressed_size_bytes": 1027902,
       "compressed_size_bytes": 993312
+    },
+    "data/input/shared/elevation/srtm/srtm.103.1.tif": {
+      "checksum": "3d475fbf3f460bce8861c1eab414173d",
+      "uncompressed_size_bytes": 4205111,
+      "compressed_size_bytes": 4194413
     },
     "data/input/shared/elevation/srtm/srtm.12.47.tif": {
       "checksum": "dad18dedb32fcc1cf3b027cd0630589c",
@@ -2839,6 +2859,11 @@
       "checksum": "7fda62ba1e4d5e5af9f8d2e66da83499",
       "uncompressed_size_bytes": 118572373,
       "compressed_size_bytes": 38432799
+    },
+    "data/system/sg/jurong/maps/center.bin": {
+      "checksum": "d2fff8e9a87d271784dbcf35ecb54253",
+      "uncompressed_size_bytes": 43289859,
+      "compressed_size_bytes": 14351634
     },
     "data/system/tw/taipei/maps/center.bin": {
       "checksum": "d4075736502fe6996d688e1abf417894",
