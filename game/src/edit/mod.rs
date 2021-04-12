@@ -709,6 +709,9 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
             .draw_map
             .recreate_building_paths(ctx, &app.primary.map, &app.cs, &app.opts);
     }
+    for pl in effects.changed_parking_lots {
+        app.primary.draw_map.get_pl(pl).clear_rendering();
+    }
 
     if app.primary.layer.as_ref().and_then(|l| l.name()) == Some("map edits") {
         app.primary.layer = Some(Box::new(crate::layer::map::Static::edits(ctx, app)));

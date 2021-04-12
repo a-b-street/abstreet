@@ -12,11 +12,11 @@ use geom::{Distance, HashablePt2D, Line, Speed, Time};
 
 pub use self::perma::PermanentMapEdits;
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
-use crate::make::{match_points_to_lanes, trim_path};
+use crate::make::{match_points_to_lanes, snap_driveway, trim_path};
 use crate::{
     connectivity, AccessRestrictions, BuildingID, BusRouteID, ControlStopSign,
     ControlTrafficSignal, IntersectionID, IntersectionType, LaneID, LaneSpec, Map, MapConfig,
-    PathConstraints, Pathfinder, Road, RoadID, TurnID, Zone,
+    ParkingLotID, PathConstraints, Pathfinder, Road, RoadID, TurnID, Zone,
 };
 
 mod compat;
@@ -139,6 +139,7 @@ pub struct EditEffects {
     pub added_turns: BTreeSet<TurnID>,
     pub deleted_turns: BTreeSet<TurnID>,
     pub resnapped_buildings: bool,
+    pub changed_parking_lots: BTreeSet<ParkingLotID>,
 }
 
 impl MapEdits {
@@ -537,18 +538,31 @@ fn modify_lanes(map: &mut Map, r: RoadID, lanes_ltr: Vec<LaneSpec>, effects: &mu
             modified_lanes.insert(id);
         }
     }
+    modified_lanes.extend(effects.deleted_lanes.clone());
 
     // Find all buildings connected to modified/deleted sidewalks
     let mut recalc_buildings = Vec::new();
     for b in map.all_buildings() {
-        if effects.deleted_lanes.contains(&b.sidewalk()) || modified_lanes.contains(&b.sidewalk()) {
+        if modified_lanes.contains(&b.sidewalk()) {
             recalc_buildings.push(b.id);
+            effects.resnapped_buildings = true;
         }
-        effects.resnapped_buildings = true;
     }
     fix_buildings(map, recalc_buildings);
 
-    // TODO We need to update bus stops and parking lots -- they may refer to an old ID.
+    // Same for parking lots
+    let mut recalc_parking_lots = Vec::new();
+    for pl in map.all_parking_lots() {
+        if modified_lanes.contains(&pl.driving_pos.lane())
+            || modified_lanes.contains(&pl.sidewalk_pos.lane())
+        {
+            recalc_parking_lots.push(pl.id);
+            effects.changed_parking_lots.insert(pl.id);
+        }
+    }
+    fix_parking_lots(map, recalc_parking_lots);
+
+    // TODO We need to update bus stops -- they may refer to an old ID.
 }
 
 // Returns the other roads affected by this change, not counting changed_road.
@@ -651,6 +665,44 @@ fn fix_buildings(map: &mut Map, input: Vec<BuildingID>) {
     }
 }
 
+fn fix_parking_lots(map: &mut Map, input: Vec<ParkingLotID>) {
+    // TODO Partly copying from make/parking_lots.rs
+    let mut center_per_lot: Vec<(ParkingLotID, HashablePt2D)> = Vec::new();
+    let mut query: HashSet<HashablePt2D> = HashSet::new();
+    for id in input {
+        let center = map.get_pl(id).polygon.center().to_hashable();
+        center_per_lot.push((id, center));
+        query.insert(center);
+    }
+
+    let sidewalk_buffer = Distance::meters(7.5);
+    let sidewalk_pts = match_points_to_lanes(
+        map.get_bounds(),
+        query,
+        map.all_lanes(),
+        |l| l.is_walkable(),
+        sidewalk_buffer,
+        Distance::meters(1000.0),
+        &mut Timer::throwaway(),
+    );
+
+    for (id, center) in center_per_lot {
+        match snap_driveway(center, &map.get_pl(id).polygon, &sidewalk_pts, map) {
+            Ok((driveway_line, driving_pos, sidewalk_line, sidewalk_pos)) => {
+                let pl = &mut map.parking_lots[id.0];
+                pl.driveway_line = driveway_line;
+                pl.driving_pos = driving_pos;
+                pl.sidewalk_line = sidewalk_line;
+                pl.sidewalk_pos = sidewalk_pos;
+            }
+            Err(err) => {
+                // TODO Not sure what to do here yet.
+                error!("{} isn't snapped to a sidewalk now: {}", id, err);
+            }
+        }
+    }
+}
+
 impl Map {
     pub fn new_edits(&self) -> MapEdits {
         let mut edits = MapEdits::new();
@@ -731,6 +783,7 @@ impl Map {
             added_turns: BTreeSet::new(),
             deleted_turns: BTreeSet::new(),
             resnapped_buildings: false,
+            changed_parking_lots: BTreeSet::new(),
         };
 
         // Short-circuit to avoid marking pathfinder_dirty

@@ -1,4 +1,6 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
+
+use anyhow::Result;
 
 use abstutil::{Parallelism, Timer};
 use geom::{Angle, Distance, FindClosest, HashablePt2D, Line, PolyLine, Polygon, Pt2D, Ring};
@@ -29,7 +31,6 @@ pub fn make_all_parking_lots(
     }
 
     let sidewalk_buffer = Distance::meters(7.5);
-    let driveway_buffer = Distance::meters(7.0);
     let sidewalk_pts = match_points_to_lanes(
         map.get_bounds(),
         query,
@@ -44,40 +45,8 @@ pub fn make_all_parking_lots(
     timer.start_iter("create parking lot driveways", center_per_lot.len());
     for (lot_center, orig) in center_per_lot.into_iter().zip(input.iter()) {
         timer.next();
-        // TODO Refactor this
-        if let Some(sidewalk_pos) = sidewalk_pts.get(&lot_center) {
-            let sidewalk_line = match Line::new(lot_center.to_pt2d(), sidewalk_pos.pt(map)) {
-                Some(l) => trim_path(&orig.polygon, l),
-                None => {
-                    warn!(
-                        "Skipping parking lot {} because front path has 0 length",
-                        orig.osm_id
-                    );
-                    continue;
-                }
-            };
-
-            // Can this lot have a driveway? If it's not next to a driving lane, then no.
-            let mut driveway: Option<(PolyLine, Position)> = None;
-            let sidewalk_lane = sidewalk_pos.lane();
-            if let Some(driving_pos) = map
-                .get_parent(sidewalk_lane)
-                .find_closest_lane(sidewalk_lane, |l| PathConstraints::Car.can_use(l, map), map)
-                .and_then(|l| {
-                    sidewalk_pos
-                        .equiv_pos(l, map)
-                        .buffer_dist(driveway_buffer, map)
-                })
-            {
-                if let Ok(pl) = PolyLine::new(vec![
-                    sidewalk_line.pt1(),
-                    sidewalk_line.pt2(),
-                    driving_pos.pt(map),
-                ]) {
-                    driveway = Some((pl, driving_pos));
-                }
-            }
-            if let Some((driveway_line, driving_pos)) = driveway {
+        match snap_driveway(lot_center, &orig.polygon, &sidewalk_pts, map) {
+            Ok((driveway_line, driving_pos, sidewalk_line, sidewalk_pos)) => {
                 let id = ParkingLotID(results.len());
                 results.push(ParkingLot {
                     id,
@@ -90,14 +59,11 @@ pub fn make_all_parking_lots(
                     driveway_line,
                     driving_pos,
                     sidewalk_line,
-                    sidewalk_pos: *sidewalk_pos,
+                    sidewalk_pos,
                 });
-            } else {
-                warn!(
-                    "Parking lot from {}, near sidewalk {}, can't have a driveway.",
-                    orig.osm_id,
-                    sidewalk_pos.lane()
-                );
+            }
+            Err(err) => {
+                warn!("Skipping parking lot {}: {}", orig.osm_id, err);
             }
         }
     }
@@ -167,6 +133,52 @@ pub fn make_all_parking_lots(
     );
     timer.stop("convert parking lots");
     results
+}
+
+/// Returns (driveway_line, driving_pos, sidewalk_line, sidewalk_pos)
+pub fn snap_driveway(
+    center: HashablePt2D,
+    polygon: &Polygon,
+    sidewalk_pts: &HashMap<HashablePt2D, Position>,
+    map: &Map,
+) -> Result<(PolyLine, Position, Line, Position)> {
+    let driveway_buffer = Distance::meters(7.0);
+
+    let sidewalk_pos = sidewalk_pts
+        .get(&center)
+        .ok_or(anyhow!("parking lot center didn't snap to a sidewalk"))?;
+    let sidewalk_line = match Line::new(center.to_pt2d(), sidewalk_pos.pt(map)) {
+        Some(l) => trim_path(polygon, l),
+        None => {
+            bail!("front path has 0 length");
+        }
+    };
+
+    // Can this lot have a driveway? If it's not next to a driving lane, then no.
+    let mut driveway: Option<(PolyLine, Position)> = None;
+    let sidewalk_lane = sidewalk_pos.lane();
+    if let Some(driving_pos) = map
+        .get_parent(sidewalk_lane)
+        .find_closest_lane(sidewalk_lane, |l| PathConstraints::Car.can_use(l, map), map)
+        .and_then(|l| {
+            sidewalk_pos
+                .equiv_pos(l, map)
+                .buffer_dist(driveway_buffer, map)
+        })
+    {
+        if let Ok(pl) = PolyLine::new(vec![
+            sidewalk_line.pt1(),
+            sidewalk_line.pt2(),
+            driving_pos.pt(map),
+        ]) {
+            driveway = Some((pl, driving_pos));
+        }
+    }
+    let (driveway_line, driving_pos) = driveway.ok_or(anyhow!(
+        "snapped to sidewalk {}, but no driving connection",
+        sidewalk_pos.lane()
+    ))?;
+    Ok((driveway_line, driving_pos, sidewalk_line, *sidewalk_pos))
 }
 
 fn infer_spots(lot_polygon: &Polygon, aisles: &Vec<Vec<Pt2D>>) -> Vec<(Pt2D, Angle)> {

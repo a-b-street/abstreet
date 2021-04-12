@@ -92,6 +92,10 @@ impl DrawParkingLot {
 
         batch
     }
+
+    pub fn clear_rendering(&self) {
+        *self.draw.borrow_mut() = None;
+    }
 }
 
 impl Renderable for DrawParkingLot {
