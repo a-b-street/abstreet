@@ -22,20 +22,8 @@ impl DrawBuilding {
         cs: &ColorScheme,
         opts: &Options,
         bldg_batch: &mut GeomBatch,
-        paths_batch: &mut GeomBatch,
         outlines_batch: &mut GeomBatch,
     ) -> DrawBuilding {
-        // Trim the driveway away from the sidewalk's center line, so that it doesn't overlap. For
-        // now, this cleanup is visual; it doesn't belong in the map_model layer.
-        let orig_pl = &bldg.driveway_geom;
-        let driveway = orig_pl
-            .slice(
-                Distance::ZERO,
-                orig_pl.length() - map.get_l(bldg.sidewalk()).width / 2.0,
-            )
-            .map(|(pl, _)| pl)
-            .unwrap_or_else(|_| orig_pl.clone());
-
         let bldg_color = if bldg.amenities.is_empty() {
             cs.residential_building
         } else {
@@ -200,7 +188,33 @@ impl DrawBuilding {
                 }
             }
         }
+
+        DrawBuilding {
+            id: bldg.id,
+            label: RefCell::new(None),
+        }
+    }
+
+    pub fn draw_path(
+        bldg: &Building,
+        map: &Map,
+        cs: &ColorScheme,
+        opts: &Options,
+        paths_batch: &mut GeomBatch,
+    ) {
         if opts.camera_angle != CameraAngle::Abstract {
+            // Trim the driveway away from the sidewalk's center line, so that it doesn't overlap.
+            // For now, this cleanup is visual; it doesn't belong in the map_model
+            // layer.
+            let orig_pl = &bldg.driveway_geom;
+            let driveway = orig_pl
+                .slice(
+                    Distance::ZERO,
+                    orig_pl.length() - map.get_l(bldg.sidewalk()).width / 2.0,
+                )
+                .map(|(pl, _)| pl)
+                .unwrap_or_else(|_| orig_pl.clone());
+
             paths_batch.push(
                 if opts.color_scheme == ColorSchemeChoice::NightMode {
                     Color::hex("#4B4B4B")
@@ -212,11 +226,6 @@ impl DrawBuilding {
                 },
                 driveway.make_polygons(NORMAL_LANE_THICKNESS),
             );
-        }
-
-        DrawBuilding {
-            id: bldg.id,
-            label: RefCell::new(None),
         }
     }
 }

@@ -2,20 +2,21 @@
 //! the changes to a file (as `PermanentMapEdits`). See
 //! <https://a-b-street.github.io/docs/map/edits.html>.
 
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 use abstutil::{retain_btreemap, retain_btreeset, Timer};
-use geom::{Distance, Speed, Time};
+use geom::{Distance, HashablePt2D, Line, Speed, Time};
 
 pub use self::perma::PermanentMapEdits;
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
+use crate::make::{match_points_to_lanes, trim_path};
 use crate::{
-    connectivity, AccessRestrictions, BusRouteID, ControlStopSign, ControlTrafficSignal,
-    IntersectionID, IntersectionType, LaneID, LaneSpec, Map, MapConfig, PathConstraints,
-    Pathfinder, Road, RoadID, TurnID, Zone,
+    connectivity, AccessRestrictions, BuildingID, BusRouteID, ControlStopSign,
+    ControlTrafficSignal, IntersectionID, IntersectionType, LaneID, LaneSpec, Map, MapConfig,
+    PathConstraints, Pathfinder, Road, RoadID, TurnID, Zone,
 };
 
 mod compat;
@@ -526,6 +527,7 @@ fn modify_lanes(map: &mut Map, r: RoadID, lanes_ltr: Vec<LaneSpec>, effects: &mu
 
     // We might've affected the geometry of other nearby roads. Recalculate the lanes for them as
     // well, but don't change the IDs.
+    let mut modified_lanes = BTreeSet::new();
     for r in road_geom_changed {
         effects.changed_roads.insert(r);
         let mut dummy_id_counter = 0;
@@ -543,11 +545,20 @@ fn modify_lanes(map: &mut Map, r: RoadID, lanes_ltr: Vec<LaneSpec>, effects: &mu
             .zip(real_lane_ids.into_iter())
         {
             map.lanes.get_mut(&id).unwrap().lane_center_pts = lane.lane_center_pts;
+            modified_lanes.insert(id);
         }
     }
 
-    // TODO We need to update buildings, bus stops, and parking lots -- they may refer to an old
-    // ID.
+    // Find all buildings connected to modified/deleted sidewalks
+    let mut recalc_buildings = Vec::new();
+    for b in map.all_buildings() {
+        if effects.deleted_lanes.contains(&b.sidewalk()) || modified_lanes.contains(&b.sidewalk()) {
+            recalc_buildings.push(b.id);
+        }
+    }
+    fix_buildings(map, recalc_buildings);
+
+    // TODO We need to update bus stops and parking lots -- they may refer to an old ID.
 }
 
 // Returns the other roads affected by this change, not counting changed_road.
@@ -604,6 +615,50 @@ fn recalculate_intersection_polygon(
         }
     }
     affected
+}
+
+fn fix_buildings(map: &mut Map, input: Vec<BuildingID>) {
+    // TODO Copying from make/buildings.rs
+    let mut center_per_bldg: BTreeMap<BuildingID, HashablePt2D> = BTreeMap::new();
+    let mut query: HashSet<HashablePt2D> = HashSet::new();
+    for id in input {
+        let center = map.get_b(id).polygon.center().to_hashable();
+        center_per_bldg.insert(id, center);
+        query.insert(center);
+    }
+
+    // equiv_pos could be a little closer, so use two buffers
+    let sidewalk_buffer = Distance::meters(7.5);
+    let mut sidewalk_pts = match_points_to_lanes(
+        map.get_bounds(),
+        query,
+        map.all_lanes(),
+        |l| l.is_walkable(),
+        // Don't put connections too close to intersections
+        sidewalk_buffer,
+        // Try not to skip any buildings, but more than 1km from a sidewalk is a little much
+        Distance::meters(1000.0),
+        &mut Timer::throwaway(),
+    );
+
+    for (id, bldg_center) in center_per_bldg {
+        match sidewalk_pts.remove(&bldg_center).and_then(|pos| {
+            match Line::new(bldg_center.to_pt2d(), pos.pt(map)) {
+                Some(l) => Some((pos, trim_path(&map.get_b(id).polygon, l))),
+                None => None,
+            }
+        }) {
+            Some((sidewalk_pos, driveway_geom)) => {
+                let b = &mut map.buildings[id.0];
+                b.sidewalk_pos = sidewalk_pos;
+                b.driveway_geom = driveway_geom.to_polyline();
+            }
+            None => {
+                // TODO Not sure what to do here yet.
+                error!("{} isn't snapped to a sidewalk now!", id);
+            }
+        }
+    }
 }
 
 impl Map {
