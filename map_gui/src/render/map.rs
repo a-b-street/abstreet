@@ -83,8 +83,8 @@ impl DrawMap {
 
         let mut buildings: Vec<DrawBuilding> = Vec::new();
         let mut all_buildings = GeomBatch::new();
-        let mut all_building_paths = GeomBatch::new();
         let mut all_building_outlines = GeomBatch::new();
+        let mut all_building_paths = GeomBatch::new();
         timer.start_iter("make DrawBuildings", map.all_buildings().len());
         for b in map.all_buildings() {
             timer.next();
@@ -95,9 +95,9 @@ impl DrawMap {
                 cs,
                 opts,
                 &mut all_buildings,
-                &mut all_building_paths,
                 &mut all_building_outlines,
             ));
+            DrawBuilding::draw_path(b, map, cs, opts, &mut all_building_paths);
         }
         timer.start("upload all buildings");
         let draw_all_buildings = all_buildings.upload(ctx);
@@ -431,8 +431,8 @@ impl DrawMap {
         }
 
         let mut bldgs_batch = GeomBatch::new();
-        let mut paths_batch = GeomBatch::new();
         let mut outlines_batch = GeomBatch::new();
+        let mut paths_batch = GeomBatch::new();
         for b in map.all_buildings() {
             DrawBuilding::new(
                 ctx,
@@ -441,9 +441,9 @@ impl DrawMap {
                 cs,
                 app.opts(),
                 &mut bldgs_batch,
-                &mut paths_batch,
                 &mut outlines_batch,
             );
+            DrawBuilding::draw_path(b, map, cs, app.opts(), &mut paths_batch);
         }
         batch.append(paths_batch);
         batch.append(bldgs_batch);

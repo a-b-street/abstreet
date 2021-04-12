@@ -4,9 +4,9 @@ use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 
 use abstutil::{Tags, Timer};
-use geom::{Distance, HashablePt2D, Line, Polygon};
+use geom::{Distance, HashablePt2D, Line};
 
-use crate::make::match_points_to_lanes;
+use crate::make::{match_points_to_lanes, trim_path};
 use crate::raw::RawBuilding;
 use crate::{
     osm, Amenity, Building, BuildingID, BuildingType, LaneID, Map, NamePerLanguage,
@@ -126,21 +126,6 @@ pub fn make_all_buildings(
     timer.stop("convert buildings");
 
     results
-}
-
-// Adjust the path to start on the building's border, not center
-fn trim_path(poly: &Polygon, path: Line) -> Line {
-    for bldg_line in poly.points().windows(2) {
-        if let Some(l1) = Line::new(bldg_line[0], bldg_line[1]) {
-            if let Some(hit) = l1.intersection(&path) {
-                if let Some(l2) = Line::new(hit, path.pt2()) {
-                    return l2;
-                }
-            }
-        }
-    }
-    // Just give up
-    path
 }
 
 fn get_address(tags: &Tags, sidewalk: LaneID, map: &Map) -> String {

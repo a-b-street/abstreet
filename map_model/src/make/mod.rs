@@ -5,7 +5,9 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 use abstio::MapName;
 use abstutil::{Parallelism, Tags, Timer};
-use geom::{Bounds, Distance, FindClosest, GPSBounds, HashablePt2D, Speed, EPSILON_DIST};
+use geom::{
+    Bounds, Distance, FindClosest, GPSBounds, HashablePt2D, Line, Polygon, Speed, EPSILON_DIST,
+};
 
 use crate::pathfind::Pathfinder;
 use crate::raw::{OriginalRoad, RawMap};
@@ -354,7 +356,7 @@ impl Map {
 
 /// Snap points to an exact Position along the nearest lane. If the result doesn't contain a
 /// requested point, then there was no matching lane close enough.
-fn match_points_to_lanes<F: Fn(&Lane) -> bool>(
+pub fn match_points_to_lanes<F: Fn(&Lane) -> bool>(
     bounds: &Bounds,
     pts: HashSet<HashablePt2D>,
     lanes: &BTreeMap<LaneID, Lane>,
@@ -407,4 +409,19 @@ fn match_points_to_lanes<F: Fn(&Lane) -> bool>(
         .into_iter()
         .flatten()
         .collect()
+}
+
+/// Adjust the path to start on the polygon's border, not center.
+pub fn trim_path(poly: &Polygon, path: Line) -> Line {
+    for line in poly.points().windows(2) {
+        if let Some(l1) = Line::new(line[0], line[1]) {
+            if let Some(hit) = l1.intersection(&path) {
+                if let Some(l2) = Line::new(hit, path.pt2()) {
+                    return l2;
+                }
+            }
+        }
+    }
+    // Just give up
+    path
 }

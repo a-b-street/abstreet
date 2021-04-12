@@ -44,8 +44,8 @@ pub struct Building {
     /// Depending on options while importing, these might be empty, to save file space.
     pub osm_tags: Tags,
 
-    /// The building's connection for pedestrians is immutable. For cars and bikes, it can change
-    /// based on map edits, so don't cache it.
+    /// The building's connection for any agent can change based on map edits. Just store the one
+    /// for pedestrians and lazily calculate the others.
     pub sidewalk_pos: Position,
     /// Goes from building to sidewalk
     pub driveway_geom: PolyLine,

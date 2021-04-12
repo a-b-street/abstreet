@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use abstutil::{Parallelism, Timer};
 use geom::{Angle, Distance, FindClosest, HashablePt2D, Line, PolyLine, Polygon, Pt2D, Ring};
 
-use crate::make::match_points_to_lanes;
+use crate::make::{match_points_to_lanes, trim_path};
 use crate::raw::RawParkingLot;
 use crate::{
     osm, Map, ParkingLot, ParkingLotID, PathConstraints, Position, NORMAL_LANE_THICKNESS,
@@ -167,21 +167,6 @@ pub fn make_all_parking_lots(
     );
     timer.stop("convert parking lots");
     results
-}
-
-// Adjust the path to start on the building's border, not center
-fn trim_path(poly: &Polygon, path: Line) -> Line {
-    for bldg_line in poly.points().windows(2) {
-        if let Some(l1) = Line::new(bldg_line[0], bldg_line[1]) {
-            if let Some(hit) = l1.intersection(&path) {
-                if let Some(l2) = Line::new(hit, path.pt2()) {
-                    return l2;
-                }
-            }
-        }
-    }
-    // Just give up
-    path
 }
 
 fn infer_spots(lot_polygon: &Polygon, aisles: &Vec<Vec<Pt2D>>) -> Vec<(Pt2D, Angle)> {

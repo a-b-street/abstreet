@@ -311,8 +311,8 @@ impl<A: AppLike> State<A> for OptionsPanel {
                         opts.camera_angle = camera_angle;
                         ctx.loading_screen("rerendering buildings", |ctx, timer| {
                             let mut all_buildings = GeomBatch::new();
-                            let mut all_building_paths = GeomBatch::new();
                             let mut all_building_outlines = GeomBatch::new();
+                            let mut all_building_paths = GeomBatch::new();
                             timer
                                 .start_iter("rendering buildings", app.map().all_buildings().len());
                             for b in app.map().all_buildings() {
@@ -324,8 +324,14 @@ impl<A: AppLike> State<A> for OptionsPanel {
                                     app.cs(),
                                     &opts,
                                     &mut all_buildings,
-                                    &mut all_building_paths,
                                     &mut all_building_outlines,
+                                );
+                                DrawBuilding::draw_path(
+                                    b,
+                                    app.map(),
+                                    app.cs(),
+                                    app.opts(),
+                                    &mut all_building_paths,
                                 );
                             }
                             timer.start("upload geometry");
