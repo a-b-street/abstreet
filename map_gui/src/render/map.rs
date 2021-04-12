@@ -496,4 +496,18 @@ impl DrawMap {
         self.quadtree_ids.insert(draw.get_id(), item_id);
         self.roads[road.id.0] = draw;
     }
+
+    pub fn recreate_building_paths(
+        &mut self,
+        ctx: &mut EventCtx,
+        map: &Map,
+        cs: &ColorScheme,
+        opts: &Options,
+    ) {
+        let mut batch = GeomBatch::new();
+        for b in map.all_buildings() {
+            DrawBuilding::draw_path(b, map, cs, opts, &mut batch);
+        }
+        self.draw_all_building_paths = ctx.upload(batch);
+    }
 }
