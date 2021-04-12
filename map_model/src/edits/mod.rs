@@ -138,6 +138,7 @@ pub struct EditEffects {
     pub changed_intersections: BTreeSet<IntersectionID>,
     pub added_turns: BTreeSet<TurnID>,
     pub deleted_turns: BTreeSet<TurnID>,
+    pub resnapped_buildings: bool,
 }
 
 impl MapEdits {
@@ -275,18 +276,6 @@ impl MapEdits {
 impl std::default::Default for MapEdits {
     fn default() -> MapEdits {
         MapEdits::new()
-    }
-}
-
-impl EditEffects {
-    pub fn new() -> EditEffects {
-        EditEffects {
-            changed_roads: BTreeSet::new(),
-            deleted_lanes: BTreeSet::new(),
-            changed_intersections: BTreeSet::new(),
-            added_turns: BTreeSet::new(),
-            deleted_turns: BTreeSet::new(),
-        }
     }
 }
 
@@ -555,6 +544,7 @@ fn modify_lanes(map: &mut Map, r: RoadID, lanes_ltr: Vec<LaneSpec>, effects: &mu
         if effects.deleted_lanes.contains(&b.sidewalk()) || modified_lanes.contains(&b.sidewalk()) {
             recalc_buildings.push(b.id);
         }
+        effects.resnapped_buildings = true;
     }
     fix_buildings(map, recalc_buildings);
 
@@ -723,16 +713,7 @@ impl Map {
     }
 
     /// Returns (changed_roads, deleted_lanes, deleted_turns, added_turns, changed_intersections)
-    pub fn must_apply_edits(
-        &mut self,
-        new_edits: MapEdits,
-    ) -> (
-        BTreeSet<RoadID>,
-        BTreeSet<LaneID>,
-        BTreeSet<TurnID>,
-        BTreeSet<TurnID>,
-        BTreeSet<IntersectionID>,
-    ) {
+    pub fn must_apply_edits(&mut self, new_edits: MapEdits) -> EditEffects {
         self.apply_edits(new_edits, true)
     }
 
@@ -742,29 +723,20 @@ impl Map {
 
     // new_edits don't necessarily have to be valid; this could be used for speculatively testing
     // edits. Doesn't update pathfinding yet.
-    fn apply_edits(
-        &mut self,
-        mut new_edits: MapEdits,
-        enforce_valid: bool,
-    ) -> (
-        BTreeSet<RoadID>,
-        BTreeSet<LaneID>,
-        BTreeSet<TurnID>,
-        BTreeSet<TurnID>,
-        BTreeSet<IntersectionID>,
-    ) {
+    fn apply_edits(&mut self, mut new_edits: MapEdits, enforce_valid: bool) -> EditEffects {
+        let mut effects = EditEffects {
+            changed_roads: BTreeSet::new(),
+            deleted_lanes: BTreeSet::new(),
+            changed_intersections: BTreeSet::new(),
+            added_turns: BTreeSet::new(),
+            deleted_turns: BTreeSet::new(),
+            resnapped_buildings: false,
+        };
+
         // Short-circuit to avoid marking pathfinder_dirty
         if self.edits == new_edits {
-            return (
-                BTreeSet::new(),
-                BTreeSet::new(),
-                BTreeSet::new(),
-                BTreeSet::new(),
-                BTreeSet::new(),
-            );
+            return effects;
         }
-
-        let mut effects = EditEffects::new();
 
         // We need to undo() all of the current commands in reverse order, then apply() all of the
         // new commands. But in many cases, new_edits is just the current edits with a few commands
@@ -826,18 +798,22 @@ impl Map {
             self.zones = Zone::make_all(self);
         }
 
-        (
-            effects.changed_roads,
-            effects.deleted_lanes,
-            effects.deleted_turns,
-            // Some of these might've been added, then later deleted.
-            effects
-                .added_turns
-                .into_iter()
-                .filter(|t| self.turns.contains_key(t))
-                .collect(),
-            effects.changed_intersections,
-        )
+        // Some of these might've been added, then later deleted.
+        retain_btreeset(&mut effects.added_turns, |t| self.turns.contains_key(t));
+
+        let mut more_changed_intersections = Vec::new();
+        for t in effects
+            .deleted_turns
+            .iter()
+            .chain(effects.added_turns.iter())
+        {
+            more_changed_intersections.push(t.parent);
+        }
+        effects
+            .changed_intersections
+            .extend(more_changed_intersections);
+
+        effects
     }
 
     /// This can expensive, so don't constantly do it while editing in the UI. But this must happen

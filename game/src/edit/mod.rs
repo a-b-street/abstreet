@@ -674,21 +674,20 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Panel {
 pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
     let mut timer = Timer::new("apply map edits");
 
-    let (roads_changed, lanes_deleted, turns_deleted, turns_added, mut modified_intersections) =
-        app.primary.map.must_apply_edits(edits);
+    let effects = app.primary.map.must_apply_edits(edits);
 
-    if !roads_changed.is_empty() || !modified_intersections.is_empty() {
+    if !effects.changed_roads.is_empty() || !effects.changed_intersections.is_empty() {
         app.primary
             .draw_map
             .draw_all_unzoomed_roads_and_intersections =
             DrawMap::regenerate_unzoomed_layer(&app.primary.map, &app.cs, ctx, &mut timer);
     }
 
-    for l in lanes_deleted {
+    for l in effects.deleted_lanes {
         app.primary.draw_map.delete_lane(l);
     }
 
-    for r in roads_changed {
+    for r in effects.changed_roads {
         let road = app.primary.map.get_r(r);
         app.primary.draw_map.recreate_road(road, &app.primary.map);
 
@@ -699,17 +698,16 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
         }
     }
 
-    for t in turns_deleted {
-        modified_intersections.insert(t.parent);
-    }
-    for t in &turns_added {
-        modified_intersections.insert(t.parent);
-    }
-
-    for i in modified_intersections {
+    for i in effects.changed_intersections {
         app.primary
             .draw_map
             .recreate_intersection(i, &app.primary.map);
+    }
+
+    if effects.resnapped_buildings {
+        app.primary
+            .draw_map
+            .recreate_building_paths(ctx, &app.primary.map, &app.cs, &app.opts);
     }
 
     if app.primary.layer.as_ref().and_then(|l| l.name()) == Some("map edits") {
