@@ -9,6 +9,7 @@ use geom::{
     Bounds, Distance, FindClosest, GPSBounds, HashablePt2D, Line, Polygon, Speed, EPSILON_DIST,
 };
 
+pub use self::parking_lots::snap_driveway;
 use crate::pathfind::Pathfinder;
 use crate::raw::{OriginalRoad, RawMap};
 use crate::{
