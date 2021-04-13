@@ -193,20 +193,26 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
             ])
         };
 
-        self.panel = Panel::new(Widget::row(vec![
-            self.controls.make_zoomed_side_panel(ctx, app),
-            Widget::col(vec![
-                Widget::row(vec![minimap_controls, zoom_col]),
-                self.controls.make_legend(ctx, app),
+        let controls = if app.opts().minimal_controls {
+            minimap_controls.padding(16).bg(app.cs().panel_bg)
+        } else {
+            Widget::row(vec![
+                self.controls.make_zoomed_side_panel(ctx, app),
+                Widget::col(vec![
+                    Widget::row(vec![minimap_controls, zoom_col]),
+                    self.controls.make_legend(ctx, app),
+                ])
+                .padding(16)
+                .bg(app.cs().panel_bg),
             ])
-            .padding(16)
-            .bg(app.cs().panel_bg),
-        ]))
-        .aligned(
-            HorizontalAlignment::Right,
-            VerticalAlignment::BottomAboveOSD,
-        )
-        .build_custom(ctx);
+        };
+
+        self.panel = Panel::new(controls)
+            .aligned(
+                HorizontalAlignment::Right,
+                VerticalAlignment::BottomAboveOSD,
+            )
+            .build_custom(ctx);
     }
 
     fn map_to_minimap_pct(&self, pt: Pt2D) -> (f64, f64) {

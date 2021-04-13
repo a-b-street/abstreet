@@ -50,7 +50,7 @@ pub struct DebugMode {
 }
 
 impl DebugMode {
-    pub fn new(ctx: &mut EventCtx) -> Box<dyn State<App>> {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         Box::new(DebugMode {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
@@ -64,6 +64,12 @@ impl DebugMode {
                 Toggle::switch(ctx, "show areas", Key::Num4, true),
                 Toggle::switch(ctx, "show labels", Key::Num5, false),
                 Toggle::switch(ctx, "show route for all agents", lctrl(Key::R), false),
+                Toggle::switch(
+                    ctx,
+                    "screen recording mode",
+                    lctrl(Key::H),
+                    app.opts.minimal_controls,
+                ),
                 Widget::col(vec![
                     ctx.style()
                         .btn_outline
@@ -355,6 +361,7 @@ impl State<App> for DebugMode {
                 self.layers.show_lanes = self.panel.is_checked("show lanes");
                 self.layers.show_areas = self.panel.is_checked("show areas");
                 self.layers.show_labels = self.panel.is_checked("show labels");
+                app.opts.minimal_controls = self.panel.is_checked("screen recording mode");
                 if self.panel.is_checked("show route for all agents") {
                     if self.all_routes.is_none() {
                         self.all_routes = Some(calc_all_routes(ctx, app));
