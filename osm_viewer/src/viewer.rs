@@ -367,7 +367,7 @@ impl State<App> for Viewer {
             app.draw_unzoomed(g);
         } else {
             let mut opts = DrawOptions::new();
-            opts.show_building_paths = false;
+            opts.show_building_driveways = false;
             app.draw_zoomed(g, opts);
         }
 

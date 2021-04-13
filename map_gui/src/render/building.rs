@@ -195,12 +195,12 @@ impl DrawBuilding {
         }
     }
 
-    pub fn draw_path(
+    pub fn draw_driveway(
         bldg: &Building,
         map: &Map,
         cs: &ColorScheme,
         opts: &Options,
-        paths_batch: &mut GeomBatch,
+        batch: &mut GeomBatch,
     ) {
         if opts.camera_angle != CameraAngle::Abstract {
             // Trim the driveway away from the sidewalk's center line, so that it doesn't overlap.
@@ -215,7 +215,7 @@ impl DrawBuilding {
                 .map(|(pl, _)| pl)
                 .unwrap_or_else(|_| orig_pl.clone());
 
-            paths_batch.push(
+            batch.push(
                 if opts.color_scheme == ColorSchemeChoice::NightMode {
                     Color::hex("#4B4B4B")
                 } else {

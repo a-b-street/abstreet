@@ -707,7 +707,7 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
     if effects.resnapped_buildings {
         app.primary
             .draw_map
-            .recreate_building_paths(ctx, &app.primary.map, &app.cs, &app.opts);
+            .recreate_building_driveways(ctx, &app.primary.map, &app.cs, &app.opts);
     }
     for pl in effects.changed_parking_lots {
         app.primary.draw_map.get_pl(pl).clear_rendering();

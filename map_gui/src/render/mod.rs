@@ -78,8 +78,8 @@ pub struct DrawOptions {
     pub suppress_traffic_signal_details: Vec<IntersectionID>,
     /// Label every building.
     pub label_buildings: bool,
-    /// Draw building paths.
-    pub show_building_paths: bool,
+    /// Draw building driveways.
+    pub show_building_driveways: bool,
 }
 
 impl DrawOptions {
@@ -88,7 +88,7 @@ impl DrawOptions {
         DrawOptions {
             suppress_traffic_signal_details: Vec::new(),
             label_buildings: false,
-            show_building_paths: true,
+            show_building_driveways: true,
         }
     }
 }
