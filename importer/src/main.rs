@@ -11,11 +11,9 @@ use abstutil::{basename, Timer};
 use geom::Distance;
 
 use configuration::{load_configuration, ImporterConfiguration};
-use dependencies::are_dependencies_callable;
 
 mod berlin;
 mod configuration;
-mod dependencies;
 mod generic;
 mod seattle;
 #[cfg(feature = "scenarios")]
@@ -28,10 +26,6 @@ mod utils;
 #[tokio::main]
 async fn main() {
     let config: ImporterConfiguration = load_configuration();
-    if !are_dependencies_callable(&config) {
-        println!("One or more dependencies aren't callable. Add them to the path and try again.");
-        std::process::exit(1);
-    }
 
     let mut args = abstutil::CmdArgs::new();
     // Skip the most expensive step of --map, building contraction hierarchies. The simulation
