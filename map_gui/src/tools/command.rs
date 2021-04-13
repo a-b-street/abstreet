@@ -37,7 +37,7 @@ impl<A: AppLike + 'static> RunCommand<A> {
             &args,
             subprocess::PopenConfig {
                 stdout: subprocess::Redirection::Pipe,
-                stderr: subprocess::Redirection::Pipe,
+                stderr: subprocess::Redirection::Merge,
                 ..Default::default()
             },
         ) {
@@ -75,14 +75,12 @@ impl<A: AppLike + 'static> RunCommand<A> {
             // This is almost always a timeout.
             Err(err) => err.capture,
         };
-        // TODO This doesn't interleave stdout and stderr as expected.
-        for raw in vec![stdout, stderr] {
-            if let Some(bytes) = raw {
-                if let Ok(string) = String::from_utf8(bytes) {
-                    if !string.is_empty() {
-                        for line in string.split("\n") {
-                            new_lines.push(line.to_string());
-                        }
+        assert!(stderr.is_none());
+        if let Some(bytes) = stdout {
+            if let Ok(string) = String::from_utf8(bytes) {
+                if !string.is_empty() {
+                    for line in string.split("\n") {
+                        new_lines.push(line.to_string());
                     }
                 }
             }
