@@ -167,7 +167,7 @@ impl State<App> for EditMode {
         }
 
         if app.opts.dev && ctx.input.pressed(lctrl(Key::D)) {
-            return Transition::Push(DebugMode::new(ctx));
+            return Transition::Push(DebugMode::new(ctx, app));
         }
 
         match self.top_center.event(ctx) {

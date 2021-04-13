@@ -129,7 +129,7 @@ impl State<App> for SandboxMode {
 
         // Order here is pretty arbitrary
         if app.opts.dev && ctx.input.pressed(lctrl(Key::D)) {
-            return Transition::Push(DebugMode::new(ctx));
+            return Transition::Push(DebugMode::new(ctx, app));
         }
 
         if let Some(ref mut m) = self.controls.minimap {
@@ -210,13 +210,15 @@ impl State<App> for SandboxMode {
             l.draw(g, app);
         }
 
-        if let Some(ref c) = self.controls.common {
-            c.draw(g, app);
-        } else {
-            CommonState::draw_osd(g, app);
-        }
-        if let Some(ref tp) = self.controls.tool_panel {
-            tp.draw(g);
+        if !app.opts.minimal_controls {
+            if let Some(ref c) = self.controls.common {
+                c.draw(g, app);
+            } else {
+                CommonState::draw_osd(g, app);
+            }
+            if let Some(ref tp) = self.controls.tool_panel {
+                tp.draw(g);
+            }
         }
         if let Some(ref tp) = self.controls.time_panel {
             tp.draw(g);
@@ -228,7 +230,9 @@ impl State<App> for SandboxMode {
             r.draw(g);
         }
 
-        self.gameplay.draw(g, app);
+        if !app.opts.minimal_controls {
+            self.gameplay.draw(g, app);
+        }
     }
 
     fn on_destroy(&mut self, _: &mut EventCtx, app: &mut App) {

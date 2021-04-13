@@ -34,6 +34,9 @@ pub struct Options {
     /// Draw buildings in different perspectives
     pub camera_angle: CameraAngle,
 
+    /// When making a screen recording, enable this option to hide some UI elements
+    pub minimal_controls: bool,
+
     /// How much to advance the sim with one of the speed controls
     pub time_increment: Duration,
     /// When time warping, don't draw to speed up simulation
@@ -64,6 +67,7 @@ impl Options {
             dont_draw_time_warp: false,
             jump_to_delay: Duration::minutes(5),
 
+            minimal_controls: false,
             language: None,
             units: UnitFmt {
                 round_durations: true,
@@ -98,6 +102,7 @@ impl Options {
                 );
             }
         }
+        self.minimal_controls = args.enabled("--minimal_controls")
     }
 }
 
