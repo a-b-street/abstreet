@@ -548,7 +548,7 @@ fn modify_lanes(map: &mut Map, r: RoadID, lanes_ltr: Vec<LaneSpec>, effects: &mu
             effects.resnapped_buildings = true;
         }
     }
-    fix_buildings(map, recalc_buildings);
+    fix_building_driveways(map, recalc_buildings);
 
     // Same for parking lots
     let mut recalc_parking_lots = Vec::new();
@@ -560,7 +560,7 @@ fn modify_lanes(map: &mut Map, r: RoadID, lanes_ltr: Vec<LaneSpec>, effects: &mu
             effects.changed_parking_lots.insert(pl.id);
         }
     }
-    fix_parking_lots(map, recalc_parking_lots);
+    fix_parking_lot_driveways(map, recalc_parking_lots);
 
     // TODO We need to update bus stops -- they may refer to an old ID.
 }
@@ -621,7 +621,8 @@ fn recalculate_intersection_polygon(
     affected
 }
 
-fn fix_buildings(map: &mut Map, input: Vec<BuildingID>) {
+/// Recalculate the driveways of some buildings after map edits.
+fn fix_building_driveways(map: &mut Map, input: Vec<BuildingID>) {
     // TODO Copying from make/buildings.rs
     let mut center_per_bldg: BTreeMap<BuildingID, HashablePt2D> = BTreeMap::new();
     let mut query: HashSet<HashablePt2D> = HashSet::new();
@@ -631,7 +632,6 @@ fn fix_buildings(map: &mut Map, input: Vec<BuildingID>) {
         query.insert(center);
     }
 
-    // equiv_pos could be a little closer, so use two buffers
     let sidewalk_buffer = Distance::meters(7.5);
     let mut sidewalk_pts = match_points_to_lanes(
         map.get_bounds(),
@@ -665,7 +665,8 @@ fn fix_buildings(map: &mut Map, input: Vec<BuildingID>) {
     }
 }
 
-fn fix_parking_lots(map: &mut Map, input: Vec<ParkingLotID>) {
+/// Recalculate the driveways of some parking lots after map edits.
+fn fix_parking_lot_driveways(map: &mut Map, input: Vec<ParkingLotID>) {
     // TODO Partly copying from make/parking_lots.rs
     let mut center_per_lot: Vec<(ParkingLotID, HashablePt2D)> = Vec::new();
     let mut query: HashSet<HashablePt2D> = HashSet::new();
