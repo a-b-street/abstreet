@@ -111,9 +111,11 @@ pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
     parking::apply_parking(&mut map, &opts, timer);
 
     // TODO Make this bail out on failure, after the new dependencies are clearly explained.
-    if let Err(err) = elevation::add_data(&mut map, timer) {
+    timer.start("add elevation data");
+    if let Err(err) = elevation::add_data(&mut map) {
         error!("No elevation data: {}", err);
     }
+    timer.stop("add elevation data");
     if let Some(ref path) = opts.extra_buildings {
         add_extra_buildings(&mut map, path).unwrap();
     }

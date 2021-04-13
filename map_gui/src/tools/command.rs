@@ -75,6 +75,7 @@ impl<A: AppLike + 'static> RunCommand<A> {
             // This is almost always a timeout.
             Err(err) => err.capture,
         };
+        // TODO This doesn't interleave stdout and stderr as expected.
         for raw in vec![stdout, stderr] {
             if let Some(bytes) = raw {
                 if let Ok(string) = String::from_utf8(bytes) {
@@ -97,6 +98,7 @@ impl<A: AppLike + 'static> RunCommand<A> {
                     self.lines
                         .push_back(line.split('\r').last().unwrap().to_string());
                 } else {
+                    println!("> {}", line);
                     self.lines.push_back(line);
                 }
             }

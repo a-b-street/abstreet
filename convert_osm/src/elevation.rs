@@ -4,20 +4,14 @@ use std::process::Command;
 
 use anyhow::Result;
 
-use abstutil::Timer;
 use geom::{Distance, PolyLine};
 use map_model::raw::{OriginalRoad, RawMap};
 
-pub fn add_data(map: &mut RawMap, timer: &mut Timer) -> Result<()> {
-    timer.start("add elevation data");
-
-    // TODO General problem: If we bail out early, the timer gets screwed up and later crashes. I
-    // think we need to start using scoped objects that call timer.stop() when dropped.
-    timer.start("generate input");
+pub fn add_data(map: &mut RawMap) -> Result<()> {
+    // TODO It'd be nice to include more timing breakdown here, but if we bail out early,
+    // it's tedious to call timer.stop().
     let ids = generate_input(map)?;
-    timer.stop("generate input");
 
-    timer.start("run elevation_lookups");
     std::fs::create_dir_all("elevation_output")?;
     std::fs::create_dir_all(abstio::path_shared_input("elevation"))?;
     let pwd = std::env::current_dir()?.display().to_string();
@@ -56,11 +50,8 @@ pub fn add_data(map: &mut RawMap, timer: &mut Timer) -> Result<()> {
     if !status.success() {
         bail!("Command failed: {}", status);
     }
-    timer.stop("run elevation_lookups");
 
-    timer.start("grab output");
     scrape_output(map, ids)?;
-    timer.stop("grab output");
 
     // Clean up temporary files
     std::fs::remove_file("elevation_input/query")?;
@@ -68,7 +59,6 @@ pub fn add_data(map: &mut RawMap, timer: &mut Timer) -> Result<()> {
     std::fs::remove_file("elevation_output/query")?;
     std::fs::remove_dir("elevation_output")?;
 
-    timer.stop("add elevation data");
     Ok(())
 }
 
