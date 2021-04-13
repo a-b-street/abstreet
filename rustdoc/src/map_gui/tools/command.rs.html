@@ -166,6 +166,8 @@
 <span id="163">163</span>
 <span id="164">164</span>
 <span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">VecDeque</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">time</span>::<span class="ident">Duration</span>;
@@ -244,6 +246,7 @@
             <span class="comment">// This is almost always a timeout.</span>
             <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">err</span>.<span class="ident">capture</span>,
         };
+        <span class="comment">// TODO This doesn&#39;t interleave stdout and stderr as expected.</span>
         <span class="kw">for</span> <span class="ident">raw</span> <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">stdout</span>, <span class="ident">stderr</span>] {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">bytes</span>) <span class="op">=</span> <span class="ident">raw</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">string</span>) <span class="op">=</span> <span class="ident">String</span>::<span class="ident">from_utf8</span>(<span class="ident">bytes</span>) {
@@ -266,6 +269,7 @@
                     <span class="self">self</span>.<span class="ident">lines</span>
                         .<span class="ident">push_back</span>(<span class="ident">line</span>.<span class="ident">split</span>(<span class="string">&#39;\r&#39;</span>).<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">to_string</span>());
                 } <span class="kw">else</span> {
+                    <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;&gt; {}&quot;</span>, <span class="ident">line</span>);
                     <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">push_back</span>(<span class="ident">line</span>);
                 }
             }

@@ -160,16 +160,6 @@
 <span id="157">157</span>
 <span id="158">158</span>
 <span id="159">159</span>
-<span id="160">160</span>
-<span id="161">161</span>
-<span id="162">162</span>
-<span id="163">163</span>
-<span id="164">164</span>
-<span id="165">165</span>
-<span id="166">166</span>
-<span id="167">167</span>
-<span id="168">168</span>
-<span id="169">169</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::{<span class="ident">BufRead</span>, <span class="ident">BufReader</span>, <span class="ident">BufWriter</span>, <span class="ident">Write</span>};
@@ -177,20 +167,14 @@
 
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">PolyLine</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_data</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;add elevation data&quot;</span>);
-
-    <span class="comment">// TODO General problem: If we bail out early, the timer gets screwed up and later crashes. I</span>
-    <span class="comment">// think we need to start using scoped objects that call timer.stop() when dropped.</span>
-    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;generate input&quot;</span>);
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_data</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="comment">// TODO It&#39;d be nice to include more timing breakdown here, but if we bail out early,</span>
+    <span class="comment">// it&#39;s tedious to call timer.stop().</span>
     <span class="kw">let</span> <span class="ident">ids</span> <span class="op">=</span> <span class="ident">generate_input</span>(<span class="ident">map</span>)<span class="question-mark">?</span>;
-    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;generate input&quot;</span>);
 
-    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;run elevation_lookups&quot;</span>);
     <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">create_dir_all</span>(<span class="string">&quot;elevation_output&quot;</span>)<span class="question-mark">?</span>;
     <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">create_dir_all</span>(<span class="ident">abstio</span>::<span class="ident">path_shared_input</span>(<span class="string">&quot;elevation&quot;</span>))<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">pwd</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">env</span>::<span class="ident">current_dir</span>()<span class="question-mark">?</span>.<span class="ident">display</span>().<span class="ident">to_string</span>();
@@ -229,11 +213,8 @@
     <span class="kw">if</span> <span class="op">!</span><span class="ident">status</span>.<span class="ident">success</span>() {
         <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;Command failed: {}&quot;</span>, <span class="ident">status</span>);
     }
-    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;run elevation_lookups&quot;</span>);
 
-    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;grab output&quot;</span>);
     <span class="ident">scrape_output</span>(<span class="ident">map</span>, <span class="ident">ids</span>)<span class="question-mark">?</span>;
-    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;grab output&quot;</span>);
 
     <span class="comment">// Clean up temporary files</span>
     <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">remove_file</span>(<span class="string">&quot;elevation_input/query&quot;</span>)<span class="question-mark">?</span>;
@@ -241,7 +222,6 @@
     <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">remove_file</span>(<span class="string">&quot;elevation_output/query&quot;</span>)<span class="question-mark">?</span>;
     <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">remove_dir</span>(<span class="string">&quot;elevation_output&quot;</span>)<span class="question-mark">?</span>;
 
-    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;add elevation data&quot;</span>);
     <span class="prelude-val">Ok</span>(())
 }
 
