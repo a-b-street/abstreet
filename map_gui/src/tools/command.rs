@@ -85,20 +85,26 @@ impl<A: AppLike + 'static> RunCommand<A> {
                 }
             }
         }
-        if !new_lines.is_empty() {
-            for line in new_lines {
-                if self.lines.len() == self.max_capacity {
-                    self.lines.pop_front();
-                }
-                // Handle the "clear the current line" escape code
-                if line.contains("\r") {
+        for line in new_lines {
+            if self.lines.len() == self.max_capacity {
+                self.lines.pop_front();
+            }
+            if line.contains("\r") {
+                // \r shows up in two cases:
+                // 1) As output from docker
+                // 2) As the "clear the current line" escape code
+                // TODO Assuming always 2 parts...
+                let parts = line.split('\r').collect::<Vec<_>>();
+                if parts[0].is_empty() {
                     self.lines.pop_back();
-                    self.lines
-                        .push_back(line.split('\r').last().unwrap().to_string());
+                    self.lines.push_back(parts[1].to_string());
                 } else {
-                    println!("> {}", line);
-                    self.lines.push_back(line);
+                    println!("> {}", parts[0]);
+                    self.lines.push_back(parts[0].to_string());
                 }
+            } else {
+                println!("> {}", line);
+                self.lines.push_back(line);
             }
         }
     }
