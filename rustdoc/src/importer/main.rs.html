@@ -348,12 +348,6 @@
 <span id="345">345</span>
 <span id="346">346</span>
 <span id="347">347</span>
-<span id="348">348</span>
-<span id="349">349</span>
-<span id="350">350</span>
-<span id="351">351</span>
-<span id="352">352</span>
-<span id="353">353</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! It&#39;s assumed that the importer is run with the current directory as the project repository; aka</span>
 <span class="doccomment">//! `./data/` and `./importer/config` must exist.</span>
@@ -368,11 +362,9 @@
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Distance</span>;
 
 <span class="kw">use</span> <span class="ident">configuration</span>::{<span class="ident">load_configuration</span>, <span class="ident">ImporterConfiguration</span>};
-<span class="kw">use</span> <span class="ident">dependencies</span>::<span class="ident">are_dependencies_callable</span>;
 
 <span class="kw">mod</span> <span class="ident">berlin</span>;
 <span class="kw">mod</span> <span class="ident">configuration</span>;
-<span class="kw">mod</span> <span class="ident">dependencies</span>;
 <span class="kw">mod</span> <span class="ident">generic</span>;
 <span class="kw">mod</span> <span class="ident">seattle</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;scenarios&quot;</span>)]</span>
@@ -385,10 +377,6 @@
 <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">main</span>]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() {
     <span class="kw">let</span> <span class="ident">config</span>: <span class="ident">ImporterConfiguration</span> <span class="op">=</span> <span class="ident">load_configuration</span>();
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">are_dependencies_callable</span>(<span class="kw-2">&amp;</span><span class="ident">config</span>) {
-        <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;One or more dependencies aren&#39;t callable. Add them to the path and try again.&quot;</span>);
-        <span class="ident">std</span>::<span class="ident">process</span>::<span class="ident">exit</span>(<span class="number">1</span>);
-    }
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">CmdArgs</span>::<span class="ident">new</span>();
     <span class="comment">// Skip the most expensive step of --map, building contraction hierarchies. The simulation</span>
