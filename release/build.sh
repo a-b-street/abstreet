@@ -43,7 +43,7 @@ for name in fifteen_min osm_viewer parking_mapper santa; do
 done
 
 mkdir $output/tools
-for name in importer one_step_import geojson_to_osmosis pick_geofabrik clip_osm; do
+for name in importer one_step_import geojson_to_osmosis pick_geofabrik clip_osm import_grid2demand; do
 	cp target/release/${name}${suffix} $output/tools;
 done
 

@@ -9,7 +9,7 @@ use widgetry::{
 };
 
 use crate::load::MapLoader;
-use crate::tools::{open_browser, PopupMsg};
+use crate::tools::{find_exe_dir, open_browser, PopupMsg};
 use crate::AppLike;
 
 pub struct ImportCity<A: AppLike> {
@@ -98,25 +98,15 @@ impl<A: AppLike + 'static> State<A> for ImportCity<A> {
                     Transition::Keep
                 }
                 "Import the area from your clipboard" => {
-                    let bin_dir = vec![
-                        "./target/release",
-                        "../target/release",
-                        "../../target/release",
-                        "./tools",
-                        "../tools",
-                    ]
-                    .into_iter()
-                    .find(|x| std::path::Path::new(x).exists())
-                    .unwrap_or("./target/release");
                     let mut args = vec![
-                        format!("{}/one_step_import", bin_dir),
+                        format!("{}/one_step_import", find_exe_dir()),
                         "boundary.geojson".to_string(),
                     ];
                     if self.panel.is_checked("left handed driving") {
                         args.push("--drive_on_left".to_string());
                     }
                     match grab_geojson_from_clipboard() {
-                        Ok(()) => Transition::Push(crate::tools::command::RunCommand::new(
+                        Ok(()) => Transition::Push(crate::tools::RunCommand::new(
                             ctx,
                             app,
                             args,

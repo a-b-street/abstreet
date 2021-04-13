@@ -17,6 +17,8 @@ pub use self::url::URLManager;
 use crate::AppLike;
 
 #[cfg(not(target_arch = "wasm32"))]
+pub use self::command::RunCommand;
+#[cfg(not(target_arch = "wasm32"))]
 pub use self::updater::prompt_to_download_missing_data;
 
 mod camera;
@@ -209,4 +211,18 @@ pub fn nice_country_name(code: &str) -> &str {
 
 pub fn open_browser<I: AsRef<str>>(url: I) {
     let _ = webbrowser::open(url.as_ref());
+}
+
+/// Native-only: Locate the directory with other executables.
+pub fn find_exe_dir() -> &'static str {
+    vec![
+        "./target/release",
+        "../target/release",
+        "../../target/release",
+        "./tools",
+        "../tools",
+    ]
+    .into_iter()
+    .find(|x| std::path::Path::new(x).exists())
+    .unwrap_or("./target/release")
 }

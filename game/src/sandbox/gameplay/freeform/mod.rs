@@ -1,3 +1,5 @@
+#[cfg(not(target_arch = "wasm32"))]
+mod grid2demand;
 mod spawner;
 
 use rand::seq::SliceRandom;
@@ -229,6 +231,12 @@ impl ChangeScenario {
             "You can manually spawn traffic around a single intersection or by using the tool in \
              the top panel to start individual trips.",
         ));
+        if cfg!(not(target_arch = "wasm32")) {
+            choices.push((
+                "import grid2demand".to_string(),
+                "import Grid2Demand data".to_string(),
+                "Select an input_agents.csv file from https://github.com/asu-trans-ai-lab/grid2demand"));
+        }
 
         let mut col = vec![
             Widget::row(vec![
@@ -271,7 +279,7 @@ impl ChangeScenario {
 }
 
 impl SimpleState<App> for ChangeScenario {
-    fn on_click(&mut self, _: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
+    fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
         if x == "close" {
             Transition::Pop
         } else if x == "Learn how to import your own data." {
@@ -279,6 +287,17 @@ impl SimpleState<App> for ChangeScenario {
                 "https://a-b-street.github.io/docs/trafficsim/travel_demand.html#custom-import",
             );
             Transition::Keep
+        } else if x == "import grid2demand" {
+            #[cfg(not(target_arch = "wasm32"))]
+            {
+                grid2demand::import(ctx, app)
+            }
+            #[cfg(target_arch = "wasm32")]
+            {
+                // Silence compiler warnings
+                let _ = ctx;
+                unreachable!()
+            }
         } else {
             Transition::Multi(vec![
                 Transition::Pop,
