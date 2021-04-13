@@ -32,7 +32,7 @@ pub struct DrawMap {
     pub boundary_polygon: Drawable,
     pub draw_all_unzoomed_roads_and_intersections: Drawable,
     pub draw_all_buildings: Drawable,
-    pub draw_all_building_paths: Drawable,
+    pub draw_all_building_driveways: Drawable,
     pub draw_all_building_outlines: Drawable,
     pub draw_all_unzoomed_parking_lots: Drawable,
     pub draw_all_areas: Drawable,
@@ -84,7 +84,7 @@ impl DrawMap {
         let mut buildings: Vec<DrawBuilding> = Vec::new();
         let mut all_buildings = GeomBatch::new();
         let mut all_building_outlines = GeomBatch::new();
-        let mut all_building_paths = GeomBatch::new();
+        let mut all_building_driveways = GeomBatch::new();
         timer.start_iter("make DrawBuildings", map.all_buildings().len());
         for b in map.all_buildings() {
             timer.next();
@@ -97,11 +97,11 @@ impl DrawMap {
                 &mut all_buildings,
                 &mut all_building_outlines,
             ));
-            DrawBuilding::draw_path(b, map, cs, opts, &mut all_building_paths);
+            DrawBuilding::draw_driveway(b, map, cs, opts, &mut all_building_driveways);
         }
         timer.start("upload all buildings");
         let draw_all_buildings = all_buildings.upload(ctx);
-        let draw_all_building_paths = all_building_paths.upload(ctx);
+        let draw_all_building_driveways = all_building_driveways.upload(ctx);
         let draw_all_building_outlines = all_building_outlines.upload(ctx);
         timer.stop("upload all buildings");
 
@@ -192,7 +192,7 @@ impl DrawMap {
             boundary_polygon,
             draw_all_unzoomed_roads_and_intersections,
             draw_all_buildings,
-            draw_all_building_paths,
+            draw_all_building_driveways,
             draw_all_building_outlines,
             draw_all_unzoomed_parking_lots,
             draw_all_areas,
@@ -432,7 +432,7 @@ impl DrawMap {
 
         let mut bldgs_batch = GeomBatch::new();
         let mut outlines_batch = GeomBatch::new();
-        let mut paths_batch = GeomBatch::new();
+        let mut driveways_batch = GeomBatch::new();
         for b in map.all_buildings() {
             DrawBuilding::new(
                 ctx,
@@ -443,9 +443,9 @@ impl DrawMap {
                 &mut bldgs_batch,
                 &mut outlines_batch,
             );
-            DrawBuilding::draw_path(b, map, cs, app.opts(), &mut paths_batch);
+            DrawBuilding::draw_driveway(b, map, cs, app.opts(), &mut driveways_batch);
         }
-        batch.append(paths_batch);
+        batch.append(driveways_batch);
         batch.append(bldgs_batch);
         batch.append(outlines_batch);
 
@@ -497,7 +497,7 @@ impl DrawMap {
         self.roads[road.id.0] = draw;
     }
 
-    pub fn recreate_building_paths(
+    pub fn recreate_building_driveways(
         &mut self,
         ctx: &mut EventCtx,
         map: &Map,
@@ -506,8 +506,8 @@ impl DrawMap {
     ) {
         let mut batch = GeomBatch::new();
         for b in map.all_buildings() {
-            DrawBuilding::draw_path(b, map, cs, opts, &mut batch);
+            DrawBuilding::draw_driveway(b, map, cs, opts, &mut batch);
         }
-        self.draw_all_building_paths = ctx.upload(batch);
+        self.draw_all_building_driveways = ctx.upload(batch);
     }
 }

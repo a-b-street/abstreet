@@ -312,7 +312,7 @@ impl<A: AppLike> State<A> for OptionsPanel {
                         ctx.loading_screen("rerendering buildings", |ctx, timer| {
                             let mut all_buildings = GeomBatch::new();
                             let mut all_building_outlines = GeomBatch::new();
-                            let mut all_building_paths = GeomBatch::new();
+                            let mut all_building_driveways = GeomBatch::new();
                             timer
                                 .start_iter("rendering buildings", app.map().all_buildings().len());
                             for b in app.map().all_buildings() {
@@ -326,18 +326,18 @@ impl<A: AppLike> State<A> for OptionsPanel {
                                     &mut all_buildings,
                                     &mut all_building_outlines,
                                 );
-                                DrawBuilding::draw_path(
+                                DrawBuilding::draw_driveway(
                                     b,
                                     app.map(),
                                     app.cs(),
                                     app.opts(),
-                                    &mut all_building_paths,
+                                    &mut all_building_driveways,
                                 );
                             }
                             timer.start("upload geometry");
                             app.mut_draw_map().draw_all_buildings = all_buildings.upload(ctx);
-                            app.mut_draw_map().draw_all_building_paths =
-                                all_building_paths.upload(ctx);
+                            app.mut_draw_map().draw_all_building_driveways =
+                                all_building_driveways.upload(ctx);
                             app.mut_draw_map().draw_all_building_outlines =
                                 all_building_outlines.upload(ctx);
                             timer.stop("upload geometry");
