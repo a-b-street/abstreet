@@ -16,6 +16,10 @@ pub fn add_data(map: &mut RawMap) -> Result<()> {
     std::fs::create_dir_all(abstio::path_shared_input("elevation"))?;
     let pwd = std::env::current_dir()?.display().to_string();
     // Because elevation_lookups has so many dependencies, just depend on Docker.
+    // TODO This is only going to run on Linux, unless we can also build images for other OSes.
+    // TODO On Linux, data/input/shared/elevation files wind up being owned by root, due to how
+    // docker runs. For the moment, one workaround is to manually fix the owner afterwards:
+    // find data/ -user root -exec sudo chown $USER:$USER '{}' \;
     let status = Command::new("docker")
         .arg("run")
         // Bind the input directory to the temporary place we just created
