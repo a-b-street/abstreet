@@ -160,6 +160,10 @@
 <span id="157">157</span>
 <span id="158">158</span>
 <span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::{<span class="ident">BufRead</span>, <span class="ident">BufReader</span>, <span class="ident">BufWriter</span>, <span class="ident">Write</span>};
@@ -179,6 +183,10 @@
     <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">create_dir_all</span>(<span class="ident">abstio</span>::<span class="ident">path_shared_input</span>(<span class="string">&quot;elevation&quot;</span>))<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">pwd</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">env</span>::<span class="ident">current_dir</span>()<span class="question-mark">?</span>.<span class="ident">display</span>().<span class="ident">to_string</span>();
     <span class="comment">// Because elevation_lookups has so many dependencies, just depend on Docker.</span>
+    <span class="comment">// TODO This is only going to run on Linux, unless we can also build images for other OSes.</span>
+    <span class="comment">// TODO On Linux, data/input/shared/elevation files wind up being owned by root, due to how</span>
+    <span class="comment">// docker runs. For the moment, one workaround is to manually fix the owner afterwards:</span>
+    <span class="comment">// find data/ -user root -exec sudo chown $USER:$USER &#39;{}&#39; \;</span>
     <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="ident">Command</span>::<span class="ident">new</span>(<span class="string">&quot;docker&quot;</span>)
         .<span class="ident">arg</span>(<span class="string">&quot;run&quot;</span>)
         <span class="comment">// Bind the input directory to the temporary place we just created</span>
