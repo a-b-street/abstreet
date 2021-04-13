@@ -205,10 +205,10 @@ impl Text {
         txt
     }
 
-    pub fn from_multiline(lines: Vec<TextSpan>) -> Text {
+    pub fn from_multiline(lines: Vec<impl Into<TextSpan>>) -> Text {
         let mut txt = Text::new();
         for l in lines {
-            txt.add_line(l);
+            txt.add_line(l.into());
         }
         txt
     }

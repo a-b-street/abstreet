@@ -459,7 +459,9 @@ enum Task {
 }
 
 impl Task {
-    fn top_txt(self, state: &TutorialState) -> Text {
+    fn top_txt(self, ctx: &EventCtx, state: &TutorialState) -> Text {
+        let hotkey_color = ctx.style().text_hotkey_color;
+
         let simple = match self {
             Task::Nil => unreachable!(),
             Task::Camera => "Put out the fire at the fire station",
@@ -472,7 +474,7 @@ impl Task {
                     ("intersection on the map border", state.inspected_border),
                 ] {
                     if done {
-                        txt.add_line(Line(format!("[X] {}", name)).fg(Color::GREEN));
+                        txt.add_line(Line(format!("[X] {}", name)).fg(hotkey_color));
                     } else {
                         txt.add_line(format!("[ ] {}", name));
                     }
@@ -482,30 +484,29 @@ impl Task {
             Task::TimeControls => "Wait until after 5pm",
             Task::PauseResume => {
                 let mut txt = Text::from("[ ] Pause/resume ");
-                txt.append(Line(format!("{} times", 3 - state.num_pauses)).fg(Color::GREEN));
+                txt.append(Line(format!("{} times", 3 - state.num_pauses)).fg(hotkey_color));
                 return txt;
             }
             Task::Escort => {
                 // Inspect the target car, wait for them to park, draw WASH ME on the window
                 let mut txt = Text::new();
                 if state.following_car {
-                    txt.add_line(Line("[X] follow the target car").fg(Color::GREEN));
+                    txt.add_line(Line("[X] follow the target car").fg(hotkey_color));
                 } else {
                     txt.add_line("[ ] follow the target car");
                 }
                 if state.car_parked {
-                    txt.add_line(Line("[X] wait for them to park").fg(Color::GREEN));
+                    txt.add_line(Line("[X] wait for them to park").fg(hotkey_color));
                 } else {
                     txt.add_line("[ ] wait for them to park");
                 }
                 if state.prank_done {
                     txt.add_line(
-                        Line("[X] click car and press c to draw WASH ME").fg(Color::GREEN),
+                        Line("[X] click car and press c to draw WASH ME").fg(hotkey_color),
                     );
                 } else {
                     txt.add_line("[ ] click car and press ");
-                    // TODO ctx.style().hotkey_color
-                    txt.append(Line(Key::C.describe()).fg(Color::GREEN));
+                    txt.append(Line(Key::C.describe()).fg(hotkey_color));
                     txt.append(Line(" to draw WASH ME"));
                 }
                 return txt;
@@ -513,8 +514,7 @@ impl Task {
             Task::LowParking => {
                 let mut txt = Text::from("1) Find a road with almost no parking spots available");
                 txt.add_line("2) Click it and press ");
-                // TODO ctx.style().hotkey_color
-                txt.append(Line(Key::C.describe()).fg(Color::GREEN));
+                txt.append(Line(Key::C.describe()).fg(hotkey_color));
                 txt.append(Line(" to check the occupancy"));
                 return txt;
             }
@@ -548,7 +548,7 @@ impl Task {
 
 struct Stage {
     messages: Vec<(
-        Vec<String>,
+        Text,
         HorizontalAlignment,
         Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>>,
     )>,
@@ -573,28 +573,18 @@ impl Stage {
         }
     }
 
-    fn msg<I: Into<String>>(
-        mut self,
-        lines: Vec<I>,
-        point_to: Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>>,
-    ) -> Stage {
-        self.messages.push((
-            lines.into_iter().map(|l| l.into()).collect(),
-            HorizontalAlignment::Center,
-            point_to,
-        ));
+    fn msg(mut self, txt: Text, point_to: Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>>) -> Stage {
+        self.messages
+            .push((txt, HorizontalAlignment::Center, point_to));
         self
     }
-    fn left_aligned_msg<I: Into<String>>(
+    fn left_aligned_msg(
         mut self,
-        lines: Vec<I>,
+        txt: Text,
         point_to: Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>>,
     ) -> Stage {
-        self.messages.push((
-            lines.into_iter().map(|l| l.into()).collect(),
-            HorizontalAlignment::Left,
-            point_to,
-        ));
+        self.messages
+            .push((txt, HorizontalAlignment::Left, point_to));
         self
     }
 
@@ -698,7 +688,7 @@ impl TutorialState {
     fn lines(
         &self,
     ) -> Option<&(
-        Vec<String>,
+        Text,
         HorizontalAlignment,
         Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>>,
     )> {
@@ -770,7 +760,7 @@ impl TutorialState {
                         .centered_vert()
                         .align_right(),
                 ]));
-                col.push(task.top_txt(self).into_widget(ctx));
+                col.push(task.top_txt(ctx, self).into_widget(ctx));
             }
         }
         if edit_map {
@@ -816,10 +806,7 @@ impl TutorialState {
                     let mut txt = Text::new();
                     txt.add_line(Line(self.stage().task.label()).small_heading());
                     txt.add_line("");
-
-                    for l in lines {
-                        txt.add_line(l);
-                    }
+                    txt.extend(lines.clone());
                     txt.wrap_to_pct(ctx, 30).into_widget(ctx)
                 }];
                 let mut controls = vec![Widget::row(vec![
@@ -899,33 +886,33 @@ impl TutorialState {
                     None,
                 )
                 .msg(
-                    vec![
+                    Text::from_multiline(vec![
                         "Let's start by piloting your fancy new drone.",
                         "",
                         "- Click and drag to pan around the map",
                         "- Use your scroll wheel or touchpad to zoom in and out.",
-                    ],
+                    ]),
                     None,
                 )
                 .msg(
-                    vec!["If the controls feel wrong, try adjusting the settings."],
+                    Text::from("If the controls feel wrong, try adjusting the settings."),
                     arrow(tool_panel.center_of("settings")),
                 )
                 .msg(
-                    vec![
+                    Text::from_multiline(vec![
                         "Let's try the drone ou--",
                         "",
                         "WHOA, THERE'S A FIRE STATION ON FIRE!",
                         "GO CLICK ON IT, QUICK!",
-                    ],
+                    ]),
                     None,
                 )
                 .msg(
-                    vec![
+                    Text::from_multiline(vec![
                         "Hint:",
                         "- Look around for an unusually red building",
                         "- You have to zoom in to interact with anything on the map.",
-                    ],
+                    ]),
                     None,
                 ),
         );
@@ -933,19 +920,23 @@ impl TutorialState {
         state.stages.push(
             Stage::new(Task::InspectObjects)
                 .msg(
-                    vec![
+                    Text::from(
                         "What, no fire? Er, sorry about that. Just a little joke we like to play \
                          on the new recruits.",
-                    ],
+                    ),
                     None,
                 )
                 .msg(
-                    vec![
+                    Text::from_multiline(vec![
                         "Now, let's learn how to inspect and interact with objects in the map.",
                         "",
-                        "- Click on something.",
+                        "Find one of each:",
+                        "[ ] bike lane",
+                        "[ ] building",
+                        "[ ] intersection with stop sign",
+                        "[ ] intersection on the map border",
                         "- Hint: You have to zoom in before you can select anything.",
-                    ],
+                    ]),
                     None,
                 ),
         );
@@ -957,35 +948,51 @@ impl TutorialState {
                     Some(6.5),
                 )
                 .msg(
-                    vec![
+                    Text::from_multiline(vec![
                         "Inspection complete!",
                         "",
                         "You'll work day and night, watching traffic patterns unfold.",
-                    ],
+                    ]),
                     arrow(time.panel.center_of_panel()),
                 )
                 .msg(
-                    vec!["You can pause or resume time"],
+                    {
+                        let mut txt = Text::from(Line("You can pause or resume time"));
+                        txt.add_line("");
+                        txt.add_line("Hint: Press ");
+                        txt.append(Line(Key::Space.describe()).fg(ctx.style().text_hotkey_color));
+                        txt.append(Line(" to pause/resume"));
+                        txt
+                    },
                     arrow(time.panel.center_of("pause")),
                 )
                 .msg(
-                    vec![
-                        "Speed things up",
-                        "",
-                        "(The keyboard shortcuts are very helpful here!)",
-                    ],
+                    {
+                        let mut txt = Text::from(Line("Speed things uptime"));
+                        txt.add_line("");
+                        txt.add_line("Hint: Press ");
+                        txt.append(
+                            Line(Key::LeftArrow.describe()).fg(ctx.style().text_hotkey_color),
+                        );
+                        txt.append(Line(" to slow down, "));
+                        txt.append(
+                            Line(Key::RightArrow.describe()).fg(ctx.style().text_hotkey_color),
+                        );
+                        txt.append(Line(" to speed up"));
+                        txt
+                    },
                     arrow(time.panel.center_of("30x speed")),
                 )
                 .msg(
-                    vec!["Advance time by certain amounts"],
+                    Text::from("Advance time by certain amounts"),
                     arrow(time.panel.center_of("step forwards")),
                 )
                 .msg(
-                    vec!["And jump to the beginning of the day"],
+                    Text::from("And jump to the beginning of the day"),
                     arrow(time.panel.center_of("reset to midnight")),
                 )
                 .msg(
-                    vec!["Let's try these controls out. Wait until 5pm or later."],
+                    Text::from("Let's try these controls out. Wait until 5pm or later."),
                     None,
                 ),
         );
@@ -993,18 +1000,18 @@ impl TutorialState {
         state.stages.push(
             Stage::new(Task::PauseResume)
                 .msg(
-                    vec!["Whew, that took a while! (Hopefully not though...)"],
+                    Text::from("Whew, that took a while! (Hopefully not though...)"),
                     None,
                 )
                 .msg(
-                    vec![
+                    Text::from_multiline(vec![
                         "You might've figured it out already,",
                         "But you'll be pausing/resuming time VERY frequently",
-                    ],
+                    ]),
                     arrow(time.panel.center_of("pause")),
                 )
                 .msg(
-                    vec!["Just reassure me and pause/resume time a few times, alright?"],
+                    Text::from("Just reassure me and pause/resume time a few times, alright?"),
                     None,
                 ),
         );
@@ -1090,21 +1097,21 @@ impl TutorialState {
                     );
                 }))
                 .msg(
-                    vec!["Alright alright, no need to wear out your spacebar."],
+                    Text::from("Alright alright, no need to wear out your spacebar."),
                     None,
                 )
                 .msg(
-                    vec![
+                    Text::from_multiline(vec![
                         "Oh look, some people appeared!",
                         "We've got pedestrians, bikes, and cars moving around now.",
-                    ],
+                    ]),
                     None,
                 )
                 .left_aligned_msg(
-                    vec![
+                    Text::from_multiline(vec![
                         "Why don't you follow this car to their destination,",
                         "see where they park, and then play a little... prank?",
-                    ],
+                    ]),
                     Some(Box::new(|g, app| {
                         g.canvas
                             .map_to_screen(
@@ -1117,11 +1124,11 @@ impl TutorialState {
                     })),
                 )
                 .msg(
-                    vec![
+                    Text::from_multiline(vec![
                         "You don't have to manually chase them; just click to follow.",
                         "",
                         "(If you do lose track of them, just reset)",
-                    ],
+                    ]),
                     arrow(time.panel.center_of("reset to midnight")),
                 ),
         );
@@ -1144,31 +1151,31 @@ impl TutorialState {
                     border_spawn_over_time: Vec::new(),
                 })
                 .msg(
-                    vec![
+                    Text::from_multiline(vec![
                         "What an immature prank. You should re-evaluate your life decisions.",
                         "",
                         "The map is quite large, so to help you orient, the minimap shows you an \
                          overview of all activity. You can click and drag it just like the normal \
                          map.",
-                    ],
+                    ]),
                     arrow(minimap.get_panel().center_of("minimap")),
                 )
                 .msg(
-                    vec![
+                    Text::from_multiline(vec![
                         "You can apply different layers to the map, to find things like:",
                         "",
                         "- roads with high traffic",
                         "- bus stops",
                         "- how much parking is filled up",
-                    ],
+                    ]),
                     arrow(minimap.get_panel().center_of("change layers")),
                 )
                 .msg(
-                    vec![
+                    Text::from_multiline(vec![
                         "Let's try these out.",
                         "There are lots of cars parked everywhere. Can you find a road that's \
                          almost out of parking spots?",
-                    ],
+                    ]),
                     None,
                 ),
         );
@@ -1181,12 +1188,12 @@ impl TutorialState {
                 .warp_to(ID::Building(bike_lane_focus_pt), None)
                 .scenario(bike_lane_scenario.clone())
                 .msg(
-                    vec![
+                    Text::from_multiline(vec![
                         "Well done!",
                         "",
                         "Something's about to happen over here. Follow along and figure out what \
                          the problem is, at whatever speed you'd like.",
-                    ],
+                    ]),
                     None,
                 ),
         );
@@ -1197,29 +1204,29 @@ impl TutorialState {
                 .scenario(bike_lane_scenario)
                 .warp_to(ID::Building(bike_lane_focus_pt), None)
                 .msg(
-                    vec![
+                    Text::from_multiline(vec![
                         "Looks like lots of cars and bikes trying to go to a house by the \
                          playfield.",
                         "",
                         "When lots of cars and bikes share the same lane, cars are delayed \
                          (assuming there's no room to pass) and the cyclist probably feels unsafe \
                          too.",
-                    ],
+                    ]),
                     None,
                 )
                 .msg(
-                    vec![
+                    Text::from(
                         "Luckily, you have the power to modify lanes! What if you could transform \
                          the parking lanes that aren't being used much into bike lanes?",
-                    ],
+                    ),
                     None,
                 )
                 .msg(
-                    vec!["To edit lanes, click 'edit map' and then select a lane."],
+                    Text::from("To edit lanes, click 'edit map' and then select a lane."),
                     arrow(top_right.center_of("edit map")),
                 )
                 .msg(
-                    vec![
+                    Text::from_multiline(vec![
                         "When you finish making edits, time will jump to the beginning of the \
                          next day. You can't make most changes in the middle of the day.",
                         "",
@@ -1228,12 +1235,12 @@ impl TutorialState {
                          decision whether to drive, walk, bike, or take a bus, they'll do the \
                          same thing. For now, you're just trying to make things better, assuming \
                          people stick to their routine.",
-                    ],
+                    ]),
                     None,
                 )
                 .msg(
                     // TODO Deliberately vague with the measurement.
-                    vec![
+                    Text::from_multiline(vec![
                         format!(
                             "So adjust lanes and speed up the slowest trip by at least {}.",
                             CAR_BIKE_CONTENTION_GOAL
@@ -1242,13 +1249,13 @@ impl TutorialState {
                         "You can explore results as trips finish. When everyone's finished, \
                          you'll get your final score."
                             .to_string(),
-                    ],
+                    ]),
                     arrow(minimap.get_panel().center_of("more data")),
                 ),
         );
 
         state.stages.push(Stage::new(Task::Done).msg(
-            vec![
+            Text::from_multiline(vec![
                 "You're ready for the hard stuff now.",
                 "",
                 "- Try out some challenges",
@@ -1257,7 +1264,7 @@ impl TutorialState {
                 "- Check out community proposals, and submit your own",
                 "",
                 "Go have the appropriate amount of fun!",
-            ],
+            ]),
             None,
         ));
 
