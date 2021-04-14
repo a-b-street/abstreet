@@ -16,8 +16,8 @@ jobs:
 
       - name: Update apt
         run: sudo apt-get update
-      - name: Install ALSA
-        run: sudo apt-get install libasound2-dev
+      - name: Install dependencies
+        run: sudo apt-get install libasound2-dev libxcb-shape0-dev libxcb-xfixes0-dev libpango1.0-dev libgtk-3-dev
 
       - name: Generate rustdoc
         run: |
