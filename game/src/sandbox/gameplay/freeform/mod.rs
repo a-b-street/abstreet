@@ -290,7 +290,7 @@ impl SimpleState<App> for ChangeScenario {
         } else if x == "import grid2demand" {
             #[cfg(not(target_arch = "wasm32"))]
             {
-                grid2demand::import(ctx, app)
+                grid2demand::import(ctx)
             }
             #[cfg(target_arch = "wasm32")]
             {
