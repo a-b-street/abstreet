@@ -3,10 +3,13 @@ use std::marker::PhantomData;
 use geom::{Distance, Pt2D, Ring, Time};
 use widgetry::{
     ControlState, Drawable, EventCtx, Filler, GfxCtx, HorizontalAlignment, Line, Outcome, Panel,
-    ScreenPt, Spinner, Transition, VerticalAlignment, Widget,
+    ScreenDims, ScreenPt, Spinner, Transition, VerticalAlignment, Widget,
 };
 
 use crate::AppLike;
+
+static MINIMAP_WIDTH: f64 = 400.0;
+static MINIMAP_HEIGHT: f64 = 300.0;
 
 // TODO Some of the math in here might assume map bound minimums start at (0, 0).
 pub struct Minimap<A: AppLike, T: MinimapControls<A>> {
@@ -164,6 +167,9 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
             .margin_above(26)
         };
 
+        let minimap_widget =
+            Filler::fixed_dims(ScreenDims::new(MINIMAP_WIDTH, MINIMAP_HEIGHT)).named("minimap");
+
         let minimap_controls = {
             let buttons = ctx.style().btn_plain.btn().padding(4);
             Widget::col(vec![
@@ -178,7 +184,7 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
                         .image_path("system/assets/minimap/left.svg")
                         .build_widget(ctx, "pan left")
                         .centered_vert(),
-                    Filler::square_width(ctx, 0.15).named("minimap"),
+                    minimap_widget,
                     buttons
                         .clone()
                         .image_path("system/assets/minimap/right.svg")
@@ -298,10 +304,11 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
             // When the window is resized, just reset completely. This is important when the window
             // size at startup is incorrect and immediately corrected by the window manager after
             // Minimap::new happens.
-            let bounds = app.map().get_bounds();
-            // On Windows, apparently minimizing can cause some resize events with 0, 0 dimensions!
-            self.base_zoom =
-                (0.15 * ctx.canvas.window_width / bounds.width().min(bounds.height())).max(0.0001);
+            let map_bounds = app.map().get_bounds();
+            // scale minimap to cover area
+            self.base_zoom = (MINIMAP_WIDTH / map_bounds.width())
+                .max(MINIMAP_HEIGHT / map_bounds.height())
+                .max(0.001);
             self.zoom = self.base_zoom;
             if self.zoomed {
                 self.recenter(ctx, app);
