@@ -411,6 +411,24 @@
 <span id="408">408</span>
 <span id="409">409</span>
 <span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! See &lt;https://a-b-street.github.io/docs/map/importing/index.html&gt; for an overview. This module</span>
 <span class="doccomment">//! covers the RawMap-&gt;Map stage.</span>
@@ -419,8 +437,11 @@
 
 <span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Parallelism</span>, <span class="ident">Tags</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">GPSBounds</span>, <span class="ident">HashablePt2D</span>, <span class="ident">Speed</span>, <span class="ident">EPSILON_DIST</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{
+    <span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">GPSBounds</span>, <span class="ident">HashablePt2D</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Speed</span>, <span class="ident">EPSILON_DIST</span>,
+};
 
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">parking_lots</span>::<span class="ident">snap_driveway</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">Pathfinder</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -768,7 +789,7 @@
 
 <span class="doccomment">/// Snap points to an exact Position along the nearest lane. If the result doesn&#39;t contain a</span>
 <span class="doccomment">/// requested point, then there was no matching lane close enough.</span>
-<span class="kw">fn</span> <span class="ident">match_points_to_lanes</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Lane</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span><span class="op">&gt;</span>(
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">match_points_to_lanes</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Lane</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span><span class="op">&gt;</span>(
     <span class="ident">bounds</span>: <span class="kw-2">&amp;</span><span class="ident">Bounds</span>,
     <span class="ident">pts</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span><span class="op">&gt;</span>,
     <span class="ident">lanes</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">Lane</span><span class="op">&gt;</span>,
@@ -821,6 +842,21 @@
         .<span class="ident">into_iter</span>()
         .<span class="ident">flatten</span>()
         .<span class="ident">collect</span>()
+}
+
+<span class="doccomment">/// Adjust the path to start on the polygon&#39;s border, not center.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trim_path</span>(<span class="ident">poly</span>: <span class="kw-2">&amp;</span><span class="ident">Polygon</span>, <span class="ident">path</span>: <span class="ident">Line</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Line</span> {
+    <span class="kw">for</span> <span class="ident">line</span> <span class="kw">in</span> <span class="ident">poly</span>.<span class="ident">points</span>().<span class="ident">windows</span>(<span class="number">2</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l1</span>) <span class="op">=</span> <span class="ident">Line</span>::<span class="ident">new</span>(<span class="ident">line</span>[<span class="number">0</span>], <span class="ident">line</span>[<span class="number">1</span>]) {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">hit</span>) <span class="op">=</span> <span class="ident">l1</span>.<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l2</span>) <span class="op">=</span> <span class="ident">Line</span>::<span class="ident">new</span>(<span class="ident">hit</span>, <span class="ident">path</span>.<span class="ident">pt2</span>()) {
+                    <span class="kw">return</span> <span class="ident">l2</span>;
+                }
+            }
+        }
+    }
+    <span class="comment">// Just give up</span>
+    <span class="ident">path</span>
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model"></div>

@@ -433,8 +433,8 @@
     <span class="doccomment">/// Depending on options while importing, these might be empty, to save file space.</span>
     <span class="kw">pub</span> <span class="ident">osm_tags</span>: <span class="ident">Tags</span>,
 
-    <span class="doccomment">/// The building&#39;s connection for pedestrians is immutable. For cars and bikes, it can change</span>
-    <span class="doccomment">/// based on map edits, so don&#39;t cache it.</span>
+    <span class="doccomment">/// The building&#39;s connection for any agent can change based on map edits. Just store the one</span>
+    <span class="doccomment">/// for pedestrians and lazily calculate the others.</span>
     <span class="kw">pub</span> <span class="ident">sidewalk_pos</span>: <span class="ident">Position</span>,
     <span class="doccomment">/// Goes from building to sidewalk</span>
     <span class="kw">pub</span> <span class="ident">driveway_geom</span>: <span class="ident">PolyLine</span>,

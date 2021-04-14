@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["classify_bldg",""],["get_address",""],["make_all_buildings","Finalize importing of buildings, mostly by matching them to the nearest sidewalk."],["trim_path",""]]});
+initSidebarItems({"fn":[["classify_bldg",""],["get_address",""],["make_all_buildings","Finalize importing of buildings, mostly by matching them to the nearest sidewalk."]]});

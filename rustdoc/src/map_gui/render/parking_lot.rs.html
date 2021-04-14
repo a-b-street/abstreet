@@ -127,6 +127,10 @@
 <span id="124">124</span>
 <span id="125">125</span>
 <span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 
@@ -221,6 +225,10 @@
         }
 
         <span class="ident">batch</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_rendering</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">draw</span>.<span class="ident">borrow_mut</span>() <span class="op">=</span> <span class="prelude-val">None</span>;
     }
 }
 

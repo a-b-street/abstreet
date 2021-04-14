@@ -1063,7 +1063,7 @@
             }
             <span class="kw">if</span> <span class="ident">layers</span>.<span class="ident">show_buildings</span> {
                 <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw_map</span>.<span class="ident">draw_all_buildings</span>);
-                <span class="comment">// Not the building paths</span>
+                <span class="comment">// Not the building driveways</span>
             }
 
             <span class="comment">// Still show some shape selection when zoomed out.</span>
@@ -1115,8 +1115,8 @@
                 <span class="kw">match</span> <span class="ident">obj</span>.<span class="ident">get_id</span>() {
                     <span class="ident">ID</span>::<span class="ident">Building</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">if</span> <span class="op">!</span><span class="ident">drawn_all_buildings</span> {
-                            <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">show_building_paths</span> {
-                                <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw_map</span>.<span class="ident">draw_all_building_paths</span>);
+                            <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">show_building_driveways</span> {
+                                <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw_map</span>.<span class="ident">draw_all_building_driveways</span>);
                             }
                             <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw_map</span>.<span class="ident">draw_all_buildings</span>);
                             <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw_map</span>.<span class="ident">draw_all_building_outlines</span>);

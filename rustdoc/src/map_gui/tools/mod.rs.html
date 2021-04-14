@@ -213,6 +213,22 @@
 <span id="210">210</span>
 <span id="211">211</span>
 <span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Assorted tools and UI states that&#39;re useful for applications built to display maps.</span>
 
@@ -232,6 +248,8 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">url</span>::<span class="ident">URLManager</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">AppLike</span>;
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">command</span>::<span class="ident">RunCommand</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">updater</span>::<span class="ident">prompt_to_download_missing_data</span>;
 
@@ -425,6 +443,20 @@
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">open_browser</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">url</span>: <span class="ident">I</span>) {
     <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">webbrowser</span>::<span class="ident">open</span>(<span class="ident">url</span>.<span class="ident">as_ref</span>());
+}
+
+<span class="doccomment">/// Native-only: Locate the directory with other executables.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_exe_dir</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
+    <span class="macro">vec</span><span class="macro">!</span>[
+        <span class="string">&quot;./target/release&quot;</span>,
+        <span class="string">&quot;../target/release&quot;</span>,
+        <span class="string">&quot;../../target/release&quot;</span>,
+        <span class="string">&quot;./tools&quot;</span>,
+        <span class="string">&quot;../tools&quot;</span>,
+    ]
+    .<span class="ident">into_iter</span>()
+    .<span class="ident">find</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">std</span>::<span class="ident">path</span>::<span class="ident">Path</span>::<span class="ident">new</span>(<span class="ident">x</span>).<span class="ident">exists</span>())
+    .<span class="ident">unwrap_or</span>(<span class="string">&quot;./target/release&quot;</span>)
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui"></div>

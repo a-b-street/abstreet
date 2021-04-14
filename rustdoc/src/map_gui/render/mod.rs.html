@@ -200,8 +200,8 @@
     <span class="kw">pub</span> <span class="ident">suppress_traffic_signal_details</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
     <span class="doccomment">/// Label every building.</span>
     <span class="kw">pub</span> <span class="ident">label_buildings</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// Draw building paths.</span>
-    <span class="kw">pub</span> <span class="ident">show_building_paths</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Draw building driveways.</span>
+    <span class="kw">pub</span> <span class="ident">show_building_driveways</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">DrawOptions</span> {
@@ -210,7 +210,7 @@
         <span class="ident">DrawOptions</span> {
             <span class="ident">suppress_traffic_signal_details</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
             <span class="ident">label_buildings</span>: <span class="bool-val">false</span>,
-            <span class="ident">show_building_paths</span>: <span class="bool-val">true</span>,
+            <span class="ident">show_building_driveways</span>: <span class="bool-val">true</span>,
         }
     }
 }

@@ -500,6 +500,20 @@
 <span id="497">497</span>
 <span id="498">498</span>
 <span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -535,7 +549,7 @@
     <span class="kw">pub</span> <span class="ident">boundary_polygon</span>: <span class="ident">Drawable</span>,
     <span class="kw">pub</span> <span class="ident">draw_all_unzoomed_roads_and_intersections</span>: <span class="ident">Drawable</span>,
     <span class="kw">pub</span> <span class="ident">draw_all_buildings</span>: <span class="ident">Drawable</span>,
-    <span class="kw">pub</span> <span class="ident">draw_all_building_paths</span>: <span class="ident">Drawable</span>,
+    <span class="kw">pub</span> <span class="ident">draw_all_building_driveways</span>: <span class="ident">Drawable</span>,
     <span class="kw">pub</span> <span class="ident">draw_all_building_outlines</span>: <span class="ident">Drawable</span>,
     <span class="kw">pub</span> <span class="ident">draw_all_unzoomed_parking_lots</span>: <span class="ident">Drawable</span>,
     <span class="kw">pub</span> <span class="ident">draw_all_areas</span>: <span class="ident">Drawable</span>,
@@ -586,8 +600,8 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buildings</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawBuilding</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_buildings</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_building_paths</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_building_outlines</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_building_driveways</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
         <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;make DrawBuildings&quot;</span>, <span class="ident">map</span>.<span class="ident">all_buildings</span>().<span class="ident">len</span>());
         <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
             <span class="ident">timer</span>.<span class="ident">next</span>();
@@ -598,13 +612,13 @@
                 <span class="ident">cs</span>,
                 <span class="ident">opts</span>,
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">all_buildings</span>,
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">all_building_paths</span>,
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">all_building_outlines</span>,
             ));
+            <span class="ident">DrawBuilding</span>::<span class="ident">draw_driveway</span>(<span class="ident">b</span>, <span class="ident">map</span>, <span class="ident">cs</span>, <span class="ident">opts</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">all_building_driveways</span>);
         }
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;upload all buildings&quot;</span>);
         <span class="kw">let</span> <span class="ident">draw_all_buildings</span> <span class="op">=</span> <span class="ident">all_buildings</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>);
-        <span class="kw">let</span> <span class="ident">draw_all_building_paths</span> <span class="op">=</span> <span class="ident">all_building_paths</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>);
+        <span class="kw">let</span> <span class="ident">draw_all_building_driveways</span> <span class="op">=</span> <span class="ident">all_building_driveways</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>);
         <span class="kw">let</span> <span class="ident">draw_all_building_outlines</span> <span class="op">=</span> <span class="ident">all_building_outlines</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>);
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;upload all buildings&quot;</span>);
 
@@ -695,7 +709,7 @@
             <span class="ident">boundary_polygon</span>,
             <span class="ident">draw_all_unzoomed_roads_and_intersections</span>,
             <span class="ident">draw_all_buildings</span>,
-            <span class="ident">draw_all_building_paths</span>,
+            <span class="ident">draw_all_building_driveways</span>,
             <span class="ident">draw_all_building_outlines</span>,
             <span class="ident">draw_all_unzoomed_parking_lots</span>,
             <span class="ident">draw_all_areas</span>,
@@ -934,8 +948,8 @@
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bldgs_batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">paths_batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">outlines_batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">driveways_batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
             <span class="ident">DrawBuilding</span>::<span class="ident">new</span>(
                 <span class="ident">ctx</span>,
@@ -944,11 +958,11 @@
                 <span class="ident">cs</span>,
                 <span class="ident">app</span>.<span class="ident">opts</span>(),
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bldgs_batch</span>,
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">paths_batch</span>,
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">outlines_batch</span>,
             );
+            <span class="ident">DrawBuilding</span>::<span class="ident">draw_driveway</span>(<span class="ident">b</span>, <span class="ident">map</span>, <span class="ident">cs</span>, <span class="ident">app</span>.<span class="ident">opts</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">driveways_batch</span>);
         }
-        <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">paths_batch</span>);
+        <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">driveways_batch</span>);
         <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">bldgs_batch</span>);
         <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">outlines_batch</span>);
 
@@ -998,6 +1012,20 @@
             .<span class="ident">insert_with_box</span>(<span class="ident">draw</span>.<span class="ident">get_id</span>(), <span class="ident">draw</span>.<span class="ident">get_outline</span>(<span class="ident">map</span>).<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
         <span class="self">self</span>.<span class="ident">quadtree_ids</span>.<span class="ident">insert</span>(<span class="ident">draw</span>.<span class="ident">get_id</span>(), <span class="ident">item_id</span>);
         <span class="self">self</span>.<span class="ident">roads</span>[<span class="ident">road</span>.<span class="ident">id</span>.<span class="number">0</span>] <span class="op">=</span> <span class="ident">draw</span>;
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">recreate_building_driveways</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
+        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+        <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>,
+        <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">Options</span>,
+    ) {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
+            <span class="ident">DrawBuilding</span>::<span class="ident">draw_driveway</span>(<span class="ident">b</span>, <span class="ident">map</span>, <span class="ident">cs</span>, <span class="ident">opts</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>);
+        }
+        <span class="self">self</span>.<span class="ident">draw_all_building_driveways</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
     }
 }
 </pre></div>

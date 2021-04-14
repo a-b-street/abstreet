@@ -1415,6 +1415,9 @@
 <span id="1412">1412</span>
 <span id="1413">1413</span>
 <span id="1414">1414</span>
+<span id="1415">1415</span>
+<span id="1416">1416</span>
+<span id="1417">1417</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -1422,7 +1425,7 @@
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">load</span>::<span class="ident">MapLoader</span>;
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">grey_out_map</span>, <span class="ident">Minimap</span>, <span class="ident">PopupMsg</span>};
+<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">Minimap</span>, <span class="ident">PopupMsg</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">raw</span>::<span class="ident">OriginalRoad</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">BuildingID</span>, <span class="ident">Map</span>, <span class="ident">Position</span>};
@@ -1796,10 +1799,6 @@
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="kw">let</span> <span class="ident">tut</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">tutorial</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>();
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">msg_panel</span>.<span class="ident">is_some</span>() {
-            <span class="ident">grey_out_map</span>(<span class="ident">g</span>, <span class="ident">app</span>);
-        }
-
         <span class="self">self</span>.<span class="ident">top_right</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">msg</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">msg_panel</span> {
@@ -1877,7 +1876,9 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Task</span> {
-    <span class="kw">fn</span> <span class="ident">top_txt</span>(<span class="self">self</span>, <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="ident">TutorialState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Text</span> {
+    <span class="kw">fn</span> <span class="ident">top_txt</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="ident">TutorialState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Text</span> {
+        <span class="kw">let</span> <span class="ident">hotkey_color</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>;
+
         <span class="kw">let</span> <span class="ident">simple</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">Task</span>::<span class="ident">Nil</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             <span class="ident">Task</span>::<span class="ident">Camera</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Put out the fire at the fire station&quot;</span>,
@@ -1890,7 +1891,7 @@
                     (<span class="string">&quot;intersection on the map border&quot;</span>, <span class="ident">state</span>.<span class="ident">inspected_border</span>),
                 ] {
                     <span class="kw">if</span> <span class="ident">done</span> {
-                        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;[X] {}&quot;</span>, <span class="ident">name</span>)).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">GREEN</span>));
+                        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;[X] {}&quot;</span>, <span class="ident">name</span>)).<span class="ident">fg</span>(<span class="ident">hotkey_color</span>));
                     } <span class="kw">else</span> {
                         <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;[ ] {}&quot;</span>, <span class="ident">name</span>));
                     }
@@ -1900,30 +1901,29 @@
             <span class="ident">Task</span>::<span class="ident">TimeControls</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Wait until after 5pm&quot;</span>,
             <span class="ident">Task</span>::<span class="ident">PauseResume</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;[ ] Pause/resume &quot;</span>);
-                <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} times&quot;</span>, <span class="number">3</span> <span class="op">-</span> <span class="ident">state</span>.<span class="ident">num_pauses</span>)).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">GREEN</span>));
+                <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} times&quot;</span>, <span class="number">3</span> <span class="op">-</span> <span class="ident">state</span>.<span class="ident">num_pauses</span>)).<span class="ident">fg</span>(<span class="ident">hotkey_color</span>));
                 <span class="kw">return</span> <span class="ident">txt</span>;
             }
             <span class="ident">Task</span>::<span class="ident">Escort</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// Inspect the target car, wait for them to park, draw WASH ME on the window</span>
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
                 <span class="kw">if</span> <span class="ident">state</span>.<span class="ident">following_car</span> {
-                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;[X] follow the target car&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">GREEN</span>));
+                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;[X] follow the target car&quot;</span>).<span class="ident">fg</span>(<span class="ident">hotkey_color</span>));
                 } <span class="kw">else</span> {
                     <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;[ ] follow the target car&quot;</span>);
                 }
                 <span class="kw">if</span> <span class="ident">state</span>.<span class="ident">car_parked</span> {
-                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;[X] wait for them to park&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">GREEN</span>));
+                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;[X] wait for them to park&quot;</span>).<span class="ident">fg</span>(<span class="ident">hotkey_color</span>));
                 } <span class="kw">else</span> {
                     <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;[ ] wait for them to park&quot;</span>);
                 }
                 <span class="kw">if</span> <span class="ident">state</span>.<span class="ident">prank_done</span> {
                     <span class="ident">txt</span>.<span class="ident">add_line</span>(
-                        <span class="ident">Line</span>(<span class="string">&quot;[X] click car and press c to draw WASH ME&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">GREEN</span>),
+                        <span class="ident">Line</span>(<span class="string">&quot;[X] click car and press c to draw WASH ME&quot;</span>).<span class="ident">fg</span>(<span class="ident">hotkey_color</span>),
                     );
                 } <span class="kw">else</span> {
                     <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;[ ] click car and press &quot;</span>);
-                    <span class="comment">// TODO ctx.style().hotkey_color</span>
-                    <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">Key</span>::<span class="ident">C</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">GREEN</span>));
+                    <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">Key</span>::<span class="ident">C</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">hotkey_color</span>));
                     <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot; to draw WASH ME&quot;</span>));
                 }
                 <span class="kw">return</span> <span class="ident">txt</span>;
@@ -1931,8 +1931,7 @@
             <span class="ident">Task</span>::<span class="ident">LowParking</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;1) Find a road with almost no parking spots available&quot;</span>);
                 <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;2) Click it and press &quot;</span>);
-                <span class="comment">// TODO ctx.style().hotkey_color</span>
-                <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">Key</span>::<span class="ident">C</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">GREEN</span>));
+                <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">Key</span>::<span class="ident">C</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">hotkey_color</span>));
                 <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot; to check the occupancy&quot;</span>));
                 <span class="kw">return</span> <span class="ident">txt</span>;
             }
@@ -1966,7 +1965,7 @@
 
 <span class="kw">struct</span> <span class="ident">Stage</span> {
     <span class="ident">messages</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(
-        <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+        <span class="ident">Text</span>,
         <span class="ident">HorizontalAlignment</span>,
         <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">GfxCtx</span>, <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     )<span class="op">&gt;</span>,
@@ -1991,28 +1990,18 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">msg</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>,
-        <span class="ident">point_to</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">GfxCtx</span>, <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Stage</span> {
-        <span class="self">self</span>.<span class="ident">messages</span>.<span class="ident">push</span>((
-            <span class="ident">lines</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">into</span>()).<span class="ident">collect</span>(),
-            <span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>,
-            <span class="ident">point_to</span>,
-        ));
+    <span class="kw">fn</span> <span class="ident">msg</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">txt</span>: <span class="ident">Text</span>, <span class="ident">point_to</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">GfxCtx</span>, <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Stage</span> {
+        <span class="self">self</span>.<span class="ident">messages</span>
+            .<span class="ident">push</span>((<span class="ident">txt</span>, <span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">point_to</span>));
         <span class="self">self</span>
     }
-    <span class="kw">fn</span> <span class="ident">left_aligned_msg</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+    <span class="kw">fn</span> <span class="ident">left_aligned_msg</span>(
         <span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>,
+        <span class="ident">txt</span>: <span class="ident">Text</span>,
         <span class="ident">point_to</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">GfxCtx</span>, <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Stage</span> {
-        <span class="self">self</span>.<span class="ident">messages</span>.<span class="ident">push</span>((
-            <span class="ident">lines</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">into</span>()).<span class="ident">collect</span>(),
-            <span class="ident">HorizontalAlignment</span>::<span class="ident">Left</span>,
-            <span class="ident">point_to</span>,
-        ));
+        <span class="self">self</span>.<span class="ident">messages</span>
+            .<span class="ident">push</span>((<span class="ident">txt</span>, <span class="ident">HorizontalAlignment</span>::<span class="ident">Left</span>, <span class="ident">point_to</span>));
         <span class="self">self</span>
     }
 
@@ -2116,7 +2105,7 @@
     <span class="kw">fn</span> <span class="ident">lines</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(
-        <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+        <span class="ident">Text</span>,
         <span class="ident">HorizontalAlignment</span>,
         <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">GfxCtx</span>, <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     )<span class="op">&gt;</span> {
@@ -2188,7 +2177,7 @@
                         .<span class="ident">centered_vert</span>()
                         .<span class="ident">align_right</span>(),
                 ]));
-                <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">task</span>.<span class="ident">top_txt</span>(<span class="self">self</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
+                <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">task</span>.<span class="ident">top_txt</span>(<span class="ident">ctx</span>, <span class="self">self</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
             }
         }
         <span class="kw">if</span> <span class="ident">edit_map</span> {
@@ -2234,10 +2223,7 @@
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
                     <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="self">self</span>.<span class="ident">stage</span>().<span class="ident">task</span>.<span class="ident">label</span>()).<span class="ident">small_heading</span>());
                     <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;&quot;</span>);
-
-                    <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">lines</span> {
-                        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">l</span>);
-                    }
+                    <span class="ident">txt</span>.<span class="ident">extend</span>(<span class="ident">lines</span>.<span class="ident">clone</span>());
                     <span class="ident">txt</span>.<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">30</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                 }];
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">controls</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -2317,33 +2303,33 @@
                     <span class="prelude-val">None</span>,
                 )
                 .<span class="ident">msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="string">&quot;Let&#39;s start by piloting your fancy new drone.&quot;</span>,
                         <span class="string">&quot;&quot;</span>,
                         <span class="string">&quot;- Click and drag to pan around the map&quot;</span>,
                         <span class="string">&quot;- Use your scroll wheel or touchpad to zoom in and out.&quot;</span>,
-                    ],
+                    ]),
                     <span class="prelude-val">None</span>,
                 )
                 .<span class="ident">msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;If the controls feel wrong, try adjusting the settings.&quot;</span>],
+                    <span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;If the controls feel wrong, try adjusting the settings.&quot;</span>),
                     <span class="ident">arrow</span>(<span class="ident">tool_panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;settings&quot;</span>)),
                 )
                 .<span class="ident">msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="string">&quot;Let&#39;s try the drone ou--&quot;</span>,
                         <span class="string">&quot;&quot;</span>,
                         <span class="string">&quot;WHOA, THERE&#39;S A FIRE STATION ON FIRE!&quot;</span>,
                         <span class="string">&quot;GO CLICK ON IT, QUICK!&quot;</span>,
-                    ],
+                    ]),
                     <span class="prelude-val">None</span>,
                 )
                 .<span class="ident">msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="string">&quot;Hint:&quot;</span>,
                         <span class="string">&quot;- Look around for an unusually red building&quot;</span>,
                         <span class="string">&quot;- You have to zoom in to interact with anything on the map.&quot;</span>,
-                    ],
+                    ]),
                     <span class="prelude-val">None</span>,
                 ),
         );
@@ -2351,19 +2337,23 @@
         <span class="ident">state</span>.<span class="ident">stages</span>.<span class="ident">push</span>(
             <span class="ident">Stage</span>::<span class="ident">new</span>(<span class="ident">Task</span>::<span class="ident">InspectObjects</span>)
                 .<span class="ident">msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Text</span>::<span class="ident">from</span>(
                         <span class="string">&quot;What, no fire? Er, sorry about that. Just a little joke we like to play \
                          on the new recruits.&quot;</span>,
-                    ],
+                    ),
                     <span class="prelude-val">None</span>,
                 )
                 .<span class="ident">msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="string">&quot;Now, let&#39;s learn how to inspect and interact with objects in the map.&quot;</span>,
                         <span class="string">&quot;&quot;</span>,
-                        <span class="string">&quot;- Click on something.&quot;</span>,
+                        <span class="string">&quot;Find one of each:&quot;</span>,
+                        <span class="string">&quot;[ ] bike lane&quot;</span>,
+                        <span class="string">&quot;[ ] building&quot;</span>,
+                        <span class="string">&quot;[ ] intersection with stop sign&quot;</span>,
+                        <span class="string">&quot;[ ] intersection on the map border&quot;</span>,
                         <span class="string">&quot;- Hint: You have to zoom in before you can select anything.&quot;</span>,
-                    ],
+                    ]),
                     <span class="prelude-val">None</span>,
                 ),
         );
@@ -2375,35 +2365,51 @@
                     <span class="prelude-val">Some</span>(<span class="number">6.5</span>),
                 )
                 .<span class="ident">msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="string">&quot;Inspection complete!&quot;</span>,
                         <span class="string">&quot;&quot;</span>,
                         <span class="string">&quot;You&#39;ll work day and night, watching traffic patterns unfold.&quot;</span>,
-                    ],
+                    ]),
                     <span class="ident">arrow</span>(<span class="ident">time</span>.<span class="ident">panel</span>.<span class="ident">center_of_panel</span>()),
                 )
                 .<span class="ident">msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;You can pause or resume time&quot;</span>],
+                    {
+                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;You can pause or resume time&quot;</span>));
+                        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;&quot;</span>);
+                        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;Hint: Press &quot;</span>);
+                        <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">Key</span>::<span class="ident">Space</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>));
+                        <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot; to pause/resume&quot;</span>));
+                        <span class="ident">txt</span>
+                    },
                     <span class="ident">arrow</span>(<span class="ident">time</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;pause&quot;</span>)),
                 )
                 .<span class="ident">msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="string">&quot;Speed things up&quot;</span>,
-                        <span class="string">&quot;&quot;</span>,
-                        <span class="string">&quot;(The keyboard shortcuts are very helpful here!)&quot;</span>,
-                    ],
+                    {
+                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Speed things uptime&quot;</span>));
+                        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;&quot;</span>);
+                        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;Hint: Press &quot;</span>);
+                        <span class="ident">txt</span>.<span class="ident">append</span>(
+                            <span class="ident">Line</span>(<span class="ident">Key</span>::<span class="ident">LeftArrow</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
+                        );
+                        <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot; to slow down, &quot;</span>));
+                        <span class="ident">txt</span>.<span class="ident">append</span>(
+                            <span class="ident">Line</span>(<span class="ident">Key</span>::<span class="ident">RightArrow</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
+                        );
+                        <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot; to speed up&quot;</span>));
+                        <span class="ident">txt</span>
+                    },
                     <span class="ident">arrow</span>(<span class="ident">time</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;30x speed&quot;</span>)),
                 )
                 .<span class="ident">msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;Advance time by certain amounts&quot;</span>],
+                    <span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;Advance time by certain amounts&quot;</span>),
                     <span class="ident">arrow</span>(<span class="ident">time</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;step forwards&quot;</span>)),
                 )
                 .<span class="ident">msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;And jump to the beginning of the day&quot;</span>],
+                    <span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;And jump to the beginning of the day&quot;</span>),
                     <span class="ident">arrow</span>(<span class="ident">time</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;reset to midnight&quot;</span>)),
                 )
                 .<span class="ident">msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;Let&#39;s try these controls out. Wait until 5pm or later.&quot;</span>],
+                    <span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;Let&#39;s try these controls out. Wait until 5pm or later.&quot;</span>),
                     <span class="prelude-val">None</span>,
                 ),
         );
@@ -2411,18 +2417,18 @@
         <span class="ident">state</span>.<span class="ident">stages</span>.<span class="ident">push</span>(
             <span class="ident">Stage</span>::<span class="ident">new</span>(<span class="ident">Task</span>::<span class="ident">PauseResume</span>)
                 .<span class="ident">msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;Whew, that took a while! (Hopefully not though...)&quot;</span>],
+                    <span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;Whew, that took a while! (Hopefully not though...)&quot;</span>),
                     <span class="prelude-val">None</span>,
                 )
                 .<span class="ident">msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="string">&quot;You might&#39;ve figured it out already,&quot;</span>,
                         <span class="string">&quot;But you&#39;ll be pausing/resuming time VERY frequently&quot;</span>,
-                    ],
+                    ]),
                     <span class="ident">arrow</span>(<span class="ident">time</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;pause&quot;</span>)),
                 )
                 .<span class="ident">msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;Just reassure me and pause/resume time a few times, alright?&quot;</span>],
+                    <span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;Just reassure me and pause/resume time a few times, alright?&quot;</span>),
                     <span class="prelude-val">None</span>,
                 ),
         );
@@ -2508,21 +2514,21 @@
                     );
                 }))
                 .<span class="ident">msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;Alright alright, no need to wear out your spacebar.&quot;</span>],
+                    <span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;Alright alright, no need to wear out your spacebar.&quot;</span>),
                     <span class="prelude-val">None</span>,
                 )
                 .<span class="ident">msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="string">&quot;Oh look, some people appeared!&quot;</span>,
                         <span class="string">&quot;We&#39;ve got pedestrians, bikes, and cars moving around now.&quot;</span>,
-                    ],
+                    ]),
                     <span class="prelude-val">None</span>,
                 )
                 .<span class="ident">left_aligned_msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="string">&quot;Why don&#39;t you follow this car to their destination,&quot;</span>,
                         <span class="string">&quot;see where they park, and then play a little... prank?&quot;</span>,
-                    ],
+                    ]),
                     <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">g</span>, <span class="ident">app</span><span class="op">|</span> {
                         <span class="ident">g</span>.<span class="ident">canvas</span>
                             .<span class="ident">map_to_screen</span>(
@@ -2535,11 +2541,11 @@
                     })),
                 )
                 .<span class="ident">msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="string">&quot;You don&#39;t have to manually chase them; just click to follow.&quot;</span>,
                         <span class="string">&quot;&quot;</span>,
                         <span class="string">&quot;(If you do lose track of them, just reset)&quot;</span>,
-                    ],
+                    ]),
                     <span class="ident">arrow</span>(<span class="ident">time</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;reset to midnight&quot;</span>)),
                 ),
         );
@@ -2562,31 +2568,31 @@
                     <span class="ident">border_spawn_over_time</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
                 })
                 .<span class="ident">msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="string">&quot;What an immature prank. You should re-evaluate your life decisions.&quot;</span>,
                         <span class="string">&quot;&quot;</span>,
                         <span class="string">&quot;The map is quite large, so to help you orient, the minimap shows you an \
                          overview of all activity. You can click and drag it just like the normal \
                          map.&quot;</span>,
-                    ],
+                    ]),
                     <span class="ident">arrow</span>(<span class="ident">minimap</span>.<span class="ident">get_panel</span>().<span class="ident">center_of</span>(<span class="string">&quot;minimap&quot;</span>)),
                 )
                 .<span class="ident">msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="string">&quot;You can apply different layers to the map, to find things like:&quot;</span>,
                         <span class="string">&quot;&quot;</span>,
                         <span class="string">&quot;- roads with high traffic&quot;</span>,
                         <span class="string">&quot;- bus stops&quot;</span>,
                         <span class="string">&quot;- how much parking is filled up&quot;</span>,
-                    ],
+                    ]),
                     <span class="ident">arrow</span>(<span class="ident">minimap</span>.<span class="ident">get_panel</span>().<span class="ident">center_of</span>(<span class="string">&quot;change layers&quot;</span>)),
                 )
                 .<span class="ident">msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="string">&quot;Let&#39;s try these out.&quot;</span>,
                         <span class="string">&quot;There are lots of cars parked everywhere. Can you find a road that&#39;s \
                          almost out of parking spots?&quot;</span>,
-                    ],
+                    ]),
                     <span class="prelude-val">None</span>,
                 ),
         );
@@ -2599,12 +2605,12 @@
                 .<span class="ident">warp_to</span>(<span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">bike_lane_focus_pt</span>), <span class="prelude-val">None</span>)
                 .<span class="ident">scenario</span>(<span class="ident">bike_lane_scenario</span>.<span class="ident">clone</span>())
                 .<span class="ident">msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="string">&quot;Well done!&quot;</span>,
                         <span class="string">&quot;&quot;</span>,
                         <span class="string">&quot;Something&#39;s about to happen over here. Follow along and figure out what \
                          the problem is, at whatever speed you&#39;d like.&quot;</span>,
-                    ],
+                    ]),
                     <span class="prelude-val">None</span>,
                 ),
         );
@@ -2615,29 +2621,29 @@
                 .<span class="ident">scenario</span>(<span class="ident">bike_lane_scenario</span>)
                 .<span class="ident">warp_to</span>(<span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">bike_lane_focus_pt</span>), <span class="prelude-val">None</span>)
                 .<span class="ident">msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="string">&quot;Looks like lots of cars and bikes trying to go to a house by the \
                          playfield.&quot;</span>,
                         <span class="string">&quot;&quot;</span>,
                         <span class="string">&quot;When lots of cars and bikes share the same lane, cars are delayed \
                          (assuming there&#39;s no room to pass) and the cyclist probably feels unsafe \
                          too.&quot;</span>,
-                    ],
+                    ]),
                     <span class="prelude-val">None</span>,
                 )
                 .<span class="ident">msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Text</span>::<span class="ident">from</span>(
                         <span class="string">&quot;Luckily, you have the power to modify lanes! What if you could transform \
                          the parking lanes that aren&#39;t being used much into bike lanes?&quot;</span>,
-                    ],
+                    ),
                     <span class="prelude-val">None</span>,
                 )
                 .<span class="ident">msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;To edit lanes, click &#39;edit map&#39; and then select a lane.&quot;</span>],
+                    <span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;To edit lanes, click &#39;edit map&#39; and then select a lane.&quot;</span>),
                     <span class="ident">arrow</span>(<span class="ident">top_right</span>.<span class="ident">center_of</span>(<span class="string">&quot;edit map&quot;</span>)),
                 )
                 .<span class="ident">msg</span>(
-                    <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="string">&quot;When you finish making edits, time will jump to the beginning of the \
                          next day. You can&#39;t make most changes in the middle of the day.&quot;</span>,
                         <span class="string">&quot;&quot;</span>,
@@ -2646,12 +2652,12 @@
                          decision whether to drive, walk, bike, or take a bus, they&#39;ll do the \
                          same thing. For now, you&#39;re just trying to make things better, assuming \
                          people stick to their routine.&quot;</span>,
-                    ],
+                    ]),
                     <span class="prelude-val">None</span>,
                 )
                 .<span class="ident">msg</span>(
                     <span class="comment">// TODO Deliberately vague with the measurement.</span>
-                    <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="macro">format</span><span class="macro">!</span>(
                             <span class="string">&quot;So adjust lanes and speed up the slowest trip by at least {}.&quot;</span>,
                             <span class="ident">CAR_BIKE_CONTENTION_GOAL</span>
@@ -2660,13 +2666,13 @@
                         <span class="string">&quot;You can explore results as trips finish. When everyone&#39;s finished, \
                          you&#39;ll get your final score.&quot;</span>
                             .<span class="ident">to_string</span>(),
-                    ],
+                    ]),
                     <span class="ident">arrow</span>(<span class="ident">minimap</span>.<span class="ident">get_panel</span>().<span class="ident">center_of</span>(<span class="string">&quot;more data&quot;</span>)),
                 ),
         );
 
         <span class="ident">state</span>.<span class="ident">stages</span>.<span class="ident">push</span>(<span class="ident">Stage</span>::<span class="ident">new</span>(<span class="ident">Task</span>::<span class="ident">Done</span>).<span class="ident">msg</span>(
-            <span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="string">&quot;You&#39;re ready for the hard stuff now.&quot;</span>,
                 <span class="string">&quot;&quot;</span>,
                 <span class="string">&quot;- Try out some challenges&quot;</span>,
@@ -2675,7 +2681,7 @@
                 <span class="string">&quot;- Check out community proposals, and submit your own&quot;</span>,
                 <span class="string">&quot;&quot;</span>,
                 <span class="string">&quot;Go have the appropriate amount of fun!&quot;</span>,
-            ],
+            ]),
             <span class="prelude-val">None</span>,
         ));
 
