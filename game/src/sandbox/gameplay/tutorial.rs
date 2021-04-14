@@ -4,7 +4,7 @@ use abstio::MapName;
 use abstutil::Timer;
 use geom::{ArrowCap, Distance, Duration, PolyLine, Pt2D, Time};
 use map_gui::load::MapLoader;
-use map_gui::tools::{grey_out_map, Minimap, PopupMsg};
+use map_gui::tools::{Minimap, PopupMsg};
 use map_gui::ID;
 use map_model::raw::OriginalRoad;
 use map_model::{osm, BuildingID, Map, Position};
@@ -377,10 +377,6 @@ impl GameplayState for Tutorial {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         let tut = app.session.tutorial.as_ref().unwrap();
-
-        if self.msg_panel.is_some() {
-            grey_out_map(g, app);
-        }
 
         self.top_right.draw(g);
 

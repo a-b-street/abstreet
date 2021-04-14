@@ -13,7 +13,7 @@ use crate::tools::{ChooseSomething, PopupMsg};
 use crate::AppLike;
 
 // Update this ___before___ pushing the commit with "[rebuild] [release]".
-const NEXT_RELEASE: &str = "0.2.40";
+const NEXT_RELEASE: &str = "0.2.39";
 
 pub struct Picker<A: AppLike> {
     panel: Panel,
