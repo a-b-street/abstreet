@@ -3,38 +3,57 @@ use crate::{EventCtx, GfxCtx, ScreenDims, ScreenPt, Widget, WidgetImpl, WidgetOu
 /// Doesn't do anything by itself, just used for widgetsing. Something else reaches in, asks for the
 /// ScreenRectangle to use.
 pub struct Filler {
-    dims: ScreenDims,
+    resize: ResizeRule,
+}
 
-    square_width_pct: f64,
+enum ResizeRule {
+    FixedSize(ScreenDims),
+
+    // (ratio_of_parent_width, parent_width)
+    RatioWidthSquare(f64, f64),
+}
+
+impl ResizeRule {
+    fn dims(&self) -> ScreenDims {
+        match self {
+            Self::FixedSize(dims) => *dims,
+            Self::RatioWidthSquare(pct_width, width) => ScreenDims::square(pct_width * width),
+        }
+    }
 }
 
 impl Filler {
     /// Creates a square filler, always some percentage of the window width.
     pub fn square_width(ctx: &EventCtx, pct_width: f64) -> Widget {
         Widget::new(Box::new(Filler {
-            dims: ScreenDims::new(
-                pct_width * ctx.canvas.window_width,
-                pct_width * ctx.canvas.window_width,
-            ),
-            square_width_pct: pct_width,
+            resize: ResizeRule::RatioWidthSquare(pct_width, ctx.canvas.window_width),
+        }))
+    }
+
+    pub fn fixed_dims(dims: ScreenDims) -> Widget {
+        Widget::new(Box::new(Filler {
+            resize: ResizeRule::FixedSize(dims),
         }))
     }
 }
 
 impl WidgetImpl for Filler {
     fn get_dims(&self) -> ScreenDims {
-        self.dims
+        self.resize.dims()
     }
 
     fn set_pos(&mut self, _: ScreenPt) {}
 
     fn event(&mut self, ctx: &mut EventCtx, _: &mut WidgetOutput) {
         if ctx.input.is_window_resized() {
-            self.dims = ScreenDims::new(
-                self.square_width_pct * ctx.canvas.window_width,
-                self.square_width_pct * ctx.canvas.window_width,
-            );
+            match self.resize {
+                ResizeRule::RatioWidthSquare(_, ref mut parent_width) => {
+                    *parent_width = ctx.canvas.window_width;
+                }
+                _ => {}
+            };
         }
     }
+
     fn draw(&self, _g: &mut GfxCtx) {}
 }
