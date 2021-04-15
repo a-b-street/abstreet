@@ -33,6 +33,9 @@ pub fn import(ctx: &mut EventCtx) -> Transition {
                     ],
                     Box::new(|_, app, success, _| {
                         if success {
+                            // Clear out the cached scenario. If we repeatedly use this import, the
+                            // scenario name is always the same, but the file is changing.
+                            app.primary.scenario = None;
                             Transition::Replace(SandboxMode::simple_new(
                                 app,
                                 GameplayMode::PlayScenario(
