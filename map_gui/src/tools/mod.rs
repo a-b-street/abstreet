@@ -213,9 +213,9 @@ pub fn open_browser<I: AsRef<str>>(url: I) {
     let _ = webbrowser::open(url.as_ref());
 }
 
-/// Native-only: Locate the directory with other executables.
-pub fn find_exe_dir() -> &'static str {
-    vec![
+/// Returns the path to an executable. Native-only.
+pub fn find_exe(cmd: &str) -> String {
+    let dir = vec![
         "./target/release",
         "../target/release",
         "../../target/release",
@@ -224,5 +224,12 @@ pub fn find_exe_dir() -> &'static str {
     ]
     .into_iter()
     .find(|x| std::path::Path::new(x).exists())
-    .unwrap_or("./target/release")
+    .unwrap_or("./target/release");
+    // Apparently std::path on Windows doesn't do any of this correction. We could build up a
+    // PathBuf properly, I guess
+    if cfg!(windows) {
+        format!("{}/{}.exe", dir, cmd).replace("/", "\\")
+    } else {
+        format!("{}/{}", dir, cmd)
+    }
 }

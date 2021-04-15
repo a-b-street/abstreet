@@ -1,7 +1,7 @@
 // TODO This doesn't really belong in gameplay/freeform
 
 use map_gui::load::FutureLoader;
-use map_gui::tools::{find_exe_dir, RunCommand};
+use map_gui::tools::{find_exe, RunCommand};
 use widgetry::EventCtx;
 
 use crate::app::{App, Transition};
@@ -27,7 +27,7 @@ pub fn import(ctx: &mut EventCtx) -> Transition {
                     ctx,
                     app,
                     vec![
-                        format!("{}/import_grid2demand", find_exe_dir()),
+                        find_exe("import_grid2demand"),
                         format!("--map={}", app.primary.map.get_name().path()),
                         format!("--input={}", path),
                     ],
