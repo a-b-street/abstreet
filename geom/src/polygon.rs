@@ -298,9 +298,9 @@ impl Polygon {
     }
 
     /// Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
-    /// If radius is None, be as round as possible
+    /// If it's not possible to apply the specified radius, fallback to a regular rectangle.
     pub fn rounded_rectangle<R: Into<CornerRadii>>(w: f64, h: f64, r: R) -> Polygon {
-        Polygon::maybe_rounded_rectangle(w, h, r).unwrap()
+        Polygon::maybe_rounded_rectangle(w, h, r).unwrap_or_else(|| Polygon::rectangle(w, h))
     }
 
     // TODO Result won't be a nice Ring
