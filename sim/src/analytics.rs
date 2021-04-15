@@ -11,6 +11,7 @@ use map_model::{
 
 use crate::{
     AgentID, AgentType, AlertLocation, CarID, Event, ParkingSpot, TripID, TripMode, TripPhaseType,
+    VehicleType,
 };
 
 /// As a simulation runs, different pieces emit Events. The Analytics object listens to these,
@@ -52,6 +53,9 @@ pub struct Analytics {
     /// If it is over a certain threshold (<95% of max speed)
     /// TripID, [(LaneID, Percent of maximum speed as an integer (0-100)]
     pub lane_speed_percentage: BTreeMap<TripID, BTreeMap<LaneID, u8>>,
+    /// Record every instance of somebody on foot or a bike crossing an intersection with more than
+    /// 4 connecting roads.
+    pub large_intersection_crossings: BTreeMap<TripID, Vec<(Time, IntersectionID)>>,
 
     // TODO This subsumes finished_trips
     pub trip_log: Vec<(Time, TripID, Option<PathRequest>, TripPhaseType)>,
@@ -84,6 +88,7 @@ impl Analytics {
             finished_trips: Vec::new(),
             trip_intersection_delays: BTreeMap::new(),
             lane_speed_percentage: BTreeMap::new(),
+            large_intersection_crossings: BTreeMap::new(),
             trip_log: Vec::new(),
             intersection_delays: BTreeMap::new(),
             parking_lane_changes: BTreeMap::new(),
@@ -99,7 +104,7 @@ impl Analytics {
         }
 
         // Throughput
-        if let Event::AgentEntersTraversable(a, to, passengers) = ev {
+        if let Event::AgentEntersTraversable(a, _, to, passengers) = ev {
             match to {
                 Traversable::Lane(l) => {
                     self.road_thruput
@@ -261,6 +266,31 @@ impl Analytics {
                     .entry(pl)
                     .or_insert_with(Vec::new)
                     .push((time, false));
+            }
+        }
+
+        // Safety metrics
+        if let Event::AgentEntersTraversable(a, Some(trip), Traversable::Turn(t), _) = ev {
+            if match a {
+                AgentID::Pedestrian(_) => true,
+                AgentID::Car(c) => c.1 == VehicleType::Bike,
+                _ => false,
+            } {
+                //
+                // - If a pedestrian never enters a crosswalk at a large intersection, don't record.
+                // - Note one intersection will get counted multiple times if a pedestrian uses
+                //   several crosswalks there.
+                // - Defining a "large intersection" is tricky. If a road is split into two
+                //   one-ways, should we count it as two roads? If we haven't consolidated some
+                //   crazy intersection, we won't see it.
+                if map.get_t(t).turn_type != TurnType::SharedSidewalkCorner
+                    && map.get_i(t.parent).roads.len() > 4
+                {
+                    self.large_intersection_crossings
+                        .entry(trip)
+                        .or_insert_with(Vec::new)
+                        .push((time, t.parent));
+                }
             }
         }
 
