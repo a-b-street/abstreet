@@ -5,7 +5,7 @@ use map_model::{IntersectionID, Map, PathStep, Position, Traversable};
 
 use crate::{
     AgentID, DrivingSimState, Event, IndividTrip, PersonSpec, Scenario, TripEndpoint, TripID,
-    TripManager, TripMode, TripPurpose, VehicleType,
+    TripMode, TripPurpose, VehicleType,
 };
 
 /// Records trips beginning and ending at a specified set of intersections. This can be used to
@@ -29,42 +29,33 @@ impl TrafficRecorder {
         }
     }
 
-    pub fn handle_event(
-        &mut self,
-        time: Time,
-        ev: &Event,
-        map: &Map,
-        driving: &DrivingSimState,
-        trips: &TripManager,
-    ) {
-        if let Event::AgentEntersTraversable(a, on, _) = ev {
+    pub fn handle_event(&mut self, time: Time, ev: &Event, map: &Map, driving: &DrivingSimState) {
+        if let Event::AgentEntersTraversable(a, Some(trip), on, _) = ev {
             if let AgentID::Car(car) = a {
-                if let Some(trip) = trips.agent_to_trip(AgentID::Car(*car)) {
-                    if self.seen_trips.contains(&trip) {
-                        return;
-                    }
-                    if let Traversable::Lane(l) = on {
-                        if self.capture_points.contains(&map.get_l(*l).src_i) {
-                            // Where do they exit?
-                            for step in driving.get_path(*car).unwrap().get_steps() {
-                                if let PathStep::Turn(t) = step {
-                                    if self.capture_points.contains(&t.parent) {
-                                        self.trips.push((
-                                            TripEndpoint::SuddenlyAppear(Position::start(*l)),
-                                            IndividTrip::new(
-                                                time,
-                                                TripPurpose::Shopping,
-                                                TripEndpoint::Border(t.parent),
-                                                if car.1 == VehicleType::Bike {
-                                                    TripMode::Bike
-                                                } else {
-                                                    TripMode::Drive
-                                                },
-                                            ),
-                                        ));
-                                        self.seen_trips.insert(trip);
-                                        return;
-                                    }
+                if self.seen_trips.contains(&trip) {
+                    return;
+                }
+                if let Traversable::Lane(l) = on {
+                    if self.capture_points.contains(&map.get_l(*l).src_i) {
+                        // Where do they exit?
+                        for step in driving.get_path(*car).unwrap().get_steps() {
+                            if let PathStep::Turn(t) = step {
+                                if self.capture_points.contains(&t.parent) {
+                                    self.trips.push((
+                                        TripEndpoint::SuddenlyAppear(Position::start(*l)),
+                                        IndividTrip::new(
+                                            time,
+                                            TripPurpose::Shopping,
+                                            TripEndpoint::Border(t.parent),
+                                            if car.1 == VehicleType::Bike {
+                                                TripMode::Bike
+                                            } else {
+                                                TripMode::Drive
+                                            },
+                                        ),
+                                    ));
+                                    self.seen_trips.insert(*trip);
+                                    return;
                                 }
                             }
                         }

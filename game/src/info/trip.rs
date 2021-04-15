@@ -115,6 +115,30 @@ pub fn ongoing(
             ]),
         ]));
     }
+    if trip.mode != TripMode::Drive {
+        // TODO Terminology?
+        col.push(Widget::custom_row(vec![
+            Line("Risks")
+                .secondary()
+                .into_widget(ctx)
+                .container()
+                .force_width_pct(ctx, col_width),
+            Text::from_all(vec![
+                Line(
+                    app.primary
+                        .sim
+                        .get_analytics()
+                        .large_intersection_crossings
+                        .get(&id)
+                        .map(|x| x.len())
+                        .unwrap_or(0)
+                        .to_string(),
+                ),
+                Line(" crossings at large intersections").secondary(),
+            ])
+            .into_widget(ctx),
+        ]));
+    }
     {
         col.push(Widget::custom_row(vec![
             Widget::custom_row(vec![Line("Purpose").secondary().into_widget(ctx)])
@@ -296,9 +320,8 @@ pub fn finished(
         );
     }
 
+    let col_width = Percent::int(15);
     {
-        let col_width = Percent::int(15);
-
         if let Some(end_time) = phases.last().as_ref().and_then(|p| p.end_time) {
             col.push(Widget::custom_row(vec![
                 Widget::custom_row(vec![Line("Trip time").secondary().into_widget(ctx)])
@@ -330,6 +353,33 @@ pub fn finished(
             Widget::custom_row(vec![Line("Purpose").secondary().into_widget(ctx)])
                 .force_width_pct(ctx, col_width),
             Line(trip.purpose.to_string()).secondary().into_widget(ctx),
+        ]));
+    }
+    // TODO Duplicating some code from ongoing() until we decide how to consolidate things.
+    if trip.mode != TripMode::Drive {
+        let analytics = if open_trips[&id].show_after {
+            app.primary.sim.get_analytics()
+        } else {
+            app.prebaked()
+        };
+        col.push(Widget::custom_row(vec![
+            Line("Risks")
+                .secondary()
+                .into_widget(ctx)
+                .container()
+                .force_width_pct(ctx, col_width),
+            Text::from_all(vec![
+                Line(
+                    analytics
+                        .large_intersection_crossings
+                        .get(&id)
+                        .map(|x| x.len())
+                        .unwrap_or(0)
+                        .to_string(),
+                ),
+                Line(" crossings at large intersections").secondary(),
+            ])
+            .into_widget(ctx),
         ]));
     }
 

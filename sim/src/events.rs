@@ -39,7 +39,7 @@ pub enum Event {
 
     /// If the agent is a transit vehicle, then include a count of how many passengers are on
     /// board.
-    AgentEntersTraversable(AgentID, Traversable, Option<usize>),
+    AgentEntersTraversable(AgentID, Option<TripID>, Traversable, Option<usize>),
     /// TripID, TurnID (Where the delay was encountered), Time spent waiting at that turn
     IntersectionDelayMeasured(TripID, TurnID, AgentID, Duration),
 

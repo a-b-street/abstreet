@@ -799,6 +799,7 @@ impl Pedestrian {
         peds_per_traversable.insert(self.path.current_step().as_traversable(), self.id);
         events.push(Event::AgentEntersTraversable(
             AgentID::Pedestrian(self.id),
+            Some(self.trip),
             self.path.current_step().as_traversable(),
             None,
         ));

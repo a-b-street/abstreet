@@ -442,6 +442,7 @@ impl DrivingSimState {
                     .push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
                 self.events.push(Event::AgentEntersTraversable(
                     AgentID::Car(car.vehicle.id),
+                    car.trip_and_person.map(|(t, _)| t),
                     goto,
                     if car.vehicle.vehicle_type.is_transit() {
                         Some(transit.get_passengers(car.vehicle.id).len())
