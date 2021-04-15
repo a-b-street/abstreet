@@ -905,9 +905,9 @@
     }
 
     <span class="doccomment">/// Top-left at the origin. Doesn&#39;t take Distance, because this is usually pixels, actually.</span>
-    <span class="doccomment">/// If radius is None, be as round as possible</span>
+    <span class="doccomment">/// If it&#39;s not possible to apply the specified radius, fallback to a regular rectangle.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rounded_rectangle</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">CornerRadii</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">w</span>: <span class="ident">f64</span>, <span class="ident">h</span>: <span class="ident">f64</span>, <span class="ident">r</span>: <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
-        <span class="ident">Polygon</span>::<span class="ident">maybe_rounded_rectangle</span>(<span class="ident">w</span>, <span class="ident">h</span>, <span class="ident">r</span>).<span class="ident">unwrap</span>()
+        <span class="ident">Polygon</span>::<span class="ident">maybe_rounded_rectangle</span>(<span class="ident">w</span>, <span class="ident">h</span>, <span class="ident">r</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="ident">w</span>, <span class="ident">h</span>))
     }
 
     <span class="comment">// TODO Result won&#39;t be a nice Ring</span>
