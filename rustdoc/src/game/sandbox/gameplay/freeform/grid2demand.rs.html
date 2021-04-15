@@ -64,7 +64,7 @@
 <span class="comment">// TODO This doesn&#39;t really belong in gameplay/freeform</span>
 
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">load</span>::<span class="ident">FutureLoader</span>;
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">find_exe_dir</span>, <span class="ident">RunCommand</span>};
+<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">find_exe</span>, <span class="ident">RunCommand</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::<span class="ident">EventCtx</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
@@ -90,7 +90,7 @@
                     <span class="ident">ctx</span>,
                     <span class="ident">app</span>,
                     <span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/import_grid2demand&quot;</span>, <span class="ident">find_exe_dir</span>()),
+                        <span class="ident">find_exe</span>(<span class="string">&quot;import_grid2demand&quot;</span>),
                         <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;--map={}&quot;</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">path</span>()),
                         <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;--input={}&quot;</span>, <span class="ident">path</span>),
                     ],

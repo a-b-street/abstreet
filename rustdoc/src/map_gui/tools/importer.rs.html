@@ -172,8 +172,6 @@
 <span id="169">169</span>
 <span id="170">170</span>
 <span id="171">171</span>
-<span id="172">172</span>
-<span id="173">173</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Write</span>;
 
@@ -186,7 +184,7 @@
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">load</span>::<span class="ident">MapLoader</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tools</span>::{<span class="ident">find_exe_dir</span>, <span class="ident">open_browser</span>, <span class="ident">PopupMsg</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tools</span>::{<span class="ident">find_exe</span>, <span class="ident">open_browser</span>, <span class="ident">PopupMsg</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">AppLike</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ImportCity</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span><span class="op">&gt;</span> {
@@ -275,10 +273,8 @@
                     <span class="ident">Transition</span>::<span class="ident">Keep</span>
                 }
                 <span class="string">&quot;Import the area from your clipboard&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/one_step_import&quot;</span>, <span class="ident">find_exe_dir</span>()),
-                        <span class="string">&quot;boundary.geojson&quot;</span>.<span class="ident">to_string</span>(),
-                    ];
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span>
+                        <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">find_exe</span>(<span class="string">&quot;one_step_import&quot;</span>), <span class="string">&quot;boundary.geojson&quot;</span>.<span class="ident">to_string</span>()];
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;left handed driving&quot;</span>) {
                         <span class="ident">args</span>.<span class="ident">push</span>(<span class="string">&quot;--drive_on_left&quot;</span>.<span class="ident">to_string</span>());
                     }
