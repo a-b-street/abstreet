@@ -636,19 +636,19 @@
       "compressed_size_bytes": 1553287
     },
     "data/input/gb/lcid/osm/center.osm": {
-      "checksum": "c0fbb226d6eb985ef6e03e7657745ff9",
-      "uncompressed_size_bytes": 40583966,
-      "compressed_size_bytes": 4115813
+      "checksum": "e6fb8acf53e1e57c6d715d80996ca793",
+      "uncompressed_size_bytes": 42706262,
+      "compressed_size_bytes": 4335033
     },
     "data/input/gb/lcid/osm/west-yorkshire-latest.osm.pbf": {
-      "checksum": "5e2a0c9f49bc94ed106ff710f6705d76",
-      "uncompressed_size_bytes": 35201597,
-      "compressed_size_bytes": 35159717
+      "checksum": "865f207e9a45bb4cb51164315abdd36a",
+      "uncompressed_size_bytes": 73020001,
+      "compressed_size_bytes": 72980846
     },
     "data/input/gb/lcid/raw_maps/center.bin": {
-      "checksum": "29ec41ccdc046261d3b3e71a05b7f0cf",
-      "uncompressed_size_bytes": 15792718,
-      "compressed_size_bytes": 3400450
+      "checksum": "e1115bba949240b4d3ed9cf209c3ad62",
+      "uncompressed_size_bytes": 15985209,
+      "compressed_size_bytes": 3443409
     },
     "data/input/gb/leeds/collisions.bin": {
       "checksum": "7d478dc42993c71bea4eacf70ffa244a",
@@ -2381,9 +2381,9 @@
       "compressed_size_bytes": 228626
     },
     "data/system/gb/lcid/maps/center.bin": {
-      "checksum": "d0f3495763a9d880ebef530319f49ea6",
-      "uncompressed_size_bytes": 43128949,
-      "compressed_size_bytes": 13885825
+      "checksum": "c841a5679d7ef30b24baf579e88d4bd9",
+      "uncompressed_size_bytes": 63534333,
+      "compressed_size_bytes": 21347249
     },
     "data/system/gb/lcid/scenarios/center/base.bin": {
       "checksum": "fe22efd981a7b36e7177e9723ad3b377",
@@ -2391,9 +2391,9 @@
       "compressed_size_bytes": 16726
     },
     "data/system/gb/lcid/scenarios/center/base_with_bg.bin": {
-      "checksum": "7e50a1dc0d8ec0923e1699cb6d8bdabd",
-      "uncompressed_size_bytes": 2653457,
-      "compressed_size_bytes": 769825
+      "checksum": "6d60a672b72d3a77343169c9390a8bab",
+      "uncompressed_size_bytes": 2653595,
+      "compressed_size_bytes": 769608
     },
     "data/system/gb/lcid/scenarios/center/go_active.bin": {
       "checksum": "21bab5a090de1416e2c376d707a4806c",
@@ -2401,9 +2401,9 @@
       "compressed_size_bytes": 16608
     },
     "data/system/gb/lcid/scenarios/center/go_active_with_bg.bin": {
-      "checksum": "15017cbc4a62480f8b5c5309d7349bf1",
-      "uncompressed_size_bytes": 2653618,
-      "compressed_size_bytes": 769743
+      "checksum": "f9ba9a8f9014ecaf28553d0fcacee92d",
+      "uncompressed_size_bytes": 2653756,
+      "compressed_size_bytes": 769537
     },
     "data/system/gb/leeds/city.bin": {
       "checksum": "75592c57694d8b0eb505e75fc212e158",
