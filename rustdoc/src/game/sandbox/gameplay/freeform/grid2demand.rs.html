@@ -57,6 +57,9 @@
 <span id="54">54</span>
 <span id="55">55</span>
 <span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// TODO This doesn&#39;t really belong in gameplay/freeform</span>
 
@@ -93,6 +96,9 @@
                     ],
                     <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="ident">app</span>, <span class="ident">success</span>, <span class="kw">_</span><span class="op">|</span> {
                         <span class="kw">if</span> <span class="ident">success</span> {
+                            <span class="comment">// Clear out the cached scenario. If we repeatedly use this import, the</span>
+                            <span class="comment">// scenario name is always the same, but the file is changing.</span>
+                            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">scenario</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                             <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">SandboxMode</span>::<span class="ident">simple_new</span>(
                                 <span class="ident">app</span>,
                                 <span class="ident">GameplayMode</span>::<span class="ident">PlayScenario</span>(
