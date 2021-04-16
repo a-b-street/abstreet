@@ -474,16 +474,32 @@
 <span id="471">471</span>
 <span id="472">472</span>
 <span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Filler</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
-    <span class="ident">ScreenPt</span>, <span class="ident">Spinner</span>, <span class="ident">Transition</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">Spinner</span>, <span class="ident">Transition</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">AppLike</span>;
+
+<span class="kw">static</span> <span class="ident">MINIMAP_WIDTH</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">400.0</span>;
+<span class="kw">static</span> <span class="ident">MINIMAP_HEIGHT</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">300.0</span>;
 
 <span class="comment">// TODO Some of the math in here might assume map bound minimums start at (0, 0).</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Minimap</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span>, <span class="ident">T</span>: <span class="ident">MinimapControls</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
@@ -641,6 +657,9 @@
             .<span class="ident">margin_above</span>(<span class="number">26</span>)
         };
 
+        <span class="kw">let</span> <span class="ident">minimap_widget</span> <span class="op">=</span>
+            <span class="ident">Filler</span>::<span class="ident">fixed_dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="ident">MINIMAP_WIDTH</span>, <span class="ident">MINIMAP_HEIGHT</span>)).<span class="ident">named</span>(<span class="string">&quot;minimap&quot;</span>);
+
         <span class="kw">let</span> <span class="ident">minimap_controls</span> <span class="op">=</span> {
             <span class="kw">let</span> <span class="ident">buttons</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain</span>.<span class="ident">btn</span>().<span class="ident">padding</span>(<span class="number">4</span>);
             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -655,7 +674,7 @@
                         .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/minimap/left.svg&quot;</span>)
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;pan left&quot;</span>)
                         .<span class="ident">centered_vert</span>(),
-                    <span class="ident">Filler</span>::<span class="ident">square_width</span>(<span class="ident">ctx</span>, <span class="number">0.15</span>).<span class="ident">named</span>(<span class="string">&quot;minimap&quot;</span>),
+                    <span class="ident">minimap_widget</span>,
                     <span class="ident">buttons</span>
                         .<span class="ident">clone</span>()
                         .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/minimap/right.svg&quot;</span>)
@@ -670,20 +689,26 @@
             ])
         };
 
-        <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">make_zoomed_side_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">minimap_controls</span>, <span class="ident">zoom_col</span>]),
-                <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">make_legend</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+        <span class="kw">let</span> <span class="ident">controls</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">minimal_controls</span> {
+            <span class="ident">minimap_controls</span>.<span class="ident">padding</span>(<span class="number">16</span>).<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">panel_bg</span>)
+        } <span class="kw">else</span> {
+            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">make_zoomed_side_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+                <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">minimap_controls</span>, <span class="ident">zoom_col</span>]),
+                    <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">make_legend</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+                ])
+                .<span class="ident">padding</span>(<span class="number">16</span>)
+                .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">panel_bg</span>),
             ])
-            .<span class="ident">padding</span>(<span class="number">16</span>)
-            .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">panel_bg</span>),
-        ]))
-        .<span class="ident">aligned</span>(
-            <span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span>,
-            <span class="ident">VerticalAlignment</span>::<span class="ident">BottomAboveOSD</span>,
-        )
-        .<span class="ident">build_custom</span>(<span class="ident">ctx</span>);
+        };
+
+        <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">controls</span>)
+            .<span class="ident">aligned</span>(
+                <span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span>,
+                <span class="ident">VerticalAlignment</span>::<span class="ident">BottomAboveOSD</span>,
+            )
+            .<span class="ident">build_custom</span>(<span class="ident">ctx</span>);
     }
 
     <span class="kw">fn</span> <span class="ident">map_to_minimap_pct</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">f64</span>, <span class="ident">f64</span>) {
@@ -769,10 +794,11 @@
             <span class="comment">// When the window is resized, just reset completely. This is important when the window</span>
             <span class="comment">// size at startup is incorrect and immediately corrected by the window manager after</span>
             <span class="comment">// Minimap::new happens.</span>
-            <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_bounds</span>();
-            <span class="comment">// On Windows, apparently minimizing can cause some resize events with 0, 0 dimensions!</span>
-            <span class="self">self</span>.<span class="ident">base_zoom</span> <span class="op">=</span>
-                (<span class="number">0.15</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span> <span class="op">/</span> <span class="ident">bounds</span>.<span class="ident">width</span>().<span class="ident">min</span>(<span class="ident">bounds</span>.<span class="ident">height</span>())).<span class="ident">max</span>(<span class="number">0.0001</span>);
+            <span class="kw">let</span> <span class="ident">map_bounds</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_bounds</span>();
+            <span class="comment">// scale minimap to cover area</span>
+            <span class="self">self</span>.<span class="ident">base_zoom</span> <span class="op">=</span> (<span class="ident">MINIMAP_WIDTH</span> <span class="op">/</span> <span class="ident">map_bounds</span>.<span class="ident">width</span>())
+                .<span class="ident">max</span>(<span class="ident">MINIMAP_HEIGHT</span> <span class="op">/</span> <span class="ident">map_bounds</span>.<span class="ident">height</span>())
+                .<span class="ident">max</span>(<span class="number">0.001</span>);
             <span class="self">self</span>.<span class="ident">zoom</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">base_zoom</span>;
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">zoomed</span> {
                 <span class="self">self</span>.<span class="ident">recenter</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);

@@ -382,6 +382,11 @@
 <span id="379">379</span>
 <span id="380">380</span>
 <span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">CmdArgs</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">UnitFmt</span>};
@@ -419,6 +424,9 @@
     <span class="doccomment">/// Draw buildings in different perspectives</span>
     <span class="kw">pub</span> <span class="ident">camera_angle</span>: <span class="ident">CameraAngle</span>,
 
+    <span class="doccomment">/// When making a screen recording, enable this option to hide some UI elements</span>
+    <span class="kw">pub</span> <span class="ident">minimal_controls</span>: <span class="ident">bool</span>,
+
     <span class="doccomment">/// How much to advance the sim with one of the speed controls</span>
     <span class="kw">pub</span> <span class="ident">time_increment</span>: <span class="ident">Duration</span>,
     <span class="doccomment">/// When time warping, don&#39;t draw to speed up simulation</span>
@@ -449,6 +457,7 @@
             <span class="ident">dont_draw_time_warp</span>: <span class="bool-val">false</span>,
             <span class="ident">jump_to_delay</span>: <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">5</span>),
 
+            <span class="ident">minimal_controls</span>: <span class="bool-val">false</span>,
             <span class="ident">language</span>: <span class="prelude-val">None</span>,
             <span class="ident">units</span>: <span class="ident">UnitFmt</span> {
                 <span class="ident">round_durations</span>: <span class="bool-val">true</span>,
@@ -483,6 +492,7 @@
                 );
             }
         }
+        <span class="self">self</span>.<span class="ident">minimal_controls</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--minimal_controls&quot;</span>)
     }
 }
 
