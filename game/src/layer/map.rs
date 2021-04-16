@@ -295,7 +295,7 @@ impl Static {
     pub fn no_sidewalks(ctx: &mut EventCtx, app: &App) -> Static {
         let mut colorer = ColorDiscrete::new(app, vec![("no sidewalks", Color::RED)]);
         for l in app.primary.map.all_lanes().values() {
-            if l.is_shoulder() {
+            if l.is_shoulder() && !app.primary.map.get_r(l.parent).is_cycleway() {
                 colorer.add_r(l.parent, "no sidewalks");
             }
         }
