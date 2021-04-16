@@ -13,8 +13,8 @@ use sim::{
     SpawnOverTime, TripEndpoint, TripMode, TripPurpose, VehicleType,
 };
 use widgetry::{
-    hotkeys, lctrl, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    ScreenPt, State, Text, TextExt, VerticalAlignment, Widget,
+    hotkeys, lctrl, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Image, Key, Line,
+    Outcome, Panel, ScreenPt, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -382,23 +382,25 @@ impl GameplayState for Tutorial {
 
         if let Some(ref msg) = self.msg_panel {
             // Arrows underneath the message panel, but on top of other panels
-            if let Some((_, _, Some(fxn))) = tut.lines() {
-                let pt = (fxn)(g, app);
-                g.fork_screenspace();
-                if let Ok(pl) = PolyLine::new(vec![
-                    self.msg_panel
-                        .as_ref()
-                        .unwrap()
-                        .center_of("next message")
-                        .to_pt(),
-                    pt,
-                ]) {
-                    g.draw_polygon(
-                        Color::RED,
-                        pl.make_arrow(Distance::meters(20.0), ArrowCap::Triangle),
-                    );
+            if let Some(msg) = tut.message() {
+                if let Some(ref fxn) = msg.arrow {
+                    let pt = (fxn)(g, app);
+                    g.fork_screenspace();
+                    if let Ok(pl) = PolyLine::new(vec![
+                        self.msg_panel
+                            .as_ref()
+                            .unwrap()
+                            .center_of("next message")
+                            .to_pt(),
+                        pt,
+                    ]) {
+                        g.draw_polygon(
+                            Color::RED,
+                            pl.make_arrow(Distance::meters(20.0), ArrowCap::Triangle),
+                        );
+                    }
+                    g.unfork();
                 }
-                g.unfork();
             }
 
             msg.draw(g);
@@ -410,6 +412,16 @@ impl GameplayState for Tutorial {
                 Color::hex("#e25822"),
                 app.primary.map.get_b(tut.fire_station).polygon.clone(),
             );
+        } else if tut.interaction() == Task::Escort {
+            GeomBatch::load_svg(g, "system/assets/tools/star.svg")
+                .scale(0.1)
+                .centered_on(
+                    app.primary
+                        .sim
+                        .canonical_pt_for_agent(AgentID::Car(ESCORT), &app.primary.map)
+                        .unwrap(),
+                )
+                .draw(g);
         }
     }
 
@@ -543,19 +555,49 @@ impl Task {
 }
 
 struct Stage {
-    messages: Vec<(
-        Text,
-        HorizontalAlignment,
-        Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>>,
-    )>,
+    messages: Vec<Message>,
     task: Task,
     warp_to: Option<(ID, f64)>,
     custom_spawn: Option<Box<dyn Fn(&mut App)>>,
     make_scenario: Option<ScenarioGenerator>,
 }
 
-fn arrow(pt: ScreenPt) -> Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>> {
-    Some(Box::new(move |_, _| pt.to_pt()))
+struct Message {
+    txt: Text,
+    aligned: HorizontalAlignment,
+    arrow: Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>>,
+    icon: Option<&'static str>,
+}
+
+impl Message {
+    fn new(txt: Text) -> Message {
+        Message {
+            txt,
+            aligned: HorizontalAlignment::Center,
+            arrow: None,
+            icon: None,
+        }
+    }
+
+    fn arrow(mut self, pt: ScreenPt) -> Message {
+        self.arrow = Some(Box::new(move |_, _| pt.to_pt()));
+        self
+    }
+
+    fn dynamic_arrow(mut self, arrow: Box<dyn Fn(&GfxCtx, &App) -> Pt2D>) -> Message {
+        self.arrow = Some(arrow);
+        self
+    }
+
+    fn icon(mut self, path: &'static str) -> Message {
+        self.icon = Some(path);
+        self
+    }
+
+    fn left_aligned(mut self) -> Message {
+        self.aligned = HorizontalAlignment::Left;
+        self
+    }
 }
 
 impl Stage {
@@ -569,18 +611,8 @@ impl Stage {
         }
     }
 
-    fn msg(mut self, txt: Text, point_to: Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>>) -> Stage {
-        self.messages
-            .push((txt, HorizontalAlignment::Center, point_to));
-        self
-    }
-    fn left_aligned_msg(
-        mut self,
-        txt: Text,
-        point_to: Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>>,
-    ) -> Stage {
-        self.messages
-            .push((txt, HorizontalAlignment::Left, point_to));
+    fn msg(mut self, msg: Message) -> Stage {
+        self.messages.push(msg);
         self
     }
 
@@ -681,13 +713,7 @@ impl TutorialState {
             Task::Nil
         }
     }
-    fn lines(
-        &self,
-    ) -> Option<&(
-        Text,
-        HorizontalAlignment,
-        Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>>,
-    )> {
+    fn message(&self) -> Option<&Message> {
         let stage = self.stage();
         if self.current.part == stage.messages.len() {
             None
@@ -797,14 +823,17 @@ impl TutorialState {
             top_right: self.make_top_right(ctx, last_finished_task >= Task::WatchBikes),
             last_finished_task,
 
-            msg_panel: if let Some((ref lines, horiz_align, _)) = self.lines() {
+            msg_panel: if let Some(msg) = self.message() {
                 let mut col = vec![{
                     let mut txt = Text::new();
                     txt.add_line(Line(self.stage().task.label()).small_heading());
                     txt.add_line("");
-                    txt.extend(lines.clone());
-                    txt.wrap_to_pct(ctx, 30).into_widget(ctx)
+                    txt.into_widget(ctx)
                 }];
+                if let Some(icon) = msg.icon {
+                    col.push(Image::from_path(icon).dims(30.0).into_widget(ctx));
+                }
+                col.push(msg.txt.clone().wrap_to_pct(ctx, 30).into_widget(ctx));
                 let mut controls = vec![Widget::row(vec![
                     ctx.style()
                         .btn_prev()
@@ -834,7 +863,7 @@ impl TutorialState {
                 Some(
                     Panel::new(Widget::col(col).outline((5.0, Color::WHITE)))
                         .exact_size_percent(40, 40)
-                        .aligned(*horiz_align, VerticalAlignment::Center)
+                        .aligned(msg.aligned, VerticalAlignment::Center)
                         .build(ctx),
                 )
             } else {
@@ -881,60 +910,47 @@ impl TutorialState {
                     ID::Intersection(map.find_i_by_osm_id(osm::NodeID(53096945)).unwrap()),
                     None,
                 )
+                .msg(Message::new(Text::from_multiline(vec![
+                    "Let's start by piloting your fancy new drone.",
+                    "",
+                    "- Click and drag to pan around the map",
+                    "- Use your scroll wheel or touchpad to zoom in and out.",
+                ])))
                 .msg(
-                    Text::from_multiline(vec![
-                        "Let's start by piloting your fancy new drone.",
-                        "",
-                        "- Click and drag to pan around the map",
-                        "- Use your scroll wheel or touchpad to zoom in and out.",
-                    ]),
-                    None,
+                    Message::new(Text::from(
+                        "If the controls feel wrong, try adjusting the settings.",
+                    ))
+                    .arrow(tool_panel.center_of("settings")),
                 )
-                .msg(
-                    Text::from("If the controls feel wrong, try adjusting the settings."),
-                    arrow(tool_panel.center_of("settings")),
-                )
-                .msg(
-                    Text::from_multiline(vec![
-                        "Let's try the drone ou--",
-                        "",
-                        "WHOA, THERE'S A FIRE STATION ON FIRE!",
-                        "GO CLICK ON IT, QUICK!",
-                    ]),
-                    None,
-                )
-                .msg(
-                    Text::from_multiline(vec![
-                        "Hint:",
-                        "- Look around for an unusually red building",
-                        "- You have to zoom in to interact with anything on the map.",
-                    ]),
-                    None,
-                ),
+                .msg(Message::new(Text::from_multiline(vec![
+                    "Let's try the drone ou--",
+                    "",
+                    "WHOA, THERE'S A FIRE STATION ON FIRE!",
+                    "GO CLICK ON IT, QUICK!",
+                ])))
+                .msg(Message::new(Text::from_multiline(vec![
+                    "Hint:",
+                    "- Look around for an unusually red building",
+                    "- You have to zoom in to interact with anything on the map.",
+                ]))),
         );
 
         state.stages.push(
             Stage::new(Task::InspectObjects)
-                .msg(
-                    Text::from(
-                        "What, no fire? Er, sorry about that. Just a little joke we like to play \
-                         on the new recruits.",
-                    ),
-                    None,
-                )
-                .msg(
-                    Text::from_multiline(vec![
-                        "Now, let's learn how to inspect and interact with objects in the map.",
-                        "",
-                        "Find one of each:",
-                        "[ ] bike lane",
-                        "[ ] building",
-                        "[ ] intersection with stop sign",
-                        "[ ] intersection on the map border",
-                        "- Hint: You have to zoom in before you can select anything.",
-                    ]),
-                    None,
-                ),
+                .msg(Message::new(Text::from(
+                    "What, no fire? Er, sorry about that. Just a little joke we like to play on \
+                     the new recruits.",
+                )))
+                .msg(Message::new(Text::from_multiline(vec![
+                    "Now, let's learn how to inspect and interact with objects in the map.",
+                    "",
+                    "Find one of each:",
+                    "[ ] bike lane",
+                    "[ ] building",
+                    "[ ] intersection with stop sign",
+                    "[ ] intersection on the map border",
+                    "- Hint: You have to zoom in before you can select anything.",
+                ]))),
         );
 
         state.stages.push(
@@ -944,27 +960,28 @@ impl TutorialState {
                     Some(6.5),
                 )
                 .msg(
-                    Text::from_multiline(vec![
+                    Message::new(Text::from_multiline(vec![
                         "Inspection complete!",
                         "",
                         "You'll work day and night, watching traffic patterns unfold.",
-                    ]),
-                    arrow(time.panel.center_of_panel()),
+                    ]))
+                    .arrow(time.panel.center_of_panel()),
                 )
                 .msg(
-                    {
+                    Message::new({
                         let mut txt = Text::from(Line("You can pause or resume time"));
                         txt.add_line("");
                         txt.add_line("Hint: Press ");
                         txt.append(Line(Key::Space.describe()).fg(ctx.style().text_hotkey_color));
                         txt.append(Line(" to pause/resume"));
                         txt
-                    },
-                    arrow(time.panel.center_of("pause")),
+                    })
+                    .arrow(time.panel.center_of("pause"))
+                    .icon("system/assets/speed/pause.svg"),
                 )
                 .msg(
-                    {
-                        let mut txt = Text::from(Line("Speed things uptime"));
+                    Message::new({
+                        let mut txt = Text::from(Line("Speed things up"));
                         txt.add_line("");
                         txt.add_line("Hint: Press ");
                         txt.append(
@@ -976,40 +993,40 @@ impl TutorialState {
                         );
                         txt.append(Line(" to speed up"));
                         txt
-                    },
-                    arrow(time.panel.center_of("30x speed")),
+                    })
+                    .arrow(time.panel.center_of("30x speed"))
+                    .icon("system/assets/speed/triangle.svg"),
                 )
                 .msg(
-                    Text::from("Advance time by certain amounts"),
-                    arrow(time.panel.center_of("step forwards")),
+                    Message::new(Text::from("Advance time by certain amounts"))
+                        .arrow(time.panel.center_of("step forwards")),
                 )
                 .msg(
-                    Text::from("And jump to the beginning of the day"),
-                    arrow(time.panel.center_of("reset to midnight")),
+                    Message::new(Text::from("And jump to the beginning of the day"))
+                        .arrow(time.panel.center_of("reset to midnight"))
+                        .icon("system/assets/speed/reset.svg"),
                 )
-                .msg(
-                    Text::from("Let's try these controls out. Wait until 5pm or later."),
-                    None,
-                ),
+                .msg(Message::new(Text::from(
+                    "Let's try these controls out. Wait until 5pm or later.",
+                ))),
         );
 
         state.stages.push(
             Stage::new(Task::PauseResume)
+                .msg(Message::new(Text::from(
+                    "Whew, that took a while! (Hopefully not though...)",
+                )))
                 .msg(
-                    Text::from("Whew, that took a while! (Hopefully not though...)"),
-                    None,
-                )
-                .msg(
-                    Text::from_multiline(vec![
+                    Message::new(Text::from_multiline(vec![
                         "You might've figured it out already,",
                         "But you'll be pausing/resuming time VERY frequently",
-                    ]),
-                    arrow(time.panel.center_of("pause")),
+                    ]))
+                    .arrow(time.panel.center_of("pause"))
+                    .icon("system/assets/speed/pause.svg"),
                 )
-                .msg(
-                    Text::from("Just reassure me and pause/resume time a few times, alright?"),
-                    None,
-                ),
+                .msg(Message::new(Text::from(
+                    "Just reassure me and pause/resume time a few times, alright?",
+                ))),
         );
 
         state.stages.push(
@@ -1092,23 +1109,19 @@ impl TutorialState {
                         app,
                     );
                 }))
+                .msg(Message::new(Text::from(
+                    "Alright alright, no need to wear out your spacebar.",
+                )))
+                .msg(Message::new(Text::from_multiline(vec![
+                    "Oh look, some people appeared!",
+                    "We've got pedestrians, bikes, and cars moving around now.",
+                ])))
                 .msg(
-                    Text::from("Alright alright, no need to wear out your spacebar."),
-                    None,
-                )
-                .msg(
-                    Text::from_multiline(vec![
-                        "Oh look, some people appeared!",
-                        "We've got pedestrians, bikes, and cars moving around now.",
-                    ]),
-                    None,
-                )
-                .left_aligned_msg(
-                    Text::from_multiline(vec![
+                    Message::new(Text::from_multiline(vec![
                         "Why don't you follow this car to their destination,",
                         "see where they park, and then play a little... prank?",
-                    ]),
-                    Some(Box::new(|g, app| {
+                    ]))
+                    .dynamic_arrow(Box::new(|g, app| {
                         g.canvas
                             .map_to_screen(
                                 app.primary
@@ -1117,15 +1130,17 @@ impl TutorialState {
                                     .unwrap(),
                             )
                             .to_pt()
-                    })),
+                    }))
+                    .left_aligned(),
                 )
                 .msg(
-                    Text::from_multiline(vec![
+                    Message::new(Text::from_multiline(vec![
                         "You don't have to manually chase them; just click to follow.",
                         "",
                         "(If you do lose track of them, just reset)",
-                    ]),
-                    arrow(time.panel.center_of("reset to midnight")),
+                    ]))
+                    .arrow(time.panel.center_of("reset to midnight"))
+                    .icon("system/assets/speed/reset.svg"),
                 ),
         );
 
@@ -1147,33 +1162,33 @@ impl TutorialState {
                     border_spawn_over_time: Vec::new(),
                 })
                 .msg(
-                    Text::from_multiline(vec![
+                    Message::new(Text::from_multiline(vec![
                         "What an immature prank. You should re-evaluate your life decisions.",
                         "",
                         "The map is quite large, so to help you orient, the minimap shows you an \
                          overview of all activity. You can click and drag it just like the normal \
                          map.",
-                    ]),
-                    arrow(minimap.get_panel().center_of("minimap")),
+                    ]))
+                    .arrow(minimap.get_panel().center_of("minimap"))
+                    .left_aligned(),
                 )
                 .msg(
-                    Text::from_multiline(vec![
+                    Message::new(Text::from_multiline(vec![
                         "You can apply different layers to the map, to find things like:",
                         "",
                         "- roads with high traffic",
                         "- bus stops",
                         "- how much parking is filled up",
-                    ]),
-                    arrow(minimap.get_panel().center_of("change layers")),
+                    ]))
+                    .arrow(minimap.get_panel().center_of("change layers"))
+                    .icon("system/assets/tools/layers.svg")
+                    .left_aligned(),
                 )
-                .msg(
-                    Text::from_multiline(vec![
-                        "Let's try these out.",
-                        "There are lots of cars parked everywhere. Can you find a road that's \
-                         almost out of parking spots?",
-                    ]),
-                    None,
-                ),
+                .msg(Message::new(Text::from_multiline(vec![
+                    "Let's try these out.",
+                    "There are lots of cars parked everywhere. Can you find a road that's almost \
+                     out of parking spots?",
+                ]))),
         );
 
         let bike_lane_scenario = make_bike_lane_scenario(map);
@@ -1183,15 +1198,12 @@ impl TutorialState {
             Stage::new(Task::WatchBikes)
                 .warp_to(ID::Building(bike_lane_focus_pt), None)
                 .scenario(bike_lane_scenario.clone())
-                .msg(
-                    Text::from_multiline(vec![
-                        "Well done!",
-                        "",
-                        "Something's about to happen over here. Follow along and figure out what \
-                         the problem is, at whatever speed you'd like.",
-                    ]),
-                    None,
-                ),
+                .msg(Message::new(Text::from_multiline(vec![
+                    "Well done!",
+                    "",
+                    "Something's about to happen over here. Follow along and figure out what the \
+                     problem is, at whatever speed you'd like.",
+                ]))),
         );
 
         let top_right = state.make_top_right(ctx, true);
@@ -1199,44 +1211,35 @@ impl TutorialState {
             Stage::new(Task::FixBikes)
                 .scenario(bike_lane_scenario)
                 .warp_to(ID::Building(bike_lane_focus_pt), None)
+                .msg(Message::new(Text::from_multiline(vec![
+                    "Looks like lots of cars and bikes trying to go to a house by the playfield.",
+                    "",
+                    "When lots of cars and bikes share the same lane, cars are delayed (assuming \
+                     there's no room to pass) and the cyclist probably feels unsafe too.",
+                ])))
+                .msg(Message::new(Text::from(
+                    "Luckily, you have the power to modify lanes! What if you could transform the \
+                     parking lanes that aren't being used much into bike lanes?",
+                )))
                 .msg(
-                    Text::from_multiline(vec![
-                        "Looks like lots of cars and bikes trying to go to a house by the \
-                         playfield.",
-                        "",
-                        "When lots of cars and bikes share the same lane, cars are delayed \
-                         (assuming there's no room to pass) and the cyclist probably feels unsafe \
-                         too.",
-                    ]),
-                    None,
+                    Message::new(Text::from(
+                        "To edit lanes, click 'edit map' and then select a lane.",
+                    ))
+                    .arrow(top_right.center_of("edit map")),
                 )
-                .msg(
-                    Text::from(
-                        "Luckily, you have the power to modify lanes! What if you could transform \
-                         the parking lanes that aren't being used much into bike lanes?",
-                    ),
-                    None,
-                )
-                .msg(
-                    Text::from("To edit lanes, click 'edit map' and then select a lane."),
-                    arrow(top_right.center_of("edit map")),
-                )
-                .msg(
-                    Text::from_multiline(vec![
-                        "When you finish making edits, time will jump to the beginning of the \
-                         next day. You can't make most changes in the middle of the day.",
-                        "",
-                        "Seattleites are really boring; they follow the exact same schedule \
-                         everyday. They're also stubborn, so even if you try to influence their \
-                         decision whether to drive, walk, bike, or take a bus, they'll do the \
-                         same thing. For now, you're just trying to make things better, assuming \
-                         people stick to their routine.",
-                    ]),
-                    None,
-                )
+                .msg(Message::new(Text::from_multiline(vec![
+                    "When you finish making edits, time will jump to the beginning of the next \
+                     day. You can't make most changes in the middle of the day.",
+                    "",
+                    "Seattleites are really boring; they follow the exact same schedule everyday. \
+                     They're also stubborn, so even if you try to influence their decision \
+                     whether to drive, walk, bike, or take a bus, they'll do the same thing. For \
+                     now, you're just trying to make things better, assuming people stick to \
+                     their routine.",
+                ])))
                 .msg(
                     // TODO Deliberately vague with the measurement.
-                    Text::from_multiline(vec![
+                    Message::new(Text::from_multiline(vec![
                         format!(
                             "So adjust lanes and speed up the slowest trip by at least {}.",
                             CAR_BIKE_CONTENTION_GOAL
@@ -1245,13 +1248,13 @@ impl TutorialState {
                         "You can explore results as trips finish. When everyone's finished, \
                          you'll get your final score."
                             .to_string(),
-                    ]),
-                    arrow(minimap.get_panel().center_of("more data")),
+                    ]))
+                    .arrow(minimap.get_panel().center_of("more data")),
                 ),
         );
 
-        state.stages.push(Stage::new(Task::Done).msg(
-            Text::from_multiline(vec![
+        state.stages.push(
+            Stage::new(Task::Done).msg(Message::new(Text::from_multiline(vec![
                 "You're ready for the hard stuff now.",
                 "",
                 "- Try out some challenges",
@@ -1260,9 +1263,8 @@ impl TutorialState {
                 "- Check out community proposals, and submit your own",
                 "",
                 "Go have the appropriate amount of fun!",
-            ]),
-            None,
-        ));
+            ]))),
+        );
 
         state
 
