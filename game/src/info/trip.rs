@@ -5,7 +5,10 @@ use maplit::btreemap;
 use geom::{Distance, Duration, Percent, Polygon, Pt2D};
 use map_gui::ID;
 use map_model::{Map, Path, PathStep};
-use sim::{AgentID, PersonID, TripEndpoint, TripID, TripMode, TripPhase, TripPhaseType};
+use sim::{
+    AgentID, Analytics, PersonID, Problem, TripEndpoint, TripID, TripInfo, TripMode, TripPhase,
+    TripPhaseType,
+};
 use widgetry::{
     Color, ControlState, DrawWithTooltips, EventCtx, GeomBatch, Line, LinePlot, PlotOptions,
     RewriteColor, Series, Text, TextExt, Widget,
@@ -115,30 +118,13 @@ pub fn ongoing(
             ]),
         ]));
     }
-    if trip.mode != TripMode::Drive {
-        // TODO Terminology?
-        col.push(Widget::custom_row(vec![
-            Line("Risks")
-                .secondary()
-                .into_widget(ctx)
-                .container()
-                .force_width_pct(ctx, col_width),
-            Text::from_all(vec![
-                Line(
-                    app.primary
-                        .sim
-                        .get_analytics()
-                        .large_intersection_crossings
-                        .get(&id)
-                        .map(|x| x.len())
-                        .unwrap_or(0)
-                        .to_string(),
-                ),
-                Line(" crossings at large intersections").secondary(),
-            ])
-            .into_widget(ctx),
-        ]));
-    }
+    col.push(describe_problems(
+        ctx,
+        app.primary.sim.get_analytics(),
+        id,
+        &trip,
+        col_width,
+    ));
     {
         col.push(Widget::custom_row(vec![
             Widget::custom_row(vec![Line("Purpose").secondary().into_widget(ctx)])
@@ -355,33 +341,17 @@ pub fn finished(
             Line(trip.purpose.to_string()).secondary().into_widget(ctx),
         ]));
     }
-    // TODO Duplicating some code from ongoing() until we decide how to consolidate things.
-    if trip.mode != TripMode::Drive {
-        let analytics = if open_trips[&id].show_after {
+    col.push(describe_problems(
+        ctx,
+        if open_trips[&id].show_after {
             app.primary.sim.get_analytics()
         } else {
             app.prebaked()
-        };
-        col.push(Widget::custom_row(vec![
-            Line("Risks")
-                .secondary()
-                .into_widget(ctx)
-                .container()
-                .force_width_pct(ctx, col_width),
-            Text::from_all(vec![
-                Line(
-                    analytics
-                        .large_intersection_crossings
-                        .get(&id)
-                        .map(|x| x.len())
-                        .unwrap_or(0)
-                        .to_string(),
-                ),
-                Line(" crossings at large intersections").secondary(),
-            ])
-            .into_widget(ctx),
-        ]));
-    }
+        },
+        id,
+        &trip,
+        col_width,
+    ));
 
     col.push(make_trip_details(
         ctx,
@@ -428,94 +398,82 @@ pub fn cancelled(
     Widget::col(col)
 }
 
-/// Highlights intersections which were "slow" on the map
-fn highlight_slow_intersections(ctx: &EventCtx, app: &App, details: &mut Details, id: TripID) {
-    if let Some(delays) = app
-        .primary
-        .sim
-        .get_analytics()
-        .trip_intersection_delays
-        .get(&id)
-    {
-        for (id, time) in delays {
-            let intersection = app.primary.map.get_i(id.parent);
-            let (normal_delay_time, slow_delay_time) = if intersection.is_traffic_signal() {
-                (30, 120)
-            } else {
-                (5, 30)
-            };
-            let (fg_color, bg_color) = if *time < normal_delay_time {
-                (Color::WHITE, app.cs.normal_slow_intersection)
-            } else if *time < slow_delay_time {
-                (Color::BLACK, app.cs.slow_intersection)
-            } else {
-                (Color::WHITE, app.cs.very_slow_intersection)
-            };
-
-            let duration = Duration::seconds(*time as f64);
-            details.unzoomed.append(
-                Text::from(Line(format!("{}", duration)).fg(fg_color))
-                    .bg(bg_color)
-                    .render(ctx)
-                    .centered_on(intersection.polygon.center()),
-            );
-            details.zoomed.append(
-                Text::from(Line(format!("{}", duration)).fg(fg_color))
-                    .bg(bg_color)
-                    .render(ctx)
-                    .scale(0.4)
-                    .centered_on(intersection.polygon.center()),
-            );
+fn describe_problems(
+    ctx: &mut EventCtx,
+    analytics: &Analytics,
+    id: TripID,
+    trip: &TripInfo,
+    col_width: Percent,
+) -> Widget {
+    if trip.mode == TripMode::Bike {
+        let mut count = 0;
+        let empty = Vec::new();
+        for problem in analytics.problems_per_trip.get(&id).unwrap_or(&empty) {
+            if let Problem::LargeIntersectionCrossing(_) = problem {
+                count += 1;
+            }
         }
+        Widget::custom_row(vec![
+            Line("Risk exposure")
+                .secondary()
+                .into_widget(ctx)
+                .container()
+                .force_width_pct(ctx, col_width),
+            Text::from_all(vec![
+                Line(count.to_string()),
+                // TODO Singular/plural
+                Line(" crossings at large intersections").secondary(),
+            ])
+            .into_widget(ctx),
+        ])
+    } else {
+        Widget::nothing()
     }
 }
 
-/// Highlights lanes which were "slow" on the map
-fn highlight_slow_lanes(ctx: &EventCtx, app: &App, details: &mut Details, id: TripID) {
-    if let Some(lane_speeds) = app
+fn draw_problems(ctx: &EventCtx, app: &App, details: &mut Details, id: TripID) {
+    let empty = Vec::new();
+    for problem in app
         .primary
         .sim
         .get_analytics()
-        .lane_speed_percentage
+        .problems_per_trip
         .get(&id)
+        .unwrap_or(&empty)
     {
-        for (id, speed_percent) in lane_speeds.iter() {
-            let lane = app.primary.map.get_l(*id);
-            let (fg_color, bg_color) = if speed_percent > &95 {
-                (Color::WHITE, app.cs.normal_slow_intersection)
-            } else if speed_percent > &60 {
-                (Color::BLACK, app.cs.slow_intersection)
-            } else {
-                (Color::WHITE, app.cs.very_slow_intersection)
-            };
-            details.unzoomed.push(
-                bg_color,
-                lane.lane_center_pts.make_polygons(Distance::meters(10.0)),
-            );
-            details.zoomed.extend(
-                bg_color,
-                lane.lane_center_pts.dashed_lines(
-                    Distance::meters(0.75),
-                    Distance::meters(1.0),
-                    Distance::meters(0.4),
-                ),
-            );
-            let (pt, _) = lane
-                .lane_center_pts
-                .must_dist_along(lane.lane_center_pts.length() / 2.0);
-            details.unzoomed.append(
-                Text::from(Line(format!("{}s", speed_percent)).fg(fg_color))
-                    .bg(bg_color)
-                    .render(ctx)
-                    .centered_on(pt),
-            );
-            details.zoomed.append(
-                Text::from(Line(format!("{}s", speed_percent)).fg(fg_color))
-                    .bg(bg_color)
-                    .render(ctx)
-                    .scale(0.4)
-                    .centered_on(pt),
-            );
+        match problem {
+            Problem::IntersectionDelay(i, delay) => {
+                let i = app.primary.map.get_i(*i);
+                // TODO These thresholds don't match what we use as thresholds in the simulation.
+                let (slow, slower) = if i.is_traffic_signal() {
+                    (Duration::seconds(30.0), Duration::minutes(2))
+                } else {
+                    (Duration::seconds(5.0), Duration::seconds(30.0))
+                };
+                let (fg_color, bg_color) = if *delay < slow {
+                    (Color::WHITE, app.cs.slow_intersection)
+                } else if *delay < slower {
+                    (Color::BLACK, app.cs.slower_intersection)
+                } else {
+                    (Color::WHITE, app.cs.slowest_intersection)
+                };
+                details.unzoomed.append(
+                    Text::from(Line(format!("{}", delay)).fg(fg_color))
+                        .bg(bg_color)
+                        .render(ctx)
+                        .centered_on(i.polygon.center()),
+                );
+                details.zoomed.append(
+                    Text::from(Line(format!("{}", delay)).fg(fg_color))
+                        .bg(bg_color)
+                        .render(ctx)
+                        .scale(0.4)
+                        .centered_on(i.polygon.center()),
+                );
+            }
+            Problem::LargeIntersectionCrossing(_) => {
+                // TODO Maybe a caution icon?
+            }
         }
     }
 }
@@ -802,8 +760,7 @@ fn make_trip_details(
         col.push("Map edits have disconnected the path taken before".text_widget(ctx));
     }
     col.extend(elevation);
-    highlight_slow_intersections(ctx, app, details, trip_id);
-    highlight_slow_lanes(ctx, app, details, trip_id);
+    draw_problems(ctx, app, details, trip_id);
     Widget::col(col)
 }
 

@@ -6,12 +6,11 @@ use abstutil::Counter;
 use geom::{Duration, Time};
 use map_model::{
     BusRouteID, BusStopID, CompressedMovementID, IntersectionID, LaneID, Map, MovementID,
-    ParkingLotID, Path, PathRequest, RoadID, Traversable, TurnID, TurnType,
+    ParkingLotID, Path, PathRequest, RoadID, Traversable, TurnType,
 };
 
 use crate::{
     AgentID, AgentType, AlertLocation, CarID, Event, ParkingSpot, TripID, TripMode, TripPhaseType,
-    VehicleType,
 };
 
 /// As a simulation runs, different pieces emit Events. The Analytics object listens to these,
@@ -45,17 +44,8 @@ pub struct Analytics {
     /// Finish time, ID, mode, trip duration if successful (or None if cancelled)
     pub finished_trips: Vec<(Time, TripID, TripMode, Option<Duration>)>,
 
-    /// Records how long was spent waiting at each turn (Intersection) for a given trip
-    /// Over a certain threshold
-    /// TripID, [(TurnID, Time Waiting In Seconds)]
-    pub trip_intersection_delays: BTreeMap<TripID, BTreeMap<TurnID, u8>>,
-    /// Records the average speed/maximum speed for each lane
-    /// If it is over a certain threshold (<95% of max speed)
-    /// TripID, [(LaneID, Percent of maximum speed as an integer (0-100)]
-    pub lane_speed_percentage: BTreeMap<TripID, BTreeMap<LaneID, u8>>,
-    /// Record every instance of somebody on foot or a bike crossing an intersection with more than
-    /// 4 connecting roads.
-    pub large_intersection_crossings: BTreeMap<TripID, Vec<(Time, IntersectionID)>>,
+    /// Record different problems that each trip encounters.
+    pub problems_per_trip: BTreeMap<TripID, Vec<Problem>>,
 
     // TODO This subsumes finished_trips
     pub trip_log: Vec<(Time, TripID, Option<PathRequest>, TripPhaseType)>,
@@ -74,6 +64,14 @@ pub struct Analytics {
     record_anything: bool,
 }
 
+#[derive(Clone, Serialize, Deserialize)]
+pub enum Problem {
+    /// A vehicle waited >30s, or a pedestrian waited >15s.
+    IntersectionDelay(IntersectionID, Duration),
+    /// A cyclist crossed an intersection with >4 connecting roads.
+    LargeIntersectionCrossing(IntersectionID),
+}
+
 impl Analytics {
     pub fn new(record_anything: bool) -> Analytics {
         Analytics {
@@ -86,9 +84,7 @@ impl Analytics {
             passengers_alighting: BTreeMap::new(),
             started_trips: BTreeMap::new(),
             finished_trips: Vec::new(),
-            trip_intersection_delays: BTreeMap::new(),
-            lane_speed_percentage: BTreeMap::new(),
-            large_intersection_crossings: BTreeMap::new(),
+            problems_per_trip: BTreeMap::new(),
             trip_log: Vec::new(),
             intersection_delays: BTreeMap::new(),
             parking_lane_changes: BTreeMap::new(),
@@ -197,24 +193,17 @@ impl Analytics {
 
         // Intersection delay
         if let Event::IntersectionDelayMeasured(trip_id, turn_id, agent, delay) = ev {
-            match agent {
-                AgentID::Car(_) => {
-                    if delay > Duration::seconds(30.0) {
-                        self.trip_intersection_delays
-                            .entry(trip_id)
-                            .or_insert_with(BTreeMap::new)
-                            .insert(turn_id, delay.inner_seconds() as u8);
-                    }
-                }
-                AgentID::Pedestrian(_) => {
-                    if delay > Duration::seconds(15.0) {
-                        self.trip_intersection_delays
-                            .entry(trip_id)
-                            .or_insert_with(BTreeMap::new)
-                            .insert(turn_id, delay.inner_seconds() as u8);
-                    }
-                }
-                AgentID::BusPassenger(_, _) => {}
+            let threshold = match agent {
+                AgentID::Car(_) => Duration::seconds(30.0),
+                AgentID::Pedestrian(_) => Duration::seconds(15.0),
+                // Don't record for riders
+                AgentID::BusPassenger(_, _) => Duration::hours(24),
+            };
+            if delay > threshold {
+                self.problems_per_trip
+                    .entry(trip_id)
+                    .or_insert_with(Vec::new)
+                    .push(Problem::IntersectionDelay(turn_id.parent, delay));
             }
 
             // SharedSidewalkCorner are always no-conflict, immediate turns; they're not
@@ -227,17 +216,6 @@ impl Analytics {
                         .or_insert_with(Vec::new)
                         .push((ts.compressed_id(turn_id).idx, time, delay, agent.to_type()));
                 }
-            }
-        }
-
-        // Lane Speed
-        if let Event::LaneSpeedPercentage(trip_id, lane_id, avg_speed, max_speed) = ev {
-            let speed_percent: u8 = ((avg_speed / max_speed) * 100.0) as u8;
-            if speed_percent < 95 {
-                self.lane_speed_percentage
-                    .entry(trip_id)
-                    .or_insert_with(BTreeMap::new)
-                    .insert(lane_id, speed_percent);
             }
         }
 
@@ -271,26 +249,14 @@ impl Analytics {
 
         // Safety metrics
         if let Event::AgentEntersTraversable(a, Some(trip), Traversable::Turn(t), _) = ev {
-            if match a {
-                AgentID::Pedestrian(_) => true,
-                AgentID::Car(c) => c.1 == VehicleType::Bike,
-                _ => false,
-            } {
-                //
-                // - If a pedestrian never enters a crosswalk at a large intersection, don't record.
-                // - Note one intersection will get counted multiple times if a pedestrian uses
-                //   several crosswalks there.
-                // - Defining a "large intersection" is tricky. If a road is split into two
-                //   one-ways, should we count it as two roads? If we haven't consolidated some
-                //   crazy intersection, we won't see it.
-                if map.get_t(t).turn_type != TurnType::SharedSidewalkCorner
-                    && map.get_i(t.parent).roads.len() > 4
-                {
-                    self.large_intersection_crossings
-                        .entry(trip)
-                        .or_insert_with(Vec::new)
-                        .push((time, t.parent));
-                }
+            if a.to_type() == AgentType::Bike && map.get_i(t.parent).roads.len() > 4 {
+                // Defining a "large intersection" is tricky. If a road is split into two one-ways,
+                // should we count it as two roads? If we haven't consolidated some crazy
+                // intersection, we won't see it.
+                self.problems_per_trip
+                    .entry(trip)
+                    .or_insert_with(Vec::new)
+                    .push(Problem::LargeIntersectionCrossing(t.parent));
             }
         }
 
