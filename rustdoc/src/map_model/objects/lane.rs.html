@@ -372,6 +372,10 @@
 <span id="369">369</span>
 <span id="370">370</span>
 <span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -447,6 +451,10 @@
             <span class="ident">LaneType</span>::<span class="ident">Construction</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
             <span class="ident">LaneType</span>::<span class="ident">LightRail</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
         }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_walkable</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Shoulder</span>
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">describe</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
@@ -584,7 +592,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_walkable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Shoulder</span>
+        <span class="self">self</span>.<span class="ident">lane_type</span>.<span class="ident">is_walkable</span>()
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_sidewalk</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {

@@ -300,47 +300,6 @@
 <span id="297">297</span>
 <span id="298">298</span>
 <span id="299">299</span>
-<span id="300">300</span>
-<span id="301">301</span>
-<span id="302">302</span>
-<span id="303">303</span>
-<span id="304">304</span>
-<span id="305">305</span>
-<span id="306">306</span>
-<span id="307">307</span>
-<span id="308">308</span>
-<span id="309">309</span>
-<span id="310">310</span>
-<span id="311">311</span>
-<span id="312">312</span>
-<span id="313">313</span>
-<span id="314">314</span>
-<span id="315">315</span>
-<span id="316">316</span>
-<span id="317">317</span>
-<span id="318">318</span>
-<span id="319">319</span>
-<span id="320">320</span>
-<span id="321">321</span>
-<span id="322">322</span>
-<span id="323">323</span>
-<span id="324">324</span>
-<span id="325">325</span>
-<span id="326">326</span>
-<span id="327">327</span>
-<span id="328">328</span>
-<span id="329">329</span>
-<span id="330">330</span>
-<span id="331">331</span>
-<span id="332">332</span>
-<span id="333">333</span>
-<span id="334">334</span>
-<span id="335">335</span>
-<span id="336">336</span>
-<span id="337">337</span>
-<span id="338">338</span>
-<span id="339">339</span>
-<span id="340">340</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Pathfinding for cars, bikes, buses, and trains using contraction hierarchies</span>
 
@@ -359,7 +318,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">zone_cost</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>, <span class="ident">PathConstraints</span>,
-    <span class="ident">PathRequest</span>, <span class="ident">PathV2</span>, <span class="ident">RoadID</span>, <span class="ident">RoutingParams</span>, <span class="ident">Traversable</span>, <span class="ident">TurnType</span>,
+    <span class="ident">PathRequest</span>, <span class="ident">PathV2</span>, <span class="ident">RoutingParams</span>, <span class="ident">Traversable</span>, <span class="ident">TurnType</span>,
 };
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -511,26 +470,13 @@
         }
     }
 
-    <span class="kw">let</span> <span class="ident">num_roads</span> <span class="op">=</span> <span class="number">2</span> <span class="op">*</span> <span class="ident">map</span>.<span class="ident">all_roads</span>().<span class="ident">len</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">used_last_uber_turn</span> <span class="op">=</span> <span class="bool-val">false</span>;
     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
-        <span class="kw">for</span> <span class="ident">dr</span> <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">DirectedRoadID</span> {
-                <span class="ident">id</span>: <span class="ident">r</span>.<span class="ident">id</span>,
-                <span class="ident">dir</span>: <span class="ident">Direction</span>::<span class="ident">Fwd</span>,
-            },
-            <span class="ident">DirectedRoadID</span> {
-                <span class="ident">id</span>: <span class="ident">r</span>.<span class="ident">id</span>,
-                <span class="ident">dir</span>: <span class="ident">Direction</span>::<span class="ident">Back</span>,
-            },
-        ] {
+        <span class="kw">for</span> <span class="ident">dr</span> <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">id</span>.<span class="ident">both_directions</span>() {
             <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">Node</span>::<span class="ident">Road</span>(<span class="ident">dr</span>));
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">any</span> <span class="op">=</span> <span class="bool-val">false</span>;
             <span class="kw">if</span> <span class="op">!</span><span class="ident">dr</span>.<span class="ident">lanes</span>(<span class="ident">constraints</span>, <span class="ident">map</span>).<span class="ident">is_empty</span>() {
                 <span class="kw">let</span> <span class="ident">indices</span> <span class="op">=</span> <span class="ident">uber_turn_entrances</span>.<span class="ident">get</span>(<span class="ident">dr</span>);
                 <span class="kw">if</span> <span class="ident">indices</span>.<span class="ident">is_empty</span>() {
                     <span class="kw">for</span> <span class="ident">mvmnt</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_movements_for</span>(<span class="ident">dr</span>, <span class="ident">constraints</span>) {
-                        <span class="ident">any</span> <span class="op">=</span> <span class="bool-val">true</span>;
                         <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(
                             <span class="ident">from</span>,
                             <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">Node</span>::<span class="ident">Road</span>(<span class="ident">mvmnt</span>.<span class="ident">to</span>)),
@@ -547,7 +493,6 @@
                     }
                 } <span class="kw">else</span> {
                     <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="ident">indices</span> {
-                        <span class="ident">any</span> <span class="op">=</span> <span class="bool-val">true</span>;
                         <span class="kw">let</span> <span class="ident">ut</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">uber_turns</span>[<span class="kw-2">*</span><span class="ident">idx</span>];
 
                         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sum_cost</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>;
@@ -571,40 +516,13 @@
                             <span class="comment">// The cost is already captured for entering the uber-turn</span>
                             <span class="number">1</span>,
                         );
-                        <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">uber_turns</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
-                            <span class="ident">used_last_uber_turn</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                        }
                     }
                 }
-            }
-            <span class="comment">// The nodes in the graph MUST exactly be all of the roads, so we can reuse node</span>
-            <span class="comment">// ordering later. If the last road doesn&#39;t have any edges, then this won&#39;t</span>
-            <span class="comment">// work -- fast_paths trims out unused nodes at the end. So pretend like it</span>
-            <span class="comment">// points to some arbitrary other node. Since no paths will start from this</span>
-            <span class="comment">// unused node, this won&#39;t affect results. TODO Upstream a method in</span>
-            <span class="comment">// InputGraph to do this more clearly.</span>
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">any</span> <span class="op">&amp;&amp;</span> <span class="ident">r</span>.<span class="ident">id</span>.<span class="number">0</span> <span class="op">=</span><span class="op">=</span> <span class="ident">num_roads</span> <span class="op">-</span> <span class="number">1</span> <span class="op">&amp;&amp;</span> <span class="ident">dr</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Back</span> {
-                <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(
-                    <span class="ident">from</span>,
-                    <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">Node</span>::<span class="ident">Road</span>(<span class="ident">DirectedRoadID</span> {
-                        <span class="ident">id</span>: <span class="ident">RoadID</span>(<span class="number">0</span>),
-                        <span class="ident">dir</span>: <span class="ident">Direction</span>::<span class="ident">Fwd</span>,
-                    })),
-                    <span class="number">1</span>,
-                );
             }
         }
     }
 
-    <span class="comment">// Same as the hack above for unused lanes</span>
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">used_last_uber_turn</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">uber_turns</span>.<span class="ident">is_empty</span>() {
-        <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(
-            <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">Node</span>::<span class="ident">UberTurn</span>(<span class="ident">uber_turns</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>)),
-            <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">Node</span>::<span class="ident">UberTurn</span>(<span class="number">0</span>)),
-            <span class="number">1</span>,
-        );
-    }
-
+    <span class="ident">nodes</span>.<span class="ident">guarantee_node_ordering</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">input_graph</span>);
     <span class="ident">input_graph</span>.<span class="ident">freeze</span>();
     <span class="ident">input_graph</span>
 }
