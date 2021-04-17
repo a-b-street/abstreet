@@ -200,7 +200,7 @@ pub fn _make_walking_turns_v2(map: &Map, i: &Intersection) -> Vec<Turn> {
         let mut fwd = None;
         let mut back = None;
         for (l, dir, lt) in r.lanes_ltr() {
-            if lt == LaneType::Sidewalk || lt == LaneType::Shoulder {
+            if lt.is_walkable() {
                 if dir == Direction::Fwd {
                     fwd = Some(&all_lanes[&l]);
                 } else {
@@ -543,7 +543,7 @@ fn get_sidewalk<'a>(
     children: Vec<(LaneID, LaneType)>,
 ) -> Option<&'a Lane> {
     for (id, lt) in children {
-        if lt == LaneType::Sidewalk || lt == LaneType::Shoulder {
+        if lt.is_walkable() {
             return Some(&lanes[&id]);
         }
     }

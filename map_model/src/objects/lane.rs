@@ -74,6 +74,10 @@ impl LaneType {
         }
     }
 
+    pub fn is_walkable(self) -> bool {
+        self == LaneType::Sidewalk || self == LaneType::Shoulder
+    }
+
     pub fn describe(self) -> &'static str {
         match self {
             LaneType::Driving => "a general-purpose driving lane",
@@ -209,7 +213,7 @@ impl Lane {
     }
 
     pub fn is_walkable(&self) -> bool {
-        self.lane_type == LaneType::Sidewalk || self.lane_type == LaneType::Shoulder
+        self.lane_type.is_walkable()
     }
 
     pub fn is_sidewalk(&self) -> bool {

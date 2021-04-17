@@ -16,8 +16,8 @@ use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::pathfind::vehicles::VehiclePathfinder;
 use crate::pathfind::zone_cost;
 use crate::{
-    BusRoute, BusRouteID, BusStopID, DirectedRoadID, IntersectionID, Map, MovementID,
-    PathConstraints, PathRequest, PathStepV2, PathV2, Position, Traversable,
+    BusRoute, BusRouteID, BusStopID, DirectedRoadID, Direction, IntersectionID, Map, MovementID,
+    PathConstraints, PathRequest, PathStepV2, PathV2, Position, RoadID, Traversable,
 };
 
 #[derive(Serialize, Deserialize)]
@@ -68,17 +68,17 @@ impl WalkingNode {
 impl SidewalkPathfinder {
     pub fn new(map: &Map, use_transit: bool, bus_graph: &VehiclePathfinder) -> SidewalkPathfinder {
         let mut nodes = NodeMap::new();
-        // We're assuming sidewalks aren't editable, so what exists initially will always be true.
-        for l in map.all_lanes().values() {
-            if l.is_walkable() {
-                // We're also assuming there's only one walkable lane per side of the road.
-                nodes.get_or_insert(WalkingNode::SidewalkEndpoint(l.get_directed_parent(), true));
-                nodes.get_or_insert(WalkingNode::SidewalkEndpoint(
-                    l.get_directed_parent(),
-                    false,
-                ));
+        for r in map.all_roads() {
+            // Regardless of whether the road has sidewalks/shoulders on one or both sides, add
+            // both. These could change later, and we want the node IDs to match up.
+            for dr in r.id.both_directions() {
+                for endpt in vec![true, false] {
+                    nodes.get_or_insert(WalkingNode::SidewalkEndpoint(dr, endpt));
+                }
             }
         }
+
+        // Right now, the bus nodes aren't editable.
         if use_transit {
             // Add a node for each bus stop.
             for bs in map.all_bus_stops().keys() {
@@ -100,8 +100,6 @@ impl SidewalkPathfinder {
     }
 
     pub fn apply_edits(&mut self, map: &Map, bus_graph: &VehiclePathfinder) {
-        // The NodeMap is all sidewalks, bus stops, and borders -- it won't change. So we can also
-        // reuse the node ordering.
         let input_graph = make_input_graph(map, &self.nodes, self.use_transit, bus_graph);
         let node_ordering = self.graph.get_node_ordering();
         self.graph = fast_paths::prepare_with_order(&input_graph, &node_ordering).unwrap();
@@ -227,25 +225,55 @@ fn make_input_graph(
     let max_speed = Some(crate::MAX_WALKING_SPEED);
     let mut input_graph = InputGraph::new();
 
-    for l in map.all_lanes().values() {
-        if l.is_walkable() {
-            let mut cost = l.length()
-                / Traversable::Lane(l.id).max_speed_along(
-                    max_speed,
-                    PathConstraints::Pedestrian,
-                    map,
-                );
-            // TODO Tune this penalty, along with many others.
-            if l.is_shoulder() {
-                cost = 2.0 * cost;
+    let num_roads = map.all_roads().len();
+    for r in map.all_roads() {
+        let mut any_back = false;
+        for (l, dir, lt) in r.lanes_ltr() {
+            if lt.is_walkable() {
+                if dir == Direction::Back {
+                    any_back = true;
+                }
+
+                let l = map.get_l(l);
+                let mut cost = l.length()
+                    / Traversable::Lane(l.id).max_speed_along(
+                        max_speed,
+                        PathConstraints::Pedestrian,
+                        map,
+                    );
+                // TODO Tune this penalty, along with many others.
+                if l.is_shoulder() {
+                    cost = 2.0 * cost;
+                }
+                let n1 = nodes.get(WalkingNode::SidewalkEndpoint(l.get_directed_parent(), true));
+                let n2 = nodes.get(WalkingNode::SidewalkEndpoint(
+                    l.get_directed_parent(),
+                    false,
+                ));
+                input_graph.add_edge(n1, n2, round(cost));
+                input_graph.add_edge(n2, n1, round(cost));
             }
-            let n1 = nodes.get(WalkingNode::SidewalkEndpoint(l.get_directed_parent(), true));
-            let n2 = nodes.get(WalkingNode::SidewalkEndpoint(
-                l.get_directed_parent(),
-                false,
-            ));
-            input_graph.add_edge(n1, n2, round(cost));
-            input_graph.add_edge(n2, n1, round(cost));
+        }
+
+        // This is the same node ordering trick that pathfind/vehicles.rs uses.
+        if !any_back && r.id.0 == num_roads - 1 {
+            input_graph.add_edge(
+                nodes.get(WalkingNode::SidewalkEndpoint(
+                    DirectedRoadID {
+                        id: r.id,
+                        dir: Direction::Back,
+                    },
+                    false,
+                )),
+                nodes.get(WalkingNode::SidewalkEndpoint(
+                    DirectedRoadID {
+                        id: RoadID(0),
+                        dir: Direction::Fwd,
+                    },
+                    true,
+                )),
+                1,
+            );
         }
     }
 

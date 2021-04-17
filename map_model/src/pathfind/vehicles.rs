@@ -167,19 +167,10 @@ fn make_input_graph(
         }
     }
 
-    let num_roads = 2 * map.all_roads().len();
+    let num_roads = map.all_roads().len();
     let mut used_last_uber_turn = false;
     for r in map.all_roads() {
-        for dr in vec![
-            DirectedRoadID {
-                id: r.id,
-                dir: Direction::Fwd,
-            },
-            DirectedRoadID {
-                id: r.id,
-                dir: Direction::Back,
-            },
-        ] {
+        for dr in r.id.both_directions() {
             let from = nodes.get(Node::Road(dr));
             let mut any = false;
             if !dr.lanes(constraints, map).is_empty() {

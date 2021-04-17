@@ -29,6 +29,21 @@ impl fmt::Display for RoadID {
     }
 }
 
+impl RoadID {
+    pub fn both_directions(self) -> Vec<DirectedRoadID> {
+        vec![
+            DirectedRoadID {
+                id: self,
+                dir: Direction::Fwd,
+            },
+            DirectedRoadID {
+                id: self,
+                dir: Direction::Back,
+            },
+        ]
+    }
+}
+
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum Direction {
     Fwd,
@@ -94,7 +109,7 @@ impl DirectedRoadID {
     pub fn must_get_sidewalk(self, map: &Map) -> LaneID {
         let mut found = Vec::new();
         for (l, lt) in map.get_r(self.id).children(self.dir) {
-            if lt == LaneType::Sidewalk || lt == LaneType::Shoulder {
+            if lt.is_walkable() {
                 found.push(l);
             }
         }

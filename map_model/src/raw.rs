@@ -15,9 +15,7 @@ use abstutil::{deserialize_btreemap, serialize_btreemap, Tags};
 use geom::{Distance, GPSBounds, PolyLine, Polygon, Pt2D};
 
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
-use crate::{
-    osm, Amenity, AreaType, Direction, DrivingSide, IntersectionType, LaneType, MapConfig,
-};
+use crate::{osm, Amenity, AreaType, Direction, DrivingSide, IntersectionType, MapConfig};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RawMap {
@@ -452,7 +450,7 @@ impl RawRoad {
         let mut sidewalk_left = None;
         for l in &lane_specs {
             total_width += l.width;
-            if l.lt == LaneType::Sidewalk || l.lt == LaneType::Shoulder {
+            if l.lt.is_walkable() {
                 if l.dir == Direction::Back {
                     sidewalk_left = Some(l.width);
                 } else {
