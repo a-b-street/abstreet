@@ -2,7 +2,6 @@
 //! should use public transit.
 
 use std::cell::RefCell;
-use std::collections::HashSet;
 
 use fast_paths::{deserialize_32, serialize_32, FastGraph, InputGraph, PathCalculator};
 use serde::{Deserialize, Serialize};
@@ -16,8 +15,8 @@ use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::pathfind::vehicles::VehiclePathfinder;
 use crate::pathfind::zone_cost;
 use crate::{
-    BusRoute, BusRouteID, BusStopID, DirectedRoadID, Direction, IntersectionID, Map, MovementID,
-    PathConstraints, PathRequest, PathStepV2, PathV2, Position, RoadID, Traversable,
+    BusRoute, BusRouteID, BusStopID, DirectedRoadID, IntersectionID, Map, MovementID,
+    PathConstraints, PathRequest, PathStepV2, PathV2, Position, Traversable,
 };
 
 #[derive(Serialize, Deserialize)]
@@ -225,55 +224,25 @@ fn make_input_graph(
     let max_speed = Some(crate::MAX_WALKING_SPEED);
     let mut input_graph = InputGraph::new();
 
-    let num_roads = map.all_roads().len();
-    for r in map.all_roads() {
-        let mut any_back = false;
-        for (l, dir, lt) in r.lanes_ltr() {
-            if lt.is_walkable() {
-                if dir == Direction::Back {
-                    any_back = true;
-                }
-
-                let l = map.get_l(l);
-                let mut cost = l.length()
-                    / Traversable::Lane(l.id).max_speed_along(
-                        max_speed,
-                        PathConstraints::Pedestrian,
-                        map,
-                    );
-                // TODO Tune this penalty, along with many others.
-                if l.is_shoulder() {
-                    cost = 2.0 * cost;
-                }
-                let n1 = nodes.get(WalkingNode::SidewalkEndpoint(l.get_directed_parent(), true));
-                let n2 = nodes.get(WalkingNode::SidewalkEndpoint(
-                    l.get_directed_parent(),
-                    false,
-                ));
-                input_graph.add_edge(n1, n2, round(cost));
-                input_graph.add_edge(n2, n1, round(cost));
+    for l in map.all_lanes().values() {
+        if l.is_walkable() {
+            let mut cost = l.length()
+                / Traversable::Lane(l.id).max_speed_along(
+                    max_speed,
+                    PathConstraints::Pedestrian,
+                    map,
+                );
+            // TODO Tune this penalty, along with many others.
+            if l.is_shoulder() {
+                cost = 2.0 * cost;
             }
-        }
-
-        // This is the same node ordering trick that pathfind/vehicles.rs uses.
-        if !any_back && r.id.0 == num_roads - 1 {
-            input_graph.add_edge(
-                nodes.get(WalkingNode::SidewalkEndpoint(
-                    DirectedRoadID {
-                        id: r.id,
-                        dir: Direction::Back,
-                    },
-                    false,
-                )),
-                nodes.get(WalkingNode::SidewalkEndpoint(
-                    DirectedRoadID {
-                        id: RoadID(0),
-                        dir: Direction::Fwd,
-                    },
-                    true,
-                )),
-                1,
-            );
+            let n1 = nodes.get(WalkingNode::SidewalkEndpoint(l.get_directed_parent(), true));
+            let n2 = nodes.get(WalkingNode::SidewalkEndpoint(
+                l.get_directed_parent(),
+                false,
+            ));
+            input_graph.add_edge(n1, n2, round(cost));
+            input_graph.add_edge(n2, n1, round(cost));
         }
     }
 
@@ -303,6 +272,7 @@ fn make_input_graph(
         transit_input_graph(&mut input_graph, map, nodes, bus_graph);
     }
 
+    nodes.guarantee_node_ordering(&mut input_graph);
     input_graph.freeze();
     input_graph
 }
@@ -341,8 +311,6 @@ fn transit_input_graph(
             input_graph.add_edge(ride_bus, sidewalk, round(cost + penalty));
         }
     }
-
-    let mut used_border_nodes = HashSet::new();
 
     // Connect each adjacent stop along a route, with the cost based on how long it'll take a
     // bus to drive between the stops. Optimistically assume no waiting time at a stop.
@@ -399,35 +367,12 @@ fn transit_input_graph(
                     nodes.get(WalkingNode::LeaveMap(border.id)),
                     round(driving_cost),
                 );
-                used_border_nodes.insert(border.id);
             } else {
                 panic!(
                     "No bus route from {} to end of {} now for {}! Prevent this edit",
                     stop1.driving_pos, l, route.full_name,
                 );
             }
-        }
-    }
-
-    // InputGraph strips out nodes with no edges, so verify the last border is connected to
-    // something.
-    // Since no paths will ever reach this unused node, this won't affect results.
-    // TODO Upstream a method in InputGraph to do this more clearly.
-    if let Some(i) = map.all_outgoing_borders().last() {
-        if !used_border_nodes.contains(&i.id) {
-            let some_sidewalk = map
-                .all_lanes()
-                .values()
-                .find(|l| l.is_walkable())
-                .expect("no sidewalks in map");
-            input_graph.add_edge(
-                nodes.get(WalkingNode::LeaveMap(i.id)),
-                nodes.get(WalkingNode::SidewalkEndpoint(
-                    some_sidewalk.get_directed_parent(),
-                    true,
-                )),
-                1,
-            );
         }
     }
 }

@@ -15,7 +15,7 @@ use crate::pathfind::uber_turns::{IntersectionCluster, UberTurnV2};
 use crate::pathfind::zone_cost;
 use crate::{
     DirectedRoadID, Direction, DrivingSide, LaneType, Map, MovementID, PathConstraints,
-    PathRequest, PathV2, RoadID, RoutingParams, Traversable, TurnType,
+    PathRequest, PathV2, RoutingParams, Traversable, TurnType,
 };
 
 #[derive(Serialize, Deserialize)]
@@ -167,17 +167,13 @@ fn make_input_graph(
         }
     }
 
-    let num_roads = map.all_roads().len();
-    let mut used_last_uber_turn = false;
     for r in map.all_roads() {
         for dr in r.id.both_directions() {
             let from = nodes.get(Node::Road(dr));
-            let mut any = false;
             if !dr.lanes(constraints, map).is_empty() {
                 let indices = uber_turn_entrances.get(dr);
                 if indices.is_empty() {
                     for mvmnt in map.get_movements_for(dr, constraints) {
-                        any = true;
                         input_graph.add_edge(
                             from,
                             nodes.get(Node::Road(mvmnt.to)),
@@ -194,7 +190,6 @@ fn make_input_graph(
                     }
                 } else {
                     for idx in indices {
-                        any = true;
                         let ut = &uber_turns[*idx];
 
                         let mut sum_cost = Duration::ZERO;
@@ -218,40 +213,13 @@ fn make_input_graph(
                             // The cost is already captured for entering the uber-turn
                             1,
                         );
-                        if *idx == uber_turns.len() - 1 {
-                            used_last_uber_turn = true;
-                        }
                     }
                 }
-            }
-            // The nodes in the graph MUST exactly be all of the roads, so we can reuse node
-            // ordering later. If the last road doesn't have any edges, then this won't
-            // work -- fast_paths trims out unused nodes at the end. So pretend like it
-            // points to some arbitrary other node. Since no paths will start from this
-            // unused node, this won't affect results. TODO Upstream a method in
-            // InputGraph to do this more clearly.
-            if !any && r.id.0 == num_roads - 1 && dr.dir == Direction::Back {
-                input_graph.add_edge(
-                    from,
-                    nodes.get(Node::Road(DirectedRoadID {
-                        id: RoadID(0),
-                        dir: Direction::Fwd,
-                    })),
-                    1,
-                );
             }
         }
     }
 
-    // Same as the hack above for unused lanes
-    if !used_last_uber_turn && !uber_turns.is_empty() {
-        input_graph.add_edge(
-            nodes.get(Node::UberTurn(uber_turns.len() - 1)),
-            nodes.get(Node::UberTurn(0)),
-            1,
-        );
-    }
-
+    nodes.guarantee_node_ordering(&mut input_graph);
     input_graph.freeze();
     input_graph
 }
