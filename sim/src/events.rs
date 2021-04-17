@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use geom::{Duration, Speed};
+use geom::Duration;
 use map_model::{
     BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, Map, Path, PathRequest, Traversable,
     TurnID,
@@ -51,8 +51,6 @@ pub enum Event {
     },
     TripCancelled(TripID, TripMode),
     TripPhaseStarting(TripID, PersonID, Option<PathRequest>, TripPhaseType),
-    /// TripID, LaneID (Where the delay was encountered), Average Speed, Max Speed
-    LaneSpeedPercentage(TripID, LaneID, Speed, Speed),
 
     /// Just use for parking replanning. Not happy about copying the full path in here, but the way
     /// to plumb info into Analytics is Event.

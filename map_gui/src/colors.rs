@@ -99,10 +99,10 @@ pub struct ColorScheme {
     pub signal_spinner: Color,
     pub signal_turn_block_bg: Color,
 
-    // Timeline delay highlighting
-    pub very_slow_intersection: Color,
+    // Problems encountered on a trip
+    pub slowest_intersection: Color,
+    pub slower_intersection: Color,
     pub slow_intersection: Color,
-    pub normal_slow_intersection: Color,
 
     // Other static elements
     pub void_background: Color,
@@ -233,10 +233,10 @@ impl ColorScheme {
             signal_spinner: hex("#F2994A"),
             signal_turn_block_bg: Color::grey(0.6),
 
-            // Timeline delay highlighting
-            very_slow_intersection: Color::RED,
-            slow_intersection: Color::YELLOW,
-            normal_slow_intersection: Color::GREEN,
+            // Problems encountered on a trip
+            slowest_intersection: Color::RED,
+            slower_intersection: Color::YELLOW,
+            slow_intersection: Color::GREEN,
 
             // Other static elements
             void_background: Color::BLACK,

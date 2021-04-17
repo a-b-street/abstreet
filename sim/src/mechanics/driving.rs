@@ -3,7 +3,7 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
 use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_hashmap, serialize_hashmap, FixedMap, IndexableKey};
-use geom::{Distance, Duration, PolyLine, Speed, Time};
+use geom::{Distance, Duration, PolyLine, Time};
 use map_model::{IntersectionID, LaneID, Map, Path, Position, Traversable};
 
 use crate::mechanics::car::{Car, CarState};
@@ -272,23 +272,7 @@ impl DrivingSimState {
         transit: &mut TransitSimState,
     ) -> bool {
         match car.state {
-            CarState::Crossing(time_int, dist_int) => {
-                if let Some((trip, _)) = car.trip_and_person {
-                    if let Traversable::Lane(lane) = car.router.head() {
-                        let time_to_cross = now - time_int.start;
-                        if time_to_cross > Duration::ZERO {
-                            let avg_speed = Speed::from_dist_time(dist_int.length(), time_to_cross);
-                            let max_speed = car.router.head().max_speed_along(
-                                car.vehicle.max_speed,
-                                car.vehicle.vehicle_type.to_constraints(),
-                                ctx.map,
-                            );
-                            self.events
-                                .push(Event::LaneSpeedPercentage(trip, lane, avg_speed, max_speed));
-                        }
-                    }
-                }
-
+            CarState::Crossing(_, _) => {
                 car.state = CarState::Queued { blocked_since: now };
                 if car.router.last_step() {
                     // Immediately run update_car_with_distances.
