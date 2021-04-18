@@ -22,6 +22,7 @@ dependencies = [
  "abstutil",
  "anyhow",
  "bincode",
+ "futures-channel",
  "include_dir",
  "instant",
  "lazy_static",
@@ -29,6 +30,7 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
+ "tokio",
  "web-sys",
 ]
 
@@ -4321,6 +4323,7 @@ dependencies = [
  "abstutil",
  "anyhow",
  "flate2",
+ "futures-channel",
  "geom",
  "md5",
  "tokio",
