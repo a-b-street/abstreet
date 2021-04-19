@@ -838,7 +838,7 @@ fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map:
         if let PathStep::Turn(t) = step {
             pts.push((dist, map.get_i(t.parent).elevation));
         }
-        dist += step.as_traversable().length(map);
+        dist += step.as_traversable().get_polyline(map).length();
     }
     // TODO Show roughly where we are in the trip; use distance covered by current path for this
     LinePlot::new(

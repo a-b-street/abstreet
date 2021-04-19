@@ -1,6 +1,5 @@
 use std::fmt;
 
-use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 use geom::{Angle, Distance, PolyLine, Pt2D, Speed};
@@ -176,35 +175,6 @@ impl Traversable {
         match self {
             Traversable::Lane(id) => &map.get_l(id).lane_center_pts,
             Traversable::Turn(id) => &map.get_t(id).geom,
-        }
-    }
-
-    // TODO Just expose the PolyLine instead of all these layers of helpers
-    pub fn length(&self, map: &Map) -> Distance {
-        match *self {
-            Traversable::Lane(id) => map.get_l(id).length(),
-            Traversable::Turn(id) => map.get_t(id).geom.length(),
-        }
-    }
-
-    pub fn dist_along(&self, dist: Distance, map: &Map) -> Result<(Pt2D, Angle)> {
-        match *self {
-            Traversable::Lane(id) => map.get_l(id).lane_center_pts.dist_along(dist),
-            Traversable::Turn(id) => map.get_t(id).geom.dist_along(dist),
-        }
-    }
-
-    pub fn slice(&self, start: Distance, end: Distance, map: &Map) -> Result<(PolyLine, Distance)> {
-        match *self {
-            Traversable::Lane(id) => map.get_l(id).lane_center_pts.slice(start, end),
-            Traversable::Turn(id) => map.get_t(id).geom.slice(start, end),
-        }
-    }
-
-    pub fn exact_slice(&self, start: Distance, end: Distance, map: &Map) -> PolyLine {
-        match *self {
-            Traversable::Lane(id) => map.get_l(id).lane_center_pts.exact_slice(start, end),
-            Traversable::Turn(id) => map.get_t(id).geom.exact_slice(start, end),
         }
     }
 

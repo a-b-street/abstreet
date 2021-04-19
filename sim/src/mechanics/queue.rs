@@ -34,7 +34,7 @@ impl Queue {
             id,
             cars: VecDeque::new(),
             laggy_head: None,
-            geom_len: id.length(map),
+            geom_len: id.get_polyline(map).length(),
             reserved_length: Distance::ZERO,
         }
     }

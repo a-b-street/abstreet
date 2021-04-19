@@ -242,7 +242,7 @@ impl Path {
             }
         }
         // TODO We assume we'll be going along the full length of this new step
-        self.total_length += step.as_traversable().length(map);
+        self.total_length += step.as_traversable().get_polyline(map).length();
 
         self.steps.push_back(step);
         // TODO Maybe need to amend uber_turns?
@@ -261,7 +261,7 @@ impl Path {
         assert!(idx != 0);
         // We're assuming this step was in the middle of the path, meaning we were planning to
         // travel its full length
-        self.total_length -= self.steps[idx].as_traversable().length(map);
+        self.total_length -= self.steps[idx].as_traversable().get_polyline(map).length();
 
         // When replacing a turn, also update any references to it in uber_turns
         if let PathStep::Turn(old_turn) = self.steps[idx] {
@@ -277,7 +277,7 @@ impl Path {
         }
 
         self.steps[idx] = step;
-        self.total_length += self.steps[idx].as_traversable().length(map);
+        self.total_length += self.steps[idx].as_traversable().get_polyline(map).length();
 
         if self.total_length < Distance::ZERO {
             panic!(

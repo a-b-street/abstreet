@@ -215,13 +215,13 @@ impl DrawPedCrowd {
     ) -> DrawPedCrowd {
         let pl_shifted = match input.location {
             PedCrowdLocation::Sidewalk(on, contraflow) => {
-                let pl_slice = on.exact_slice(input.low, input.high, map);
+                let pl_slice = on.get_polyline(map).exact_slice(input.low, input.high);
                 if contraflow == (map.get_config().driving_side == DrivingSide::Right) {
                     pl_slice.shift_left(SIDEWALK_THICKNESS / 4.0)
                 } else {
                     pl_slice.shift_right(SIDEWALK_THICKNESS / 4.0)
                 }
-                .unwrap_or_else(|_| on.exact_slice(input.low, input.high, map))
+                .unwrap_or_else(|_| on.get_polyline(map).exact_slice(input.low, input.high))
             }
             PedCrowdLocation::BldgDriveway(b) => map
                 .get_b(b)

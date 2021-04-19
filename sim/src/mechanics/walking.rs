@@ -401,8 +401,13 @@ impl WalkingSimState {
     pub fn trace_route(&self, now: Time, id: PedestrianID, map: &Map) -> Option<PolyLine> {
         let p = self.peds.get(&id)?;
         let body_radius = SIDEWALK_THICKNESS / 4.0;
-        let dist = (p.get_dist_along(now, map) + body_radius)
-            .min(p.path.current_step().as_traversable().length(map));
+        let dist = (p.get_dist_along(now, map) + body_radius).min(
+            p.path
+                .current_step()
+                .as_traversable()
+                .get_polyline(map)
+                .length(),
+        );
         p.path.trace_from_start(map, dist)
     }
 
@@ -490,12 +495,12 @@ impl WalkingSimState {
             (
                 forwards,
                 PedCrowdLocation::Sidewalk(on, false),
-                on.length(map),
+                on.get_polyline(map).length(),
             ),
             (
                 backwards,
                 PedCrowdLocation::Sidewalk(on, true),
-                on.length(map),
+                on.get_polyline(map).length(),
             ),
         ]
         .into_iter()
@@ -663,7 +668,10 @@ impl Pedestrian {
                 } else {
                     time_int.percent(now)
                 };
-                let (pos, orig_angle) = on.dist_along(dist_int.lerp(percent), map).expect(&err);
+                let (pos, orig_angle) = on
+                    .get_polyline(map)
+                    .dist_along(dist_int.lerp(percent))
+                    .expect(&err);
                 let facing = if dist_int.start < dist_int.end {
                     orig_angle
                 } else {
@@ -675,7 +683,7 @@ impl Pedestrian {
                 )
             }
             PedState::WaitingToTurn(dist, _) => {
-                let (pos, orig_angle) = on.dist_along(dist, map).expect(&err);
+                let (pos, orig_angle) = on.get_polyline(map).dist_along(dist).expect(&err);
                 let facing = if dist == Distance::ZERO {
                     orig_angle.opposite()
                 } else {

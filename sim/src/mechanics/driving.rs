@@ -761,7 +761,7 @@ impl DrivingSimState {
                 num_to_trim = Some(self.cars[&id].last_steps.len() - idx);
                 break;
             }
-            dist_left_to_cleanup -= step.length(ctx.map);
+            dist_left_to_cleanup -= step.get_polyline(ctx.map).length();
         }
 
         if let Some(n) = num_to_trim {
@@ -933,7 +933,7 @@ impl DrivingSimState {
                 let car = &self.cars[&c];
                 result.push(UnzoomedAgent {
                     id: AgentID::Car(car.vehicle.id),
-                    pos: match queue.id.dist_along(dist, map) {
+                    pos: match queue.id.get_polyline(map).dist_along(dist) {
                         Ok((pt, _)) => pt,
                         Err(err) => panic!(
                             "At {}, invalid dist_along of {} for queue {}: {}",

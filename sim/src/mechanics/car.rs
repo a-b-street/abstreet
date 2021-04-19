@@ -39,7 +39,7 @@ impl Car {
             if self.router.last_step() {
                 self.router.get_end_dist()
             } else {
-                self.router.head().length(map)
+                self.router.head().get_polyline(map).length()
             },
         );
         self.crossing_state_with_end_dist(dist_int, start_time, map)
@@ -73,13 +73,15 @@ impl Car {
         let raw_body = if front >= self.vehicle.length {
             self.router
                 .head()
-                .exact_slice(front - self.vehicle.length, front, map)
+                .get_polyline(map)
+                .exact_slice(front - self.vehicle.length, front)
         } else {
             // TODO This is redoing some of the Path::trace work...
             let mut result = self
                 .router
                 .head()
-                .slice(Distance::ZERO, front, map)
+                .get_polyline(map)
+                .slice(Distance::ZERO, front)
                 .map(|(pl, _)| pl.into_points())
                 .ok()
                 .unwrap_or_else(Vec::new);
@@ -92,10 +94,11 @@ impl Car {
                     break;
                 }
                 partly_on.push(self.last_steps[i]);
-                let len = self.last_steps[i].length(map);
+                let len = self.last_steps[i].get_polyline(map).length();
                 let start = (len - leftover).max(Distance::ZERO);
                 let piece = self.last_steps[i]
-                    .slice(start, len, map)
+                    .get_polyline(map)
+                    .slice(start, len)
                     .map(|(pl, _)| pl.into_points())
                     .ok()
                     .unwrap_or_else(Vec::new);
@@ -114,10 +117,11 @@ impl Car {
                 // Vehicles spawning at a border start with their front at literally 0 distance.
                 // Usually by the time we first try to render, they've advanced at least a little.
                 // But sometimes there's a race when we try to immediately draw them.
-                if let Ok((pl, _)) =
-                    self.router
-                        .head()
-                        .slice(Distance::ZERO, 2.0 * EPSILON_DIST, map)
+                if let Ok((pl, _)) = self
+                    .router
+                    .head()
+                    .get_polyline(map)
+                    .slice(Distance::ZERO, 2.0 * EPSILON_DIST)
                 {
                     result = pl.into_points();
                 }
