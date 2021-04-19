@@ -498,13 +498,13 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DrawPedCrowd</span> {
         <span class="kw">let</span> <span class="ident">pl_shifted</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">location</span> {
             <span class="ident">PedCrowdLocation</span>::<span class="ident">Sidewalk</span>(<span class="ident">on</span>, <span class="ident">contraflow</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">pl_slice</span> <span class="op">=</span> <span class="ident">on</span>.<span class="ident">exact_slice</span>(<span class="ident">input</span>.<span class="ident">low</span>, <span class="ident">input</span>.<span class="ident">high</span>, <span class="ident">map</span>);
+                <span class="kw">let</span> <span class="ident">pl_slice</span> <span class="op">=</span> <span class="ident">on</span>.<span class="ident">get_polyline</span>(<span class="ident">map</span>).<span class="ident">exact_slice</span>(<span class="ident">input</span>.<span class="ident">low</span>, <span class="ident">input</span>.<span class="ident">high</span>);
                 <span class="kw">if</span> <span class="ident">contraflow</span> <span class="op">=</span><span class="op">=</span> (<span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide</span>::<span class="ident">Right</span>) {
                     <span class="ident">pl_slice</span>.<span class="ident">shift_left</span>(<span class="ident">SIDEWALK_THICKNESS</span> <span class="op">/</span> <span class="number">4.0</span>)
                 } <span class="kw">else</span> {
                     <span class="ident">pl_slice</span>.<span class="ident">shift_right</span>(<span class="ident">SIDEWALK_THICKNESS</span> <span class="op">/</span> <span class="number">4.0</span>)
                 }
-                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">on</span>.<span class="ident">exact_slice</span>(<span class="ident">input</span>.<span class="ident">low</span>, <span class="ident">input</span>.<span class="ident">high</span>, <span class="ident">map</span>))
+                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">on</span>.<span class="ident">get_polyline</span>(<span class="ident">map</span>).<span class="ident">exact_slice</span>(<span class="ident">input</span>.<span class="ident">low</span>, <span class="ident">input</span>.<span class="ident">high</span>))
             }
             <span class="ident">PedCrowdLocation</span>::<span class="ident">BldgDriveway</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map</span>
                 .<span class="ident">get_b</span>(<span class="ident">b</span>)

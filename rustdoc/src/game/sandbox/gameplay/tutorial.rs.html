@@ -1420,6 +1420,9 @@
 <span id="1417">1417</span>
 <span id="1418">1418</span>
 <span id="1419">1419</span>
+<span id="1420">1420</span>
+<span id="1421">1421</span>
+<span id="1422">1422</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -1450,7 +1453,10 @@
     <span class="ident">SandboxMode</span>, <span class="ident">TimePanel</span>,
 };
 
-<span class="kw">const</span> <span class="ident">ESCORT</span>: <span class="ident">CarID</span> <span class="op">=</span> <span class="ident">CarID</span>(<span class="number">0</span>, <span class="ident">VehicleType</span>::<span class="ident">Car</span>);
+<span class="kw">const</span> <span class="ident">ESCORT</span>: <span class="ident">CarID</span> <span class="op">=</span> <span class="ident">CarID</span> {
+    <span class="ident">id</span>: <span class="number">0</span>,
+    <span class="ident">vehicle_type</span>: <span class="ident">VehicleType</span>::<span class="ident">Car</span>,
+};
 <span class="kw">const</span> <span class="ident">CAR_BIKE_CONTENTION_GOAL</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">15.0</span>);
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Tutorial</span> {
@@ -2741,7 +2747,7 @@
                         ],
                     )
                 }
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">c</span>.<span class="number">1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span> {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">vehicle_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span> {
                 <span class="ident">PopupMsg</span>::<span class="ident">new</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;That&#39;s a bike&quot;</span>,

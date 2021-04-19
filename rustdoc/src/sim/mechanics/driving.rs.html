@@ -1267,6 +1267,10 @@
 <span id="1264">1264</span>
 <span id="1265">1265</span>
 <span id="1266">1266</span>
+<span id="1267">1267</span>
+<span id="1268">1268</span>
+<span id="1269">1269</span>
+<span id="1270">1270</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
@@ -1280,10 +1284,10 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechanics</span>::<span class="ident">Queue</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sim</span>::<span class="ident">Ctx</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">ActionAtEnd</span>, <span class="ident">AgentID</span>, <span class="ident">AgentProperties</span>, <span class="ident">AlertLocation</span>, <span class="ident">CarID</span>, <span class="ident">Command</span>, <span class="ident">CreateCar</span>, <span class="ident">DelayCause</span>,
-    <span class="ident">DistanceInterval</span>, <span class="ident">DrawCarInput</span>, <span class="ident">Event</span>, <span class="ident">IntersectionSimState</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSim</span>,
-    <span class="ident">ParkingSpot</span>, <span class="ident">PersonID</span>, <span class="ident">SimOptions</span>, <span class="ident">TimeInterval</span>, <span class="ident">TransitSimState</span>, <span class="ident">TripID</span>, <span class="ident">TripManager</span>,
-    <span class="ident">UnzoomedAgent</span>, <span class="ident">Vehicle</span>, <span class="ident">WalkingSimState</span>, <span class="ident">FOLLOWING_DISTANCE</span>,
+    <span class="ident">ActionAtEnd</span>, <span class="ident">AgentID</span>, <span class="ident">AgentProperties</span>, <span class="ident">CarID</span>, <span class="ident">Command</span>, <span class="ident">CreateCar</span>, <span class="ident">DelayCause</span>, <span class="ident">DistanceInterval</span>,
+    <span class="ident">DrawCarInput</span>, <span class="ident">Event</span>, <span class="ident">IntersectionSimState</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSim</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PersonID</span>,
+    <span class="ident">Problem</span>, <span class="ident">SimOptions</span>, <span class="ident">TimeInterval</span>, <span class="ident">TransitSimState</span>, <span class="ident">TripID</span>, <span class="ident">TripManager</span>, <span class="ident">UnzoomedAgent</span>,
+    <span class="ident">Vehicle</span>, <span class="ident">VehicleType</span>, <span class="ident">WalkingSimState</span>, <span class="ident">FOLLOWING_DISTANCE</span>,
 };
 
 <span class="kw">const</span> <span class="ident">TIME_TO_WAIT_AT_BUS_STOP</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">10.0</span>);
@@ -1390,6 +1394,7 @@
                 <span class="ident">started_at</span>: <span class="ident">now</span>,
                 <span class="ident">total_blocked_time</span>: <span class="ident">Duration</span>::<span class="ident">ZERO</span>,
                 <span class="ident">trip_and_person</span>: <span class="ident">params</span>.<span class="ident">trip_and_person</span>,
+                <span class="ident">wants_to_overtake</span>: <span class="ident">BTreeSet</span>::<span class="ident">new</span>(),
             };
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">params</span>.<span class="ident">maybe_parked_car</span> {
                 <span class="kw">let</span> <span class="ident">delay</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">p</span>.<span class="ident">spot</span> {
@@ -1563,16 +1568,16 @@
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">slow_leader</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">wants_to_overtake</span>(<span class="kw-2">&amp;</span><span class="ident">car</span>) {
                     <span class="comment">// TODO This entire check kicks in a little late; we only enter Queued after</span>
                     <span class="comment">// spending the freeflow time possibly moving very slowly.</span>
+                    <span class="ident">car</span>.<span class="ident">wants_to_overtake</span>.<span class="ident">insert</span>(<span class="ident">slow_leader</span>);
 
-                    <span class="comment">// TODO The alert is temporary, just for debugging. So not firing it for a bus</span>
-                    <span class="comment">// is fine.</span>
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">person</span>)) <span class="op">=</span> <span class="ident">car</span>.<span class="ident">trip_and_person</span> {
-                        <span class="kw">if</span> <span class="bool-val">false</span> {
-                            <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">Alert</span>(
-                                <span class="ident">AlertLocation</span>::<span class="ident">Person</span>(<span class="ident">person</span>),
-                                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} wants to over-take {}&quot;</span>, <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">slow_leader</span>),
-                            ));
-                        }
+                    <span class="comment">// Record when a vehicle wants to pass a bike</span>
+                    <span class="kw">if</span> <span class="ident">slow_leader</span>.<span class="ident">vehicle_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span>
+                        <span class="op">&amp;&amp;</span> <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">vehicle_type</span> <span class="op">!</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span>
+                    {
+                        <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">ProblemEncountered</span>(
+                            <span class="self">self</span>.<span class="ident">cars</span>[<span class="kw-2">&amp;</span><span class="ident">slow_leader</span>].<span class="ident">trip_and_person</span>.<span class="ident">unwrap</span>().<span class="number">0</span>,
+                            <span class="ident">Problem</span>::<span class="ident">OvertakeDesired</span>(<span class="ident">queue</span>.<span class="ident">id</span>),
+                        ));
                     }
                 }
             }
@@ -2030,7 +2035,7 @@
                 <span class="ident">num_to_trim</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">cars</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="ident">last_steps</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">idx</span>);
                 <span class="kw">break</span>;
             }
-            <span class="ident">dist_left_to_cleanup</span> <span class="op">-</span><span class="op">=</span> <span class="ident">step</span>.<span class="ident">length</span>(<span class="ident">ctx</span>.<span class="ident">map</span>);
+            <span class="ident">dist_left_to_cleanup</span> <span class="op">-</span><span class="op">=</span> <span class="ident">step</span>.<span class="ident">get_polyline</span>(<span class="ident">ctx</span>.<span class="ident">map</span>).<span class="ident">length</span>();
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">num_to_trim</span> {
@@ -2202,7 +2207,7 @@
                 <span class="kw">let</span> <span class="ident">car</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cars</span>[<span class="kw-2">&amp;</span><span class="ident">c</span>];
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">UnzoomedAgent</span> {
                     <span class="ident">id</span>: <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>),
-                    <span class="ident">pos</span>: <span class="kw">match</span> <span class="ident">queue</span>.<span class="ident">id</span>.<span class="ident">dist_along</span>(<span class="ident">dist</span>, <span class="ident">map</span>) {
+                    <span class="ident">pos</span>: <span class="kw">match</span> <span class="ident">queue</span>.<span class="ident">id</span>.<span class="ident">get_polyline</span>(<span class="ident">map</span>).<span class="ident">dist_along</span>(<span class="ident">dist</span>) {
                         <span class="prelude-val">Ok</span>((<span class="ident">pt</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">pt</span>,
                         <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(
                             <span class="string">&quot;At {}, invalid dist_along of {} for queue {}: {}&quot;</span>,
@@ -2491,6 +2496,9 @@
     <span class="kw">fn</span> <span class="ident">wants_to_overtake</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">car</span>: <span class="kw-2">&amp;</span><span class="ident">Car</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">queue</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">queues</span>[<span class="kw-2">&amp;</span><span class="ident">car</span>.<span class="ident">router</span>.<span class="ident">head</span>()];
         <span class="kw">let</span> <span class="ident">leader</span> <span class="op">=</span> <span class="ident">queue</span>.<span class="ident">get_leader</span>(<span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>)<span class="question-mark">?</span>;
+        <span class="kw">if</span> <span class="ident">car</span>.<span class="ident">wants_to_overtake</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">leader</span>) {
+            <span class="kw">return</span> <span class="prelude-val">None</span>;
+        }
         <span class="kw">let</span> <span class="ident">leader</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cars</span>[<span class="kw-2">&amp;</span><span class="ident">leader</span>];
 
         <span class="comment">// Are we faster than them?</span>
@@ -2531,7 +2539,7 @@
 <span class="comment">// type is also in there, but during lookup, it&#39;ll be ignored!</span>
 <span class="kw">impl</span> <span class="ident">IndexableKey</span> <span class="kw">for</span> <span class="ident">CarID</span> {
     <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="number">0</span>
+        <span class="self">self</span>.<span class="ident">id</span>
     }
 }
 </pre></div>

@@ -842,6 +842,7 @@
 <span id="839">839</span>
 <span id="840">840</span>
 <span id="841">841</span>
+<span id="842">842</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -993,7 +994,8 @@
                         <span class="string">&quot;schedule&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Tab</span>::<span class="ident">PersonSchedule</span>(<span class="ident">p</span>),
                         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
                     }
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">c</span>.<span class="number">1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bus</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span>.<span class="number">1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Train</span> {
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">vehicle_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bus</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">vehicle_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Train</span>
+                {
                     <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">info_panel_tab</span>[<span class="string">&quot;bus&quot;</span>] {
                         <span class="string">&quot;status&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Tab</span>::<span class="ident">BusStatus</span>(<span class="ident">c</span>),
                         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
@@ -1260,7 +1262,7 @@
                     <span class="comment">// Some objects are much wider/taller than others</span>
                     <span class="kw">let</span> <span class="ident">multiplier</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">id</span> {
                         <span class="ident">ID</span>::<span class="ident">Car</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="kw">if</span> <span class="ident">c</span>.<span class="number">1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span> {
+                            <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">vehicle_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span> {
                                 <span class="number">3.0</span>
                             } <span class="kw">else</span> {
                                 <span class="number">0.75</span>

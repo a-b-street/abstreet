@@ -807,7 +807,7 @@
             }
         }
         <span class="comment">// TODO We assume we&#39;ll be going along the full length of this new step</span>
-        <span class="self">self</span>.<span class="ident">total_length</span> <span class="op">+</span><span class="op">=</span> <span class="ident">step</span>.<span class="ident">as_traversable</span>().<span class="ident">length</span>(<span class="ident">map</span>);
+        <span class="self">self</span>.<span class="ident">total_length</span> <span class="op">+</span><span class="op">=</span> <span class="ident">step</span>.<span class="ident">as_traversable</span>().<span class="ident">get_polyline</span>(<span class="ident">map</span>).<span class="ident">length</span>();
 
         <span class="self">self</span>.<span class="ident">steps</span>.<span class="ident">push_back</span>(<span class="ident">step</span>);
         <span class="comment">// TODO Maybe need to amend uber_turns?</span>
@@ -826,7 +826,7 @@
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">idx</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
         <span class="comment">// We&#39;re assuming this step was in the middle of the path, meaning we were planning to</span>
         <span class="comment">// travel its full length</span>
-        <span class="self">self</span>.<span class="ident">total_length</span> <span class="op">-</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">steps</span>[<span class="ident">idx</span>].<span class="ident">as_traversable</span>().<span class="ident">length</span>(<span class="ident">map</span>);
+        <span class="self">self</span>.<span class="ident">total_length</span> <span class="op">-</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">steps</span>[<span class="ident">idx</span>].<span class="ident">as_traversable</span>().<span class="ident">get_polyline</span>(<span class="ident">map</span>).<span class="ident">length</span>();
 
         <span class="comment">// When replacing a turn, also update any references to it in uber_turns</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep</span>::<span class="ident">Turn</span>(<span class="ident">old_turn</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">steps</span>[<span class="ident">idx</span>] {
@@ -842,7 +842,7 @@
         }
 
         <span class="self">self</span>.<span class="ident">steps</span>[<span class="ident">idx</span>] <span class="op">=</span> <span class="ident">step</span>;
-        <span class="self">self</span>.<span class="ident">total_length</span> <span class="op">+</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">steps</span>[<span class="ident">idx</span>].<span class="ident">as_traversable</span>().<span class="ident">length</span>(<span class="ident">map</span>);
+        <span class="self">self</span>.<span class="ident">total_length</span> <span class="op">+</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">steps</span>[<span class="ident">idx</span>].<span class="ident">as_traversable</span>().<span class="ident">get_polyline</span>(<span class="ident">map</span>).<span class="ident">length</span>();
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">total_length</span> <span class="op">&lt;</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span> {
             <span class="macro">panic</span><span class="macro">!</span>(

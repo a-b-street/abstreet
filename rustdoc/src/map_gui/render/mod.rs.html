@@ -187,7 +187,7 @@
     <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>,
     <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">id</span>.<span class="number">1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span> {
+    <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">id</span>.<span class="ident">vehicle_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span> {
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">DrawBike</span>::<span class="ident">new</span>(<span class="ident">input</span>, <span class="ident">map</span>, <span class="ident">sim</span>, <span class="ident">prerender</span>, <span class="ident">cs</span>))
     } <span class="kw">else</span> {
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">DrawCar</span>::<span class="ident">new</span>(<span class="ident">input</span>, <span class="ident">map</span>, <span class="ident">sim</span>, <span class="ident">prerender</span>, <span class="ident">cs</span>))

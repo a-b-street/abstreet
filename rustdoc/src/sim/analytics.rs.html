@@ -674,6 +674,14 @@
 <span id="671">671</span>
 <span id="672">672</span>
 <span id="673">673</span>
+<span id="674">674</span>
+<span id="675">675</span>
+<span id="676">676</span>
+<span id="677">677</span>
+<span id="678">678</span>
+<span id="679">679</span>
+<span id="680">680</span>
+<span id="681">681</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 
@@ -741,12 +749,14 @@
     <span class="ident">record_anything</span>: <span class="ident">bool</span>,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Problem</span> {
     <span class="doccomment">/// A vehicle waited &gt;30s, or a pedestrian waited &gt;15s.</span>
     <span class="ident">IntersectionDelay</span>(<span class="ident">IntersectionID</span>, <span class="ident">Duration</span>),
     <span class="doccomment">/// A cyclist crossed an intersection with &gt;4 connecting roads.</span>
     <span class="ident">LargeIntersectionCrossing</span>(<span class="ident">IntersectionID</span>),
+    <span class="doccomment">/// Another vehicle wanted to over-take this cyclist somewhere on this lane or turn.</span>
+    <span class="ident">OvertakeDesired</span>(<span class="ident">Traversable</span>),
 }
 
 <span class="kw">impl</span> <span class="ident">Analytics</span> {
@@ -955,6 +965,12 @@
             }
             <span class="ident">Event</span>::<span class="ident">Alert</span>(<span class="ident">loc</span>, <span class="ident">msg</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">alerts</span>.<span class="ident">push</span>((<span class="ident">time</span>, <span class="ident">loc</span>, <span class="ident">msg</span>));
+            }
+            <span class="ident">Event</span>::<span class="ident">ProblemEncountered</span>(<span class="ident">trip</span>, <span class="ident">problem</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">problems_per_trip</span>
+                    .<span class="ident">entry</span>(<span class="ident">trip</span>)
+                    .<span class="ident">or_insert_with</span>(<span class="ident">Vec</span>::<span class="ident">new</span>)
+                    .<span class="ident">push</span>(<span class="ident">problem</span>);
             }
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }

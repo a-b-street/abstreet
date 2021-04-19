@@ -542,6 +542,14 @@
 <span id="539">539</span>
 <span id="540">540</span>
 <span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! All sorts of read-only queries about a simulation</span>
 
@@ -638,7 +646,9 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bus_route_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">maybe_bus</span>: <span class="ident">CarID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BusRouteID</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">maybe_bus</span>.<span class="number">1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bus</span> <span class="op">|</span><span class="op">|</span> <span class="ident">maybe_bus</span>.<span class="number">1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Train</span> {
+        <span class="kw">if</span> <span class="ident">maybe_bus</span>.<span class="ident">vehicle_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bus</span>
+            <span class="op">|</span><span class="op">|</span> <span class="ident">maybe_bus</span>.<span class="ident">vehicle_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Train</span>
+        {
             <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">transit</span>.<span class="ident">bus_route</span>(<span class="ident">maybe_bus</span>))
         } <span class="kw">else</span> {
             <span class="prelude-val">None</span>
@@ -740,13 +750,19 @@
             <span class="ident">VehicleType</span>::<span class="ident">Bus</span>,
             <span class="ident">VehicleType</span>::<span class="ident">Train</span>,
         ] {
-            <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">CarID</span>(<span class="ident">idx</span>, <span class="kw-2">*</span><span class="ident">vt</span>);
+            <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">CarID</span> {
+                <span class="ident">id</span>: <span class="ident">idx</span>,
+                <span class="ident">vehicle_type</span>: <span class="kw-2">*</span><span class="ident">vt</span>,
+            };
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">driving</span>.<span class="ident">does_car_exist</span>(<span class="ident">id</span>) {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>);
             }
         }
 
-        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">CarID</span>(<span class="ident">idx</span>, <span class="ident">VehicleType</span>::<span class="ident">Car</span>);
+        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">CarID</span> {
+            <span class="ident">id</span>: <span class="ident">idx</span>,
+            <span class="ident">vehicle_type</span>: <span class="ident">VehicleType</span>::<span class="ident">Car</span>,
+        };
         <span class="comment">// Only cars can be parked.</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">parking</span>.<span class="ident">lookup_parked_car</span>(<span class="ident">id</span>).<span class="ident">is_some</span>() {
             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>);

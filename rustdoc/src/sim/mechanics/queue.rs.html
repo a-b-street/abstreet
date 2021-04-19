@@ -364,6 +364,9 @@
 <span id="361">361</span>
 <span id="362">362</span>
 <span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">VecDeque</span>};
 
@@ -401,7 +404,7 @@
             <span class="ident">id</span>,
             <span class="ident">cars</span>: <span class="ident">VecDeque</span>::<span class="ident">new</span>(),
             <span class="ident">laggy_head</span>: <span class="prelude-val">None</span>,
-            <span class="ident">geom_len</span>: <span class="ident">id</span>.<span class="ident">length</span>(<span class="ident">map</span>),
+            <span class="ident">geom_len</span>: <span class="ident">id</span>.<span class="ident">get_polyline</span>(<span class="ident">map</span>).<span class="ident">length</span>(),
             <span class="ident">reserved_length</span>: <span class="ident">Distance</span>::<span class="ident">ZERO</span>,
         }
     }
@@ -647,10 +650,13 @@
             <span class="ident">num_vehicles</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">bike_cost</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">cars</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="number">1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span>)
+        <span class="kw">let</span> <span class="ident">bike_cost</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>
+            .<span class="ident">cars</span>
+            .<span class="ident">iter</span>()
+            .<span class="ident">any</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">vehicle_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span>)
             <span class="op">|</span><span class="op">|</span> <span class="self">self</span>
                 .<span class="ident">laggy_head</span>
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="number">1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span>)
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">vehicle_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span>)
                 .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
         {
             <span class="number">1</span>

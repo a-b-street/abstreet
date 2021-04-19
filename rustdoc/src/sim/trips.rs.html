@@ -1553,6 +1553,9 @@
 <span id="1550">1550</span>
 <span id="1551">1551</span>
 <span id="1552">1552</span>
+<span id="1553">1553</span>
+<span id="1554">1554</span>
+<span id="1555">1555</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 
@@ -1624,7 +1627,10 @@
         <span class="kw">let</span> <span class="ident">vehicles</span> <span class="op">=</span> <span class="ident">vehicle_specs</span>
             .<span class="ident">into_iter</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">CarID</span>(<span class="self">self</span>.<span class="ident">new_car_id</span>(), <span class="ident">v</span>.<span class="ident">vehicle_type</span>);
+                <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">CarID</span> {
+                    <span class="ident">id</span>: <span class="self">self</span>.<span class="ident">new_car_id</span>(),
+                    <span class="ident">vehicle_type</span>: <span class="ident">v</span>.<span class="ident">vehicle_type</span>,
+                };
                 <span class="ident">v</span>.<span class="ident">make</span>(<span class="ident">c</span>, <span class="prelude-val">Some</span>(<span class="ident">id</span>))
             })
             .<span class="ident">collect</span>();
@@ -1751,7 +1757,7 @@
 
                 <span class="kw">let</span> <span class="ident">vehicle</span> <span class="op">=</span> <span class="ident">person</span>.<span class="ident">get_vehicle</span>(<span class="ident">use_vehicle</span>);
                 <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">ctx</span>.<span class="ident">parking</span>.<span class="ident">lookup_parked_car</span>(<span class="ident">vehicle</span>.<span class="ident">id</span>).<span class="ident">is_none</span>());
-                <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">use_vehicle</span>.<span class="number">1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span> {
+                <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">use_vehicle</span>.<span class="ident">vehicle_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span> {
                     <span class="ident">PathConstraints</span>::<span class="ident">Bike</span>
                 } <span class="kw">else</span> {
                     <span class="ident">PathConstraints</span>::<span class="ident">Car</span>
@@ -2776,7 +2782,7 @@
 
         <span class="kw">for</span> <span class="ident">a</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">active_trip_mode</span>.<span class="ident">keys</span>() {
             <span class="kw">match</span> <span class="ident">a</span> {
-                <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">c</span>.<span class="number">1</span> {
+                <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">c</span>.<span class="ident">vehicle_type</span> {
                     <span class="ident">VehicleType</span>::<span class="ident">Car</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="ident">cnt</span>.<span class="ident">sov_drivers</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                     }
@@ -2785,7 +2791,7 @@
                     }
                     <span class="ident">VehicleType</span>::<span class="ident">Bus</span> <span class="op">|</span> <span class="ident">VehicleType</span>::<span class="ident">Train</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
                 },
-                <span class="ident">AgentID</span>::<span class="ident">BusPassenger</span>(<span class="kw">_</span>, <span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">c</span>.<span class="number">1</span> {
+                <span class="ident">AgentID</span>::<span class="ident">BusPassenger</span>(<span class="kw">_</span>, <span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">c</span>.<span class="ident">vehicle_type</span> {
                     <span class="ident">VehicleType</span>::<span class="ident">Bus</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="ident">cnt</span>.<span class="ident">bus_riders</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                     }

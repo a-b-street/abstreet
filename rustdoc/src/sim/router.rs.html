@@ -877,7 +877,7 @@
                 <span class="comment">// make our choice based on each penalty in order, breaking ties by moving onto the</span>
                 <span class="comment">// next thing. With one exception: To produce more realistic behavior, we combine</span>
                 <span class="comment">// `vehicles + lc` as one score to avoid switching lanes just to get around one car.</span>
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">owner</span>.<span class="number">1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span> {
+                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">owner</span>.<span class="ident">vehicle_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span> {
                     <span class="ident">bike</span> <span class="op">=</span> <span class="number">0</span>;
                 } <span class="kw">else</span> {
                     <span class="ident">slow_lane</span> <span class="op">=</span> <span class="number">0</span>;
@@ -888,7 +888,7 @@
 
             <span class="comment">// Look for other candidates, and assign a cost to each.</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">original_cost</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">owner</span>.<span class="number">1</span>.<span class="ident">to_constraints</span>();
+            <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">owner</span>.<span class="ident">vehicle_type</span>.<span class="ident">to_constraints</span>();
             <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">orig_target_lane</span>).<span class="ident">dir</span>;
             <span class="kw">let</span> <span class="ident">best</span> <span class="op">=</span> <span class="ident">parent</span>
                 .<span class="ident">lanes_ltr</span>()

@@ -101,6 +101,8 @@
 <span id="98"> 98</span>
 <span id="99"> 99</span>
 <span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -110,7 +112,7 @@
     <span class="ident">TurnID</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AgentID</span>, <span class="ident">CarID</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>, <span class="ident">TripID</span>, <span class="ident">TripMode</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AgentID</span>, <span class="ident">CarID</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>, <span class="ident">Problem</span>, <span class="ident">TripID</span>, <span class="ident">TripMode</span>};
 
 <span class="doccomment">/// As a simulation runs, different systems emit Events. This cleanly separates the internal</span>
 <span class="doccomment">/// mechanics of the simulation from consumers that just want to know what&#39;s happening.</span>
@@ -140,6 +142,8 @@
     <span class="ident">PedReachedParkingSpot</span>(<span class="ident">PedestrianID</span>, <span class="ident">ParkingSpot</span>),
 
     <span class="ident">BikeStoppedAtSidewalk</span>(<span class="ident">CarID</span>, <span class="ident">LaneID</span>),
+
+    <span class="ident">ProblemEncountered</span>(<span class="ident">TripID</span>, <span class="ident">Problem</span>),
 
     <span class="doccomment">/// If the agent is a transit vehicle, then include a count of how many passengers are on</span>
     <span class="doccomment">/// board.</span>

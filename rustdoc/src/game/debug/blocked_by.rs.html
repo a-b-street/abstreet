@@ -404,11 +404,11 @@
             <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">cause</span> {
                 <span class="ident">DelayCause</span>::<span class="ident">Agent</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">warp_id</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">a</span> {
-                        <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;c{}&quot;</span>, <span class="ident">c</span>.<span class="number">0</span>),
+                        <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;c{}&quot;</span>, <span class="ident">c</span>.<span class="ident">id</span>),
                         <span class="ident">AgentID</span>::<span class="ident">Pedestrian</span>(<span class="ident">p</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;p{}&quot;</span>, <span class="ident">p</span>.<span class="number">0</span>),
                         <span class="comment">// There&#39;s always that ONE passenger lugging some inappropriate amount of</span>
                         <span class="comment">// furniture, somehow causing gridlock, right?</span>
-                        <span class="ident">AgentID</span>::<span class="ident">BusPassenger</span>(<span class="kw">_</span>, <span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;c{}&quot;</span>, <span class="ident">c</span>.<span class="number">0</span>),
+                        <span class="ident">AgentID</span>::<span class="ident">BusPassenger</span>(<span class="kw">_</span>, <span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;c{}&quot;</span>, <span class="ident">c</span>.<span class="ident">id</span>),
                     };
                     <span class="ident">col</span>.<span class="ident">push</span>(
                         <span class="ident">ctx</span>.<span class="ident">style</span>()
