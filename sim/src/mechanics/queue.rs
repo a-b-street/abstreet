@@ -280,10 +280,13 @@ impl Queue {
             num_vehicles += 1;
         }
 
-        let bike_cost = if self.cars.iter().any(|c| c.1 == VehicleType::Bike)
+        let bike_cost = if self
+            .cars
+            .iter()
+            .any(|c| c.vehicle_type == VehicleType::Bike)
             || self
                 .laggy_head
-                .map(|c| c.1 == VehicleType::Bike)
+                .map(|c| c.vehicle_type == VehicleType::Bike)
                 .unwrap_or(false)
         {
             1

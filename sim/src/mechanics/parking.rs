@@ -558,7 +558,7 @@ impl ParkingSim for NormalParkingSimState {
         // across repeated runs of the exact same simulation. This also shouldn't be the same
         // starting seed for one vehicle across different decisions through the simulation, because
         // then they might always prefer the first or third turn the most or whatever.
-        let mut rng = XorShiftRng::seed_from_u64((vehicle.id.0 + start.0) as u64);
+        let mut rng = XorShiftRng::seed_from_u64((vehicle.id.id + start.0) as u64);
 
         while !queue.is_empty() {
             let (dist_so_far, current) = queue.pop().unwrap();

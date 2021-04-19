@@ -387,7 +387,7 @@ impl Router {
                 // make our choice based on each penalty in order, breaking ties by moving onto the
                 // next thing. With one exception: To produce more realistic behavior, we combine
                 // `vehicles + lc` as one score to avoid switching lanes just to get around one car.
-                if self.owner.1 == VehicleType::Bike {
+                if self.owner.vehicle_type == VehicleType::Bike {
                     bike = 0;
                 } else {
                     slow_lane = 0;
@@ -398,7 +398,7 @@ impl Router {
 
             // Look for other candidates, and assign a cost to each.
             let mut original_cost = None;
-            let constraints = self.owner.1.to_constraints();
+            let constraints = self.owner.vehicle_type.to_constraints();
             let dir = map.get_l(orig_target_lane).dir;
             let best = parent
                 .lanes_ltr()

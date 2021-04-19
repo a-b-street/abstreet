@@ -84,7 +84,7 @@ impl TripSpec {
                     }
                 }
 
-                let constraints = if use_vehicle.1 == VehicleType::Bike {
+                let constraints = if use_vehicle.vehicle_type == VehicleType::Bike {
                     PathConstraints::Bike
                 } else {
                     PathConstraints::Car

@@ -237,7 +237,7 @@ impl TransitSimState {
                                         .get_req()
                                         .end
                                 },
-                                constraints: bus.car.1.to_constraints(),
+                                constraints: bus.car.vehicle_type.to_constraints(),
                             }),
                             TripPhaseType::RidingBus(route, stop1, bus.car),
                         ));
@@ -337,7 +337,7 @@ impl TransitSimState {
                                 } else {
                                     route.end_at_border.as_ref().unwrap().get_req().end
                                 },
-                                constraints: bus.1.to_constraints(),
+                                constraints: bus.vehicle_type.to_constraints(),
                             }),
                             TripPhaseType::RidingBus(route_id, stop1, *bus),
                         ));
@@ -404,7 +404,7 @@ impl TransitSimState {
         for r in self.routes.values() {
             let len = r.active_vehicles.len();
             if len > 0 {
-                if r.active_vehicles.iter().next().unwrap().1 == VehicleType::Bus {
+                if r.active_vehicles.iter().next().unwrap().vehicle_type == VehicleType::Bus {
                     buses += len;
                 } else {
                     trains += len;

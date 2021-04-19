@@ -68,7 +68,10 @@ impl TripManager {
         let vehicles = vehicle_specs
             .into_iter()
             .map(|v| {
-                let c = CarID(self.new_car_id(), v.vehicle_type);
+                let c = CarID {
+                    id: self.new_car_id(),
+                    vehicle_type: v.vehicle_type,
+                };
                 v.make(c, Some(id))
             })
             .collect();
@@ -195,7 +198,7 @@ impl TripManager {
 
                 let vehicle = person.get_vehicle(use_vehicle);
                 assert!(ctx.parking.lookup_parked_car(vehicle.id).is_none());
-                let constraints = if use_vehicle.1 == VehicleType::Bike {
+                let constraints = if use_vehicle.vehicle_type == VehicleType::Bike {
                     PathConstraints::Bike
                 } else {
                     PathConstraints::Car
@@ -1220,7 +1223,7 @@ impl TripManager {
 
         for a in self.active_trip_mode.keys() {
             match a {
-                AgentID::Car(c) => match c.1 {
+                AgentID::Car(c) => match c.vehicle_type {
                     VehicleType::Car => {
                         cnt.sov_drivers += 1;
                     }
@@ -1229,7 +1232,7 @@ impl TripManager {
                     }
                     VehicleType::Bus | VehicleType::Train => unreachable!(),
                 },
-                AgentID::BusPassenger(_, c) => match c.1 {
+                AgentID::BusPassenger(_, c) => match c.vehicle_type {
                     VehicleType::Bus => {
                         cnt.bus_riders += 1;
                     }

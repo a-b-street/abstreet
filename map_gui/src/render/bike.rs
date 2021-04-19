@@ -28,8 +28,11 @@ impl DrawBike {
 
         // TODO Share constants with DrawPedestrian
         let body_radius = SIDEWALK_THICKNESS / 4.0;
-        let body_color =
-            grey_out_unhighlighted_people(cs.rotating_color_agents(input.id.0), &input.person, sim);
+        let body_color = grey_out_unhighlighted_people(
+            cs.rotating_color_agents(input.id.id),
+            &input.person,
+            sim,
+        );
         draw_default.push(
             cs.bike_frame,
             input.body.make_polygons(Distance::meters(0.4)),

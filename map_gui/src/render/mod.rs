@@ -65,7 +65,7 @@ fn draw_vehicle(
     prerender: &Prerender,
     cs: &ColorScheme,
 ) -> Box<dyn Renderable> {
-    if input.id.1 == VehicleType::Bike {
+    if input.id.vehicle_type == VehicleType::Bike {
         Box::new(DrawBike::new(input, map, sim, prerender, cs))
     } else {
         Box::new(DrawCar::new(input, map, sim, prerender, cs))

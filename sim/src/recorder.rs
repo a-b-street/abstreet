@@ -47,7 +47,7 @@ impl TrafficRecorder {
                                             time,
                                             TripPurpose::Shopping,
                                             TripEndpoint::Border(t.parent),
-                                            if car.1 == VehicleType::Bike {
+                                            if car.vehicle_type == VehicleType::Bike {
                                                 TripMode::Bike
                                             } else {
                                                 TripMode::Drive

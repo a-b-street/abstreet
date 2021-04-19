@@ -27,7 +27,10 @@ use crate::sandbox::{
     SandboxMode, TimePanel,
 };
 
-const ESCORT: CarID = CarID(0, VehicleType::Car);
+const ESCORT: CarID = CarID {
+    id: 0,
+    vehicle_type: VehicleType::Car,
+};
 const CAR_BIKE_CONTENTION_GOAL: Duration = Duration::const_seconds(15.0);
 
 pub struct Tutorial {
@@ -1318,7 +1321,7 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: &str) -> Trans
                         ],
                     )
                 }
-            } else if c.1 == VehicleType::Bike {
+            } else if c.vehicle_type == VehicleType::Bike {
                 PopupMsg::new(
                     ctx,
                     "That's a bike",

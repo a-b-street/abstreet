@@ -134,11 +134,11 @@ impl Viewer {
             let pt = match cause {
                 DelayCause::Agent(a) => {
                     let warp_id = match a {
-                        AgentID::Car(c) => format!("c{}", c.0),
+                        AgentID::Car(c) => format!("c{}", c.id),
                         AgentID::Pedestrian(p) => format!("p{}", p.0),
                         // There's always that ONE passenger lugging some inappropriate amount of
                         // furniture, somehow causing gridlock, right?
-                        AgentID::BusPassenger(_, c) => format!("c{}", c.0),
+                        AgentID::BusPassenger(_, c) => format!("c{}", c.id),
                     };
                     col.push(
                         ctx.style()

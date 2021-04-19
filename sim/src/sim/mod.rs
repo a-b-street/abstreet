@@ -281,7 +281,10 @@ impl Sim {
 
     pub fn walking_path_to_nearest_parking_spot(&self, map: &Map, b: BuildingID) -> Option<Path> {
         let vehicle = Vehicle {
-            id: CarID(0, VehicleType::Car),
+            id: CarID {
+                id: 0,
+                vehicle_type: VehicleType::Car,
+            },
             owner: None,
             vehicle_type: VehicleType::Car,
             length: MIN_CAR_LENGTH,
@@ -356,7 +359,13 @@ impl Sim {
             length,
             max_speed: None,
         }
-        .make(CarID(self.trips.new_car_id(), vehicle_type), None);
+        .make(
+            CarID {
+                id: self.trips.new_car_id(),
+                vehicle_type,
+            },
+            None,
+        );
 
         self.scheduler.push(
             self.time,
@@ -526,7 +535,7 @@ impl Sim {
                                 trip,
                                 person,
                                 Some(req),
-                                if id.1 == VehicleType::Car {
+                                if id.vehicle_type == VehicleType::Car {
                                     TripPhaseType::Driving
                                 } else {
                                     TripPhaseType::Biking

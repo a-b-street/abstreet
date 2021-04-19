@@ -133,7 +133,7 @@ impl CapSimState {
     }
 
     fn trip_under_cap(&mut self, now: Time, car: CarID, path: &Path, map: &Map) -> bool {
-        if car.1 != VehicleType::Car || self.road_to_zone.is_empty() {
+        if car.vehicle_type != VehicleType::Car || self.road_to_zone.is_empty() {
             return true;
         }
         for step in path.get_steps() {

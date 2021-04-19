@@ -83,26 +83,26 @@ pub(crate) const FOLLOWING_DISTANCE: Distance = Distance::const_meters(1.0);
 /// Getting too close to EPSILON_DIST can lead to get_draw_car having no geometry at all.
 pub(crate) const SPAWN_DIST: Distance = Distance::const_meters(0.05);
 
-/// The numeric ID must be globally unique, without considering VehicleType. VehicleType is bundled
-/// for convenient debugging.
 // TODO Implement Eq, Hash, Ord manually to guarantee this.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
-pub struct CarID(
+pub struct CarID {
+    /// The numeric ID must be globally unique, without considering VehicleType.
     #[serde(
         serialize_with = "serialize_usize",
         deserialize_with = "deserialize_usize"
     )]
-    pub usize,
-    pub VehicleType,
-);
+    pub id: usize,
+    /// VehicleType is bundled for convenience; many places need to know this without a lookup.
+    pub vehicle_type: VehicleType,
+}
 
 impl fmt::Display for CarID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self.1 {
-            VehicleType::Car => write!(f, "Car #{}", self.0),
-            VehicleType::Bus => write!(f, "Bus #{}", self.0),
-            VehicleType::Train => write!(f, "Train #{}", self.0),
-            VehicleType::Bike => write!(f, "Bike #{}", self.0),
+        match self.vehicle_type {
+            VehicleType::Car => write!(f, "Car #{}", self.id),
+            VehicleType::Bus => write!(f, "Bus #{}", self.id),
+            VehicleType::Train => write!(f, "Train #{}", self.id),
+            VehicleType::Bike => write!(f, "Bike #{}", self.id),
         }
     }
 }
@@ -140,7 +140,7 @@ impl AgentID {
 
     pub fn to_type(self) -> AgentType {
         match self {
-            AgentID::Car(c) => match c.1 {
+            AgentID::Car(c) => match c.vehicle_type {
                 VehicleType::Car => AgentType::Car,
                 VehicleType::Bike => AgentType::Bike,
                 VehicleType::Bus => AgentType::Bus,
@@ -153,7 +153,7 @@ impl AgentID {
 
     pub fn to_vehicle_type(self) -> Option<VehicleType> {
         match self {
-            AgentID::Car(c) => Some(c.1),
+            AgentID::Car(c) => Some(c.vehicle_type),
             AgentID::Pedestrian(_) => None,
             AgentID::BusPassenger(_, _) => None,
         }
@@ -163,7 +163,7 @@ impl AgentID {
     #[allow(unused)]
     pub(crate) fn is_car(&self, id: usize) -> bool {
         match self {
-            AgentID::Car(c) => c.0 == id,
+            AgentID::Car(c) => c.id == id,
             _ => false,
         }
     }
@@ -335,7 +335,7 @@ pub struct VehicleSpec {
 
 impl VehicleSpec {
     pub(crate) fn make(self, id: CarID, owner: Option<PersonID>) -> Vehicle {
-        assert_eq!(id.1, self.vehicle_type);
+        assert_eq!(id.vehicle_type, self.vehicle_type);
         Vehicle {
             id,
             owner,
@@ -393,7 +393,7 @@ impl DrivingGoal {
     pub fn make_router(&self, owner: CarID, path: Path, map: &Map) -> Router {
         match self {
             DrivingGoal::ParkNear(b) => {
-                if owner.1 == VehicleType::Bike {
+                if owner.vehicle_type == VehicleType::Bike {
                     Router::bike_then_stop(owner, path, SidewalkSpot::bike_rack(*b, map).unwrap())
                 } else {
                     Router::park_near(owner, path, *b)

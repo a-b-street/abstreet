@@ -531,7 +531,7 @@ pub fn parked_car(
     is_paused: bool,
 ) -> Widget {
     let header = Widget::row(vec![
-        Line(format!("Parked car #{}", id.0))
+        Line(format!("Parked car #{}", id.id))
             .small_heading()
             .into_widget(ctx),
         Widget::row(vec![
@@ -639,7 +639,7 @@ fn header(
                     AgentID::Pedestrian(_) => {
                         ("walking", Some("system/assets/meters/pedestrian.svg"))
                     }
-                    AgentID::Car(c) => match c.1 {
+                    AgentID::Car(c) => match c.vehicle_type {
                         VehicleType::Car => ("driving", Some("system/assets/meters/car.svg")),
                         VehicleType::Bike => ("biking", Some("system/assets/meters/bike.svg")),
                         VehicleType::Bus | VehicleType::Train => unreachable!(),

@@ -148,7 +148,8 @@ impl Tab {
                         "schedule" => Tab::PersonSchedule(p),
                         _ => unreachable!(),
                     }
-                } else if c.1 == VehicleType::Bus || c.1 == VehicleType::Train {
+                } else if c.vehicle_type == VehicleType::Bus || c.vehicle_type == VehicleType::Train
+                {
                     match app.session.info_panel_tab["bus"] {
                         "status" => Tab::BusStatus(c),
                         _ => unreachable!(),
@@ -415,7 +416,7 @@ impl InfoPanel {
                     // Some objects are much wider/taller than others
                     let multiplier = match id {
                         ID::Car(c) => {
-                            if c.1 == VehicleType::Bike {
+                            if c.vehicle_type == VehicleType::Bike {
                                 3.0
                             } else {
                                 0.75

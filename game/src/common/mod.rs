@@ -180,7 +180,7 @@ impl CommonState {
                 if app.opts.dev {
                     osd.append(Line(c.to_string()).bold_body());
                 } else {
-                    osd.append(Line(format!("a {}", c.1)));
+                    osd.append(Line(format!("a {}", c.vehicle_type)));
                 }
                 if let Some(r) = app.primary.sim.bus_route_id(c) {
                     osd.append_all(vec![

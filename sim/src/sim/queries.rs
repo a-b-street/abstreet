@@ -93,7 +93,9 @@ impl Sim {
     }
 
     pub fn bus_route_id(&self, maybe_bus: CarID) -> Option<BusRouteID> {
-        if maybe_bus.1 == VehicleType::Bus || maybe_bus.1 == VehicleType::Train {
+        if maybe_bus.vehicle_type == VehicleType::Bus
+            || maybe_bus.vehicle_type == VehicleType::Train
+        {
             Some(self.transit.bus_route(maybe_bus))
         } else {
             None
@@ -195,13 +197,19 @@ impl Sim {
             VehicleType::Bus,
             VehicleType::Train,
         ] {
-            let id = CarID(idx, *vt);
+            let id = CarID {
+                id: idx,
+                vehicle_type: *vt,
+            };
             if self.driving.does_car_exist(id) {
                 return Some(id);
             }
         }
 
-        let id = CarID(idx, VehicleType::Car);
+        let id = CarID {
+            id: idx,
+            vehicle_type: VehicleType::Car,
+        };
         // Only cars can be parked.
         if self.parking.lookup_parked_car(id).is_some() {
             return Some(id);

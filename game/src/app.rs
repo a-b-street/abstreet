@@ -323,7 +323,7 @@ impl App {
                 match id {
                     ID::Pedestrian(_) => {}
                     ID::Car(c) => {
-                        if c.1 != VehicleType::Bike {
+                        if c.vehicle_type != VehicleType::Bike {
                             return Some(id);
                         }
                     }

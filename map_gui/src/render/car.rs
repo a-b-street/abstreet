@@ -241,13 +241,13 @@ fn thick_line_from_angle(
 }
 
 fn zoomed_color_car(input: &DrawCarInput, sim: &Sim, cs: &ColorScheme) -> Color {
-    if input.id.1 == VehicleType::Bus {
+    if input.id.vehicle_type == VehicleType::Bus {
         cs.bus_body
-    } else if input.id.1 == VehicleType::Train {
+    } else if input.id.vehicle_type == VehicleType::Train {
         cs.train_body
     } else {
         let color = match input.status {
-            CarStatus::Moving => cs.rotating_color_agents(input.id.0),
+            CarStatus::Moving => cs.rotating_color_agents(input.id.id),
             CarStatus::Parked => cs.parked_car,
         };
         grey_out_unhighlighted_people(color, &input.person, sim)

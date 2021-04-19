@@ -297,7 +297,7 @@ impl DrivingSimState {
                     car.wants_to_overtake.insert(slow_leader);
 
                     // Record when a vehicle wants to pass a bike
-                    if slow_leader.1 == VehicleType::Bike
+                    if slow_leader.vehicle_type == VehicleType::Bike
                         && car.vehicle.vehicle_type != VehicleType::Bike
                     {
                         self.events.push(Event::ProblemEncountered(
@@ -1265,6 +1265,6 @@ impl DrivingSimState {
 // type is also in there, but during lookup, it'll be ignored!
 impl IndexableKey for CarID {
     fn index(&self) -> usize {
-        self.0
+        self.id
     }
 }
