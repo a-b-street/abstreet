@@ -23,7 +23,7 @@ async fn main() {
         let single_file = args.optional_free();
         args.done();
         if let Some(path) = single_file {
-            let (local, _) = md5sum(&path);
+            let local = md5sum(&path);
             let truth = Manifest::load()
                 .entries
                 .remove(&path)
@@ -46,8 +46,8 @@ async fn main() {
 
 async fn download_updates(version: String) {
     let data_packs = DataPacks::load_or_create();
-    let local = generate_manifest();
     let truth = Manifest::load().filter(data_packs);
+    let local = generate_manifest(&truth);
 
     // Anything local need deleting?
     for path in local.entries.keys() {
@@ -93,8 +93,8 @@ async fn download_updates(version: String) {
 
 fn just_compare() {
     let data_packs = DataPacks::load_or_create();
-    let local = generate_manifest();
     let truth = Manifest::load().filter(data_packs);
+    let local = generate_manifest(&truth);
 
     // Anything local need deleting?
     for path in local.entries.keys() {
@@ -114,7 +114,6 @@ fn just_compare() {
 fn upload(version: String) {
     let remote_base = format!("/home/dabreegster/s3_abst_data/{}", version);
 
-    let mut local = generate_manifest();
     let remote: Manifest = abstio::maybe_read_json(
         format!("{}/MANIFEST.json", remote_base),
         &mut Timer::throwaway(),
@@ -122,6 +121,7 @@ fn upload(version: String) {
     .unwrap_or(Manifest {
         entries: BTreeMap::new(),
     });
+    let mut local = generate_manifest(&remote);
 
     // Anything remote need deleting?
     for path in remote.entries.keys() {
@@ -208,7 +208,7 @@ fn opt_into_all() {
     println!("{}", abstutil::to_json(&data_packs));
 }
 
-fn generate_manifest() -> Manifest {
+fn generate_manifest(truth: &Manifest) -> Manifest {
     let mut paths = Vec::new();
     for entry in WalkDir::new("data/input")
         .into_iter()
@@ -235,7 +235,23 @@ fn generate_manifest() -> Manifest {
         Parallelism::Fastest,
         paths,
         |(orig_path, path)| {
-            let (checksum, uncompressed_size_bytes) = md5sum(&orig_path);
+            let uncompressed_size_bytes = std::fs::metadata(&orig_path).unwrap().len();
+            // Always calculate the md5sum for files under 1GB.
+            let checksum = if uncompressed_size_bytes < 1024 * 1024 * 1024 {
+                md5sum(&orig_path)
+            } else if truth
+                .entries
+                .get(&path)
+                .map(|entry| entry.uncompressed_size_bytes == uncompressed_size_bytes)
+                .unwrap_or(false)
+            {
+                // For files larger than 1GB, don't recalculate the md5sum if the size hasn't
+                // changed. This saves substantial time for a few gigantic files in data/input that
+                // rarely change.
+                truth.entries[&path].checksum.clone()
+            } else {
+                md5sum(&orig_path)
+            };
             (
                 path,
                 Entry {
@@ -253,24 +269,18 @@ fn generate_manifest() -> Manifest {
     Manifest { entries: kv }
 }
 
-/// Returns (checksum, uncompressed_size_bytes)
-fn md5sum(path: &str) -> (String, u64) {
+fn md5sum(path: &str) -> String {
     // since these files can be very large, computes the md5 hash in chunks
     let mut file = File::open(path).unwrap();
     let mut buffer = [0 as u8; MD5_BUF_READ_SIZE];
     let mut context = md5::Context::new();
-    let mut uncompressed_size_bytes = 0;
     while let Ok(n) = file.read(&mut buffer) {
         if n == 0 {
             break;
         }
-        uncompressed_size_bytes += n;
         context.consume(&buffer[..n]);
     }
-    (
-        format!("{:x}", context.compute()),
-        uncompressed_size_bytes as u64,
-    )
+    format!("{:x}", context.compute())
 }
 
 fn rm(path: &str) {
