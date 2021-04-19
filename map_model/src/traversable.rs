@@ -171,6 +171,14 @@ impl Traversable {
         }
     }
 
+    /// Return the center-line geometry of this lane or turn.
+    pub fn get_polyline(self, map: &Map) -> &PolyLine {
+        match self {
+            Traversable::Lane(id) => &map.get_l(id).lane_center_pts,
+            Traversable::Turn(id) => &map.get_t(id).geom,
+        }
+    }
+
     // TODO Just expose the PolyLine instead of all these layers of helpers
     pub fn length(&self, map: &Map) -> Distance {
         match *self {

@@ -6,7 +6,7 @@ use map_model::{
     TurnID,
 };
 
-use crate::{AgentID, CarID, ParkingSpot, PedestrianID, PersonID, TripID, TripMode};
+use crate::{AgentID, CarID, ParkingSpot, PedestrianID, PersonID, Problem, TripID, TripMode};
 
 /// As a simulation runs, different systems emit Events. This cleanly separates the internal
 /// mechanics of the simulation from consumers that just want to know what's happening.
@@ -36,6 +36,8 @@ pub enum Event {
     PedReachedParkingSpot(PedestrianID, ParkingSpot),
 
     BikeStoppedAtSidewalk(CarID, LaneID),
+
+    ProblemEncountered(TripID, Problem),
 
     /// If the agent is a transit vehicle, then include a count of how many passengers are on
     /// board.

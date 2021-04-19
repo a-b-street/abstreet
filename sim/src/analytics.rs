@@ -64,12 +64,14 @@ pub struct Analytics {
     record_anything: bool,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Problem {
     /// A vehicle waited >30s, or a pedestrian waited >15s.
     IntersectionDelay(IntersectionID, Duration),
     /// A cyclist crossed an intersection with >4 connecting roads.
     LargeIntersectionCrossing(IntersectionID),
+    /// Another vehicle wanted to over-take this cyclist somewhere on this lane or turn.
+    OvertakeDesired(Traversable),
 }
 
 impl Analytics {
@@ -278,6 +280,12 @@ impl Analytics {
             }
             Event::Alert(loc, msg) => {
                 self.alerts.push((time, loc, msg));
+            }
+            Event::ProblemEncountered(trip, problem) => {
+                self.problems_per_trip
+                    .entry(trip)
+                    .or_insert_with(Vec::new)
+                    .push(problem);
             }
             _ => {}
         }

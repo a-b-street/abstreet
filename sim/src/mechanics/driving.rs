@@ -10,10 +10,10 @@ use crate::mechanics::car::{Car, CarState};
 use crate::mechanics::Queue;
 use crate::sim::Ctx;
 use crate::{
-    ActionAtEnd, AgentID, AgentProperties, AlertLocation, CarID, Command, CreateCar, DelayCause,
-    DistanceInterval, DrawCarInput, Event, IntersectionSimState, ParkedCar, ParkingSim,
-    ParkingSpot, PersonID, SimOptions, TimeInterval, TransitSimState, TripID, TripManager,
-    UnzoomedAgent, Vehicle, WalkingSimState, FOLLOWING_DISTANCE,
+    ActionAtEnd, AgentID, AgentProperties, CarID, Command, CreateCar, DelayCause, DistanceInterval,
+    DrawCarInput, Event, IntersectionSimState, ParkedCar, ParkingSim, ParkingSpot, PersonID,
+    Problem, SimOptions, TimeInterval, TransitSimState, TripID, TripManager, UnzoomedAgent,
+    Vehicle, VehicleType, WalkingSimState, FOLLOWING_DISTANCE,
 };
 
 const TIME_TO_WAIT_AT_BUS_STOP: Duration = Duration::const_seconds(10.0);
@@ -120,6 +120,7 @@ impl DrivingSimState {
                 started_at: now,
                 total_blocked_time: Duration::ZERO,
                 trip_and_person: params.trip_and_person,
+                wants_to_overtake: BTreeSet::new(),
             };
             if let Some(p) = params.maybe_parked_car {
                 let delay = match p.spot {
@@ -293,16 +294,16 @@ impl DrivingSimState {
                 } else if let Some(slow_leader) = self.wants_to_overtake(&car) {
                     // TODO This entire check kicks in a little late; we only enter Queued after
                     // spending the freeflow time possibly moving very slowly.
+                    car.wants_to_overtake.insert(slow_leader);
 
-                    // TODO The alert is temporary, just for debugging. So not firing it for a bus
-                    // is fine.
-                    if let Some((_, person)) = car.trip_and_person {
-                        if false {
-                            self.events.push(Event::Alert(
-                                AlertLocation::Person(person),
-                                format!("{} wants to over-take {}", car.vehicle.id, slow_leader),
-                            ));
-                        }
+                    // Record when a vehicle wants to pass a bike
+                    if slow_leader.1 == VehicleType::Bike
+                        && car.vehicle.vehicle_type != VehicleType::Bike
+                    {
+                        self.events.push(Event::ProblemEncountered(
+                            self.cars[&slow_leader].trip_and_person.unwrap().0,
+                            Problem::OvertakeDesired(queue.id),
+                        ));
                     }
                 }
             }
@@ -1221,6 +1222,9 @@ impl DrivingSimState {
     fn wants_to_overtake(&self, car: &Car) -> Option<CarID> {
         let queue = &self.queues[&car.router.head()];
         let leader = queue.get_leader(car.vehicle.id)?;
+        if car.wants_to_overtake.contains(&leader) {
+            return None;
+        }
         let leader = &self.cars[&leader];
 
         // Are we faster than them?

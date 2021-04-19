@@ -1,4 +1,4 @@
-use std::collections::VecDeque;
+use std::collections::{BTreeSet, VecDeque};
 
 use serde::{Deserialize, Serialize};
 
@@ -6,7 +6,7 @@ use geom::{Distance, Duration, PolyLine, Time, EPSILON_DIST};
 use map_model::{Direction, Map, Traversable};
 
 use crate::{
-    CarStatus, DistanceInterval, DrawCarInput, ParkingSpot, PersonID, Router, TimeInterval,
+    CarID, CarStatus, DistanceInterval, DrawCarInput, ParkingSpot, PersonID, Router, TimeInterval,
     TransitSimState, TripID, Vehicle, VehicleType,
 };
 
@@ -25,6 +25,10 @@ pub(crate) struct Car {
     /// In reverse order -- most recently left is first. The sum length of these must be >=
     /// vehicle.length.
     pub last_steps: VecDeque<Traversable>,
+
+    /// Since lane over-taking isn't implemented yet, a vehicle tends to be stuck behind a slow
+    /// leader for a while. Avoid duplicate events.
+    pub wants_to_overtake: BTreeSet<CarID>,
 }
 
 impl Car {

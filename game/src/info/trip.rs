@@ -4,7 +4,7 @@ use maplit::btreemap;
 
 use geom::{Distance, Duration, Percent, Polygon, Pt2D};
 use map_gui::ID;
-use map_model::{Map, Path, PathStep};
+use map_model::{Map, Path, PathStep, Traversable};
 use sim::{
     AgentID, Analytics, PersonID, Problem, TripEndpoint, TripID, TripInfo, TripMode, TripPhase,
     TripPhaseType,
@@ -406,29 +406,47 @@ fn describe_problems(
     col_width: Percent,
 ) -> Widget {
     if trip.mode == TripMode::Bike {
-        let mut count = 0;
+        let mut count_large_intersections = 0;
+        let mut count_overtakes = 0;
         let empty = Vec::new();
         for problem in analytics.problems_per_trip.get(&id).unwrap_or(&empty) {
-            if let Problem::LargeIntersectionCrossing(_) = problem {
-                count += 1;
+            match problem {
+                Problem::LargeIntersectionCrossing(_) => {
+                    count_large_intersections += 1;
+                }
+                Problem::OvertakeDesired(_) => {
+                    count_overtakes += 1;
+                }
+                Problem::IntersectionDelay(_, _) => {}
             }
         }
+        let mut txt = Text::new();
+        txt.add_appended(vec![
+            Line(count_large_intersections.to_string()),
+            if count_large_intersections == 1 {
+                Line(" crossing at large intersections")
+            } else {
+                Line(" crossings at large intersections")
+            }
+            .secondary(),
+        ]);
+        txt.add_appended(vec![
+            Line(count_overtakes.to_string()),
+            if count_overtakes == 1 {
+                Line(" vehicle wanted to over-take")
+            } else {
+                Line(" vehicles wanted to over-take")
+            }
+            .secondary(),
+        ]);
+
         Widget::custom_row(vec![
             Line("Risk exposure")
                 .secondary()
                 .into_widget(ctx)
                 .container()
                 .force_width_pct(ctx, col_width),
-            Text::from_all(vec![
-                Line(count.to_string()),
-                if count == 1 {
-                    Line(" crossing at large intersections")
-                } else {
-                    Line(" crossings at large intersections")
-                }
-                .secondary(),
-            ])
-            .into_widget(ctx),
+            txt.into_widget(ctx),
         ])
     } else {
         Widget::nothing()
@@ -436,6 +454,7 @@ fn describe_problems(
 }
 
 fn draw_problems(ctx: &EventCtx, app: &App, details: &mut Details, id: TripID) {
+    let map = &app.primary.map;
     let empty = Vec::new();
     for problem in app
         .primary
@@ -447,7 +466,7 @@ fn draw_problems(ctx: &EventCtx, app: &App, details: &mut Details, id: TripID) {
     {
         match problem {
             Problem::IntersectionDelay(i, delay) => {
-                let i = app.primary.map.get_i(*i);
+                let i = map.get_i(*i);
                 // TODO These thresholds don't match what we use as thresholds in the simulation.
                 let (slow, slower) = if i.is_traffic_signal() {
                     (Duration::seconds(30.0), Duration::minutes(2))
@@ -480,7 +499,7 @@ fn draw_problems(ctx: &EventCtx, app: &App, details: &mut Details, id: TripID) {
                 ));
             }
             Problem::LargeIntersectionCrossing(i) => {
-                let i = app.primary.map.get_i(*i);
+                let i = map.get_i(*i);
                 details.unzoomed.append(
                     GeomBatch::load_svg(ctx, "system/assets/tools/alert.svg")
                         .centered_on(i.polygon.center())
@@ -499,6 +518,27 @@ fn draw_problems(ctx: &EventCtx, app: &App, details: &mut Details, id: TripID) {
                         Line("This has an increased risk of crash or injury for cyclists"),
                         Line("Source: 2020 Seattle DOT Safety Analysis"),
                     ]),
+                ));
+            }
+            Problem::OvertakeDesired(on) => {
+                let pt = on.get_polyline(map).middle();
+                details.unzoomed.append(
+                    GeomBatch::load_svg(ctx, "system/assets/tools/alert.svg")
+                        .centered_on(pt)
+                        .color(RewriteColor::ChangeAlpha(0.8)),
+                );
+                details.zoomed.append(
+                    GeomBatch::load_svg(ctx, "system/assets/tools/alert.svg")
+                        .scale(0.5)
+                        .color(RewriteColor::ChangeAlpha(0.5))
+                        .centered_on(pt),
+                );
+                details.tooltips.push((
+                    match on {
+                        Traversable::Lane(l) => map.get_parent(*l).get_thick_polygon(map),
+                        Traversable::Turn(t) => map.get_i(t.parent).polygon.clone(),
+                    },
+                    Text::from("A vehicle wanted to over-take this cyclist near here."),
                 ));
             }
         }
