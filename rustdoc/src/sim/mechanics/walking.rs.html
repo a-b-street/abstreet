@@ -897,6 +897,7 @@
 <span id="894">894</span>
 <span id="895">895</span>
 <span id="896">896</span>
+<span id="897">897</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
@@ -1699,6 +1700,7 @@
         <span class="ident">peds_per_traversable</span>.<span class="ident">insert</span>(<span class="self">self</span>.<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">as_traversable</span>(), <span class="self">self</span>.<span class="ident">id</span>);
         <span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">AgentEntersTraversable</span>(
             <span class="ident">AgentID</span>::<span class="ident">Pedestrian</span>(<span class="self">self</span>.<span class="ident">id</span>),
+            <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">trip</span>),
             <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">as_traversable</span>(),
             <span class="prelude-val">None</span>,
         ));
