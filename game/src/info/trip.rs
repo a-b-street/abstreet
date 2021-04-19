@@ -421,8 +421,12 @@ fn describe_problems(
                 .force_width_pct(ctx, col_width),
             Text::from_all(vec![
                 Line(count.to_string()),
-                // TODO Singular/plural
-                Line(" crossings at large intersections").secondary(),
+                if count == 1 {
+                    Line(" crossing at large intersections")
+                } else {
+                    Line(" crossings at large intersections")
+                }
+                .secondary(),
             ])
             .into_widget(ctx),
         ])
@@ -470,9 +474,32 @@ fn draw_problems(ctx: &EventCtx, app: &App, details: &mut Details, id: TripID) {
                         .scale(0.4)
                         .centered_on(i.polygon.center()),
                 );
+                details.tooltips.push((
+                    i.polygon.clone(),
+                    Text::from(Line(format!("{} delay here", delay))),
+                ));
             }
-            Problem::LargeIntersectionCrossing(_) => {
-                // TODO Maybe a caution icon?
+            Problem::LargeIntersectionCrossing(i) => {
+                let i = app.primary.map.get_i(*i);
+                details.unzoomed.append(
+                    GeomBatch::load_svg(ctx, "system/assets/tools/alert.svg")
+                        .centered_on(i.polygon.center())
+                        .color(RewriteColor::ChangeAlpha(0.8)),
+                );
+                details.zoomed.append(
+                    GeomBatch::load_svg(ctx, "system/assets/tools/alert.svg")
+                        .scale(0.5)
+                        .color(RewriteColor::ChangeAlpha(0.5))
+                        .centered_on(i.polygon.center()),
+                );
+                details.tooltips.push((
+                    i.polygon.clone(),
+                    Text::from_multiline(vec![
+                        Line(format!("This intersection has {} legs", i.roads.len())),
+                        Line("This has an increased risk of crash or injury for cyclists"),
+                        Line("Source: 2020 Seattle DOT Safety Analysis"),
+                    ]),
+                ));
             }
         }
     }
