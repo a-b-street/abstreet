@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeSet, BTreeMap};
 use std::fs::File;
 
 use anyhow::Result;
@@ -71,19 +71,16 @@ impl<A: AppLike + 'static> State<A> for Picker<A> {
                     return Transition::Pop;
                 }
                 "Sync files" => {
-                    // First update the DataPacks file
-                    let mut data_packs = DataPacks::load_or_create();
-                    data_packs.runtime.clear();
-                    data_packs.runtime.insert("us/seattle".to_string());
+                    let mut cities = Vec::new();
                     for (city, _) in size_per_city(&Manifest::load()) {
                         if self.panel.is_checked(&city) {
-                            data_packs.runtime.insert(city);
+                            cities.push(city);
                         }
                     }
-                    data_packs.save();
 
-                    let messages =
-                        ctx.loading_screen("sync files", |_, timer| sync_missing_files(timer));
+                    let messages = ctx.loading_screen("download missing files", |_, timer| {
+                        download_cities(cities, timer)
+                    });
                     return Transition::Multi(vec![
                         Transition::Replace(crate::tools::CityPicker::new(
                             ctx,
@@ -150,11 +147,9 @@ pub fn prompt_to_download_missing_data<A: AppLike + 'static>(
                 return Transition::Pop;
             }
 
-            let mut data_packs = abstio::DataPacks::load_or_create();
-            data_packs.runtime.insert(map_name.to_data_pack_name());
-            data_packs.save();
-
-            let messages = ctx.loading_screen("sync files", |_, timer| sync_missing_files(timer));
+            let messages = ctx.loading_screen("download missing files", |_, timer| {
+                download_cities(vec![map_name.to_data_pack_name()], timer)
+            });
             Transition::Replace(PopupMsg::new(
                 ctx,
                 "Download complete. Please try again",
@@ -164,10 +159,18 @@ pub fn prompt_to_download_missing_data<A: AppLike + 'static>(
     ))
 }
 
-// TODO This only downloads files that don't exist but should. It doesn't remove or update
-// anything. Not sure if everything the updater does should also be done here.
-pub fn sync_missing_files(timer: &mut Timer) -> Vec<String> {
-    let truth = Manifest::load().filter(DataPacks::load_or_create());
+fn download_cities(cities: Vec<String>, timer: &mut Timer) -> Vec<String> {
+    let mut data_packs = DataPacks {
+        runtime: BTreeSet::new(),
+        input: BTreeSet::new(),
+    };
+    data_packs.runtime.extend(cities);
+    let mut manifest = Manifest::load().filter(data_packs);
+    // Don't download files that already exist
+    abstutil::retain_btreemap(&mut manifest.entries, |path, _| {
+        !abstio::file_exists(&abstio::path(path.strip_prefix("data/").unwrap()))
+    });
+
     let version = if cfg!(feature = "release_s3") {
         NEXT_RELEASE
     } else {
@@ -178,13 +181,10 @@ pub fn sync_missing_files(timer: &mut Timer) -> Vec<String> {
     let mut bytes_downloaded = 0;
     let mut messages = Vec::new();
 
-    timer.start_iter("sync files", truth.entries.len());
-    for (path, entry) in truth.entries {
+    timer.start_iter("download missing files", manifest.entries.len());
+    for (path, entry) in manifest.entries {
         timer.next();
         let local_path = abstio::path(path.strip_prefix("data/").unwrap());
-        if abstio::file_exists(&local_path) {
-            continue;
-        }
         let url = format!(
             "http://abstreet.s3-website.us-east-2.amazonaws.com/{}/{}.gz",
             version, path
