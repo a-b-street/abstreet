@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 pub use trip::OpenTrip;
 
-use geom::{Circle, Distance, Time};
+use geom::{Circle, Distance, Polygon, Time};
 use map_gui::tools::open_browser;
 use map_gui::ID;
 use map_model::{AreaID, BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, ParkingLotID};
@@ -12,7 +12,7 @@ use sim::{
 };
 use widgetry::{
     Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, LinePlot, Outcome, Panel, PlotOptions,
-    Series, TextExt, Toggle, Widget,
+    Series, Text, TextExt, Toggle, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -39,6 +39,7 @@ pub struct InfoPanel {
 
     unzoomed: Drawable,
     zoomed: Drawable,
+    tooltips: Vec<(Polygon, Text)>,
 
     hyperlinks: HashMap<String, Tab>,
     warpers: HashMap<String, ID>,
@@ -287,10 +288,17 @@ impl Tab {
 
 // TODO Name sucks
 pub struct Details {
+    /// Draw extra things when unzoomed.
     pub unzoomed: GeomBatch,
+    /// Draw extra things when zoomed.
     pub zoomed: GeomBatch,
+    /// Show these tooltips over the map.
+    pub tooltips: Vec<(Polygon, Text)>,
+    /// When a button with this label is clicked, open this info panel tab instead.
     pub hyperlinks: HashMap<String, Tab>,
+    /// When a button with this label is clicked, warp to this ID.
     pub warpers: HashMap<String, ID>,
+    /// When a button with this label is clicked, time-warp and open the info panel for this trip.
     pub time_warpers: HashMap<String, (TripID, Time)>,
     // It's just convenient to plumb this here
     pub can_jump_to_time: bool,
@@ -315,6 +323,7 @@ impl InfoPanel {
         let mut details = Details {
             unzoomed: GeomBatch::new(),
             zoomed: GeomBatch::new(),
+            tooltips: Vec::new(),
             hyperlinks: HashMap::new(),
             warpers: HashMap::new(),
             time_warpers: HashMap::new(),
@@ -457,6 +466,7 @@ impl InfoPanel {
                     .build_custom(ctx),
                 unzoomed: details.unzoomed.upload(ctx),
                 zoomed: details.zoomed.upload(ctx),
+                tooltips: details.tooltips,
                 hyperlinks: details.hyperlinks,
                 warpers: details.warpers,
                 time_warpers: details.time_warpers,
@@ -639,6 +649,14 @@ impl InfoPanel {
             g.redraw(&self.unzoomed);
         } else {
             g.redraw(&self.zoomed);
+        }
+        if let Some(pt) = g.canvas.get_cursor_in_map_space() {
+            for (poly, txt) in &self.tooltips {
+                if poly.contains_pt(pt) {
+                    g.draw_mouse_tooltip(txt.clone());
+                    break;
+                }
+            }
         }
     }
 
