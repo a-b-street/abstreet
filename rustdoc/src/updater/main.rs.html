@@ -341,6 +341,16 @@
 <span id="338">338</span>
 <span id="339">339</span>
 <span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
@@ -367,7 +377,7 @@
         <span class="kw">let</span> <span class="ident">single_file</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">optional_free</span>();
         <span class="ident">args</span>.<span class="ident">done</span>();
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">single_file</span> {
-            <span class="kw">let</span> (<span class="ident">local</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">md5sum</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>);
+            <span class="kw">let</span> <span class="ident">local</span> <span class="op">=</span> <span class="ident">md5sum</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>);
             <span class="kw">let</span> <span class="ident">truth</span> <span class="op">=</span> <span class="ident">Manifest</span>::<span class="ident">load</span>()
                 .<span class="ident">entries</span>
                 .<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>)
@@ -390,8 +400,8 @@
 
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">download_updates</span>(<span class="ident">version</span>: <span class="ident">String</span>) {
     <span class="kw">let</span> <span class="ident">data_packs</span> <span class="op">=</span> <span class="ident">DataPacks</span>::<span class="ident">load_or_create</span>();
-    <span class="kw">let</span> <span class="ident">local</span> <span class="op">=</span> <span class="ident">generate_manifest</span>();
     <span class="kw">let</span> <span class="ident">truth</span> <span class="op">=</span> <span class="ident">Manifest</span>::<span class="ident">load</span>().<span class="ident">filter</span>(<span class="ident">data_packs</span>);
+    <span class="kw">let</span> <span class="ident">local</span> <span class="op">=</span> <span class="ident">generate_manifest</span>(<span class="kw-2">&amp;</span><span class="ident">truth</span>);
 
     <span class="comment">// Anything local need deleting?</span>
     <span class="kw">for</span> <span class="ident">path</span> <span class="kw">in</span> <span class="ident">local</span>.<span class="ident">entries</span>.<span class="ident">keys</span>() {
@@ -437,8 +447,8 @@
 
 <span class="kw">fn</span> <span class="ident">just_compare</span>() {
     <span class="kw">let</span> <span class="ident">data_packs</span> <span class="op">=</span> <span class="ident">DataPacks</span>::<span class="ident">load_or_create</span>();
-    <span class="kw">let</span> <span class="ident">local</span> <span class="op">=</span> <span class="ident">generate_manifest</span>();
     <span class="kw">let</span> <span class="ident">truth</span> <span class="op">=</span> <span class="ident">Manifest</span>::<span class="ident">load</span>().<span class="ident">filter</span>(<span class="ident">data_packs</span>);
+    <span class="kw">let</span> <span class="ident">local</span> <span class="op">=</span> <span class="ident">generate_manifest</span>(<span class="kw-2">&amp;</span><span class="ident">truth</span>);
 
     <span class="comment">// Anything local need deleting?</span>
     <span class="kw">for</span> <span class="ident">path</span> <span class="kw">in</span> <span class="ident">local</span>.<span class="ident">entries</span>.<span class="ident">keys</span>() {
@@ -458,7 +468,6 @@
 <span class="kw">fn</span> <span class="ident">upload</span>(<span class="ident">version</span>: <span class="ident">String</span>) {
     <span class="kw">let</span> <span class="ident">remote_base</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;/home/dabreegster/s3_abst_data/{}&quot;</span>, <span class="ident">version</span>);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">local</span> <span class="op">=</span> <span class="ident">generate_manifest</span>();
     <span class="kw">let</span> <span class="ident">remote</span>: <span class="ident">Manifest</span> <span class="op">=</span> <span class="ident">abstio</span>::<span class="ident">maybe_read_json</span>(
         <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/MANIFEST.json&quot;</span>, <span class="ident">remote_base</span>),
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>(),
@@ -466,6 +475,7 @@
     .<span class="ident">unwrap_or</span>(<span class="ident">Manifest</span> {
         <span class="ident">entries</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
     });
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">local</span> <span class="op">=</span> <span class="ident">generate_manifest</span>(<span class="kw-2">&amp;</span><span class="ident">remote</span>);
 
     <span class="comment">// Anything remote need deleting?</span>
     <span class="kw">for</span> <span class="ident">path</span> <span class="kw">in</span> <span class="ident">remote</span>.<span class="ident">entries</span>.<span class="ident">keys</span>() {
@@ -552,7 +562,7 @@
     <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="kw-2">&amp;</span><span class="ident">data_packs</span>));
 }
 
-<span class="kw">fn</span> <span class="ident">generate_manifest</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Manifest</span> {
+<span class="kw">fn</span> <span class="ident">generate_manifest</span>(<span class="ident">truth</span>: <span class="kw-2">&amp;</span><span class="ident">Manifest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Manifest</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">paths</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="kw">for</span> <span class="ident">entry</span> <span class="kw">in</span> <span class="ident">WalkDir</span>::<span class="ident">new</span>(<span class="string">&quot;data/input&quot;</span>)
         .<span class="ident">into_iter</span>()
@@ -579,7 +589,23 @@
         <span class="ident">Parallelism</span>::<span class="ident">Fastest</span>,
         <span class="ident">paths</span>,
         <span class="op">|</span>(<span class="ident">orig_path</span>, <span class="ident">path</span>)<span class="op">|</span> {
-            <span class="kw">let</span> (<span class="ident">checksum</span>, <span class="ident">uncompressed_size_bytes</span>) <span class="op">=</span> <span class="ident">md5sum</span>(<span class="kw-2">&amp;</span><span class="ident">orig_path</span>);
+            <span class="kw">let</span> <span class="ident">uncompressed_size_bytes</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">metadata</span>(<span class="kw-2">&amp;</span><span class="ident">orig_path</span>).<span class="ident">unwrap</span>().<span class="ident">len</span>();
+            <span class="comment">// Always calculate the md5sum for files under 1GB.</span>
+            <span class="kw">let</span> <span class="ident">checksum</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">uncompressed_size_bytes</span> <span class="op">&lt;</span> <span class="number">1024</span> <span class="op">*</span> <span class="number">1024</span> <span class="op">*</span> <span class="number">1024</span> {
+                <span class="ident">md5sum</span>(<span class="kw-2">&amp;</span><span class="ident">orig_path</span>)
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">truth</span>
+                .<span class="ident">entries</span>
+                .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>)
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">entry</span><span class="op">|</span> <span class="ident">entry</span>.<span class="ident">uncompressed_size_bytes</span> <span class="op">=</span><span class="op">=</span> <span class="ident">uncompressed_size_bytes</span>)
+                .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
+            {
+                <span class="comment">// For files larger than 1GB, don&#39;t recalculate the md5sum if the size hasn&#39;t</span>
+                <span class="comment">// changed. This saves substantial time for a few gigantic files in data/input that</span>
+                <span class="comment">// rarely change.</span>
+                <span class="ident">truth</span>.<span class="ident">entries</span>[<span class="kw-2">&amp;</span><span class="ident">path</span>].<span class="ident">checksum</span>.<span class="ident">clone</span>()
+            } <span class="kw">else</span> {
+                <span class="ident">md5sum</span>(<span class="kw-2">&amp;</span><span class="ident">orig_path</span>)
+            };
             (
                 <span class="ident">path</span>,
                 <span class="ident">Entry</span> {
@@ -597,24 +623,18 @@
     <span class="ident">Manifest</span> { <span class="ident">entries</span>: <span class="ident">kv</span> }
 }
 
-<span class="doccomment">/// Returns (checksum, uncompressed_size_bytes)</span>
-<span class="kw">fn</span> <span class="ident">md5sum</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">String</span>, <span class="ident">u64</span>) {
+<span class="kw">fn</span> <span class="ident">md5sum</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
     <span class="comment">// since these files can be very large, computes the md5 hash in chunks</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File</span>::<span class="ident">open</span>(<span class="ident">path</span>).<span class="ident">unwrap</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> [<span class="number">0</span> <span class="kw">as</span> <span class="ident">u8</span>; <span class="ident">MD5_BUF_READ_SIZE</span>];
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">context</span> <span class="op">=</span> <span class="ident">md5</span>::<span class="ident">Context</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">uncompressed_size_bytes</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">file</span>.<span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buffer</span>) {
         <span class="kw">if</span> <span class="ident">n</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
             <span class="kw">break</span>;
         }
-        <span class="ident">uncompressed_size_bytes</span> <span class="op">+</span><span class="op">=</span> <span class="ident">n</span>;
         <span class="ident">context</span>.<span class="ident">consume</span>(<span class="kw-2">&amp;</span><span class="ident">buffer</span>[..<span class="ident">n</span>]);
     }
-    (
-        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:x}&quot;</span>, <span class="ident">context</span>.<span class="ident">compute</span>()),
-        <span class="ident">uncompressed_size_bytes</span> <span class="kw">as</span> <span class="ident">u64</span>,
-    )
+    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:x}&quot;</span>, <span class="ident">context</span>.<span class="ident">compute</span>())
 }
 
 <span class="kw">fn</span> <span class="ident">rm</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
