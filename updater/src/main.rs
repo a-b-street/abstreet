@@ -312,9 +312,9 @@ async fn download_file(version: &str, path: &str) -> Result<Vec<u8>> {
         version, path
     );
     println!("> download {}", url);
-    let (tx, rx) = futures_channel::mpsc::channel(1000);
+    let (mut tx, rx) = futures_channel::mpsc::channel(1000);
     abstio::print_download_progress(rx);
-    abstio::download_bytes(url, tx).await
+    abstio::download_bytes(url, &mut tx).await
 }
 
 // download() will remove stray files, but leave empty directories around. Since some runtime code

@@ -1,14 +1,14 @@
-use std::collections::{BTreeSet, BTreeMap};
+use std::collections::{BTreeMap, BTreeSet};
 use std::fs::File;
 
-use anyhow::Result;
+use futures_channel::mpsc;
 
 use abstio::{DataPacks, Manifest, MapName};
-use abstutil::Timer;
 use widgetry::{
     EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, TextExt, Toggle, Transition, Widget,
 };
 
+use crate::load::FutureLoader;
 use crate::tools::{ChooseSomething, PopupMsg};
 use crate::AppLike;
 
@@ -64,7 +64,7 @@ impl<A: AppLike + 'static> Picker<A> {
 }
 
 impl<A: AppLike + 'static> State<A> for Picker<A> {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut A) -> Transition<A> {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
@@ -78,17 +78,31 @@ impl<A: AppLike + 'static> State<A> for Picker<A> {
                         }
                     }
 
-                    let messages = ctx.loading_screen("download missing files", |_, timer| {
-                        download_cities(cities, timer)
-                    });
-                    return Transition::Multi(vec![
-                        Transition::Replace(crate::tools::CityPicker::new(
-                            ctx,
-                            app,
-                            self.on_load.take().unwrap(),
-                        )),
-                        Transition::Push(PopupMsg::new(ctx, "Download complete", messages)),
-                    ]);
+                    let on_load = self.on_load.take().unwrap();
+                    return Transition::Replace(FutureLoader::<A, Vec<String>>::new(
+                        ctx,
+                        Box::pin(async {
+                            let (tx, rx) = futures_channel::mpsc::channel(1000);
+                            abstio::print_download_progress(rx);
+                            let result = download_cities(cities, tx).await;
+                            let wrap: Box<dyn Send + FnOnce(&A) -> Vec<String>> =
+                                Box::new(move |_: &A| result);
+                            Ok(wrap)
+                        }),
+                        "Downloading missing files",
+                        Box::new(|ctx, app, maybe_messages| {
+                            let messages = match maybe_messages {
+                                Ok(m) => m,
+                                Err(err) => vec![format!("Something went very wrong: {}", err)],
+                            };
+                            Transition::Multi(vec![
+                                Transition::Replace(crate::tools::CityPicker::new(
+                                    ctx, app, on_load,
+                                )),
+                                Transition::Push(PopupMsg::new(ctx, "Download complete", messages)),
+                            ])
+                        }),
+                    ));
                 }
                 _ => unreachable!(),
             },
@@ -147,19 +161,35 @@ pub fn prompt_to_download_missing_data<A: AppLike + 'static>(
                 return Transition::Pop;
             }
 
-            let messages = ctx.loading_screen("download missing files", |_, timer| {
-                download_cities(vec![map_name.to_data_pack_name()], timer)
-            });
-            Transition::Replace(PopupMsg::new(
+            let cities = vec![map_name.to_data_pack_name()];
+            Transition::Replace(FutureLoader::<A, Vec<String>>::new(
                 ctx,
-                "Download complete. Please try again",
-                messages,
+                Box::pin(async {
+                    let (tx, rx) = futures_channel::mpsc::channel(1000);
+                    abstio::print_download_progress(rx);
+                    let result = download_cities(cities, tx).await;
+                    let wrap: Box<dyn Send + FnOnce(&A) -> Vec<String>> =
+                        Box::new(move |_: &A| result);
+                    Ok(wrap)
+                }),
+                "Downloading missing files",
+                Box::new(|ctx, _, maybe_messages| {
+                    let messages = match maybe_messages {
+                        Ok(m) => m,
+                        Err(err) => vec![format!("Something went very wrong: {}", err)],
+                    };
+                    Transition::Replace(PopupMsg::new(
+                        ctx,
+                        "Download complete. Please try again",
+                        messages,
+                    ))
+                }),
             ))
         }),
     ))
 }
 
-fn download_cities(cities: Vec<String>, timer: &mut Timer) -> Vec<String> {
+async fn download_cities(cities: Vec<String>, mut progress: mpsc::Sender<String>) -> Vec<String> {
     let mut data_packs = DataPacks {
         runtime: BTreeSet::new(),
         input: BTreeSet::new(),
@@ -177,30 +207,34 @@ fn download_cities(cities: Vec<String>, timer: &mut Timer) -> Vec<String> {
         "dev"
     };
 
-    let mut files_downloaded = 0;
-    let mut bytes_downloaded = 0;
+    let num_files = manifest.entries.len();
     let mut messages = Vec::new();
 
-    timer.start_iter("download missing files", manifest.entries.len());
     for (path, entry) in manifest.entries {
-        timer.next();
         let local_path = abstio::path(path.strip_prefix("data/").unwrap());
         let url = format!(
             "http://abstreet.s3-website.us-east-2.amazonaws.com/{}/{}.gz",
             version, path
         );
+        // TODO How can we have two streams, and have this logging be the "outer" one? And show x /
+        // y files or something.
         info!(
             "Downloading {} ({})",
             url,
             prettyprint_bytes(entry.compressed_size_bytes)
         );
-        files_downloaded += 1;
 
-        std::fs::create_dir_all(std::path::Path::new(&local_path).parent().unwrap()).unwrap();
-        match download(&url, local_path) {
-            Ok(bytes) => {
-                bytes_downloaded += bytes;
-            }
+        match abstio::download_bytes(&url, &mut progress)
+            .await
+            .and_then(|bytes| {
+                info!("Decompressing {}", path);
+                std::fs::create_dir_all(std::path::Path::new(&local_path).parent().unwrap())
+                    .unwrap();
+                let mut out = File::create(&local_path).unwrap();
+                let mut decoder = flate2::read::GzDecoder::new(&bytes[..]);
+                std::io::copy(&mut decoder, &mut out).map_err(|err| err.into())
+            }) {
+            Ok(_) => {}
             Err(err) => {
                 let msg = format!("Problem with {}: {}", url, err);
                 error!("{}", msg);
@@ -208,29 +242,6 @@ fn download_cities(cities: Vec<String>, timer: &mut Timer) -> Vec<String> {
             }
         }
     }
-    messages.insert(
-        0,
-        format!(
-            "Downloaded {} files, total {}",
-            files_downloaded,
-            prettyprint_bytes(bytes_downloaded)
-        ),
-    );
+    messages.insert(0, format!("Downloaded {} files", num_files));
     messages
-}
-
-// Bytes downloaded if succesful
-fn download(url: &str, local_path: String) -> Result<u64> {
-    let mut resp = reqwest::blocking::get(url)?;
-    if !resp.status().is_success() {
-        bail!("bad status: {:?}", resp.status());
-    }
-    let mut buffer: Vec<u8> = Vec::new();
-    let bytes = resp.copy_to(&mut buffer)?;
-
-    info!("Decompressing {} ({})", url, prettyprint_bytes(bytes));
-    let mut decoder = flate2::read::GzDecoder::new(&buffer[..]);
-    let mut out = File::create(&local_path).unwrap();
-    std::io::copy(&mut decoder, &mut out)?;
-    Ok(bytes)
 }

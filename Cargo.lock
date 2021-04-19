@@ -2300,7 +2300,6 @@ dependencies = [
  "js-sys",
  "log",
  "map_model",
- "reqwest",
  "serde",
  "sim",
  "subprocess",
