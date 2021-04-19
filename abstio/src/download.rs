@@ -9,7 +9,7 @@ use abstutil::prettyprint_usize;
 /// creates an mpsc channel pair and provides the sender. Progress will be described through it.
 pub async fn download_bytes<I: AsRef<str>>(
     url: I,
-    mut progress: mpsc::Sender<String>,
+    progress: &mut mpsc::Sender<String>,
 ) -> Result<Vec<u8>> {
     let url = url.as_ref();
     info!("Downloading {}", url);
@@ -41,9 +41,9 @@ pub async fn download_bytes<I: AsRef<str>>(
 /// Download a file from a URL. This must be called with a tokio runtime somewhere. Progress will
 /// be printed to STDOUT.
 pub async fn download_to_file<I1: AsRef<str>, I2: AsRef<str>>(url: I1, path: I2) -> Result<()> {
-    let (tx, rx) = futures_channel::mpsc::channel(1000);
+    let (mut tx, rx) = futures_channel::mpsc::channel(1000);
     print_download_progress(rx);
-    let bytes = download_bytes(url, tx).await?;
+    let bytes = download_bytes(url, &mut tx).await?;
     let path = path.as_ref();
     std::fs::create_dir_all(std::path::Path::new(path).parent().unwrap())?;
     let mut file = std::fs::File::create(path)?;
