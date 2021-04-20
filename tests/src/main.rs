@@ -83,7 +83,7 @@ fn dump_turn_goldenfile(map: &Map) -> Result<()> {
 /// Simulate an hour on every map.
 fn smoke_test() -> Result<()> {
     let mut timer = Timer::new("run a smoke-test for all maps");
-    for name in MapName::list_all_maps() {
+    for name in MapName::list_all_maps_locally() {
         let map = map_model::Map::load_synchronously(name.path(), &mut timer);
         let scenario = if map.get_city_name() == &CityName::seattle() {
             abstio::read_binary(abstio::path_scenario(&name, "weekday"), &mut timer)
