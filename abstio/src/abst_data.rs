@@ -2,6 +2,8 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use serde::{Deserialize, Serialize};
 
+use crate::CityName;
+
 /// A list of all canonical data files for A/B Street that're uploaded somewhere. The file formats
 /// are tied to the latest version of the git repo. Players use the updater crate to sync these
 /// files with local copies.
@@ -95,6 +97,26 @@ impl Manifest {
             || name == "south_seattle"
             || name == "west_seattle"
             || name == "udistrict"
+    }
+
+    /// If an entry's path is system data, return the city.
+    pub fn path_to_city(path: &str) -> Option<CityName> {
+        let parts = path.split("/").collect::<Vec<_>>();
+        if parts[1] == "system" {
+            if parts[2] == "assets"
+                || parts[2] == "extra_fonts"
+                || parts[2] == "proposals"
+                || parts[2] == "study_areas"
+            {
+                return None;
+            }
+            if Manifest::is_file_part_of_huge_seattle(path) {
+                return Some(CityName::new("us", "huge_seattle"));
+            } else {
+                return Some(CityName::new(parts[2], parts[3]));
+            }
+        }
+        None
     }
 }
 

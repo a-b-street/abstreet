@@ -1,12 +1,10 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeSet;
 use std::fs::File;
 
 use futures_channel::mpsc;
 
-use abstio::{DataPacks, Manifest, MapName};
-use widgetry::{
-    EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, TextExt, Toggle, Transition, Widget,
-};
+use abstio::{CityName, DataPacks, Manifest, MapName};
+use widgetry::{EventCtx, Key, Transition};
 
 use crate::load::FutureLoader;
 use crate::tools::{ChooseSomething, PopupMsg};
@@ -15,122 +13,21 @@ use crate::AppLike;
 // Update this ___before___ pushing the commit with "[rebuild] [release]".
 const NEXT_RELEASE: &str = "0.2.41";
 
-pub struct Picker<A: AppLike> {
-    panel: Panel,
-    on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>>,
-}
-
-impl<A: AppLike + 'static> Picker<A> {
-    pub fn new(
-        ctx: &mut EventCtx,
-        on_load: Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>,
-    ) -> Box<dyn State<A>> {
-        let manifest = Manifest::load();
-        let data_packs = DataPacks::load_or_create();
-
-        let mut col = vec![
-            Widget::row(vec![
-                Line("Download more cities")
-                    .small_heading()
-                    .into_widget(ctx),
-                ctx.style().btn_close_widget(ctx),
-            ]),
-            "Select the cities you want to include".text_widget(ctx),
-            Line(
-                "The file sizes shown are compressed; after downloading, the files stored on disk \
-                 will be larger",
-            )
-            .secondary()
-            .into_widget(ctx),
-        ];
-        for (city, bytes) in size_per_city(&manifest) {
-            col.push(Widget::row(vec![
-                Toggle::checkbox(ctx, &city, None, data_packs.runtime.contains(&city)),
-                prettyprint_bytes(bytes).text_widget(ctx).centered_vert(),
-            ]));
-        }
-        col.push(
-            ctx.style()
-                .btn_solid_primary
-                .text("Sync files")
-                .build_def(ctx),
-        );
-
-        Box::new(Picker {
-            panel: Panel::new(Widget::col(col)).build(ctx),
-            on_load: Some(on_load),
-        })
-    }
-}
-
-impl<A: AppLike + 'static> State<A> for Picker<A> {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut A) -> Transition<A> {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
-                "close" => {
-                    return Transition::Pop;
-                }
-                "Sync files" => {
-                    let mut cities = Vec::new();
-                    for (city, _) in size_per_city(&Manifest::load()) {
-                        if self.panel.is_checked(&city) {
-                            cities.push(city);
-                        }
-                    }
-
-                    let on_load = self.on_load.take().unwrap();
-                    return Transition::Replace(FutureLoader::<A, Vec<String>>::new(
-                        ctx,
-                        Box::pin(async {
-                            let (tx, rx) = futures_channel::mpsc::channel(1000);
-                            abstio::print_download_progress(rx);
-                            let result = download_cities(cities, tx).await;
-                            let wrap: Box<dyn Send + FnOnce(&A) -> Vec<String>> =
-                                Box::new(move |_: &A| result);
-                            Ok(wrap)
-                        }),
-                        "Downloading missing files",
-                        Box::new(|ctx, app, maybe_messages| {
-                            let messages = match maybe_messages {
-                                Ok(m) => m,
-                                Err(err) => vec![format!("Something went very wrong: {}", err)],
-                            };
-                            Transition::Multi(vec![
-                                Transition::Replace(crate::tools::CityPicker::new(
-                                    ctx, app, on_load,
-                                )),
-                                Transition::Push(PopupMsg::new(ctx, "Download complete", messages)),
-                            ])
-                        }),
-                    ));
-                }
-                _ => unreachable!(),
-            },
-            _ => {}
-        }
-
-        Transition::Keep
-    }
-
-    fn draw(&self, g: &mut GfxCtx, _: &A) {
-        self.panel.draw(g);
-    }
-}
-
 // For each city, how many total bytes do the runtime files cost to download?
-fn size_per_city(manifest: &Manifest) -> BTreeMap<String, u64> {
-    let mut per_city = BTreeMap::new();
+
+/// How many bytes to download for a city?
+fn size_of_city(city: &CityName, manifest: &Manifest) -> u64 {
+    let mut bytes = 0;
     for (path, entry) in &manifest.entries {
-        let parts = path.split("/").collect::<Vec<_>>();
-        if parts[1] == "system" {
-            let mut city = format!("{}/{}", parts[2], parts[3]);
-            if Manifest::is_file_part_of_huge_seattle(path) {
-                city = "us/huge_seattle".to_string();
+        if path.starts_with("data/system") {
+            if let Some(name) = MapName::from_path(path) {
+                if &name.city == city {
+                    bytes += entry.compressed_size_bytes;
+                }
             }
-            *per_city.entry(city).or_insert(0) += entry.compressed_size_bytes;
         }
     }
-    per_city
+    bytes
 }
 
 fn prettyprint_bytes(bytes: u64) -> String {
@@ -145,13 +42,20 @@ fn prettyprint_bytes(bytes: u64) -> String {
     format!("{} mb", mb as usize)
 }
 
+/// Prompt to download a missing city. On either success or failure (maybe the player choosing to
+/// not download, maybe a network error), the new map isn't automatically loaded or anything; up to
+/// the caller to handle that.
 pub fn prompt_to_download_missing_data<A: AppLike + 'static>(
     ctx: &mut EventCtx,
     map_name: MapName,
 ) -> Transition<A> {
     Transition::Push(ChooseSomething::new(
         ctx,
-        format!("Missing data. Download {}?", map_name.city.describe()),
+        format!(
+            "Missing data. Download {} for {}?",
+            prettyprint_bytes(size_of_city(&map_name.city, &Manifest::load())),
+            map_name.city.describe()
+        ),
         vec![
             widgetry::Choice::string("Yes, download"),
             widgetry::Choice::string("Never mind").key(Key::Escape),
@@ -180,7 +84,7 @@ pub fn prompt_to_download_missing_data<A: AppLike + 'static>(
                     };
                     Transition::Replace(PopupMsg::new(
                         ctx,
-                        "Download complete. Please try again",
+                        "Download complete. Try again!",
                         messages,
                     ))
                 }),

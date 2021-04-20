@@ -87,8 +87,8 @@ impl CityName {
         CityName::new("us", "seattle")
     }
 
-    /// Returns all city names based on system data.
-    pub fn list_all_cities_from_system_data() -> Vec<CityName> {
+    /// Returns all city names available locally.
+    fn list_all_cities_locally() -> Vec<CityName> {
         let mut cities = Vec::new();
         for country in list_all_objects(path("system")) {
             if country == "assets"
@@ -102,6 +102,19 @@ impl CityName {
                 cities.push(CityName::new(&country, &city));
             }
         }
+        cities
+    }
+
+    /// Returns all city names based on the manifest of available files.
+    pub fn list_all_cities_from_manifest(manifest: &Manifest) -> Vec<CityName> {
+        let mut cities = Vec::new();
+        for path in manifest.entries.keys() {
+            if let Some(city) = Manifest::path_to_city(path) {
+                cities.push(city);
+            }
+        }
+        // The paths in the manifest are ordered, so the same cities will be adjacent.
+        cities.dedup();
         cities
     }
 
@@ -190,9 +203,10 @@ impl MapName {
 
     /// Transforms a path to a map back to a MapName. Returns `None` if the input is strange.
     pub fn from_path(path: &str) -> Option<MapName> {
-        // TODO regex
         let parts = path.split("/").collect::<Vec<_>>();
-        if parts.len() < 4 {
+        // Expect something ending like system/us/seattle/maps/montlake.bin
+        if parts.len() < 5 || parts[parts.len() - 5] != "system" || parts[parts.len() - 2] != "maps"
+        {
             return None;
         }
         let country = parts[parts.len() - 4];
@@ -209,8 +223,8 @@ impl MapName {
         ))
     }
 
-    /// Returns all maps from one city.
-    pub fn list_all_maps_in_city(city: &CityName) -> Vec<MapName> {
+    /// Returns all maps from one city that're available locally.
+    pub fn list_all_maps_in_city_locally(city: &CityName) -> Vec<MapName> {
         let mut names = Vec::new();
         for map in list_all_objects(path(format!("system/{}/{}/maps", city.country, city.city))) {
             names.push(MapName {
@@ -221,11 +235,38 @@ impl MapName {
         names
     }
 
-    /// Returns all maps from all cities, using system data.
-    pub fn list_all_maps() -> Vec<MapName> {
+    /// Returns all maps from all cities available locally.
+    pub fn list_all_maps_locally() -> Vec<MapName> {
         let mut names = Vec::new();
-        for city in CityName::list_all_cities_from_system_data() {
-            names.extend(MapName::list_all_maps_in_city(&city));
+        for city in CityName::list_all_cities_locally() {
+            names.extend(MapName::list_all_maps_in_city_locally(&city));
+        }
+        names
+    }
+
+    /// Returns all maps from all cities based on the manifest of available files.
+    pub fn list_all_maps_from_manifest(manifest: &Manifest) -> Vec<MapName> {
+        let mut names = Vec::new();
+        for path in manifest.entries.keys() {
+            if let Some(name) = MapName::from_path(path) {
+                names.push(name);
+            }
+        }
+        names
+    }
+
+    /// Returns all maps from one city based on the manifest of available files.
+    pub fn list_all_maps_in_city_from_manifest(
+        city: &CityName,
+        manifest: &Manifest,
+    ) -> Vec<MapName> {
+        let mut names = Vec::new();
+        for path in manifest.entries.keys() {
+            if let Some(name) = MapName::from_path(path) {
+                if &name.city == city {
+                    names.push(name);
+                }
+            }
         }
         names
     }

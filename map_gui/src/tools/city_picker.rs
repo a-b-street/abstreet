@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use abstio::{CityName, MapName};
+use abstio::{CityName, Manifest, MapName};
 use geom::{Distance, Percent, Polygon, Pt2D};
 use map_model::City;
 use widgetry::{
@@ -61,6 +61,8 @@ impl<A: AppLike + 'static> CityPicker<A> {
                         batch.push(DrawArea::fill(area_type, app.cs()), polygon);
                     }
 
+                    // If somebody has just generated a new map somewhere with an existing
+                    // city.bin, but hasn't updated city.bin yet, that new map will be invisible.
                     let mut buttons = Vec::new();
                     for (name, polygon) in city.districts {
                         let color = app.cs().rotating_color_agents(districts.len());
@@ -92,7 +94,8 @@ impl<A: AppLike + 'static> CityPicker<A> {
                     }
                 } else {
                     // If this city overview doesn't exist, just list files.
-                    for name in MapName::list_all_maps_in_city(&city_name) {
+                    // If we have the city.bin, then we ought to have all the files locally.
+                    for name in MapName::list_all_maps_in_city_locally(&city_name) {
                         this_city.push(
                             ctx.style()
                                 .btn_outline
@@ -159,14 +162,6 @@ impl<A: AppLike + 'static> CityPicker<A> {
                             Widget::col(this_city).centered_vert(),
                         ]),
                         "Don't see the place you want?".text_widget(ctx),
-                        if cfg!(not(target_arch = "wasm32")) {
-                            ctx.style()
-                                .btn_outline
-                                .text("Download more cities")
-                                .build_def(ctx)
-                        } else {
-                            Widget::nothing()
-                        },
                         if cfg!(target_arch = "wasm32") {
                             // On web, this is a link, so it's styled appropriately.
                             ctx.style()
@@ -187,19 +182,6 @@ impl<A: AppLike + 'static> CityPicker<A> {
                 }))
             }),
         )
-    }
-
-    fn chose_city(&mut self, ctx: &mut EventCtx, app: &mut A, name: MapName) -> Transition<A> {
-        // There's a weird exception with Seattle where the city.bin lists all
-        // districts, but the player might be missing a necessary data pack!
-        #[cfg(not(target_arch = "wasm32"))]
-        {
-            if !abstio::file_exists(name.path()) {
-                return crate::tools::prompt_to_download_missing_data(ctx, name);
-            }
-        }
-
-        Transition::Replace(MapLoader::new(ctx, app, name, self.on_load.take().unwrap()))
     }
 }
 
@@ -231,19 +213,9 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
                         ));
                     }
                 }
-                "Download more cities" => {
-                    let _ = "just stop this from counting as an attribute on an expression";
-                    #[cfg(not(target_arch = "wasm32"))]
-                    {
-                        return Transition::Replace(crate::tools::updater::Picker::new(
-                            ctx,
-                            self.on_load.take().unwrap(),
-                        ));
-                    }
-                }
                 x => {
                     if let Some(name) = MapName::from_path(x) {
-                        return self.chose_city(ctx, app, name);
+                        return chose_city(ctx, app, name, &mut self.on_load);
                     }
                     // Browse cities for another country
                     return Transition::Replace(CitiesInCountryPicker::new(
@@ -281,7 +253,7 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
         }
         if let Some(idx) = self.selected {
             if ctx.normal_left_click() {
-                return self.chose_city(ctx, app, self.districts[idx].0.clone());
+                return chose_city(ctx, app, self.districts[idx].0.clone(), &mut self.on_load);
             }
         }
 
@@ -327,7 +299,7 @@ impl<A: AppLike + 'static> AllCityPicker<A> {
         let mut autocomplete_entries = Vec::new();
         let mut buttons = Vec::new();
 
-        for name in MapName::list_all_maps() {
+        for name in MapName::list_all_maps_from_manifest(&Manifest::load()) {
             buttons.push(
                 ctx.style()
                     .btn_outline
@@ -367,24 +339,24 @@ impl<A: AppLike + 'static> State<A> for AllCityPicker<A> {
                     return Transition::Pop;
                 }
                 path => {
-                    return Transition::Replace(MapLoader::new(
+                    return chose_city(
                         ctx,
                         app,
                         MapName::from_path(path).unwrap(),
-                        self.on_load.take().unwrap(),
-                    ));
+                        &mut self.on_load,
+                    );
                 }
             },
             _ => {}
         }
         if let Some(mut paths) = self.panel.autocomplete_done::<String>("search") {
             if !paths.is_empty() {
-                return Transition::Replace(MapLoader::new(
+                return chose_city(
                     ctx,
                     app,
                     MapName::from_path(&paths.remove(0)).unwrap(),
-                    self.on_load.take().unwrap(),
-                ));
+                    &mut self.on_load,
+                );
             }
         }
 
@@ -470,14 +442,10 @@ impl<A: AppLike + 'static> State<A> for CitiesInCountryPicker<A> {
                 }
                 path => {
                     let city = CityName::parse(path).unwrap();
-                    let mut maps = MapName::list_all_maps_in_city(&city);
+                    let mut maps =
+                        MapName::list_all_maps_in_city_from_manifest(&city, &Manifest::load());
                     if maps.len() == 1 {
-                        return Transition::Replace(MapLoader::new(
-                            ctx,
-                            app,
-                            maps.pop().unwrap(),
-                            self.on_load.take().unwrap(),
-                        ));
+                        return chose_city(ctx, app, maps.pop().unwrap(), &mut self.on_load);
                     }
                     return Transition::Replace(CityPicker::new_in_city(
                         ctx,
@@ -504,11 +472,27 @@ impl<A: AppLike + 'static> State<A> for CitiesInCountryPicker<A> {
 
 fn cities_per_country() -> BTreeMap<String, Vec<CityName>> {
     let mut per_country = BTreeMap::new();
-    for city in CityName::list_all_cities_from_system_data() {
+    for city in CityName::list_all_cities_from_manifest(&Manifest::load()) {
         per_country
             .entry(city.country.clone())
             .or_insert_with(Vec::new)
             .push(city);
     }
     per_country
+}
+
+fn chose_city<A: AppLike + 'static>(
+    ctx: &mut EventCtx,
+    app: &mut A,
+    name: MapName,
+    on_load: &mut Option<Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>>,
+) -> Transition<A> {
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        if !abstio::file_exists(name.path()) {
+            return crate::tools::prompt_to_download_missing_data(ctx, name);
+        }
+    }
+
+    Transition::Replace(MapLoader::new(ctx, app, name, on_load.take().unwrap()))
 }
