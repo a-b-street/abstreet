@@ -351,6 +351,8 @@
 <span id="348">348</span>
 <span id="349">349</span>
 <span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
@@ -666,7 +668,9 @@
         <span class="ident">version</span>, <span class="ident">path</span>
     );
     <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;&gt; download {}&quot;</span>, <span class="ident">url</span>);
-    <span class="ident">abstio</span>::<span class="ident">download_bytes</span>(<span class="ident">url</span>).<span class="kw">await</span>
+    <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">futures_channel</span>::<span class="ident">mpsc</span>::<span class="ident">channel</span>(<span class="number">1000</span>);
+    <span class="ident">abstio</span>::<span class="ident">print_download_progress</span>(<span class="ident">rx</span>);
+    <span class="ident">abstio</span>::<span class="ident">download_bytes</span>(<span class="ident">url</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>).<span class="kw">await</span>
 }
 
 <span class="comment">// download() will remove stray files, but leave empty directories around. Since some runtime code</span>

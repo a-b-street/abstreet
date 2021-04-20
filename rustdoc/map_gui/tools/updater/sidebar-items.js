@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["NEXT_RELEASE",""]],"fn":[["download",""],["prettyprint_bytes",""],["prompt_to_download_missing_data",""],["size_per_city",""],["sync_missing_files",""]],"struct":[["Picker",""]]});
+initSidebarItems({"constant":[["NEXT_RELEASE",""]],"fn":[["download_cities",""],["prettyprint_bytes",""],["prompt_to_download_missing_data",""],["size_per_city",""]],"struct":[["Picker",""]]});
