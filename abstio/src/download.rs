@@ -62,6 +62,9 @@ pub fn print_download_progress(mut progress: mpsc::Receiver<String>) {
                 std::io::stdout().flush().unwrap();
             }
             Ok(None) => break,
+            // Per
+            // https://docs.rs/futures-channel/0.3.14/futures_channel/mpsc/struct.Receiver.html#method.try_next,
+            // this means no messages are available yet
             Err(_) => {}
         }
     });
