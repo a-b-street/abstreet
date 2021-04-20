@@ -1015,6 +1015,21 @@
       "uncompressed_size_bytes": 14586321,
       "compressed_size_bytes": 3119650
     },
+    "data/input/jp/hiroshima/osm/chugoku-latest.osm.pbf": {
+      "checksum": "c44d86b027e3e7390774ce98308a27b2",
+      "uncompressed_size_bytes": 142729909,
+      "compressed_size_bytes": 142515325
+    },
+    "data/input/jp/hiroshima/osm/uni.osm": {
+      "checksum": "f726aed702ef5c4ec6e683c853a4432e",
+      "uncompressed_size_bytes": 1456427,
+      "compressed_size_bytes": 150949
+    },
+    "data/input/jp/hiroshima/raw_maps/uni.bin": {
+      "checksum": "12fbd08486f90311743232f8d30bad3a",
+      "uncompressed_size_bytes": 387528,
+      "compressed_size_bytes": 100345
+    },
     "data/input/ly/tripoli/osm/center.osm": {
       "checksum": "e9b2289791e891153e957d8100eb40c4",
       "uncompressed_size_bytes": 5799463,
@@ -1264,6 +1279,11 @@
       "checksum": "e3368aae813d3ae6e5f6c5e6375d914b",
       "uncompressed_size_bytes": 3204255,
       "compressed_size_bytes": 3171207
+    },
+    "data/input/shared/elevation/srtm/srtm.132.34.tif": {
+      "checksum": "6918da0c7647a93ca56fd51c7a9cabab",
+      "uncompressed_size_bytes": 7213213,
+      "compressed_size_bytes": 7205382
     },
     "data/input/shared/elevation/srtm/srtm.19.50.tif": {
       "checksum": "b069dcb826edea736278ae582945d38c",
@@ -2844,6 +2864,11 @@
       "checksum": "5496034a449b6660fe7e8c5ef9b182dc",
       "uncompressed_size_bytes": 57831073,
       "compressed_size_bytes": 19156378
+    },
+    "data/system/jp/hiroshima/maps/uni.bin": {
+      "checksum": "0c500bef5137fc24e1b1becde5ecf050",
+      "uncompressed_size_bytes": 2040300,
+      "compressed_size_bytes": 678980
     },
     "data/system/ly/tripoli/maps/center.bin": {
       "checksum": "735a3c82f65e4cad98d5e4d8a774792f",
