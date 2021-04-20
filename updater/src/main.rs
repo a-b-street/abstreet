@@ -39,12 +39,13 @@ async fn main() {
         args.done();
         opt_into_all();
     } else {
+        let minimal = args.enabled("--minimal");
         args.done();
-        download_updates(version).await;
+        download_updates(version, minimal).await;
     }
 }
 
-async fn download_updates(version: String) {
+async fn download_updates(version: String, minimal: bool) {
     let data_packs = DataPacks::load_or_create();
     let truth = Manifest::load().filter(data_packs);
     let local = generate_manifest(&truth);
@@ -60,6 +61,12 @@ async fn download_updates(version: String) {
     let mut failed = Vec::new();
     for (path, entry) in truth.entries {
         if local.entries.get(&path).map(|x| &x.checksum) != Some(&entry.checksum) {
+            // For the Github Actions build, only include a few files to get started. The UI will
+            // download more data when the player tries to open another map.
+            if minimal && !path.contains("montlake") {
+                continue;
+            }
+
             std::fs::create_dir_all(std::path::Path::new(&path).parent().unwrap()).unwrap();
             match download_file(&version, &path).await {
                 Ok(bytes) => {
