@@ -16,16 +16,21 @@ const NEXT_RELEASE: &str = "0.2.41";
 // For each city, how many total bytes do the runtime files cost to download?
 
 /// How many bytes to download for a city?
-fn size_of_city(city: &CityName, manifest: &Manifest) -> u64 {
+fn size_of_city(city: &CityName) -> u64 {
+    let mut data_packs = DataPacks {
+        runtime: BTreeSet::new(),
+        input: BTreeSet::new(),
+    };
+    // TODO huge_seattle breaks here...
+    data_packs.runtime.insert(city.to_path());
+    let mut manifest = Manifest::load().filter(data_packs);
+    // Don't download files that already exist
+    abstutil::retain_btreemap(&mut manifest.entries, |path, _| {
+        !abstio::file_exists(&abstio::path(path.strip_prefix("data/").unwrap()))
+    });
     let mut bytes = 0;
-    for (path, entry) in &manifest.entries {
-        if path.starts_with("data/system") {
-            if let Some(name) = MapName::from_path(path) {
-                if &name.city == city {
-                    bytes += entry.compressed_size_bytes;
-                }
-            }
-        }
+    for (_, entry) in manifest.entries {
+        bytes += entry.compressed_size_bytes;
     }
     bytes
 }
@@ -53,7 +58,7 @@ pub fn prompt_to_download_missing_data<A: AppLike + 'static>(
         ctx,
         format!(
             "Missing data. Download {} for {}?",
-            prettyprint_bytes(size_of_city(&map_name.city, &Manifest::load())),
+            prettyprint_bytes(size_of_city(&map_name.city)),
             map_name.city.describe()
         ),
         vec![

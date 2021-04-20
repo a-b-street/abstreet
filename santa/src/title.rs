@@ -74,6 +74,16 @@ impl SimpleState<App> for TitleScreen {
             x => {
                 for level in &app.session.levels {
                     if x == level.title {
+                        #[cfg(not(target_arch = "wasm32"))]
+                        {
+                            let map_name = level.map.clone();
+                            if !abstio::file_exists(map_name.path()) {
+                                return map_gui::tools::prompt_to_download_missing_data(
+                                    ctx, map_name,
+                                );
+                            }
+                        }
+
                         return Transition::Push(crate::before_level::Picker::new(
                             ctx,
                             app,
