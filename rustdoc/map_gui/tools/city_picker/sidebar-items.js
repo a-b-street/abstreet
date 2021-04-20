@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["cities_per_country",""]],"struct":[["AllCityPicker",""],["CitiesInCountryPicker",""],["CityPicker","Lets the player switch maps."]]});
+initSidebarItems({"fn":[["chose_city",""],["cities_per_country",""]],"struct":[["AllCityPicker",""],["CitiesInCountryPicker",""],["CityPicker","Lets the player switch maps."]]});

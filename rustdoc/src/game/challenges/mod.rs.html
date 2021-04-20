@@ -308,6 +308,18 @@
 <span id="305">305</span>
 <span id="306">306</span>
 <span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -583,6 +595,18 @@
                     <span class="kw">return</span> <span class="ident">Tutorial</span>::<span class="ident">start</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
                 <span class="string">&quot;Start!&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
+                    {
+                        <span class="kw">let</span> <span class="ident">map_name</span> <span class="op">=</span> <span class="self">self</span>
+                            .<span class="ident">challenge</span>
+                            .<span class="ident">as_ref</span>()
+                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">gameplay</span>.<span class="ident">map_name</span>())
+                            .<span class="ident">unwrap</span>();
+                        <span class="kw">if</span> <span class="op">!</span><span class="ident">abstio</span>::<span class="ident">file_exists</span>(<span class="ident">map_name</span>.<span class="ident">path</span>()) {
+                            <span class="kw">return</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">prompt_to_download_missing_data</span>(<span class="ident">ctx</span>, <span class="ident">map_name</span>);
+                        }
+                    }
+
                     <span class="kw">let</span> <span class="ident">challenge</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">challenge</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
                     <span class="comment">// Constructing the cutscene doesn&#39;t require the map/scenario to be loaded</span>
                     <span class="kw">let</span> <span class="ident">sandbox</span> <span class="op">=</span> <span class="ident">SandboxMode</span>::<span class="ident">simple_new</span>(<span class="ident">app</span>, <span class="ident">challenge</span>.<span class="ident">gameplay</span>.<span class="ident">clone</span>());
