@@ -272,6 +272,18 @@ impl State<App> for ChallengesPicker {
                     return Tutorial::start(ctx, app);
                 }
                 "Start!" => {
+                    #[cfg(not(target_arch = "wasm32"))]
+                    {
+                        let map_name = self
+                            .challenge
+                            .as_ref()
+                            .map(|c| c.gameplay.map_name())
+                            .unwrap();
+                        if !abstio::file_exists(map_name.path()) {
+                            return map_gui::tools::prompt_to_download_missing_data(ctx, map_name);
+                        }
+                    }
+
                     let challenge = self.challenge.take().unwrap();
                     // Constructing the cutscene doesn't require the map/scenario to be loaded
                     let sandbox = SandboxMode::simple_new(app, challenge.gameplay.clone());
