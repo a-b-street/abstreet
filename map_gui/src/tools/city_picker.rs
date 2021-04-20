@@ -447,6 +447,23 @@ impl<A: AppLike + 'static> State<A> for CitiesInCountryPicker<A> {
                     if maps.len() == 1 {
                         return chose_city(ctx, app, maps.pop().unwrap(), &mut self.on_load);
                     }
+
+                    // We may need to grab city.bin
+                    #[cfg(not(target_arch = "wasm32"))]
+                    {
+                        let path = format!("system/{}/{}/city.bin", city.country, city.city);
+                        if Manifest::load()
+                            .entries
+                            .contains_key(&format!("data/{}", path))
+                            && !abstio::file_exists(abstio::path(path))
+                        {
+                            return crate::tools::prompt_to_download_missing_data(
+                                ctx,
+                                maps.pop().unwrap(),
+                            );
+                        }
+                    }
+
                     return Transition::Replace(CityPicker::new_in_city(
                         ctx,
                         self.on_load.take().unwrap(),

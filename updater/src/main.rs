@@ -63,7 +63,7 @@ async fn download_updates(version: String, minimal: bool) {
         if local.entries.get(&path).map(|x| &x.checksum) != Some(&entry.checksum) {
             // For the Github Actions build, only include a few files to get started. The UI will
             // download more data when the player tries to open another map.
-            if minimal && !path.contains("montlake") {
+            if minimal && !path.contains("montlake") && path != "data/system/us/seattle/city.bin" {
                 continue;
             }
 
