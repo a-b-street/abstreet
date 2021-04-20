@@ -217,10 +217,10 @@ impl ColorScheme {
             road_center_line: Color::YELLOW,
             light_rail_track: hex("#844204"),
             private_road: hex("#F0B0C0"),
-            unzoomed_highway: Color::rgb(232, 146, 162),
-            unzoomed_arterial: Color::rgb(255, 199, 62),
+            unzoomed_highway: hex("#E892A2"),
+            unzoomed_arterial: hex("#FFC73E"),
             unzoomed_residential: Color::WHITE,
-            unzoomed_trail: Color::rgb(15, 125, 75),
+            unzoomed_trail: hex("#0F7D4B"),
 
             // Intersections
             normal_intersection: Color::grey(0.2),
@@ -247,7 +247,7 @@ impl ColorScheme {
             building_outline: hex("#938E85"),
             parking_lot: Color::grey(0.7),
             grass: hex("#94C84A").into(),
-            water: Color::rgb(164, 200, 234).into(),
+            water: hex("#A4C8EA").into(),
             median_strip: Color::CYAN.into(),
             pedestrian_plaza: hex("#DDDDE8").into(),
             study_area: hex("#96830C").into(),
@@ -414,8 +414,8 @@ impl ColorScheme {
         cs.road_center_line = cs.general_road_marking;
 
         cs.parking_lot = cs.sidewalk;
-        cs.unzoomed_arterial = cs.sidewalk;
         cs.unzoomed_highway = cs.parking_lane;
+        cs.unzoomed_arterial = cs.sidewalk;
         cs.unzoomed_residential = cs.driving_lane;
         cs.unzoomed_interesting_intersection = cs.unzoomed_highway;
         cs.stop_sign = Color::rgb_f(0.67, 0.55, 0.55);
