@@ -54,16 +54,16 @@ impl Manifest {
             }
 
             let parts = path.split("/").collect::<Vec<_>>();
-            let mut city = format!("{}/{}", parts[2], parts[3]);
+            let mut data_pack = format!("{}/{}", parts[2], parts[3]);
             if Manifest::is_file_part_of_huge_seattle(path) {
-                city = "us/huge_seattle".to_string();
+                data_pack = "us/huge_seattle".to_string();
             }
             if parts[1] == "input" {
-                if data_packs.input.contains(&city) {
+                if data_packs.input.contains(&data_pack) {
                     continue;
                 }
             } else if parts[1] == "system" {
-                if data_packs.runtime.contains(&city) {
+                if data_packs.runtime.contains(&data_pack) {
                     continue;
                 }
             } else {
@@ -82,7 +82,10 @@ impl Manifest {
     /// "us/huge_seattle" pack has the rest. This returns true for files belonging to
     /// "us/huge_seattle".
     pub fn is_file_part_of_huge_seattle(path: &str) -> bool {
-        let path = path.strip_prefix(&crate::path("")).unwrap_or(path);
+        let path = path
+            .strip_prefix(&crate::path(""))
+            .or_else(|| path.strip_prefix("data/"))
+            .unwrap_or_else(|| path);
         let name = if let Some(x) = path.strip_prefix("system/us/seattle/maps/") {
             x.strip_suffix(".bin").unwrap()
         } else if let Some(x) = path.strip_prefix("system/us/seattle/scenarios/") {
@@ -110,11 +113,7 @@ impl Manifest {
             {
                 return None;
             }
-            if Manifest::is_file_part_of_huge_seattle(path) {
-                return Some(CityName::new("us", "huge_seattle"));
-            } else {
-                return Some(CityName::new(parts[2], parts[3]));
-            }
+            return Some(CityName::new(parts[2], parts[3]));
         }
         None
     }

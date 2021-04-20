@@ -3,7 +3,7 @@ use std::fs::File;
 
 use futures_channel::mpsc;
 
-use abstio::{CityName, DataPacks, Manifest, MapName};
+use abstio::{DataPacks, Manifest, MapName};
 use widgetry::{EventCtx, Key, Transition};
 
 use crate::load::FutureLoader;
@@ -16,13 +16,12 @@ const NEXT_RELEASE: &str = "0.2.41";
 // For each city, how many total bytes do the runtime files cost to download?
 
 /// How many bytes to download for a city?
-fn size_of_city(city: &CityName) -> u64 {
+fn size_of_city(map: &MapName) -> u64 {
     let mut data_packs = DataPacks {
         runtime: BTreeSet::new(),
         input: BTreeSet::new(),
     };
-    // TODO huge_seattle breaks here...
-    data_packs.runtime.insert(city.to_path());
+    data_packs.runtime.insert(map.to_data_pack_name());
     let mut manifest = Manifest::load().filter(data_packs);
     // Don't download files that already exist
     abstutil::retain_btreemap(&mut manifest.entries, |path, _| {
@@ -58,7 +57,7 @@ pub fn prompt_to_download_missing_data<A: AppLike + 'static>(
         ctx,
         format!(
             "Missing data. Download {} for {}?",
-            prettyprint_bytes(size_of_city(&map_name.city)),
+            prettyprint_bytes(size_of_city(&map_name)),
             map_name.city.describe()
         ),
         vec![
