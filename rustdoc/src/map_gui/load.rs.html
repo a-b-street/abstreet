@@ -539,6 +539,7 @@
 <span id="536">536</span>
 <span id="537">537</span>
 <span id="538">538</span>
+<span id="539">539</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Loading large resources (like maps, scenarios, and prebaked data) requires different strategies</span>
 <span class="doccomment">//! on native and web. Both cases are wrapped up as a State that runs a callback when done.</span>
@@ -585,6 +586,7 @@
         <span class="comment">// TODO Generalize this more, maybe with some kind of country code -&gt; font config</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">extra_font</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span>.<span class="ident">as_ref</span>() {
             <span class="string">&quot;ly&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;NotoSansArabic-Regular.ttf&quot;</span>),
+            <span class="string">&quot;jp&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;NotoSerifCJKtc-Regular.otf&quot;</span>),
             <span class="string">&quot;tw&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;NotoSerifCJKtc-Regular.otf&quot;</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         } {
