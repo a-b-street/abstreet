@@ -148,7 +148,7 @@ impl SimpleState<App> for LaneEditor {
                 app,
                 app.primary.map.get_l(self.l).parent,
             )),
-            "Modify entire road" => Transition::Push(crate::edit::roads::RoadEditor::new(
+            "Modify entire road" => Transition::Replace(crate::edit::roads::RoadEditor::new(
                 ctx,
                 app,
                 app.primary.map.get_l(self.l).parent,
