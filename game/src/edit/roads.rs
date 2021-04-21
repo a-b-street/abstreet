@@ -1,11 +1,11 @@
 use geom::Distance;
 use map_gui::render::{Renderable, OUTLINE_THICKNESS};
 use map_model::{
-    Direction, EditRoad, LaneID, LaneSpec, LaneType, Road, RoadID, NORMAL_LANE_THICKNESS,
+    Direction, EditCmd, EditRoad, LaneID, LaneSpec, LaneType, Road, RoadID, NORMAL_LANE_THICKNESS,
 };
 use widgetry::{
-    Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, State, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Panel, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -17,20 +17,18 @@ pub struct RoadEditor {
     top_panel: Panel,
     main_panel: Panel,
     highlight_selection: (Option<LaneID>, Drawable),
+
+    // Undo/redo management
+    num_edit_cmds_originally: usize,
+    redo_stack: Vec<EditCmd>,
 }
 
 impl RoadEditor {
     pub fn new(ctx: &mut EventCtx, app: &mut App, r: RoadID) -> Box<dyn State<App>> {
         app.primary.current_selection = None;
 
-        let top_panel = Panel::new(Widget::row(vec![ctx
-            .style()
-            .btn_solid_primary
-            .text("Finish")
-            .hotkey(Key::Escape)
-            .build_def(ctx)]))
-        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-        .build(ctx);
+        let num_edit_cmds_originally = app.primary.map.get_edits().commands.len();
+        let top_panel = make_top_panel(ctx, app, num_edit_cmds_originally, true);
         let current_lane = None;
         let main_panel = make_main_panel(ctx, app, app.primary.map.get_r(r), current_lane);
         let highlight_selection = highlight_current_selection(ctx, app, r, current_lane);
@@ -40,6 +38,9 @@ impl RoadEditor {
             top_panel,
             main_panel,
             highlight_selection,
+
+            num_edit_cmds_originally,
+            redo_stack: Vec::new(),
         })
     }
 
@@ -61,6 +62,7 @@ impl RoadEditor {
             .commands
             .push(app.primary.map.edit_road_cmd(self.r, |new| (f)(new, idx)));
         apply_map_edits(ctx, app, edits);
+        self.redo_stack.clear();
 
         self.current_lane = if let Some(offset) = select_new_lane_offset {
             Some(app.primary.map.get_r(self.r).lanes_ltr()[((idx as isize) + offset) as usize].0)
@@ -71,6 +73,12 @@ impl RoadEditor {
         self.main_panel =
             make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
         self.highlight_selection = highlight_current_selection(ctx, app, self.r, self.current_lane);
+        self.top_panel = make_top_panel(
+            ctx,
+            app,
+            self.num_edit_cmds_originally,
+            self.redo_stack.is_empty(),
+        );
     }
 }
 
@@ -82,6 +90,40 @@ impl State<App> for RoadEditor {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Finish" => {
                     return Transition::Pop;
+                }
+                "undo" => {
+                    let mut edits = app.primary.map.get_edits().clone();
+                    self.redo_stack.push(edits.commands.pop().unwrap());
+                    apply_map_edits(ctx, app, edits);
+
+                    self.current_lane = None;
+                    self.main_panel =
+                        make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
+                    self.highlight_selection =
+                        highlight_current_selection(ctx, app, self.r, self.current_lane);
+                    self.top_panel = make_top_panel(
+                        ctx,
+                        app,
+                        self.num_edit_cmds_originally,
+                        self.redo_stack.is_empty(),
+                    );
+                }
+                "redo" => {
+                    let mut edits = app.primary.map.get_edits().clone();
+                    edits.commands.push(self.redo_stack.pop().unwrap());
+                    apply_map_edits(ctx, app, edits);
+
+                    self.current_lane = None;
+                    self.main_panel =
+                        make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
+                    self.highlight_selection =
+                        highlight_current_selection(ctx, app, self.r, self.current_lane);
+                    self.top_panel = make_top_panel(
+                        ctx,
+                        app,
+                        self.num_edit_cmds_originally,
+                        self.redo_stack.is_empty(),
+                    );
                 }
                 _ => unreachable!(),
             },
@@ -131,6 +173,7 @@ impl State<App> for RoadEditor {
                             });
                         }));
                     apply_map_edits(ctx, app, edits);
+                    self.redo_stack.clear();
 
                     assert!(self.current_lane.is_none());
                     self.current_lane =
@@ -139,6 +182,12 @@ impl State<App> for RoadEditor {
                         make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
                     self.highlight_selection =
                         highlight_current_selection(ctx, app, self.r, self.current_lane);
+                    self.top_panel = make_top_panel(
+                        ctx,
+                        app,
+                        self.num_edit_cmds_originally,
+                        self.redo_stack.is_empty(),
+                    );
                 } else {
                     unreachable!()
                 }
@@ -153,10 +202,17 @@ impl State<App> for RoadEditor {
                             new.speed_limit = speed_limit;
                         }));
                     apply_map_edits(ctx, app, edits);
+                    self.redo_stack.clear();
 
                     // Lane IDs don't change
                     self.main_panel =
                         make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
+                    self.top_panel = make_top_panel(
+                        ctx,
+                        app,
+                        self.num_edit_cmds_originally,
+                        self.redo_stack.is_empty(),
+                    );
                 } else {
                     let width = self.main_panel.dropdown_value("width");
                     self.modify_current_lane(ctx, app, Some(0), |new, idx| {
@@ -196,6 +252,36 @@ impl State<App> for RoadEditor {
         self.top_panel.draw(g);
         self.main_panel.draw(g);
     }
+}
+
+fn make_top_panel(
+    ctx: &mut EventCtx,
+    app: &App,
+    num_edit_cmds_originally: usize,
+    no_redo_cmds: bool,
+) -> Panel {
+    Panel::new(Widget::row(vec![
+        ctx.style()
+            .btn_solid_primary
+            .text("Finish")
+            .hotkey(Key::Escape)
+            .build_def(ctx),
+        ctx.style()
+            .btn_plain
+            .icon("system/assets/tools/undo.svg")
+            .disabled(app.primary.map.get_edits().commands.len() == num_edit_cmds_originally)
+            .hotkey(lctrl(Key::Z))
+            .build_widget(ctx, "undo"),
+        ctx.style()
+            .btn_plain
+            .icon("system/assets/tools/redo.svg")
+            .disabled(no_redo_cmds)
+            // TODO ctrl+shift+Z!
+            .hotkey(lctrl(Key::Y))
+            .build_widget(ctx, "redo"),
+    ]))
+    .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+    .build(ctx)
 }
 
 fn make_main_panel(
