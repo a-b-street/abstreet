@@ -166,6 +166,51 @@
 <span id="163">163</span>
 <span id="164">164</span>
 <span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Procedurally generates houses along empty residential roads of a map. Writes a GeoJSON file</span>
 <span class="doccomment">//! with the results if the number of houses is at least `--num_required`. This can be used to</span>
@@ -185,10 +230,19 @@
 <span class="kw">fn</span> <span class="ident">main</span>() {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;generate houses&quot;</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">CmdArgs</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map</span>::<span class="ident">load_synchronously</span>(<span class="ident">args</span>.<span class="ident">required</span>(<span class="string">&quot;--map&quot;</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
     <span class="kw">let</span> <span class="ident">num_required</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">required</span>(<span class="string">&quot;--num_required&quot;</span>).<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
     <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">required</span>(<span class="string">&quot;--out&quot;</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">XorShiftRng</span>::<span class="ident">seed_from_u64</span>(<span class="ident">args</span>.<span class="ident">required</span>(<span class="string">&quot;--rng_seed&quot;</span>).<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
+    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--map&quot;</span>) {
+        <span class="ident">Map</span>::<span class="ident">load_synchronously</span>(<span class="ident">path</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>)
+    } <span class="kw">else</span> {
+        <span class="ident">import_map</span>(
+            <span class="ident">args</span>.<span class="ident">required</span>(<span class="string">&quot;--osm&quot;</span>),
+            <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--clip&quot;</span>),
+            <span class="op">!</span><span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--drive_on_left&quot;</span>),
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,
+        )
+    };
     <span class="ident">args</span>.<span class="ident">done</span>();
 
     <span class="kw">let</span> <span class="ident">houses</span> <span class="op">=</span> <span class="ident">generate_buildings_on_empty_residential_roads</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
@@ -331,6 +385,42 @@
 <span class="kw">fn</span> <span class="ident">rand_dist</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">low</span>: <span class="ident">f64</span>, <span class="ident">high</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
     <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">high</span> <span class="op">&gt;</span> <span class="ident">low</span>);
     <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="ident">low</span>..<span class="ident">high</span>))
+}
+
+<span class="kw">fn</span> <span class="ident">import_map</span>(
+    <span class="ident">osm_input</span>: <span class="ident">String</span>,
+    <span class="ident">clip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="ident">drive_on_right</span>: <span class="ident">bool</span>,
+    <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Map</span> {
+    <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="ident">convert_osm</span>::<span class="ident">convert</span>(
+        <span class="ident">convert_osm</span>::<span class="ident">Options</span> {
+            <span class="ident">osm_input</span>,
+            <span class="ident">name</span>: <span class="ident">abstio</span>::<span class="ident">MapName</span>::<span class="ident">new</span>(<span class="string">&quot;zz&quot;</span>, <span class="string">&quot;oneshot&quot;</span>, <span class="string">&quot;procgen&quot;</span>),
+
+            <span class="ident">clip</span>,
+            <span class="ident">map_config</span>: <span class="ident">map_model</span>::<span class="ident">MapConfig</span> {
+                <span class="ident">driving_side</span>: <span class="kw">if</span> <span class="ident">drive_on_right</span> {
+                    <span class="ident">map_model</span>::<span class="ident">DrivingSide</span>::<span class="ident">Right</span>
+                } <span class="kw">else</span> {
+                    <span class="ident">map_model</span>::<span class="ident">DrivingSide</span>::<span class="ident">Left</span>
+                },
+                <span class="ident">bikes_can_use_bus_lanes</span>: <span class="bool-val">true</span>,
+                <span class="ident">inferred_sidewalks</span>: <span class="bool-val">true</span>,
+                <span class="ident">street_parking_spot_length</span>: <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">8.0</span>),
+            },
+
+            <span class="ident">onstreet_parking</span>: <span class="ident">convert_osm</span>::<span class="ident">OnstreetParking</span>::<span class="ident">JustOSM</span>,
+            <span class="ident">public_offstreet_parking</span>: <span class="ident">convert_osm</span>::<span class="ident">PublicOffstreetParking</span>::<span class="prelude-val">None</span>,
+            <span class="ident">private_offstreet_parking</span>: <span class="ident">convert_osm</span>::<span class="ident">PrivateOffstreetParking</span>::<span class="ident">FixedPerBldg</span>(<span class="number">1</span>),
+            <span class="ident">include_railroads</span>: <span class="bool-val">true</span>,
+            <span class="ident">extra_buildings</span>: <span class="prelude-val">None</span>,
+        },
+        <span class="ident">timer</span>,
+    );
+    <span class="kw">let</span> <span class="ident">build_ch</span> <span class="op">=</span> <span class="bool-val">false</span>;
+    <span class="kw">let</span> <span class="ident">keep_bldg_tags</span> <span class="op">=</span> <span class="bool-val">false</span>;
+    <span class="ident">map_model</span>::<span class="ident">Map</span>::<span class="ident">create_from_raw</span>(<span class="ident">raw</span>, <span class="ident">build_ch</span>, <span class="ident">keep_bldg_tags</span>, <span class="ident">timer</span>)
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="generate_houses"></div>

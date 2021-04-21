@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["generate_buildings_on_empty_residential_roads",""],["main",""],["rand_dist",""]]});
+initSidebarItems({"fn":[["generate_buildings_on_empty_residential_roads",""],["import_map",""],["main",""],["rand_dist",""]]});
