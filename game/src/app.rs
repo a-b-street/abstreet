@@ -802,8 +802,14 @@ impl PerObjectActions {
     }
 
     pub fn left_click<S: Into<String>>(&mut self, ctx: &mut EventCtx, label: S) -> bool {
-        assert!(self.click_action.is_none());
-        self.click_action = Some(label.into());
+        let label = label.into();
+        if let Some(prev) = &self.click_action {
+            panic!(
+                "left_click() called for both {} and {} on the same event",
+                prev, label
+            );
+        }
+        self.click_action = Some(label);
         ctx.normal_left_click()
     }
 }

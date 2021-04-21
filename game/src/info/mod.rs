@@ -3,7 +3,7 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 pub use trip::OpenTrip;
 
 use geom::{Circle, Distance, Polygon, Time};
-use map_gui::tools::open_browser;
+use map_gui::tools::{open_browser, ChooseSomething};
 use map_gui::ID;
 use map_model::{AreaID, BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, ParkingLotID};
 use sim::{
@@ -11,8 +11,8 @@ use sim::{
     VehicleType,
 };
 use widgetry::{
-    Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, LinePlot, Outcome, Panel, PlotOptions,
-    Series, Text, TextExt, Toggle, Widget,
+    Choice, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, LinePlot, Outcome, Panel,
+    PlotOptions, Series, Text, TextExt, Toggle, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -44,6 +44,8 @@ pub struct InfoPanel {
     hyperlinks: HashMap<String, Tab>,
     warpers: HashMap<String, ID>,
     time_warpers: HashMap<String, (TripID, Time)>,
+    map_time_warpers: Vec<(Polygon, TripID, Time)>,
+    hovering_map_time_warper: Option<usize>,
 
     // For drawing the OSD only
     cached_actions: Vec<Key>,
@@ -301,6 +303,8 @@ pub struct Details {
     pub warpers: HashMap<String, ID>,
     /// When a button with this label is clicked, time-warp and open the info panel for this trip.
     pub time_warpers: HashMap<String, (TripID, Time)>,
+    /// When a polygon on the map is clicked, time-warp and open the info panel for this trip.
+    pub map_time_warpers: Vec<(Polygon, TripID, Time)>,
     // It's just convenient to plumb this here
     pub can_jump_to_time: bool,
     /// If this gets filled out, immediately execute this transition, keeping the info panel open.
@@ -328,6 +332,7 @@ impl InfoPanel {
             hyperlinks: HashMap::new(),
             warpers: HashMap::new(),
             time_warpers: HashMap::new(),
+            map_time_warpers: Vec::new(),
             can_jump_to_time: ctx_actions.gameplay_mode().can_jump_to_time(),
             stop_immediately: None,
         };
@@ -471,6 +476,8 @@ impl InfoPanel {
                 hyperlinks: details.hyperlinks,
                 warpers: details.warpers,
                 time_warpers: details.time_warpers,
+                map_time_warpers: details.map_time_warpers,
+                hovering_map_time_warper: None,
                 cached_actions,
             },
             details.stop_immediately,
@@ -484,9 +491,47 @@ impl InfoPanel {
         app: &mut App,
         ctx_actions: &mut dyn ContextualActions,
     ) -> (bool, Option<Transition>) {
+        // TODO Or time changed?
+        if ctx.redo_mouseover() {
+            self.hovering_map_time_warper = None;
+            if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+                for (idx, (poly, _, _)) in self.map_time_warpers.iter().enumerate() {
+                    if poly.contains_pt(pt) {
+                        self.hovering_map_time_warper = Some(idx);
+                        break;
+                    }
+                }
+            }
+        }
+
+        if let Some(idx) = self.hovering_map_time_warper {
+            if app.per_obj.left_click(ctx, "watch this event") {
+                let (_, trip, time) = &self.map_time_warpers[idx];
+                let trip = *trip;
+                let time = *time;
+                let gameplay = ctx_actions.gameplay_mode();
+                return (
+                    false,
+                    Some(Transition::Push(ChooseSomething::new(
+                        ctx,
+                        format!("Rewind to {} to watch this event?", time),
+                        Choice::strings(vec!["Yes", "No"]),
+                        Box::new(move |choice, _, app| {
+                            if choice == "Yes" {
+                                time_warp(app, gameplay.clone(), trip, time)
+                            } else {
+                                Transition::Pop
+                            }
+                        }),
+                    ))),
+                );
+            }
+        }
+
         // Can click on the map to cancel
         if ctx.canvas.get_cursor_in_map_space().is_some()
             && app.primary.current_selection.is_none()
+            && self.hovering_map_time_warper.is_none()
             && app.per_obj.left_click(ctx, "stop showing info")
         {
             return (true, None);
@@ -504,7 +549,7 @@ impl InfoPanel {
         let maybe_id = self.tab.to_id(app);
         match self.panel.event(ctx) {
             Outcome::Clicked(action) => {
-                if let Some(new_tab) = self.hyperlinks.get(&action).cloned() {
+                return if let Some(new_tab) = self.hyperlinks.get(&action).cloned() {
                     let (mut new, maybe_transition) =
                         InfoPanel::new(ctx, app, new_tab, ctx_actions);
                     // TODO Most cases use changed_settings, but one doesn't. Detect that
@@ -548,38 +593,9 @@ impl InfoPanel {
                         ))),
                     )
                 } else if let Some((trip, time)) = self.time_warpers.get(&action) {
-                    let trip = *trip;
-                    let time = *time;
-                    let person = app.primary.sim.trip_to_person(trip).unwrap();
-                    // When executed, this assumes the SandboxMode is the top of the stack. It'll
-                    // reopen the info panel, then launch the jump-to-time UI.
-                    let jump_to_time =
-                        Transition::ReplaceWithData(Box::new(move |state, ctx, app| {
-                            let mut sandbox = state.downcast::<SandboxMode>().ok().unwrap();
-
-                            let mut actions = sandbox.contextual_actions();
-                            sandbox.controls.common.as_mut().unwrap().launch_info_panel(
-                                ctx,
-                                app,
-                                Tab::PersonTrips(person, OpenTrip::single(trip)),
-                                &mut actions,
-                            );
-
-                            vec![sandbox, TimeWarpScreen::new(ctx, app, time, None)]
-                        }));
-
-                    if time >= app.primary.sim.time() {
-                        return (false, Some(jump_to_time));
-                    }
-
-                    // We need to first rewind the simulation
                     (
                         false,
-                        Some(Transition::Replace(SandboxMode::async_new(
-                            app,
-                            ctx_actions.gameplay_mode(),
-                            Box::new(move |_, _| vec![jump_to_time]),
-                        ))),
+                        Some(time_warp(app, ctx_actions.gameplay_mode(), *trip, *time)),
                     )
                 } else if let Some(url) = action.strip_prefix("open ") {
                     open_browser(url);
@@ -626,7 +642,7 @@ impl InfoPanel {
                         );
                         (false, None)
                     }
-                }
+                };
             }
             _ => {
                 // Maybe a non-click action should change the tab. Aka, checkboxes/dropdowns/etc on
@@ -638,10 +654,10 @@ impl InfoPanel {
                     *self = new;
                     return (false, maybe_transition);
                 }
-
-                (false, None)
             }
         }
+
+        (false, None)
     }
 
     pub fn draw(&self, g: &mut GfxCtx, app: &App) {
@@ -758,6 +774,36 @@ fn header_btns(ctx: &EventCtx) -> Widget {
         ctx.style().btn_close_widget(ctx),
     ])
     .align_right()
+}
+
+fn time_warp(app: &mut App, gameplay: GameplayMode, trip: TripID, time: Time) -> Transition {
+    let person = app.primary.sim.trip_to_person(trip).unwrap();
+    // When executed, this assumes the SandboxMode is the top of the stack. It'll reopen the info
+    // panel, then launch the jump-to-time UI.
+    let jump_to_time = Transition::ReplaceWithData(Box::new(move |state, ctx, app| {
+        let mut sandbox = state.downcast::<SandboxMode>().ok().unwrap();
+
+        let mut actions = sandbox.contextual_actions();
+        sandbox.controls.common.as_mut().unwrap().launch_info_panel(
+            ctx,
+            app,
+            Tab::PersonTrips(person, OpenTrip::single(trip)),
+            &mut actions,
+        );
+
+        vec![sandbox, TimeWarpScreen::new(ctx, app, time, None)]
+    }));
+
+    if time >= app.primary.sim.time() {
+        return jump_to_time;
+    }
+
+    // We need to first rewind the simulation
+    Transition::Replace(SandboxMode::async_new(
+        app,
+        gameplay,
+        Box::new(move |_, _| vec![jump_to_time]),
+    ))
 }
 
 pub trait ContextualActions {

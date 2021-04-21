@@ -409,7 +409,7 @@ fn describe_problems(
         let mut count_large_intersections = 0;
         let mut count_overtakes = 0;
         let empty = Vec::new();
-        for problem in analytics.problems_per_trip.get(&id).unwrap_or(&empty) {
+        for (_, problem) in analytics.problems_per_trip.get(&id).unwrap_or(&empty) {
             match problem {
                 Problem::LargeIntersectionCrossing(_) => {
                     count_large_intersections += 1;
@@ -456,7 +456,7 @@ fn describe_problems(
 fn draw_problems(ctx: &EventCtx, app: &App, details: &mut Details, id: TripID) {
     let map = &app.primary.map;
     let empty = Vec::new();
-    for problem in app
+    for (time, problem) in app
         .primary
         .sim
         .get_analytics()
@@ -464,7 +464,7 @@ fn draw_problems(ctx: &EventCtx, app: &App, details: &mut Details, id: TripID) {
         .get(&id)
         .unwrap_or(&empty)
     {
-        match problem {
+        let polygon = match problem {
             Problem::IntersectionDelay(i, delay) => {
                 let i = map.get_i(*i);
                 // TODO These thresholds don't match what we use as thresholds in the simulation.
@@ -497,6 +497,7 @@ fn draw_problems(ctx: &EventCtx, app: &App, details: &mut Details, id: TripID) {
                     i.polygon.clone(),
                     Text::from(Line(format!("{} delay here", delay))),
                 ));
+                i.polygon.clone()
             }
             Problem::LargeIntersectionCrossing(i) => {
                 let i = map.get_i(*i);
@@ -519,6 +520,7 @@ fn draw_problems(ctx: &EventCtx, app: &App, details: &mut Details, id: TripID) {
                         Line("Source: 2020 Seattle DOT Safety Analysis"),
                     ]),
                 ));
+                i.polygon.clone()
             }
             Problem::OvertakeDesired(on) => {
                 let pt = on.get_polyline(map).middle();
@@ -533,15 +535,18 @@ fn draw_problems(ctx: &EventCtx, app: &App, details: &mut Details, id: TripID) {
                         .color(RewriteColor::ChangeAlpha(0.5))
                         .centered_on(pt),
                 );
+                let polygon = match on {
+                    Traversable::Lane(l) => map.get_parent(*l).get_thick_polygon(map),
+                    Traversable::Turn(t) => map.get_i(t.parent).polygon.clone(),
+                };
                 details.tooltips.push((
-                    match on {
-                        Traversable::Lane(l) => map.get_parent(*l).get_thick_polygon(map),
-                        Traversable::Turn(t) => map.get_i(t.parent).polygon.clone(),
-                    },
+                    polygon.clone(),
                     Text::from("A vehicle wanted to over-take this cyclist near here."),
                 ));
+                polygon
             }
-        }
+        };
+        details.map_time_warpers.push((polygon, id, *time));
     }
 }
 
