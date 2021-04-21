@@ -113,6 +113,14 @@ impl LaneEditor {
             } else {
                 Widget::nothing()
             },
+            if app.opts.dev {
+                ctx.style()
+                    .btn_plain_destructive
+                    .text("Modify entire road (debug)")
+                    .build_def(ctx)
+            } else {
+                Widget::nothing()
+            },
             ctx.style()
                 .btn_solid_primary
                 .text("Finish")
@@ -140,10 +148,14 @@ impl SimpleState<App> for LaneEditor {
                 app,
                 app.primary.map.get_l(self.l).parent,
             )),
-            "Modify entire road" => Transition::Push(crate::edit::roads::prompt_for_lanes(
+            "Modify entire road" => Transition::Push(crate::edit::roads::RoadEditor::new(
                 ctx,
-                app.primary.map.get_parent(self.l),
+                app,
+                app.primary.map.get_l(self.l).parent,
             )),
+            "Modify entire road (debug)" => Transition::Push(
+                crate::edit::debug_roads::prompt_for_lanes(ctx, app.primary.map.get_parent(self.l)),
+            ),
             "Finish" => Transition::Pop,
             x => {
                 let map = &mut app.primary.map;
