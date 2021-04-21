@@ -105,6 +105,21 @@ impl LaneType {
             LaneType::LightRail => "light rail track",
         }
     }
+
+    pub fn from_short_name(x: &str) -> Option<LaneType> {
+        match x {
+            "driving lane" => Some(LaneType::Driving),
+            "bike lane" => Some(LaneType::Biking),
+            "bus lane" => Some(LaneType::Bus),
+            "parking lane" => Some(LaneType::Parking),
+            "sidewalk" => Some(LaneType::Sidewalk),
+            "shoulder" => Some(LaneType::Shoulder),
+            "left-turn lane" => Some(LaneType::SharedLeftTurn),
+            "construction" => Some(LaneType::Construction),
+            "light rail track" => Some(LaneType::LightRail),
+            _ => None,
+        }
+    }
 }
 
 /// A road segment is broken down into individual lanes, which have a LaneType.
