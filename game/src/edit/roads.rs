@@ -160,6 +160,8 @@ impl State<App> for RoadEditor {
                     apply_map_edits(ctx, app, edits);
 
                     assert!(self.current_lane.is_none());
+                    self.current_lane =
+                        Some(app.primary.map.get_r(self.r).lanes_ltr().last().unwrap().0);
                     self.main_panel =
                         make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
                     self.highlight_selection =
