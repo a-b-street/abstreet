@@ -356,16 +356,12 @@ fn make_main_panel(
         ])
         .into_widget(ctx),
         Line("Speed limit").secondary().into_widget(ctx),
-        {
-            let mut choices = speed_limit_choices(app);
-            if !choices.iter().any(|c| c.data == road.speed_limit) {
-                choices.push(Choice::new(
-                    road.speed_limit.to_string(&app.opts.units),
-                    road.speed_limit,
-                ));
-            }
-            Widget::dropdown(ctx, "speed limit", road.speed_limit, choices)
-        },
+        Widget::dropdown(
+            ctx,
+            "speed limit",
+            road.speed_limit,
+            speed_limit_choices(app, Some(road.speed_limit)),
+        ),
     ]);
 
     Panel::new(Widget::col(vec![
@@ -428,6 +424,7 @@ fn width_choices(app: &App, l: LaneID) -> Vec<Choice<Distance>> {
     let current_width = app.primary.map.get_l(l).width;
     if choices.iter().any(|x| *x != current_width) {
         choices.push(current_width);
+        choices.sort();
     }
     choices
         .into_iter()

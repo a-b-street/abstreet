@@ -2,8 +2,8 @@ use map_gui::render::Renderable;
 use map_gui::ID;
 use map_model::{EditCmd, LaneID, LaneType, Map};
 use widgetry::{
-    Choice, Color, ControlState, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel,
-    SimpleState, State, TextExt, VerticalAlignment, Widget,
+    Color, ControlState, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, SimpleState,
+    State, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -86,19 +86,15 @@ impl LaneEditor {
                 .text("reverse direction")
                 .hotkey(Key::F)
                 .build_def(ctx),
-            {
-                let mut choices = speed_limit_choices(app);
-                if !choices.iter().any(|c| c.data == parent.speed_limit) {
-                    choices.push(Choice::new(
-                        parent.speed_limit.to_string(&app.opts.units),
-                        parent.speed_limit,
-                    ));
-                }
-                Widget::row(vec![
-                    "Change speed limit:".text_widget(ctx).centered_vert(),
-                    Widget::dropdown(ctx, "speed limit", parent.speed_limit, choices),
-                ])
-            },
+            Widget::row(vec![
+                "Change speed limit:".text_widget(ctx).centered_vert(),
+                Widget::dropdown(
+                    ctx,
+                    "speed limit",
+                    parent.speed_limit,
+                    speed_limit_choices(app, Some(parent.speed_limit)),
+                ),
+            ]),
             ctx.style()
                 .btn_outline
                 .text("Change access restrictions")

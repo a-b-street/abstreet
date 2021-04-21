@@ -163,7 +163,7 @@ impl BulkEdit {
                 make_lt_switcher(ctx, vec![(None, None)]).named("lt transformations"),
                 {
                     let mut choices = vec![Choice::new("don't change", None)];
-                    for c in speed_limit_choices(app) {
+                    for c in speed_limit_choices(app, None) {
                         choices.push(Choice::new(c.label, Some(c.data)));
                     }
                     Widget::row(vec![

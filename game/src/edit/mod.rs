@@ -731,14 +731,21 @@ pub fn can_edit_lane(mode: &GameplayMode, l: LaneID, app: &App) -> bool {
         && !app.primary.map.get_parent(l.id).is_service()
 }
 
-pub fn speed_limit_choices(app: &App) -> Vec<Choice<Speed>> {
+pub fn speed_limit_choices(app: &App, preset: Option<Speed>) -> Vec<Choice<Speed>> {
     // Don't need anything higher than 70mph. Though now I kind of miss 3am drives on TX-71...
-    (10..=70)
+    let mut speeds = (10..=70)
         .step_by(5)
-        .map(|mph| {
-            let s = Speed::miles_per_hour(mph as f64);
-            Choice::new(s.to_string(&app.opts.units), s)
-        })
+        .map(|mph| Speed::miles_per_hour(mph as f64))
+        .collect::<Vec<_>>();
+    if let Some(preset) = preset {
+        if !speeds.iter().any(|x| *x == preset) {
+            speeds.push(preset);
+            speeds.sort();
+        }
+    }
+    speeds
+        .into_iter()
+        .map(|x| Choice::new(x.to_string(&app.opts.units), x))
         .collect()
 }
 
