@@ -23,7 +23,6 @@ use crate::debug::DebugMode;
 use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 
 mod bulk;
-mod debug_roads;
 mod lanes;
 mod roads;
 mod routes;
