@@ -448,11 +448,16 @@ fn recalculate_turns(id: IntersectionID, map: &mut Map, effects: &mut EditEffect
 }
 
 fn modify_lanes(map: &mut Map, r: RoadID, lanes_ltr: Vec<LaneSpec>, effects: &mut EditEffects) {
+    let new_width = lanes_ltr
+        .iter()
+        .fold(Distance::ZERO, |sum, x| sum + x.width);
+    let old_width = map.get_r(r).get_half_width(map);
+
     let road = &mut map.roads[r.0];
 
     // TODO Widening roads is still experimental. If we're just modifying lane types, preserve
     // LaneIDs.
-    if road.lanes_ltr.len() == lanes_ltr.len() {
+    if road.lanes_ltr.len() == lanes_ltr.len() && old_width == new_width {
         for (idx, spec) in lanes_ltr.into_iter().enumerate() {
             let lane = map.lanes.get_mut(&road.lanes_ltr[idx].0).unwrap();
             road.lanes_ltr[idx].2 = spec.lt;
@@ -465,9 +470,6 @@ fn modify_lanes(map: &mut Map, r: RoadID, lanes_ltr: Vec<LaneSpec>, effects: &mu
                 lane.lane_center_pts = lane.lane_center_pts.reversed();
                 lane.dir = spec.dir;
             }
-
-            // TODO If width is changing and the number of lanes isn't, we'll ignore the width
-            // change. Don't use this old code-path for that!
         }
         return;
     }
