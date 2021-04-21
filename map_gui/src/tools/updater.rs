@@ -70,16 +70,16 @@ pub fn prompt_to_download_missing_data<A: AppLike + 'static>(
             }
 
             let cities = vec![map_name.to_data_pack_name()];
+            let (progress_tx, progress_rx) = futures_channel::mpsc::channel(1000);
             Transition::Replace(FutureLoader::<A, Vec<String>>::new(
                 ctx,
                 Box::pin(async {
-                    let (tx, rx) = futures_channel::mpsc::channel(1000);
-                    abstio::print_download_progress(rx);
-                    let result = download_cities(cities, tx).await;
+                    let result = download_cities(cities, progress_tx).await;
                     let wrap: Box<dyn Send + FnOnce(&A) -> Vec<String>> =
                         Box::new(move |_: &A| result);
                     Ok(wrap)
                 }),
+                progress_rx,
                 "Downloading missing files",
                 Box::new(|ctx, _, maybe_messages| {
                     let messages = match maybe_messages {

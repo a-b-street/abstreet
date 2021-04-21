@@ -1316,6 +1316,7 @@ dependencies = [
  "contour",
  "downcast-rs",
  "enumset",
+ "futures-channel",
  "geojson",
  "geom",
  "getrandom",
