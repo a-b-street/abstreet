@@ -56,7 +56,6 @@ impl<T: 'static + PartialEq + Clone> Dropdown<T> {
 
 impl<T: 'static + Clone> Dropdown<T> {
     fn open_menu(&mut self, ctx: &mut EventCtx) {
-        // TODO set current idx in menu
         let mut menu = Menu::new(
             ctx,
             self.choices
@@ -65,6 +64,7 @@ impl<T: 'static + Clone> Dropdown<T> {
                 .map(|(idx, c)| c.with_value(idx))
                 .collect(),
         );
+        menu.set_current(self.current_idx);
         let y1_below = self.btn.top_left.y + self.btn.dims.height + 15.0;
 
         menu.set_pos(ScreenPt::new(

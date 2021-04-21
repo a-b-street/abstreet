@@ -35,6 +35,10 @@ impl<T: 'static> Menu<T> {
         self.choices.remove(self.current_idx).data
     }
 
+    pub fn set_current(&mut self, idx: usize) {
+        self.current_idx = idx;
+    }
+
     fn calculate_txt(&self, style: &Style) -> Text {
         let mut txt = Text::new();
 
