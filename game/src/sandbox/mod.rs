@@ -476,11 +476,13 @@ impl State<App> for SandboxLoader {
                             continue;
                         }
                         gameplay::LoadScenario::Future(future) => {
-                            let (_, progress_rx) = futures_channel::mpsc::channel(1);
+                            let (_, outer_progress_rx) = futures_channel::mpsc::channel(1);
+                            let (_, inner_progress_rx) = futures_channel::mpsc::channel(1);
                             return Transition::Push(FutureLoader::<App, Scenario>::new(
                                 ctx,
                                 Box::pin(future),
-                                progress_rx,
+                                outer_progress_rx,
+                                inner_progress_rx,
                                 "Loading Scenario",
                                 Box::new(|_, _, scenario| {
                                     // TODO show error/retry alert?
