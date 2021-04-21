@@ -1,6 +1,8 @@
 use geom::Distance;
 use map_gui::render::{Renderable, OUTLINE_THICKNESS};
-use map_model::{Direction, LaneID, LaneSpec, LaneType, Road, RoadID, NORMAL_LANE_THICKNESS};
+use map_model::{
+    Direction, EditRoad, LaneID, LaneSpec, LaneType, Road, RoadID, NORMAL_LANE_THICKNESS,
+};
 use widgetry::{
     Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
     Panel, State, Text, TextExt, VerticalAlignment, Widget,
@@ -40,6 +42,36 @@ impl RoadEditor {
             highlight_selection,
         })
     }
+
+    fn modify_current_lane<F: Fn(&mut EditRoad, usize)>(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        select_new_lane_offset: Option<isize>,
+        f: F,
+    ) {
+        let idx = app
+            .primary
+            .map
+            .get_r(self.r)
+            .offset(self.current_lane.unwrap());
+
+        let mut edits = app.primary.map.get_edits().clone();
+        edits
+            .commands
+            .push(app.primary.map.edit_road_cmd(self.r, |new| (f)(new, idx)));
+        apply_map_edits(ctx, app, edits);
+
+        self.current_lane = if let Some(offset) = select_new_lane_offset {
+            Some(app.primary.map.get_r(self.r).lanes_ltr()[((idx as isize) + offset) as usize].0)
+        } else {
+            None
+        };
+
+        self.main_panel =
+            make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
+        self.highlight_selection = highlight_current_selection(ctx, app, self.r, self.current_lane);
+    }
 }
 
 impl State<App> for RoadEditor {
@@ -58,92 +90,33 @@ impl State<App> for RoadEditor {
 
         match self.main_panel.event(ctx) {
             Outcome::Clicked(x) => {
-                if x == "delete lane" {
-                    let idx = app
-                        .primary
-                        .map
-                        .get_r(self.r)
-                        .offset(self.current_lane.unwrap());
-
-                    let mut edits = app.primary.map.get_edits().clone();
-                    edits
-                        .commands
-                        .push(app.primary.map.edit_road_cmd(self.r, |new| {
-                            new.lanes_ltr.remove(idx);
-                        }));
-                    apply_map_edits(ctx, app, edits);
-
-                    self.current_lane = None;
-                    self.main_panel =
-                        make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
-                    self.highlight_selection =
-                        highlight_current_selection(ctx, app, self.r, self.current_lane);
-                } else if x == "flip direction" {
-                    let idx = app
-                        .primary
-                        .map
-                        .get_r(self.r)
-                        .offset(self.current_lane.unwrap());
-
-                    let mut edits = app.primary.map.get_edits().clone();
-                    edits
-                        .commands
-                        .push(app.primary.map.edit_road_cmd(self.r, |new| {
-                            new.lanes_ltr[idx].dir = new.lanes_ltr[idx].dir.opposite();
-                        }));
-                    apply_map_edits(ctx, app, edits);
-
-                    self.current_lane = Some(app.primary.map.get_r(self.r).lanes_ltr()[idx].0);
-                    self.main_panel =
-                        make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
-                    self.highlight_selection =
-                        highlight_current_selection(ctx, app, self.r, self.current_lane);
-                } else if x == "move lane left" {
-                    let idx = app
-                        .primary
-                        .map
-                        .get_r(self.r)
-                        .offset(self.current_lane.unwrap());
-
-                    let mut edits = app.primary.map.get_edits().clone();
-                    edits
-                        .commands
-                        .push(app.primary.map.edit_road_cmd(self.r, |new| {
-                            new.lanes_ltr.swap(idx, idx - 1);
-                        }));
-                    apply_map_edits(ctx, app, edits);
-
-                    self.current_lane = Some(app.primary.map.get_r(self.r).lanes_ltr()[idx - 1].0);
-                    self.main_panel =
-                        make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
-                    self.highlight_selection =
-                        highlight_current_selection(ctx, app, self.r, self.current_lane);
-                } else if x == "move lane right" {
-                    let idx = app
-                        .primary
-                        .map
-                        .get_r(self.r)
-                        .offset(self.current_lane.unwrap());
-
-                    let mut edits = app.primary.map.get_edits().clone();
-                    edits
-                        .commands
-                        .push(app.primary.map.edit_road_cmd(self.r, |new| {
-                            new.lanes_ltr.swap(idx, idx + 1);
-                        }));
-                    apply_map_edits(ctx, app, edits);
-
-                    self.current_lane = Some(app.primary.map.get_r(self.r).lanes_ltr()[idx + 1].0);
-                    self.main_panel =
-                        make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
-                    self.highlight_selection =
-                        highlight_current_selection(ctx, app, self.r, self.current_lane);
-                } else if let Some(idx) = x.strip_prefix("modify Lane #") {
+                if let Some(idx) = x.strip_prefix("modify Lane #") {
                     self.current_lane = Some(LaneID(idx.parse().unwrap()));
                     self.main_panel =
                         make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
                     self.highlight_selection =
                         highlight_current_selection(ctx, app, self.r, self.current_lane);
+                } else if x == "delete lane" {
+                    self.modify_current_lane(ctx, app, None, |new, idx| {
+                        new.lanes_ltr.remove(idx);
+                    });
+                } else if x == "flip direction" {
+                    self.modify_current_lane(ctx, app, Some(0), |new, idx| {
+                        new.lanes_ltr[idx].dir = new.lanes_ltr[idx].dir.opposite();
+                    });
+                } else if x == "move lane left" {
+                    self.modify_current_lane(ctx, app, Some(-1), |new, idx| {
+                        new.lanes_ltr.swap(idx, idx - 1);
+                    });
+                } else if x == "move lane right" {
+                    self.modify_current_lane(ctx, app, Some(1), |new, idx| {
+                        new.lanes_ltr.swap(idx, idx + 1);
+                    });
+                } else if let Some(lt) = x.strip_prefix("change to ") {
+                    let lt = LaneType::from_short_name(lt).unwrap();
+                    self.modify_current_lane(ctx, app, Some(0), |new, idx| {
+                        new.lanes_ltr[idx].lt = lt;
+                    });
                 } else if let Some(lt) = x.strip_prefix("add ") {
                     let lt = LaneType::from_short_name(lt).unwrap();
 
@@ -162,27 +135,6 @@ impl State<App> for RoadEditor {
                     assert!(self.current_lane.is_none());
                     self.current_lane =
                         Some(app.primary.map.get_r(self.r).lanes_ltr().last().unwrap().0);
-                    self.main_panel =
-                        make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
-                    self.highlight_selection =
-                        highlight_current_selection(ctx, app, self.r, self.current_lane);
-                } else if let Some(lt) = x.strip_prefix("change to ") {
-                    let lt = LaneType::from_short_name(lt).unwrap();
-                    let idx = app
-                        .primary
-                        .map
-                        .get_r(self.r)
-                        .offset(self.current_lane.unwrap());
-
-                    let mut edits = app.primary.map.get_edits().clone();
-                    edits
-                        .commands
-                        .push(app.primary.map.edit_road_cmd(self.r, |new| {
-                            new.lanes_ltr[idx].lt = lt;
-                        }));
-                    apply_map_edits(ctx, app, edits);
-
-                    self.current_lane = Some(app.primary.map.get_r(self.r).lanes_ltr()[idx].0);
                     self.main_panel =
                         make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
                     self.highlight_selection =
@@ -207,25 +159,9 @@ impl State<App> for RoadEditor {
                         make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
                 } else {
                     let width = self.main_panel.dropdown_value("width");
-                    let idx = app
-                        .primary
-                        .map
-                        .get_r(self.r)
-                        .offset(self.current_lane.unwrap());
-
-                    let mut edits = app.primary.map.get_edits().clone();
-                    edits
-                        .commands
-                        .push(app.primary.map.edit_road_cmd(self.r, |new| {
-                            new.lanes_ltr[idx].width = width;
-                        }));
-                    apply_map_edits(ctx, app, edits);
-
-                    self.current_lane = Some(app.primary.map.get_r(self.r).lanes_ltr()[idx].0);
-                    self.main_panel =
-                        make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
-                    self.highlight_selection =
-                        highlight_current_selection(ctx, app, self.r, self.current_lane);
+                    self.modify_current_lane(ctx, app, Some(0), |new, idx| {
+                        new.lanes_ltr[idx].width = width;
+                    });
                 }
             }
             _ => {}
