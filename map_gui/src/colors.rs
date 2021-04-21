@@ -1,6 +1,11 @@
 //! A color scheme groups colors used for different map, dynamic, and UI elements in one place, to
 //! encourage deduplication. The player can also switch between different color schemes.
 
+use std::fs::File;
+use std::io::Write;
+
+use anyhow::Result;
+
 use map_model::osm::RoadRank;
 use map_model::LaneType;
 use widgetry::{Choice, Color, EventCtx, Fill, Style, Texture};
@@ -380,6 +385,63 @@ impl ColorScheme {
 
     pub fn solid_road_center(&self) -> bool {
         self.scheme == ColorSchemeChoice::FadedZoom
+    }
+
+    // These two could try to use serde, but... Color serializes with a separate RGB by default,
+    // and changing it to use a nice hex string is way too hard.
+    pub fn export(&self, path: &str) -> Result<()> {
+        let mut f = File::create(path)?;
+        writeln!(f, "unzoomed_highway {}", self.unzoomed_highway.to_hex())?;
+        writeln!(f, "unzoomed_arterial {}", self.unzoomed_arterial.to_hex())?;
+        writeln!(
+            f,
+            "unzoomed_residential {}",
+            self.unzoomed_residential.to_hex()
+        )?;
+        writeln!(f, "unzoomed_trail {}", self.unzoomed_trail.to_hex())?;
+        writeln!(f, "private_road {}", self.private_road.to_hex())?;
+        writeln!(
+            f,
+            "residential_building {}",
+            self.residential_building.to_hex()
+        )?;
+        writeln!(
+            f,
+            "commercial_building {}",
+            self.commercial_building.to_hex()
+        )?;
+        if let Fill::Color(c) = self.grass {
+            writeln!(f, "grass {}", c.to_hex())?;
+        }
+        if let Fill::Color(c) = self.water {
+            writeln!(f, "water {}", c.to_hex())?;
+        }
+        Ok(())
+    }
+
+    pub fn import(&mut self, path: &str) -> Result<()> {
+        let raw = String::from_utf8(abstio::slurp_file(path)?)?;
+        let mut colors = Vec::new();
+        for line in raw.split("\n") {
+            if line == "" {
+                continue;
+            }
+            let mut parts = line.split(" ");
+            parts.next();
+            colors.push(Color::hex(parts.next().unwrap()));
+        }
+
+        self.unzoomed_highway = colors[0];
+        self.unzoomed_arterial = colors[1];
+        self.unzoomed_residential = colors[2];
+        self.unzoomed_trail = colors[3];
+        self.private_road = colors[4];
+        self.residential_building = colors[5];
+        self.commercial_building = colors[6];
+        self.grass = Fill::Color(colors[7]);
+        self.water = Fill::Color(colors[8]);
+
+        Ok(())
     }
 }
 

@@ -141,6 +141,14 @@ impl DebugMode {
                         .text("draw banned turns")
                         .hotkey(Key::T)
                         .build_def(ctx),
+                    ctx.style()
+                        .btn_outline
+                        .text("export color-scheme")
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline
+                        .text("import color-scheme")
+                        .build_def(ctx),
                 ]),
                 Text::from_all(vec![
                     Line("Hold "),
@@ -351,6 +359,16 @@ impl State<App> for DebugMode {
                         draw: draw_banned_turns(ctx, app),
                     });
                     self.reset_info(ctx);
+                }
+                "export color-scheme" => {
+                    app.cs.export("color_scheme").unwrap();
+                }
+                "import color-scheme" => {
+                    app.cs.import("color_scheme").unwrap();
+                    ctx.loading_screen("rerendering map colors", |ctx, timer| {
+                        app.primary.draw_map =
+                            DrawMap::new(ctx, &app.primary.map, &app.opts, &app.cs, timer);
+                    });
                 }
                 _ => unreachable!(),
             },
