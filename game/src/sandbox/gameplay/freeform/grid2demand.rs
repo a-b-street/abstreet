@@ -9,7 +9,8 @@ use crate::sandbox::gameplay::GameplayMode;
 use crate::sandbox::SandboxMode;
 
 pub fn import(ctx: &mut EventCtx) -> Transition {
-    let (_, progress_rx) = futures_channel::mpsc::channel(1);
+    let (_, outer_progress_rx) = futures_channel::mpsc::channel(1);
+    let (_, inner_progress_rx) = futures_channel::mpsc::channel(1);
     Transition::Push(FutureLoader::<App, Option<String>>::new(
         ctx,
         Box::pin(async {
@@ -21,7 +22,8 @@ pub fn import(ctx: &mut EventCtx) -> Transition {
                 Box::new(move |_: &App| result);
             Ok(wrap)
         }),
-        progress_rx,
+        outer_progress_rx,
+        inner_progress_rx,
         "Waiting for a file to be chosen",
         Box::new(|ctx, app, maybe_path| {
             if let Ok(Some(path)) = maybe_path {

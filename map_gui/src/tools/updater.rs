@@ -40,10 +40,10 @@ fn prettyprint_bytes(bytes: u64) -> String {
     }
     let kb = (bytes as f64) / 1024.0;
     if kb < 1024.0 {
-        return format!("{} kb", kb as usize);
+        return format!("{} KB", kb as usize);
     }
     let mb = kb / 1024.0;
-    format!("{} mb", mb as usize)
+    format!("{} MB", mb as usize)
 }
 
 /// Prompt to download a missing city. On either success or failure (maybe the player choosing to
@@ -70,16 +70,19 @@ pub fn prompt_to_download_missing_data<A: AppLike + 'static>(
             }
 
             let cities = vec![map_name.to_data_pack_name()];
-            let (progress_tx, progress_rx) = futures_channel::mpsc::channel(1000);
+            let (outer_progress_tx, outer_progress_rx) = futures_channel::mpsc::channel(1000);
+            let (inner_progress_tx, inner_progress_rx) = futures_channel::mpsc::channel(1000);
             Transition::Replace(FutureLoader::<A, Vec<String>>::new(
                 ctx,
                 Box::pin(async {
-                    let result = download_cities(cities, progress_tx).await;
+                    let result =
+                        download_cities(cities, outer_progress_tx, inner_progress_tx).await;
                     let wrap: Box<dyn Send + FnOnce(&A) -> Vec<String>> =
                         Box::new(move |_: &A| result);
                     Ok(wrap)
                 }),
-                progress_rx,
+                outer_progress_rx,
+                inner_progress_rx,
                 "Downloading missing files",
                 Box::new(|ctx, _, maybe_messages| {
                     let messages = match maybe_messages {
@@ -97,7 +100,11 @@ pub fn prompt_to_download_missing_data<A: AppLike + 'static>(
     ))
 }
 
-async fn download_cities(cities: Vec<String>, mut progress: mpsc::Sender<String>) -> Vec<String> {
+async fn download_cities(
+    cities: Vec<String>,
+    mut outer_progress: mpsc::Sender<String>,
+    mut inner_progress: mpsc::Sender<String>,
+) -> Vec<String> {
     let mut data_packs = DataPacks {
         runtime: BTreeSet::new(),
         input: BTreeSet::new(),
@@ -117,24 +124,30 @@ async fn download_cities(cities: Vec<String>, mut progress: mpsc::Sender<String>
 
     let num_files = manifest.entries.len();
     let mut messages = Vec::new();
+    let mut files_so_far = 0;
 
     for (path, entry) in manifest.entries {
+        files_so_far += 1;
         let local_path = abstio::path(path.strip_prefix("data/").unwrap());
         let url = format!(
             "http://abstreet.s3-website.us-east-2.amazonaws.com/{}/{}.gz",
             version, path
         );
-        // TODO How can we have two streams, and have this logging be the "outer" one? And show x /
-        // y files or something.
-        info!(
-            "Downloading {} ({})",
+        if let Err(err) = outer_progress.try_send(format!(
+            "Downloading file {}/{}: {} ({})",
+            files_so_far,
+            num_files,
             url,
             prettyprint_bytes(entry.compressed_size_bytes)
-        );
+        )) {
+            warn!("Couldn't send progress: {}", err);
+        }
 
-        match abstio::download_bytes(&url, &mut progress)
+        match abstio::download_bytes(&url, &mut inner_progress)
             .await
             .and_then(|bytes| {
+                // TODO Instead of holding everything in memory like this, we could also try to
+                // stream the gunzipping and output writing
                 info!("Decompressing {}", path);
                 std::fs::create_dir_all(std::path::Path::new(&local_path).parent().unwrap())
                     .unwrap();

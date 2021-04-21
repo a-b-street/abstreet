@@ -429,8 +429,11 @@ where
     panel: Panel,
     receiver: oneshot::Receiver<Result<Box<dyn Send + FnOnce(&A) -> T>>>,
     on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut A, Result<T>) -> Transition<A>>>,
-    progress_receiver: Option<mpsc::Receiver<String>>,
-    last_progress: String,
+    // These're just two different types of progress updates that callers can provide
+    outer_progress_receiver: Option<mpsc::Receiver<String>>,
+    inner_progress_receiver: Option<mpsc::Receiver<String>>,
+    last_outer_progress: String,
+    last_inner_progress: String,
 
     // If Runtime is dropped, any active tasks will be canceled, so we retain it here even
     // though we never access it. It might make more sense for Runtime to live on App if we're
@@ -449,7 +452,8 @@ where
     pub fn new(
         ctx: &mut EventCtx,
         future: Pin<Box<dyn Future<Output = Result<Box<dyn Send + FnOnce(&A) -> T>>>>>,
-        progress_receiver: mpsc::Receiver<String>,
+        outer_progress_receiver: mpsc::Receiver<String>,
+        inner_progress_receiver: mpsc::Receiver<String>,
         loading_title: &str,
         on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, Result<T>) -> Transition<A>>,
     ) -> Box<dyn State<A>> {
@@ -463,8 +467,10 @@ where
             panel: ctx.make_loading_screen(Text::from(loading_title)),
             receiver,
             on_load: Some(on_load),
-            progress_receiver: Some(progress_receiver),
-            last_progress: String::new(),
+            outer_progress_receiver: Some(outer_progress_receiver),
+            inner_progress_receiver: Some(inner_progress_receiver),
+            last_outer_progress: String::new(),
+            last_inner_progress: String::new(),
         })
     }
 
@@ -472,7 +478,8 @@ where
     pub fn new(
         ctx: &mut EventCtx,
         future: Pin<Box<dyn Send + Future<Output = Result<Box<dyn Send + FnOnce(&A) -> T>>>>>,
-        progress_receiver: mpsc::Receiver<String>,
+        outer_progress_receiver: mpsc::Receiver<String>,
+        inner_progress_receiver: mpsc::Receiver<String>,
         loading_title: &str,
         on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, Result<T>) -> Transition<A>>,
     ) -> Box<dyn State<A>> {
@@ -489,8 +496,10 @@ where
             receiver,
             on_load: Some(on_load),
             runtime,
-            progress_receiver: Some(progress_receiver),
-            last_progress: String::new(),
+            outer_progress_receiver: Some(outer_progress_receiver),
+            inner_progress_receiver: Some(inner_progress_receiver),
+            last_outer_progress: String::new(),
+            last_inner_progress: String::new(),
         })
     }
 }
@@ -508,15 +517,32 @@ where
                 return on_load(ctx, app, Err(anyhow!("channel canceled")));
             }
             Ok(None) => {
-                if let Some(ref mut rx) = self.progress_receiver {
+                if let Some(ref mut rx) = self.outer_progress_receiver {
                     // Read all of the progress that's happened
                     loop {
                         match rx.try_next() {
                             Ok(Some(msg)) => {
-                                self.last_progress = msg;
+                                self.last_outer_progress = msg;
                             }
                             Ok(None) => {
-                                self.progress_receiver = None;
+                                self.outer_progress_receiver = None;
+                                break;
+                            }
+                            Err(_) => {
+                                // No messages
+                                break;
+                            }
+                        }
+                    }
+                }
+                if let Some(ref mut rx) = self.inner_progress_receiver {
+                    loop {
+                        match rx.try_next() {
+                            Ok(Some(msg)) => {
+                                self.last_inner_progress = msg;
+                            }
+                            Ok(None) => {
+                                self.inner_progress_receiver = None;
                                 break;
                             }
                             Err(_) => {
@@ -533,7 +559,8 @@ where
                         "Time spent: {}",
                         Duration::realtime_elapsed(self.started)
                     )),
-                    Line(&self.last_progress),
+                    Line(&self.last_outer_progress),
+                    Line(&self.last_inner_progress),
                 ]));
 
                 // Until the response is received, just ask winit to regularly call event(), so we
