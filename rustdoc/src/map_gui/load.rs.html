@@ -540,6 +540,56 @@
 <span id="537">537</span>
 <span id="538">538</span>
 <span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Loading large resources (like maps, scenarios, and prebaked data) requires different strategies</span>
 <span class="doccomment">//! on native and web. Both cases are wrapped up as a State that runs a callback when done.</span>
@@ -548,7 +598,7 @@
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">pin</span>::<span class="ident">Pin</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
-<span class="kw">use</span> <span class="ident">futures_channel</span>::<span class="ident">oneshot</span>;
+<span class="kw">use</span> <span class="ident">futures_channel</span>::{<span class="ident">mpsc</span>, <span class="ident">oneshot</span>};
 <span class="kw">use</span> <span class="ident">instant</span>::<span class="ident">Instant</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">de</span>::<span class="ident">DeserializeOwned</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
@@ -726,14 +776,9 @@
 <span class="kw">mod</span> <span class="ident">wasm_loader</span> {
     <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Read</span>;
 
-    <span class="kw">use</span> <span class="ident">futures_channel</span>::<span class="ident">oneshot</span>;
-    <span class="kw">use</span> <span class="ident">instant</span>::<span class="ident">Instant</span>;
     <span class="kw">use</span> <span class="ident">wasm_bindgen</span>::<span class="ident">JsCast</span>;
     <span class="kw">use</span> <span class="ident">wasm_bindgen_futures</span>::<span class="ident">JsFuture</span>;
     <span class="kw">use</span> <span class="ident">web_sys</span>::{<span class="ident">Request</span>, <span class="ident">RequestInit</span>, <span class="ident">RequestMode</span>, <span class="ident">Response</span>};
-
-    <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
-    <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">UpdateType</span>};
 
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
@@ -977,6 +1022,11 @@
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
     <span class="ident">receiver</span>: <span class="ident">oneshot</span>::<span class="ident">Receiver</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">on_load</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="comment">// These&#39;re just two different types of progress updates that callers can provide</span>
+    <span class="ident">outer_progress_receiver</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">mpsc</span>::<span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">inner_progress_receiver</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">mpsc</span>::<span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">last_outer_progress</span>: <span class="ident">String</span>,
+    <span class="ident">last_inner_progress</span>: <span class="ident">String</span>,
 
     <span class="comment">// If Runtime is dropped, any active tasks will be canceled, so we retain it here even</span>
     <span class="comment">// though we never access it. It might make more sense for Runtime to live on App if we&#39;re</span>
@@ -995,6 +1045,8 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">future</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">outer_progress_receiver</span>: <span class="ident">mpsc</span>::<span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+        <span class="ident">inner_progress_receiver</span>: <span class="ident">mpsc</span>::<span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
         <span class="ident">loading_title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
@@ -1008,6 +1060,10 @@
             <span class="ident">panel</span>: <span class="ident">ctx</span>.<span class="ident">make_loading_screen</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">loading_title</span>)),
             <span class="ident">receiver</span>,
             <span class="ident">on_load</span>: <span class="prelude-val">Some</span>(<span class="ident">on_load</span>),
+            <span class="ident">outer_progress_receiver</span>: <span class="prelude-val">Some</span>(<span class="ident">outer_progress_receiver</span>),
+            <span class="ident">inner_progress_receiver</span>: <span class="prelude-val">Some</span>(<span class="ident">inner_progress_receiver</span>),
+            <span class="ident">last_outer_progress</span>: <span class="ident">String</span>::<span class="ident">new</span>(),
+            <span class="ident">last_inner_progress</span>: <span class="ident">String</span>::<span class="ident">new</span>(),
         })
     }
 
@@ -1015,6 +1071,8 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">future</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">outer_progress_receiver</span>: <span class="ident">mpsc</span>::<span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+        <span class="ident">inner_progress_receiver</span>: <span class="ident">mpsc</span>::<span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
         <span class="ident">loading_title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
@@ -1031,6 +1089,10 @@
             <span class="ident">receiver</span>,
             <span class="ident">on_load</span>: <span class="prelude-val">Some</span>(<span class="ident">on_load</span>),
             <span class="ident">runtime</span>,
+            <span class="ident">outer_progress_receiver</span>: <span class="prelude-val">Some</span>(<span class="ident">outer_progress_receiver</span>),
+            <span class="ident">inner_progress_receiver</span>: <span class="prelude-val">Some</span>(<span class="ident">inner_progress_receiver</span>),
+            <span class="ident">last_outer_progress</span>: <span class="ident">String</span>::<span class="ident">new</span>(),
+            <span class="ident">last_inner_progress</span>: <span class="ident">String</span>::<span class="ident">new</span>(),
         })
     }
 }
@@ -1048,12 +1110,50 @@
                 <span class="kw">return</span> <span class="ident">on_load</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Err</span>(<span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;channel canceled&quot;</span>)));
             }
             <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">rx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">outer_progress_receiver</span> {
+                    <span class="comment">// Read all of the progress that&#39;s happened</span>
+                    <span class="kw">loop</span> {
+                        <span class="kw">match</span> <span class="ident">rx</span>.<span class="ident">try_next</span>() {
+                            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">msg</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="self">self</span>.<span class="ident">last_outer_progress</span> <span class="op">=</span> <span class="ident">msg</span>;
+                            }
+                            <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="self">self</span>.<span class="ident">outer_progress_receiver</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                                <span class="kw">break</span>;
+                            }
+                            <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="comment">// No messages</span>
+                                <span class="kw">break</span>;
+                            }
+                        }
+                    }
+                }
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">rx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner_progress_receiver</span> {
+                    <span class="kw">loop</span> {
+                        <span class="kw">match</span> <span class="ident">rx</span>.<span class="ident">try_next</span>() {
+                            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">msg</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="self">self</span>.<span class="ident">last_inner_progress</span> <span class="op">=</span> <span class="ident">msg</span>;
+                            }
+                            <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="self">self</span>.<span class="ident">inner_progress_receiver</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                                <span class="kw">break</span>;
+                            }
+                            <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="comment">// No messages</span>
+                                <span class="kw">break</span>;
+                            }
+                        }
+                    }
+                }
+
                 <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">make_loading_screen</span>(<span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">loading_title</span>),
                     <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
                         <span class="string">&quot;Time spent: {}&quot;</span>,
                         <span class="ident">Duration</span>::<span class="ident">realtime_elapsed</span>(<span class="self">self</span>.<span class="ident">started</span>)
                     )),
+                    <span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">last_outer_progress</span>),
+                    <span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">last_inner_progress</span>),
                 ]));
 
                 <span class="comment">// Until the response is received, just ask winit to regularly call event(), so we</span>

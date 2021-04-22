@@ -705,6 +705,10 @@
 <span id="702">702</span>
 <span id="703">703</span>
 <span id="704">704</span>
+<span id="705">705</span>
+<span id="706">706</span>
+<span id="707">707</span>
+<span id="708">708</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
@@ -1184,9 +1188,13 @@
                             <span class="kw">continue</span>;
                         }
                         <span class="ident">gameplay</span>::<span class="ident">LoadScenario</span>::<span class="ident">Future</span>(<span class="ident">future</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">outer_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel</span>::<span class="ident">mpsc</span>::<span class="ident">channel</span>(<span class="number">1</span>);
+                            <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">inner_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel</span>::<span class="ident">mpsc</span>::<span class="ident">channel</span>(<span class="number">1</span>);
                             <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">FutureLoader</span>::<span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">Scenario</span><span class="op">&gt;</span>::<span class="ident">new</span>(
                                 <span class="ident">ctx</span>,
                                 <span class="ident">Box</span>::<span class="ident">pin</span>(<span class="ident">future</span>),
+                                <span class="ident">outer_progress_rx</span>,
+                                <span class="ident">inner_progress_rx</span>,
                                 <span class="string">&quot;Loading Scenario&quot;</span>,
                                 <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">scenario</span><span class="op">|</span> {
                                     <span class="comment">// TODO show error/retry alert?</span>
