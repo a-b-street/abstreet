@@ -14,6 +14,7 @@ pub mod map;
 mod pandemic;
 mod parking;
 mod population;
+mod problems;
 pub mod traffic;
 pub mod transit;
 
@@ -130,6 +131,7 @@ impl PickLayer {
                     btn("parking efficiency", Key::O),
                     btn("blackholes", Key::L),
                     btn("congestion caps", Key::C),
+                    btn("problem map", Key::K),
                     if app.primary.sim.get_pandemic_model().is_some() {
                         btn("pandemic model", Key::Y)
                     } else {
@@ -219,6 +221,13 @@ impl State<App> for PickLayer {
                         population::Options {
                             heatmap: Some(HeatmapOptions::new()),
                         },
+                    )));
+                }
+                "problem map" => {
+                    app.primary.layer = Some(Box::new(problems::ProblemMap::new(
+                        ctx,
+                        app,
+                        problems::Options::new(),
                     )));
                 }
                 "throughput" => {
