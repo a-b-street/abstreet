@@ -51,7 +51,7 @@ impl Music {
         if let Some(ref mut inner) = self.inner {
             match inner.panel.event(ctx) {
                 Outcome::Clicked(_) => unreachable!(),
-                Outcome::Changed => {
+                Outcome::Changed(_) => {
                     if inner.panel.is_checked("play music") {
                         *play_music = true;
                         inner.unmute();

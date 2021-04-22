@@ -173,7 +173,7 @@ impl GameplayState for Actdev {
                 }
                 _ => unreachable!(),
             },
-            Outcome::Changed => {
+            Outcome::Changed(_) => {
                 // Background traffic was toggled
                 return Some(Transition::Replace(SandboxMode::async_new(
                     app,

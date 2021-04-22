@@ -49,7 +49,7 @@ impl Layer for Occupancy {
                 }
                 _ => unreachable!(),
             },
-            Outcome::Changed => {
+            Outcome::Changed(_) => {
                 *self = Occupancy::new(
                     ctx,
                     app,

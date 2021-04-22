@@ -91,7 +91,7 @@ impl State<App> for TripSummaries {
                 }
                 _ => unreachable!(),
             },
-            Outcome::Changed => {
+            Outcome::Changed(_) => {
                 if let Some(t) = DashTab::TripSummaries.transition(ctx, app, &self.panel) {
                     return t;
                 }

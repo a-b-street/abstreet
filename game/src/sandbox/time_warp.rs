@@ -172,7 +172,7 @@ impl State<App> for JumpToTime {
                     }
                 }
             },
-            Outcome::Changed => {
+            Outcome::Changed(_) => {
                 app.opts.dont_draw_time_warp = self.panel.is_checked("don't draw");
                 if self.tabs.active_tab_idx() == 1 {
                     self.panel.replace(

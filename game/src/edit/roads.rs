@@ -192,9 +192,9 @@ impl State<App> for RoadEditor {
                     unreachable!()
                 }
             }
-            Outcome::Changed => {
-                let speed_limit = self.main_panel.dropdown_value("speed limit");
-                if speed_limit != app.primary.map.get_r(self.r).speed_limit {
+            Outcome::Changed(x) => match x.as_ref() {
+                "speed limit" => {
+                    let speed_limit = self.main_panel.dropdown_value("speed limit");
                     let mut edits = app.primary.map.get_edits().clone();
                     edits
                         .commands
@@ -213,13 +213,15 @@ impl State<App> for RoadEditor {
                         self.num_edit_cmds_originally,
                         self.redo_stack.is_empty(),
                     );
-                } else {
+                }
+                "width" => {
                     let width = self.main_panel.dropdown_value("width");
                     self.modify_current_lane(ctx, app, Some(0), |new, idx| {
                         new.lanes_ltr[idx].width = width;
                     });
                 }
-            }
+                _ => unreachable!(),
+            },
             _ => {}
         }
 

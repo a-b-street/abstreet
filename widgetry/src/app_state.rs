@@ -260,7 +260,7 @@ impl<A: 'static> State<A> for SimpleStateWrapper<A> {
         }
         match self.panel.event(ctx) {
             Outcome::Clicked(action) => self.inner.on_click(ctx, app, &action, &self.panel),
-            Outcome::Changed => self
+            Outcome::Changed(_) => self
                 .inner
                 .panel_changed(ctx, app, &mut self.panel)
                 .unwrap_or_else(|| self.inner.other_event(ctx, app)),

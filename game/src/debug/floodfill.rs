@@ -92,7 +92,7 @@ impl State<App> for Floodfiller {
                 }
                 _ => unreachable!(),
             },
-            Outcome::Changed => {
+            Outcome::Changed(_) => {
                 return Transition::Replace(Floodfiller::new(
                     ctx,
                     app,

@@ -66,13 +66,14 @@ pub trait WidgetImpl: downcast_rs::Downcast {
     }
 }
 
+/// The result of a Panel handling an event
 #[derive(Debug, PartialEq)]
 pub enum Outcome {
     /// An action was done
     Clicked(String),
-    /// A dropdown, checkbox, spinner, etc changed values. Usually this triggers a refresh of
-    /// everything, so not useful to plumb along what changed.
-    Changed,
+    /// A dropdown, checkbox, spinner, etc changed values. The name of the changed widget is
+    /// returned, but not the value, since its type is generic.
+    Changed(String),
     /// Nothing happened
     Nothing,
 }

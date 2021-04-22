@@ -154,7 +154,7 @@ impl State<App> for AgentSpawner {
                 }
                 _ => unreachable!(),
             },
-            Outcome::Changed => {
+            Outcome::Changed(_) => {
                 // We need to recalculate the path to see if this is sane. Otherwise we could trick
                 // a pedestrian into wandering on/off a highway border.
                 if self.goal.is_some() {

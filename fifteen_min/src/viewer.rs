@@ -184,7 +184,7 @@ impl State<App> for Viewer {
                     }
                 }
             },
-            Outcome::Changed => {
+            Outcome::Changed(_) => {
                 let options = options_from_controls(&self.panel);
                 self.draw_unwalkable_roads = draw_unwalkable_roads(ctx, app, &options);
                 self.isochrone = Isochrone::new(ctx, app, self.isochrone.start, options);
@@ -522,7 +522,7 @@ impl State<App> for ExploreAmenities {
                     unreachable!()
                 }
             }
-            Outcome::Changed => {
+            Outcome::Changed(_) => {
                 self.table.panel_changed(&self.panel);
                 self.table.replace_render(ctx, app, &mut self.panel)
             }

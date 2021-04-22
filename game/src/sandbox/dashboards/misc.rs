@@ -60,7 +60,7 @@ impl State<App> for ActiveTraffic {
                 "close" => Transition::Pop,
                 _ => unreachable!(),
             },
-            Outcome::Changed => DashTab::ActiveTraffic
+            Outcome::Changed(_) => DashTab::ActiveTraffic
                 .transition(ctx, app, &self.panel)
                 .unwrap(),
             _ => Transition::Keep,
@@ -204,7 +204,7 @@ impl State<App> for TransitRoutes {
                     unreachable!()
                 }
             }
-            Outcome::Changed => {
+            Outcome::Changed(_) => {
                 if let Some(t) = DashTab::TransitRoutes.transition(ctx, app, &self.panel) {
                     return t;
                 } else {

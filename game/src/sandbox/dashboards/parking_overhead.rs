@@ -82,7 +82,7 @@ impl State<App> for ParkingOverhead {
                     unreachable!()
                 }
             }
-            Outcome::Changed => {
+            Outcome::Changed(_) => {
                 if let Some(t) = self.tab.transition(ctx, app, &self.panel) {
                     return t;
                 }

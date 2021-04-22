@@ -315,7 +315,7 @@ impl State<App> for MainState {
                                 }
                                 _ => unreachable!(),
                             },
-                            Outcome::Changed => {
+                            Outcome::Changed(_) => {
                                 app.model.show_intersection_geometry(
                                     ctx,
                                     self.panel.is_checked("intersection geometry"),

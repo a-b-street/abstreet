@@ -98,7 +98,7 @@ impl State<App> for RouteExplorer {
                 }
                 _ => unreachable!(),
             },
-            Outcome::Changed => {
+            Outcome::Changed(_) => {
                 self.recalc_paths(ctx, app);
             }
             _ => {}
