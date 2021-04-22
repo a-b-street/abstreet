@@ -451,7 +451,7 @@ fn modify_lanes(map: &mut Map, r: RoadID, lanes_ltr: Vec<LaneSpec>, effects: &mu
     let new_width = lanes_ltr
         .iter()
         .fold(Distance::ZERO, |sum, x| sum + x.width);
-    let old_width = 2.0 * map.get_r(r).get_half_width(map);
+    let old_width = map.get_r(r).get_width(map);
 
     let road = &mut map.roads[r.0];
 

@@ -4,8 +4,8 @@ use map_model::{
     Direction, EditCmd, EditRoad, LaneID, LaneSpec, LaneType, Road, RoadID, NORMAL_LANE_THICKNESS,
 };
 use widgetry::{
-    lctrl, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, State, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, Choice, Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
+    Key, Line, Outcome, Panel, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -298,7 +298,7 @@ fn make_main_panel(
 
         Widget::row(vec![
             ctx.style()
-                .btn_plain
+                .btn_solid_destructive
                 .icon("system/assets/tools/trash.svg")
                 .disabled(road.lanes_ltr().len() == 1)
                 .build_widget(ctx, "delete lane"),
@@ -307,16 +307,14 @@ fn make_main_panel(
                 .text("flip direction")
                 .disabled(!can_reverse(lane.lane_type))
                 .build_def(ctx),
-            Line("Width").secondary().into_widget(ctx),
+            Line("Width").secondary().into_widget(ctx).centered_vert(),
             Widget::dropdown(ctx, "width", lane.width, width_choices(app, l)),
             ctx.style()
-                .btn_plain
-                .text("<")
+                .btn_prev()
                 .disabled(idx == 0)
                 .build_widget(ctx, "move lane left"),
             ctx.style()
-                .btn_plain
-                .text(">")
+                .btn_next()
                 .disabled(idx == road.lanes_ltr().len() - 1)
                 .build_widget(ctx, "move lane right"),
         ])
@@ -353,11 +351,16 @@ fn make_main_panel(
             )
     })
     .collect::<Vec<Widget>>();
-    if current_lane.is_some() {
-        available_lane_types_row.insert(0, "change to".text_widget(ctx));
-    } else {
-        available_lane_types_row.insert(0, "add new".text_widget(ctx));
-    }
+    available_lane_types_row.insert(
+        0,
+        if current_lane.is_some() {
+            "change to"
+        } else {
+            "add new"
+        }
+        .text_widget(ctx)
+        .centered_vert(),
+    );
     let available_lane_types_row = Widget::row(available_lane_types_row);
 
     let mut current_lanes_ltr = Vec::new();
@@ -368,6 +371,8 @@ fn make_main_panel(
                 .btn_plain
                 .icon(lane_type_to_icon(lt).unwrap())
                 .disabled(Some(id) == current_lane)
+                .image_color(ctx.style().btn_outline.fg, ControlState::Disabled)
+                .outline(ctx.style().btn_outline.outline, ControlState::Disabled)
                 .build_widget(ctx, format!("modify {}", id)),
         );
     }
@@ -375,11 +380,15 @@ fn make_main_panel(
 
     let road_settings = Widget::row(vec![
         Text::from_all(vec![
-            Line("Total width").secondary(),
-            Line((2.0 * road.get_half_width(map)).to_string(&app.opts.units)),
+            Line("Total width ").secondary(),
+            Line(road.get_width(map).to_string(&app.opts.units)),
         ])
-        .into_widget(ctx),
-        Line("Speed limit").secondary().into_widget(ctx),
+        .into_widget(ctx)
+        .centered_vert(),
+        Line("Speed limit")
+            .secondary()
+            .into_widget(ctx)
+            .centered_vert(),
         Widget::dropdown(
             ctx,
             "speed limit",
@@ -412,7 +421,7 @@ fn highlight_current_selection(
     batch.push(
         color,
         road.center_pts
-            .to_thick_boundary(2.0 * road.get_half_width(map), OUTLINE_THICKNESS)
+            .to_thick_boundary(road.get_width(map), OUTLINE_THICKNESS)
             .unwrap(),
     );
 
@@ -446,7 +455,7 @@ fn width_choices(app: &App, l: LaneID) -> Vec<Choice<Distance>> {
         Distance::meters(3.0),
     ];
     let current_width = app.primary.map.get_l(l).width;
-    if choices.iter().any(|x| *x != current_width) {
+    if choices.iter().all(|x| *x != current_width) {
         choices.push(current_width);
         choices.sort();
     }

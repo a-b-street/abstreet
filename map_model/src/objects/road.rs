@@ -294,16 +294,18 @@ impl Road {
     }
 
     pub fn get_half_width(&self, map: &Map) -> Distance {
+        self.get_width(map) / 2.0
+    }
+
+    pub fn get_width(&self, map: &Map) -> Distance {
         self.all_lanes()
             .into_iter()
             .map(|l| map.get_l(l).width)
             .sum::<Distance>()
-            / 2.0
     }
 
     pub fn get_thick_polygon(&self, map: &Map) -> Polygon {
-        self.center_pts
-            .make_polygons(self.get_half_width(map) * 2.0)
+        self.center_pts.make_polygons(self.get_width(map))
     }
 
     /// Creates the thick polygon representing one half of the road. For roads with multipe
