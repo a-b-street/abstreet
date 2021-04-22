@@ -480,7 +480,7 @@ impl ColorScheme {
         cs.unzoomed_arterial = cs.sidewalk;
         cs.unzoomed_residential = cs.driving_lane;
         cs.unzoomed_interesting_intersection = cs.unzoomed_highway;
-        cs.stop_sign = Color::rgb_f(0.67, 0.55, 0.55);
+        cs.stop_sign = hex("#A32015");
         cs.private_road = hex("#9E757F");
         cs.pedestrian_plaza = hex("#94949C").into();
         cs.study_area = hex("#D9B002").into();
