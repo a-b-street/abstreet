@@ -35,6 +35,7 @@ impl ChangeDuration {
                 "Seconds:".text_widget(ctx).centered_vert(),
                 Spinner::widget(
                     ctx,
+                    "duration",
                     (
                         signal.get_min_crossing_time(idx).inner_seconds() as isize,
                         300,
@@ -43,8 +44,7 @@ impl ChangeDuration {
                         .stage_type
                         .simple_duration()
                         .inner_seconds() as isize,
-                )
-                .named("duration"),
+                ),
             ]),
             Line("Minimum time is set by the time required for crosswalk")
                 .secondary()
@@ -67,6 +67,7 @@ impl ChangeDuration {
                     "Seconds:".text_widget(ctx).centered_vert(),
                     Spinner::widget(
                         ctx,
+                        "additional",
                         (0, 300),
                         match signal.stages[idx].stage_type {
                             StageType::Fixed(_) => 0,
@@ -74,21 +75,20 @@ impl ChangeDuration {
                                 additional.inner_seconds() as isize
                             }
                         },
-                    )
-                    .named("additional"),
+                    ),
                 ]),
                 "How long with no demand before the stage ends?".text_widget(ctx),
                 Widget::row(vec![
                     "Seconds:".text_widget(ctx).centered_vert(),
                     Spinner::widget(
                         ctx,
+                        "delay",
                         (0, 300),
                         match signal.stages[idx].stage_type {
                             StageType::Fixed(_) => 0,
                             StageType::Variable(_, delay, _) => delay.inner_seconds() as isize,
                         },
-                    )
-                    .named("delay"),
+                    ),
                 ]),
             ])
             .padding(10)

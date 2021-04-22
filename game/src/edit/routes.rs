@@ -29,7 +29,7 @@ impl RouteEditor {
                 // TODO This UI needs design, just something to start plumbing the edits
                 Widget::row(vec![
                     "Frequency in minutes".text_widget(ctx),
-                    Spinner::widget(ctx, (1, 120), 60).named("freq_mins"),
+                    Spinner::widget(ctx, "freq_mins", (1, 120), 60),
                 ]),
                 ctx.style()
                     .btn_solid_primary

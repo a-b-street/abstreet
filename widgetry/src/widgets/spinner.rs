@@ -16,6 +16,7 @@ pub struct Spinner {
     low: isize,
     high: isize,
     pub current: isize,
+    label: String,
 
     up: Button,
     down: Button,
@@ -27,11 +28,23 @@ pub struct Spinner {
 }
 
 impl Spinner {
-    pub fn widget(ctx: &EventCtx, (low, high): (isize, isize), current: isize) -> Widget {
-        Widget::new(Box::new(Self::new(ctx, (low, high), current)))
+    pub fn widget<S: Into<String>>(
+        ctx: &EventCtx,
+        label: S,
+        (low, high): (isize, isize),
+        current: isize,
+    ) -> Widget {
+        let label = label.into();
+        Widget::new(Box::new(Self::new(
+            ctx,
+            label.clone(),
+            (low, high),
+            current,
+        )))
+        .named(label)
     }
 
-    pub fn new(ctx: &EventCtx, (low, high): (isize, isize), mut current: isize) -> Self {
+    fn new(ctx: &EventCtx, label: String, (low, high): (isize, isize), mut current: isize) -> Self {
         let button_builder = ctx
             .style()
             .btn_plain
@@ -88,6 +101,7 @@ impl Spinner {
             low,
             high,
             current,
+            label,
 
             up,
             down,
