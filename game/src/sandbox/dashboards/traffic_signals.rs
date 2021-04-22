@@ -105,7 +105,7 @@ impl State<App> for TrafficSignalDemand {
                 }
                 _ => unreachable!(),
             },
-            Outcome::Changed => {
+            Outcome::Changed(_) => {
                 changed = true;
             }
             _ => {}

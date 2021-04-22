@@ -158,7 +158,7 @@ impl State<App> for TripTable {
                     unreachable!("unhandled action: {}", x)
                 }
             }
-            Outcome::Changed => {
+            Outcome::Changed(_) => {
                 if let Some(t) = self.tab.transition(ctx, app, &self.panel) {
                     return t;
                 }

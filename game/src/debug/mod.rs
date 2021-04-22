@@ -372,7 +372,7 @@ impl State<App> for DebugMode {
                 }
                 _ => unreachable!(),
             },
-            Outcome::Changed => {
+            Outcome::Changed(_) => {
                 // TODO We should really recalculate current_selection when these change. Meh.
                 self.layers.show_buildings = self.panel.is_checked("show buildings");
                 self.layers.show_intersections = self.panel.is_checked("show intersections");

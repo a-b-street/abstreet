@@ -127,7 +127,7 @@ impl State<App> for PopularDestinations {
                 }
                 _ => unreachable!(),
             },
-            Outcome::Changed => {
+            Outcome::Changed(_) => {
                 return Transition::Replace(PopularDestinations::make(
                     ctx,
                     app,

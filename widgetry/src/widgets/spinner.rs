@@ -28,9 +28,9 @@ pub struct Spinner {
 }
 
 impl Spinner {
-    pub fn widget<S: Into<String>>(
+    pub fn widget(
         ctx: &EventCtx,
-        label: S,
+        label: impl Into<String>,
         (low, high): (isize, isize),
         current: isize,
     ) -> Widget {
@@ -161,7 +161,7 @@ impl WidgetImpl for Spinner {
     fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput) {
         self.up.event(ctx, output);
         if let Outcome::Clicked(_) = output.outcome {
-            output.outcome = Outcome::Changed;
+            output.outcome = Outcome::Changed(self.label.clone());
             self.current = (self.current + 1).min(self.high);
             self.drawable = self.drawable(&ctx.prerender, ctx.style());
             ctx.no_op_event(true, |ctx| self.up.event(ctx, output));
@@ -170,7 +170,7 @@ impl WidgetImpl for Spinner {
 
         self.down.event(ctx, output);
         if let Outcome::Clicked(_) = output.outcome {
-            output.outcome = Outcome::Changed;
+            output.outcome = Outcome::Changed(self.label.clone());
             self.current = (self.current - 1).max(self.low);
             self.drawable = self.drawable(&ctx.prerender, ctx.style());
             ctx.no_op_event(true, |ctx| self.down.event(ctx, output));
@@ -182,12 +182,12 @@ impl WidgetImpl for Spinner {
                 if let Some((_, dy)) = ctx.input.get_mouse_scroll() {
                     if dy > 0.0 && self.current != self.high {
                         self.current += 1;
-                        output.outcome = Outcome::Changed;
+                        output.outcome = Outcome::Changed(self.label.clone());
                         self.drawable = self.drawable(&ctx.prerender, ctx.style());
                     }
                     if dy < 0.0 && self.current != self.low {
                         self.current -= 1;
-                        output.outcome = Outcome::Changed;
+                        output.outcome = Outcome::Changed(self.label.clone());
                         self.drawable = self.drawable(&ctx.prerender, ctx.style());
                     }
                 }

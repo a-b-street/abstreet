@@ -157,7 +157,7 @@ impl Layer for Throughput {
                 }
                 _ => unreachable!(),
             },
-            Outcome::Changed => {
+            Outcome::Changed(_) => {
                 if self
                     .panel
                     .maybe_is_checked("Compare before proposal")
@@ -322,7 +322,7 @@ impl Layer for CompareThroughput {
                 }
                 _ => unreachable!(),
             },
-            Outcome::Changed => {
+            Outcome::Changed(_) => {
                 return Some(LayerOutcome::Replace(Box::new(Throughput::new(
                     ctx,
                     app,

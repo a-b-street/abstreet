@@ -339,7 +339,7 @@ impl State<App> for Viewer {
                     }
                 }
             },
-            Outcome::Changed => {
+            Outcome::Changed(_) => {
                 let b = self.businesses.as_mut().unwrap();
                 // Update state from checkboxes
                 b.show.clear();

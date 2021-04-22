@@ -129,14 +129,14 @@ impl WidgetImpl for TextBox {
                 }
                 Key::Backspace => {
                     if self.cursor_x > 0 {
-                        output.outcome = Outcome::Changed;
+                        output.outcome = Outcome::Changed(self.label.clone());
                         self.line.remove(self.cursor_x - 1);
                         self.cursor_x -= 1;
                     }
                 }
                 _ => {
                     if let Some(c) = key.to_char(ctx.is_key_down(Key::LeftShift)) {
-                        output.outcome = Outcome::Changed;
+                        output.outcome = Outcome::Changed(self.label.clone());
                         self.line.insert(self.cursor_x, c);
                         self.cursor_x += 1;
                     } else {

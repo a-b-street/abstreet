@@ -95,7 +95,7 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
             m.event(ctx, &mut tmp_ouput);
             if let Outcome::Clicked(_) = tmp_ouput.outcome {
                 self.current_idx = self.menu.take().unwrap().take_current_choice();
-                output.outcome = Outcome::Changed;
+                output.outcome = Outcome::Changed(self.label.clone());
                 let top_left = self.btn.top_left;
                 self.btn = make_btn(
                     ctx,

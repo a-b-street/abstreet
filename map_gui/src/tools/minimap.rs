@@ -364,7 +364,7 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
                     }
                 }
             },
-            Outcome::Changed => {
+            Outcome::Changed(_) => {
                 self.controls.panel_changed(ctx, app, &self.panel);
                 if self.panel.has_widget("zorder") {
                     app.mut_draw_map().show_zorder = self.panel.spinner("zorder");
