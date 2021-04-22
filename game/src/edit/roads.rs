@@ -312,10 +312,12 @@ fn make_main_panel(
             ctx.style()
                 .btn_prev()
                 .disabled(idx == 0)
+                .hotkey(Key::LeftArrow)
                 .build_widget(ctx, "move lane left"),
             ctx.style()
                 .btn_next()
                 .disabled(idx == road.lanes_ltr().len() - 1)
+                .hotkey(Key::RightArrow)
                 .build_widget(ctx, "move lane right"),
         ])
     } else {
