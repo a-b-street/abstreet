@@ -933,7 +933,7 @@
         <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">3.0</span>),
     ];
     <span class="kw">let</span> <span class="ident">current_width</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">width</span>;
-    <span class="kw">if</span> <span class="ident">choices</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">!</span><span class="op">=</span> <span class="ident">current_width</span>) {
+    <span class="kw">if</span> <span class="op">!</span><span class="ident">choices</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">current_width</span>) {
         <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">current_width</span>);
         <span class="ident">choices</span>.<span class="ident">sort</span>();
     }
