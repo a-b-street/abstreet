@@ -355,7 +355,7 @@
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="string">&quot;Number of trips:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">1</span>, <span class="number">1000</span>), <span class="number">1</span>).<span class="ident">named</span>(<span class="string">&quot;number&quot;</span>),
+                    <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;number&quot;</span>, (<span class="number">1</span>, <span class="number">1000</span>), <span class="number">1</span>),
                 ]),
                 <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
@@ -459,7 +459,7 @@
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             },
-            <span class="ident">Outcome</span>::<span class="ident">Changed</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Outcome</span>::<span class="ident">Changed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// We need to recalculate the path to see if this is sane. Otherwise we could trick</span>
                 <span class="comment">// a pedestrian into wandering on/off a highway border.</span>
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">goal</span>.<span class="ident">is_some</span>() {

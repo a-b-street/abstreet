@@ -271,9 +271,6 @@
 <span id="268">268</span>
 <span id="269">269</span>
 <span id="270">270</span>
-<span id="271">271</span>
-<span id="272">272</span>
-<span id="273">273</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Histogram</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Statistic</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">Panel</span>, <span class="ident">Spinner</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>};
@@ -318,17 +315,14 @@
             <span class="comment">// TODO Display the value...</span>
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="string">&quot;Resolution (meters)&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">1</span>, <span class="number">100</span>), <span class="self">self</span>.<span class="ident">resolution</span> <span class="kw">as</span> <span class="ident">isize</span>)
-                    .<span class="ident">named</span>(<span class="string">&quot;resolution&quot;</span>)
+                <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;resolution&quot;</span>, (<span class="number">1</span>, <span class="number">100</span>), <span class="self">self</span>.<span class="ident">resolution</span> <span class="kw">as</span> <span class="ident">isize</span>)
                     .<span class="ident">align_right</span>(),
             ]),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="string">&quot;Radius (resolution multiplier)&quot;</span>
                     .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
                     .<span class="ident">centered_vert</span>(),
-                <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">0</span>, <span class="number">10</span>), <span class="self">self</span>.<span class="ident">radius</span> <span class="kw">as</span> <span class="ident">isize</span>)
-                    .<span class="ident">named</span>(<span class="string">&quot;radius&quot;</span>)
-                    .<span class="ident">align_right</span>(),
+                <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;radius&quot;</span>, (<span class="number">0</span>, <span class="number">10</span>), <span class="self">self</span>.<span class="ident">radius</span> <span class="kw">as</span> <span class="ident">isize</span>).<span class="ident">align_right</span>(),
             ]),
             <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;smoothing&quot;</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.<span class="ident">smoothing</span>),
             <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;contours&quot;</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.<span class="ident">contours</span>),

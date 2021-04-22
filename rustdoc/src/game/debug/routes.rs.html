@@ -574,6 +574,18 @@
 <span id="571">571</span>
 <span id="572">572</span>
 <span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -675,7 +687,7 @@
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             },
-            <span class="ident">Outcome</span>::<span class="ident">Changed</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Outcome</span>::<span class="ident">Changed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">recalc_paths</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             }
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
@@ -785,28 +797,40 @@
                 .<span class="ident">margin_right</span>(<span class="number">20</span>),
             <span class="ident">Spinner</span>::<span class="ident">widget</span>(
                 <span class="ident">ctx</span>,
+                <span class="string">&quot;unprotected turn penalty&quot;</span>,
                 (<span class="number">1</span>, <span class="number">100</span>),
                 <span class="ident">params</span>.<span class="ident">unprotected_turn_penalty</span>.<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">isize</span>,
-            )
-            .<span class="ident">named</span>(<span class="string">&quot;unprotected turn penalty&quot;</span>),
+            ),
         ]));
     }
     <span class="kw">if</span> <span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TripMode</span>::<span class="ident">Bike</span> {
         <span class="comment">// TODO Spinners that natively understand a floating point range with a given precision</span>
         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="string">&quot;Bike lane penalty:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
-            <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">0</span>, <span class="number">20</span>), (<span class="ident">params</span>.<span class="ident">bike_lane_penalty</span> <span class="op">*</span> <span class="number">10.0</span>) <span class="kw">as</span> <span class="ident">isize</span>)
-                .<span class="ident">named</span>(<span class="string">&quot;bike lane penalty&quot;</span>),
+            <span class="ident">Spinner</span>::<span class="ident">widget</span>(
+                <span class="ident">ctx</span>,
+                <span class="string">&quot;bike lane penalty&quot;</span>,
+                (<span class="number">0</span>, <span class="number">20</span>),
+                (<span class="ident">params</span>.<span class="ident">bike_lane_penalty</span> <span class="op">*</span> <span class="number">10.0</span>) <span class="kw">as</span> <span class="ident">isize</span>,
+            ),
         ]));
         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="string">&quot;Bus lane penalty:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
-            <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">0</span>, <span class="number">20</span>), (<span class="ident">params</span>.<span class="ident">bus_lane_penalty</span> <span class="op">*</span> <span class="number">10.0</span>) <span class="kw">as</span> <span class="ident">isize</span>)
-                .<span class="ident">named</span>(<span class="string">&quot;bus lane penalty&quot;</span>),
+            <span class="ident">Spinner</span>::<span class="ident">widget</span>(
+                <span class="ident">ctx</span>,
+                <span class="string">&quot;bus lane penalty&quot;</span>,
+                (<span class="number">0</span>, <span class="number">20</span>),
+                (<span class="ident">params</span>.<span class="ident">bus_lane_penalty</span> <span class="op">*</span> <span class="number">10.0</span>) <span class="kw">as</span> <span class="ident">isize</span>,
+            ),
         ]));
         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="string">&quot;Driving lane penalty:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
-            <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">0</span>, <span class="number">20</span>), (<span class="ident">params</span>.<span class="ident">driving_lane_penalty</span> <span class="op">*</span> <span class="number">10.0</span>) <span class="kw">as</span> <span class="ident">isize</span>)
-                .<span class="ident">named</span>(<span class="string">&quot;driving lane penalty&quot;</span>),
+            <span class="ident">Spinner</span>::<span class="ident">widget</span>(
+                <span class="ident">ctx</span>,
+                <span class="string">&quot;driving lane penalty&quot;</span>,
+                (<span class="number">0</span>, <span class="number">20</span>),
+                (<span class="ident">params</span>.<span class="ident">driving_lane_penalty</span> <span class="op">*</span> <span class="number">10.0</span>) <span class="kw">as</span> <span class="ident">isize</span>,
+            ),
         ]));
     }
     <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">rows</span>)

@@ -828,11 +828,6 @@
 <span id="825">825</span>
 <span id="826">826</span>
 <span id="827">827</span>
-<span id="828">828</span>
-<span id="829">829</span>
-<span id="830">830</span>
-<span id="831">831</span>
-<span id="832">832</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -849,7 +844,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">panel</span>::<span class="ident">Panel</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">Button</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">DeferDraw</span>, <span class="ident">Drawable</span>, <span class="ident">Dropdown</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">JustDraw</span>,
-    <span class="ident">OutlineStyle</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">TextBox</span>, <span class="ident">Toggle</span>,
+    <span class="ident">OutlineStyle</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Toggle</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">autocomplete</span>;
@@ -902,13 +897,14 @@
     }
 }
 
+<span class="doccomment">/// The result of a Panel handling an event</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Outcome</span> {
     <span class="doccomment">/// An action was done</span>
     <span class="ident">Clicked</span>(<span class="ident">String</span>),
-    <span class="doccomment">/// A dropdown, checkbox, spinner, etc changed values. Usually this triggers a refresh of</span>
-    <span class="doccomment">/// everything, so not useful to plumb along what changed.</span>
-    <span class="ident">Changed</span>,
+    <span class="doccomment">/// A dropdown, checkbox, spinner, etc changed values. The name of the changed widget is</span>
+    <span class="doccomment">/// returned, but not the value, since its type is generic.</span>
+    <span class="ident">Changed</span>(<span class="ident">String</span>),
     <span class="doccomment">/// Nothing happened</span>
     <span class="ident">Nothing</span>,
 }
@@ -1197,7 +1193,7 @@
 
 <span class="comment">// Convenient?? constructors</span>
 <span class="kw">impl</span> <span class="ident">Widget</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">widget</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">WidgetImpl</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">widget</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">WidgetImpl</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">Widget</span> {
             <span class="ident">widget</span>,
             <span class="ident">layout</span>: <span class="ident">LayoutStyle</span> {
@@ -1215,13 +1211,7 @@
         }
     }
 
-    <span class="comment">// TODO TextBox::widget is a better API</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">text_entry</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">prefilled</span>: <span class="ident">String</span>, <span class="ident">exclusive_focus</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-        <span class="comment">// TODO Hardcoded style, max chars</span>
-        <span class="ident">Widget</span>::<span class="ident">new</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">TextBox</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="number">50</span>, <span class="ident">prefilled</span>, <span class="ident">exclusive_focus</span>)))
-    }
-
-    <span class="comment">// TODO Likewise</span>
+    <span class="comment">// TODO Change this to Dropdown::widget</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dropdown</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span>, <span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
         <span class="ident">label</span>: <span class="ident">I</span>,

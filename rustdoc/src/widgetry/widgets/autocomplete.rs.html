@@ -129,6 +129,15 @@
 <span id="126">126</span>
 <span id="127">127</span>
 <span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">MultiMap</span>;
 
@@ -166,7 +175,13 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">Autocomplete</span> {
             <span class="ident">choices</span>,
 
-            <span class="ident">tb</span>: <span class="ident">TextBox</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="number">50</span>, <span class="ident">String</span>::<span class="ident">new</span>(), <span class="bool-val">true</span>),
+            <span class="ident">tb</span>: <span class="ident">TextBox</span>::<span class="ident">new</span>(
+                <span class="ident">ctx</span>,
+                <span class="string">&quot;autocomplete textbox&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="number">50</span>,
+                <span class="ident">String</span>::<span class="ident">new</span>(),
+                <span class="bool-val">true</span>,
+            ),
             <span class="ident">menu</span>: <span class="ident">Menu</span>::<span class="op">&lt;</span>()<span class="op">&gt;</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">Vec</span>::<span class="ident">new</span>()),
 
             <span class="ident">current_line</span>: <span class="ident">String</span>::<span class="ident">new</span>(),
@@ -222,11 +237,14 @@
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">WidgetOutput</span>) {
         <span class="self">self</span>.<span class="ident">tb</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">output</span>);
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">tb</span>.<span class="ident">get_line</span>() <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">current_line</span> {
+            <span class="comment">// This will return Outcome::Changed to the caller with a dummy ID for the textbox</span>
             <span class="self">self</span>.<span class="ident">current_line</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">tb</span>.<span class="ident">get_line</span>();
             <span class="self">self</span>.<span class="ident">recalc_menu</span>(<span class="ident">ctx</span>);
             <span class="ident">output</span>.<span class="ident">redo_layout</span> <span class="op">=</span> <span class="bool-val">true</span>;
         } <span class="kw">else</span> {
-            <span class="comment">// Don&#39;t let the menu fill out the real outcome.</span>
+            <span class="comment">// Don&#39;t let the menu fill out the real outcome. Should we use Outcome::Changed to</span>
+            <span class="comment">// indicate the autocomplete is finished, instead of the caller polling</span>
+            <span class="comment">// autocomplete_done?</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tmp_output</span> <span class="op">=</span> <span class="ident">WidgetOutput</span>::<span class="ident">new</span>();
             <span class="self">self</span>.<span class="ident">menu</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tmp_output</span>);
             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="kw-2">ref</span> <span class="ident">choice</span>) <span class="op">=</span> <span class="ident">tmp_output</span>.<span class="ident">outcome</span> {

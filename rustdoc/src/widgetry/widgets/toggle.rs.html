@@ -286,6 +286,7 @@
 <span id="283">283</span>
 <span id="284">284</span>
 <span id="285">285</span>
+<span id="286">286</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">svg</span>::<span class="ident">load_svg_bytes</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -560,7 +561,8 @@
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">WidgetOutput</span>) {
         <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">output</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">output</span>.<span class="ident">outcome</span> {
-            <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome</span>::<span class="ident">Changed</span>;
+            <span class="comment">// Both buttons have the same label</span>
+            <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome</span>::<span class="ident">Changed</span>(<span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">action</span>.<span class="ident">clone</span>());
             <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">swap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">btn</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">other_btn</span>);
             <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">set_pos</span>(<span class="self">self</span>.<span class="ident">other_btn</span>.<span class="ident">top_left</span>);
             <span class="self">self</span>.<span class="ident">enabled</span> <span class="op">=</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">enabled</span>;

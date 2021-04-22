@@ -224,7 +224,7 @@
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">inner</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span> {
             <span class="kw">match</span> <span class="ident">inner</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
                 <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-                <span class="ident">Outcome</span>::<span class="ident">Changed</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Outcome</span>::<span class="ident">Changed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="ident">inner</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;play music&quot;</span>) {
                         <span class="kw-2">*</span><span class="ident">play_music</span> <span class="op">=</span> <span class="bool-val">true</span>;
                         <span class="ident">inner</span>.<span class="ident">unmute</span>();

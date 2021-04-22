@@ -644,10 +644,10 @@
                         <span class="ident">Line</span>(<span class="string">&quot;Z-order:&quot;</span>).<span class="ident">small</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                         <span class="ident">Spinner</span>::<span class="ident">widget</span>(
                             <span class="ident">ctx</span>,
+                            <span class="string">&quot;zorder&quot;</span>,
                             <span class="ident">app</span>.<span class="ident">draw_map</span>().<span class="ident">zorder_range</span>,
                             <span class="ident">app</span>.<span class="ident">draw_map</span>().<span class="ident">show_zorder</span>,
-                        )
-                        .<span class="ident">named</span>(<span class="string">&quot;zorder&quot;</span>),
+                        ),
                     ])
                     .<span class="ident">margin_above</span>(<span class="number">10</span>)
                 } <span class="kw">else</span> {
@@ -854,7 +854,7 @@
                     }
                 }
             },
-            <span class="ident">Outcome</span>::<span class="ident">Changed</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Outcome</span>::<span class="ident">Changed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">panel_changed</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">has_widget</span>(<span class="string">&quot;zorder&quot;</span>) {
                     <span class="ident">app</span>.<span class="ident">mut_draw_map</span>().<span class="ident">show_zorder</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;zorder&quot;</span>);

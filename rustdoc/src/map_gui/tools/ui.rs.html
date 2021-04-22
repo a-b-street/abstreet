@@ -214,7 +214,7 @@
 
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">hotkeys</span>, <span class="ident">Choice</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Menu</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
-    <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">Transition</span>, <span class="ident">Widget</span>,
+    <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextBox</span>, <span class="ident">Transition</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tools</span>::<span class="ident">grey_out_map</span>;
@@ -295,7 +295,7 @@
                     <span class="ident">Line</span>(<span class="ident">query</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                 ]),
-                <span class="ident">Widget</span>::<span class="ident">text_entry</span>(<span class="ident">ctx</span>, <span class="ident">initial</span>, <span class="bool-val">true</span>).<span class="ident">named</span>(<span class="string">&quot;input&quot;</span>),
+                <span class="ident">TextBox</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;input&quot;</span>, <span class="ident">initial</span>, <span class="bool-val">true</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_outline</span>
                     .<span class="ident">text</span>(<span class="string">&quot;confirm&quot;</span>)

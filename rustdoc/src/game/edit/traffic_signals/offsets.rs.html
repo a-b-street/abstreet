@@ -308,6 +308,10 @@
 <span id="305">305</span>
 <span id="306">306</span>
 <span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -560,8 +564,12 @@
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="string">&quot;Offset (seconds):&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">0</span>, <span class="number">90</span>), (<span class="ident">offset2</span> <span class="op">-</span> <span class="ident">offset1</span>).<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">isize</span>)
-                    .<span class="ident">named</span>(<span class="string">&quot;offset&quot;</span>),
+                <span class="ident">Spinner</span>::<span class="ident">widget</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="string">&quot;offset&quot;</span>,
+                    (<span class="number">0</span>, <span class="number">90</span>),
+                    (<span class="ident">offset2</span> <span class="op">-</span> <span class="ident">offset1</span>).<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">isize</span>,
+                ),
             ]),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_outline</span>

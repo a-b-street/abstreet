@@ -387,6 +387,10 @@
 <span id="384">384</span>
 <span id="385">385</span>
 <span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">CmdArgs</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">UnitFmt</span>};
@@ -555,8 +559,12 @@
                     ),
                     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="string">&quot;Scroll speed for menus&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                        <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">1</span>, <span class="number">50</span>), <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">gui_scroll_speed</span> <span class="kw">as</span> <span class="ident">isize</span>)
-                            .<span class="ident">named</span>(<span class="string">&quot;gui_scroll_speed&quot;</span>),
+                        <span class="ident">Spinner</span>::<span class="ident">widget</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="string">&quot;gui_scroll_speed&quot;</span>,
+                            (<span class="number">1</span>, <span class="number">50</span>),
+                            <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">gui_scroll_speed</span> <span class="kw">as</span> <span class="ident">isize</span>,
+                        ),
                     ]),
                 ])
                 .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">inner_panel_bg</span>)

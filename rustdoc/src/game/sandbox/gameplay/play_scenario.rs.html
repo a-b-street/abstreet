@@ -776,7 +776,7 @@
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         );
         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">2</span>, <span class="number">14</span>), <span class="number">2</span>).<span class="ident">named</span>(<span class="string">&quot;repeat_days&quot;</span>),
+            <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;repeat_days&quot;</span>, (<span class="number">2</span>, <span class="number">14</span>), <span class="number">2</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_outline</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Repeat schedule multiple days&quot;</span>)
@@ -925,7 +925,7 @@
                     <span class="string">&quot;Percent of people to modify:&quot;</span>
                         .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
                         .<span class="ident">centered_vert</span>(),
-                    <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">1</span>, <span class="number">100</span>), <span class="number">50</span>).<span class="ident">named</span>(<span class="string">&quot;pct_ppl&quot;</span>),
+                    <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;pct_ppl&quot;</span>, (<span class="number">1</span>, <span class="number">100</span>), <span class="number">50</span>),
                 ]),
                 <span class="string">&quot;Types of trips to convert:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">checkbox_per_mode</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="macro">btreeset</span><span class="macro">!</span> { <span class="ident">TripMode</span>::<span class="ident">Drive</span> }),

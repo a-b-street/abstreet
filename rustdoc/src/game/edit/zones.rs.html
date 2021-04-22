@@ -233,6 +233,10 @@
 <span id="230">230</span>
 <span id="231">231</span>
 <span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -295,8 +299,12 @@
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="string">&quot;Limit the number of vehicles passing through per hour (0 = unlimited):&quot;</span>
                         .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">0</span>, <span class="number">1000</span>), <span class="ident">cap_vehicles_per_hour</span>.<span class="ident">unwrap_or</span>(<span class="number">0</span>) <span class="kw">as</span> <span class="ident">isize</span>)
-                        .<span class="ident">named</span>(<span class="string">&quot;cap_vehicles&quot;</span>),
+                    <span class="ident">Spinner</span>::<span class="ident">widget</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="string">&quot;cap_vehicles&quot;</span>,
+                        (<span class="number">0</span>, <span class="number">1000</span>),
+                        <span class="ident">cap_vehicles_per_hour</span>.<span class="ident">unwrap_or</span>(<span class="number">0</span>) <span class="kw">as</span> <span class="ident">isize</span>,
+                    ),
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
@@ -387,7 +395,7 @@
                     }
                 }
             },
-            <span class="ident">Outcome</span>::<span class="ident">Changed</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Outcome</span>::<span class="ident">Changed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_allow_through_traffic</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
                 <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="ident">TripMode</span>::<span class="ident">all</span>() {
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="ident">m</span>.<span class="ident">ongoing_verb</span>()) {

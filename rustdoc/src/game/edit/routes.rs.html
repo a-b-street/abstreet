@@ -119,7 +119,7 @@
                 <span class="comment">// TODO This UI needs design, just something to start plumbing the edits</span>
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="string">&quot;Frequency in minutes&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, (<span class="number">1</span>, <span class="number">120</span>), <span class="number">60</span>).<span class="ident">named</span>(<span class="string">&quot;freq_mins&quot;</span>),
+                    <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;freq_mins&quot;</span>, (<span class="number">1</span>, <span class="number">120</span>), <span class="number">60</span>),
                 ]),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_solid_primary</span>

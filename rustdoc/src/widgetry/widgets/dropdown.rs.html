@@ -302,7 +302,7 @@
             <span class="ident">m</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tmp_ouput</span>);
             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">tmp_ouput</span>.<span class="ident">outcome</span> {
                 <span class="self">self</span>.<span class="ident">current_idx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">menu</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>().<span class="ident">take_current_choice</span>();
-                <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome</span>::<span class="ident">Changed</span>;
+                <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome</span>::<span class="ident">Changed</span>(<span class="self">self</span>.<span class="ident">label</span>.<span class="ident">clone</span>());
                 <span class="kw">let</span> <span class="ident">top_left</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">top_left</span>;
                 <span class="self">self</span>.<span class="ident">btn</span> <span class="op">=</span> <span class="ident">make_btn</span>(
                     <span class="ident">ctx</span>,

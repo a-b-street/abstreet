@@ -432,7 +432,7 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">BuildingID</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
-    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextBox</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
@@ -509,7 +509,7 @@
                     ]),
                     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="string">&quot;Key=value filter:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                        <span class="ident">Widget</span>::<span class="ident">text_entry</span>(<span class="ident">ctx</span>, <span class="ident">String</span>::<span class="ident">new</span>(), <span class="bool-val">false</span>).<span class="ident">named</span>(<span class="string">&quot;filter&quot;</span>),
+                        <span class="ident">TextBox</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;filter&quot;</span>, <span class="ident">String</span>::<span class="ident">new</span>(), <span class="bool-val">false</span>),
                     ]),
                     <span class="string">&quot;Query matches 0 objects&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;matches&quot;</span>),
                 ]))
@@ -588,7 +588,7 @@
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             },
-            <span class="ident">Outcome</span>::<span class="ident">Changed</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Outcome</span>::<span class="ident">Changed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">query</span>: <span class="ident">String</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;query&quot;</span>);
                 <span class="kw">let</span> <span class="ident">filter</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">text_box</span>(<span class="string">&quot;filter&quot;</span>);
                 <span class="kw">if</span> <span class="ident">query</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;None&quot;</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">filter</span>.<span class="ident">is_empty</span>() {

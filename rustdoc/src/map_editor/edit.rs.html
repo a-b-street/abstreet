@@ -239,25 +239,25 @@
                 <span class="string">&quot;lanes:forward&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
                 <span class="ident">Spinner</span>::<span class="ident">widget</span>(
                     <span class="ident">ctx</span>,
+                    <span class="string">&quot;lanes:forward&quot;</span>,
                     (<span class="number">1</span>, <span class="number">5</span>),
                     <span class="ident">road</span>.<span class="ident">osm_tags</span>
                         .<span class="ident">get</span>(<span class="string">&quot;lanes:forward&quot;</span>)
                         .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">isize</span><span class="op">&gt;</span>().<span class="ident">ok</span>())
                         .<span class="ident">unwrap_or</span>(<span class="number">1</span>),
-                )
-                .<span class="ident">named</span>(<span class="string">&quot;lanes:forward&quot;</span>),
+                ),
             ]),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="string">&quot;lanes:backward&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
                 <span class="ident">Spinner</span>::<span class="ident">widget</span>(
                     <span class="ident">ctx</span>,
+                    <span class="string">&quot;lanes:backward&quot;</span>,
                     (<span class="number">0</span>, <span class="number">5</span>),
                     <span class="ident">road</span>.<span class="ident">osm_tags</span>
                         .<span class="ident">get</span>(<span class="string">&quot;lanes:backward&quot;</span>)
                         .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">isize</span><span class="op">&gt;</span>().<span class="ident">ok</span>())
                         .<span class="ident">unwrap_or</span>(<span class="number">1</span>),
-                )
-                .<span class="ident">named</span>(<span class="string">&quot;lanes:backward&quot;</span>),
+                ),
             ]),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="string">&quot;sidewalk&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
