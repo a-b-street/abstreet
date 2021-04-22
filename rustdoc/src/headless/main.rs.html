@@ -1136,7 +1136,7 @@
             <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
             <span class="ident">geometry</span>: <span class="prelude-val">Some</span>(
                 <span class="ident">r</span>.<span class="ident">center_pts</span>
-                    .<span class="ident">to_thick_ring</span>(<span class="number">2.0</span> <span class="op">*</span> <span class="ident">r</span>.<span class="ident">get_half_width</span>(<span class="ident">map</span>))
+                    .<span class="ident">to_thick_ring</span>(<span class="ident">r</span>.<span class="ident">get_width</span>(<span class="ident">map</span>))
                     .<span class="ident">translate</span>(<span class="op">-</span><span class="ident">center</span>.<span class="ident">x</span>(), <span class="op">-</span><span class="ident">center</span>.<span class="ident">y</span>())
                     .<span class="ident">to_geojson</span>(<span class="prelude-val">None</span>),
             ),
@@ -1179,7 +1179,7 @@
             <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
             <span class="ident">geometry</span>: <span class="prelude-val">Some</span>(
                 <span class="ident">r</span>.<span class="ident">center_pts</span>
-                    .<span class="ident">to_thick_ring</span>(<span class="number">2.0</span> <span class="op">*</span> <span class="ident">r</span>.<span class="ident">get_half_width</span>(<span class="ident">map</span>))
+                    .<span class="ident">to_thick_ring</span>(<span class="ident">r</span>.<span class="ident">get_width</span>(<span class="ident">map</span>))
                     .<span class="ident">to_geojson</span>(<span class="ident">gps_bounds</span>),
             ),
             <span class="ident">id</span>: <span class="prelude-val">None</span>,

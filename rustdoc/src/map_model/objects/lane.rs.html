@@ -376,6 +376,21 @@
 <span id="373">373</span>
 <span id="374">374</span>
 <span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -482,6 +497,21 @@
             <span class="ident">LaneType</span>::<span class="ident">SharedLeftTurn</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;left-turn lane&quot;</span>,
             <span class="ident">LaneType</span>::<span class="ident">Construction</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;construction&quot;</span>,
             <span class="ident">LaneType</span>::<span class="ident">LightRail</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;light rail track&quot;</span>,
+        }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_short_name</span>(<span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneType</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="ident">x</span> {
+            <span class="string">&quot;driving lane&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Driving</span>),
+            <span class="string">&quot;bike lane&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>),
+            <span class="string">&quot;bus lane&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Bus</span>),
+            <span class="string">&quot;parking lane&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Parking</span>),
+            <span class="string">&quot;sidewalk&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Sidewalk</span>),
+            <span class="string">&quot;shoulder&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Shoulder</span>),
+            <span class="string">&quot;left-turn lane&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">SharedLeftTurn</span>),
+            <span class="string">&quot;construction&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">Construction</span>),
+            <span class="string">&quot;light rail track&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">LaneType</span>::<span class="ident">LightRail</span>),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
 }

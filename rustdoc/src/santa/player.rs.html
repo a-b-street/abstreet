@@ -303,7 +303,6 @@
 <span id="300">300</span>
 <span id="301">301</span>
 <span id="302">302</span>
-<span id="303">303</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -458,8 +457,7 @@
                             <span class="ident">On</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>().<span class="ident">into_ring</span>(),
                             <span class="ident">On</span>::<span class="ident">Road</span>(<span class="ident">r</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                                 <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
-                                <span class="ident">road</span>.<span class="ident">center_pts</span>
-                                    .<span class="ident">to_thick_ring</span>(<span class="number">2.0</span> <span class="op">*</span> <span class="ident">road</span>.<span class="ident">get_half_width</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>))
+                                <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">to_thick_ring</span>(<span class="ident">road</span>.<span class="ident">get_width</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>))
                             }
                         };
                         <span class="comment">// TODO Brittle order, but should be the first from the PolyLine&#39;s</span>

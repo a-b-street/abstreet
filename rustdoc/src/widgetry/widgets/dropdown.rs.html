@@ -263,7 +263,6 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">Dropdown</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">open_menu</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) {
-        <span class="comment">// TODO set current idx in menu</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">menu</span> <span class="op">=</span> <span class="ident">Menu</span>::<span class="ident">new</span>(
             <span class="ident">ctx</span>,
             <span class="self">self</span>.<span class="ident">choices</span>
@@ -272,6 +271,7 @@
                 .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">idx</span>, <span class="ident">c</span>)<span class="op">|</span> <span class="ident">c</span>.<span class="ident">with_value</span>(<span class="ident">idx</span>))
                 .<span class="ident">collect</span>(),
         );
+        <span class="ident">menu</span>.<span class="ident">set_current</span>(<span class="self">self</span>.<span class="ident">current_idx</span>);
         <span class="kw">let</span> <span class="ident">y1_below</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">top_left</span>.<span class="ident">y</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">dims</span>.<span class="ident">height</span> <span class="op">+</span> <span class="number">15.0</span>;
 
         <span class="ident">menu</span>.<span class="ident">set_pos</span>(<span class="ident">ScreenPt</span>::<span class="ident">new</span>(

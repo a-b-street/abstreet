@@ -911,6 +911,8 @@
 <span id="908">908</span>
 <span id="909">909</span>
 <span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Once a Map exists, the player can edit it in the UI (producing `MapEdits` in-memory), then save</span>
 <span class="doccomment">//! the changes to a file (as `PermanentMapEdits`). See</span>
@@ -1362,11 +1364,16 @@
 }
 
 <span class="kw">fn</span> <span class="ident">modify_lanes</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Map</span>, <span class="ident">r</span>: <span class="ident">RoadID</span>, <span class="ident">lanes_ltr</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span>, <span class="ident">effects</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EditEffects</span>) {
+    <span class="kw">let</span> <span class="ident">new_width</span> <span class="op">=</span> <span class="ident">lanes_ltr</span>
+        .<span class="ident">iter</span>()
+        .<span class="ident">fold</span>(<span class="ident">Distance</span>::<span class="ident">ZERO</span>, <span class="op">|</span><span class="ident">sum</span>, <span class="ident">x</span><span class="op">|</span> <span class="ident">sum</span> <span class="op">+</span> <span class="ident">x</span>.<span class="ident">width</span>);
+    <span class="kw">let</span> <span class="ident">old_width</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">get_width</span>(<span class="ident">map</span>);
+
     <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>.<span class="ident">roads</span>[<span class="ident">r</span>.<span class="number">0</span>];
 
     <span class="comment">// TODO Widening roads is still experimental. If we&#39;re just modifying lane types, preserve</span>
     <span class="comment">// LaneIDs.</span>
-    <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">lanes_ltr</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">lanes_ltr</span>.<span class="ident">len</span>() {
+    <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">lanes_ltr</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">lanes_ltr</span>.<span class="ident">len</span>() <span class="op">&amp;&amp;</span> <span class="ident">old_width</span> <span class="op">=</span><span class="op">=</span> <span class="ident">new_width</span> {
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">spec</span>) <span class="kw">in</span> <span class="ident">lanes_ltr</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
             <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">lanes</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="number">0</span>).<span class="ident">unwrap</span>();
             <span class="ident">road</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="number">2</span> <span class="op">=</span> <span class="ident">spec</span>.<span class="ident">lt</span>;
@@ -1379,9 +1386,6 @@
                 <span class="ident">lane</span>.<span class="ident">lane_center_pts</span> <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>.<span class="ident">reversed</span>();
                 <span class="ident">lane</span>.<span class="ident">dir</span> <span class="op">=</span> <span class="ident">spec</span>.<span class="ident">dir</span>;
             }
-
-            <span class="comment">// TODO If width is changing and the number of lanes isn&#39;t, we&#39;ll ignore the width</span>
-            <span class="comment">// change. Don&#39;t use this old code-path for that!</span>
         }
         <span class="kw">return</span>;
     }
