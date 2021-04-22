@@ -2,24 +2,51 @@ use geom::{Distance, Polygon};
 
 use crate::{
     text, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, ScreenDims, ScreenPt,
-    ScreenRectangle, Style, Text, WidgetImpl, WidgetOutput,
+    ScreenRectangle, Style, Text, Widget, WidgetImpl, WidgetOutput,
 };
 
 // TODO right now, only a single line
 
 pub struct TextBox {
     line: String,
+    label: String,
     cursor_x: usize,
     has_focus: bool,
     hovering: bool,
     autofocus: bool,
     padding: EdgeInsets,
+
     top_left: ScreenPt,
     dims: ScreenDims,
 }
 
 impl TextBox {
-    pub fn new(ctx: &EventCtx, max_chars: usize, prefilled: String, autofocus: bool) -> TextBox {
+    pub fn widget<I: Into<String>>(
+        ctx: &EventCtx,
+        label: I,
+        prefilled: String,
+        autofocus: bool,
+    ) -> Widget {
+        // Hardcoded for all callers
+        let max_chars = 50;
+        let label = label.into();
+        Widget::new(Box::new(TextBox::new(
+            ctx,
+            label.clone(),
+            max_chars,
+            prefilled,
+            autofocus,
+        )))
+        .named(label)
+    }
+
+    pub(crate) fn new(
+        ctx: &EventCtx,
+        label: String,
+        max_chars: usize,
+        prefilled: String,
+        autofocus: bool,
+    ) -> TextBox {
         let padding = EdgeInsets {
             top: 6.0,
             left: 8.0,
@@ -27,6 +54,7 @@ impl TextBox {
             right: 8.0,
         };
         TextBox {
+            label,
             cursor_x: prefilled.len(),
             line: prefilled,
             has_focus: false,
