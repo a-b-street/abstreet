@@ -151,8 +151,7 @@ impl Player {
                             On::Intersection(i) => app.map.get_i(i).polygon.clone().into_ring(),
                             On::Road(r, _, _) => {
                                 let road = app.map.get_r(r);
-                                road.center_pts
-                                    .to_thick_ring(2.0 * road.get_half_width(&app.map))
+                                road.center_pts.to_thick_ring(road.get_width(&app.map))
                             }
                         };
                         // TODO Brittle order, but should be the first from the PolyLine's

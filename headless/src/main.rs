@@ -536,7 +536,7 @@ fn export_geometry(map: &Map, i: IntersectionID) -> geojson::GeoJson {
             bbox: None,
             geometry: Some(
                 r.center_pts
-                    .to_thick_ring(2.0 * r.get_half_width(map))
+                    .to_thick_ring(r.get_width(map))
                     .translate(-center.x(), -center.y())
                     .to_geojson(None),
             ),
@@ -579,7 +579,7 @@ fn export_all_geometry(map: &Map) -> geojson::GeoJson {
             bbox: None,
             geometry: Some(
                 r.center_pts
-                    .to_thick_ring(2.0 * r.get_half_width(map))
+                    .to_thick_ring(r.get_width(map))
                     .to_geojson(gps_bounds),
             ),
             id: None,

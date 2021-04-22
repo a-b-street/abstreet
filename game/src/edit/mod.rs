@@ -737,7 +737,7 @@ pub fn speed_limit_choices(app: &App, preset: Option<Speed>) -> Vec<Choice<Speed
         .map(|mph| Speed::miles_per_hour(mph as f64))
         .collect::<Vec<_>>();
     if let Some(preset) = preset {
-        if !speeds.iter().any(|x| *x == preset) {
+        if !speeds.iter().all(|x| *x == preset) {
             speeds.push(preset);
             speeds.sort();
         }
