@@ -35,25 +35,25 @@ impl EditRoad {
                 "lanes:forward".text_widget(ctx).margin_right(20),
                 Spinner::widget(
                     ctx,
+                    "lanes:forward",
                     (1, 5),
                     road.osm_tags
                         .get("lanes:forward")
                         .and_then(|x| x.parse::<isize>().ok())
                         .unwrap_or(1),
-                )
-                .named("lanes:forward"),
+                ),
             ]),
             Widget::row(vec![
                 "lanes:backward".text_widget(ctx).margin_right(20),
                 Spinner::widget(
                     ctx,
+                    "lanes:backward",
                     (0, 5),
                     road.osm_tags
                         .get("lanes:backward")
                         .and_then(|x| x.parse::<isize>().ok())
                         .unwrap_or(1),
-                )
-                .named("lanes:backward"),
+                ),
             ]),
             Widget::row(vec![
                 "sidewalk".text_widget(ctx).margin_right(20),

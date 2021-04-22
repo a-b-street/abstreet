@@ -56,7 +56,7 @@ impl TrafficSignalDemand {
                 .into_widget(ctx),
                 Widget::row(vec![
                     "Hour:".text_widget(ctx),
-                    Spinner::widget(ctx, (0, 24), 7).named("hour"),
+                    Spinner::widget(ctx, "hour", (0, 24), 7),
                 ]),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)

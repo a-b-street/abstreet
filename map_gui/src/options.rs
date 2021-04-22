@@ -165,8 +165,12 @@ impl OptionsPanel {
                     ),
                     Widget::row(vec![
                         "Scroll speed for menus".text_widget(ctx).centered_vert(),
-                        Spinner::widget(ctx, (1, 50), ctx.canvas.gui_scroll_speed as isize)
-                            .named("gui_scroll_speed"),
+                        Spinner::widget(
+                            ctx,
+                            "gui_scroll_speed",
+                            (1, 50),
+                            ctx.canvas.gui_scroll_speed as isize,
+                        ),
                     ]),
                 ])
                 .bg(app.cs().inner_panel_bg)

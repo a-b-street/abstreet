@@ -50,7 +50,7 @@ impl AgentSpawner {
                 ]),
                 Widget::row(vec![
                     "Number of trips:".text_widget(ctx),
-                    Spinner::widget(ctx, (1, 1000), 1).named("number"),
+                    Spinner::widget(ctx, "number", (1, 1000), 1),
                 ]),
                 if app.opts.dev {
                     ctx.style()

@@ -41,17 +41,14 @@ impl HeatmapOptions {
             // TODO Display the value...
             Widget::row(vec![
                 "Resolution (meters)".text_widget(ctx).centered_vert(),
-                Spinner::widget(ctx, (1, 100), self.resolution as isize)
-                    .named("resolution")
+                Spinner::widget(ctx, "resolution", (1, 100), self.resolution as isize)
                     .align_right(),
             ]),
             Widget::row(vec![
                 "Radius (resolution multiplier)"
                     .text_widget(ctx)
                     .centered_vert(),
-                Spinner::widget(ctx, (0, 10), self.radius as isize)
-                    .named("radius")
-                    .align_right(),
+                Spinner::widget(ctx, "radius", (0, 10), self.radius as isize).align_right(),
             ]),
             Toggle::switch(ctx, "smoothing", None, self.smoothing),
             Toggle::switch(ctx, "contours", None, self.contours),

@@ -154,10 +154,10 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
                         Line("Z-order:").small().into_widget(ctx),
                         Spinner::widget(
                             ctx,
+                            "zorder",
                             app.draw_map().zorder_range,
                             app.draw_map().show_zorder,
-                        )
-                        .named("zorder"),
+                        ),
                     ])
                     .margin_above(10)
                 } else {

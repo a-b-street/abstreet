@@ -249,8 +249,12 @@ impl TuneRelative {
             .into_widget(ctx),
             Widget::row(vec![
                 "Offset (seconds):".text_widget(ctx),
-                Spinner::widget(ctx, (0, 90), (offset2 - offset1).inner_seconds() as isize)
-                    .named("offset"),
+                Spinner::widget(
+                    ctx,
+                    "offset",
+                    (0, 90),
+                    (offset2 - offset1).inner_seconds() as isize,
+                ),
             ]),
             ctx.style()
                 .btn_outline
