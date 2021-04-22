@@ -9,7 +9,7 @@ use map_gui::ID;
 use map_model::{EditCmd, IntersectionID, LaneID, LaneType, MapEdits};
 use widgetry::{
     lctrl, Choice, Color, ControlState, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Image,
-    Key, Line, Menu, Outcome, Panel, State, Text, TextExt, VerticalAlignment, Widget,
+    Key, Line, Menu, Outcome, Panel, State, Text, TextBox, TextExt, VerticalAlignment, Widget,
 };
 
 pub use self::lanes::LaneEditor;
@@ -394,7 +394,7 @@ impl SaveEdits {
                 Line(title).small_heading().into_widget(ctx),
                 Widget::row(vec![
                     "Name:".text_widget(ctx).centered_vert(),
-                    Widget::text_entry(ctx, initial_name, true).named("filename"),
+                    TextBox::widget(ctx, "filename", initial_name, true),
                 ]),
                 // TODO Want this to always consistently be one line high, but it isn't for a blank
                 // line

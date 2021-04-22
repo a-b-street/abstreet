@@ -5,8 +5,8 @@ use map_gui::render::DrawOptions;
 use map_gui::tools::{ChooseSomething, PromptInput};
 use widgetry::{
     lctrl, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, Text, VerticalAlignment,
-    Widget,
+    HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, Text, TextBox,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::{App, ShowEverything, Transition};
@@ -483,7 +483,7 @@ impl Marker {
                 ctx.style().btn_close_widget(ctx),
             ]),
             ctx.style().btn_outline.text("delete").build_def(ctx),
-            Widget::text_entry(ctx, self.event.clone(), true).named("event"),
+            TextBox::widget(ctx, "event", self.event.clone(), true),
             ctx.style()
                 .btn_outline
                 .text("confirm")

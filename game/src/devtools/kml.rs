@@ -12,7 +12,7 @@ use map_gui::tools::{ChooseSomething, PopupMsg};
 use map_model::BuildingID;
 use widgetry::{
     lctrl, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, State, Text, TextExt, VerticalAlignment, Widget,
+    Outcome, Panel, State, Text, TextBox, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -89,7 +89,7 @@ impl ViewKML {
                     ]),
                     Widget::row(vec![
                         "Key=value filter:".text_widget(ctx),
-                        Widget::text_entry(ctx, String::new(), false).named("filter"),
+                        TextBox::widget(ctx, "filter", String::new(), false),
                     ]),
                     "Query matches 0 objects".text_widget(ctx).named("matches"),
                 ]))

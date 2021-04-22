@@ -13,7 +13,7 @@ use crate::widgets::containers::{Container, Nothing};
 pub use crate::widgets::panel::Panel;
 use crate::{
     Button, Choice, Color, DeferDraw, Drawable, Dropdown, EventCtx, GeomBatch, GfxCtx, JustDraw,
-    OutlineStyle, ScreenDims, ScreenPt, ScreenRectangle, TextBox, Toggle,
+    OutlineStyle, ScreenDims, ScreenPt, ScreenRectangle, Toggle,
 };
 
 pub mod autocomplete;
@@ -361,7 +361,7 @@ impl Widget {
 
 // Convenient?? constructors
 impl Widget {
-    pub fn new(widget: Box<dyn WidgetImpl>) -> Widget {
+    pub(crate) fn new(widget: Box<dyn WidgetImpl>) -> Widget {
         Widget {
             widget,
             layout: LayoutStyle {
@@ -379,13 +379,7 @@ impl Widget {
         }
     }
 
-    // TODO TextBox::widget is a better API
-    pub fn text_entry(ctx: &EventCtx, prefilled: String, exclusive_focus: bool) -> Widget {
-        // TODO Hardcoded style, max chars
-        Widget::new(Box::new(TextBox::new(ctx, 50, prefilled, exclusive_focus)))
-    }
-
-    // TODO Likewise
+    // TODO Change this to Dropdown::widget
     pub fn dropdown<T: 'static + PartialEq + Clone + std::fmt::Debug, I: AsRef<str>>(
         ctx: &EventCtx,
         label: I,

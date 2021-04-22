@@ -34,7 +34,13 @@ impl<T: 'static + Clone + Ord> Autocomplete<T> {
         let mut a = Autocomplete {
             choices,
 
-            tb: TextBox::new(ctx, 50, String::new(), true),
+            tb: TextBox::new(
+                ctx,
+                "autocomplete textbox".to_string(),
+                50,
+                String::new(),
+                true,
+            ),
             menu: Menu::<()>::new(ctx, Vec::new()),
 
             current_line: String::new(),
@@ -90,11 +96,14 @@ impl<T: 'static + Clone> WidgetImpl for Autocomplete<T> {
     fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput) {
         self.tb.event(ctx, output);
         if self.tb.get_line() != self.current_line {
+            // This will return Outcome::Changed to the caller with a dummy ID for the textbox
             self.current_line = self.tb.get_line();
             self.recalc_menu(ctx);
             output.redo_layout = true;
         } else {
-            // Don't let the menu fill out the real outcome.
+            // Don't let the menu fill out the real outcome. Should we use Outcome::Changed to
+            // indicate the autocomplete is finished, instead of the caller polling
+            // autocomplete_done?
             let mut tmp_output = WidgetOutput::new();
             self.menu.event(ctx, &mut tmp_output);
             if let Outcome::Clicked(ref choice) = tmp_output.outcome {
