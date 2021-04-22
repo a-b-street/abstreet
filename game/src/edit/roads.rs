@@ -457,7 +457,7 @@ fn width_choices(app: &App, l: LaneID) -> Vec<Choice<Distance>> {
         Distance::meters(3.0),
     ];
     let current_width = app.primary.map.get_l(l).width;
-    if choices.iter().all(|x| *x != current_width) {
+    if !choices.contains(&current_width) {
         choices.push(current_width);
         choices.sort();
     }
