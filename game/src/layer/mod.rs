@@ -227,7 +227,7 @@ impl State<App> for PickLayer {
                     app.primary.layer = Some(Box::new(problems::ProblemMap::new(
                         ctx,
                         app,
-                        problems::Options::new(),
+                        problems::Options::new(app),
                     )));
                 }
                 "throughput" => {

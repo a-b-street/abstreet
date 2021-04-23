@@ -409,7 +409,7 @@ fn describe_problems(
         let mut count_large_intersections = 0;
         let mut count_overtakes = 0;
         let empty = Vec::new();
-        for problem in analytics.problems_per_trip.get(&id).unwrap_or(&empty) {
+        for (_, problem) in analytics.problems_per_trip.get(&id).unwrap_or(&empty) {
             match problem {
                 Problem::LargeIntersectionCrossing(_) => {
                     count_large_intersections += 1;
@@ -456,7 +456,7 @@ fn describe_problems(
 fn draw_problems(ctx: &EventCtx, app: &App, details: &mut Details, id: TripID) {
     let map = &app.primary.map;
     let empty = Vec::new();
-    for problem in app
+    for (_, problem) in app
         .primary
         .sim
         .get_analytics()

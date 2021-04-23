@@ -1,9 +1,13 @@
 use std::collections::BTreeSet;
 
+use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Pt2D, Time};
 use map_gui::tools::{make_heatmap, HeatmapOptions};
 use sim::{Problem, TripInfo, TripMode};
-use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Outcome, Panel, Toggle, Widget};
+use widgetry::{
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Panel, Slider, Text, TextExt,
+    Toggle, Widget,
+};
 
 use crate::app::App;
 use crate::common::checkbox_per_mode;
@@ -35,7 +39,7 @@ impl Layer for ProblemMap {
                 _ => unreachable!(),
             },
             _ => {
-                let new_opts = self.options();
+                let new_opts = self.options(app);
                 if self.opts != new_opts {
                     *self = ProblemMap::new(ctx, app, new_opts);
                 }
@@ -58,8 +62,8 @@ impl ProblemMap {
     pub fn new(ctx: &mut EventCtx, app: &App, opts: Options) -> ProblemMap {
         let mut pts = Vec::new();
         for (trip, problems) in &app.primary.sim.get_analytics().problems_per_trip {
-            for problem in problems {
-                if opts.show(app.primary.sim.trip_info(*trip), problem) {
+            for (time, problem) in problems {
+                if opts.show(app.primary.sim.trip_info(*trip), *time, problem) {
                     pts.push(match problem {
                         Problem::IntersectionDelay(i, _)
                         | Problem::LargeIntersectionCrossing(i) => {
@@ -70,6 +74,7 @@ impl ProblemMap {
                 }
             }
         }
+        let num_pts = pts.len();
 
         let mut batch = GeomBatch::new();
         let legend = if let Some(ref o) = opts.heatmap {
@@ -84,11 +89,11 @@ impl ProblemMap {
             let circle = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(10.0)).to_polygon();
             // TODO Different colors per problem type
             for pt in pts {
-                batch.push(Color::RED.alpha(0.8), circle.translate(pt.x(), pt.y()));
+                batch.push(Color::PURPLE.alpha(0.8), circle.translate(pt.x(), pt.y()));
             }
             None
         };
-        let controls = make_controls(ctx, app, &opts, legend);
+        let controls = make_controls(ctx, app, &opts, legend, num_pts);
         ProblemMap {
             time: app.primary.sim.time(),
             opts,
@@ -97,7 +102,7 @@ impl ProblemMap {
         }
     }
 
-    fn options(&self) -> Options {
+    fn options(&self, app: &App) -> Options {
         let heatmap = if self.panel.is_checked("Show heatmap") {
             Some(HeatmapOptions::from_controls(&self.panel))
         } else {
@@ -109,9 +114,12 @@ impl ProblemMap {
                 modes.insert(m);
             }
         }
+        let end_of_day = app.primary.sim.get_end_of_day();
         Options {
             heatmap,
             modes,
+            time1: end_of_day.percent_of(self.panel.slider("time1").get_percent()),
+            time2: end_of_day.percent_of(self.panel.slider("time2").get_percent()),
             show_delays: self.panel.is_checked("show delays"),
             show_large_crossings: self
                 .panel
@@ -128,6 +136,8 @@ pub struct Options {
     // If None, just a dot map
     heatmap: Option<HeatmapOptions>,
     modes: BTreeSet<TripMode>,
+    time1: Time,
+    time2: Time,
     show_delays: bool,
     show_large_crossings: bool,
     show_overtakes: bool,
@@ -135,18 +145,20 @@ pub struct Options {
 }
 
 impl Options {
-    pub fn new() -> Options {
+    pub fn new(app: &App) -> Options {
         Options {
-            heatmap: None,
+            heatmap: Some(HeatmapOptions::new()),
             modes: TripMode::all().into_iter().collect(),
+            time1: Time::START_OF_DAY,
+            time2: app.primary.sim.get_end_of_day(),
             show_delays: true,
             show_large_crossings: true,
             show_overtakes: true,
         }
     }
 
-    fn show(&self, trip: TripInfo, problem: &Problem) -> bool {
-        if !self.modes.contains(&trip.mode) {
+    fn show(&self, trip: TripInfo, time: Time, problem: &Problem) -> bool {
+        if !self.modes.contains(&trip.mode) || time < self.time1 || time > self.time2 {
             return false;
         }
         match problem {
@@ -157,9 +169,43 @@ impl Options {
     }
 }
 
-fn make_controls(ctx: &mut EventCtx, app: &App, opts: &Options, legend: Option<Widget>) -> Panel {
-    let mut col = vec![header(ctx, "Problems encountered")];
+fn make_controls(
+    ctx: &mut EventCtx,
+    app: &App,
+    opts: &Options,
+    legend: Option<Widget>,
+    num_problems: usize,
+) -> Panel {
+    let mut col = vec![
+        header(ctx, "Problems encountered"),
+        Text::from_all(vec![
+            Line("Matching problems: ").secondary(),
+            Line(prettyprint_usize(num_problems)),
+        ])
+        .into_widget(ctx),
+    ];
 
+    // TODO You can't drag the sliders, since we don't remember that we're dragging a particular
+    // slider when we recreate it here. Use panel.replace?
+    let end_of_day = app.primary.sim.get_end_of_day();
+    col.push(Widget::row(vec![
+        "Happening between:".text_widget(ctx).margin_right(20),
+        Slider::area(
+            ctx,
+            0.15 * ctx.canvas.window_width,
+            opts.time1.to_percent(end_of_day),
+        )
+        .named("time1"),
+    ]));
+    col.push(Widget::row(vec![
+        "and:".text_widget(ctx).margin_right(20),
+        Slider::area(
+            ctx,
+            0.15 * ctx.canvas.window_width,
+            opts.time2.to_percent(end_of_day),
+        )
+        .named("time2"),
+    ]));
     col.push(checkbox_per_mode(ctx, app, &opts.modes));
     col.push(Toggle::checkbox(ctx, "show delays", None, opts.show_delays));
     col.push(Toggle::checkbox(

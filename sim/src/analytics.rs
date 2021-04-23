@@ -45,7 +45,7 @@ pub struct Analytics {
     pub finished_trips: Vec<(Time, TripID, TripMode, Option<Duration>)>,
 
     /// Record different problems that each trip encounters.
-    pub problems_per_trip: BTreeMap<TripID, Vec<Problem>>,
+    pub problems_per_trip: BTreeMap<TripID, Vec<(Time, Problem)>>,
 
     // TODO This subsumes finished_trips
     pub trip_log: Vec<(Time, TripID, Option<PathRequest>, TripPhaseType)>,
@@ -205,7 +205,7 @@ impl Analytics {
                 self.problems_per_trip
                     .entry(trip_id)
                     .or_insert_with(Vec::new)
-                    .push(Problem::IntersectionDelay(turn_id.parent, delay));
+                    .push((time, Problem::IntersectionDelay(turn_id.parent, delay)));
             }
 
             // SharedSidewalkCorner are always no-conflict, immediate turns; they're not
@@ -258,7 +258,7 @@ impl Analytics {
                 self.problems_per_trip
                     .entry(trip)
                     .or_insert_with(Vec::new)
-                    .push(Problem::LargeIntersectionCrossing(t.parent));
+                    .push((time, Problem::LargeIntersectionCrossing(t.parent)));
             }
         }
 
@@ -285,7 +285,7 @@ impl Analytics {
                 self.problems_per_trip
                     .entry(trip)
                     .or_insert_with(Vec::new)
-                    .push(problem);
+                    .push((time, problem));
             }
             _ => {}
         }
