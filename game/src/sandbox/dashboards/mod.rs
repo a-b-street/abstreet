@@ -11,6 +11,7 @@ mod commuter;
 mod generic_trip_table;
 mod misc;
 mod parking_overhead;
+mod risks;
 mod selector;
 mod summaries;
 mod traffic_signals;
@@ -21,6 +22,7 @@ mod trip_table;
 pub enum DashTab {
     TripTable,
     TripSummaries,
+    RiskSummaries,
     ParkingOverhead,
     ActiveTraffic,
     TransitRoutes,
@@ -33,6 +35,7 @@ impl DashTab {
         let mut choices = vec![
             Choice::new("Trip Table", DashTab::TripTable),
             Choice::new("Trip Summaries", DashTab::TripSummaries),
+            Choice::new("Risk exposure", DashTab::RiskSummaries),
             Choice::new("Parking Overhead", DashTab::ParkingOverhead),
             Choice::new("Active Traffic", DashTab::ActiveTraffic),
             Choice::new("Transit Routes", DashTab::TransitRoutes),
@@ -40,6 +43,7 @@ impl DashTab {
             Choice::new("Traffic Signal Demand", DashTab::TrafficSignals),
         ];
         if app.has_prebaked().is_none() {
+            choices.remove(1);
             choices.remove(1);
         }
         Widget::row(vec![
@@ -69,6 +73,7 @@ impl DashTab {
             DashTab::TripSummaries => {
                 summaries::TripSummaries::new(ctx, app, summaries::Filter::new())
             }
+            DashTab::RiskSummaries => risks::RiskSummaries::new(ctx, app, risks::Filter::new()),
             DashTab::ParkingOverhead => parking_overhead::ParkingOverhead::new(ctx, app),
             DashTab::ActiveTraffic => misc::ActiveTraffic::new(ctx, app),
             DashTab::TransitRoutes => misc::TransitRoutes::new(ctx, app),
