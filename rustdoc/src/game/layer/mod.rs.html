@@ -282,6 +282,15 @@
 <span id="279">279</span>
 <span id="280">280</span>
 <span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">grey_out_map</span>, <span class="ident">HeatmapOptions</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">AgentType</span>;
@@ -299,6 +308,7 @@
 <span class="kw">mod</span> <span class="ident">pandemic</span>;
 <span class="kw">mod</span> <span class="ident">parking</span>;
 <span class="kw">mod</span> <span class="ident">population</span>;
+<span class="kw">mod</span> <span class="ident">problems</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">traffic</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">transit</span>;
 
@@ -415,6 +425,7 @@
                     <span class="ident">btn</span>(<span class="string">&quot;parking efficiency&quot;</span>, <span class="ident">Key</span>::<span class="ident">O</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;blackholes&quot;</span>, <span class="ident">Key</span>::<span class="ident">L</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;congestion caps&quot;</span>, <span class="ident">Key</span>::<span class="ident">C</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;problem map&quot;</span>, <span class="ident">Key</span>::<span class="ident">K</span>),
                     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_pandemic_model</span>().<span class="ident">is_some</span>() {
                         <span class="ident">btn</span>(<span class="string">&quot;pandemic model&quot;</span>, <span class="ident">Key</span>::<span class="ident">Y</span>)
                     } <span class="kw">else</span> {
@@ -504,6 +515,13 @@
                         <span class="ident">population</span>::<span class="ident">Options</span> {
                             <span class="ident">heatmap</span>: <span class="prelude-val">Some</span>(<span class="ident">HeatmapOptions</span>::<span class="ident">new</span>()),
                         },
+                    )));
+                }
+                <span class="string">&quot;problem map&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">problems</span>::<span class="ident">ProblemMap</span>::<span class="ident">new</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="ident">app</span>,
+                        <span class="ident">problems</span>::<span class="ident">Options</span>::<span class="ident">new</span>(<span class="ident">app</span>),
                     )));
                 }
                 <span class="string">&quot;throughput&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {

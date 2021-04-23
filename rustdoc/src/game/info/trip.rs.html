@@ -1300,7 +1300,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count_large_intersections</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count_overtakes</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">let</span> <span class="ident">empty</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">for</span> <span class="ident">problem</span> <span class="kw">in</span> <span class="ident">analytics</span>.<span class="ident">problems_per_trip</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="ident">empty</span>) {
+        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">problem</span>) <span class="kw">in</span> <span class="ident">analytics</span>.<span class="ident">problems_per_trip</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="ident">empty</span>) {
             <span class="kw">match</span> <span class="ident">problem</span> {
                 <span class="ident">Problem</span>::<span class="ident">LargeIntersectionCrossing</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">count_large_intersections</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
@@ -1347,7 +1347,7 @@
 <span class="kw">fn</span> <span class="ident">draw_problems</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">TripID</span>) {
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
     <span class="kw">let</span> <span class="ident">empty</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">for</span> <span class="ident">problem</span> <span class="kw">in</span> <span class="ident">app</span>
+    <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">problem</span>) <span class="kw">in</span> <span class="ident">app</span>
         .<span class="ident">primary</span>
         .<span class="ident">sim</span>
         .<span class="ident">get_analytics</span>()
