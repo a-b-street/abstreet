@@ -1431,19 +1431,19 @@
       "compressed_size_bytes": 2164635
     },
     "data/input/us/phoenix/osm/arizona-latest.osm.pbf": {
-      "checksum": "5592c1f6484661cb20bd2635087aef61",
-      "uncompressed_size_bytes": 168480189,
-      "compressed_size_bytes": 168187432
+      "checksum": "3decf48c4d2a4ca5e7cb99c04db524f9",
+      "uncompressed_size_bytes": 212552140,
+      "compressed_size_bytes": 212381218
     },
     "data/input/us/phoenix/osm/tempe.osm": {
-      "checksum": "9eacfa24796843d8d2eee6379e03c6ae",
-      "uncompressed_size_bytes": 7063470,
-      "compressed_size_bytes": 696199
+      "checksum": "5cf4d74c38e27f1c103bd7d8197891e7",
+      "uncompressed_size_bytes": 7360746,
+      "compressed_size_bytes": 728345
     },
     "data/input/us/phoenix/raw_maps/tempe.bin": {
-      "checksum": "5f30c0a9e95b640ae4b88986d1a2e9e2",
-      "uncompressed_size_bytes": 1884356,
-      "compressed_size_bytes": 408687
+      "checksum": "ba5370a3ab64c3101f8719af9263b35d",
+      "uncompressed_size_bytes": 1884828,
+      "compressed_size_bytes": 409483
     },
     "data/input/us/providence/osm/downtown.osm": {
       "checksum": "463b986adc83ae4d1174496a4ce744d1",
@@ -2941,9 +2941,9 @@
       "compressed_size_bytes": 5917575
     },
     "data/system/us/phoenix/maps/tempe.bin": {
-      "checksum": "90af18701ebda766ab288e508125de50",
-      "uncompressed_size_bytes": 10783174,
-      "compressed_size_bytes": 3476055
+      "checksum": "9dd58cb403dae95ece41e05890e366d2",
+      "uncompressed_size_bytes": 10622713,
+      "compressed_size_bytes": 3439698
     },
     "data/system/us/providence/maps/downtown.bin": {
       "checksum": "475952758d59a24275ba793bee8364e7",
