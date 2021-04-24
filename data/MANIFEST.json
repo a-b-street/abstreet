@@ -551,9 +551,9 @@
       "compressed_size_bytes": 3347052
     },
     "data/input/gb/great_kneighton/screenshots/center.zip": {
-      "checksum": "c2d096e729ed8f31f4970fff267aa37c",
-      "uncompressed_size_bytes": 40375723,
-      "compressed_size_bytes": 40360376
+      "checksum": "2408f6d665ebb3611bf59d15454b41e3",
+      "uncompressed_size_bytes": 40391899,
+      "compressed_size_bytes": 40376535
     },
     "data/input/gb/halsnead/osm/center.osm": {
       "checksum": "9b4aedf25220e29e11d0970cf7c70a26",
@@ -1061,9 +1061,9 @@
       "compressed_size_bytes": 4065555
     },
     "data/input/pl/krakow/screenshots/center.zip": {
-      "checksum": "574b7c261c743b88bd05077b788c1572",
-      "uncompressed_size_bytes": 29533636,
-      "compressed_size_bytes": 29528796
+      "checksum": "b802ae9f579cca3ecfe95f4dc6bfd186",
+      "uncompressed_size_bytes": 29789573,
+      "compressed_size_bytes": 29784910
     },
     "data/input/pl/warsaw/osm/center.osm": {
       "checksum": "b41830dd375674ffc9f7ec15d6cf9c0c",
@@ -1431,19 +1431,24 @@
       "compressed_size_bytes": 2164635
     },
     "data/input/us/phoenix/osm/arizona-latest.osm.pbf": {
-      "checksum": "3decf48c4d2a4ca5e7cb99c04db524f9",
-      "uncompressed_size_bytes": 212552140,
-      "compressed_size_bytes": 212381218
+      "checksum": "43ae353c03842cddfc90301819d3aa65",
+      "uncompressed_size_bytes": 214813365,
+      "compressed_size_bytes": 214644603
     },
     "data/input/us/phoenix/osm/tempe.osm": {
-      "checksum": "5cf4d74c38e27f1c103bd7d8197891e7",
-      "uncompressed_size_bytes": 7360746,
-      "compressed_size_bytes": 728345
+      "checksum": "f7c3bc2d0b79272836e194951c3321ec",
+      "uncompressed_size_bytes": 7362697,
+      "compressed_size_bytes": 728723
     },
     "data/input/us/phoenix/raw_maps/tempe.bin": {
-      "checksum": "ba5370a3ab64c3101f8719af9263b35d",
-      "uncompressed_size_bytes": 1884828,
-      "compressed_size_bytes": 409483
+      "checksum": "0665414a80ffdf227659c51700b37d10",
+      "uncompressed_size_bytes": 1884768,
+      "compressed_size_bytes": 409591
+    },
+    "data/input/us/phoenix/screenshots/tempe.zip": {
+      "checksum": "177706dad68309fe77a73c060bcc8bfd",
+      "uncompressed_size_bytes": 7343848,
+      "compressed_size_bytes": 7341491
     },
     "data/input/us/providence/osm/downtown.osm": {
       "checksum": "463b986adc83ae4d1174496a4ce744d1",
@@ -1746,24 +1751,24 @@
       "compressed_size_bytes": 6470357
     },
     "data/input/us/seattle/screenshots/downtown.zip": {
-      "checksum": "e0fe797441ced403eb5df2f01838bd2a",
-      "uncompressed_size_bytes": 23012259,
-      "compressed_size_bytes": 23003837
+      "checksum": "2146858582bf063a976be71e912a0326",
+      "uncompressed_size_bytes": 22950694,
+      "compressed_size_bytes": 22942394
     },
     "data/input/us/seattle/screenshots/lakeslice.zip": {
-      "checksum": "81d47e38ebbf7a05501fae1994488267",
-      "uncompressed_size_bytes": 22306984,
-      "compressed_size_bytes": 22300475
+      "checksum": "1854d236c7d088515937b0ff5742dad7",
+      "uncompressed_size_bytes": 22289807,
+      "compressed_size_bytes": 22283364
     },
     "data/input/us/seattle/screenshots/montlake.zip": {
-      "checksum": "2f07756c52af18e75e87e8dcd31ef133",
-      "uncompressed_size_bytes": 4367670,
-      "compressed_size_bytes": 4367440
+      "checksum": "b1d41884ec26cb6ad1f2c86210b5db92",
+      "uncompressed_size_bytes": 4362542,
+      "compressed_size_bytes": 4362306
     },
     "data/input/us/seattle/screenshots/udistrict.zip": {
-      "checksum": "407e330ba40601c6f94501fb13523d83",
-      "uncompressed_size_bytes": 11031817,
-      "compressed_size_bytes": 11028608
+      "checksum": "e62b165480b689f9a59d8cf8d4e896b1",
+      "uncompressed_size_bytes": 11026043,
+      "compressed_size_bytes": 11022903
     },
     "data/input/us/seattle/trips_2014.csv": {
       "checksum": "d4a8e733045b28c0385fb81359d6df03",
@@ -2941,9 +2946,9 @@
       "compressed_size_bytes": 5917575
     },
     "data/system/us/phoenix/maps/tempe.bin": {
-      "checksum": "9dd58cb403dae95ece41e05890e366d2",
-      "uncompressed_size_bytes": 10622713,
-      "compressed_size_bytes": 3439698
+      "checksum": "9522e0f432144a5caa1237edeb9ab50b",
+      "uncompressed_size_bytes": 10523262,
+      "compressed_size_bytes": 3410781
     },
     "data/system/us/providence/maps/downtown.bin": {
       "checksum": "475952758d59a24275ba793bee8364e7",
