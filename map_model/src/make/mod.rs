@@ -47,7 +47,7 @@ impl Map {
         timer.start("raw_map to InitialMap");
         let gps_bounds = raw.gps_bounds.clone();
         let bounds = gps_bounds.to_bounds();
-        let initial_map = initial::InitialMap::new(&raw, &bounds, timer);
+        let initial_map = initial::InitialMap::new(&raw, &bounds, &merged_intersections, timer);
         timer.stop("raw_map to InitialMap");
 
         let mut map = Map {

@@ -118,6 +118,8 @@ impl Polygon {
         (&self.points, &self.indices)
     }
 
+    /// Does this polygon contain the point either in the interior or right on the border? Haven't
+    /// tested carefully for polygons with holes.
     pub fn contains_pt(&self, pt: Pt2D) -> bool {
         self.triangles().into_iter().any(|tri| tri.contains_pt(pt))
     }

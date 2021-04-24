@@ -61,7 +61,12 @@ pub struct Intersection {
 }
 
 impl InitialMap {
-    pub fn new(raw: &RawMap, bounds: &Bounds, timer: &mut Timer) -> InitialMap {
+    pub fn new(
+        raw: &RawMap,
+        bounds: &Bounds,
+        merged_intersections: &BTreeSet<osm::NodeID>,
+        timer: &mut Timer,
+    ) -> InitialMap {
         let mut m = InitialMap {
             roads: BTreeMap::new(),
             intersections: BTreeMap::new(),
@@ -101,7 +106,12 @@ impl InitialMap {
         timer.start_iter("find each intersection polygon", m.intersections.len());
         for i in m.intersections.values_mut() {
             timer.next();
-            match intersection_polygon(i.id, i.roads.clone(), &mut m.roads) {
+            match intersection_polygon(
+                i.id,
+                i.roads.clone(),
+                &mut m.roads,
+                merged_intersections.contains(&i.id),
+            ) {
                 Ok((poly, _)) => {
                     i.polygon = poly;
                 }
@@ -144,9 +154,14 @@ impl InitialMap {
                     .extend_to_length(min_len)
                     .reversed();
             }
-            i.polygon = intersection_polygon(i.id, i.roads.clone(), &mut m.roads)
-                .unwrap()
-                .0;
+            i.polygon = intersection_polygon(
+                i.id,
+                i.roads.clone(),
+                &mut m.roads,
+                merged_intersections.contains(&i.id),
+            )
+            .unwrap()
+            .0;
             info!(
                 "Shifted border {} out a bit to make the road a reasonable length",
                 i.id

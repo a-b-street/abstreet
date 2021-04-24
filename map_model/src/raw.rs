@@ -182,8 +182,10 @@ impl RawMap {
             );
         }
 
+        // We don't yet know if there are short roads that we'll merge
+        let merged = false;
         let (poly, debug) =
-            initial::intersection_polygon(id, intersection_roads, &mut roads).unwrap();
+            initial::intersection_polygon(id, intersection_roads, &mut roads, merged).unwrap();
         (
             poly,
             roads
@@ -208,10 +210,13 @@ impl RawMap {
             }
         }
         for id in vec![road.i1, road.i2] {
+            // We don't yet know if there are short roads that we'll merge
+            let merged = false;
             initial::intersection_polygon(
                 id,
                 self.roads_per_intersection(id).into_iter().collect(),
                 &mut roads,
+                merged,
             )
             .unwrap();
         }

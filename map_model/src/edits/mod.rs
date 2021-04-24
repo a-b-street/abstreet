@@ -610,10 +610,14 @@ fn recalculate_intersection_polygon(
         );
     }
 
-    let polygon =
-        initial::intersection_polygon(intersection.orig_id, intersection_roads.clone(), &mut roads)
-            .unwrap()
-            .0;
+    let polygon = initial::intersection_polygon(
+        intersection.orig_id,
+        intersection_roads.clone(),
+        &mut roads,
+        intersection.merged,
+    )
+    .unwrap()
+    .0;
 
     map.intersections[i.0].polygon = polygon;
     // Copy over the re-trimmed road centers
