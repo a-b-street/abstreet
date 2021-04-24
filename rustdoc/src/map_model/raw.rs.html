@@ -587,6 +587,11 @@
 <span id="584">584</span>
 <span id="585">585</span>
 <span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate</span>
 <span class="doccomment">//! structure is useful to iterate quickly on parts of the map importing pipeline without having to</span>
@@ -772,8 +777,10 @@
             );
         }
 
+        <span class="comment">// We don&#39;t yet know if there are short roads that we&#39;ll merge</span>
+        <span class="kw">let</span> <span class="ident">merged</span> <span class="op">=</span> <span class="bool-val">false</span>;
         <span class="kw">let</span> (<span class="ident">poly</span>, <span class="ident">debug</span>) <span class="op">=</span>
-            <span class="ident">initial</span>::<span class="ident">intersection_polygon</span>(<span class="ident">id</span>, <span class="ident">intersection_roads</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">roads</span>).<span class="ident">unwrap</span>();
+            <span class="ident">initial</span>::<span class="ident">intersection_polygon</span>(<span class="ident">id</span>, <span class="ident">intersection_roads</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">roads</span>, <span class="ident">merged</span>).<span class="ident">unwrap</span>();
         (
             <span class="ident">poly</span>,
             <span class="ident">roads</span>
@@ -798,10 +805,13 @@
             }
         }
         <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">road</span>.<span class="ident">i1</span>, <span class="ident">road</span>.<span class="ident">i2</span>] {
+            <span class="comment">// We don&#39;t yet know if there are short roads that we&#39;ll merge</span>
+            <span class="kw">let</span> <span class="ident">merged</span> <span class="op">=</span> <span class="bool-val">false</span>;
             <span class="ident">initial</span>::<span class="ident">intersection_polygon</span>(
                 <span class="ident">id</span>,
                 <span class="self">self</span>.<span class="ident">roads_per_intersection</span>(<span class="ident">id</span>).<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">roads</span>,
+                <span class="ident">merged</span>,
             )
             .<span class="ident">unwrap</span>();
         }

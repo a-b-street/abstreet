@@ -917,6 +917,10 @@
 <span id="914">914</span>
 <span id="915">915</span>
 <span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Once a Map exists, the player can edit it in the UI (producing `MapEdits` in-memory), then save</span>
 <span class="doccomment">//! the changes to a file (as `PermanentMapEdits`). See</span>
@@ -1530,10 +1534,14 @@
         );
     }
 
-    <span class="kw">let</span> <span class="ident">polygon</span> <span class="op">=</span>
-        <span class="ident">initial</span>::<span class="ident">intersection_polygon</span>(<span class="ident">intersection</span>.<span class="ident">orig_id</span>, <span class="ident">intersection_roads</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">roads</span>)
-            .<span class="ident">unwrap</span>()
-            .<span class="number">0</span>;
+    <span class="kw">let</span> <span class="ident">polygon</span> <span class="op">=</span> <span class="ident">initial</span>::<span class="ident">intersection_polygon</span>(
+        <span class="ident">intersection</span>.<span class="ident">orig_id</span>,
+        <span class="ident">intersection_roads</span>.<span class="ident">clone</span>(),
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">roads</span>,
+        <span class="ident">intersection</span>.<span class="ident">merged</span>,
+    )
+    .<span class="ident">unwrap</span>()
+    .<span class="number">0</span>;
 
     <span class="ident">map</span>.<span class="ident">intersections</span>[<span class="ident">i</span>.<span class="number">0</span>].<span class="ident">polygon</span> <span class="op">=</span> <span class="ident">polygon</span>;
     <span class="comment">// Copy over the re-trimmed road centers</span>

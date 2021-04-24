@@ -604,6 +604,8 @@
 <span id="601">601</span>
 <span id="602">602</span>
 <span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -725,6 +727,8 @@
         (<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">points</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">indices</span>)
     }
 
+    <span class="doccomment">/// Does this polygon contain the point either in the interior or right on the border? Haven&#39;t</span>
+    <span class="doccomment">/// tested carefully for polygons with holes.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">triangles</span>().<span class="ident">into_iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">tri</span><span class="op">|</span> <span class="ident">tri</span>.<span class="ident">contains_pt</span>(<span class="ident">pt</span>))
     }
