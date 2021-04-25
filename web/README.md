@@ -37,6 +37,6 @@ You can build and see the examples in your webbrowser with:
 ```
 // install typescript build dependency
 npm install
-make build
+make dev 
 make server
 ```
