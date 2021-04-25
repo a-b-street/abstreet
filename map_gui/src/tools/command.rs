@@ -42,9 +42,11 @@ impl<A: AppLike + 'static> RunCommand<A> {
             },
         ) {
             Ok(mut p) => {
+                // We want to immediately timeout if there are no messages, but on Windows, a 0
+                // timeout never even gets a chance to read.
                 let comm = Some(
                     p.communicate_start(None)
-                        .limit_time(Duration::from_millis(0)),
+                        .limit_time(Duration::from_millis(1)),
                 );
                 let panel = ctx.make_loading_screen(Text::from("Starting command..."));
                 let max_capacity =
