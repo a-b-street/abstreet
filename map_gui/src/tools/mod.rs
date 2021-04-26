@@ -166,6 +166,8 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("anchorage", "downtown") => "Anchorage",
             ("bellevue", "huge") => "Bellevue",
             ("detroit", "downtown") => "Detroit",
+            ("milwaukee", "milwaukee_city") => "Milwaukee (entire area)",
+            ("milwaukee", "oak_creek") => "Oak Creek",
             ("mt_vernon", "burlington") => "Burlington",
             ("mt_vernon", "downtown") => "Mt. Vernon",
             ("nyc", "lower_manhattan") => "Lower Manhattan",
