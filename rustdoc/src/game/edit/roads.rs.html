@@ -454,30 +454,10 @@
 <span id="451">451</span>
 <span id="452">452</span>
 <span id="453">453</span>
-<span id="454">454</span>
-<span id="455">455</span>
-<span id="456">456</span>
-<span id="457">457</span>
-<span id="458">458</span>
-<span id="459">459</span>
-<span id="460">460</span>
-<span id="461">461</span>
-<span id="462">462</span>
-<span id="463">463</span>
-<span id="464">464</span>
-<span id="465">465</span>
-<span id="466">466</span>
-<span id="467">467</span>
-<span id="468">468</span>
-<span id="469">469</span>
-<span id="470">470</span>
-<span id="471">471</span>
-<span id="472">472</span>
-<span id="473">473</span>
-<span id="474">474</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Distance</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">render</span>::{<span class="ident">Renderable</span>, <span class="ident">OUTLINE_THICKNESS</span>};
+<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{
     <span class="ident">Direction</span>, <span class="ident">EditCmd</span>, <span class="ident">EditRoad</span>, <span class="ident">LaneID</span>, <span class="ident">LaneSpec</span>, <span class="ident">LaneType</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>,
 };
@@ -505,21 +485,18 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">r</span>: <span class="ident">RoadID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
 
-        <span class="kw">let</span> <span class="ident">num_edit_cmds_originally</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">commands</span>.<span class="ident">len</span>();
-        <span class="kw">let</span> <span class="ident">top_panel</span> <span class="op">=</span> <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">num_edit_cmds_originally</span>, <span class="bool-val">true</span>);
-        <span class="kw">let</span> <span class="ident">current_lane</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">let</span> <span class="ident">main_panel</span> <span class="op">=</span> <span class="ident">make_main_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>), <span class="ident">current_lane</span>);
-        <span class="kw">let</span> <span class="ident">highlight_selection</span> <span class="op">=</span> <span class="ident">highlight_current_selection</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">r</span>, <span class="ident">current_lane</span>);
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">RoadEditor</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">editor</span> <span class="op">=</span> <span class="ident">RoadEditor</span> {
             <span class="ident">r</span>,
-            <span class="ident">current_lane</span>,
-            <span class="ident">top_panel</span>,
-            <span class="ident">main_panel</span>,
-            <span class="ident">highlight_selection</span>,
+            <span class="ident">current_lane</span>: <span class="prelude-val">None</span>,
+            <span class="ident">top_panel</span>: <span class="ident">Panel</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>),
+            <span class="ident">main_panel</span>: <span class="ident">Panel</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>),
+            <span class="ident">highlight_selection</span>: (<span class="prelude-val">None</span>, <span class="ident">Drawable</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>)),
 
-            <span class="ident">num_edit_cmds_originally</span>,
+            <span class="ident">num_edit_cmds_originally</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">commands</span>.<span class="ident">len</span>(),
             <span class="ident">redo_stack</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
-        })
+        };
+        <span class="ident">editor</span>.<span class="ident">recalc_all_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">editor</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">modify_current_lane</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EditRoad</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>(
@@ -548,6 +525,10 @@
             <span class="prelude-val">None</span>
         };
 
+        <span class="self">self</span>.<span class="ident">recalc_all_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+    }
+
+    <span class="kw">fn</span> <span class="ident">recalc_all_panels</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="self">self</span>.<span class="ident">main_panel</span> <span class="op">=</span>
             <span class="ident">make_main_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r</span>), <span class="self">self</span>.<span class="ident">current_lane</span>);
         <span class="self">self</span>.<span class="ident">highlight_selection</span> <span class="op">=</span> <span class="ident">highlight_current_selection</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">r</span>, <span class="self">self</span>.<span class="ident">current_lane</span>);
@@ -575,16 +556,7 @@
                     <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
 
                     <span class="self">self</span>.<span class="ident">current_lane</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                    <span class="self">self</span>.<span class="ident">main_panel</span> <span class="op">=</span>
-                        <span class="ident">make_main_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r</span>), <span class="self">self</span>.<span class="ident">current_lane</span>);
-                    <span class="self">self</span>.<span class="ident">highlight_selection</span> <span class="op">=</span>
-                        <span class="ident">highlight_current_selection</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">r</span>, <span class="self">self</span>.<span class="ident">current_lane</span>);
-                    <span class="self">self</span>.<span class="ident">top_panel</span> <span class="op">=</span> <span class="ident">make_top_panel</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="self">self</span>.<span class="ident">num_edit_cmds_originally</span>,
-                        <span class="self">self</span>.<span class="ident">redo_stack</span>.<span class="ident">is_empty</span>(),
-                    );
+                    <span class="self">self</span>.<span class="ident">recalc_all_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
                 <span class="string">&quot;redo&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
@@ -592,16 +564,7 @@
                     <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
 
                     <span class="self">self</span>.<span class="ident">current_lane</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                    <span class="self">self</span>.<span class="ident">main_panel</span> <span class="op">=</span>
-                        <span class="ident">make_main_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r</span>), <span class="self">self</span>.<span class="ident">current_lane</span>);
-                    <span class="self">self</span>.<span class="ident">highlight_selection</span> <span class="op">=</span>
-                        <span class="ident">highlight_current_selection</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">r</span>, <span class="self">self</span>.<span class="ident">current_lane</span>);
-                    <span class="self">self</span>.<span class="ident">top_panel</span> <span class="op">=</span> <span class="ident">make_top_panel</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="self">self</span>.<span class="ident">num_edit_cmds_originally</span>,
-                        <span class="self">self</span>.<span class="ident">redo_stack</span>.<span class="ident">is_empty</span>(),
-                    );
+                    <span class="self">self</span>.<span class="ident">recalc_all_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             },
@@ -612,10 +575,7 @@
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;modify Lane #&quot;</span>) {
                     <span class="self">self</span>.<span class="ident">current_lane</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">LaneID</span>(<span class="ident">idx</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()));
-                    <span class="self">self</span>.<span class="ident">main_panel</span> <span class="op">=</span>
-                        <span class="ident">make_main_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r</span>), <span class="self">self</span>.<span class="ident">current_lane</span>);
-                    <span class="self">self</span>.<span class="ident">highlight_selection</span> <span class="op">=</span>
-                        <span class="ident">highlight_current_selection</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">r</span>, <span class="self">self</span>.<span class="ident">current_lane</span>);
+                    <span class="self">self</span>.<span class="ident">recalc_all_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;delete lane&quot;</span> {
                     <span class="self">self</span>.<span class="ident">modify_current_lane</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">None</span>, <span class="op">|</span><span class="ident">new</span>, <span class="ident">idx</span><span class="op">|</span> {
                         <span class="ident">new</span>.<span class="ident">lanes_ltr</span>.<span class="ident">remove</span>(<span class="ident">idx</span>);
@@ -656,16 +616,7 @@
                     <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">current_lane</span>.<span class="ident">is_none</span>());
                     <span class="self">self</span>.<span class="ident">current_lane</span> <span class="op">=</span>
                         <span class="prelude-val">Some</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r</span>).<span class="ident">lanes_ltr</span>().<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="number">0</span>);
-                    <span class="self">self</span>.<span class="ident">main_panel</span> <span class="op">=</span>
-                        <span class="ident">make_main_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r</span>), <span class="self">self</span>.<span class="ident">current_lane</span>);
-                    <span class="self">self</span>.<span class="ident">highlight_selection</span> <span class="op">=</span>
-                        <span class="ident">highlight_current_selection</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">r</span>, <span class="self">self</span>.<span class="ident">current_lane</span>);
-                    <span class="self">self</span>.<span class="ident">top_panel</span> <span class="op">=</span> <span class="ident">make_top_panel</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="self">self</span>.<span class="ident">num_edit_cmds_originally</span>,
-                        <span class="self">self</span>.<span class="ident">redo_stack</span>.<span class="ident">is_empty</span>(),
-                    );
+                    <span class="self">self</span>.<span class="ident">recalc_all_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 } <span class="kw">else</span> {
                     <span class="macro">unreachable</span><span class="macro">!</span>()
                 }
@@ -683,14 +634,7 @@
                     <span class="self">self</span>.<span class="ident">redo_stack</span>.<span class="ident">clear</span>();
 
                     <span class="comment">// Lane IDs don&#39;t change</span>
-                    <span class="self">self</span>.<span class="ident">main_panel</span> <span class="op">=</span>
-                        <span class="ident">make_main_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r</span>), <span class="self">self</span>.<span class="ident">current_lane</span>);
-                    <span class="self">self</span>.<span class="ident">top_panel</span> <span class="op">=</span> <span class="ident">make_top_panel</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="self">self</span>.<span class="ident">num_edit_cmds_originally</span>,
-                        <span class="self">self</span>.<span class="ident">redo_stack</span>.<span class="ident">is_empty</span>(),
-                    );
+                    <span class="self">self</span>.<span class="ident">recalc_all_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
                 <span class="string">&quot;width&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;width&quot;</span>);
@@ -703,25 +647,39 @@
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">highlight</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">current_lane</span>;
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">currently_hovering</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">name</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;modify Lane #&quot;</span>) {
-                <span class="ident">highlight</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">LaneID</span>(<span class="ident">idx</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()));
+        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>().<span class="ident">is_some</span>() {
+            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
+                <span class="ident">app</span>.<span class="ident">recalculate_current_selection</span>(<span class="ident">ctx</span>);
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
+                    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">parent</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">r</span> {
+                        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                    }
+                } <span class="kw">else</span> {
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                }
             }
-        }
-        <span class="kw">if</span> <span class="ident">highlight</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">highlight_selection</span>.<span class="number">0</span> {
-            <span class="self">self</span>.<span class="ident">highlight_selection</span> <span class="op">=</span> <span class="ident">highlight_current_selection</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">r</span>, <span class="ident">highlight</span>);
-        }
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current_lane</span>.<span class="ident">is_some</span>()
-            <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_screen_space</span>().<span class="ident">is_none</span>()
-            <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>()
-        {
-            <span class="self">self</span>.<span class="ident">current_lane</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="self">self</span>.<span class="ident">main_panel</span> <span class="op">=</span>
-                <span class="ident">make_main_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r</span>), <span class="self">self</span>.<span class="ident">current_lane</span>);
-            <span class="self">self</span>.<span class="ident">highlight_selection</span> <span class="op">=</span>
-                <span class="ident">highlight_current_selection</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">r</span>, <span class="self">self</span>.<span class="ident">current_lane</span>);
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
+                <span class="comment">// TODO Update the main panel to show which lane icon we&#39;re hovering on</span>
+                <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
+                    <span class="self">self</span>.<span class="ident">current_lane</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>);
+                    <span class="self">self</span>.<span class="ident">recalc_all_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                }
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current_lane</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
+                <span class="comment">// Deselect the current lane</span>
+                <span class="self">self</span>.<span class="ident">current_lane</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                <span class="self">self</span>.<span class="ident">recalc_all_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+            }
+        } <span class="kw">else</span> {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">highlight</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">current_lane</span>;
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">currently_hovering</span>() {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">name</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;modify Lane #&quot;</span>) {
+                    <span class="ident">highlight</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">LaneID</span>(<span class="ident">idx</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()));
+                }
+            }
+            <span class="kw">if</span> <span class="ident">highlight</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">highlight_selection</span>.<span class="number">0</span> {
+                <span class="self">self</span>.<span class="ident">highlight_selection</span> <span class="op">=</span> <span class="ident">highlight_current_selection</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">r</span>, <span class="ident">highlight</span>);
+            }
         }
 
         <span class="ident">Transition</span>::<span class="ident">Keep</span>
