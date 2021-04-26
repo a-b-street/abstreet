@@ -28,21 +28,18 @@ impl RoadEditor {
     pub fn new(ctx: &mut EventCtx, app: &mut App, r: RoadID) -> Box<dyn State<App>> {
         app.primary.current_selection = None;
 
-        let num_edit_cmds_originally = app.primary.map.get_edits().commands.len();
-        let top_panel = make_top_panel(ctx, app, num_edit_cmds_originally, true);
-        let current_lane = None;
-        let main_panel = make_main_panel(ctx, app, app.primary.map.get_r(r), current_lane);
-        let highlight_selection = highlight_current_selection(ctx, app, r, current_lane);
-        Box::new(RoadEditor {
+        let mut editor = RoadEditor {
             r,
-            current_lane,
-            top_panel,
-            main_panel,
-            highlight_selection,
+            current_lane: None,
+            top_panel: Panel::empty(ctx),
+            main_panel: Panel::empty(ctx),
+            highlight_selection: (None, Drawable::empty(ctx)),
 
-            num_edit_cmds_originally,
+            num_edit_cmds_originally: app.primary.map.get_edits().commands.len(),
             redo_stack: Vec::new(),
-        })
+        };
+        editor.recalc_all_panels(ctx, app);
+        Box::new(editor)
     }
 
     fn modify_current_lane<F: Fn(&mut EditRoad, usize)>(
@@ -71,6 +68,10 @@ impl RoadEditor {
             None
         };
 
+        self.recalc_all_panels(ctx, app);
+    }
+
+    fn recalc_all_panels(&mut self, ctx: &mut EventCtx, app: &App) {
         self.main_panel =
             make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
         self.highlight_selection = highlight_current_selection(ctx, app, self.r, self.current_lane);
@@ -98,16 +99,7 @@ impl State<App> for RoadEditor {
                     apply_map_edits(ctx, app, edits);
 
                     self.current_lane = None;
-                    self.main_panel =
-                        make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
-                    self.highlight_selection =
-                        highlight_current_selection(ctx, app, self.r, self.current_lane);
-                    self.top_panel = make_top_panel(
-                        ctx,
-                        app,
-                        self.num_edit_cmds_originally,
-                        self.redo_stack.is_empty(),
-                    );
+                    self.recalc_all_panels(ctx, app);
                 }
                 "redo" => {
                     let mut edits = app.primary.map.get_edits().clone();
@@ -115,16 +107,7 @@ impl State<App> for RoadEditor {
                     apply_map_edits(ctx, app, edits);
 
                     self.current_lane = None;
-                    self.main_panel =
-                        make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
-                    self.highlight_selection =
-                        highlight_current_selection(ctx, app, self.r, self.current_lane);
-                    self.top_panel = make_top_panel(
-                        ctx,
-                        app,
-                        self.num_edit_cmds_originally,
-                        self.redo_stack.is_empty(),
-                    );
+                    self.recalc_all_panels(ctx, app);
                 }
                 _ => unreachable!(),
             },
@@ -135,10 +118,7 @@ impl State<App> for RoadEditor {
             Outcome::Clicked(x) => {
                 if let Some(idx) = x.strip_prefix("modify Lane #") {
                     self.current_lane = Some(LaneID(idx.parse().unwrap()));
-                    self.main_panel =
-                        make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
-                    self.highlight_selection =
-                        highlight_current_selection(ctx, app, self.r, self.current_lane);
+                    self.recalc_all_panels(ctx, app);
                 } else if x == "delete lane" {
                     self.modify_current_lane(ctx, app, None, |new, idx| {
                         new.lanes_ltr.remove(idx);
@@ -179,16 +159,7 @@ impl State<App> for RoadEditor {
                     assert!(self.current_lane.is_none());
                     self.current_lane =
                         Some(app.primary.map.get_r(self.r).lanes_ltr().last().unwrap().0);
-                    self.main_panel =
-                        make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
-                    self.highlight_selection =
-                        highlight_current_selection(ctx, app, self.r, self.current_lane);
-                    self.top_panel = make_top_panel(
-                        ctx,
-                        app,
-                        self.num_edit_cmds_originally,
-                        self.redo_stack.is_empty(),
-                    );
+                    self.recalc_all_panels(ctx, app);
                 } else {
                     unreachable!()
                 }
@@ -206,14 +177,7 @@ impl State<App> for RoadEditor {
                     self.redo_stack.clear();
 
                     // Lane IDs don't change
-                    self.main_panel =
-                        make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
-                    self.top_panel = make_top_panel(
-                        ctx,
-                        app,
-                        self.num_edit_cmds_originally,
-                        self.redo_stack.is_empty(),
-                    );
+                    self.recalc_all_panels(ctx, app);
                 }
                 "width" => {
                     let width = self.main_panel.dropdown_value("width");
@@ -242,18 +206,12 @@ impl State<App> for RoadEditor {
                 // TODO Update the main panel to show which lane icon we're hovering on
                 if ctx.normal_left_click() {
                     self.current_lane = Some(l);
-                    self.main_panel =
-                        make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
-                    self.highlight_selection =
-                        highlight_current_selection(ctx, app, self.r, self.current_lane);
+                    self.recalc_all_panels(ctx, app);
                 }
             } else if self.current_lane.is_some() && ctx.normal_left_click() {
                 // Deselect the current lane
                 self.current_lane = None;
-                self.main_panel =
-                    make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
-                self.highlight_selection =
-                    highlight_current_selection(ctx, app, self.r, self.current_lane);
+                self.recalc_all_panels(ctx, app);
             }
         } else {
             let mut highlight = self.current_lane;
