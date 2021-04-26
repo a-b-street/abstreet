@@ -1,5 +1,6 @@
 use geom::Distance;
 use map_gui::render::{Renderable, OUTLINE_THICKNESS};
+use map_gui::ID;
 use map_model::{
     Direction, EditCmd, EditRoad, LaneID, LaneSpec, LaneType, Road, RoadID, NORMAL_LANE_THICKNESS,
 };
@@ -225,25 +226,45 @@ impl State<App> for RoadEditor {
             _ => {}
         }
 
-        let mut highlight = self.current_lane;
-        if let Some(name) = self.main_panel.currently_hovering() {
-            if let Some(idx) = name.strip_prefix("modify Lane #") {
-                highlight = Some(LaneID(idx.parse().unwrap()));
+        if ctx.canvas.get_cursor_in_map_space().is_some() {
+            if ctx.redo_mouseover() {
+                app.recalculate_current_selection(ctx);
+                if let Some(ID::Lane(l)) = app.primary.current_selection {
+                    if app.primary.map.get_l(l).parent != self.r {
+                        app.primary.current_selection = None;
+                    }
+                } else {
+                    app.primary.current_selection = None;
+                }
             }
-        }
-        if highlight != self.highlight_selection.0 {
-            self.highlight_selection = highlight_current_selection(ctx, app, self.r, highlight);
-        }
 
-        if self.current_lane.is_some()
-            && ctx.canvas.get_cursor_in_screen_space().is_none()
-            && ctx.normal_left_click()
-        {
-            self.current_lane = None;
-            self.main_panel =
-                make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
-            self.highlight_selection =
-                highlight_current_selection(ctx, app, self.r, self.current_lane);
+            if let Some(ID::Lane(l)) = app.primary.current_selection {
+                // TODO Update the main panel to show which lane icon we're hovering on
+                if ctx.normal_left_click() {
+                    self.current_lane = Some(l);
+                    self.main_panel =
+                        make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
+                    self.highlight_selection =
+                        highlight_current_selection(ctx, app, self.r, self.current_lane);
+                }
+            } else if self.current_lane.is_some() && ctx.normal_left_click() {
+                // Deselect the current lane
+                self.current_lane = None;
+                self.main_panel =
+                    make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
+                self.highlight_selection =
+                    highlight_current_selection(ctx, app, self.r, self.current_lane);
+            }
+        } else {
+            let mut highlight = self.current_lane;
+            if let Some(name) = self.main_panel.currently_hovering() {
+                if let Some(idx) = name.strip_prefix("modify Lane #") {
+                    highlight = Some(LaneID(idx.parse().unwrap()));
+                }
+            }
+            if highlight != self.highlight_selection.0 {
+                self.highlight_selection = highlight_current_selection(ctx, app, self.r, highlight);
+            }
         }
 
         Transition::Keep

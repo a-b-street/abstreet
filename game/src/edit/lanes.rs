@@ -193,7 +193,6 @@ impl SimpleState<App> for LaneEditor {
 
     fn on_mouseover(&mut self, ctx: &mut EventCtx, app: &mut App) {
         app.recalculate_current_selection(ctx);
-        app.recalculate_current_selection(ctx);
         if match app.primary.current_selection {
             Some(ID::Lane(l)) => !can_edit_lane(&self.mode, l, app),
             Some(ID::Intersection(i)) => {
