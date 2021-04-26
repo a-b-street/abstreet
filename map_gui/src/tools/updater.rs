@@ -70,6 +70,12 @@ pub fn prompt_to_download_missing_data<A: AppLike + 'static>(
             }
 
             let cities = vec![map_name.to_data_pack_name()];
+
+            // Adjust the updater's config, in case the user also runs that.
+            let mut packs = DataPacks::load_or_create();
+            packs.runtime.insert(cities[0].clone());
+            packs.save();
+
             let (outer_progress_tx, outer_progress_rx) = futures_channel::mpsc::channel(1000);
             let (inner_progress_tx, inner_progress_rx) = futures_channel::mpsc::channel(1000);
             Transition::Replace(FutureLoader::<A, Vec<String>>::new(
