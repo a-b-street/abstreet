@@ -169,6 +169,12 @@
 <span id="166">166</span>
 <span id="167">167</span>
 <span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
@@ -242,6 +248,12 @@
             }
 
             <span class="kw">let</span> <span class="ident">cities</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">map_name</span>.<span class="ident">to_data_pack_name</span>()];
+
+            <span class="comment">// Adjust the updater&#39;s config, in case the user also runs that.</span>
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">packs</span> <span class="op">=</span> <span class="ident">DataPacks</span>::<span class="ident">load_or_create</span>();
+            <span class="ident">packs</span>.<span class="ident">runtime</span>.<span class="ident">insert</span>(<span class="ident">cities</span>[<span class="number">0</span>].<span class="ident">clone</span>());
+            <span class="ident">packs</span>.<span class="ident">save</span>();
+
             <span class="kw">let</span> (<span class="ident">outer_progress_tx</span>, <span class="ident">outer_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel</span>::<span class="ident">mpsc</span>::<span class="ident">channel</span>(<span class="number">1000</span>);
             <span class="kw">let</span> (<span class="ident">inner_progress_tx</span>, <span class="ident">inner_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel</span>::<span class="ident">mpsc</span>::<span class="ident">channel</span>(<span class="number">1000</span>);
             <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">FutureLoader</span>::<span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>(
