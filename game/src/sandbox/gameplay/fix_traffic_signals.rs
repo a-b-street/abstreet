@@ -2,8 +2,8 @@ use geom::{Duration, Time};
 use map_gui::ID;
 use map_model::IntersectionID;
 use widgetry::{
-    Color, EventCtx, GfxCtx, HorizontalAlignment, Image, Key, Line, Outcome, Panel, RewriteColor,
-    State, Text, VerticalAlignment, Widget,
+    Color, EventCtx, GfxCtx, HorizontalAlignment, Image, Key, Line, Outcome, Panel, State, Text,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::Transition;
@@ -246,45 +246,38 @@ impl GameplayState for FixTrafficSignals {
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx);
         } else {
-            let meter = if let Some((_, delay)) = self.worst {
-                Widget::row(vec![
-                    Text::from_all(vec![
-                        Line("Worst delay: "),
-                        Line(delay.to_string(&app.opts.units)).fg(
-                            if delay < Duration::minutes(5) {
-                                Color::hex("#F9EC51")
-                            } else if delay < Duration::minutes(15) {
-                                Color::hex("#EE702E")
-                            } else {
-                                Color::hex("#EB3223")
-                            },
-                        ),
-                    ])
-                    .into_widget(ctx),
+            let meter = Widget::row(vec![
+                ctx.style()
+                    .btn_plain
+                    .icon("system/assets/tools/location.svg")
+                    .disabled(self.worst.is_none())
+                    .build_widget(ctx, "go to slowest intersection"),
+                Text::from_all(vec![
+                    Line("Worst delay: "),
+                    if let Some((_, delay)) = self.worst {
+                        Line(delay.to_string(&app.opts.units)).fg(if delay < Duration::minutes(5) {
+                            Color::hex("#F9EC51")
+                        } else if delay < Duration::minutes(15) {
+                            Color::hex("#EE702E")
+                        } else {
+                            Color::hex("#EB3223")
+                        })
+                    } else {
+                        Line("none!").secondary()
+                    },
+                ])
+                .into_widget(ctx)
+                .centered_vert(),
+                if app.primary.dirty_from_edits {
                     ctx.style()
                         .btn_plain
-                        .icon("system/assets/tools/location.svg")
-                        .build_widget(ctx, "go to slowest intersection")
-                        .align_right(),
-                ])
-            } else {
-                Widget::row(vec![
-                    if app.primary.dirty_from_edits {
-                        ctx.style()
-                            .btn_plain
-                            .icon("system/assets/tools/info.svg")
-                            .build_widget(ctx, "explain score")
-                    } else {
-                        Widget::nothing()
-                    },
-                    Text::from_all(vec![Line("Worst delay: "), Line("none!").secondary()])
-                        .into_widget(ctx),
-                    Image::from_path("system/assets/tools/location.svg")
-                        .color(RewriteColor::ChangeAlpha(0.5))
-                        .into_widget(ctx)
-                        .align_right(),
-                ])
-            };
+                        .icon("system/assets/tools/info.svg")
+                        .build_widget(ctx, "explain score")
+                        .align_right()
+                } else {
+                    Widget::nothing()
+                },
+            ]);
 
             self.top_right = Panel::new(Widget::col(vec![
                 challenge_header(ctx, "Traffic signal survivor"),

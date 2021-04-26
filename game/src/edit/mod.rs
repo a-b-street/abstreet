@@ -89,7 +89,14 @@ impl EditMode {
             app.primary
                 .map
                 .recalculate_pathfinding_after_edits(&mut timer);
-            if app.primary.current_flags.live_map_edits {
+            if GameplayMode::FixTrafficSignals == self.mode {
+                app.primary.sim = old_sim;
+                app.primary.dirty_from_edits = true;
+                app.primary
+                    .sim
+                    .handle_live_edited_traffic_signals(&app.primary.map);
+                Transition::Pop
+            } else if app.primary.current_flags.live_map_edits {
                 app.primary.sim = old_sim;
                 app.primary.dirty_from_edits = true;
                 app.primary
