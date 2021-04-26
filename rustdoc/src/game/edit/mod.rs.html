@@ -922,6 +922,13 @@
 <span id="919">919</span>
 <span id="920">920</span>
 <span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
 
@@ -1014,7 +1021,14 @@
             <span class="ident">app</span>.<span class="ident">primary</span>
                 .<span class="ident">map</span>
                 .<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
-            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_flags</span>.<span class="ident">live_map_edits</span> {
+            <span class="kw">if</span> <span class="ident">GameplayMode</span>::<span class="ident">FixTrafficSignals</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">mode</span> {
+                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span> <span class="op">=</span> <span class="ident">old_sim</span>;
+                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">dirty_from_edits</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                <span class="ident">app</span>.<span class="ident">primary</span>
+                    .<span class="ident">sim</span>
+                    .<span class="ident">handle_live_edited_traffic_signals</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>);
+                <span class="ident">Transition</span>::<span class="ident">Pop</span>
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_flags</span>.<span class="ident">live_map_edits</span> {
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span> <span class="op">=</span> <span class="ident">old_sim</span>;
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">dirty_from_edits</span> <span class="op">=</span> <span class="bool-val">true</span>;
                 <span class="ident">app</span>.<span class="ident">primary</span>
