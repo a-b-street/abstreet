@@ -1043,8 +1043,9 @@ checksum = "7360491ce676a36bf9bb3c56c1aa791658183a54d2744120f27285738d90465a"
 
 [[package]]
 name = "fast_paths"
-version = "0.1.1-SNAPSHOT"
-source = "git+https://github.com/easbar/fast_paths#192ae1997f9857791826ac5ed16892b2f692920c"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4a8a62c6d5e007415b7ddc5092ae0c26ba0b8d365e58d175381e1362ca7198ec"
 dependencies = [
  "log",
  "priority-queue",
