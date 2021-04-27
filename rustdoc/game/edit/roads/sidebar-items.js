@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["can_reverse",""],["highlight_current_selection",""],["lane_type_to_icon",""],["make_main_panel",""],["make_top_panel",""],["width_choices",""]],"struct":[["RoadEditor",""]]});
+initSidebarItems({"fn":[["add_new_lane",""],["can_reverse",""],["highlight_current_selection",""],["lane_type_to_icon",""],["make_main_panel",""],["make_top_panel",""],["width_choices",""]],"struct":[["RoadEditor",""]]});
