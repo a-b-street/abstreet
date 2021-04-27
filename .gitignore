@@ -3,6 +3,8 @@
 __pycache__
 .idea/
 
+elevation_input/query
+
 data/player
 importer.json
 
@@ -62,6 +64,7 @@ data/system/tw/taipei
 data/system/us/anchorage
 data/system/us/bellevue
 data/system/us/detroit
+data/system/us/milwaukee
 data/system/us/mt_vernon
 data/system/us/nyc
 data/system/us/phoenix
