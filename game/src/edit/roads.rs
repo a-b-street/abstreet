@@ -144,21 +144,19 @@ impl State<App> for RoadEditor {
                     let lt = LaneType::from_short_name(lt).unwrap();
 
                     let mut edits = app.primary.map.get_edits().clone();
-                    edits
-                        .commands
-                        .push(app.primary.map.edit_road_cmd(self.r, |new| {
-                            new.lanes_ltr.push(LaneSpec {
-                                lt,
-                                dir: Direction::Fwd,
-                                width: NORMAL_LANE_THICKNESS,
-                            });
-                        }));
+                    let old = app.primary.map.get_r_edit(self.r);
+                    let mut new = old.clone();
+                    let idx = add_new_lane(&mut new, lt);
+                    edits.commands.push(EditCmd::ChangeRoad {
+                        r: self.r,
+                        old,
+                        new,
+                    });
                     apply_map_edits(ctx, app, edits);
                     self.redo_stack.clear();
 
                     assert!(self.current_lane.is_none());
-                    self.current_lane =
-                        Some(app.primary.map.get_r(self.r).lanes_ltr().last().unwrap().0);
+                    self.current_lane = Some(app.primary.map.get_r(self.r).lanes_ltr()[idx].0);
                     self.recalc_all_panels(ctx, app);
                 } else {
                     unreachable!()
@@ -306,6 +304,7 @@ fn make_main_panel(
     };
     let current_lt = current_lane.map(|l| map.get_l(l).lane_type);
 
+    let current_lts: Vec<LaneType> = road.lanes_ltr().into_iter().map(|(_, _, lt)| lt).collect();
     let mut available_lane_types_row = vec![
         LaneType::Driving,
         LaneType::Biking,
@@ -316,10 +315,31 @@ fn make_main_panel(
     ]
     .into_iter()
     .map(|lt| {
+        let disabled = if let Some(current) = current_lt {
+            lt == current
+        } else {
+            // Only 2 parking lanes or walkable lanes total make sense
+            if lt == LaneType::Parking
+                && current_lts
+                    .iter()
+                    .filter(|x| **x == LaneType::Parking)
+                    .count()
+                    == 2
+            {
+                true
+            } else if lt == LaneType::Sidewalk
+                && current_lts.iter().filter(|x| x.is_walkable()).count() == 2
+            {
+                true
+            } else {
+                false
+            }
+        };
+
         ctx.style()
             .btn_plain
             .icon(lane_type_to_icon(lt).unwrap())
-            .disabled(Some(lt) == current_lt)
+            .disabled(disabled)
             .build_widget(
                 ctx,
                 format!(
@@ -448,6 +468,56 @@ fn width_choices(app: &App, l: LaneID) -> Vec<Choice<Distance>> {
         .collect()
 }
 
-fn can_reverse(lt: LaneType) -> bool {
+// TODO We need to automatically fix the direction of sidewalks and parking as we initially place
+// them or shift them around. Until then, allow fixing in the UI manually.
+fn can_reverse(_: LaneType) -> bool {
+    true
+}
+/*fn can_reverse(lt: LaneType) -> bool {
     lt == LaneType::Driving || lt == LaneType::Biking || lt == LaneType::Bus
+}*/
+
+// Returns the index where the new lane was inserted
+fn add_new_lane(road: &mut EditRoad, lt: LaneType) -> usize {
+    let idx = match lt {
+        // In the middle (where the direction changes)
+        LaneType::Driving => road
+            .lanes_ltr
+            .windows(2)
+            .position(|pair| pair[0].dir != pair[1].dir)
+            .map(|x| x + 1)
+            .unwrap_or(road.lanes_ltr.len()),
+        // Place on the forwards side, before any sidewalk
+        LaneType::Biking | LaneType::Bus | LaneType::Parking | LaneType::Construction => {
+            if road.lanes_ltr.last().unwrap().lt.is_walkable() {
+                road.lanes_ltr.len() - 1
+            } else {
+                road.lanes_ltr.len()
+            }
+        }
+        // Place it where it's missing
+        LaneType::Sidewalk => {
+            if !road.lanes_ltr[0].lt.is_walkable() {
+                0
+            } else {
+                road.lanes_ltr.len()
+            }
+        }
+        _ => unreachable!(),
+    };
+    let dir = if idx != 0 {
+        road.lanes_ltr[idx - 1].dir
+    } else {
+        Direction::Fwd
+    };
+
+    road.lanes_ltr.insert(
+        idx,
+        LaneSpec {
+            lt,
+            dir,
+            width: NORMAL_LANE_THICKNESS,
+        },
+    );
+    idx
 }
