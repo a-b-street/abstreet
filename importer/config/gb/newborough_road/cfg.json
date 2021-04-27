@@ -1,0 +1,16 @@
+{
+  "osm_url": "https://download.geofabrik.de/europe/great-britain/england/cambridgeshire-latest.osm.pbf",
+  "map_config": {
+    "driving_side": "Left",
+    "bikes_can_use_bus_lanes": true,
+    "inferred_sidewalks": true,
+    "street_parking_spot_length": 8.0
+  },
+  "onstreet_parking": "JustOSM",
+  "public_offstreet_parking": "None",
+  "private_offstreet_parking": {
+    "FixedPerBldg": 3
+  },
+  "include_railroads": true,
+  "extra_buildings": "data/input/gb/newborough_road/procgen_houses.json"
+}

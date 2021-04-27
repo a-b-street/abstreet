@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "site",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "site_name": "chapeltown-cohousing", "full_name": "Chapeltown Cohousing", "main_local_authority": "NA", "is_complete": "no", "dwellings_when_complete": 60, "planning_url": "NA", "weightedJobsPTt": 19.652647821428573, "weightedJobsCyct": 11.837757232142856, "weightedJobsCart": 9.756389446428571, "PSPTt": 3.0, "PSCyct": 6.0, "PSCart": 6.0, "SSPTt": 8.421423, "SSCyct": 8.152295, "SSCart": 7.774701, "FEPTt": 16.161653, "FECyct": 12.510995, "FECart": 10.70214, "GPPTt": 5.422342, "GPCyct": 7.06629, "GPCart": 6.665577, "HospPTt": 18.946742, "HospCyct": 10.738177, "HospCart": 9.432124, "FoodPTt": 5.339841, "FoodCyct": 6.821007, "FoodCart": 6.771752, "TownPTt": 12.23549, "TownCyct": 8.836738, "TownCart": 8.012152 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -1.525496, 53.81094 ], [ -1.525801, 53.811193 ], [ -1.526837, 53.811203 ], [ -1.526928, 53.811035 ], [ -1.528532, 53.810744 ], [ -1.528752, 53.810579 ], [ -1.52851, 53.81043 ], [ -1.527856, 53.810218 ], [ -1.527051, 53.810386 ], [ -1.525474, 53.810902 ], [ -1.525496, 53.81094 ] ] ] } }
+]
+}

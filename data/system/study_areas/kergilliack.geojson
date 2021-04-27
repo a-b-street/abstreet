@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "site",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "site_name": "kergilliack", "full_name": "Kergilliack", "main_local_authority": "Cornwall", "is_complete": "no", "dwellings_when_complete": 37, "planning_url": "https://www.falmouthpacket.co.uk/news/19129772.affordable-homes-kergilliack-falmouth-given-go-ahead/", "weightedJobsPTt": 66.724354625000004, "weightedJobsCyct": 61.18083123214285, "weightedJobsCart": 26.8120655, "PSPTt": 18.0, "PSCyct": 13.0, "PSCart": 10.0, "SSPTt": 23.196203, "SSCyct": 16.251373, "SSCart": 10.879105, "FEPTt": 23.196203, "FECyct": 16.251373, "FECart": 10.881549, "GPPTt": 23.130405, "GPCyct": 17.840954, "GPCart": 11.622765, "HospPTt": 83.542125, "HospCyct": 69.804163, "HospCart": 33.355771, "FoodPTt": 20.638621, "FoodCyct": 13.112948, "FoodCart": 9.215046, "TownPTt": 29.810837, "TownCyct": 21.521634, "TownCart": 14.559987 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -5.099673, 50.161305 ], [ -5.099748, 50.161092 ], [ -5.099748, 50.160769 ], [ -5.099705, 50.160536 ], [ -5.099705, 50.160357 ], [ -5.099641, 50.160219 ], [ -5.099577, 50.159944 ], [ -5.099469, 50.159697 ], [ -5.099298, 50.159683 ], [ -5.098869, 50.159683 ], [ -5.097774, 50.159738 ], [ -5.097817, 50.159896 ], [ -5.09771, 50.160096 ], [ -5.097817, 50.160164 ], [ -5.097817, 50.160247 ], [ -5.09801, 50.160432 ], [ -5.098525, 50.161512 ], [ -5.098729, 50.161553 ], [ -5.099673, 50.161305 ] ] ] } }
+]
+}
