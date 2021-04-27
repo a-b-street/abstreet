@@ -1225,6 +1225,16 @@
       "uncompressed_size_bytes": 3580247,
       "compressed_size_bytes": 3573142
     },
+    "data/input/shared/elevation/srtm/srtm.-88.42.tif": {
+      "checksum": "eebee839cc36b26f4ef03249e8472f26",
+      "uncompressed_size_bytes": 761102,
+      "compressed_size_bytes": 665988
+    },
+    "data/input/shared/elevation/srtm/srtm.-88.43.tif": {
+      "checksum": "1e21c4d9dba8740f5a986d1d4f68a482",
+      "uncompressed_size_bytes": 794911,
+      "compressed_size_bytes": 697815
+    },
     "data/input/shared/elevation/srtm/srtm.0.0.tif": {
       "checksum": "bae4b3951ee0b0175ca399f08fbbec67",
       "uncompressed_size_bytes": 940473,
@@ -1384,6 +1394,36 @@
       "checksum": "cf3eec43b0198f3ccb09c5374b4bb03d",
       "uncompressed_size_bytes": 11617502,
       "compressed_size_bytes": 2752236
+    },
+    "data/input/us/milwaukee/osm/downtown.osm": {
+      "checksum": "d1ac88c92a8cc7d2ef3c56d0c504bc3a",
+      "uncompressed_size_bytes": 65967241,
+      "compressed_size_bytes": 6199283
+    },
+    "data/input/us/milwaukee/osm/oak_creek.osm": {
+      "checksum": "a07cd9967f19c27c33255f35591b63a8",
+      "uncompressed_size_bytes": 36460483,
+      "compressed_size_bytes": 3408672
+    },
+    "data/input/us/milwaukee/osm/wisconsin-latest.osm.pbf": {
+      "checksum": "28018d7fb334b70377ecb494df6739d5",
+      "uncompressed_size_bytes": 214827253,
+      "compressed_size_bytes": 214578751
+    },
+    "data/input/us/milwaukee/raw_maps/downtown.bin": {
+      "checksum": "3060cb95b3740d1e21cee0d758bb625b",
+      "uncompressed_size_bytes": 13474341,
+      "compressed_size_bytes": 3893832
+    },
+    "data/input/us/milwaukee/raw_maps/downtown_milwaukee.bin": {
+      "checksum": "21793e3fc9d2fea47f16d33db84967de",
+      "uncompressed_size_bytes": 5484786,
+      "compressed_size_bytes": 1610789
+    },
+    "data/input/us/milwaukee/raw_maps/oak_creek.bin": {
+      "checksum": "e44a7ec084d9a01661d9ea84fec739b0",
+      "uncompressed_size_bytes": 9604356,
+      "compressed_size_bytes": 2766977
     },
     "data/input/us/mt_vernon/osm/burlington.osm": {
       "checksum": "3b49c047a0f63bbd5c1f89cdb23ce986",
@@ -2914,6 +2954,16 @@
       "checksum": "e2cc9eb54698c7213f543e25a7890af9",
       "uncompressed_size_bytes": 63147007,
       "compressed_size_bytes": 21629531
+    },
+    "data/system/us/milwaukee/maps/downtown.bin": {
+      "checksum": "8295945ec447196d7a0b1273d99872e9",
+      "uncompressed_size_bytes": 32079380,
+      "compressed_size_bytes": 11123896
+    },
+    "data/system/us/milwaukee/maps/oak_creek.bin": {
+      "checksum": "48bdfad89baa62761db69d73cc4daa30",
+      "uncompressed_size_bytes": 33999607,
+      "compressed_size_bytes": 11991949
     },
     "data/system/us/mt_vernon/city.bin": {
       "checksum": "173b2a66e9cdb9600e48e3c5f1506043",
