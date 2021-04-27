@@ -3,6 +3,8 @@
 __pycache__
 .idea/
 
+elevation_input/query
+
 data/player
 importer.json
 
