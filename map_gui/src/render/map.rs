@@ -468,9 +468,13 @@ impl DrawMap {
     }
 
     pub fn delete_lane(&mut self, l: LaneID) {
-        self.lanes.remove(&l).unwrap();
-        let item_id = self.quadtree_ids.remove(&ID::Lane(l)).unwrap();
-        self.quadtree.remove(item_id).unwrap();
+        // If we're undoing some lane creations along with creating even more, the IDs can get
+        // shuffled a few times in a single application of edits. In that case, there might not be
+        // anything to even delete.
+        if self.lanes.remove(&l).is_some() {
+            let item_id = self.quadtree_ids.remove(&ID::Lane(l)).unwrap();
+            self.quadtree.remove(item_id).unwrap();
+        }
     }
 
     pub fn recreate_intersection(&mut self, i: IntersectionID, map: &Map) {

@@ -91,6 +91,31 @@ impl State<App> for RoadEditor {
         match self.top_panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Finish" => {
+                    // Compress all of the edits, unless there were 0 or 1 changes
+                    let mut edits = app.primary.map.get_edits().clone();
+                    if edits.commands.len() > self.num_edit_cmds_originally + 2 {
+                        let last_edit = match edits.commands.pop().unwrap() {
+                            EditCmd::ChangeRoad { new, .. } => new,
+                            _ => unreachable!(),
+                        };
+                        edits.commands.truncate(self.num_edit_cmds_originally + 1);
+                        match edits.commands.last_mut().unwrap() {
+                            EditCmd::ChangeRoad { ref mut new, .. } => {
+                                *new = last_edit;
+                            }
+                            _ => unreachable!(),
+                        }
+                        apply_map_edits(ctx, app, edits);
+                    }
+
+                    return Transition::Pop;
+                }
+                "Cancel" => {
+                    let mut edits = app.primary.map.get_edits().clone();
+                    if edits.commands.len() != self.num_edit_cmds_originally {
+                        edits.commands.truncate(self.num_edit_cmds_originally);
+                        apply_map_edits(ctx, app, edits);
+                    }
                     return Transition::Pop;
                 }
                 "undo" => {
@@ -243,7 +268,7 @@ fn make_top_panel(
         ctx.style()
             .btn_solid_primary
             .text("Finish")
-            .hotkey(Key::Escape)
+            .hotkey(Key::Enter)
             .build_def(ctx),
         ctx.style()
             .btn_plain
@@ -258,6 +283,11 @@ fn make_top_panel(
             // TODO ctrl+shift+Z!
             .hotkey(lctrl(Key::Y))
             .build_widget(ctx, "redo"),
+        ctx.style()
+            .btn_plain
+            .text("Cancel")
+            .hotkey(Key::Escape)
+            .build_def(ctx),
     ]))
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
@@ -285,6 +315,7 @@ fn make_main_panel(
                 .btn_plain
                 .text("flip direction")
                 .disabled(!can_reverse(lane.lane_type))
+                .hotkey(Key::F)
                 .build_def(ctx),
             Line("Width").secondary().into_widget(ctx).centered_vert(),
             Widget::dropdown(ctx, "width", lane.width, width_choices(app, l)),
