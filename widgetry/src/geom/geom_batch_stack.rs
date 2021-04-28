@@ -39,7 +39,6 @@ impl GeomBatchStack {
         }
     }
 
-    #[allow(unused)]
     pub fn vertical(batches: Vec<GeomBatch>) -> Self {
         GeomBatchStack {
             batches,
@@ -52,7 +51,6 @@ impl GeomBatchStack {
         self.axis = new_value;
     }
 
-    #[allow(unused)]
     pub fn push(&mut self, geom_batch: GeomBatch) {
         self.batches.push(geom_batch);
     }

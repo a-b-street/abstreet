@@ -5,8 +5,9 @@ use map_model::{
     Direction, EditCmd, EditRoad, LaneID, LaneSpec, LaneType, Road, RoadID, NORMAL_LANE_THICKNESS,
 };
 use widgetry::{
-    lctrl, Choice, Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, Outcome, Panel, State, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, Choice, Color, ControlState, Drawable, EventCtx, GeomBatch, GeomBatchStack, GfxCtx,
+    HorizontalAlignment, Image, Key, Line, Outcome, Panel, State, Text, TextExt, VerticalAlignment,
+    Widget,
 };
 
 use crate::app::{App, Transition};
@@ -398,19 +399,43 @@ fn make_main_panel(
     let available_lane_types_row = Widget::row(available_lane_types_row);
 
     let mut current_lanes_ltr = Vec::new();
-    for (id, _, lt) in road.lanes_ltr() {
-        // TODO Add direction arrow sometimes
+    for (id, dir, lt) in road.lanes_ltr() {
+        let mut stack = GeomBatchStack::vertical(vec![
+            Image::from_path(lane_type_to_icon(lt).unwrap())
+                .build_batch(ctx)
+                .unwrap()
+                .0,
+        ]);
+        if can_reverse(lt) {
+            stack.push(
+                Image::from_path(if dir == Direction::Fwd {
+                    "system/assets/edit/forwards.svg"
+                } else {
+                    "system/assets/edit/backwards.svg"
+                })
+                .build_batch(ctx)
+                .unwrap()
+                .0,
+            );
+        }
+        let stack_batch = stack.batch();
+        let stack_bounds = stack_batch.get_bounds();
+
         current_lanes_ltr.push(
             ctx.style()
                 .btn_plain
-                .icon(lane_type_to_icon(lt).unwrap())
+                .btn()
+                .image_batch(stack_batch, stack_bounds)
                 .disabled(Some(id) == current_lane)
-                .image_color(ctx.style().btn_outline.fg, ControlState::Disabled)
+                .bg_color(ctx.style().section_bg, ControlState::Default)
+                .bg_color(ctx.style().btn_solid_primary.bg, ControlState::Disabled)
+                .image_dims(60.0)
                 .outline(ctx.style().btn_outline.outline, ControlState::Disabled)
                 .build_widget(ctx, format!("modify {}", id)),
         );
     }
-    let current_lanes_ltr = Widget::row(current_lanes_ltr);
+    // Disable the default margin between buttons
+    let current_lanes_ltr = Widget::custom_row(current_lanes_ltr);
 
     let road_settings = Widget::row(vec![
         Text::from_all(vec![
@@ -469,7 +494,7 @@ fn lane_type_to_icon(lt: LaneType) -> Option<&'static str> {
     match lt {
         LaneType::Driving => Some("system/assets/edit/driving.svg"),
         LaneType::Parking => Some("system/assets/edit/parking.svg"),
-        LaneType::Sidewalk | LaneType::Shoulder => Some("system/assets/meters/pedestrian.svg"),
+        LaneType::Sidewalk | LaneType::Shoulder => Some("system/assets/edit/sidewalk.svg"),
         LaneType::Biking => Some("system/assets/edit/bike.svg"),
         LaneType::Bus => Some("system/assets/edit/bus.svg"),
         // TODO Add an icon for this
