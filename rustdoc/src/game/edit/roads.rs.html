@@ -524,6 +524,37 @@
 <span id="521">521</span>
 <span id="522">522</span>
 <span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Distance</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">render</span>::{<span class="ident">Renderable</span>, <span class="ident">OUTLINE_THICKNESS</span>};
@@ -618,6 +649,31 @@
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;Finish&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="comment">// Compress all of the edits, unless there were 0 or 1 changes</span>
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
+                    <span class="kw">if</span> <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">num_edit_cmds_originally</span> <span class="op">+</span> <span class="number">2</span> {
+                        <span class="kw">let</span> <span class="ident">last_edit</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>() {
+                            <span class="ident">EditCmd</span>::<span class="ident">ChangeRoad</span> { <span class="ident">new</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">new</span>,
+                            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                        };
+                        <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">truncate</span>(<span class="self">self</span>.<span class="ident">num_edit_cmds_originally</span> <span class="op">+</span> <span class="number">1</span>);
+                        <span class="kw">match</span> <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">last_mut</span>().<span class="ident">unwrap</span>() {
+                            <span class="ident">EditCmd</span>::<span class="ident">ChangeRoad</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">new</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="kw-2">*</span><span class="ident">new</span> <span class="op">=</span> <span class="ident">last_edit</span>;
+                            }
+                            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                        }
+                        <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
+                    }
+
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
+                }
+                <span class="string">&quot;Cancel&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
+                    <span class="kw">if</span> <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">num_edit_cmds_originally</span> {
+                        <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">truncate</span>(<span class="self">self</span>.<span class="ident">num_edit_cmds_originally</span>);
+                        <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
+                    }
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                 }
                 <span class="string">&quot;undo&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -770,7 +826,7 @@
         <span class="ident">ctx</span>.<span class="ident">style</span>()
             .<span class="ident">btn_solid_primary</span>
             .<span class="ident">text</span>(<span class="string">&quot;Finish&quot;</span>)
-            .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
+            .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         <span class="ident">ctx</span>.<span class="ident">style</span>()
             .<span class="ident">btn_plain</span>
@@ -785,6 +841,11 @@
             <span class="comment">// TODO ctrl+shift+Z!</span>
             .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">Y</span>))
             .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;redo&quot;</span>),
+        <span class="ident">ctx</span>.<span class="ident">style</span>()
+            .<span class="ident">btn_plain</span>
+            .<span class="ident">text</span>(<span class="string">&quot;Cancel&quot;</span>)
+            .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
+            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
     ]))
     .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
     .<span class="ident">build</span>(<span class="ident">ctx</span>)
@@ -812,6 +873,7 @@
                 .<span class="ident">btn_plain</span>
                 .<span class="ident">text</span>(<span class="string">&quot;flip direction&quot;</span>)
                 .<span class="ident">disabled</span>(<span class="op">!</span><span class="ident">can_reverse</span>(<span class="ident">lane</span>.<span class="ident">lane_type</span>))
+                .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">F</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             <span class="ident">Line</span>(<span class="string">&quot;Width&quot;</span>).<span class="ident">secondary</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
             <span class="ident">Widget</span>::<span class="ident">dropdown</span>(<span class="ident">ctx</span>, <span class="string">&quot;width&quot;</span>, <span class="ident">lane</span>.<span class="ident">width</span>, <span class="ident">width_choices</span>(<span class="ident">app</span>, <span class="ident">l</span>)),
