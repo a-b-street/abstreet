@@ -206,10 +206,10 @@ impl Duration {
         }
 
         if hours != 0 {
-            s = format!("{}{}h", s, hours);
+            s = format!("{}{}hr ", s, hours);
         }
-        if hours != 0 || minutes != 0 {
-            s = format!("{}{}m", s, minutes);
+        if minutes != 0 {
+            s = format!("{}{}min ", s, minutes);
         }
         if remainder != 0 {
             if fmt.round_durations {
@@ -220,7 +220,8 @@ impl Duration {
         } else if seconds != 0 {
             s = format!("{}{}s", s, seconds);
         }
-        s
+        // Trim trailing whitespace, in case we have non-zero hours/minutes, but zero seconds
+        s.trim_end().to_string()
     }
 }
 
@@ -357,7 +358,17 @@ mod tests {
 
         assert_eq!("0s", Duration::ZERO.to_string(&dont_round));
         assert_eq!("0s", Duration::seconds(0.001).to_string(&dont_round));
-        assert_eq!("1m30.1s", Duration::seconds(90.123).to_string(&dont_round));
-        assert_eq!("1m30s", Duration::seconds(90.123).to_string(&round));
+        assert_eq!(
+            "1min 30.1s",
+            Duration::seconds(90.123).to_string(&dont_round)
+        );
+        assert_eq!("1min 30s", Duration::seconds(90.123).to_string(&round));
+        assert_eq!(
+            "2hr 33min 5s",
+            (Duration::hours(2) + Duration::minutes(33) + Duration::seconds(5.0))
+                .to_string(&dont_round)
+        );
+        assert_eq!("3hr", Duration::hours(3).to_string(&dont_round));
+        assert_eq!("42min", Duration::minutes(42).to_string(&dont_round));
     }
 }
