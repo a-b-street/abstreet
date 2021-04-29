@@ -422,7 +422,7 @@ fn make_tabs(ctx: &mut EventCtx) -> TabController {
                 .into_widget(ctx),
         ]),
         Text::from(Line("Spinner").big_heading_styled().size(18)).into_widget(ctx),
-        widgetry::Spinner::widget(ctx, "spinner", (0, 11), 1),
+        widgetry::Spinner::widget(ctx, "spinner", (0, 11), 1, 1),
     ]);
     tabs.push_tab(gallery_bar_item, gallery_content);
 
@@ -489,7 +489,7 @@ fn make_tabs(ctx: &mut EventCtx) -> TabController {
                 Widget::col(
                     (0..row_height)
                         .map(|i| {
-                            widgetry::Spinner::widget(ctx, format!("spinner {}", i), (0, 11), 1)
+                            widgetry::Spinner::widget(ctx, format!("spinner {}", i), (0, 11), 1, 1)
                         })
                         .collect::<Vec<_>>(),
                 ),

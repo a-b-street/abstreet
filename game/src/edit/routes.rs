@@ -28,8 +28,14 @@ impl RouteEditor {
                 Line(&route.full_name).into_widget(ctx),
                 // TODO This UI needs design, just something to start plumbing the edits
                 Widget::row(vec![
-                    "Frequency in minutes".text_widget(ctx),
-                    Spinner::widget(ctx, "freq_mins", (1, 120), 60),
+                    "Frequency".text_widget(ctx),
+                    Spinner::widget(
+                        ctx,
+                        "freq_mins",
+                        (Duration::minutes(1), Duration::hours(2)),
+                        Duration::hours(1),
+                        Duration::minutes(1),
+                    ),
                 ]),
                 ctx.style()
                     .btn_solid_primary
@@ -54,7 +60,7 @@ impl State<App> for RouteEditor {
                     return Transition::Pop;
                 }
                 "Apply" => {
-                    let freq = Duration::minutes(self.panel.spinner("freq_mins") as usize);
+                    let freq = self.panel.spinner("freq_mins");
                     let mut now = Time::START_OF_DAY;
                     let mut hourly_times = Vec::new();
                     while now <= Time::START_OF_DAY + Duration::hours(24) {

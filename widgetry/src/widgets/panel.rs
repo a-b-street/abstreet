@@ -10,6 +10,7 @@ use stretch::style::{Dimension, Style};
 use geom::{Percent, Polygon};
 
 use crate::widgets::slider;
+use crate::widgets::spinner::SpinnerValue;
 use crate::widgets::Container;
 use crate::{
     Autocomplete, Button, Color, Dropdown, EventCtx, GfxCtx, HorizontalAlignment, Menu, Outcome,
@@ -379,11 +380,16 @@ impl Panel {
         self.find::<TextBox>(name).get_line()
     }
 
-    pub fn spinner(&self, name: &str) -> isize {
-        self.find::<Spinner>(name).current
+    pub fn spinner<T: 'static + SpinnerValue>(&self, name: &str) -> T {
+        self.find::<Spinner<T>>(name).current
     }
-    pub fn modify_spinner(&mut self, ctx: &EventCtx, name: &str, delta: isize) {
-        self.find_mut::<Spinner>(name).modify(ctx, delta)
+    pub fn modify_spinner<T: 'static + SpinnerValue>(
+        &mut self,
+        ctx: &EventCtx,
+        name: &str,
+        delta: T,
+    ) {
+        self.find_mut::<Spinner<T>>(name).modify(ctx, delta)
     }
 
     pub fn dropdown_value<T: 'static + PartialEq + Clone, I: AsRef<str>>(&self, name: I) -> T {

@@ -169,7 +169,8 @@ impl OptionsPanel {
                             ctx,
                             "gui_scroll_speed",
                             (1, 50),
-                            ctx.canvas.gui_scroll_speed as isize,
+                            ctx.canvas.gui_scroll_speed,
+                            1,
                         ),
                     ]),
                 ])
@@ -304,7 +305,7 @@ impl<A: AppLike> State<A> for OptionsPanel {
                         .panel
                         .is_checked("Use arrow keys to pan and Q/W to zoom");
                     ctx.canvas.edge_auto_panning = self.panel.is_checked("autopan");
-                    ctx.canvas.gui_scroll_speed = self.panel.spinner("gui_scroll_speed") as usize;
+                    ctx.canvas.gui_scroll_speed = self.panel.spinner("gui_scroll_speed");
 
                     let style = self.panel.dropdown_value("Traffic signal rendering");
                     if opts.traffic_signal_style != style {

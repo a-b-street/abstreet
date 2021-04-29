@@ -49,8 +49,8 @@ impl AgentSpawner {
                     ),
                 ]),
                 Widget::row(vec![
-                    "Number of trips:".text_widget(ctx),
-                    Spinner::widget(ctx, "number", (1, 1000), 1),
+                    "Number of trips:".text_widget(ctx).centered_vert(),
+                    Spinner::widget(ctx, "number", (1, 1000), 1, 1),
                 ]),
                 if app.opts.dev {
                     ctx.style()
@@ -95,7 +95,7 @@ impl State<App> for AgentSpawner {
                     let mut scenario = Scenario::empty(map, "one-shot");
                     let from = self.start.take().unwrap().0;
                     let to = self.goal.take().unwrap().0;
-                    for _ in 0..self.panel.spinner("number") as usize {
+                    for _ in 0..self.panel.spinner("number") {
                         scenario.people.push(PersonSpec {
                             orig_id: None,
                             origin: from,

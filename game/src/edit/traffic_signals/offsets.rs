@@ -248,12 +248,13 @@ impl TuneRelative {
             ])
             .into_widget(ctx),
             Widget::row(vec![
-                "Offset (seconds):".text_widget(ctx),
+                "Offset:".text_widget(ctx).centered_vert(),
                 Spinner::widget(
                     ctx,
                     "offset",
-                    (0, 90),
-                    (offset2 - offset1).inner_seconds() as isize,
+                    (Duration::ZERO, Duration::seconds(90.0)),
+                    offset2 - offset1,
+                    Duration::seconds(1.0),
                 ),
             ]),
             ctx.style()
@@ -287,7 +288,7 @@ impl SimpleState<App> for TuneRelative {
             "close" => Transition::Pop,
             "Update offset" => {
                 let mut ts = app.primary.map.get_traffic_signal(self.i2).clone();
-                let relative = Duration::seconds(panel.spinner("offset") as f64);
+                let relative = panel.spinner("offset");
                 let offset1 = app.primary.map.get_traffic_signal(self.i1).offset;
                 ts.offset = offset1 + relative;
                 app.primary.map.incremental_edit_traffic_signal(ts);

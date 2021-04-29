@@ -18,8 +18,8 @@ const NEIGHBORS: [[isize; 2]; 9] = [
 #[derive(Clone, PartialEq)]
 pub struct HeatmapOptions {
     // In meters
-    resolution: usize,
-    radius: usize,
+    resolution: f64,
+    radius: f64,
     smoothing: bool,
     contours: bool,
     color_scheme: String,
@@ -28,8 +28,8 @@ pub struct HeatmapOptions {
 impl HeatmapOptions {
     pub fn new() -> HeatmapOptions {
         HeatmapOptions {
-            resolution: 10,
-            radius: 3,
+            resolution: 10.0,
+            radius: 3.0,
             smoothing: true,
             contours: true,
             color_scheme: "Turbo".to_string(),
@@ -41,14 +41,14 @@ impl HeatmapOptions {
             // TODO Display the value...
             Widget::row(vec![
                 "Resolution (meters)".text_widget(ctx).centered_vert(),
-                Spinner::widget(ctx, "resolution", (1, 100), self.resolution as isize)
+                Spinner::widget(ctx, "resolution", (1.0, 100.0), self.resolution, 1.0)
                     .align_right(),
             ]),
             Widget::row(vec![
                 "Radius (resolution multiplier)"
                     .text_widget(ctx)
                     .centered_vert(),
-                Spinner::widget(ctx, "radius", (0, 10), self.radius as isize).align_right(),
+                Spinner::widget(ctx, "radius", (0.0, 10.0), self.radius, 1.0).align_right(),
             ]),
             Toggle::switch(ctx, "smoothing", None, self.smoothing),
             Toggle::switch(ctx, "contours", None, self.contours),
@@ -72,8 +72,8 @@ impl HeatmapOptions {
         // Did we just change?
         if c.has_widget("resolution") {
             HeatmapOptions {
-                resolution: c.spinner("resolution") as usize,
-                radius: c.spinner("radius") as usize,
+                resolution: c.spinner("resolution"),
+                radius: c.spinner("radius"),
                 smoothing: c.is_checked("smoothing"),
                 contours: c.is_checked("contours"),
                 color_scheme: c.dropdown_value("Color scheme"),
@@ -119,14 +119,14 @@ pub fn make_heatmap(
 
     // At each point, add a 2D Gaussian kernel centered at the point.
     let mut raw_grid: Grid<f64> = Grid::new(
-        (bounds.width() / opts.resolution as f64).ceil() as usize,
-        (bounds.height() / opts.resolution as f64).ceil() as usize,
+        (bounds.width() / opts.resolution).ceil() as usize,
+        (bounds.height() / opts.resolution).ceil() as usize,
         0.0,
     );
     for pt in pts {
-        let base_x = ((pt.x() - bounds.min_x) / opts.resolution as f64) as isize;
-        let base_y = ((pt.y() - bounds.min_y) / opts.resolution as f64) as isize;
-        let denom = 2.0 * (opts.radius as f64 / 2.0).powi(2);
+        let base_x = ((pt.x() - bounds.min_x) / opts.resolution) as isize;
+        let base_y = ((pt.y() - bounds.min_y) / opts.resolution) as isize;
+        let denom = 2.0 * (opts.radius / 2.0).powi(2);
 
         let r = opts.radius as isize;
         for x in base_x - r..=base_x + r {
@@ -150,8 +150,8 @@ pub fn make_heatmap(
     }
 
     let mut grid: Grid<f64> = Grid::new(
-        (bounds.width() / opts.resolution as f64).ceil() as usize,
-        (bounds.height() / opts.resolution as f64).ceil() as usize,
+        (bounds.width() / opts.resolution).ceil() as usize,
+        (bounds.height() / opts.resolution).ceil() as usize,
         0.0,
     );
     if opts.smoothing {
@@ -208,7 +208,7 @@ pub fn make_heatmap(
                     let color = Color::rgb(c.r as usize, c.g as usize, c.b as usize).alpha(0.6);
                     for p in polygons {
                         if let Ok(poly) = Polygon::from_geojson(&p) {
-                            batch.push(color, poly.scale(opts.resolution as f64));
+                            batch.push(color, poly.scale(opts.resolution));
                         }
                     }
                 }
@@ -217,7 +217,7 @@ pub fn make_heatmap(
         }
     } else {
         // Now draw rectangles
-        let square = Polygon::rectangle(opts.resolution as f64, opts.resolution as f64);
+        let square = Polygon::rectangle(opts.resolution, opts.resolution);
         for y in 0..grid.height {
             for x in 0..grid.width {
                 let count = grid.data[grid.idx(x, y)];
@@ -229,7 +229,7 @@ pub fn make_heatmap(
                     batch.push(
                         color,
                         square
-                            .translate((x * opts.resolution) as f64, (y * opts.resolution) as f64),
+                            .translate((x as f64) * opts.resolution, (y as f64) * opts.resolution),
                     );
                 }
             }

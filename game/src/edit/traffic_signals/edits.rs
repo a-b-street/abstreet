@@ -32,18 +32,13 @@ impl ChangeDuration {
                 ctx.style().btn_close_widget(ctx),
             ]),
             Widget::row(vec![
-                "Seconds:".text_widget(ctx).centered_vert(),
+                "Duration:".text_widget(ctx).centered_vert(),
                 Spinner::widget(
                     ctx,
                     "duration",
-                    (
-                        signal.get_min_crossing_time(idx).inner_seconds() as isize,
-                        300,
-                    ),
-                    signal.stages[idx]
-                        .stage_type
-                        .simple_duration()
-                        .inner_seconds() as isize,
+                    (signal.get_min_crossing_time(idx), Duration::minutes(5)),
+                    signal.stages[idx].stage_type.simple_duration(),
+                    Duration::seconds(1.0),
                 ),
             ]),
             Line("Minimum time is set by the time required for crosswalk")
@@ -62,32 +57,34 @@ impl ChangeDuration {
                 })
                 .into_widget(ctx)
                 .named("timing type"),
-                "How much additional time can this stage last?".text_widget(ctx),
                 Widget::row(vec![
-                    "Seconds:".text_widget(ctx).centered_vert(),
+                    "How much additional time can this stage last?"
+                        .text_widget(ctx)
+                        .centered_vert(),
                     Spinner::widget(
                         ctx,
                         "additional",
-                        (0, 300),
+                        (Duration::ZERO, Duration::minutes(5)),
                         match signal.stages[idx].stage_type {
-                            StageType::Fixed(_) => 0,
-                            StageType::Variable(_, _, additional) => {
-                                additional.inner_seconds() as isize
-                            }
+                            StageType::Fixed(_) => Duration::ZERO,
+                            StageType::Variable(_, _, additional) => additional,
                         },
+                        Duration::seconds(1.0),
                     ),
                 ]),
-                "How long with no demand before the stage ends?".text_widget(ctx),
                 Widget::row(vec![
-                    "Seconds:".text_widget(ctx).centered_vert(),
+                    "How long with no demand before the stage ends?"
+                        .text_widget(ctx)
+                        .centered_vert(),
                     Spinner::widget(
                         ctx,
                         "delay",
-                        (0, 300),
+                        (Duration::ZERO, Duration::seconds(300.0)),
                         match signal.stages[idx].stage_type {
-                            StageType::Fixed(_) => 0,
-                            StageType::Variable(_, delay, _) => delay.inner_seconds() as isize,
+                            StageType::Fixed(_) => Duration::ZERO,
+                            StageType::Variable(_, delay, _) => delay,
                         },
+                        Duration::seconds(1.0),
                     ),
                 ]),
             ])
@@ -110,9 +107,9 @@ impl SimpleState<App> for ChangeDuration {
         match x {
             "close" => Transition::Pop,
             "Apply" => {
-                let dt = Duration::seconds(panel.spinner("duration") as f64);
-                let delay = Duration::seconds(panel.spinner("delay") as f64);
-                let additional = Duration::seconds(panel.spinner("additional") as f64);
+                let dt = panel.spinner("duration");
+                let delay = panel.spinner("delay");
+                let additional = panel.spinner("additional");
                 let new_type = if delay == Duration::ZERO || additional == Duration::ZERO {
                     StageType::Fixed(dt)
                 } else {
@@ -140,7 +137,9 @@ impl SimpleState<App> for ChangeDuration {
         panel: &mut Panel,
     ) -> Option<Transition> {
         let new_label = Text::from_all(
-            if panel.spinner("delay") == 0 || panel.spinner("additional") == 0 {
+            if panel.spinner::<Duration>("delay") == Duration::ZERO
+                || panel.spinner::<Duration>("additional") == Duration::ZERO
+            {
                 vec![
                     Line("Fixed timing").small_heading(),
                     Line(" (Adjust both values below to enable variable timing)"),

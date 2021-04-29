@@ -39,8 +39,9 @@ impl EditRoad {
                     (1, 5),
                     road.osm_tags
                         .get("lanes:forward")
-                        .and_then(|x| x.parse::<isize>().ok())
+                        .and_then(|x| x.parse::<usize>().ok())
                         .unwrap_or(1),
+                    1,
                 ),
             ]),
             Widget::row(vec![
@@ -51,8 +52,9 @@ impl EditRoad {
                     (0, 5),
                     road.osm_tags
                         .get("lanes:backward")
-                        .and_then(|x| x.parse::<isize>().ok())
+                        .and_then(|x| x.parse::<usize>().ok())
                         .unwrap_or(1),
+                    1,
                 ),
             ]),
             Widget::row(vec![
@@ -143,8 +145,8 @@ impl SimpleState<App> for EditRoad {
 
                 road.osm_tags.remove("lanes");
                 road.osm_tags.remove("oneway");
-                let fwd = panel.spinner("lanes:forward") as usize;
-                let back = panel.spinner("lanes:backward") as usize;
+                let fwd: usize = panel.spinner("lanes:forward");
+                let back: usize = panel.spinner("lanes:backward");
                 if back == 0 {
                     road.osm_tags.insert("oneway", "yes");
                     road.osm_tags.insert("lanes", fwd.to_string());
