@@ -580,8 +580,28 @@
 <span id="577">577</span>
 <span id="578">578</span>
 <span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Distance</span>;
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">CornerRadii</span>, <span class="ident">Distance</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">render</span>::{<span class="ident">Renderable</span>, <span class="ident">OUTLINE_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{
@@ -590,7 +610,7 @@
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GeomBatchStack</span>, <span class="ident">GfxCtx</span>,
     <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>,
-    <span class="ident">Widget</span>,
+    <span class="ident">Widget</span>, <span class="ident">DEFAULT_CORNER_RADIUS</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
@@ -982,13 +1002,18 @@
     <span class="kw">let</span> <span class="ident">available_lane_types_row</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="ident">available_lane_types_row</span>);
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_lanes_ltr</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">dir</span>, <span class="ident">lt</span>) <span class="kw">in</span> <span class="ident">road</span>.<span class="ident">lanes_ltr</span>() {
+
+    <span class="kw">let</span> <span class="ident">lanes_ltr</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">lanes_ltr</span>();
+    <span class="kw">let</span> <span class="ident">lanes_len</span> <span class="op">=</span> <span class="ident">lanes_ltr</span>.<span class="ident">len</span>();
+    <span class="kw">for</span> (<span class="ident">idx</span>, (<span class="ident">id</span>, <span class="ident">dir</span>, <span class="ident">lt</span>)) <span class="kw">in</span> <span class="ident">lanes_ltr</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stack</span> <span class="op">=</span> <span class="ident">GeomBatchStack</span>::<span class="ident">vertical</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="ident">lane_type_to_icon</span>(<span class="ident">lt</span>).<span class="ident">unwrap</span>())
                 .<span class="ident">build_batch</span>(<span class="ident">ctx</span>)
                 .<span class="ident">unwrap</span>()
                 .<span class="number">0</span>,
         ]);
+        <span class="ident">stack</span>.<span class="ident">spacing</span>(<span class="number">20.0</span>);
+
         <span class="kw">if</span> <span class="ident">can_reverse</span>(<span class="ident">lt</span>) {
             <span class="ident">stack</span>.<span class="ident">push</span>(
                 <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="kw">if</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span> {
@@ -1004,6 +1029,16 @@
         <span class="kw">let</span> <span class="ident">stack_batch</span> <span class="op">=</span> <span class="ident">stack</span>.<span class="ident">batch</span>();
         <span class="kw">let</span> <span class="ident">stack_bounds</span> <span class="op">=</span> <span class="ident">stack_batch</span>.<span class="ident">get_bounds</span>();
 
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rounding</span> <span class="op">=</span> <span class="ident">CornerRadii</span>::<span class="ident">zero</span>();
+        <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="ident">rounding</span>.<span class="ident">top_left</span> <span class="op">=</span> <span class="ident">DEFAULT_CORNER_RADIUS</span>;
+            <span class="ident">rounding</span>.<span class="ident">bottom_left</span> <span class="op">=</span> <span class="ident">DEFAULT_CORNER_RADIUS</span>;
+        }
+        <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">lanes_len</span> <span class="op">-</span> <span class="number">1</span> {
+            <span class="ident">rounding</span>.<span class="ident">top_right</span> <span class="op">=</span> <span class="ident">DEFAULT_CORNER_RADIUS</span>;
+            <span class="ident">rounding</span>.<span class="ident">bottom_right</span> <span class="op">=</span> <span class="ident">DEFAULT_CORNER_RADIUS</span>;
+        }
+
         <span class="ident">current_lanes_ltr</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_plain</span>
@@ -1011,14 +1046,19 @@
                 .<span class="ident">image_batch</span>(<span class="ident">stack_batch</span>, <span class="ident">stack_bounds</span>)
                 .<span class="ident">disabled</span>(<span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">current_lane</span>)
                 .<span class="ident">bg_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_bg</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
+                .<span class="ident">bg_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_bg</span>.<span class="ident">shade</span>(<span class="number">0.1</span>), <span class="ident">ControlState</span>::<span class="ident">Hovered</span>)
                 .<span class="ident">bg_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_primary</span>.<span class="ident">bg</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
+                .<span class="ident">image_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain</span>.<span class="ident">fg</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
                 .<span class="ident">image_dims</span>(<span class="number">60.0</span>)
-                .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">outline</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
+                .<span class="ident">padding_top</span>(<span class="number">32.0</span>)
+                .<span class="ident">padding_bottom</span>(<span class="number">32.0</span>)
+                .<span class="ident">corner_rounding</span>(<span class="ident">rounding</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;modify {}&quot;</span>, <span class="ident">id</span>)),
         );
     }
-    <span class="comment">// Disable the default margin between buttons</span>
-    <span class="kw">let</span> <span class="ident">current_lanes_ltr</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">current_lanes_ltr</span>);
+
+    <span class="kw">let</span> <span class="ident">current_lanes_ltr</span> <span class="op">=</span>
+        <span class="ident">Widget</span>::<span class="ident">evenly_spaced_row</span>(<span class="ident">current_lanes_ltr</span>, <span class="number">2</span>).<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#979797&quot;</span>));
 
     <span class="kw">let</span> <span class="ident">road_settings</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[

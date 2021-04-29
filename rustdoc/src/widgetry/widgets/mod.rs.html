@@ -837,6 +837,21 @@
 <span id="834">834</span>
 <span id="835">835</span>
 <span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -1262,6 +1277,21 @@
                 <span class="ident">new</span>.<span class="ident">push</span>(<span class="ident">w</span>);
             } <span class="kw">else</span> {
                 <span class="ident">new</span>.<span class="ident">push</span>(<span class="ident">w</span>.<span class="ident">margin_right</span>(<span class="number">10</span>));
+            }
+        }
+        <span class="ident">Widget</span>::<span class="ident">new</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Container</span>::<span class="ident">new</span>(<span class="bool-val">true</span>, <span class="ident">new</span>)))
+    }
+
+    <span class="doccomment">/// Creates a row with the specified widgets, with a `spacing` sized margin between members</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">evenly_spaced_row</span>(<span class="ident">widgets</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span>, <span class="ident">spacing</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">widgets</span>.<span class="ident">len</span>();
+        <span class="comment">// TODO Time for that is_last iterator?</span>
+        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">w</span>) <span class="kw">in</span> <span class="ident">widgets</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
+            <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">len</span> <span class="op">-</span> <span class="number">1</span> {
+                <span class="ident">new</span>.<span class="ident">push</span>(<span class="ident">w</span>);
+            } <span class="kw">else</span> {
+                <span class="ident">new</span>.<span class="ident">push</span>(<span class="ident">w</span>.<span class="ident">margin_right</span>(<span class="ident">spacing</span>));
             }
         }
         <span class="ident">Widget</span>::<span class="ident">new</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Container</span>::<span class="ident">new</span>(<span class="bool-val">true</span>, <span class="ident">new</span>)))
