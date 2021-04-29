@@ -427,26 +427,28 @@ impl State<App> for TrafficSignalEditor {
         if let Some((id, next_priority)) = self.movement_selected {
             if let Some(pri) = next_priority {
                 let signal = app.primary.map.get_traffic_signal(id.parent);
-                self.tooltip = Some(Text::from_all(vec![
-                    Line(format!(
-                        "This {} is {} for this stage. ",
-                        if id.crosswalk { "crosswalk" } else { "turn" },
-                        match signal.stages[self.current_stage].get_priority_of_movement(id) {
-                            TurnPriority::Protected => "protected",
-                            TurnPriority::Yield => "permitted",
-                            TurnPriority::Banned => "not allowed",
-                        }
-                    )),
+                let mut txt = Text::new();
+                txt.add_line(Line(format!(
+                    "{} {}",
+                    match signal.stages[self.current_stage].get_priority_of_movement(id) {
+                        TurnPriority::Protected => "Protected",
+                        TurnPriority::Yield => "Yielding",
+                        TurnPriority::Banned => "Forbidden",
+                    },
+                    if id.crosswalk { "crosswalk" } else { "turn" },
+                )));
+                txt.add_appended(vec![
                     Line("Click").fg(ctx.style().text_hotkey_color),
                     Line(format!(
-                        " to {}.",
+                        " to {}",
                         match pri {
-                            TurnPriority::Protected => "make it protected",
-                            TurnPriority::Yield => "make it permitted",
-                            TurnPriority::Banned => "remove it",
+                            TurnPriority::Protected => "add it as protected",
+                            TurnPriority::Yield => "allow it after yielding",
+                            TurnPriority::Banned => "forbid it",
                         }
                     )),
-                ]));
+                ]);
+                self.tooltip = Some(txt);
                 if app.per_obj.left_click(
                     ctx,
                     format!(
