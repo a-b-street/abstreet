@@ -39,6 +39,7 @@ pub struct TrafficSignalEditor {
     // And the next priority to toggle to
     movement_selected: Option<(MovementID, Option<TurnPriority>)>,
     draw_current: Drawable,
+    tooltip: Option<Text>,
 
     command_stack: Vec<BundleEdits>,
     redo_stack: Vec<BundleEdits>,
@@ -77,6 +78,7 @@ impl TrafficSignalEditor {
             movements: Vec::new(),
             movement_selected: None,
             draw_current: Drawable::empty(ctx),
+            tooltip: None,
             command_stack: Vec::new(),
             redo_stack: Vec::new(),
             warn_changed,
@@ -178,6 +180,8 @@ impl TrafficSignalEditor {
 
 impl State<App> for TrafficSignalEditor {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        self.tooltip = None;
+
         if self.warn_changed {
             self.warn_changed = false;
             return Transition::Push(PopupMsg::new(
@@ -423,6 +427,26 @@ impl State<App> for TrafficSignalEditor {
         if let Some((id, next_priority)) = self.movement_selected {
             if let Some(pri) = next_priority {
                 let signal = app.primary.map.get_traffic_signal(id.parent);
+                self.tooltip = Some(Text::from_all(vec![
+                    Line(format!(
+                        "This {} is {} for this stage. ",
+                        if id.crosswalk { "crosswalk" } else { "turn" },
+                        match signal.stages[self.current_stage].get_priority_of_movement(id) {
+                            TurnPriority::Protected => "protected",
+                            TurnPriority::Yield => "permitted",
+                            TurnPriority::Banned => "not allowed",
+                        }
+                    )),
+                    Line("Click").fg(ctx.style().text_hotkey_color),
+                    Line(format!(
+                        " to {}.",
+                        match pri {
+                            TurnPriority::Protected => "make it protected",
+                            TurnPriority::Yield => "make it permitted",
+                            TurnPriority::Banned => "remove it",
+                        }
+                    )),
+                ]));
                 if app.per_obj.left_click(
                     ctx,
                     format!(
@@ -488,6 +512,10 @@ impl State<App> for TrafficSignalEditor {
             CommonState::draw_custom_osd(g, app, osd);
         } else {
             CommonState::draw_osd(g, app);
+        }
+
+        if let Some(txt) = self.tooltip.clone() {
+            g.draw_mouse_tooltip(txt);
         }
     }
 }
