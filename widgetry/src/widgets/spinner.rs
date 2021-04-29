@@ -7,7 +7,7 @@ use crate::{
 };
 
 // Manually tuned
-const TEXT_WIDTH: f64 = 80.0;
+const TEXT_WIDTH: f64 = 100.0;
 
 pub trait SpinnerValue:
     Copy
