@@ -193,20 +193,14 @@ fn launch(ctx: &mut EventCtx, app: &App, edits: PermanentMapEdits) -> Transition
                 ))
             } else {
                 app.primary.layer = Some(Box::new(crate::layer::map::Static::edits(ctx, app)));
-
-                let mode = if abstio::file_exists(abstio::path_scenario(
-                    app.primary.map.get_name(),
-                    "weekday",
-                )) {
+                Transition::Replace(SandboxMode::simple_new(
+                    app,
                     GameplayMode::PlayScenario(
                         app.primary.map.get_name().clone(),
-                        "weekday".to_string(),
+                        crate::pregame::default_scenario_for_map(app.primary.map.get_name()),
                         Vec::new(),
-                    )
-                } else {
-                    GameplayMode::Freeform(app.primary.map.get_name().clone())
-                };
-                Transition::Replace(SandboxMode::simple_new(app, mode))
+                    ),
+                ))
             }
         }),
     ))

@@ -414,17 +414,7 @@ impl Widget {
 
     /// Creates a row with the specified widgets. Every member gets a default horizontal margin.
     pub fn row(widgets: Vec<Widget>) -> Widget {
-        let mut new = Vec::new();
-        let len = widgets.len();
-        // TODO Time for that is_last iterator?
-        for (idx, w) in widgets.into_iter().enumerate() {
-            if idx == len - 1 {
-                new.push(w);
-            } else {
-                new.push(w.margin_right(10));
-            }
-        }
-        Widget::new(Box::new(Container::new(true, new)))
+        Widget::evenly_spaced_row(widgets, 10)
     }
 
     /// Creates a row with the specified widgets, with a `spacing` sized margin between members

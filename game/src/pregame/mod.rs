@@ -2,6 +2,7 @@ use instant::Instant;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 
+use abstio::{CityName, MapName};
 use abstutil::Timer;
 use geom::{Duration, Line, Pt2D, Speed};
 use map_gui::tools::open_browser;
@@ -193,19 +194,11 @@ impl State<App> for MainMenu {
                     return Tutorial::start(ctx, app);
                 }
                 "Sandbox mode" => {
-                    let scenario = if abstio::file_exists(abstio::path_scenario(
-                        app.primary.map.get_name(),
-                        "weekday",
-                    )) {
-                        "weekday"
-                    } else {
-                        "home_to_work"
-                    };
                     return Transition::Push(SandboxMode::simple_new(
                         app,
                         GameplayMode::PlayScenario(
                             app.primary.map.get_name().clone(),
-                            scenario.to_string(),
+                            default_scenario_for_map(app.primary.map.get_name()),
                             Vec::new(),
                         ),
                     ));
@@ -375,6 +368,22 @@ impl Screensaver {
             );
         }
     }
+}
+
+fn default_scenario_for_map(name: &MapName) -> String {
+    if name.city == CityName::seattle()
+        && abstio::file_exists(abstio::path_scenario(name, "weekday"))
+    {
+        return "weekday".to_string();
+    }
+    if name.city.country == "gb" {
+        for x in vec!["background", "base_with_bg"] {
+            if abstio::file_exists(abstio::path_scenario(name, x)) {
+                return x.to_string();
+            }
+        }
+    }
+    "home_to_work".to_string()
 }
 
 #[cfg(not(target_arch = "wasm32"))]

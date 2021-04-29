@@ -187,10 +187,17 @@ impl ChangeScenario {
             if name == "weekday" {
                 choices.push((
                     name,
-                    "realistic weekday traffic".to_string(),
+                    "typical weekday traffic".to_string(),
                     "Trips will begin throughout the entire day. Midnight is usually quiet, so \
                      you may need to fast-forward to morning rush hour. Data comes from Puget \
                      Sound Regional Council's Soundcast model from 2014.",
+                ));
+            } else if name == "background" || name == "base_with_bg" {
+                choices.push((
+                    name,
+                    "typical weekday traffic".to_string(),
+                    "Home-to-work trips from 2011 UK census data are simulated. Traffic usually \
+                     starts around 7am.",
                 ));
             } else {
                 choices.push((
