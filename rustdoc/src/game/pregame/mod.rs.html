@@ -405,11 +405,21 @@
 <span id="402">402</span>
 <span id="403">403</span>
 <span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">instant</span>::<span class="ident">Instant</span>;
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">Rng</span>;
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
 
+<span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Line</span>, <span class="ident">Pt2D</span>, <span class="ident">Speed</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">open_browser</span>;
@@ -601,19 +611,11 @@
                     <span class="kw">return</span> <span class="ident">Tutorial</span>::<span class="ident">start</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
                 <span class="string">&quot;Sandbox mode&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">abstio</span>::<span class="ident">file_exists</span>(<span class="ident">abstio</span>::<span class="ident">path_scenario</span>(
-                        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(),
-                        <span class="string">&quot;weekday&quot;</span>,
-                    )) {
-                        <span class="string">&quot;weekday&quot;</span>
-                    } <span class="kw">else</span> {
-                        <span class="string">&quot;home_to_work&quot;</span>
-                    };
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">SandboxMode</span>::<span class="ident">simple_new</span>(
                         <span class="ident">app</span>,
                         <span class="ident">GameplayMode</span>::<span class="ident">PlayScenario</span>(
                             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>(),
-                            <span class="ident">scenario</span>.<span class="ident">to_string</span>(),
+                            <span class="ident">default_scenario_for_map</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()),
                             <span class="ident">Vec</span>::<span class="ident">new</span>(),
                         ),
                     ));
@@ -783,6 +785,22 @@
             );
         }
     }
+}
+
+<span class="kw">fn</span> <span class="ident">default_scenario_for_map</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">city</span> <span class="op">=</span><span class="op">=</span> <span class="ident">CityName</span>::<span class="ident">seattle</span>()
+        <span class="op">&amp;&amp;</span> <span class="ident">abstio</span>::<span class="ident">file_exists</span>(<span class="ident">abstio</span>::<span class="ident">path_scenario</span>(<span class="ident">name</span>, <span class="string">&quot;weekday&quot;</span>))
+    {
+        <span class="kw">return</span> <span class="string">&quot;weekday&quot;</span>.<span class="ident">to_string</span>();
+    }
+    <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;gb&quot;</span> {
+        <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;background&quot;</span>, <span class="string">&quot;base_with_bg&quot;</span>] {
+            <span class="kw">if</span> <span class="ident">abstio</span>::<span class="ident">file_exists</span>(<span class="ident">abstio</span>::<span class="ident">path_scenario</span>(<span class="ident">name</span>, <span class="ident">x</span>)) {
+                <span class="kw">return</span> <span class="ident">x</span>.<span class="ident">to_string</span>();
+            }
+        }
+    }
+    <span class="string">&quot;home_to_work&quot;</span>.<span class="ident">to_string</span>()
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>

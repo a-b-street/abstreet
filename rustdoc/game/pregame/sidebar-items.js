@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["built_info",""],["proposals",""]],"struct":[["About",""],["MainMenu",""],["Screensaver",""],["TitleScreen",""]]});
+initSidebarItems({"fn":[["default_scenario_for_map",""]],"mod":[["built_info",""],["proposals",""]],"struct":[["About",""],["MainMenu",""],["Screensaver",""],["TitleScreen",""]]});
