@@ -936,6 +936,36 @@
 <span id="933">933</span>
 <span id="934">934</span>
 <span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
+<span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
+<span id="964">964</span>
+<span id="965">965</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 
@@ -978,6 +1008,7 @@
     <span class="comment">// And the next priority to toggle to</span>
     <span class="ident">movement_selected</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">MovementID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TurnPriority</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
     <span class="ident">draw_current</span>: <span class="ident">Drawable</span>,
+    <span class="ident">tooltip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>,
 
     <span class="ident">command_stack</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BundleEdits</span><span class="op">&gt;</span>,
     <span class="ident">redo_stack</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BundleEdits</span><span class="op">&gt;</span>,
@@ -1016,6 +1047,7 @@
             <span class="ident">movements</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
             <span class="ident">movement_selected</span>: <span class="prelude-val">None</span>,
             <span class="ident">draw_current</span>: <span class="ident">Drawable</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>),
+            <span class="ident">tooltip</span>: <span class="prelude-val">None</span>,
             <span class="ident">command_stack</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
             <span class="ident">redo_stack</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
             <span class="ident">warn_changed</span>,
@@ -1117,6 +1149,8 @@
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TrafficSignalEditor</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
+        <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">warn_changed</span> {
             <span class="self">self</span>.<span class="ident">warn_changed</span> <span class="op">=</span> <span class="bool-val">false</span>;
             <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(
@@ -1362,6 +1396,28 @@
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">id</span>, <span class="ident">next_priority</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">movement_selected</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pri</span>) <span class="op">=</span> <span class="ident">next_priority</span> {
                 <span class="kw">let</span> <span class="ident">signal</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">id</span>.<span class="ident">parent</span>);
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
+                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                    <span class="string">&quot;{} {}&quot;</span>,
+                    <span class="kw">match</span> <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="self">self</span>.<span class="ident">current_stage</span>].<span class="ident">get_priority_of_movement</span>(<span class="ident">id</span>) {
+                        <span class="ident">TurnPriority</span>::<span class="ident">Protected</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Protected&quot;</span>,
+                        <span class="ident">TurnPriority</span>::<span class="ident">Yield</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Yielding&quot;</span>,
+                        <span class="ident">TurnPriority</span>::<span class="ident">Banned</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Forbidden&quot;</span>,
+                    },
+                    <span class="kw">if</span> <span class="ident">id</span>.<span class="ident">crosswalk</span> { <span class="string">&quot;crosswalk&quot;</span> } <span class="kw">else</span> { <span class="string">&quot;turn&quot;</span> },
+                )));
+                <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Line</span>(<span class="string">&quot;Click&quot;</span>).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
+                    <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                        <span class="string">&quot; to {}&quot;</span>,
+                        <span class="kw">match</span> <span class="ident">pri</span> {
+                            <span class="ident">TurnPriority</span>::<span class="ident">Protected</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;add it as protected&quot;</span>,
+                            <span class="ident">TurnPriority</span>::<span class="ident">Yield</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;allow it after yielding&quot;</span>,
+                            <span class="ident">TurnPriority</span>::<span class="ident">Banned</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;forbid it&quot;</span>,
+                        }
+                    )),
+                ]);
+                <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">txt</span>);
                 <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">per_obj</span>.<span class="ident">left_click</span>(
                     <span class="ident">ctx</span>,
                     <span class="macro">format</span><span class="macro">!</span>(
@@ -1427,6 +1483,10 @@
             <span class="ident">CommonState</span>::<span class="ident">draw_custom_osd</span>(<span class="ident">g</span>, <span class="ident">app</span>, <span class="ident">osd</span>);
         } <span class="kw">else</span> {
             <span class="ident">CommonState</span>::<span class="ident">draw_osd</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+        }
+
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">txt</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">tooltip</span>.<span class="ident">clone</span>() {
+            <span class="ident">g</span>.<span class="ident">draw_mouse_tooltip</span>(<span class="ident">txt</span>);
         }
     }
 }
