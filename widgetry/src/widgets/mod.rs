@@ -178,9 +178,9 @@ impl Widget {
         self
     }
 
-    // This one is really weird. percent_width should be LESS than the max_size_percent given to
-    // the overall Panel, otherwise weird things happen.
-    // Only makes sense for rows/columns.
+    /// This one is really weird. percent_width should be LESS than the max_size_percent given to
+    /// the overall Panel, otherwise weird things happen.
+    /// Only makes sense for rows/columns.
     pub fn flex_wrap(mut self, ctx: &EventCtx, width: Percent) -> Widget {
         self.layout.style.size = Size {
             width: Dimension::Points((ctx.canvas.window_width * width.inner()) as f32),
@@ -190,7 +190,16 @@ impl Widget {
         self.layout.style.justify_content = JustifyContent::SpaceAround;
         self
     }
-    // Only for rows/columns. Used to force table columns to line up.
+    /// Like flex_wrap, but doesn't horizontally space out widgets on the same row.
+    pub fn flex_wrap_no_inner_spacing(mut self, ctx: &EventCtx, width: Percent) -> Widget {
+        self.layout.style.size = Size {
+            width: Dimension::Points((ctx.canvas.window_width * width.inner()) as f32),
+            height: Dimension::Undefined,
+        };
+        self.layout.style.flex_wrap = FlexWrap::Wrap;
+        self
+    }
+    /// Only for rows/columns. Used to force table columns to line up.
     pub fn force_width(mut self, width: f64) -> Widget {
         self.layout.style.size.width = Dimension::Points(width as f32);
         self
@@ -201,7 +210,7 @@ impl Widget {
         self
     }
 
-    // Needed for force_width.
+    /// Needed for force_width.
     pub fn get_width_for_forcing(&self) -> f64 {
         self.widget.get_dims().width
     }
@@ -211,7 +220,7 @@ impl Widget {
         self
     }
 
-    // Callers have to adjust padding too, probably
+    /// Callers have to adjust padding too, probably
     pub fn outline(mut self, style: OutlineStyle) -> Widget {
         self.layout.outline = Some(style);
         self
@@ -222,8 +231,8 @@ impl Widget {
         self
     }
 
-    // Things like padding don't work on many widgets, so just make a convenient way to wrap in a
-    // row/column first
+    /// Things like padding don't work on many widgets, so just make a convenient way to wrap in a
+    /// row/column first
     pub fn container(self) -> Widget {
         Widget::row(vec![self])
     }
@@ -332,7 +341,7 @@ impl Widget {
         };
         self
     }
-    // This doesn't count against the entire container
+    /// This doesn't count against the entire container
     pub fn align_vert_center(mut self) -> Widget {
         self.layout.style.margin = Rect {
             start: Dimension::Undefined,

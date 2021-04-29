@@ -386,11 +386,51 @@ impl<A: AppLike + 'static> CitiesInCountryPicker<A> {
         on_load: Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>,
         country: &str,
     ) -> Box<dyn State<A>> {
+        let flag_path = format!("system/assets/flags/{}.svg", country);
+        let draw_flag = if abstio::file_exists(abstio::path(&flag_path)) {
+            let flag = GeomBatch::load_svg(ctx, format!("system/assets/flags/{}.svg", country));
+            let y_factor = 30.0 / flag.get_dims().height;
+            flag.scale(y_factor).into_widget(ctx)
+        } else {
+            Widget::nothing()
+        };
+        let mut col = vec![Widget::row(vec![
+            draw_flag,
+            Line(format!("Select a city in {}", nice_country_name(country)))
+                .small_heading()
+                .into_widget(ctx),
+            ctx.style().btn_close_widget(ctx),
+        ])];
+
         let mut buttons = Vec::new();
+        let mut last_letter = ' ';
         for city in cities_per_country().remove(country).unwrap() {
             if &city == app.map().get_city_name() {
                 continue;
             }
+            let letter = city
+                .city
+                .chars()
+                .next()
+                .unwrap()
+                .to_uppercase()
+                .next()
+                .unwrap();
+            if last_letter != letter {
+                if !buttons.is_empty() {
+                    let mut row = vec![Line(last_letter)
+                        .small_heading()
+                        .into_widget(ctx)
+                        .margin_right(20)];
+                    row.extend(buttons.drain(..));
+                    col.push(
+                        Widget::custom_row(row).flex_wrap_no_inner_spacing(ctx, Percent::int(70)),
+                    );
+                }
+
+                last_letter = letter;
+            }
+
             buttons.push(
                 ctx.style()
                     .btn_outline
@@ -400,30 +440,20 @@ impl<A: AppLike + 'static> CitiesInCountryPicker<A> {
                     .margin_below(10),
             );
         }
-
-        let flag_path = format!("system/assets/flags/{}.svg", country);
-        let draw_flag = if abstio::file_exists(abstio::path(&flag_path)) {
-            let flag = GeomBatch::load_svg(ctx, format!("system/assets/flags/{}.svg", country));
-            let y_factor = 30.0 / flag.get_dims().height;
-            flag.scale(y_factor).into_widget(ctx)
-        } else {
-            Widget::nothing()
-        };
+        if !buttons.is_empty() {
+            let mut row = vec![Line(last_letter)
+                .small_heading()
+                .into_widget(ctx)
+                .margin_right(20)];
+            row.extend(buttons.drain(..));
+            col.push(Widget::custom_row(row).flex_wrap_no_inner_spacing(ctx, Percent::int(70)));
+        }
 
         Box::new(CitiesInCountryPicker {
             on_load: Some(on_load),
-            panel: Panel::new(Widget::col(vec![
-                Widget::row(vec![
-                    draw_flag,
-                    Line(format!("Select a city in {}", nice_country_name(country)))
-                        .small_heading()
-                        .into_widget(ctx),
-                    ctx.style().btn_close_widget(ctx),
-                ]),
-                Widget::custom_row(buttons).flex_wrap(ctx, Percent::int(70)),
-            ]))
-            .exact_size_percent(80, 80)
-            .build(ctx),
+            panel: Panel::new(Widget::col(col))
+                .exact_size_percent(80, 80)
+                .build(ctx),
         })
     }
 }
