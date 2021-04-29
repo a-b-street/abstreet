@@ -322,7 +322,6 @@
 <span id="319">319</span>
 <span id="320">320</span>
 <span id="321">321</span>
-<span id="322">322</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">PopupMsg</span>};
@@ -358,18 +357,13 @@
                 <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
             ]),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="string">&quot;Seconds:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+                <span class="string">&quot;Duration:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
                 <span class="ident">Spinner</span>::<span class="ident">widget</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;duration&quot;</span>,
-                    (
-                        <span class="ident">signal</span>.<span class="ident">get_min_crossing_time</span>(<span class="ident">idx</span>).<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">isize</span>,
-                        <span class="number">300</span>,
-                    ),
-                    <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>]
-                        .<span class="ident">stage_type</span>
-                        .<span class="ident">simple_duration</span>()
-                        .<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">isize</span>,
+                    (<span class="ident">signal</span>.<span class="ident">get_min_crossing_time</span>(<span class="ident">idx</span>), <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">5</span>)),
+                    <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">stage_type</span>.<span class="ident">simple_duration</span>(),
+                    <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">1.0</span>),
                 ),
             ]),
             <span class="ident">Line</span>(<span class="string">&quot;Minimum time is set by the time required for crosswalk&quot;</span>)
@@ -388,32 +382,34 @@
                 })
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                 .<span class="ident">named</span>(<span class="string">&quot;timing type&quot;</span>),
-                <span class="string">&quot;How much additional time can this stage last?&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="string">&quot;Seconds:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+                    <span class="string">&quot;How much additional time can this stage last?&quot;</span>
+                        .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
+                        .<span class="ident">centered_vert</span>(),
                     <span class="ident">Spinner</span>::<span class="ident">widget</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;additional&quot;</span>,
-                        (<span class="number">0</span>, <span class="number">300</span>),
+                        (<span class="ident">Duration</span>::<span class="ident">ZERO</span>, <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">5</span>)),
                         <span class="kw">match</span> <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">stage_type</span> {
-                            <span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="number">0</span>,
-                            <span class="ident">StageType</span>::<span class="ident">Variable</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">additional</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                                <span class="ident">additional</span>.<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">isize</span>
-                            }
+                            <span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>,
+                            <span class="ident">StageType</span>::<span class="ident">Variable</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">additional</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">additional</span>,
                         },
+                        <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">1.0</span>),
                     ),
                 ]),
-                <span class="string">&quot;How long with no demand before the stage ends?&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="string">&quot;Seconds:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+                    <span class="string">&quot;How long with no demand before the stage ends?&quot;</span>
+                        .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
+                        .<span class="ident">centered_vert</span>(),
                     <span class="ident">Spinner</span>::<span class="ident">widget</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;delay&quot;</span>,
-                        (<span class="number">0</span>, <span class="number">300</span>),
+                        (<span class="ident">Duration</span>::<span class="ident">ZERO</span>, <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">300.0</span>)),
                         <span class="kw">match</span> <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">stage_type</span> {
-                            <span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="number">0</span>,
-                            <span class="ident">StageType</span>::<span class="ident">Variable</span>(<span class="kw">_</span>, <span class="ident">delay</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">delay</span>.<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">isize</span>,
+                            <span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>,
+                            <span class="ident">StageType</span>::<span class="ident">Variable</span>(<span class="kw">_</span>, <span class="ident">delay</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">delay</span>,
                         },
+                        <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">1.0</span>),
                     ),
                 ]),
             ])
@@ -436,9 +432,9 @@
         <span class="kw">match</span> <span class="ident">x</span> {
             <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>,
             <span class="string">&quot;Apply&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;duration&quot;</span>) <span class="kw">as</span> <span class="ident">f64</span>);
-                <span class="kw">let</span> <span class="ident">delay</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;delay&quot;</span>) <span class="kw">as</span> <span class="ident">f64</span>);
-                <span class="kw">let</span> <span class="ident">additional</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;additional&quot;</span>) <span class="kw">as</span> <span class="ident">f64</span>);
+                <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;duration&quot;</span>);
+                <span class="kw">let</span> <span class="ident">delay</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;delay&quot;</span>);
+                <span class="kw">let</span> <span class="ident">additional</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;additional&quot;</span>);
                 <span class="kw">let</span> <span class="ident">new_type</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">delay</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span> <span class="op">|</span><span class="op">|</span> <span class="ident">additional</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span> {
                     <span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="ident">dt</span>)
                 } <span class="kw">else</span> {
@@ -466,7 +462,9 @@
         <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Panel</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">new_label</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from_all</span>(
-            <span class="kw">if</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;delay&quot;</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;additional&quot;</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="kw">if</span> <span class="ident">panel</span>.<span class="ident">spinner</span>::<span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>(<span class="string">&quot;delay&quot;</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">panel</span>.<span class="ident">spinner</span>::<span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>(<span class="string">&quot;additional&quot;</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>
+            {
                 <span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Fixed timing&quot;</span>).<span class="ident">small_heading</span>(),
                     <span class="ident">Line</span>(<span class="string">&quot; (Adjust both values below to enable variable timing)&quot;</span>),

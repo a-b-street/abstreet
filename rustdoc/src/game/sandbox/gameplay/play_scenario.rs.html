@@ -776,7 +776,7 @@
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         );
         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;repeat_days&quot;</span>, (<span class="number">2</span>, <span class="number">14</span>), <span class="number">2</span>),
+            <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;repeat_days&quot;</span>, (<span class="number">2</span>, <span class="number">14</span>), <span class="number">2</span>, <span class="number">1</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_outline</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Repeat schedule multiple days&quot;</span>)
@@ -870,7 +870,7 @@
                 }
                 <span class="string">&quot;Repeat schedule multiple days&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">modifiers</span>.<span class="ident">push</span>(<span class="ident">ScenarioModifier</span>::<span class="ident">RepeatDays</span>(
-                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;repeat_days&quot;</span>) <span class="kw">as</span> <span class="ident">usize</span>,
+                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;repeat_days&quot;</span>),
                     ));
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">EditScenarioModifiers</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,
@@ -925,7 +925,7 @@
                     <span class="string">&quot;Percent of people to modify:&quot;</span>
                         .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
                         .<span class="ident">centered_vert</span>(),
-                    <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;pct_ppl&quot;</span>, (<span class="number">1</span>, <span class="number">100</span>), <span class="number">50</span>),
+                    <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;pct_ppl&quot;</span>, (<span class="number">1</span>, <span class="number">100</span>), <span class="number">50</span>, <span class="number">1</span>),
                 ]),
                 <span class="string">&quot;Types of trips to convert:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">checkbox_per_mode</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="macro">btreeset</span><span class="macro">!</span> { <span class="ident">TripMode</span>::<span class="ident">Drive</span> }),
@@ -975,7 +975,7 @@
                 <span class="string">&quot;Discard changes&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>,
                 <span class="string">&quot;Apply&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">to_mode</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>::<span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TripMode</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="string">&quot;to_mode&quot;</span>);
-                    <span class="kw">let</span> <span class="ident">pct_ppl</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;pct_ppl&quot;</span>) <span class="kw">as</span> <span class="ident">usize</span>;
+                    <span class="kw">let</span> <span class="ident">pct_ppl</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;pct_ppl&quot;</span>);
                     <span class="kw">let</span> (<span class="ident">p1</span>, <span class="ident">p2</span>) <span class="op">=</span> (
                         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">slider</span>(<span class="string">&quot;depart from&quot;</span>).<span class="ident">get_percent</span>(),
                         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">slider</span>(<span class="string">&quot;depart to&quot;</span>).<span class="ident">get_percent</span>(),

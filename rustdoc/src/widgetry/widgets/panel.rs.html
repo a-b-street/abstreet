@@ -622,6 +622,12 @@
 <span id="619">619</span>
 <span id="620">620</span>
 <span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
@@ -635,6 +641,7 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Percent</span>, <span class="ident">Polygon</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">slider</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">spinner</span>::<span class="ident">SpinnerValue</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">Container</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">Autocomplete</span>, <span class="ident">Button</span>, <span class="ident">Color</span>, <span class="ident">Dropdown</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Menu</span>, <span class="ident">Outcome</span>,
@@ -1004,11 +1011,16 @@
         <span class="self">self</span>.<span class="ident">find</span>::<span class="op">&lt;</span><span class="ident">TextBox</span><span class="op">&gt;</span>(<span class="ident">name</span>).<span class="ident">get_line</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">spinner</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">isize</span> {
-        <span class="self">self</span>.<span class="ident">find</span>::<span class="op">&lt;</span><span class="ident">Spinner</span><span class="op">&gt;</span>(<span class="ident">name</span>).<span class="ident">current</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">spinner</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">SpinnerValue</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span> {
+        <span class="self">self</span>.<span class="ident">find</span>::<span class="op">&lt;</span><span class="ident">Spinner</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">name</span>).<span class="ident">current</span>
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">modify_spinner</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">delta</span>: <span class="ident">isize</span>) {
-        <span class="self">self</span>.<span class="ident">find_mut</span>::<span class="op">&lt;</span><span class="ident">Spinner</span><span class="op">&gt;</span>(<span class="ident">name</span>).<span class="ident">modify</span>(<span class="ident">ctx</span>, <span class="ident">delta</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">modify_spinner</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">SpinnerValue</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
+        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+        <span class="ident">delta</span>: <span class="ident">T</span>,
+    ) {
+        <span class="self">self</span>.<span class="ident">find_mut</span>::<span class="op">&lt;</span><span class="ident">Spinner</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">name</span>).<span class="ident">modify</span>(<span class="ident">ctx</span>, <span class="ident">delta</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dropdown_value</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Clone</span>, <span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span> {

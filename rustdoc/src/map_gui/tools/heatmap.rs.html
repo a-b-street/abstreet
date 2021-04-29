@@ -292,8 +292,8 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HeatmapOptions</span> {
     <span class="comment">// In meters</span>
-    <span class="ident">resolution</span>: <span class="ident">usize</span>,
-    <span class="ident">radius</span>: <span class="ident">usize</span>,
+    <span class="ident">resolution</span>: <span class="ident">f64</span>,
+    <span class="ident">radius</span>: <span class="ident">f64</span>,
     <span class="ident">smoothing</span>: <span class="ident">bool</span>,
     <span class="ident">contours</span>: <span class="ident">bool</span>,
     <span class="ident">color_scheme</span>: <span class="ident">String</span>,
@@ -302,8 +302,8 @@
 <span class="kw">impl</span> <span class="ident">HeatmapOptions</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HeatmapOptions</span> {
         <span class="ident">HeatmapOptions</span> {
-            <span class="ident">resolution</span>: <span class="number">10</span>,
-            <span class="ident">radius</span>: <span class="number">3</span>,
+            <span class="ident">resolution</span>: <span class="number">10.0</span>,
+            <span class="ident">radius</span>: <span class="number">3.0</span>,
             <span class="ident">smoothing</span>: <span class="bool-val">true</span>,
             <span class="ident">contours</span>: <span class="bool-val">true</span>,
             <span class="ident">color_scheme</span>: <span class="string">&quot;Turbo&quot;</span>.<span class="ident">to_string</span>(),
@@ -315,14 +315,14 @@
             <span class="comment">// TODO Display the value...</span>
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="string">&quot;Resolution (meters)&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;resolution&quot;</span>, (<span class="number">1</span>, <span class="number">100</span>), <span class="self">self</span>.<span class="ident">resolution</span> <span class="kw">as</span> <span class="ident">isize</span>)
+                <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;resolution&quot;</span>, (<span class="number">1.0</span>, <span class="number">100.0</span>), <span class="self">self</span>.<span class="ident">resolution</span>, <span class="number">1.0</span>)
                     .<span class="ident">align_right</span>(),
             ]),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="string">&quot;Radius (resolution multiplier)&quot;</span>
                     .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
                     .<span class="ident">centered_vert</span>(),
-                <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;radius&quot;</span>, (<span class="number">0</span>, <span class="number">10</span>), <span class="self">self</span>.<span class="ident">radius</span> <span class="kw">as</span> <span class="ident">isize</span>).<span class="ident">align_right</span>(),
+                <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;radius&quot;</span>, (<span class="number">0.0</span>, <span class="number">10.0</span>), <span class="self">self</span>.<span class="ident">radius</span>, <span class="number">1.0</span>).<span class="ident">align_right</span>(),
             ]),
             <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;smoothing&quot;</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.<span class="ident">smoothing</span>),
             <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;contours&quot;</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.<span class="ident">contours</span>),
@@ -346,8 +346,8 @@
         <span class="comment">// Did we just change?</span>
         <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">has_widget</span>(<span class="string">&quot;resolution&quot;</span>) {
             <span class="ident">HeatmapOptions</span> {
-                <span class="ident">resolution</span>: <span class="ident">c</span>.<span class="ident">spinner</span>(<span class="string">&quot;resolution&quot;</span>) <span class="kw">as</span> <span class="ident">usize</span>,
-                <span class="ident">radius</span>: <span class="ident">c</span>.<span class="ident">spinner</span>(<span class="string">&quot;radius&quot;</span>) <span class="kw">as</span> <span class="ident">usize</span>,
+                <span class="ident">resolution</span>: <span class="ident">c</span>.<span class="ident">spinner</span>(<span class="string">&quot;resolution&quot;</span>),
+                <span class="ident">radius</span>: <span class="ident">c</span>.<span class="ident">spinner</span>(<span class="string">&quot;radius&quot;</span>),
                 <span class="ident">smoothing</span>: <span class="ident">c</span>.<span class="ident">is_checked</span>(<span class="string">&quot;smoothing&quot;</span>),
                 <span class="ident">contours</span>: <span class="ident">c</span>.<span class="ident">is_checked</span>(<span class="string">&quot;contours&quot;</span>),
                 <span class="ident">color_scheme</span>: <span class="ident">c</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;Color scheme&quot;</span>),
@@ -393,14 +393,14 @@
 
     <span class="comment">// At each point, add a 2D Gaussian kernel centered at the point.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">raw_grid</span>: <span class="ident">Grid</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Grid</span>::<span class="ident">new</span>(
-        (<span class="ident">bounds</span>.<span class="ident">width</span>() <span class="op">/</span> <span class="ident">opts</span>.<span class="ident">resolution</span> <span class="kw">as</span> <span class="ident">f64</span>).<span class="ident">ceil</span>() <span class="kw">as</span> <span class="ident">usize</span>,
-        (<span class="ident">bounds</span>.<span class="ident">height</span>() <span class="op">/</span> <span class="ident">opts</span>.<span class="ident">resolution</span> <span class="kw">as</span> <span class="ident">f64</span>).<span class="ident">ceil</span>() <span class="kw">as</span> <span class="ident">usize</span>,
+        (<span class="ident">bounds</span>.<span class="ident">width</span>() <span class="op">/</span> <span class="ident">opts</span>.<span class="ident">resolution</span>).<span class="ident">ceil</span>() <span class="kw">as</span> <span class="ident">usize</span>,
+        (<span class="ident">bounds</span>.<span class="ident">height</span>() <span class="op">/</span> <span class="ident">opts</span>.<span class="ident">resolution</span>).<span class="ident">ceil</span>() <span class="kw">as</span> <span class="ident">usize</span>,
         <span class="number">0.0</span>,
     );
     <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">pts</span> {
-        <span class="kw">let</span> <span class="ident">base_x</span> <span class="op">=</span> ((<span class="ident">pt</span>.<span class="ident">x</span>() <span class="op">-</span> <span class="ident">bounds</span>.<span class="ident">min_x</span>) <span class="op">/</span> <span class="ident">opts</span>.<span class="ident">resolution</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="kw">as</span> <span class="ident">isize</span>;
-        <span class="kw">let</span> <span class="ident">base_y</span> <span class="op">=</span> ((<span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">-</span> <span class="ident">bounds</span>.<span class="ident">min_y</span>) <span class="op">/</span> <span class="ident">opts</span>.<span class="ident">resolution</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="kw">as</span> <span class="ident">isize</span>;
-        <span class="kw">let</span> <span class="ident">denom</span> <span class="op">=</span> <span class="number">2.0</span> <span class="op">*</span> (<span class="ident">opts</span>.<span class="ident">radius</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">powi</span>(<span class="number">2</span>);
+        <span class="kw">let</span> <span class="ident">base_x</span> <span class="op">=</span> ((<span class="ident">pt</span>.<span class="ident">x</span>() <span class="op">-</span> <span class="ident">bounds</span>.<span class="ident">min_x</span>) <span class="op">/</span> <span class="ident">opts</span>.<span class="ident">resolution</span>) <span class="kw">as</span> <span class="ident">isize</span>;
+        <span class="kw">let</span> <span class="ident">base_y</span> <span class="op">=</span> ((<span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">-</span> <span class="ident">bounds</span>.<span class="ident">min_y</span>) <span class="op">/</span> <span class="ident">opts</span>.<span class="ident">resolution</span>) <span class="kw">as</span> <span class="ident">isize</span>;
+        <span class="kw">let</span> <span class="ident">denom</span> <span class="op">=</span> <span class="number">2.0</span> <span class="op">*</span> (<span class="ident">opts</span>.<span class="ident">radius</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">powi</span>(<span class="number">2</span>);
 
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">radius</span> <span class="kw">as</span> <span class="ident">isize</span>;
         <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">base_x</span> <span class="op">-</span> <span class="ident">r</span>..<span class="op">=</span><span class="ident">base_x</span> <span class="op">+</span> <span class="ident">r</span> {
@@ -424,8 +424,8 @@
     }
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">grid</span>: <span class="ident">Grid</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Grid</span>::<span class="ident">new</span>(
-        (<span class="ident">bounds</span>.<span class="ident">width</span>() <span class="op">/</span> <span class="ident">opts</span>.<span class="ident">resolution</span> <span class="kw">as</span> <span class="ident">f64</span>).<span class="ident">ceil</span>() <span class="kw">as</span> <span class="ident">usize</span>,
-        (<span class="ident">bounds</span>.<span class="ident">height</span>() <span class="op">/</span> <span class="ident">opts</span>.<span class="ident">resolution</span> <span class="kw">as</span> <span class="ident">f64</span>).<span class="ident">ceil</span>() <span class="kw">as</span> <span class="ident">usize</span>,
+        (<span class="ident">bounds</span>.<span class="ident">width</span>() <span class="op">/</span> <span class="ident">opts</span>.<span class="ident">resolution</span>).<span class="ident">ceil</span>() <span class="kw">as</span> <span class="ident">usize</span>,
+        (<span class="ident">bounds</span>.<span class="ident">height</span>() <span class="op">/</span> <span class="ident">opts</span>.<span class="ident">resolution</span>).<span class="ident">ceil</span>() <span class="kw">as</span> <span class="ident">usize</span>,
         <span class="number">0.0</span>,
     );
     <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">smoothing</span> {
@@ -482,7 +482,7 @@
                     <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">rgb</span>(<span class="ident">c</span>.<span class="ident">r</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">c</span>.<span class="ident">g</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">c</span>.<span class="ident">b</span> <span class="kw">as</span> <span class="ident">usize</span>).<span class="ident">alpha</span>(<span class="number">0.6</span>);
                     <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">polygons</span> {
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">poly</span>) <span class="op">=</span> <span class="ident">Polygon</span>::<span class="ident">from_geojson</span>(<span class="kw-2">&amp;</span><span class="ident">p</span>) {
-                            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">poly</span>.<span class="ident">scale</span>(<span class="ident">opts</span>.<span class="ident">resolution</span> <span class="kw">as</span> <span class="ident">f64</span>));
+                            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">poly</span>.<span class="ident">scale</span>(<span class="ident">opts</span>.<span class="ident">resolution</span>));
                         }
                     }
                 }
@@ -491,7 +491,7 @@
         }
     } <span class="kw">else</span> {
         <span class="comment">// Now draw rectangles</span>
-        <span class="kw">let</span> <span class="ident">square</span> <span class="op">=</span> <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="ident">opts</span>.<span class="ident">resolution</span> <span class="kw">as</span> <span class="ident">f64</span>, <span class="ident">opts</span>.<span class="ident">resolution</span> <span class="kw">as</span> <span class="ident">f64</span>);
+        <span class="kw">let</span> <span class="ident">square</span> <span class="op">=</span> <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="ident">opts</span>.<span class="ident">resolution</span>, <span class="ident">opts</span>.<span class="ident">resolution</span>);
         <span class="kw">for</span> <span class="ident">y</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">grid</span>.<span class="ident">height</span> {
             <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">grid</span>.<span class="ident">width</span> {
                 <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">grid</span>.<span class="ident">data</span>[<span class="ident">grid</span>.<span class="ident">idx</span>(<span class="ident">x</span>, <span class="ident">y</span>)];
@@ -503,7 +503,7 @@
                     <span class="ident">batch</span>.<span class="ident">push</span>(
                         <span class="ident">color</span>,
                         <span class="ident">square</span>
-                            .<span class="ident">translate</span>((<span class="ident">x</span> <span class="op">*</span> <span class="ident">opts</span>.<span class="ident">resolution</span>) <span class="kw">as</span> <span class="ident">f64</span>, (<span class="ident">y</span> <span class="op">*</span> <span class="ident">opts</span>.<span class="ident">resolution</span>) <span class="kw">as</span> <span class="ident">f64</span>),
+                            .<span class="ident">translate</span>((<span class="ident">x</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">opts</span>.<span class="ident">resolution</span>, (<span class="ident">y</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">opts</span>.<span class="ident">resolution</span>),
                     );
                 }
             }

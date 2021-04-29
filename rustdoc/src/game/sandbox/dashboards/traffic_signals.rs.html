@@ -251,6 +251,13 @@
 <span id="248">248</span>
 <span id="249">249</span>
 <span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -309,8 +316,14 @@
                 ])
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="string">&quot;Hour:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;hour&quot;</span>, (<span class="number">0</span>, <span class="number">24</span>), <span class="number">7</span>),
+                    <span class="string">&quot;Hour:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+                    <span class="ident">Spinner</span>::<span class="ident">widget</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="string">&quot;hour&quot;</span>,
+                        (<span class="ident">Duration</span>::<span class="ident">ZERO</span>, <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">24</span>)),
+                        <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">7</span>),
+                        <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">1</span>),
+                    ),
                 ]),
             ]))
             .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
@@ -365,15 +378,16 @@
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">LeftArrow</span>) {
-            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">modify_spinner</span>(<span class="ident">ctx</span>, <span class="string">&quot;hour&quot;</span>, <span class="op">-</span><span class="number">1</span>);
+            <span class="self">self</span>.<span class="ident">panel</span>
+                .<span class="ident">modify_spinner</span>(<span class="ident">ctx</span>, <span class="string">&quot;hour&quot;</span>, <span class="op">-</span><span class="number">1.0</span> <span class="op">*</span> <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">1</span>));
             <span class="ident">changed</span> <span class="op">=</span> <span class="bool-val">true</span>;
         }
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">RightArrow</span>) {
-            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">modify_spinner</span>(<span class="ident">ctx</span>, <span class="string">&quot;hour&quot;</span>, <span class="number">1</span>);
+            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">modify_spinner</span>(<span class="ident">ctx</span>, <span class="string">&quot;hour&quot;</span>, <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">1</span>));
             <span class="ident">changed</span> <span class="op">=</span> <span class="bool-val">true</span>;
         }
         <span class="kw">if</span> <span class="ident">changed</span> {
-            <span class="self">self</span>.<span class="ident">hour</span> <span class="op">=</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;hour&quot;</span>) <span class="kw">as</span> <span class="ident">usize</span>);
+            <span class="self">self</span>.<span class="ident">hour</span> <span class="op">=</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;hour&quot;</span>);
             <span class="self">self</span>.<span class="ident">draw_all</span> <span class="op">=</span> <span class="ident">Demand</span>::<span class="ident">draw_demand</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">all_demand</span>, <span class="self">self</span>.<span class="ident">hour</span>);
         }
 

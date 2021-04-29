@@ -1051,7 +1051,7 @@
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         ]),
         <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Spinner&quot;</span>).<span class="ident">big_heading_styled</span>().<span class="ident">size</span>(<span class="number">18</span>)).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">widgetry</span>::<span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;spinner&quot;</span>, (<span class="number">0</span>, <span class="number">11</span>), <span class="number">1</span>),
+        <span class="ident">widgetry</span>::<span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;spinner&quot;</span>, (<span class="number">0</span>, <span class="number">11</span>), <span class="number">1</span>, <span class="number">1</span>),
     ]);
     <span class="ident">tabs</span>.<span class="ident">push_tab</span>(<span class="ident">gallery_bar_item</span>, <span class="ident">gallery_content</span>);
 
@@ -1118,7 +1118,7 @@
                 <span class="ident">Widget</span>::<span class="ident">col</span>(
                     (<span class="number">0</span>..<span class="ident">row_height</span>)
                         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> {
-                            <span class="ident">widgetry</span>::<span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;spinner {}&quot;</span>, <span class="ident">i</span>), (<span class="number">0</span>, <span class="number">11</span>), <span class="number">1</span>)
+                            <span class="ident">widgetry</span>::<span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;spinner {}&quot;</span>, <span class="ident">i</span>), (<span class="number">0</span>, <span class="number">11</span>), <span class="number">1</span>, <span class="number">1</span>)
                         })
                         .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
                 ),

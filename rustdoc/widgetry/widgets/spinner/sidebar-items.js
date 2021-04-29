@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["TEXT_WIDTH",""]],"struct":[["Spinner",""]]});
+initSidebarItems({"constant":[["TEXT_WIDTH",""]],"struct":[["Spinner",""]],"trait":[["SpinnerValue",""]]});

@@ -312,6 +312,7 @@
 <span id="309">309</span>
 <span id="310">310</span>
 <span id="311">311</span>
+<span id="312">312</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -563,12 +564,13 @@
             ])
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="string">&quot;Offset (seconds):&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+                <span class="string">&quot;Offset:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
                 <span class="ident">Spinner</span>::<span class="ident">widget</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;offset&quot;</span>,
-                    (<span class="number">0</span>, <span class="number">90</span>),
-                    (<span class="ident">offset2</span> <span class="op">-</span> <span class="ident">offset1</span>).<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">isize</span>,
+                    (<span class="ident">Duration</span>::<span class="ident">ZERO</span>, <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">90.0</span>)),
+                    <span class="ident">offset2</span> <span class="op">-</span> <span class="ident">offset1</span>,
+                    <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">1.0</span>),
                 ),
             ]),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
@@ -602,7 +604,7 @@
             <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>,
             <span class="string">&quot;Update offset&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="self">self</span>.<span class="ident">i2</span>).<span class="ident">clone</span>();
-                <span class="kw">let</span> <span class="ident">relative</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;offset&quot;</span>) <span class="kw">as</span> <span class="ident">f64</span>);
+                <span class="kw">let</span> <span class="ident">relative</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;offset&quot;</span>);
                 <span class="kw">let</span> <span class="ident">offset1</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="self">self</span>.<span class="ident">i1</span>).<span class="ident">offset</span>;
                 <span class="ident">ts</span>.<span class="ident">offset</span> <span class="op">=</span> <span class="ident">offset1</span> <span class="op">+</span> <span class="ident">relative</span>;
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">incremental_edit_traffic_signal</span>(<span class="ident">ts</span>);
