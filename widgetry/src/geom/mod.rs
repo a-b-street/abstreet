@@ -280,7 +280,7 @@ pub enum RewriteColor {
     /// Change every instance of the first color to the second
     Change(Color, Color),
     /// Change all colors to the specified value. For this to be interesting, the batch shouldn't
-    /// be a solid block of color.
+    /// be a solid block of color. This does not modify Color::CLEAR.
     ChangeAll(Color),
     /// Change the alpha value of all colors to this value.
     ChangeAlpha(f32),
@@ -305,7 +305,13 @@ impl RewriteColor {
                     c
                 }
             }
-            RewriteColor::ChangeAll(to) => *to,
+            RewriteColor::ChangeAll(to) => {
+                if c == Color::CLEAR {
+                    c
+                } else {
+                    *to
+                }
+            }
             RewriteColor::ChangeAlpha(alpha) => c.alpha(*alpha),
             RewriteColor::MakeGrayscale => {
                 let avg = (c.r + c.g + c.b) / 3.0;

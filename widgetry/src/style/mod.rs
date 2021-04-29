@@ -32,6 +32,9 @@ pub type OutlineStyle = (f64, Color);
 
 static DEFAULT_OUTLINE_THICKNESS: f64 = 2.0;
 
+// This is #EE702E, called "ab_orange_1" in Figma
+const AB_ORANGE_1: Color = Color::rgb_f(0.933, 0.439, 0.18);
+
 // Some ButtonStyles are shared across Styles
 impl ButtonStyle {
     pub fn solid_dark_fg() -> Self {
@@ -104,19 +107,19 @@ impl ButtonStyle {
         Self {
             fg: hex("#F2F2F2"),
             fg_disabled: hex("#F2F2F2"),
-            bg: hex("#EE702E").tint(0.1),
-            bg_hover: hex("#EE702E"),
-            bg_disabled: hex("#EE702E").tint(0.3),
-            outline: (DEFAULT_OUTLINE_THICKNESS, hex("#EE702E").alpha(0.6)),
+            bg: AB_ORANGE_1.tint(0.1),
+            bg_hover: AB_ORANGE_1,
+            bg_disabled: AB_ORANGE_1.tint(0.3),
+            outline: (DEFAULT_OUTLINE_THICKNESS, AB_ORANGE_1.alpha(0.6)),
         }
     }
 
     pub fn plain_primary() -> Self {
         Self {
-            fg: hex("#EE702E"),
-            fg_disabled: hex("#EE702E").tint(0.3),
+            fg: AB_ORANGE_1,
+            fg_disabled: AB_ORANGE_1.tint(0.3),
             bg: Color::CLEAR,
-            bg_hover: hex("#EE702E").tint(0.1),
+            bg_hover: AB_ORANGE_1.tint(0.1),
             bg_disabled: Color::CLEAR,
             outline: (0.0, Color::CLEAR),
         }
@@ -158,9 +161,9 @@ impl Style {
             section_outline: (2.0, Color::WHITE.shade(0.1)),
             loading_tips: Text::new(),
             icon_fg: hex("#4C4C4C"),
-            primary_fg: hex("#EE702E"),
+            primary_fg: AB_ORANGE_1,
             text_fg_color: hex("#4C4C4C"),
-            text_hotkey_color: hex("#EE702E"),
+            text_hotkey_color: AB_ORANGE_1,
             text_tooltip_color: Color::WHITE,
             text_destructive_color: hex("#FF5E5E"),
             btn_outline: ButtonStyle::outline_dark_fg(),
@@ -191,7 +194,7 @@ impl Style {
             section_outline: (2.0, Color::WHITE),
             loading_tips: Text::new(),
             icon_fg: Color::WHITE,
-            primary_fg: hex("#EE702E"),
+            primary_fg: AB_ORANGE_1,
             text_fg_color: Color::WHITE,
             text_hotkey_color: Color::GREEN,
             text_tooltip_color: Color::WHITE,
@@ -228,7 +231,7 @@ impl Style {
             section_outline: (DEFAULT_OUTLINE_THICKNESS, navy.shade(0.2)),
             loading_tips: Text::new(),
             icon_fg: Color::WHITE,
-            primary_fg: hex("#EE702E"),
+            primary_fg: AB_ORANGE_1,
             text_fg_color: Color::WHITE,
             text_hotkey_color: Color::GREEN,
             text_tooltip_color: Color::WHITE,
