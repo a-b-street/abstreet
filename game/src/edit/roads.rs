@@ -1,3 +1,4 @@
+// TODO tmp
 use geom::Distance;
 use map_gui::render::{Renderable, OUTLINE_THICKNESS};
 use map_gui::ID;
