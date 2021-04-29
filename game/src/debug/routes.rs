@@ -209,20 +209,21 @@ fn params_to_controls(ctx: &mut EventCtx, mode: TripMode, params: &RoutingParams
             Spinner::widget(
                 ctx,
                 "unprotected turn penalty",
-                (1, 100),
-                params.unprotected_turn_penalty.inner_seconds() as isize,
+                (Duration::seconds(1.0), Duration::seconds(100.0)),
+                params.unprotected_turn_penalty,
+                Duration::seconds(1.0),
             ),
         ]));
     }
     if mode == TripMode::Bike {
-        // TODO Spinners that natively understand a floating point range with a given precision
         rows.push(Widget::row(vec![
             "Bike lane penalty:".text_widget(ctx).margin_right(20),
             Spinner::widget(
                 ctx,
                 "bike lane penalty",
-                (0, 20),
-                (params.bike_lane_penalty * 10.0) as isize,
+                (0.0, 2.0),
+                params.bike_lane_penalty,
+                0.1,
             ),
         ]));
         rows.push(Widget::row(vec![
@@ -230,8 +231,9 @@ fn params_to_controls(ctx: &mut EventCtx, mode: TripMode, params: &RoutingParams
             Spinner::widget(
                 ctx,
                 "bus lane penalty",
-                (0, 20),
-                (params.bus_lane_penalty * 10.0) as isize,
+                (0.0, 2.0),
+                params.bus_lane_penalty,
+                0.1,
             ),
         ]));
         rows.push(Widget::row(vec![
@@ -239,8 +241,9 @@ fn params_to_controls(ctx: &mut EventCtx, mode: TripMode, params: &RoutingParams
             Spinner::widget(
                 ctx,
                 "driving lane penalty",
-                (0, 20),
-                (params.driving_lane_penalty * 10.0) as isize,
+                (0.0, 2.0),
+                params.driving_lane_penalty,
+                0.1,
             ),
         ]));
     }
@@ -250,18 +253,16 @@ fn params_to_controls(ctx: &mut EventCtx, mode: TripMode, params: &RoutingParams
 fn controls_to_params(panel: &Panel) -> (TripMode, RoutingParams) {
     let mut params = RoutingParams::default();
     if !panel.is_button_enabled("cars") {
-        params.unprotected_turn_penalty =
-            Duration::seconds(panel.spinner("unprotected turn penalty") as f64);
+        params.unprotected_turn_penalty = panel.spinner("unprotected turn penalty");
         return (TripMode::Drive, params);
     }
     if !panel.is_button_enabled("pedestrians") {
         return (TripMode::Walk, params);
     }
-    params.unprotected_turn_penalty =
-        Duration::seconds(panel.spinner("unprotected turn penalty") as f64 / 10.0);
-    params.bike_lane_penalty = panel.spinner("bike lane penalty") as f64 / 10.0;
-    params.bus_lane_penalty = panel.spinner("bus lane penalty") as f64 / 10.0;
-    params.driving_lane_penalty = panel.spinner("driving lane penalty") as f64 / 10.0;
+    params.unprotected_turn_penalty = panel.spinner("unprotected turn penalty");
+    params.bike_lane_penalty = panel.spinner("bike lane penalty");
+    params.bus_lane_penalty = panel.spinner("bus lane penalty");
+    params.driving_lane_penalty = panel.spinner("driving lane penalty");
     (TripMode::Bike, params)
 }
 

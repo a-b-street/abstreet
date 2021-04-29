@@ -58,12 +58,14 @@ impl ZoneEditor {
                 checkbox_per_mode(ctx, app, &allow_through_traffic),
                 Widget::row(vec![
                     "Limit the number of vehicles passing through per hour (0 = unlimited):"
-                        .text_widget(ctx),
+                        .text_widget(ctx)
+                        .centered_vert(),
                     Spinner::widget(
                         ctx,
                         "cap_vehicles",
                         (0, 1000),
-                        cap_vehicles_per_hour.unwrap_or(0) as isize,
+                        cap_vehicles_per_hour.unwrap_or(0),
+                        1,
                     ),
                 ]),
                 Widget::custom_row(vec![
@@ -119,7 +121,7 @@ impl State<App> for ZoneEditor {
                     let new_access_restrictions = AccessRestrictions {
                         allow_through_traffic,
                         cap_vehicles_per_hour: {
-                            let n = self.panel.spinner("cap_vehicles") as usize;
+                            let n = self.panel.spinner("cap_vehicles");
                             if n == 0 {
                                 None
                             } else {

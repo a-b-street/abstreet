@@ -1,21 +1,46 @@
 use geom::{CornerRadii, Distance, Polygon, Pt2D};
 
 use crate::{
-    include_labeled_bytes, text, Button, Drawable, EdgeInsets, EventCtx, GeomBatch, GfxCtx,
-    Outcome, OutlineStyle, Prerender, ScreenDims, ScreenPt, ScreenRectangle, Style, Text, Widget,
+    include_labeled_bytes, Button, Drawable, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Outcome,
+    OutlineStyle, Prerender, ScreenDims, ScreenPt, ScreenRectangle, Style, Text, Widget,
     WidgetImpl, WidgetOutput,
 };
 
-// TODO MAX_CHAR_WIDTH is a hardcoded nonsense value
-const TEXT_WIDTH: f64 = 2.0 * text::MAX_CHAR_WIDTH;
+// Manually tuned
+const TEXT_WIDTH: f64 = 80.0;
+
+pub trait SpinnerValue:
+    Copy
+    + PartialOrd
+    + std::fmt::Display
+    + std::ops::Add<Output = Self>
+    + std::ops::AddAssign
+    + std::ops::Sub<Output = Self>
+    + std::ops::SubAssign
+where
+    Self: std::marker::Sized,
+{
+}
+
+impl<T> SpinnerValue for T where
+    T: Copy
+        + PartialOrd
+        + std::fmt::Display
+        + std::ops::Add<Output = Self>
+        + std::ops::AddAssign
+        + std::ops::Sub<Output = Self>
+        + std::ops::SubAssign
+{
+}
 
 // TODO Allow text entry
 // TODO Allow click and hold
 // TODO Grey out the buttons when we're maxed out
-pub struct Spinner {
-    low: isize,
-    high: isize,
-    pub current: isize,
+pub struct Spinner<T> {
+    low: T,
+    high: T,
+    step_size: T,
+    pub current: T,
     label: String,
 
     up: Button,
@@ -27,12 +52,13 @@ pub struct Spinner {
     dims: ScreenDims,
 }
 
-impl Spinner {
+impl<T: 'static + SpinnerValue> Spinner<T> {
     pub fn widget(
         ctx: &EventCtx,
         label: impl Into<String>,
-        (low, high): (isize, isize),
-        current: isize,
+        (low, high): (T, T),
+        current: T,
+        step_size: T,
     ) -> Widget {
         let label = label.into();
         Widget::new(Box::new(Self::new(
@@ -40,11 +66,18 @@ impl Spinner {
             label.clone(),
             (low, high),
             current,
+            step_size,
         )))
         .named(label)
     }
 
-    fn new(ctx: &EventCtx, label: String, (low, high): (isize, isize), mut current: isize) -> Self {
+    fn new(
+        ctx: &EventCtx,
+        label: String,
+        (low, high): (T, T),
+        mut current: T,
+        step_size: T,
+    ) -> Self {
         let button_builder = ctx
             .style()
             .btn_plain
@@ -101,6 +134,7 @@ impl Spinner {
             low,
             high,
             current,
+            step_size,
             label,
 
             up,
@@ -114,11 +148,19 @@ impl Spinner {
         spinner
     }
 
-    pub fn modify(&mut self, ctx: &EventCtx, delta: isize) {
+    pub fn modify(&mut self, ctx: &EventCtx, delta: T) {
         self.current += delta;
-        self.current = self.current.min(self.high);
-        self.current = self.current.max(self.low);
+        self.clamp();
         self.drawable = self.drawable(ctx.prerender, ctx.style());
+    }
+
+    fn clamp(&mut self) {
+        if self.current > self.high {
+            self.current = self.high;
+        }
+        if self.current < self.low {
+            self.current = self.low;
+        }
     }
 
     fn drawable(&self, prerender: &Prerender, style: &Style) -> Drawable {
@@ -141,7 +183,7 @@ impl Spinner {
     }
 }
 
-impl WidgetImpl for Spinner {
+impl<T: 'static + SpinnerValue> WidgetImpl for Spinner<T> {
     fn get_dims(&self) -> ScreenDims {
         self.dims
     }
@@ -162,7 +204,8 @@ impl WidgetImpl for Spinner {
         self.up.event(ctx, output);
         if let Outcome::Clicked(_) = output.outcome {
             output.outcome = Outcome::Changed(self.label.clone());
-            self.current = (self.current + 1).min(self.high);
+            self.current += self.step_size;
+            self.clamp();
             self.drawable = self.drawable(&ctx.prerender, ctx.style());
             ctx.no_op_event(true, |ctx| self.up.event(ctx, output));
             return;
@@ -171,7 +214,8 @@ impl WidgetImpl for Spinner {
         self.down.event(ctx, output);
         if let Outcome::Clicked(_) = output.outcome {
             output.outcome = Outcome::Changed(self.label.clone());
-            self.current = (self.current - 1).max(self.low);
+            self.current -= self.step_size;
+            self.clamp();
             self.drawable = self.drawable(&ctx.prerender, ctx.style());
             ctx.no_op_event(true, |ctx| self.down.event(ctx, output));
             return;
@@ -180,13 +224,15 @@ impl WidgetImpl for Spinner {
         if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
             if ScreenRectangle::top_left(self.top_left, self.dims).contains(pt) {
                 if let Some((_, dy)) = ctx.input.get_mouse_scroll() {
-                    if dy > 0.0 && self.current != self.high {
-                        self.current += 1;
+                    if dy > 0.0 && self.current < self.high {
+                        self.current += self.step_size;
+                        self.clamp();
                         output.outcome = Outcome::Changed(self.label.clone());
                         self.drawable = self.drawable(&ctx.prerender, ctx.style());
                     }
-                    if dy < 0.0 && self.current != self.low {
-                        self.current -= 1;
+                    if dy < 0.0 && self.current > self.low {
+                        self.current -= self.step_size;
+                        self.clamp();
                         output.outcome = Outcome::Changed(self.label.clone());
                         self.drawable = self.drawable(&ctx.prerender, ctx.style());
                     }

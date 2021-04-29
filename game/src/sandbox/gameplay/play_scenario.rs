@@ -256,7 +256,7 @@ impl EditScenarioModifiers {
                 .build_def(ctx),
         );
         rows.push(Widget::row(vec![
-            Spinner::widget(ctx, "repeat_days", (2, 14), 2),
+            Spinner::widget(ctx, "repeat_days", (2, 14), 2, 1),
             ctx.style()
                 .btn_outline
                 .text("Repeat schedule multiple days")
@@ -350,7 +350,7 @@ impl State<App> for EditScenarioModifiers {
                 }
                 "Repeat schedule multiple days" => {
                     self.modifiers.push(ScenarioModifier::RepeatDays(
-                        self.panel.spinner("repeat_days") as usize,
+                        self.panel.spinner("repeat_days"),
                     ));
                     return Transition::Replace(EditScenarioModifiers::new(
                         ctx,
@@ -405,7 +405,7 @@ impl ChangeMode {
                     "Percent of people to modify:"
                         .text_widget(ctx)
                         .centered_vert(),
-                    Spinner::widget(ctx, "pct_ppl", (1, 100), 50),
+                    Spinner::widget(ctx, "pct_ppl", (1, 100), 50, 1),
                 ]),
                 "Types of trips to convert:".text_widget(ctx),
                 checkbox_per_mode(ctx, app, &btreeset! { TripMode::Drive }),
@@ -455,7 +455,7 @@ impl State<App> for ChangeMode {
                 "Discard changes" => Transition::Pop,
                 "Apply" => {
                     let to_mode = self.panel.dropdown_value::<Option<TripMode>, _>("to_mode");
-                    let pct_ppl = self.panel.spinner("pct_ppl") as usize;
+                    let pct_ppl = self.panel.spinner("pct_ppl");
                     let (p1, p2) = (
                         self.panel.slider("depart from").get_percent(),
                         self.panel.slider("depart to").get_percent(),
