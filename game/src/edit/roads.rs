@@ -1,4 +1,4 @@
-use geom::Distance;
+use geom::{CornerRadii, Distance};
 use map_gui::render::{Renderable, OUTLINE_THICKNESS};
 use map_gui::ID;
 use map_model::{
@@ -7,7 +7,7 @@ use map_model::{
 use widgetry::{
     lctrl, Choice, Color, ControlState, Drawable, EventCtx, GeomBatch, GeomBatchStack, GfxCtx,
     HorizontalAlignment, Image, Key, Line, Outcome, Panel, State, Text, TextExt, VerticalAlignment,
-    Widget,
+    Widget, DEFAULT_CORNER_RADIUS,
 };
 
 use crate::app::{App, Transition};
@@ -399,13 +399,18 @@ fn make_main_panel(
     let available_lane_types_row = Widget::row(available_lane_types_row);
 
     let mut current_lanes_ltr = Vec::new();
-    for (id, dir, lt) in road.lanes_ltr() {
+
+    let lanes_ltr = road.lanes_ltr();
+    let lanes_len = lanes_ltr.len();
+    for (idx, (id, dir, lt)) in lanes_ltr.into_iter().enumerate() {
         let mut stack = GeomBatchStack::vertical(vec![
             Image::from_path(lane_type_to_icon(lt).unwrap())
                 .build_batch(ctx)
                 .unwrap()
                 .0,
         ]);
+        stack.spacing(20.0);
+
         if can_reverse(lt) {
             stack.push(
                 Image::from_path(if dir == Direction::Fwd {
@@ -421,6 +426,16 @@ fn make_main_panel(
         let stack_batch = stack.batch();
         let stack_bounds = stack_batch.get_bounds();
 
+        let mut rounding = CornerRadii::zero();
+        if idx == 0 {
+            rounding.top_left = DEFAULT_CORNER_RADIUS;
+            rounding.bottom_left = DEFAULT_CORNER_RADIUS;
+        }
+        if idx == lanes_len - 1 {
+            rounding.top_right = DEFAULT_CORNER_RADIUS;
+            rounding.bottom_right = DEFAULT_CORNER_RADIUS;
+        }
+
         current_lanes_ltr.push(
             ctx.style()
                 .btn_plain
@@ -428,14 +443,19 @@ fn make_main_panel(
                 .image_batch(stack_batch, stack_bounds)
                 .disabled(Some(id) == current_lane)
                 .bg_color(ctx.style().section_bg, ControlState::Default)
+                .bg_color(ctx.style().section_bg.shade(0.1), ControlState::Hovered)
                 .bg_color(ctx.style().btn_solid_primary.bg, ControlState::Disabled)
+                .image_color(ctx.style().btn_plain.fg, ControlState::Disabled)
                 .image_dims(60.0)
-                .outline(ctx.style().btn_outline.outline, ControlState::Disabled)
+                .padding_top(32.0)
+                .padding_bottom(32.0)
+                .corner_rounding(rounding)
                 .build_widget(ctx, format!("modify {}", id)),
         );
     }
-    // Disable the default margin between buttons
-    let current_lanes_ltr = Widget::custom_row(current_lanes_ltr);
+
+    let current_lanes_ltr =
+        Widget::evenly_spaced_row(current_lanes_ltr, 2).bg(Color::hex("#979797"));
 
     let road_settings = Widget::row(vec![
         Text::from_all(vec![

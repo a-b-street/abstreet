@@ -418,6 +418,21 @@ impl Widget {
         Widget::new(Box::new(Container::new(true, new)))
     }
 
+    /// Creates a row with the specified widgets, with a `spacing` sized margin between members
+    pub fn evenly_spaced_row(widgets: Vec<Widget>, spacing: usize) -> Widget {
+        let mut new = Vec::new();
+        let len = widgets.len();
+        // TODO Time for that is_last iterator?
+        for (idx, w) in widgets.into_iter().enumerate() {
+            if idx == len - 1 {
+                new.push(w);
+            } else {
+                new.push(w.margin_right(spacing));
+            }
+        }
+        Widget::new(Box::new(Container::new(true, new)))
+    }
+
     /// Creates a column with the specified widgets. No margins or other layouting is applied.
     pub fn custom_col(widgets: Vec<Widget>) -> Widget {
         Widget::new(Box::new(Container::new(false, widgets)))
