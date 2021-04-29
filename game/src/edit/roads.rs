@@ -508,8 +508,34 @@ fn can_reverse(_: LaneType) -> bool {
     lt == LaneType::Driving || lt == LaneType::Biking || lt == LaneType::Bus
 }*/
 
+fn default_outside_lane_placement(road: &mut EditRoad, dir: Direction) -> usize {
+    let idx = if road.lanes_ltr.first().unwrap().dir == dir {
+        if road.lanes_ltr.first().unwrap().lt.is_walkable() {
+            1
+        } else {
+            0
+        }
+    } else {
+        if road.lanes_ltr.last().unwrap().lt.is_walkable() {
+            road.lanes_ltr.len() - 1
+        } else {
+            road.lanes_ltr.len()
+        }
+    };
+    idx
+}
+
 // Returns the index where the new lane was inserted
 fn add_new_lane(road: &mut EditRoad, lt: LaneType) -> usize {
+
+    // Default to Fwd as long as the lane directions are equal or there are more with Back
+    // if there are more lanes with Fwd then use Back
+    let dir = if (road.lanes_ltr.iter().filter(|x| x.dir == Direction::Fwd).count() as f64 / road.lanes_ltr.len() as f64) <= 0.5 {
+        Direction::Fwd
+    } else {
+        Direction::Back
+    };
+
     let idx = match lt {
         // In the middle (where the direction changes)
         LaneType::Driving => road
@@ -518,28 +544,24 @@ fn add_new_lane(road: &mut EditRoad, lt: LaneType) -> usize {
             .position(|pair| pair[0].dir != pair[1].dir)
             .map(|x| x + 1)
             .unwrap_or(road.lanes_ltr.len()),
-        // Place on the forwards side, before any sidewalk
+        // Place on the dir side, before any sidewalk
         LaneType::Biking | LaneType::Bus | LaneType::Parking | LaneType::Construction => {
-            if road.lanes_ltr.last().unwrap().lt.is_walkable() {
-                road.lanes_ltr.len() - 1
-            } else {
-                road.lanes_ltr.len()
-            }
+            default_outside_lane_placement(road, dir)
         }
-        // Place it where it's missing
+        // Place it where it's missing, and if both sides have or do not have sidewalks then go with the dir side
         LaneType::Sidewalk => {
-            if !road.lanes_ltr[0].lt.is_walkable() {
-                0
+            if (road.lanes_ltr.first().unwrap().lt.is_walkable() && road.lanes_ltr.last().unwrap().lt.is_walkable()) ||
+                (!road.lanes_ltr.first().unwrap().lt.is_walkable() && !road.lanes_ltr.last().unwrap().lt.is_walkable()) {
+                default_outside_lane_placement(road, dir)
             } else {
-                road.lanes_ltr.len()
+                if road.lanes_ltr.first().unwrap().lt.is_walkable() {
+                    road.lanes_ltr.len()
+                } else {
+                    0
+                }
             }
         }
         _ => unreachable!(),
-    };
-    let dir = if idx != 0 {
-        road.lanes_ltr[idx - 1].dir
-    } else {
-        Direction::Fwd
     };
 
     road.lanes_ltr.insert(
