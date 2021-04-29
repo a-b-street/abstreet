@@ -555,6 +555,31 @@
 <span id="552">552</span>
 <span id="553">553</span>
 <span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Distance</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">render</span>::{<span class="ident">Renderable</span>, <span class="ident">OUTLINE_THICKNESS</span>};
@@ -563,8 +588,9 @@
     <span class="ident">Direction</span>, <span class="ident">EditCmd</span>, <span class="ident">EditRoad</span>, <span class="ident">LaneID</span>, <span class="ident">LaneSpec</span>, <span class="ident">LaneType</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>,
 };
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>,
-    <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GeomBatchStack</span>, <span class="ident">GfxCtx</span>,
+    <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>,
+    <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
@@ -956,19 +982,43 @@
     <span class="kw">let</span> <span class="ident">available_lane_types_row</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="ident">available_lane_types_row</span>);
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_lanes_ltr</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">for</span> (<span class="ident">id</span>, <span class="kw">_</span>, <span class="ident">lt</span>) <span class="kw">in</span> <span class="ident">road</span>.<span class="ident">lanes_ltr</span>() {
-        <span class="comment">// TODO Add direction arrow sometimes</span>
+    <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">dir</span>, <span class="ident">lt</span>) <span class="kw">in</span> <span class="ident">road</span>.<span class="ident">lanes_ltr</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stack</span> <span class="op">=</span> <span class="ident">GeomBatchStack</span>::<span class="ident">vertical</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="ident">lane_type_to_icon</span>(<span class="ident">lt</span>).<span class="ident">unwrap</span>())
+                .<span class="ident">build_batch</span>(<span class="ident">ctx</span>)
+                .<span class="ident">unwrap</span>()
+                .<span class="number">0</span>,
+        ]);
+        <span class="kw">if</span> <span class="ident">can_reverse</span>(<span class="ident">lt</span>) {
+            <span class="ident">stack</span>.<span class="ident">push</span>(
+                <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="kw">if</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span> {
+                    <span class="string">&quot;system/assets/edit/forwards.svg&quot;</span>
+                } <span class="kw">else</span> {
+                    <span class="string">&quot;system/assets/edit/backwards.svg&quot;</span>
+                })
+                .<span class="ident">build_batch</span>(<span class="ident">ctx</span>)
+                .<span class="ident">unwrap</span>()
+                .<span class="number">0</span>,
+            );
+        }
+        <span class="kw">let</span> <span class="ident">stack_batch</span> <span class="op">=</span> <span class="ident">stack</span>.<span class="ident">batch</span>();
+        <span class="kw">let</span> <span class="ident">stack_bounds</span> <span class="op">=</span> <span class="ident">stack_batch</span>.<span class="ident">get_bounds</span>();
+
         <span class="ident">current_lanes_ltr</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_plain</span>
-                .<span class="ident">icon</span>(<span class="ident">lane_type_to_icon</span>(<span class="ident">lt</span>).<span class="ident">unwrap</span>())
+                .<span class="ident">btn</span>()
+                .<span class="ident">image_batch</span>(<span class="ident">stack_batch</span>, <span class="ident">stack_bounds</span>)
                 .<span class="ident">disabled</span>(<span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">current_lane</span>)
-                .<span class="ident">image_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">fg</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
+                .<span class="ident">bg_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_bg</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
+                .<span class="ident">bg_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_primary</span>.<span class="ident">bg</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
+                .<span class="ident">image_dims</span>(<span class="number">60.0</span>)
                 .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">outline</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;modify {}&quot;</span>, <span class="ident">id</span>)),
         );
     }
-    <span class="kw">let</span> <span class="ident">current_lanes_ltr</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="ident">current_lanes_ltr</span>);
+    <span class="comment">// Disable the default margin between buttons</span>
+    <span class="kw">let</span> <span class="ident">current_lanes_ltr</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">current_lanes_ltr</span>);
 
     <span class="kw">let</span> <span class="ident">road_settings</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -1027,7 +1077,7 @@
     <span class="kw">match</span> <span class="ident">lt</span> {
         <span class="ident">LaneType</span>::<span class="ident">Driving</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/driving.svg&quot;</span>),
         <span class="ident">LaneType</span>::<span class="ident">Parking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/parking.svg&quot;</span>),
-        <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span> <span class="op">|</span> <span class="ident">LaneType</span>::<span class="ident">Shoulder</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/meters/pedestrian.svg&quot;</span>),
+        <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span> <span class="op">|</span> <span class="ident">LaneType</span>::<span class="ident">Shoulder</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/sidewalk.svg&quot;</span>),
         <span class="ident">LaneType</span>::<span class="ident">Biking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/bike.svg&quot;</span>),
         <span class="ident">LaneType</span>::<span class="ident">Bus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/bus.svg&quot;</span>),
         <span class="comment">// TODO Add an icon for this</span>

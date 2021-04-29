@@ -260,6 +260,9 @@
 <span id="257">257</span>
 <span id="258">258</span>
 <span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Color</span>, <span class="ident">Text</span>};
 
@@ -294,6 +297,9 @@
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">OutlineStyle</span> <span class="op">=</span> (<span class="ident">f64</span>, <span class="ident">Color</span>);
 
 <span class="kw">static</span> <span class="ident">DEFAULT_OUTLINE_THICKNESS</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">2.0</span>;
+
+<span class="comment">// This is #EE702E, called &quot;ab_orange_1&quot; in Figma</span>
+<span class="kw">const</span> <span class="ident">AB_ORANGE_1</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">rgb_f</span>(<span class="number">0.933</span>, <span class="number">0.439</span>, <span class="number">0.18</span>);
 
 <span class="comment">// Some ButtonStyles are shared across Styles</span>
 <span class="kw">impl</span> <span class="ident">ButtonStyle</span> {
@@ -367,19 +373,19 @@
         <span class="self">Self</span> {
             <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>),
             <span class="ident">fg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>),
-            <span class="ident">bg</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>).<span class="ident">tint</span>(<span class="number">0.1</span>),
-            <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>),
-            <span class="ident">bg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>).<span class="ident">tint</span>(<span class="number">0.3</span>),
-            <span class="ident">outline</span>: (<span class="ident">DEFAULT_OUTLINE_THICKNESS</span>, <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.6</span>)),
+            <span class="ident">bg</span>: <span class="ident">AB_ORANGE_1</span>.<span class="ident">tint</span>(<span class="number">0.1</span>),
+            <span class="ident">bg_hover</span>: <span class="ident">AB_ORANGE_1</span>,
+            <span class="ident">bg_disabled</span>: <span class="ident">AB_ORANGE_1</span>.<span class="ident">tint</span>(<span class="number">0.3</span>),
+            <span class="ident">outline</span>: (<span class="ident">DEFAULT_OUTLINE_THICKNESS</span>, <span class="ident">AB_ORANGE_1</span>.<span class="ident">alpha</span>(<span class="number">0.6</span>)),
         }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">plain_primary</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>),
-            <span class="ident">fg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>).<span class="ident">tint</span>(<span class="number">0.3</span>),
+            <span class="ident">fg</span>: <span class="ident">AB_ORANGE_1</span>,
+            <span class="ident">fg_disabled</span>: <span class="ident">AB_ORANGE_1</span>.<span class="ident">tint</span>(<span class="number">0.3</span>),
             <span class="ident">bg</span>: <span class="ident">Color</span>::<span class="ident">CLEAR</span>,
-            <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>).<span class="ident">tint</span>(<span class="number">0.1</span>),
+            <span class="ident">bg_hover</span>: <span class="ident">AB_ORANGE_1</span>.<span class="ident">tint</span>(<span class="number">0.1</span>),
             <span class="ident">bg_disabled</span>: <span class="ident">Color</span>::<span class="ident">CLEAR</span>,
             <span class="ident">outline</span>: (<span class="number">0.0</span>, <span class="ident">Color</span>::<span class="ident">CLEAR</span>),
         }
@@ -421,9 +427,9 @@
             <span class="ident">section_outline</span>: (<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>.<span class="ident">shade</span>(<span class="number">0.1</span>)),
             <span class="ident">loading_tips</span>: <span class="ident">Text</span>::<span class="ident">new</span>(),
             <span class="ident">icon_fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>),
-            <span class="ident">primary_fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>),
+            <span class="ident">primary_fg</span>: <span class="ident">AB_ORANGE_1</span>,
             <span class="ident">text_fg_color</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>),
-            <span class="ident">text_hotkey_color</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>),
+            <span class="ident">text_hotkey_color</span>: <span class="ident">AB_ORANGE_1</span>,
             <span class="ident">text_tooltip_color</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>,
             <span class="ident">text_destructive_color</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>),
             <span class="ident">btn_outline</span>: <span class="ident">ButtonStyle</span>::<span class="ident">outline_dark_fg</span>(),
@@ -454,7 +460,7 @@
             <span class="ident">section_outline</span>: (<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>),
             <span class="ident">loading_tips</span>: <span class="ident">Text</span>::<span class="ident">new</span>(),
             <span class="ident">icon_fg</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>,
-            <span class="ident">primary_fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>),
+            <span class="ident">primary_fg</span>: <span class="ident">AB_ORANGE_1</span>,
             <span class="ident">text_fg_color</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>,
             <span class="ident">text_hotkey_color</span>: <span class="ident">Color</span>::<span class="ident">GREEN</span>,
             <span class="ident">text_tooltip_color</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>,
@@ -491,7 +497,7 @@
             <span class="ident">section_outline</span>: (<span class="ident">DEFAULT_OUTLINE_THICKNESS</span>, <span class="ident">navy</span>.<span class="ident">shade</span>(<span class="number">0.2</span>)),
             <span class="ident">loading_tips</span>: <span class="ident">Text</span>::<span class="ident">new</span>(),
             <span class="ident">icon_fg</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>,
-            <span class="ident">primary_fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>),
+            <span class="ident">primary_fg</span>: <span class="ident">AB_ORANGE_1</span>,
             <span class="ident">text_fg_color</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>,
             <span class="ident">text_hotkey_color</span>: <span class="ident">Color</span>::<span class="ident">GREEN</span>,
             <span class="ident">text_tooltip_color</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>,

@@ -107,8 +107,6 @@
 <span id="104">104</span>
 <span id="105">105</span>
 <span id="106">106</span>
-<span id="107">107</span>
-<span id="108">108</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">GeomBatch</span>;
 
@@ -151,7 +149,6 @@
         }
     }
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vertical</span>(<span class="ident">batches</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GeomBatch</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">GeomBatchStack</span> {
             <span class="ident">batches</span>,
@@ -164,7 +161,6 @@
         <span class="self">self</span>.<span class="ident">axis</span> <span class="op">=</span> <span class="ident">new_value</span>;
     }
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">geom_batch</span>: <span class="ident">GeomBatch</span>) {
         <span class="self">self</span>.<span class="ident">batches</span>.<span class="ident">push</span>(<span class="ident">geom_batch</span>);
     }
