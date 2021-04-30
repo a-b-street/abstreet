@@ -65,6 +65,21 @@
       "uncompressed_size_bytes": 4943361,
       "compressed_size_bytes": 1238666
     },
+    "data/input/cz/frydek_mistek/osm/czech-republic-latest.osm.pbf": {
+      "checksum": "3253ca53e2d50acddfaebe195eb3b870",
+      "uncompressed_size_bytes": 773986921,
+      "compressed_size_bytes": 773137890
+    },
+    "data/input/cz/frydek_mistek/osm/huge.osm": {
+      "checksum": "1284b6f23b1981d707a584603b5daacf",
+      "uncompressed_size_bytes": 33986884,
+      "compressed_size_bytes": 3330633
+    },
+    "data/input/cz/frydek_mistek/raw_maps/huge.bin": {
+      "checksum": "d679cb5a8ec3c88e685b27e510f0fdfb",
+      "uncompressed_size_bytes": 8616454,
+      "compressed_size_bytes": 2360631
+    },
     "data/input/de/berlin/EWR201812E_Matrix.csv": {
       "checksum": "7966d3e37c45e7ffa4ee26bb6c8cec28",
       "uncompressed_size_bytes": 89337,
@@ -1460,6 +1475,11 @@
       "uncompressed_size_bytes": 7213213,
       "compressed_size_bytes": 7205382
     },
+    "data/input/shared/elevation/srtm/srtm.18.49.tif": {
+      "checksum": "a316408f142f7aa463d24142749758b2",
+      "uncompressed_size_bytes": 5636550,
+      "compressed_size_bytes": 5631401
+    },
     "data/input/shared/elevation/srtm/srtm.19.50.tif": {
       "checksum": "b069dcb826edea736278ae582945d38c",
       "uncompressed_size_bytes": 3240032,
@@ -2019,6 +2039,11 @@
       "checksum": "df9ffab196ef0004c07d78de28d2c3d0",
       "uncompressed_size_bytes": 14376273,
       "compressed_size_bytes": 4834336
+    },
+    "data/system/cz/frydek_mistek/maps/huge.bin": {
+      "checksum": "b8364c4171bad87d400723f87988b5a3",
+      "uncompressed_size_bytes": 21320520,
+      "compressed_size_bytes": 7517781
     },
     "data/system/de/berlin/maps/center.bin": {
       "checksum": "7add9f5cda97dbb9be501fd105208794",
