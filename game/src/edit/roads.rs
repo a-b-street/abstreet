@@ -508,9 +508,11 @@ fn can_reverse(_: LaneType) -> bool {
     lt == LaneType::Driving || lt == LaneType::Biking || lt == LaneType::Bus
 }*/
 
+// Place the new lane according to its direction on the outside unless the outside is walkable in
+// which case place inside the walkable lane
 fn default_outside_lane_placement(road: &mut EditRoad, dir: Direction) -> usize {
-    let idx = if road.lanes_ltr.first().unwrap().dir == dir {
-        if road.lanes_ltr.first().unwrap().lt.is_walkable() {
+    if road.lanes_ltr[0].dir == dir {
+        if road.lanes_ltr[0].lt.is_walkable() {
             1
         } else {
             0
@@ -521,19 +523,63 @@ fn default_outside_lane_placement(road: &mut EditRoad, dir: Direction) -> usize 
         } else {
             road.lanes_ltr.len()
         }
-    };
-    idx
+    }
+}
+
+// If there are more lanes of type lt pointing forward, then insert the new one backwards, and vice
+// versa
+fn determine_lane_dir(road: &mut EditRoad, lt: LaneType, minority: bool) -> Direction {
+    if (road
+        .lanes_ltr
+        .iter()
+        .filter(|x| x.dir == Direction::Fwd && x.lt == lt)
+        .count() as f64
+        / road.lanes_ltr.iter().filter(|x| x.lt == lt).count() as f64)
+        <= 0.5
+    {
+        if minority {
+            Direction::Fwd
+        } else {
+            Direction::Back
+        }
+    } else {
+        if minority {
+            Direction::Back
+        } else {
+            Direction::Fwd
+        }
+    }
 }
 
 // Returns the index where the new lane was inserted
 fn add_new_lane(road: &mut EditRoad, lt: LaneType) -> usize {
-
-    // Default to Fwd as long as the lane directions are equal or there are more with Back
-    // if there are more lanes with Fwd then use Back
-    let dir = if (road.lanes_ltr.iter().filter(|x| x.dir == Direction::Fwd).count() as f64 / road.lanes_ltr.len() as f64) <= 0.5 {
-        Direction::Fwd
-    } else {
-        Direction::Back
+    let dir = match lt {
+        LaneType::Driving => determine_lane_dir(road, lt, true),
+        LaneType::Biking | LaneType::Bus | LaneType::Parking | LaneType::Construction => {
+            let relevant_lanes: Vec<&LaneSpec> =
+                road.lanes_ltr.iter().filter(|x| x.lt == lt).collect();
+            if relevant_lanes.len() > 0 {
+                // When a lane already exists then default to the direction on the other side of the
+                // road
+                if relevant_lanes[0].dir == Direction::Fwd {
+                    Direction::Back
+                } else {
+                    Direction::Fwd
+                }
+            } else {
+                // If no lanes exist then default to the majority direction to help deal with one
+                // way streets, etc.
+                determine_lane_dir(road, lt, false)
+            }
+        }
+        LaneType::Sidewalk => {
+            if !road.lanes_ltr[0].lt.is_walkable() {
+                road.lanes_ltr[0].dir
+            } else {
+                road.lanes_ltr.last().unwrap().dir
+            }
+        }
+        _ => unreachable!(),
     };
 
     let idx = match lt {
@@ -548,17 +594,12 @@ fn add_new_lane(road: &mut EditRoad, lt: LaneType) -> usize {
         LaneType::Biking | LaneType::Bus | LaneType::Parking | LaneType::Construction => {
             default_outside_lane_placement(road, dir)
         }
-        // Place it where it's missing, and if both sides have or do not have sidewalks then go with the dir side
+        // Place it where it's missing
         LaneType::Sidewalk => {
-            if (road.lanes_ltr.first().unwrap().lt.is_walkable() && road.lanes_ltr.last().unwrap().lt.is_walkable()) ||
-                (!road.lanes_ltr.first().unwrap().lt.is_walkable() && !road.lanes_ltr.last().unwrap().lt.is_walkable()) {
-                default_outside_lane_placement(road, dir)
+            if !road.lanes_ltr[0].lt.is_walkable() {
+                0
             } else {
-                if road.lanes_ltr.first().unwrap().lt.is_walkable() {
-                    road.lanes_ltr.len()
-                } else {
-                    0
-                }
+                road.lanes_ltr.len()
             }
         }
         _ => unreachable!(),
