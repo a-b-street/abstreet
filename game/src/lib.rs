@@ -140,7 +140,7 @@ fn run(mut settings: Settings) {
 
 fn setup_app(
     ctx: &mut EventCtx,
-    flags: Flags,
+    mut flags: Flags,
     mut opts: Options,
     start_with_edits: Option<String>,
     maybe_mode: Option<GameplayMode>,
@@ -152,6 +152,17 @@ fn setup_app(
         && !flags.sim_flags.load.contains("player/save")
         && !flags.sim_flags.load.contains("/scenarios/")
         && maybe_mode.is_none();
+
+    // Load the map used previously if we're starting on the title screen without any overrides.
+    if title && flags.sim_flags.load == MapName::seattle("montlake").path() {
+        if let Ok(default) = abstio::maybe_read_json::<map_gui::tools::DefaultMap>(
+            abstio::path_player("maps.json"),
+            &mut Timer::throwaway(),
+        ) {
+            flags.sim_flags.load = default.last_map.path();
+        }
+    }
+
     // If we're starting directly in a challenge mode, the tutorial, or by playing a scenario,
     // usually time is midnight, so save some effort and start with the correct color scheme. If
     // we're loading a savestate and it's actually daytime, we'll pay a small penalty to switch

@@ -40,6 +40,14 @@ impl<T: 'static> SimpleApp<T> {
         let map_name = args
             .optional_free()
             .map(|path| MapName::from_path(&path).expect(&format!("bad map path: {}", path)))
+            .or_else(|| {
+                abstio::maybe_read_json::<crate::tools::DefaultMap>(
+                    abstio::path_player("maps.json"),
+                    &mut Timer::throwaway(),
+                )
+                .ok()
+                .map(|x| x.last_map)
+            })
             .unwrap_or(MapName::seattle("montlake"));
         let center_camera = args.optional("--cam");
         args.done();
