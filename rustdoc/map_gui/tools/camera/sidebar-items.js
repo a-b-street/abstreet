@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["CameraState","Represents the state of a widgetry Canvas."]]});
+initSidebarItems({"struct":[["CameraState","Represents the state of a widgetry Canvas."],["DefaultMap","Track the last map used, to resume next session."]]});
