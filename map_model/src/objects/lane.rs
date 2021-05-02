@@ -3,12 +3,13 @@ use std::fmt;
 
 use serde::{Deserialize, Serialize};
 
-use abstutil::{deserialize_usize, serialize_usize, wraparound_get};
+use abstutil::{deserialize_usize, serialize_usize, wraparound_get, Tags};
 use geom::{Distance, Line, PolyLine, Polygon, Pt2D, Ring};
 
 use crate::{
     osm, BusStopID, DirectedRoadID, Direction, IntersectionID, Map, MapConfig, Road, RoadID,
-    TurnType,
+    TurnType, NORMAL_LANE_THICKNESS, SERVICE_ROAD_LANE_THICKNESS, SHOULDER_THICKNESS,
+    SIDEWALK_THICKNESS,
 };
 
 /// From some manually audited cases in Seattle, the length of parallel street parking spots is a
@@ -386,5 +387,63 @@ impl Lane {
         pts.push(pts[0]);
         pts.dedup();
         Some((Ring::new(pts).ok()?.to_polygon(), visited))
+    }
+}
+
+impl LaneSpec {
+    /// For a given lane type, returns some likely widths. This may depend on the type of the road,
+    /// so the OSM tags are also passed in. The first value returned will be used as a default.
+    pub fn typical_lane_widths(lt: LaneType, tags: &Tags) -> Vec<(Distance, &'static str)> {
+        let rank = if let Some(x) = tags.get(osm::HIGHWAY) {
+            osm::RoadRank::from_highway(x)
+        } else {
+            osm::RoadRank::Local
+        };
+
+        // These're cobbled together from various sources
+        match lt {
+            // https://en.wikipedia.org/wiki/Lane#Lane_width
+            LaneType::Driving => {
+                let mut choices = vec![
+                    (Distance::feet(8.2), "narrow"),
+                    (SERVICE_ROAD_LANE_THICKNESS, "alley"),
+                    (Distance::feet(10.0), "typical"),
+                    (Distance::feet(12.0), "highways"),
+                ];
+                if rank == osm::RoadRank::Highway {
+                    choices.rotate_right(1);
+                }
+                choices
+            }
+            // https://www.gov.uk/government/publications/cycle-infrastructure-design-ltn-120 table
+            // 5-2
+            LaneType::Biking => vec![
+                (Distance::meters(2.0), "standard"),
+                (Distance::meters(1.5), "absolute minimum"),
+            ],
+            // https://nacto.org/publication/urban-street-design-guide/street-design-elements/transit-streets/dedicated-curbside-offset-bus-lanes/
+            LaneType::Bus => vec![
+                (Distance::feet(12.0), "normal"),
+                (Distance::feet(10.0), "minimum"),
+            ],
+            // https://nacto.org/publication/urban-street-design-guide/street-design-elements/lane-width/
+            LaneType::Parking => vec![
+                (Distance::feet(7.0), "narrow"),
+                (Distance::feet(9.0), "wide"),
+                (Distance::feet(15.0), "loading zone"),
+            ],
+            // Just a guess
+            LaneType::SharedLeftTurn => vec![(NORMAL_LANE_THICKNESS, "default")],
+            // These're often converted from existing lanes, so just retain that width
+            LaneType::Construction => vec![(NORMAL_LANE_THICKNESS, "default")],
+            // No idea, just using this for now...
+            LaneType::LightRail => vec![(NORMAL_LANE_THICKNESS, "default")],
+            // http://www.seattle.gov/rowmanual/manual/4_11.asp
+            LaneType::Sidewalk => vec![
+                (SIDEWALK_THICKNESS, "default"),
+                (Distance::feet(6.0), "wide"),
+            ],
+            LaneType::Shoulder => vec![(SHOULDER_THICKNESS, "default")],
+        }
     }
 }

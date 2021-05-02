@@ -48,6 +48,11 @@ impl Distance {
         Distance::meters((value as f64) / 100.0)
     }
 
+    /// Creates a distance in feet.
+    pub fn feet(value: f64) -> Distance {
+        Distance::meters(value * 0.3048)
+    }
+
     /// Returns the absolute value of this distance.
     pub fn abs(self) -> Distance {
         if self.0 > 0.0 {

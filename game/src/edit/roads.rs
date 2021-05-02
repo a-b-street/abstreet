@@ -526,21 +526,16 @@ fn lane_type_to_icon(lt: LaneType) -> Option<&'static str> {
 }
 
 fn width_choices(app: &App, l: LaneID) -> Vec<Choice<Distance>> {
-    // TODO Use real standard widths for different types
-    let mut choices = vec![
-        Distance::meters(1.5),
-        Distance::meters(2.0),
-        Distance::meters(2.5),
-        Distance::meters(3.0),
-    ];
-    let current_width = app.primary.map.get_l(l).width;
-    if !choices.contains(&current_width) {
-        choices.push(current_width);
+    let lane = app.primary.map.get_l(l);
+    let mut choices =
+        LaneSpec::typical_lane_widths(lane.lane_type, &app.primary.map.get_r(lane.parent).osm_tags);
+    if !choices.iter().any(|(x, _)| *x == lane.width) {
+        choices.push((lane.width, "custom"));
         choices.sort();
     }
     choices
         .into_iter()
-        .map(|x| Choice::new(x.to_string(&app.opts.units), x))
+        .map(|(x, label)| Choice::new(format!("{} - {}", x.to_string(&app.opts.units), label), x))
         .collect()
 }
 
