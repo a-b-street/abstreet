@@ -391,18 +391,78 @@
 <span id="388">388</span>
 <span id="389">389</span>
 <span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_usize</span>, <span class="ident">serialize_usize</span>, <span class="ident">wraparound_get</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_usize</span>, <span class="ident">serialize_usize</span>, <span class="ident">wraparound_get</span>, <span class="ident">Tags</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">osm</span>, <span class="ident">BusStopID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">MapConfig</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>,
-    <span class="ident">TurnType</span>,
+    <span class="ident">TurnType</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>, <span class="ident">SERVICE_ROAD_LANE_THICKNESS</span>, <span class="ident">SHOULDER_THICKNESS</span>,
+    <span class="ident">SIDEWALK_THICKNESS</span>,
 };
 
 <span class="doccomment">/// From some manually audited cases in Seattle, the length of parallel street parking spots is a</span>
@@ -780,6 +840,64 @@
         <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pts</span>[<span class="number">0</span>]);
         <span class="ident">pts</span>.<span class="ident">dedup</span>();
         <span class="prelude-val">Some</span>((<span class="ident">Ring</span>::<span class="ident">new</span>(<span class="ident">pts</span>).<span class="ident">ok</span>()<span class="question-mark">?</span>.<span class="ident">to_polygon</span>(), <span class="ident">visited</span>))
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">LaneSpec</span> {
+    <span class="doccomment">/// For a given lane type, returns some likely widths. This may depend on the type of the road,</span>
+    <span class="doccomment">/// so the OSM tags are also passed in. The first value returned will be used as a default.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">typical_lane_widths</span>(<span class="ident">lt</span>: <span class="ident">LaneType</span>, <span class="ident">tags</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Distance</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>)<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">rank</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">tags</span>.<span class="ident">get</span>(<span class="ident">osm</span>::<span class="ident">HIGHWAY</span>) {
+            <span class="ident">osm</span>::<span class="ident">RoadRank</span>::<span class="ident">from_highway</span>(<span class="ident">x</span>)
+        } <span class="kw">else</span> {
+            <span class="ident">osm</span>::<span class="ident">RoadRank</span>::<span class="ident">Local</span>
+        };
+
+        <span class="comment">// These&#39;re cobbled together from various sources</span>
+        <span class="kw">match</span> <span class="ident">lt</span> {
+            <span class="comment">// https://en.wikipedia.org/wiki/Lane#Lane_width</span>
+            <span class="ident">LaneType</span>::<span class="ident">Driving</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">choices</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
+                    (<span class="ident">Distance</span>::<span class="ident">feet</span>(<span class="number">8.2</span>), <span class="string">&quot;narrow&quot;</span>),
+                    (<span class="ident">SERVICE_ROAD_LANE_THICKNESS</span>, <span class="string">&quot;alley&quot;</span>),
+                    (<span class="ident">Distance</span>::<span class="ident">feet</span>(<span class="number">10.0</span>), <span class="string">&quot;typical&quot;</span>),
+                    (<span class="ident">Distance</span>::<span class="ident">feet</span>(<span class="number">12.0</span>), <span class="string">&quot;highways&quot;</span>),
+                ];
+                <span class="kw">if</span> <span class="ident">rank</span> <span class="op">=</span><span class="op">=</span> <span class="ident">osm</span>::<span class="ident">RoadRank</span>::<span class="ident">Highway</span> {
+                    <span class="ident">choices</span>.<span class="ident">rotate_right</span>(<span class="number">1</span>);
+                }
+                <span class="ident">choices</span>
+            }
+            <span class="comment">// https://www.gov.uk/government/publications/cycle-infrastructure-design-ltn-120 table</span>
+            <span class="comment">// 5-2</span>
+            <span class="ident">LaneType</span>::<span class="ident">Biking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[
+                (<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">2.0</span>), <span class="string">&quot;standard&quot;</span>),
+                (<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.5</span>), <span class="string">&quot;absolute minimum&quot;</span>),
+            ],
+            <span class="comment">// https://nacto.org/publication/urban-street-design-guide/street-design-elements/transit-streets/dedicated-curbside-offset-bus-lanes/</span>
+            <span class="ident">LaneType</span>::<span class="ident">Bus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[
+                (<span class="ident">Distance</span>::<span class="ident">feet</span>(<span class="number">12.0</span>), <span class="string">&quot;normal&quot;</span>),
+                (<span class="ident">Distance</span>::<span class="ident">feet</span>(<span class="number">10.0</span>), <span class="string">&quot;minimum&quot;</span>),
+            ],
+            <span class="comment">// https://nacto.org/publication/urban-street-design-guide/street-design-elements/lane-width/</span>
+            <span class="ident">LaneType</span>::<span class="ident">Parking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[
+                (<span class="ident">Distance</span>::<span class="ident">feet</span>(<span class="number">7.0</span>), <span class="string">&quot;narrow&quot;</span>),
+                (<span class="ident">Distance</span>::<span class="ident">feet</span>(<span class="number">9.0</span>), <span class="string">&quot;wide&quot;</span>),
+                (<span class="ident">Distance</span>::<span class="ident">feet</span>(<span class="number">15.0</span>), <span class="string">&quot;loading zone&quot;</span>),
+            ],
+            <span class="comment">// Just a guess</span>
+            <span class="ident">LaneType</span>::<span class="ident">SharedLeftTurn</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">NORMAL_LANE_THICKNESS</span>, <span class="string">&quot;default&quot;</span>)],
+            <span class="comment">// These&#39;re often converted from existing lanes, so just retain that width</span>
+            <span class="ident">LaneType</span>::<span class="ident">Construction</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">NORMAL_LANE_THICKNESS</span>, <span class="string">&quot;default&quot;</span>)],
+            <span class="comment">// No idea, just using this for now...</span>
+            <span class="ident">LaneType</span>::<span class="ident">LightRail</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">NORMAL_LANE_THICKNESS</span>, <span class="string">&quot;default&quot;</span>)],
+            <span class="comment">// http://www.seattle.gov/rowmanual/manual/4_11.asp</span>
+            <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[
+                (<span class="ident">SIDEWALK_THICKNESS</span>, <span class="string">&quot;default&quot;</span>),
+                (<span class="ident">Distance</span>::<span class="ident">feet</span>(<span class="number">6.0</span>), <span class="string">&quot;wide&quot;</span>),
+            ],
+            <span class="ident">LaneType</span>::<span class="ident">Shoulder</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">SHOULDER_THICKNESS</span>, <span class="string">&quot;default&quot;</span>)],
+        }
     }
 }
 </pre></div>
