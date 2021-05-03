@@ -32,7 +32,7 @@ use serde::{Deserialize, Serialize};
 
 use abstio::MapName;
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use geom::{Bounds, Distance, GPSBounds, Polygon};
+use geom::{Bounds, GPSBounds, Polygon};
 
 pub use crate::city::City;
 pub use crate::edits::{
@@ -46,7 +46,10 @@ pub use crate::objects::building::{
 };
 pub use crate::objects::bus_stop::{BusRoute, BusRouteID, BusStop, BusStopID};
 pub use crate::objects::intersection::{Intersection, IntersectionID, IntersectionType};
-pub use crate::objects::lane::{Lane, LaneID, LaneSpec, LaneType, PARKING_LOT_SPOT_LENGTH};
+pub use crate::objects::lane::{
+    Lane, LaneID, LaneSpec, LaneType, NORMAL_LANE_THICKNESS, PARKING_LOT_SPOT_LENGTH,
+    SIDEWALK_THICKNESS,
+};
 pub use crate::objects::parking_lot::{ParkingLot, ParkingLotID};
 pub use crate::objects::road::{DirectedRoadID, Direction, Road, RoadID};
 pub use crate::objects::stop_signs::{ControlStopSign, RoadWithStopSign};
@@ -72,12 +75,6 @@ pub mod osm;
 mod pathfind;
 pub mod raw;
 mod traversable;
-
-// TODO Minimize uses of these!
-pub const NORMAL_LANE_THICKNESS: Distance = Distance::const_meters(2.5);
-pub(crate) const SERVICE_ROAD_LANE_THICKNESS: Distance = Distance::const_meters(1.5);
-pub const SIDEWALK_THICKNESS: Distance = Distance::const_meters(1.5);
-pub(crate) const SHOULDER_THICKNESS: Distance = Distance::const_meters(0.5);
 
 // The map used by the simulation and UI. This struct is declared here so that the rest of the
 // crate can reach into private fields.

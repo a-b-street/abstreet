@@ -531,8 +531,8 @@ fn width_choices(app: &App, l: LaneID) -> Vec<Choice<Distance>> {
         LaneSpec::typical_lane_widths(lane.lane_type, &app.primary.map.get_r(lane.parent).osm_tags);
     if !choices.iter().any(|(x, _)| *x == lane.width) {
         choices.push((lane.width, "custom"));
-        choices.sort();
     }
+    choices.sort();
     choices
         .into_iter()
         .map(|(x, label)| Choice::new(format!("{} - {}", x.to_string(&app.opts.units), label), x))

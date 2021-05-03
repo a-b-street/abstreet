@@ -3,36 +3,20 @@ use std::iter;
 
 use abstutil::Tags;
 
-use crate::{
-    osm, Direction, DrivingSide, LaneSpec, LaneType, MapConfig, NORMAL_LANE_THICKNESS,
-    SERVICE_ROAD_LANE_THICKNESS, SHOULDER_THICKNESS, SIDEWALK_THICKNESS,
-};
-
-fn fwd(lt: LaneType) -> LaneSpec {
-    LaneSpec {
-        lt,
-        dir: Direction::Fwd,
-        width: match lt {
-            LaneType::Sidewalk => SIDEWALK_THICKNESS,
-            LaneType::Shoulder => SHOULDER_THICKNESS,
-            _ => NORMAL_LANE_THICKNESS,
-        },
-    }
-}
-
-fn back(lt: LaneType) -> LaneSpec {
-    LaneSpec {
-        lt,
-        dir: Direction::Back,
-        width: match lt {
-            LaneType::Sidewalk => SIDEWALK_THICKNESS,
-            LaneType::Shoulder => SHOULDER_THICKNESS,
-            _ => NORMAL_LANE_THICKNESS,
-        },
-    }
-}
+use crate::{osm, Direction, DrivingSide, LaneSpec, LaneType, MapConfig};
 
 pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
+    let fwd = |lt: LaneType| LaneSpec {
+        lt,
+        dir: Direction::Fwd,
+        width: LaneSpec::typical_lane_widths(lt, tags)[0].0,
+    };
+    let back = |lt: LaneType| LaneSpec {
+        lt,
+        dir: Direction::Back,
+        width: LaneSpec::typical_lane_widths(lt, tags)[0].0,
+    };
+
     // Easy special cases first.
     if tags.is_any("railway", vec!["light_rail", "rail"]) {
         return vec![fwd(LaneType::LightRail)];
@@ -41,7 +25,7 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
         return vec![fwd(LaneType::Sidewalk)];
     }
     // Eventually, we should have some kind of special LaneType for shared walking/cycling paths of
-    // different kinds. Until then, model by making a narrow bike lane and a shoulder for walking.
+    // different kinds. Until then, model by making bike lanes and a shoulder for walking.
     if tags.is_any(
         osm::HIGHWAY,
         vec!["cycleway", "footway", "path", "pedestrian", "track"],
@@ -57,15 +41,11 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
         }
         // Otherwise, there'll always be a bike lane.
 
-        let half_width = |mut spec: LaneSpec| {
-            spec.width = spec.width / 2.0;
-            spec
-        };
-        let mut fwd_side = vec![half_width(fwd(LaneType::Biking))];
+        let mut fwd_side = vec![fwd(LaneType::Biking)];
         let mut back_side = if tags.is("oneway", "yes") {
             vec![]
         } else {
-            vec![half_width(back(LaneType::Biking))]
+            vec![back(LaneType::Biking)]
         };
 
         if !tags.is("foot", "no") {
@@ -286,14 +266,6 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
             back_side.push(back(LaneType::Sidewalk));
         } else {
             fwd_side.push(fwd(LaneType::Sidewalk));
-        }
-    }
-
-    if tags.is(osm::HIGHWAY, "service") || tags.is("narrow", "yes") {
-        for spec in fwd_side.iter_mut().chain(back_side.iter_mut()) {
-            if spec.lt == LaneType::Driving || spec.lt == LaneType::Parking {
-                spec.width = SERVICE_ROAD_LANE_THICKNESS;
-            }
         }
     }
 
