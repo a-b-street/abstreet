@@ -8,13 +8,17 @@ use geom::{Distance, Line, PolyLine, Polygon, Pt2D, Ring};
 
 use crate::{
     osm, BusStopID, DirectedRoadID, Direction, IntersectionID, Map, MapConfig, Road, RoadID,
-    TurnType, NORMAL_LANE_THICKNESS, SERVICE_ROAD_LANE_THICKNESS, SHOULDER_THICKNESS,
-    SIDEWALK_THICKNESS,
+    TurnType,
 };
 
 /// From some manually audited cases in Seattle, the length of parallel street parking spots is a
 /// bit different than the length in parking lots, so set a different value here.
 pub const PARKING_LOT_SPOT_LENGTH: Distance = Distance::const_meters(6.4);
+
+pub const NORMAL_LANE_THICKNESS: Distance = Distance::const_meters(2.5);
+const SERVICE_ROAD_LANE_THICKNESS: Distance = Distance::const_meters(1.5);
+pub const SIDEWALK_THICKNESS: Distance = Distance::const_meters(1.5);
+const SHOULDER_THICKNESS: Distance = Distance::const_meters(0.5);
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct LaneID(
@@ -405,13 +409,20 @@ impl LaneSpec {
             // https://en.wikipedia.org/wiki/Lane#Lane_width
             LaneType::Driving => {
                 let mut choices = vec![
-                    (Distance::feet(8.2), "narrow"),
+                    (Distance::feet(8.0), "narrow"),
                     (SERVICE_ROAD_LANE_THICKNESS, "alley"),
                     (Distance::feet(10.0), "typical"),
-                    (Distance::feet(12.0), "highways"),
+                    (Distance::feet(12.0), "highway"),
                 ];
-                if rank == osm::RoadRank::Highway {
+                if rank == osm::RoadRank::Highway
+                    && tags
+                        .get(osm::HIGHWAY)
+                        .map(|x| !x.ends_with("_link"))
+                        .unwrap_or(true)
+                {
                     choices.rotate_right(1);
+                } else if tags.is(osm::HIGHWAY, "service") || tags.is("narrow", "yes") {
+                    choices.swap(1, 0);
                 }
                 choices
             }
@@ -427,11 +438,18 @@ impl LaneSpec {
                 (Distance::feet(10.0), "minimum"),
             ],
             // https://nacto.org/publication/urban-street-design-guide/street-design-elements/lane-width/
-            LaneType::Parking => vec![
-                (Distance::feet(7.0), "narrow"),
-                (Distance::feet(9.0), "wide"),
-                (Distance::feet(15.0), "loading zone"),
-            ],
+            LaneType::Parking => {
+                let mut choices = vec![
+                    (Distance::feet(7.0), "narrow"),
+                    (SERVICE_ROAD_LANE_THICKNESS, "alley"),
+                    (Distance::feet(9.0), "wide"),
+                    (Distance::feet(15.0), "loading zone"),
+                ];
+                if tags.is(osm::HIGHWAY, "service") || tags.is("narrow", "yes") {
+                    choices.swap(1, 0);
+                }
+                choices
+            }
             // Just a guess
             LaneType::SharedLeftTurn => vec![(NORMAL_LANE_THICKNESS, "default")],
             // These're often converted from existing lanes, so just retain that width
