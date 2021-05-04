@@ -485,6 +485,29 @@ impl Road {
         self.center_pts.length() < Distance::meters(2.0)
     }
 
+    /// Get the DirectedRoadID pointing to the intersection. Panics if the intersection isn't an
+    /// endpoint.
+    pub fn directed_id_from(&self, i: IntersectionID) -> DirectedRoadID {
+        DirectedRoadID {
+            id: self.id,
+            dir: if self.src_i == i {
+                Direction::Fwd
+            } else if self.dst_i == i {
+                Direction::Back
+            } else {
+                panic!("{} doesn't point to {}", self.id, i);
+            },
+        }
+    }
+
+    /// Get the DirectedRoadID pointing from the intersection. Panics if the intersection isn't an
+    /// endpoint.
+    pub fn directed_id_to(&self, i: IntersectionID) -> DirectedRoadID {
+        let mut id = self.directed_id_from(i);
+        id.dir = id.dir.opposite();
+        id
+    }
+
     pub(crate) fn create_lanes(
         &self,
         lane_specs_ltr: Vec<LaneSpec>,

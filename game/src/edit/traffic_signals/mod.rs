@@ -21,6 +21,7 @@ use crate::edit::{apply_map_edits, ConfirmDiscard};
 use crate::sandbox::GameplayMode;
 
 mod edits;
+mod gmns;
 mod offsets;
 mod picker;
 mod preview;

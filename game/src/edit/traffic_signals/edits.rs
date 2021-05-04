@@ -188,6 +188,7 @@ pub fn edit_entire_signal(
     let stop_sign = "convert to stop signs";
     let close = "close intersection for construction";
     let reset = "reset to default";
+    let gmns = "import from GMNS timing.csv";
 
     let mut choices = vec![use_template];
     if has_sidewalks {
@@ -200,6 +201,9 @@ pub fn edit_entire_signal(
         choices.push(close);
     }
     choices.push(reset);
+    if app.opts.dev {
+        choices.push(gmns);
+    }
 
     ChooseSomething::new(
         ctx,
@@ -314,6 +318,25 @@ pub fn edit_entire_signal(
                         *ts = new_signal.clone();
                     });
                 })),
+            ]),
+            x if x == gmns => Transition::Multi(vec![
+                Transition::Pop,
+                // TODO File picker
+                match crate::edit::traffic_signals::gmns::import(
+                    &app.primary.map,
+                    i,
+                    "/home/dabreegster/timing.csv",
+                ) {
+                    Ok(new_signal) => Transition::ModifyState(Box::new(move |state, ctx, app| {
+                        let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
+                        editor.add_new_edit(ctx, app, 0, |ts| {
+                            *ts = new_signal.clone();
+                        });
+                    })),
+                    Err(err) => {
+                        Transition::Push(PopupMsg::new(ctx, "Error", vec![err.to_string()]))
+                    }
+                },
             ]),
             _ => unreachable!(),
         }),

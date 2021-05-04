@@ -24,6 +24,7 @@ chrono = "0.4.15"
 collisions = { path = "../collisions" }
 colorous = "1.0.3"
 contour = "0.3.0"
+csv = "1.1.4"
 downcast-rs = "1.2.0"
 enumset = "1.0.3"
 futures-channel = { version = "0.3.12"}
