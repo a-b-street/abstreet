@@ -322,6 +322,29 @@
 <span id="319">319</span>
 <span id="320">320</span>
 <span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">PopupMsg</span>};
@@ -513,6 +536,7 @@
     <span class="kw">let</span> <span class="ident">stop_sign</span> <span class="op">=</span> <span class="string">&quot;convert to stop signs&quot;</span>;
     <span class="kw">let</span> <span class="ident">close</span> <span class="op">=</span> <span class="string">&quot;close intersection for construction&quot;</span>;
     <span class="kw">let</span> <span class="ident">reset</span> <span class="op">=</span> <span class="string">&quot;reset to default&quot;</span>;
+    <span class="kw">let</span> <span class="ident">gmns</span> <span class="op">=</span> <span class="string">&quot;import from GMNS timing.csv&quot;</span>;
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">choices</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">use_template</span>];
     <span class="kw">if</span> <span class="ident">has_sidewalks</span> {
@@ -525,6 +549,9 @@
         <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">close</span>);
     }
     <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">reset</span>);
+    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
+        <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">gmns</span>);
+    }
 
     <span class="ident">ChooseSomething</span>::<span class="ident">new</span>(
         <span class="ident">ctx</span>,
@@ -639,6 +666,25 @@
                         <span class="kw-2">*</span><span class="ident">ts</span> <span class="op">=</span> <span class="ident">new_signal</span>.<span class="ident">clone</span>();
                     });
                 })),
+            ]),
+            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="ident">gmns</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Transition</span>::<span class="ident">Pop</span>,
+                <span class="comment">// TODO File picker</span>
+                <span class="kw">match</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">traffic_signals</span>::<span class="ident">gmns</span>::<span class="ident">import</span>(
+                    <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>,
+                    <span class="ident">i</span>,
+                    <span class="string">&quot;/home/dabreegster/timing.csv&quot;</span>,
+                ) {
+                    <span class="prelude-val">Ok</span>(<span class="ident">new_signal</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">ModifyState</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                        <span class="kw">let</span> <span class="ident">editor</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">TrafficSignalEditor</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
+                        <span class="ident">editor</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">0</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
+                            <span class="kw-2">*</span><span class="ident">ts</span> <span class="op">=</span> <span class="ident">new_signal</span>.<span class="ident">clone</span>();
+                        });
+                    })),
+                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="string">&quot;Error&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">err</span>.<span class="ident">to_string</span>()]))
+                    }
+                },
             ]),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         }),

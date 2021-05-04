@@ -608,6 +608,29 @@
 <span id="605">605</span>
 <span id="606">606</span>
 <span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -1094,6 +1117,29 @@
     <span class="doccomment">/// method uses a hardcoded threshold to detect these cases.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_extremely_short</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">center_pts</span>.<span class="ident">length</span>() <span class="op">&lt;</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">2.0</span>)
+    }
+
+    <span class="doccomment">/// Get the DirectedRoadID pointing to the intersection. Panics if the intersection isn&#39;t an</span>
+    <span class="doccomment">/// endpoint.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">directed_id_from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DirectedRoadID</span> {
+        <span class="ident">DirectedRoadID</span> {
+            <span class="ident">id</span>: <span class="self">self</span>.<span class="ident">id</span>,
+            <span class="ident">dir</span>: <span class="kw">if</span> <span class="self">self</span>.<span class="ident">src_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> {
+                <span class="ident">Direction</span>::<span class="ident">Fwd</span>
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> {
+                <span class="ident">Direction</span>::<span class="ident">Back</span>
+            } <span class="kw">else</span> {
+                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;{} doesn&#39;t point to {}&quot;</span>, <span class="self">self</span>.<span class="ident">id</span>, <span class="ident">i</span>);
+            },
+        }
+    }
+
+    <span class="doccomment">/// Get the DirectedRoadID pointing from the intersection. Panics if the intersection isn&#39;t an</span>
+    <span class="doccomment">/// endpoint.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">directed_id_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DirectedRoadID</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">directed_id_from</span>(<span class="ident">i</span>);
+        <span class="ident">id</span>.<span class="ident">dir</span> <span class="op">=</span> <span class="ident">id</span>.<span class="ident">dir</span>.<span class="ident">opposite</span>();
+        <span class="ident">id</span>
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">create_lanes</span>(
