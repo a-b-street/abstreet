@@ -1333,7 +1333,7 @@
                 <span class="ident">Line</span>(<span class="ident">title</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="string">&quot;Name:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                    <span class="ident">TextBox</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;filename&quot;</span>, <span class="ident">initial_name</span>, <span class="bool-val">true</span>),
+                    <span class="ident">TextBox</span>::<span class="ident">default_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;filename&quot;</span>, <span class="ident">initial_name</span>),
                 ]),
                 <span class="comment">// TODO Want this to always consistently be one line high, but it isn&#39;t for a blank</span>
                 <span class="comment">// line</span>

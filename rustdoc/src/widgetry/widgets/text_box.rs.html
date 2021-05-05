@@ -173,15 +173,22 @@
 <span id="170">170</span>
 <span id="171">171</span>
 <span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">text</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>,
+    <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>,
     <span class="ident">ScreenRectangle</span>, <span class="ident">Style</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
 };
 
 <span class="comment">// TODO right now, only a single line</span>
+<span class="comment">// TODO max_chars isn&#39;t enforced; you can type as much as you want...</span>
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TextBox</span> {
     <span class="ident">line</span>: <span class="ident">String</span>,
@@ -197,14 +204,18 @@
 }
 
 <span class="kw">impl</span> <span class="ident">TextBox</span> {
+    <span class="comment">// TODO Really should have an options struct with defaults</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_widget</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">label</span>: <span class="ident">I</span>, <span class="ident">prefilled</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+        <span class="ident">TextBox</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="ident">label</span>, <span class="ident">prefilled</span>, <span class="bool-val">true</span>, <span class="number">50</span>)
+    }
+
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">widget</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
         <span class="ident">label</span>: <span class="ident">I</span>,
         <span class="ident">prefilled</span>: <span class="ident">String</span>,
         <span class="ident">autofocus</span>: <span class="ident">bool</span>,
+        <span class="ident">max_chars</span>: <span class="ident">usize</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-        <span class="comment">// Hardcoded for all callers</span>
-        <span class="kw">let</span> <span class="ident">max_chars</span> <span class="op">=</span> <span class="number">50</span>;
         <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">label</span>.<span class="ident">into</span>();
         <span class="ident">Widget</span>::<span class="ident">new</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">TextBox</span>::<span class="ident">new</span>(
             <span class="ident">ctx</span>,
@@ -229,6 +240,7 @@
             <span class="ident">bottom</span>: <span class="number">8.0</span>,
             <span class="ident">right</span>: <span class="number">8.0</span>,
         };
+        <span class="kw">let</span> <span class="ident">max_char_width</span> <span class="op">=</span> <span class="number">25.0</span>;
         <span class="ident">TextBox</span> {
             <span class="ident">label</span>,
             <span class="ident">cursor_x</span>: <span class="ident">prefilled</span>.<span class="ident">len</span>(),
@@ -239,7 +251,7 @@
             <span class="ident">padding</span>,
             <span class="ident">top_left</span>: <span class="ident">ScreenPt</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
             <span class="ident">dims</span>: <span class="ident">ScreenDims</span>::<span class="ident">new</span>(
-                (<span class="ident">max_chars</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">text</span>::<span class="ident">MAX_CHAR_WIDTH</span> <span class="op">+</span> (<span class="ident">padding</span>.<span class="ident">left</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">right</span>) <span class="kw">as</span> <span class="ident">f64</span>,
+                (<span class="ident">max_chars</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">max_char_width</span> <span class="op">+</span> (<span class="ident">padding</span>.<span class="ident">left</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">right</span>) <span class="kw">as</span> <span class="ident">f64</span>,
                 <span class="ident">ctx</span>.<span class="ident">default_line_height</span>() <span class="op">+</span> (<span class="ident">padding</span>.<span class="ident">top</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">bottom</span>) <span class="kw">as</span> <span class="ident">f64</span>,
             ),
         }

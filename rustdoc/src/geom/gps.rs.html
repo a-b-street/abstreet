@@ -137,6 +137,32 @@
 <span id="134">134</span>
 <span id="135">135</span>
 <span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
@@ -260,6 +286,32 @@
         }
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">pts</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f64</span>;
         <span class="ident">LonLat</span>::<span class="ident">new</span>(<span class="ident">x</span> <span class="op">/</span> <span class="ident">len</span>, <span class="ident">y</span> <span class="op">/</span> <span class="ident">len</span>)
+    }
+
+    <span class="doccomment">/// Parses a WKT-style line-string into a list of coordinates.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_wkt_linestring</span>(<span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="comment">// Input is something like LINESTRING (-111.9263026 33.4245036, -111.9275146 33.4245016,</span>
+        <span class="comment">// -111.9278751 33.4233106)</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="comment">// -111.9446 33.425474, -111.9442814 33.4254737, -111.9442762 33.426894</span>
+        <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">raw</span>
+            .<span class="ident">strip_prefix</span>(<span class="string">&quot;LINESTRING (&quot;</span>)<span class="question-mark">?</span>
+            .<span class="ident">strip_suffix</span>(<span class="string">&quot;)&quot;</span>)<span class="question-mark">?</span>
+            .<span class="ident">split</span>(<span class="string">&quot;, &quot;</span>)
+        {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nums</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+            <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">pair</span>.<span class="ident">split</span>(<span class="string">&quot; &quot;</span>) {
+                <span class="ident">nums</span>.<span class="ident">push</span>(<span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>().<span class="ident">ok</span>()<span class="question-mark">?</span>);
+            }
+            <span class="kw">if</span> <span class="ident">nums</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">2</span> {
+                <span class="kw">return</span> <span class="prelude-val">None</span>;
+            }
+            <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">LonLat</span>::<span class="ident">new</span>(<span class="ident">nums</span>[<span class="number">0</span>], <span class="ident">nums</span>[<span class="number">1</span>]));
+        }
+        <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">2</span> {
+            <span class="kw">return</span> <span class="prelude-val">None</span>;
+        }
+        <span class="prelude-val">Some</span>(<span class="ident">pts</span>)
     }
 }
 

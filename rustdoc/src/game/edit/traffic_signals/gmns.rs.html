@@ -163,30 +163,6 @@
 <span id="160">160</span>
 <span id="161">161</span>
 <span id="162">162</span>
-<span id="163">163</span>
-<span id="164">164</span>
-<span id="165">165</span>
-<span id="166">166</span>
-<span id="167">167</span>
-<span id="168">168</span>
-<span id="169">169</span>
-<span id="170">170</span>
-<span id="171">171</span>
-<span id="172">172</span>
-<span id="173">173</span>
-<span id="174">174</span>
-<span id="175">175</span>
-<span id="176">176</span>
-<span id="177">177</span>
-<span id="178">178</span>
-<span id="179">179</span>
-<span id="180">180</span>
-<span id="181">181</span>
-<span id="182">182</span>
-<span id="183">183</span>
-<span id="184">184</span>
-<span id="185">185</span>
-<span id="186">186</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// TODO Move to map_model</span>
 
@@ -253,32 +229,8 @@
 
 <span class="kw">fn</span> <span class="ident">parse_linestring</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">d</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span>, <span class="ident">D</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>::<span class="ident">deserialize</span>(<span class="ident">d</span>)<span class="question-mark">?</span>;
-    <span class="ident">parse_linestring_inner</span>(<span class="kw-2">&amp;</span><span class="ident">raw</span>).<span class="ident">ok_or</span>(<span class="ident">serde</span>::<span class="ident">de</span>::<span class="ident">Error</span>::<span class="ident">custom</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;bad linestring {}&quot;</span>, <span class="ident">raw</span>)))
-}
-
-<span class="kw">fn</span> <span class="ident">parse_linestring_inner</span>(<span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="comment">// Input is something like LINESTRING (-111.9263026 33.4245036, -111.9275146 33.4245016,</span>
-    <span class="comment">// -111.9278751 33.4233106)</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="comment">// -111.9446 33.425474, -111.9442814 33.4254737, -111.9442762 33.426894</span>
-    <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">raw</span>
-        .<span class="ident">strip_prefix</span>(<span class="string">&quot;LINESTRING (&quot;</span>)<span class="question-mark">?</span>
-        .<span class="ident">strip_suffix</span>(<span class="string">&quot;)&quot;</span>)<span class="question-mark">?</span>
-        .<span class="ident">split</span>(<span class="string">&quot;, &quot;</span>)
-    {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nums</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">pair</span>.<span class="ident">split</span>(<span class="string">&quot; &quot;</span>) {
-            <span class="ident">nums</span>.<span class="ident">push</span>(<span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>().<span class="ident">ok</span>()<span class="question-mark">?</span>);
-        }
-        <span class="kw">if</span> <span class="ident">nums</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">2</span> {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
-        }
-        <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">LonLat</span>::<span class="ident">new</span>(<span class="ident">nums</span>[<span class="number">0</span>], <span class="ident">nums</span>[<span class="number">1</span>]));
-    }
-    <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">2</span> {
-        <span class="kw">return</span> <span class="prelude-val">None</span>;
-    }
-    <span class="prelude-val">Some</span>(<span class="ident">pts</span>)
+    <span class="ident">LonLat</span>::<span class="ident">parse_wkt_linestring</span>(<span class="kw-2">&amp;</span><span class="ident">raw</span>)
+        .<span class="ident">ok_or</span>(<span class="ident">serde</span>::<span class="ident">de</span>::<span class="ident">Error</span>::<span class="ident">custom</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;bad linestring {}&quot;</span>, <span class="ident">raw</span>)))
 }
 
 <span class="kw">fn</span> <span class="ident">parse_osm_ids</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">d</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">osm</span>::<span class="ident">NodeID</span><span class="op">&gt;</span>, <span class="ident">D</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
