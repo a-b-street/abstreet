@@ -8,7 +8,8 @@ use abstutil::{prettyprint_usize, Parallelism, Timer};
 use geom::{Circle, Distance, PolyLine, Polygon, Pt2D, Ring};
 use kml::{ExtraShape, ExtraShapes};
 use map_gui::colors::ColorScheme;
-use map_gui::tools::{ChooseSomething, PopupMsg};
+use map_gui::load::FutureLoader;
+use map_gui::tools::PopupMsg;
 use map_model::BuildingID;
 use widgetry::{
     lctrl, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
@@ -143,28 +144,7 @@ impl State<App> for ViewKML {
                     return Transition::Pop;
                 }
                 "load KML file" => {
-                    return Transition::Push(ChooseSomething::new(
-                        ctx,
-                        "Load file",
-                        Choice::strings(
-                            abstio::list_dir(app.primary.map.get_city_name().input_path(""))
-                                .into_iter()
-                                .filter(|x| {
-                                    (x.ends_with(".bin")
-                                        || x.ends_with(".kml")
-                                        || x.ends_with(".csv"))
-                                        && !x.ends_with("popdat.bin")
-                                        && !x.ends_with("collisions.bin")
-                                })
-                                .collect(),
-                        ),
-                        Box::new(|path, ctx, app| {
-                            Transition::Multi(vec![
-                                Transition::Pop,
-                                Transition::Replace(ViewKML::new(ctx, app, Some(path))),
-                            ])
-                        }),
-                    ));
+                    return pick_file(ctx, app);
                 }
                 _ => unreachable!(),
             },
@@ -235,8 +215,10 @@ fn load_objects(
             // happened.
             abstio::write_binary(path.replace(".csv", ".bin"), &shapes);
             shapes
-        } else {
+        } else if path.ends_with(".bin") {
             abstio::read_binary::<ExtraShapes>(path.to_string(), timer)
+        } else {
+            ExtraShapes { shapes: Vec::new() }
         }
     } else {
         ExtraShapes { shapes: Vec::new() }
@@ -413,4 +395,36 @@ fn make_query(app: &App, objects: &Vec<Object>, query: &str) -> (GeomBatch, usiz
         }
     }
     (batch, cnt)
+}
+
+fn pick_file(ctx: &mut EventCtx, app: &App) -> Transition {
+    let (_, outer_progress_rx) = futures_channel::mpsc::channel(1);
+    let (_, inner_progress_rx) = futures_channel::mpsc::channel(1);
+    let start_dir = app.primary.map.get_city_name().input_path("");
+    Transition::Push(FutureLoader::<App, Option<String>>::new(
+        ctx,
+        Box::pin(async move {
+            let result = rfd::AsyncFileDialog::new()
+                .set_directory(&start_dir)
+                .pick_file()
+                .await
+                .map(|x| x.path().display().to_string());
+            let wrap: Box<dyn Send + FnOnce(&App) -> Option<String>> =
+                Box::new(move |_: &App| result);
+            Ok(wrap)
+        }),
+        outer_progress_rx,
+        inner_progress_rx,
+        "Waiting for a file to be chosen",
+        Box::new(|ctx, app, maybe_path| {
+            if let Ok(Some(path)) = maybe_path {
+                Transition::Multi(vec![
+                    Transition::Pop,
+                    Transition::Replace(ViewKML::new(ctx, app, Some(path))),
+                ])
+            } else {
+                Transition::Pop
+            }
+        }),
+    ))
 }
