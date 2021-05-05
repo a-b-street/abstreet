@@ -254,8 +254,7 @@ impl AmenityType {
         match self {
             AmenityType::Bar => vec!["bar", "lounge", "pub", "nightclub", "biergarten"],
             AmenityType::Beauty => vec!["hairdresser", "beauty", "chemist", "cosmetics"],
-            AmenityType::BikeParkRent => vec!["bicycle_parking", "bicycle_rental"],
-            AmenityType::BikeStore => vec!["bicycle"],
+            AmenityType::Bike => vec!["bicycle"],
             AmenityType::CarRepair => vec!["car_repair"],
             AmenityType::CarShare => vec!["car_sharing"],
             AmenityType::Childcare => vec!["childcare", "kindergarten"],
@@ -396,8 +395,7 @@ impl AmenityType {
         vec![
             AmenityType::Bar,
             AmenityType::Beauty,
-            AmenityType::BikeStore,
-            AmenityType::BikeParkRent,
+            AmenityType::Bike,
             AmenityType::CarRepair,
             AmenityType::CarShare,
             AmenityType::Childcare,
@@ -431,8 +429,7 @@ impl AmenityType {
         match x {
             "bar" => Some(AmenityType::Bar),
             "beauty" => Some(AmenityType::Beauty),
-            "bike store" => Some(AmenityType::BikeStore),
-            "bike parking rental" => Some(AmenityType::BikeParkRent),
+            "bike" => Some(AmenityType::Bike),
             "car repair" => Some(AmenityType::CarRepair),
             "car share" => Some(AmenityType::CarShare),
             "childcare" => Some(AmenityType::Childcare),
@@ -462,8 +459,7 @@ impl fmt::Display for AmenityType {
             match self {
                 AmenityType::Bar => "bar",
                 AmenityType::Beauty => "beauty",
-                AmenityType::BikeStore => "bike store",
-                AmenityType::BikeParkRent => "bike parking rental",
+                AmenityType::Bike => "bike",
                 AmenityType::CarRepair => "car repair",
                 AmenityType::CarShare => "car share",
                 AmenityType::Childcare => "childcare",
