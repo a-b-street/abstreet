@@ -496,16 +496,16 @@ fn highlight_current_selection(
     let color = Color::hex("#DF8C3D");
     let map = &app.primary.map;
 
-    let road = map.get_r(r);
-    batch.push(
-        color,
-        road.center_pts
-            .to_thick_boundary(road.get_width(map), OUTLINE_THICKNESS)
-            .unwrap(),
-    );
-
     if let Some(l) = l {
         batch.push(color, app.primary.draw_map.get_l(l).get_outline(map));
+    } else {
+        let road = map.get_r(r);
+        batch.push(
+            color,
+            road.center_pts
+                .to_thick_boundary(road.get_width(map), OUTLINE_THICKNESS)
+                .unwrap(),
+        );
     }
     (l, ctx.upload(batch))
 }
