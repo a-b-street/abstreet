@@ -90,11 +90,14 @@ impl ViewKML {
                     ]),
                     Widget::row(vec![
                         "Key=value filter:".text_widget(ctx),
-                        TextBox::widget(ctx, "filter", String::new(), false),
+                        TextBox::widget(ctx, "filter", String::new(), false, 10),
                     ]),
                     "Query matches 0 objects".text_widget(ctx).named("matches"),
+                    "Mouseover an object to examine it"
+                        .text_widget(ctx)
+                        .named("mouseover"),
                 ]))
-                .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+                .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
                 .build(ctx),
                 objects,
                 quadtree,
@@ -110,6 +113,9 @@ impl State<App> for ViewKML {
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
             self.selected = None;
+            let details = "Mouseover an object to examine it".text_widget(ctx);
+            self.panel.replace(ctx, "mouseover", details);
+
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
                 for &(idx, _, _) in &self.quadtree.query(
                     Circle::new(pt, Distance::meters(3.0))
@@ -118,6 +124,12 @@ impl State<App> for ViewKML {
                 ) {
                     if self.objects[*idx].polygon.contains_pt(pt) {
                         self.selected = Some(*idx);
+                        let mut txt = Text::new();
+                        for (k, v) in &self.objects[*idx].attribs {
+                            txt.add_line(format!("{} = {}", k, v));
+                        }
+                        let details = txt.into_widget(ctx);
+                        self.panel.replace(ctx, "mouseover", details);
                         break;
                     }
                 }
@@ -128,7 +140,7 @@ impl State<App> for ViewKML {
                 self.selected = None;
                 return Transition::Push(PopupMsg::new(
                     ctx,
-                    "Parcel",
+                    "Object",
                     self.objects[idx]
                         .attribs
                         .iter()
@@ -175,14 +187,7 @@ impl State<App> for ViewKML {
 
         if let Some(idx) = self.selected {
             let obj = &self.objects[idx];
-
             g.draw_polygon(Color::BLUE, obj.polygon.clone());
-            let mut txt = Text::new();
-            for (k, v) in &obj.attribs {
-                txt.add_line(format!("{} = {}", k, v));
-            }
-            g.draw_mouse_tooltip(txt);
-
             if let Some(b) = obj.osm_bldg {
                 g.draw_polygon(Color::GREEN, app.primary.map.get_b(b).polygon.clone());
             }

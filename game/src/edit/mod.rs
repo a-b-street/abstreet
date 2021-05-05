@@ -401,7 +401,7 @@ impl SaveEdits {
                 Line(title).small_heading().into_widget(ctx),
                 Widget::row(vec![
                     "Name:".text_widget(ctx).centered_vert(),
-                    TextBox::widget(ctx, "filename", initial_name, true),
+                    TextBox::default_widget(ctx, "filename", initial_name),
                 ]),
                 // TODO Want this to always consistently be one line high, but it isn't for a blank
                 // line

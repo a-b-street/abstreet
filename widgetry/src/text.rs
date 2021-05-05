@@ -16,9 +16,6 @@ pub const DEFAULT_FONT_SIZE: usize = 21;
 pub const BG_COLOR: Color = Color::grey(0.3);
 pub const SCALE_LINE_HEIGHT: f64 = 1.2;
 
-// TODO Almost gone!
-pub const MAX_CHAR_WIDTH: f64 = 25.0;
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Font {
     BungeeInlineRegular,

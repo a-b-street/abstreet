@@ -119,7 +119,7 @@ impl DebugWarp {
                     Line("ump to the previous position"),
                 ])
                 .into_widget(ctx),
-                TextBox::widget(ctx, "input", String::new(), true),
+                TextBox::default_widget(ctx, "input", String::new()),
                 ctx.style()
                     .btn_outline
                     .text("Go!")

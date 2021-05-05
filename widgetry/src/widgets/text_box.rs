@@ -1,11 +1,12 @@
 use geom::{Distance, Polygon};
 
 use crate::{
-    text, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, ScreenDims, ScreenPt,
+    EdgeInsets, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, ScreenDims, ScreenPt,
     ScreenRectangle, Style, Text, Widget, WidgetImpl, WidgetOutput,
 };
 
 // TODO right now, only a single line
+// TODO max_chars isn't enforced; you can type as much as you want...
 
 pub struct TextBox {
     line: String,
@@ -21,14 +22,18 @@ pub struct TextBox {
 }
 
 impl TextBox {
+    // TODO Really should have an options struct with defaults
+    pub fn default_widget<I: Into<String>>(ctx: &EventCtx, label: I, prefilled: String) -> Widget {
+        TextBox::widget(ctx, label, prefilled, true, 50)
+    }
+
     pub fn widget<I: Into<String>>(
         ctx: &EventCtx,
         label: I,
         prefilled: String,
         autofocus: bool,
+        max_chars: usize,
     ) -> Widget {
-        // Hardcoded for all callers
-        let max_chars = 50;
         let label = label.into();
         Widget::new(Box::new(TextBox::new(
             ctx,
@@ -53,6 +58,7 @@ impl TextBox {
             bottom: 8.0,
             right: 8.0,
         };
+        let max_char_width = 25.0;
         TextBox {
             label,
             cursor_x: prefilled.len(),
@@ -63,7 +69,7 @@ impl TextBox {
             padding,
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(
-                (max_chars as f64) * text::MAX_CHAR_WIDTH + (padding.left + padding.right) as f64,
+                (max_chars as f64) * max_char_width + (padding.left + padding.right) as f64,
                 ctx.default_line_height() + (padding.top + padding.bottom) as f64,
             ),
         }

@@ -483,7 +483,7 @@ impl Marker {
                 ctx.style().btn_close_widget(ctx),
             ]),
             ctx.style().btn_outline.text("delete").build_def(ctx),
-            TextBox::widget(ctx, "event", self.event.clone(), true),
+            TextBox::default_widget(ctx, "event", self.event.clone()),
             ctx.style()
                 .btn_outline
                 .text("confirm")

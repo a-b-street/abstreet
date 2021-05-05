@@ -83,7 +83,7 @@ impl<A: AppLike + 'static> PromptInput<A> {
                     Line(query).small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                TextBox::widget(ctx, "input", initial, true),
+                TextBox::default_widget(ctx, "input", initial),
                 ctx.style()
                     .btn_outline
                     .text("confirm")

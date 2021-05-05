@@ -63,32 +63,8 @@ struct Record {
 
 fn parse_linestring<'de, D: Deserializer<'de>>(d: D) -> Result<Vec<LonLat>, D::Error> {
     let raw = <String>::deserialize(d)?;
-    parse_linestring_inner(&raw).ok_or(serde::de::Error::custom(format!("bad linestring {}", raw)))
-}
-
-fn parse_linestring_inner(raw: &str) -> Option<Vec<LonLat>> {
-    // Input is something like LINESTRING (-111.9263026 33.4245036, -111.9275146 33.4245016,
-    // -111.9278751 33.4233106)
-    let mut pts = Vec::new();
-    // -111.9446 33.425474, -111.9442814 33.4254737, -111.9442762 33.426894
-    for pair in raw
-        .strip_prefix("LINESTRING (")?
-        .strip_suffix(")")?
-        .split(", ")
-    {
-        let mut nums = Vec::new();
-        for x in pair.split(" ") {
-            nums.push(x.parse::<f64>().ok()?);
-        }
-        if nums.len() != 2 {
-            return None;
-        }
-        pts.push(LonLat::new(nums[0], nums[1]));
-    }
-    if pts.len() < 2 {
-        return None;
-    }
-    Some(pts)
+    LonLat::parse_wkt_linestring(&raw)
+        .ok_or(serde::de::Error::custom(format!("bad linestring {}", raw)))
 }
 
 fn parse_osm_ids<'de, D: Deserializer<'de>>(d: D) -> Result<Vec<osm::NodeID>, D::Error> {

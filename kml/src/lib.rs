@@ -141,9 +141,10 @@ fn parse_pt(input: &str) -> Option<LonLat> {
 }
 
 impl ExtraShapes {
-    /// Parses a .csv file and returns ExtraShapes. Each record must have a column called
-    /// 'Longitude' and 'Latitude', representing a single point; all other columns will just be
-    /// attributes. Objects will be clipped to the given gps_bounds.
+    /// Parses a .csv file and returns ExtraShapes. Each record must EITHER have a column called
+    /// 'Longitude' and 'Latitude', representing a single point, OR a column called 'geometry' with
+    /// a WKT-style linestring. All other columns will just be attributes. Objects that're partly
+    /// out-of-bounds will be excluded.
     pub fn load_csv(
         path: String,
         gps_bounds: &GPSBounds,
@@ -153,8 +154,12 @@ impl ExtraShapes {
         let mut shapes = Vec::new();
         for rec in csv::Reader::from_path(&path)?.deserialize() {
             let mut rec: BTreeMap<String, String> = rec?;
-            match (rec.remove("Longitude"), rec.remove("Latitude")) {
-                (Some(lon), Some(lat)) => {
+            match (
+                rec.remove("Longitude"),
+                rec.remove("Latitude"),
+                rec.remove("geometry"),
+            ) {
+                (Some(lon), Some(lat), _) => {
                     if let (Ok(lon), Ok(lat)) = (lon.parse::<f64>(), lat.parse::<f64>()) {
                         let pt = LonLat::new(lon, lat);
                         if gps_bounds.contains(pt) {
@@ -165,10 +170,20 @@ impl ExtraShapes {
                         }
                     }
                 }
+                (None, None, Some(raw)) => {
+                    if let Some(points) = LonLat::parse_wkt_linestring(&raw) {
+                        if gps_bounds.try_convert(&points).is_some() {
+                            shapes.push(ExtraShape {
+                                points,
+                                attributes: rec,
+                            });
+                        }
+                    }
+                }
                 _ => {
                     timer.stop(format!("read {}", path));
                     bail!(
-                        "{} doesn't have a column called Longitude and Latitude",
+                        "{} doesn't have a column called Longitude, Latitude, or geometry",
                         path
                     )
                 }
