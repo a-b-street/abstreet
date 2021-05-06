@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["remove_disconnected_roads","Some roads might be totally disconnected from the largest clump because of how the map's bounding polygon was drawn, or bad map data, or which roads are filtered from OSM. Remove them."]]});
+initSidebarItems({"fn":[["remove_disconnected_roads","Some roads might be totally disconnected from the largest clump because of how the map’s bounding polygon was drawn, or bad map data, or which roads are filtered from OSM. Remove them."]]});

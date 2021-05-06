@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["angle",""],["connects_dual_carriageway",""],["merge_short_roads","Merge tiny \"roads\" that're actually just part of a complicated intersection. Returns all surviving intersections adjacent to one of these merged roads."],["should_merge",""]]});
+initSidebarItems({"fn":[["angle",""],["connects_dual_carriageway",""],["merge_short_roads","Merge tiny “roads” that’re actually just part of a complicated intersection. Returns all surviving intersections adjacent to one of these merged roads."],["should_merge",""]]});

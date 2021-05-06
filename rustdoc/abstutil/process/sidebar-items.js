@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["must_run_cmd","Runs a command, asserts success. STDOUT and STDERR aren't touched."]]});
+initSidebarItems({"fn":[["must_run_cmd","Runs a command, asserts success. STDOUT and STDERR aren’t touched."]]});
