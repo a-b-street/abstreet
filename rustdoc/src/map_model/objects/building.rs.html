@@ -386,11 +386,49 @@
 <span id="383">383</span>
 <span id="384">384</span>
 <span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use</span> <span class="ident">strum_macros</span>::<span class="ident">Display</span>;
+<span class="kw">use</span> <span class="ident">strum_macros</span>::<span class="ident">EnumString</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{
     <span class="ident">deserialize_btreemap</span>, <span class="ident">deserialize_usize</span>, <span class="ident">serialize_btreemap</span>, <span class="ident">serialize_usize</span>, <span class="ident">Tags</span>,
@@ -614,112 +652,185 @@
 }
 
 <span class="doccomment">/// Businesses are categorized into one of these types.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">EnumString</span>, <span class="ident">Display</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">AmenityType</span> {
-    <span class="ident">Groceries</span>,
-    <span class="ident">Food</span>,
+    <span class="ident">Bank</span>,
     <span class="ident">Bar</span>,
-    <span class="ident">Medical</span>,
-    <span class="ident">Religious</span>,
-    <span class="ident">Education</span>,
-    <span class="ident">Financial</span>,
-    <span class="ident">PostOffice</span>,
-    <span class="ident">Culture</span>,
+    <span class="ident">Beauty</span>,
+    <span class="ident">Bike</span>,
+    <span class="ident">Cafe</span>,
+    <span class="ident">CarRepair</span>,
+    <span class="ident">CarShare</span>,
     <span class="ident">Childcare</span>,
+    <span class="ident">ConvenienceStore</span>,
+    <span class="ident">Culture</span>,
+    <span class="ident">Exercise</span>,
+    <span class="ident">FastFood</span>,
+    <span class="ident">Food</span>,
+    <span class="ident">GreenSpace</span>,
+    <span class="ident">Hotel</span>,
+    <span class="ident">Laundry</span>,
+    <span class="ident">Library</span>,
+    <span class="ident">Medical</span>,
+    <span class="ident">Pet</span>,
+    <span class="ident">Playground</span>,
+    <span class="ident">Pool</span>,
+    <span class="ident">PostOffice</span>,
+    <span class="ident">Religious</span>,
+    <span class="ident">School</span>,
     <span class="ident">Shopping</span>,
+    <span class="ident">Supermarket</span>,
+    <span class="ident">Tourism</span>,
+    <span class="ident">University</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">AmenityType</span> {
     <span class="kw">fn</span> <span class="ident">types</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="comment">// TODO: create categories for:</span>
-        <span class="comment">// hairdresser beauty chemist</span>
-        <span class="comment">// car_repair</span>
-        <span class="comment">// laundry</span>
-
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">AmenityType</span>::<span class="ident">Groceries</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;convenience&quot;</span>, <span class="string">&quot;supermarket&quot;</span>],
-            <span class="comment">// TODO Sort</span>
+            <span class="ident">AmenityType</span>::<span class="ident">Bank</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;bank&quot;</span>],
+            <span class="ident">AmenityType</span>::<span class="ident">Bar</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;bar&quot;</span>, <span class="string">&quot;pub&quot;</span>, <span class="string">&quot;nightclub&quot;</span>, <span class="string">&quot;biergarten&quot;</span>],
+            <span class="ident">AmenityType</span>::<span class="ident">Beauty</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;hairdresser&quot;</span>, <span class="string">&quot;beauty&quot;</span>, <span class="string">&quot;chemist&quot;</span>, <span class="string">&quot;cosmetics&quot;</span>],
+            <span class="ident">AmenityType</span>::<span class="ident">Bike</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;bicycle&quot;</span>],
+            <span class="ident">AmenityType</span>::<span class="ident">Cafe</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;cafe&quot;</span>, <span class="string">&quot;pastry&quot;</span>, <span class="string">&quot;coffee&quot;</span>, <span class="string">&quot;tea&quot;</span>, <span class="string">&quot;bakery&quot;</span>],
+            <span class="ident">AmenityType</span>::<span class="ident">CarRepair</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;car_repair&quot;</span>],
+            <span class="ident">AmenityType</span>::<span class="ident">CarShare</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;car_sharing&quot;</span>],
+            <span class="ident">AmenityType</span>::<span class="ident">Childcare</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;childcare&quot;</span>, <span class="string">&quot;kindergarten&quot;</span>],
+            <span class="ident">AmenityType</span>::<span class="ident">ConvenienceStore</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;convenience&quot;</span>],
+            <span class="ident">AmenityType</span>::<span class="ident">Culture</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;arts_centre&quot;</span>, <span class="string">&quot;art&quot;</span>, <span class="string">&quot;cinema&quot;</span>, <span class="string">&quot;theatre&quot;</span>],
+            <span class="ident">AmenityType</span>::<span class="ident">Exercise</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;fitness_centre&quot;</span>, <span class="string">&quot;sports_centre&quot;</span>, <span class="string">&quot;track&quot;</span>, <span class="string">&quot;pitch&quot;</span>],
+            <span class="ident">AmenityType</span>::<span class="ident">FastFood</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;fast_food&quot;</span>, <span class="string">&quot;food_court&quot;</span>],
             <span class="ident">AmenityType</span>::<span class="ident">Food</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[
                 <span class="string">&quot;restaurant&quot;</span>,
-                <span class="string">&quot;cafe&quot;</span>,
-                <span class="string">&quot;fast_food&quot;</span>,
-                <span class="string">&quot;food_court&quot;</span>,
+                <span class="string">&quot;farm&quot;</span>,
                 <span class="string">&quot;ice_cream&quot;</span>,
-                <span class="string">&quot;pastry&quot;</span>,
+                <span class="string">&quot;seafood&quot;</span>,
+                <span class="string">&quot;cheese&quot;</span>,
+                <span class="string">&quot;chocolate&quot;</span>,
                 <span class="string">&quot;deli&quot;</span>,
-                <span class="string">&quot;greengrocer&quot;</span>,
-                <span class="string">&quot;bakery&quot;</span>,
                 <span class="string">&quot;butcher&quot;</span>,
                 <span class="string">&quot;confectionery&quot;</span>,
                 <span class="string">&quot;beverages&quot;</span>,
                 <span class="string">&quot;alcohol&quot;</span>,
             ],
-            <span class="ident">AmenityType</span>::<span class="ident">Bar</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;bar&quot;</span>, <span class="string">&quot;lounge&quot;</span>, <span class="string">&quot;pub&quot;</span>, <span class="string">&quot;nightclub&quot;</span>],
+            <span class="ident">AmenityType</span>::<span class="ident">GreenSpace</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;park&quot;</span>, <span class="string">&quot;garden&quot;</span>, <span class="string">&quot;nature_reserve&quot;</span>],
+            <span class="ident">AmenityType</span>::<span class="ident">Hotel</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;hotel&quot;</span>, <span class="string">&quot;hostel&quot;</span>, <span class="string">&quot;guest_house&quot;</span>, <span class="string">&quot;motel&quot;</span>],
+            <span class="ident">AmenityType</span>::<span class="ident">Laundry</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;dry_cleaning&quot;</span>, <span class="string">&quot;laundry&quot;</span>, <span class="string">&quot;tailor&quot;</span>],
+            <span class="ident">AmenityType</span>::<span class="ident">Library</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;library&quot;</span>],
             <span class="ident">AmenityType</span>::<span class="ident">Medical</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[
-                <span class="string">&quot;chiropractor&quot;</span>,
-                <span class="string">&quot;clinic&quot;</span>,
-                <span class="string">&quot;dentist&quot;</span>,
-                <span class="string">&quot;hospital&quot;</span>,
-                <span class="string">&quot;pharmacy&quot;</span>,
-                <span class="string">&quot;optician&quot;</span>,
+                <span class="string">&quot;clinic&quot;</span>, <span class="string">&quot;dentist&quot;</span>, <span class="string">&quot;hospital&quot;</span>, <span class="string">&quot;pharmacy&quot;</span>, <span class="string">&quot;doctors&quot;</span>, <span class="string">&quot;optician&quot;</span>,
             ],
-            <span class="ident">AmenityType</span>::<span class="ident">Religious</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;place_of_worship&quot;</span>],
-            <span class="ident">AmenityType</span>::<span class="ident">Education</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;college&quot;</span>, <span class="string">&quot;school&quot;</span>, <span class="string">&quot;university&quot;</span>],
-            <span class="ident">AmenityType</span>::<span class="ident">Financial</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;bank&quot;</span>],
+            <span class="ident">AmenityType</span>::<span class="ident">Pet</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;veterinary&quot;</span>, <span class="string">&quot;pet&quot;</span>, <span class="string">&quot;animal_boarding&quot;</span>, <span class="string">&quot;pet_grooming&quot;</span>],
+            <span class="ident">AmenityType</span>::<span class="ident">Playground</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;playground&quot;</span>],
+            <span class="ident">AmenityType</span>::<span class="ident">Pool</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;swimming_pool&quot;</span>],
             <span class="ident">AmenityType</span>::<span class="ident">PostOffice</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;post_office&quot;</span>],
-            <span class="ident">AmenityType</span>::<span class="ident">Culture</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[
-                <span class="string">&quot;arts_centre&quot;</span>,
-                <span class="string">&quot;art_gallery&quot;</span>,
-                <span class="string">&quot;cinema&quot;</span>,
-                <span class="string">&quot;library&quot;</span>,
-                <span class="string">&quot;museum&quot;</span>,
-                <span class="string">&quot;theatre&quot;</span>,
-            ],
-            <span class="ident">AmenityType</span>::<span class="ident">Childcare</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;childcare&quot;</span>, <span class="string">&quot;kindergarten&quot;</span>],
+            <span class="ident">AmenityType</span>::<span class="ident">Religious</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;place_of_worship&quot;</span>, <span class="string">&quot;religion&quot;</span>],
+            <span class="ident">AmenityType</span>::<span class="ident">School</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;school&quot;</span>],
             <span class="ident">AmenityType</span>::<span class="ident">Shopping</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[
+                <span class="string">&quot;wholesale&quot;</span>,
+                <span class="string">&quot;bag&quot;</span>,
+                <span class="string">&quot;marketplace&quot;</span>,
                 <span class="string">&quot;second_hand&quot;</span>,
+                <span class="string">&quot;charity&quot;</span>,
                 <span class="string">&quot;clothes&quot;</span>,
-                <span class="string">&quot;furniture&quot;</span>,
+                <span class="string">&quot;lottery&quot;</span>,
                 <span class="string">&quot;shoes&quot;</span>,
+                <span class="string">&quot;mall&quot;</span>,
                 <span class="string">&quot;department_store&quot;</span>,
                 <span class="string">&quot;car&quot;</span>,
+                <span class="string">&quot;tailor&quot;</span>,
+                <span class="string">&quot;nutrition_supplements&quot;</span>,
+                <span class="string">&quot;watches&quot;</span>,
+                <span class="string">&quot;craft&quot;</span>,
+                <span class="string">&quot;fabric&quot;</span>,
                 <span class="string">&quot;kiosk&quot;</span>,
+                <span class="string">&quot;antiques&quot;</span>,
+                <span class="string">&quot;shoemaker&quot;</span>,
                 <span class="string">&quot;hardware&quot;</span>,
+                <span class="string">&quot;houseware&quot;</span>,
                 <span class="string">&quot;mobile_phone&quot;</span>,
+                <span class="string">&quot;photo&quot;</span>,
+                <span class="string">&quot;toys&quot;</span>,
+                <span class="string">&quot;bed&quot;</span>,
                 <span class="string">&quot;florist&quot;</span>,
                 <span class="string">&quot;electronics&quot;</span>,
+                <span class="string">&quot;fishing&quot;</span>,
+                <span class="string">&quot;garden_centre&quot;</span>,
+                <span class="string">&quot;frame&quot;</span>,
+                <span class="string">&quot;watchmaker&quot;</span>,
+                <span class="string">&quot;boutique&quot;</span>,
+                <span class="string">&quot;mobile_phone&quot;</span>,
+                <span class="string">&quot;party&quot;</span>,
                 <span class="string">&quot;car_parts&quot;</span>,
+                <span class="string">&quot;video&quot;</span>,
+                <span class="string">&quot;video_games&quot;</span>,
+                <span class="string">&quot;musical_instrument&quot;</span>,
+                <span class="string">&quot;music&quot;</span>,
+                <span class="string">&quot;baby_goods&quot;</span>,
                 <span class="string">&quot;doityourself&quot;</span>,
                 <span class="string">&quot;jewelry&quot;</span>,
                 <span class="string">&quot;variety_store&quot;</span>,
                 <span class="string">&quot;gift&quot;</span>,
-                <span class="string">&quot;bicycle&quot;</span>,
+                <span class="string">&quot;carpet&quot;</span>,
+                <span class="string">&quot;perfumery&quot;</span>,
+                <span class="string">&quot;curtain&quot;</span>,
+                <span class="string">&quot;appliance&quot;</span>,
+                <span class="string">&quot;furniture&quot;</span>,
+                <span class="string">&quot;lighting&quot;</span>,
+                <span class="string">&quot;sewing&quot;</span>,
                 <span class="string">&quot;books&quot;</span>,
                 <span class="string">&quot;sports&quot;</span>,
                 <span class="string">&quot;travel_agency&quot;</span>,
+                <span class="string">&quot;interior_decoration&quot;</span>,
                 <span class="string">&quot;stationery&quot;</span>,
-                <span class="string">&quot;pet&quot;</span>,
                 <span class="string">&quot;computer&quot;</span>,
                 <span class="string">&quot;tyres&quot;</span>,
                 <span class="string">&quot;newsagent&quot;</span>,
+                <span class="string">&quot;general&quot;</span>,
             ],
+            <span class="ident">AmenityType</span>::<span class="ident">Supermarket</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;supermarket&quot;</span>, <span class="string">&quot;greengrocer&quot;</span>],
+            <span class="ident">AmenityType</span>::<span class="ident">Tourism</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[
+                <span class="string">&quot;gallery&quot;</span>,
+                <span class="string">&quot;museum&quot;</span>,
+                <span class="string">&quot;zoo&quot;</span>,
+                <span class="string">&quot;attraction&quot;</span>,
+                <span class="string">&quot;theme_park&quot;</span>,
+                <span class="string">&quot;aquarium&quot;</span>,
+            ],
+            <span class="ident">AmenityType</span>::<span class="ident">University</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;college&quot;</span>, <span class="string">&quot;university&quot;</span>],
         }
     }
 
     <span class="doccomment">/// All types of amenities, in an arbitrary order.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">AmenityType</span><span class="op">&gt;</span> {
         <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">AmenityType</span>::<span class="ident">Groceries</span>,
-            <span class="ident">AmenityType</span>::<span class="ident">Food</span>,
+            <span class="ident">AmenityType</span>::<span class="ident">Bank</span>,
             <span class="ident">AmenityType</span>::<span class="ident">Bar</span>,
-            <span class="ident">AmenityType</span>::<span class="ident">Medical</span>,
-            <span class="ident">AmenityType</span>::<span class="ident">Religious</span>,
-            <span class="ident">AmenityType</span>::<span class="ident">Education</span>,
-            <span class="ident">AmenityType</span>::<span class="ident">Financial</span>,
-            <span class="ident">AmenityType</span>::<span class="ident">PostOffice</span>,
-            <span class="ident">AmenityType</span>::<span class="ident">Culture</span>,
+            <span class="ident">AmenityType</span>::<span class="ident">Beauty</span>,
+            <span class="ident">AmenityType</span>::<span class="ident">Bike</span>,
+            <span class="ident">AmenityType</span>::<span class="ident">Cafe</span>,
+            <span class="ident">AmenityType</span>::<span class="ident">CarRepair</span>,
+            <span class="ident">AmenityType</span>::<span class="ident">CarShare</span>,
             <span class="ident">AmenityType</span>::<span class="ident">Childcare</span>,
+            <span class="ident">AmenityType</span>::<span class="ident">ConvenienceStore</span>,
+            <span class="ident">AmenityType</span>::<span class="ident">Culture</span>,
+            <span class="ident">AmenityType</span>::<span class="ident">FastFood</span>,
+            <span class="ident">AmenityType</span>::<span class="ident">Food</span>,
+            <span class="ident">AmenityType</span>::<span class="ident">Exercise</span>,
+            <span class="ident">AmenityType</span>::<span class="ident">GreenSpace</span>,
+            <span class="ident">AmenityType</span>::<span class="ident">Hotel</span>,
+            <span class="ident">AmenityType</span>::<span class="ident">Laundry</span>,
+            <span class="ident">AmenityType</span>::<span class="ident">Library</span>,
+            <span class="ident">AmenityType</span>::<span class="ident">Medical</span>,
+            <span class="ident">AmenityType</span>::<span class="ident">Pet</span>,
+            <span class="ident">AmenityType</span>::<span class="ident">Playground</span>,
+            <span class="ident">AmenityType</span>::<span class="ident">Pool</span>,
+            <span class="ident">AmenityType</span>::<span class="ident">PostOffice</span>,
+            <span class="ident">AmenityType</span>::<span class="ident">Religious</span>,
+            <span class="ident">AmenityType</span>::<span class="ident">School</span>,
             <span class="ident">AmenityType</span>::<span class="ident">Shopping</span>,
+            <span class="ident">AmenityType</span>::<span class="ident">Supermarket</span>,
+            <span class="ident">AmenityType</span>::<span class="ident">Tourism</span>,
+            <span class="ident">AmenityType</span>::<span class="ident">University</span>,
         ]
     }
 
@@ -731,45 +842,6 @@
             }
         }
         <span class="prelude-val">None</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AmenityType</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">x</span> {
-            <span class="string">&quot;groceries&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">AmenityType</span>::<span class="ident">Groceries</span>),
-            <span class="string">&quot;food&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">AmenityType</span>::<span class="ident">Food</span>),
-            <span class="string">&quot;bar&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">AmenityType</span>::<span class="ident">Bar</span>),
-            <span class="string">&quot;medical&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">AmenityType</span>::<span class="ident">Medical</span>),
-            <span class="string">&quot;religious&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">AmenityType</span>::<span class="ident">Religious</span>),
-            <span class="string">&quot;education&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">AmenityType</span>::<span class="ident">Education</span>),
-            <span class="string">&quot;financial&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">AmenityType</span>::<span class="ident">Financial</span>),
-            <span class="string">&quot;post office&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">AmenityType</span>::<span class="ident">PostOffice</span>),
-            <span class="string">&quot;culture&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">AmenityType</span>::<span class="ident">Culture</span>),
-            <span class="string">&quot;childcare&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">AmenityType</span>::<span class="ident">Childcare</span>),
-            <span class="string">&quot;shopping&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">AmenityType</span>::<span class="ident">Shopping</span>),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-        }
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">AmenityType</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="macro">write</span><span class="macro">!</span>(
-            <span class="ident">f</span>,
-            <span class="string">&quot;{}&quot;</span>,
-            <span class="kw">match</span> <span class="self">self</span> {
-                <span class="ident">AmenityType</span>::<span class="ident">Groceries</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;groceries&quot;</span>,
-                <span class="ident">AmenityType</span>::<span class="ident">Food</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;food&quot;</span>,
-                <span class="ident">AmenityType</span>::<span class="ident">Bar</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;bar&quot;</span>,
-                <span class="ident">AmenityType</span>::<span class="ident">Medical</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;medical&quot;</span>,
-                <span class="ident">AmenityType</span>::<span class="ident">Religious</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;religious&quot;</span>,
-                <span class="ident">AmenityType</span>::<span class="ident">Education</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;education&quot;</span>,
-                <span class="ident">AmenityType</span>::<span class="ident">Financial</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;financial&quot;</span>,
-                <span class="ident">AmenityType</span>::<span class="ident">PostOffice</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;post office&quot;</span>,
-                <span class="ident">AmenityType</span>::<span class="ident">Culture</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;culture&quot;</span>,
-                <span class="ident">AmenityType</span>::<span class="ident">Childcare</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;childcare&quot;</span>,
-                <span class="ident">AmenityType</span>::<span class="ident">Shopping</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;shopping&quot;</span>,
-            }
-        )
     }
 }
 </pre></div>

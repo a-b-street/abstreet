@@ -572,6 +572,7 @@
 <span id="569">569</span>
 <span id="570">570</span>
 <span id="571">571</span>
+<span id="572">572</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! This is a tool to experiment with the concept of 15-minute neighborhoods. Can you access your</span>
 <span class="doccomment">//! daily needs (like groceries, a cafe, a library) within a 15-minute walk, bike ride, or public</span>
@@ -587,6 +588,7 @@
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">connectivity</span>::<span class="ident">WalkingOptions</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">AmenityType</span>, <span class="ident">Building</span>, <span class="ident">BuildingID</span>, <span class="ident">LaneType</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">str</span>::<span class="ident">FromStr</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::<span class="ident">table</span>::{<span class="ident">Col</span>, <span class="ident">Filter</span>, <span class="ident">Table</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Cached</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>,
@@ -672,7 +674,7 @@
                 .<span class="ident">currently_hovering</span>()
                 .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;businesses: &quot;</span>));
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">category</span>) <span class="op">=</span> <span class="ident">key</span> {
-                <span class="kw">let</span> <span class="ident">category</span> <span class="op">=</span> <span class="ident">AmenityType</span>::<span class="ident">parse</span>(<span class="ident">category</span>).<span class="ident">unwrap</span>();
+                <span class="kw">let</span> <span class="ident">category</span> <span class="op">=</span> <span class="ident">AmenityType</span>::<span class="ident">from_str</span>(<span class="ident">category</span>).<span class="ident">unwrap</span>();
                 <span class="kw">if</span> <span class="self">self</span>
                     .<span class="ident">hovering_on_category</span>
                     .<span class="ident">as_ref</span>()
@@ -752,7 +754,7 @@
                             <span class="ident">ctx</span>,
                             <span class="ident">app</span>,
                             <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">isochrone</span>,
-                            <span class="ident">AmenityType</span>::<span class="ident">parse</span>(<span class="ident">category</span>).<span class="ident">unwrap</span>(),
+                            <span class="ident">AmenityType</span>::<span class="ident">from_str</span>(<span class="ident">category</span>).<span class="ident">unwrap</span>(),
                         ));
                     } <span class="kw">else</span> {
                         <span class="macro">unreachable</span><span class="macro">!</span>()
