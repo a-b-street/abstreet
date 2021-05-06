@@ -40,20 +40,24 @@ async fn main() {
         opt_into_all();
     } else {
         let minimal = args.enabled("--minimal");
+        // If true, only update files from the manifest. Leave extra files alone.
+        let dont_delete = args.enabled("--dont_delete");
         args.done();
-        download_updates(version, minimal).await;
+        download_updates(version, minimal, !dont_delete).await;
     }
 }
 
-async fn download_updates(version: String, minimal: bool) {
+async fn download_updates(version: String, minimal: bool, delete_local: bool) {
     let data_packs = DataPacks::load_or_create();
     let truth = Manifest::load().filter(data_packs);
     let local = generate_manifest(&truth);
 
     // Anything local need deleting?
-    for path in local.entries.keys() {
-        if !truth.entries.contains_key(path) {
-            rm(&path);
+    if delete_local {
+        for path in local.entries.keys() {
+            if !truth.entries.contains_key(path) {
+                rm(&path);
+            }
         }
     }
 
