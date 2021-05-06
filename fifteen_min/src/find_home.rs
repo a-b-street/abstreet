@@ -1,6 +1,6 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
-use abstutil::{Counter, Parallelism, Timer};
+use abstutil::{prettyprint_usize, Counter, Parallelism, Timer};
 use geom::Percent;
 use map_gui::tools::PopupMsg;
 use map_model::{AmenityType, BuildingID};
@@ -89,33 +89,28 @@ fn score_houses(
     options: Options,
     timer: &mut Timer,
 ) -> HashMap<BuildingID, Percent> {
+    let num_categories = amenities.len();
     let mut satisfied_per_bldg: Counter<BuildingID> = Counter::new();
 
-    // There may be more clever ways to calculate this, but we'll take the brute-force approach of
-    // calculating the walkshed from every matching business.
-    let num_categories = amenities.len();
-    for category in amenities {
-        let mut stores: HashSet<BuildingID> = HashSet::new();
-        for b in app.map.all_buildings() {
-            if b.has_amenity(category) {
-                stores.insert(b.id);
+    let map = &app.map;
+    for times in timer.parallelize(
+        "find houses close to amenities",
+        Parallelism::Fastest,
+        amenities,
+        |category| {
+            // For each category, find all matching stores
+            let mut stores = Vec::new();
+            for b in map.all_buildings() {
+                if b.has_amenity(category) {
+                    stores.push(b.id);
+                }
             }
-        }
 
-        let mut houses: HashSet<BuildingID> = HashSet::new();
-        let map = &app.map;
-        for times in timer.parallelize(
-            &format!("find houses close to {}", category),
-            Parallelism::Fastest,
-            stores.into_iter().collect(),
-            |b| options.clone().time_to_reach_building(map, b),
-        ) {
-            for (b, _) in times {
-                houses.insert(b);
-            }
-        }
-
-        for b in houses {
+            // Then find all buildings reachable from any of those starting points
+            options.clone().times_from_buildings(map, stores)
+        },
+    ) {
+        for (b, _) in times {
             satisfied_per_bldg.inc(b);
         }
     }
@@ -140,12 +135,22 @@ impl Results {
         scores: HashMap<BuildingID, Percent>,
         amenities: Vec<AmenityType>,
     ) -> Box<dyn State<App>> {
+        // TODO Show imperfect matches with different colors.
+        let mut batch = GeomBatch::new();
+        let mut count = 0;
+        for (b, pct) in scores {
+            if pct == Percent::int(100) {
+                batch.push(Color::RED, app.map.get_b(b).polygon.clone());
+                count += 1;
+            }
+        }
+
         let panel = Panel::new(Widget::col(vec![
             Line("Results for your walkable home")
                 .small_heading()
                 .into_widget(ctx),
             // TODO Adjust text to say bikeshed, or otherwise reflect the options chosen
-            "Here are all of the matching houses.".text_widget(ctx),
+            format!("{} houses match", prettyprint_usize(count)).text_widget(ctx),
             format!(
                 "Containing at least 1 of each: {}",
                 amenities
@@ -163,14 +168,6 @@ impl Results {
         ]))
         .aligned(HorizontalAlignment::RightInset, VerticalAlignment::TopInset)
         .build(ctx);
-
-        // TODO Show imperfect matches with different colors.
-        let mut batch = GeomBatch::new();
-        for (b, pct) in scores {
-            if pct == Percent::int(100) {
-                batch.push(Color::RED, app.map.get_b(b).polygon.clone());
-            }
-        }
 
         SimpleState::new(
             panel,

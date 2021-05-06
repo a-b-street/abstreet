@@ -56,27 +56,34 @@ impl Ord for Item {
     }
 }
 
-/// Starting from one building, calculate the cost to all others. If a destination isn't reachable,
-/// it won't be included in the results. Ignore results greater than the time_limit away.
+/// Starting from some initial buildings, calculate the cost to all others. If a destination isn't
+/// reachable, it won't be included in the results. Ignore results greater than the time_limit
+/// away.
 ///
-/// If the start building is on the shoulder of a road and `!opts.allow_shoulders`, then the
-/// results will always be empty.
+/// If all of the start buildings are on the shoulder of a road and `!opts.allow_shoulders`, then
+/// the results will always be empty.
 pub fn all_walking_costs_from(
     map: &Map,
-    start: BuildingID,
+    starts: Vec<BuildingID>,
     time_limit: Duration,
     opts: WalkingOptions,
 ) -> HashMap<BuildingID, Duration> {
-    let start_lane = map.get_l(map.get_b(start).sidewalk_pos.lane());
-    if start_lane.lane_type == LaneType::Shoulder && !opts.allow_shoulders {
-        return HashMap::new();
+    if !opts.allow_shoulders {
+        if starts
+            .iter()
+            .all(|b| map.get_l(map.get_b(*b).sidewalk()).lane_type == LaneType::Shoulder)
+        {
+            return HashMap::new();
+        }
     }
 
     let mut queue: BinaryHeap<Item> = BinaryHeap::new();
-    queue.push(Item {
-        cost: Duration::ZERO,
-        node: WalkingNode::closest(map.get_b(start).sidewalk_pos, map),
-    });
+    for b in starts {
+        queue.push(Item {
+            cost: Duration::ZERO,
+            node: WalkingNode::closest(map.get_b(b).sidewalk_pos, map),
+        });
+    }
 
     let mut cost_per_node: HashMap<WalkingNode, Duration> = HashMap::new();
     while let Some(current) = queue.pop() {
