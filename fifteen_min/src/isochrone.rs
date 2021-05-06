@@ -38,7 +38,8 @@ pub enum Options {
 }
 
 impl Options {
-    // TODO doc
+    /// Calculate the quickest time to reach buildings across the map from any of the starting
+    /// points, subject to the walking/biking settings configured in these Options.
     pub fn times_from_buildings(
         self,
         map: &Map,
