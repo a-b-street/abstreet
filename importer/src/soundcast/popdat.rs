@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use abstio::{CityName, FileWithProgress};
 use abstutil::{prettyprint_usize, Counter, Timer};
-use geom::{Distance, Duration, FindClosest, LonLat, Time};
+use geom::{Distance, Duration, LonLat, Time};
 use kml::{ExtraShape, ExtraShapes};
 use map_model::{osm, Map};
 use sim::{OrigPersonID, TripMode, TripPurpose};
@@ -113,10 +113,13 @@ fn import_trips(huge_map: &Map, timer: &mut Timer) -> Vec<OrigTrip> {
 
 // TODO Do we also need the zone ID, or is parcel ID globally unique?
 // Keyed by parcel ID
+#[cfg(feature = "scenarios")]
 fn import_parcels(
     huge_map: &Map,
     timer: &mut Timer,
 ) -> (HashMap<usize, Endpoint>, BTreeMap<usize, ExtraShape>) {
+    use geom::FindClosest;
+
     // TODO I really just want to do polygon containment with a quadtree. FindClosest only does
     // line-string stuff right now, which'll be weird for the last->first pt line and stuff.
     let mut closest_bldg: FindClosest<osm::OsmID> = FindClosest::new(huge_map.get_bounds());
@@ -218,6 +221,14 @@ fn import_parcels(
     info!("{} parcels", prettyprint_usize(result.len()));
 
     (result, shapes)
+}
+
+#[cfg(not(feature = "scenarios"))]
+fn import_parcels(
+    _: &Map,
+    _: &mut Timer,
+) -> (HashMap<usize, Endpoint>, BTreeMap<usize, ExtraShape>) {
+    panic!("Can't import_parcels for popdat.bin without the scenarios feature (GDAL dependency)");
 }
 
 // From https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv, opurp and dpurp

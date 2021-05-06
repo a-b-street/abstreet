@@ -153,7 +153,6 @@ pub async fn osm_to_raw(name: &str, timer: &mut Timer<'_>, config: &ImporterConf
 }
 
 /// Download and pre-process data needed to generate Seattle scenarios.
-#[cfg(feature = "scenarios")]
 pub async fn ensure_popdat_exists(
     timer: &mut Timer<'_>,
     config: &ImporterConfiguration,
