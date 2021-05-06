@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, bail, Result};
 use serde::Deserialize;
 
 use abstutil::{prettyprint_usize, CmdArgs, Timer};
@@ -41,8 +41,13 @@ fn parse_trips(csv_path: String) -> Result<Vec<ExternalPerson>> {
     let mut people = Vec::new();
     for rec in csv::Reader::from_reader(std::fs::File::open(csv_path)?).deserialize() {
         let rec: Record = rec?;
-        // Only one mode is encoded by input_agents.csv right now.
-        assert_eq!(rec.agent_type, "v");
+        let mode = match rec.agent_type.as_ref() {
+            "v" => TripMode::Drive,
+            "b" => TripMode::Bike,
+            "p" => TripMode::Walk,
+            "t" => TripMode::Transit,
+            x => bail!("Unknown agent_type {}", x),
+        };
         let (origin, destination) = parse_linestring(&rec.geometry)
             .ok_or_else(|| anyhow!("didn't parse geometry {}", rec.geometry))?;
         let departure = parse_time(rec.departure_time)?;
@@ -53,7 +58,7 @@ fn parse_trips(csv_path: String) -> Result<Vec<ExternalPerson>> {
             trips: vec![ExternalTrip {
                 departure,
                 destination: ExternalTripEndpoint::Position(destination),
-                mode: TripMode::Drive,
+                mode,
                 purpose: TripPurpose::Work,
             }],
         });
