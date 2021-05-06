@@ -2,6 +2,8 @@ use std::collections::{BTreeMap, HashSet, VecDeque};
 use std::fmt;
 
 use serde::{Deserialize, Serialize};
+use strum_macros::Display;
+use strum_macros::EnumString;
 
 use abstutil::{
     deserialize_btreemap, deserialize_usize, serialize_btreemap, serialize_usize, Tags,
@@ -9,8 +11,6 @@ use abstutil::{
 use geom::{Distance, PolyLine, Polygon, Pt2D};
 
 use crate::{osm, LaneID, Map, PathConstraints, Position};
-use strum_macros::EnumString;
-use strum_macros::Display;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct BuildingID(
@@ -271,14 +271,9 @@ impl AmenityType {
             AmenityType::CarShare => vec!["car_sharing"],
             AmenityType::Childcare => vec!["childcare", "kindergarten"],
             AmenityType::ConvenienceStore => vec!["convenience"],
-            AmenityType::Culture => vec![
-                "arts_centre",
-                "art",
-                "cinema",
-                "theatre",
-            ],
+            AmenityType::Culture => vec!["arts_centre", "art", "cinema", "theatre"],
             AmenityType::Exercise => vec!["fitness_centre", "sports_centre", "track", "pitch"],
-            AmenityType::FastFood => vec!["fast_food", "food_court",],
+            AmenityType::FastFood => vec!["fast_food", "food_court"],
             AmenityType::Food => vec![
                 "restaurant",
                 "farm",
@@ -297,12 +292,7 @@ impl AmenityType {
             AmenityType::Laundry => vec!["dry_cleaning", "laundry", "tailor"],
             AmenityType::Library => vec!["library"],
             AmenityType::Medical => vec![
-                "clinic",
-                "dentist",
-                "hospital",
-                "pharmacy",
-                "doctors",
-                "optician",
+                "clinic", "dentist", "hospital", "pharmacy", "doctors", "optician",
             ],
             AmenityType::Pet => vec!["veterinary", "pet", "animal_boarding", "pet_grooming"],
             AmenityType::Playground => vec!["playground"],
@@ -370,7 +360,7 @@ impl AmenityType {
                 "computer",
                 "tyres",
                 "newsagent",
-                "general"
+                "general",
             ],
             AmenityType::Supermarket => vec!["supermarket", "greengrocer"],
             AmenityType::Tourism => vec![
@@ -429,5 +419,3 @@ impl AmenityType {
         None
     }
 }
-
-

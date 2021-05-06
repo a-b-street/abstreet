@@ -6,7 +6,7 @@ use map_gui::tools::{ColorDiscrete, ColorLegend, ColorNetwork};
 use map_gui::ID;
 use map_model::{AmenityType, LaneType};
 use sim::AgentType;
-use widgetry::{Color, Drawable, EventCtx, GfxCtx, Line, Panel, Text, TextExt, Widget};
+use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Panel, Text, TextExt, Widget};
 
 use crate::app::App;
 use crate::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
@@ -250,47 +250,51 @@ impl Static {
         )
     }
 
-    // TODO update the colors to cover more cases
     pub fn amenities(ctx: &mut EventCtx, app: &App) -> Static {
-        let mut colorer = ColorDiscrete::new(
-            app,
-            vec![
-                (AmenityType::Supermarket.to_string(), Color::BLACK),
-                (AmenityType::Food.to_string(), Color::RED),
-                (AmenityType::Bar.to_string(), Color::BLUE),
-                (AmenityType::Medical.to_string(), Color::PURPLE),
-                (AmenityType::Religious.to_string(), Color::GREEN),
-                (AmenityType::School.to_string(), Color::CYAN),
-                (AmenityType::Bank.to_string(), Color::YELLOW),
-                (AmenityType::PostOffice.to_string(), Color::YELLOW),
-                (AmenityType::Culture.to_string(), Color::PINK),
-                (AmenityType::Childcare.to_string(), Color::ORANGE),
-                (AmenityType::Shopping.to_string(), Color::WHITE),
-                ("other".to_string(), Color::hex("#96322F")),
-            ],
-        );
+        let food = Color::RED;
+        let school = Color::CYAN;
+        let shopping = Color::PURPLE;
+        let other = Color::GREEN;
 
+        let mut unzoomed = GeomBatch::new();
+        let mut zoomed = GeomBatch::new();
         for b in app.primary.map.all_buildings() {
-            let mut other = false;
+            if b.amenities.is_empty() {
+                continue;
+            }
+            let mut color = None;
             for a in &b.amenities {
                 if let Some(t) = AmenityType::categorize(&a.amenity_type) {
-                    colorer.add_b(b.id, t.to_string());
-                } else {
-                    other = true;
+                    color = Some(match t {
+                        AmenityType::Food => food,
+                        AmenityType::School => school,
+                        AmenityType::Shopping => shopping,
+                        _ => other,
+                    });
+                    break;
                 }
             }
-            if other {
-                colorer.add_b(b.id, "other");
-            }
+            let color = color.unwrap_or(other);
+            unzoomed.push(color, b.polygon.clone());
+            zoomed.push(color.alpha(0.4), b.polygon.clone());
         }
 
-        Static::new(
-            ctx,
-            colorer,
-            "amenities",
-            "Amenities".to_string(),
-            Widget::nothing(),
-        )
+        let panel = Panel::new(Widget::col(vec![
+            header(ctx, "Amenities"),
+            ColorLegend::row(ctx, food, AmenityType::Food.to_string()),
+            ColorLegend::row(ctx, school, AmenityType::School.to_string()),
+            ColorLegend::row(ctx, shopping, AmenityType::Shopping.to_string()),
+            ColorLegend::row(ctx, other, "other".to_string()),
+        ]))
+        .aligned_pair(PANEL_PLACEMENT)
+        .build(ctx);
+
+        Static {
+            panel,
+            unzoomed: ctx.upload(unzoomed),
+            zoomed: ctx.upload(zoomed),
+            name: "amenities",
+        }
     }
 
     pub fn no_sidewalks(ctx: &mut EventCtx, app: &App) -> Static {

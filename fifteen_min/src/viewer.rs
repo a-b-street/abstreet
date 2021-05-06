@@ -12,13 +12,12 @@ use map_gui::tools::{
 use map_gui::ID;
 use map_model::connectivity::WalkingOptions;
 use map_model::{AmenityType, Building, BuildingID, LaneType};
+use std::str::FromStr;
 use widgetry::table::{Col, Filter, Table};
 use widgetry::{
     lctrl, Cached, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Outcome, Panel, RewriteColor, State, Text, Toggle, Transition, VerticalAlignment, Widget,
 };
-
-use std::str::FromStr;
 
 use crate::find_home::FindHome;
 use crate::isochrone::{Isochrone, Options};
