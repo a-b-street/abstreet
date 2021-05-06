@@ -21,5 +21,7 @@ getrandom = { version = "0.2.2", optional = true }
 log = "0.4"
 map_gui = { path = "../map_gui" }
 map_model = { path = "../map_model" }
+strum = "0.20"
+strum_macros = "0.20"
 wasm-bindgen = { version = "0.2.70", optional = true }
 widgetry = { path = "../widgetry" }

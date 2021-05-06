@@ -18,6 +18,8 @@ use widgetry::{
     Line, Outcome, Panel, RewriteColor, State, Text, Toggle, Transition, VerticalAlignment, Widget,
 };
 
+use std::str::FromStr;
+
 use crate::find_home::FindHome;
 use crate::isochrone::{Isochrone, Options};
 use crate::App;
@@ -97,7 +99,7 @@ impl State<App> for Viewer {
                 .currently_hovering()
                 .and_then(|x| x.strip_prefix("businesses: "));
             if let Some(category) = key {
-                let category = AmenityType::parse(category).unwrap();
+                let category = AmenityType::from_str(category).unwrap();
                 if self
                     .hovering_on_category
                     .as_ref()
@@ -177,7 +179,7 @@ impl State<App> for Viewer {
                             ctx,
                             app,
                             &self.isochrone,
-                            AmenityType::parse(category).unwrap(),
+                            AmenityType::from_str(category).unwrap(),
                         ));
                     } else {
                         unreachable!()

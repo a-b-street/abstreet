@@ -250,17 +250,18 @@ impl Static {
         )
     }
 
+    // TODO update the colors to cover more cases
     pub fn amenities(ctx: &mut EventCtx, app: &App) -> Static {
         let mut colorer = ColorDiscrete::new(
             app,
             vec![
-                (AmenityType::Groceries.to_string(), Color::BLACK),
+                (AmenityType::Supermarket.to_string(), Color::BLACK),
                 (AmenityType::Food.to_string(), Color::RED),
                 (AmenityType::Bar.to_string(), Color::BLUE),
                 (AmenityType::Medical.to_string(), Color::PURPLE),
                 (AmenityType::Religious.to_string(), Color::GREEN),
-                (AmenityType::Education.to_string(), Color::CYAN),
-                (AmenityType::Financial.to_string(), Color::YELLOW),
+                (AmenityType::School.to_string(), Color::CYAN),
+                (AmenityType::Bank.to_string(), Color::YELLOW),
                 (AmenityType::PostOffice.to_string(), Color::YELLOW),
                 (AmenityType::Culture.to_string(), Color::PINK),
                 (AmenityType::Childcare.to_string(), Color::ORANGE),

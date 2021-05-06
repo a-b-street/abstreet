@@ -9,6 +9,8 @@ use abstutil::{
 use geom::{Distance, PolyLine, Polygon, Pt2D};
 
 use crate::{osm, LaneID, Map, PathConstraints, Position};
+use strum_macros::EnumString;
+use strum_macros::Display;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct BuildingID(
@@ -225,13 +227,12 @@ fn sidewalk_to_bike(sidewalk_pos: Position, map: &Map) -> Option<(Position, Posi
 }
 
 /// Businesses are categorized into one of these types.
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, EnumString, Display)]
 pub enum AmenityType {
     Bank,
     Bar,
     Beauty,
-    BikeStore,
-    BikeParkRent,
+    Bike,
     Cafe,
     CarRepair,
     CarShare,
@@ -426,61 +427,6 @@ impl AmenityType {
             }
         }
         None
-    }
-
-    pub fn parse(x: &str) -> Option<AmenityType> {
-        match x {
-            "bar" => Some(AmenityType::Bar),
-            "beauty" => Some(AmenityType::Beauty),
-            "bike" => Some(AmenityType::Bike),
-            "car repair" => Some(AmenityType::CarRepair),
-            "car share" => Some(AmenityType::CarShare),
-            "childcare" => Some(AmenityType::Childcare),
-            "convenience store" => Some(AmenityType::ConvenienceStore),
-            "culture" => Some(AmenityType::Culture),
-            "financial" => Some(AmenityType::Financial),
-            "food" => Some(AmenityType::Food),
-            "laundry" => Some(AmenityType::Laundry),
-            "medical" => Some(AmenityType::Medical),
-            "pet" => Some(AmenityType::Pet),
-            "post office" => Some(AmenityType::PostOffice),
-            "religious" => Some(AmenityType::Religious),
-            "school" => Some(AmenityType::School),
-            "shopping" => Some(AmenityType::Shopping),
-            "supermarket" => Some(AmenityType::Supermarket),
-            "university" => Some(AmenityType::University),
-            _ => None,
-        }
-    }
-}
-
-impl fmt::Display for AmenityType {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                AmenityType::Bar => "bar",
-                AmenityType::Beauty => "beauty",
-                AmenityType::Bike => "bike",
-                AmenityType::CarRepair => "car repair",
-                AmenityType::CarShare => "car share",
-                AmenityType::Childcare => "childcare",
-                AmenityType::ConvenienceStore => "convenience store",
-                AmenityType::Culture => "culture",
-                AmenityType::Financial => "financial",
-                AmenityType::Food => "food",
-                AmenityType::Laundry => "laundry",
-                AmenityType::Medical => "medical",
-                AmenityType::Pet => "pet",
-                AmenityType::PostOffice => "post office",
-                AmenityType::Religious => "religious",
-                AmenityType::School => "school",
-                AmenityType::Shopping => "shopping",
-                AmenityType::Supermarket => "supermarket",
-                AmenityType::University => "university",
-            }
-        )
     }
 }
 
