@@ -2,8 +2,8 @@ use std::collections::{BTreeMap, HashSet, VecDeque};
 use std::fmt;
 
 use serde::{Deserialize, Serialize};
-use strum_macros::Display;
-use strum_macros::EnumString;
+use strum::IntoEnumIterator;
+use strum_macros::{Display, EnumIter, EnumString};
 
 use abstutil::{
     deserialize_btreemap, deserialize_usize, serialize_btreemap, serialize_usize, Tags,
@@ -227,7 +227,7 @@ fn sidewalk_to_bike(sidewalk_pos: Position, map: &Map) -> Option<(Position, Posi
 }
 
 /// Businesses are categorized into one of these types.
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, EnumString, Display)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, EnumString, Display, EnumIter)]
 pub enum AmenityType {
     Bank,
     Bar,
@@ -375,38 +375,9 @@ impl AmenityType {
         }
     }
 
-    /// All types of amenities, in an arbitrary order.
+    /// All types of amenities, in alphabetical order.
     pub fn all() -> Vec<AmenityType> {
-        vec![
-            AmenityType::Bank,
-            AmenityType::Bar,
-            AmenityType::Beauty,
-            AmenityType::Bike,
-            AmenityType::Cafe,
-            AmenityType::CarRepair,
-            AmenityType::CarShare,
-            AmenityType::Childcare,
-            AmenityType::ConvenienceStore,
-            AmenityType::Culture,
-            AmenityType::FastFood,
-            AmenityType::Food,
-            AmenityType::Exercise,
-            AmenityType::GreenSpace,
-            AmenityType::Hotel,
-            AmenityType::Laundry,
-            AmenityType::Library,
-            AmenityType::Medical,
-            AmenityType::Pet,
-            AmenityType::Playground,
-            AmenityType::Pool,
-            AmenityType::PostOffice,
-            AmenityType::Religious,
-            AmenityType::School,
-            AmenityType::Shopping,
-            AmenityType::Supermarket,
-            AmenityType::Tourism,
-            AmenityType::University,
-        ]
+        AmenityType::iter().collect()
     }
 
     /// Categorize an OSM amenity tag.
