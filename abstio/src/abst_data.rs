@@ -48,9 +48,29 @@ impl Manifest {
                 // Always grab all of these
                 continue;
             }
-            if path.starts_with("data/input/shared") && !data_packs.input.is_empty() {
-                // Grab all of these if the user has opted into any input data at all
-                continue;
+            // If the user has opted into any input data at all, we want to grab some of the shared
+            // input files.
+            if path.starts_with("data/input/shared") {
+                // But some of the files are large, so of course we hardcode some more overrides
+                // here. Maybe some of this data should be scoped to a country, not a city.
+                if path.ends_with("Road Safety Data - Accidents 2019.csv")
+                    || path.ends_with("wu03ew_v2.csv")
+                    || path.ends_with("zones_core.geojson")
+                {
+                    if data_packs.input.iter().any(|x| x.starts_with("gb/")) {
+                        continue;
+                    }
+                } else if path.ends_with("kc_2016_lidar.tif")
+                    || path.ends_with("seattle_contours.geojson")
+                {
+                    if data_packs.input.contains("us/seattle") {
+                        continue;
+                    }
+                } else if !data_packs.input.is_empty() {
+                    // All of the SRTM files land here. Hard to associate them with a country or
+                    // city code, and it seems like we may want to share these between cities.
+                    continue;
+                }
             }
 
             let parts = path.split("/").collect::<Vec<_>>();
@@ -135,11 +155,7 @@ impl DataPacks {
     pub fn load_or_create() -> DataPacks {
         let path = crate::path_player("data.json");
         match crate::maybe_read_json::<DataPacks>(path.clone(), &mut abstutil::Timer::throwaway()) {
-            Ok(mut cfg) => {
-                // The game breaks without this required data pack.
-                cfg.runtime.insert("us/seattle".to_string());
-                cfg
-            }
+            Ok(cfg) => cfg,
             Err(err) => {
                 warn!("player/data.json invalid, assuming defaults: {}", err);
                 let mut cfg = DataPacks {

@@ -20,7 +20,10 @@ async fn main() {
         args.done();
         upload(version);
     } else if args.enabled("--inc_upload") {
-        assert_eq!(version, "dev");
+        // The main use of --inc_upload is to upload files produced from a batch Docker job. We
+        // DON'T want to override the main data immediately. If running locally, can temporarily
+        // disable this assertion.
+        assert_ne!(version, "dev");
         args.done();
         incremental_upload(version);
     } else if args.enabled("--dry") {
