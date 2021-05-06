@@ -1,0 +1,7 @@
+# Everything is ignored, except for the following
+*
+!target/release/importer
+!target/release/updater
+!data/MANIFEST.json
+!importer/config/*
+!cloud/*
