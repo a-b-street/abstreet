@@ -19,6 +19,10 @@ async fn main() {
         assert_eq!(version, "dev");
         args.done();
         upload(version);
+    } else if args.enabled("--inc_upload") {
+        assert_eq!(version, "dev");
+        args.done();
+        incremental_upload(version);
     } else if args.enabled("--dry") {
         let single_file = args.optional_free();
         args.done();
@@ -151,17 +155,7 @@ fn upload(version: String) {
             let remote_path = format!("{}/{}.gz", remote_base, path);
             let changed = remote.entries.get(&path).map(|x| &x.checksum) != Some(&entry.checksum);
             if changed {
-                std::fs::create_dir_all(std::path::Path::new(&remote_path).parent().unwrap())
-                    .unwrap();
-                println!("> compressing {}", path);
-                {
-                    let mut input = BufReader::new(File::open(&path).unwrap());
-                    let out = File::create(&remote_path).unwrap();
-                    let mut encoder =
-                        flate2::write::GzEncoder::new(out, flate2::Compression::best());
-                    std::io::copy(&mut input, &mut encoder).unwrap();
-                    encoder.finish().unwrap();
-                }
+                compress(&path, &remote_path);
             }
             // Always do this -- even if nothing changed, compressed_size_bytes isn't filled out by
             // generate_manifest.
@@ -194,6 +188,69 @@ fn upload(version: String) {
             .arg(format!("{}/MANIFEST.json", remote_base))
             .arg(format!("s3://abstreet/{}/MANIFEST.json", version)),
     );
+}
+
+// Like upload(), but for running not on Dustin's main machine. It never deletes files from S3,
+// only updates or creates new ones.
+fn incremental_upload(version: String) {
+    let remote_base = "tmp_incremental_upload";
+
+    // Assume the local copy of the manifest from git is the current source of truth.
+    let mut truth = Manifest::load();
+    let local = generate_manifest(&truth);
+
+    // Anything missing or needing updating?
+    let mut changes = false;
+    for (path, entry) in Timer::new("compress files")
+        .parallelize(
+            "compress files",
+            Parallelism::Fastest,
+            local.entries.into_iter().collect(),
+            |(path, mut entry)| {
+                if truth.entries.get(&path).map(|x| &x.checksum) != Some(&entry.checksum) {
+                    let remote_path = format!("{}/{}.gz", remote_base, path);
+                    compress(&path, &remote_path);
+                    entry.compressed_size_bytes = std::fs::metadata(&remote_path)
+                        .expect(&format!("Compressed {} not there?", remote_path))
+                        .len();
+                    Some((path, entry))
+                } else {
+                    None
+                }
+            },
+        )
+        .into_iter()
+        .flatten()
+    {
+        truth.entries.insert(path, entry);
+        changes = true;
+    }
+    if !changes {
+        return;
+    }
+
+    // TODO /home/dabreegster/s3_abst_data/{version}/MANIFEST.json will get out of sync...
+    abstio::write_json("data/MANIFEST.json".to_string(), &truth);
+
+    must_run_cmd(
+        Command::new("aws")
+            .arg("s3")
+            .arg("sync")
+            .arg(format!("{}/data", remote_base))
+            .arg(format!("s3://abstreet/{}/data", version)),
+    );
+    // Upload the new manifest file to S3.
+    // TODO This won't work from AWS Batch; the workers will stomp over each other.
+    must_run_cmd(
+        Command::new("aws")
+            .arg("s3")
+            .arg("cp")
+            .arg("data/MANIFEST.json")
+            .arg(format!("s3://abstreet/{}/MANIFEST.json", version)),
+    );
+
+    // Nuke the temporary workspace
+    must_run_cmd(Command::new("rm").arg("-rfv").arg(remote_base));
 }
 
 fn opt_into_all() {
@@ -360,4 +417,17 @@ fn remove_empty_directories(root: &str) {
             }
         }
     }
+}
+
+fn compress(path: &str, remote_path: &str) {
+    assert!(!path.ends_with(".gz"));
+    assert!(remote_path.ends_with(".gz"));
+
+    std::fs::create_dir_all(std::path::Path::new(remote_path).parent().unwrap()).unwrap();
+    println!("> compressing {}", path);
+    let mut input = BufReader::new(File::open(path).unwrap());
+    let out = File::create(remote_path).unwrap();
+    let mut encoder = flate2::write::GzEncoder::new(out, flate2::Compression::best());
+    std::io::copy(&mut input, &mut encoder).unwrap();
+    encoder.finish().unwrap();
 }
