@@ -50,11 +50,12 @@ pub fn find_scc(map: &Map, constraints: PathConstraints) -> (HashSet<LaneID>, Ha
     (largest_group, disconnected)
 }
 
-/// Starting from one building, calculate the cost to all others. If a destination isn't reachable,
-/// it won't be included in the results. Ignore results greater than the time_limit away.
+/// Starting from some initial buildings, calculate the cost to all others. If a destination isn't
+/// reachable, it won't be included in the results. Ignore results greater than the time_limit
+/// away.
 pub fn all_vehicle_costs_from(
     map: &Map,
-    start: BuildingID,
+    starts: Vec<BuildingID>,
     time_limit: Duration,
     constraints: PathConstraints,
 ) -> HashMap<BuildingID, Duration> {
@@ -77,7 +78,8 @@ pub fn all_vehicle_costs_from(
         }
     }
 
-    if let Some(start_road) = bldg_to_road.get(&start) {
+    // TODO Use all starting points
+    if let Some(start_road) = bldg_to_road.get(&starts[0]) {
         let graph = build_graph_for_vehicles(map, constraints);
         let cost_per_road = petgraph::algo::dijkstra(&graph, *start_road, None, |(_, _, mvmnt)| {
             vehicle_cost(mvmnt.from, *mvmnt, constraints, map.routing_params(), map)
