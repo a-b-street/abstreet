@@ -12,6 +12,7 @@ use map_gui::tools::{
 use map_gui::ID;
 use map_model::connectivity::WalkingOptions;
 use map_model::{AmenityType, Building, BuildingID, LaneType};
+use std::str::FromStr;
 use widgetry::table::{Col, Filter, Table};
 use widgetry::{
     lctrl, Cached, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
@@ -97,7 +98,7 @@ impl State<App> for Viewer {
                 .currently_hovering()
                 .and_then(|x| x.strip_prefix("businesses: "));
             if let Some(category) = key {
-                let category = AmenityType::parse(category).unwrap();
+                let category = AmenityType::from_str(category).unwrap();
                 if self
                     .hovering_on_category
                     .as_ref()
@@ -177,7 +178,7 @@ impl State<App> for Viewer {
                             ctx,
                             app,
                             &self.isochrone,
-                            AmenityType::parse(category).unwrap(),
+                            AmenityType::from_str(category).unwrap(),
                         ));
                     } else {
                         unreachable!()

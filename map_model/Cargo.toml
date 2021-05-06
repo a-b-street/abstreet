@@ -18,5 +18,7 @@ rand = "0.8.3"
 rand_xorshift = "0.3.0"
 serde = "1.0.123"
 serde_json = "1.0.61"
+strum = "0.20"
+strum_macros = "0.20"
 thread_local = "1.1.2"
 traffic_signal_data = { path = "../traffic_signal_data" }

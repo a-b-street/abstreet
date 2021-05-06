@@ -2,6 +2,8 @@ use std::collections::{BTreeMap, HashSet, VecDeque};
 use std::fmt;
 
 use serde::{Deserialize, Serialize};
+use strum_macros::Display;
+use strum_macros::EnumString;
 
 use abstutil::{
     deserialize_btreemap, deserialize_usize, serialize_btreemap, serialize_usize, Tags,
@@ -225,112 +227,185 @@ fn sidewalk_to_bike(sidewalk_pos: Position, map: &Map) -> Option<(Position, Posi
 }
 
 /// Businesses are categorized into one of these types.
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, EnumString, Display)]
 pub enum AmenityType {
-    Groceries,
-    Food,
+    Bank,
     Bar,
-    Medical,
-    Religious,
-    Education,
-    Financial,
-    PostOffice,
-    Culture,
+    Beauty,
+    Bike,
+    Cafe,
+    CarRepair,
+    CarShare,
     Childcare,
+    ConvenienceStore,
+    Culture,
+    Exercise,
+    FastFood,
+    Food,
+    GreenSpace,
+    Hotel,
+    Laundry,
+    Library,
+    Medical,
+    Pet,
+    Playground,
+    Pool,
+    PostOffice,
+    Religious,
+    School,
     Shopping,
+    Supermarket,
+    Tourism,
+    University,
 }
 
 impl AmenityType {
     fn types(self) -> Vec<&'static str> {
-        // TODO: create categories for:
-        // hairdresser beauty chemist
-        // car_repair
-        // laundry
-
         match self {
-            AmenityType::Groceries => vec!["convenience", "supermarket"],
-            // TODO Sort
+            AmenityType::Bank => vec!["bank"],
+            AmenityType::Bar => vec!["bar", "pub", "nightclub", "biergarten"],
+            AmenityType::Beauty => vec!["hairdresser", "beauty", "chemist", "cosmetics"],
+            AmenityType::Bike => vec!["bicycle"],
+            AmenityType::Cafe => vec!["cafe", "pastry", "coffee", "tea", "bakery"],
+            AmenityType::CarRepair => vec!["car_repair"],
+            AmenityType::CarShare => vec!["car_sharing"],
+            AmenityType::Childcare => vec!["childcare", "kindergarten"],
+            AmenityType::ConvenienceStore => vec!["convenience"],
+            AmenityType::Culture => vec!["arts_centre", "art", "cinema", "theatre"],
+            AmenityType::Exercise => vec!["fitness_centre", "sports_centre", "track", "pitch"],
+            AmenityType::FastFood => vec!["fast_food", "food_court"],
             AmenityType::Food => vec![
                 "restaurant",
-                "cafe",
-                "fast_food",
-                "food_court",
+                "farm",
                 "ice_cream",
-                "pastry",
+                "seafood",
+                "cheese",
+                "chocolate",
                 "deli",
-                "greengrocer",
-                "bakery",
                 "butcher",
                 "confectionery",
                 "beverages",
                 "alcohol",
             ],
-            AmenityType::Bar => vec!["bar", "lounge", "pub", "nightclub"],
+            AmenityType::GreenSpace => vec!["park", "garden", "nature_reserve"],
+            AmenityType::Hotel => vec!["hotel", "hostel", "guest_house", "motel"],
+            AmenityType::Laundry => vec!["dry_cleaning", "laundry", "tailor"],
+            AmenityType::Library => vec!["library"],
             AmenityType::Medical => vec![
-                "chiropractor",
-                "clinic",
-                "dentist",
-                "hospital",
-                "pharmacy",
-                "optician",
+                "clinic", "dentist", "hospital", "pharmacy", "doctors", "optician",
             ],
-            AmenityType::Religious => vec!["place_of_worship"],
-            AmenityType::Education => vec!["college", "school", "university"],
-            AmenityType::Financial => vec!["bank"],
+            AmenityType::Pet => vec!["veterinary", "pet", "animal_boarding", "pet_grooming"],
+            AmenityType::Playground => vec!["playground"],
+            AmenityType::Pool => vec!["swimming_pool"],
             AmenityType::PostOffice => vec!["post_office"],
-            AmenityType::Culture => vec![
-                "arts_centre",
-                "art_gallery",
-                "cinema",
-                "library",
-                "museum",
-                "theatre",
-            ],
-            AmenityType::Childcare => vec!["childcare", "kindergarten"],
+            AmenityType::Religious => vec!["place_of_worship", "religion"],
+            AmenityType::School => vec!["school"],
             AmenityType::Shopping => vec![
+                "wholesale",
+                "bag",
+                "marketplace",
                 "second_hand",
+                "charity",
                 "clothes",
-                "furniture",
+                "lottery",
                 "shoes",
+                "mall",
                 "department_store",
                 "car",
+                "tailor",
+                "nutrition_supplements",
+                "watches",
+                "craft",
+                "fabric",
                 "kiosk",
+                "antiques",
+                "shoemaker",
                 "hardware",
+                "houseware",
                 "mobile_phone",
+                "photo",
+                "toys",
+                "bed",
                 "florist",
                 "electronics",
+                "fishing",
+                "garden_centre",
+                "frame",
+                "watchmaker",
+                "boutique",
+                "mobile_phone",
+                "party",
                 "car_parts",
+                "video",
+                "video_games",
+                "musical_instrument",
+                "music",
+                "baby_goods",
                 "doityourself",
                 "jewelry",
                 "variety_store",
                 "gift",
-                "bicycle",
+                "carpet",
+                "perfumery",
+                "curtain",
+                "appliance",
+                "furniture",
+                "lighting",
+                "sewing",
                 "books",
                 "sports",
                 "travel_agency",
+                "interior_decoration",
                 "stationery",
-                "pet",
                 "computer",
                 "tyres",
                 "newsagent",
+                "general",
             ],
+            AmenityType::Supermarket => vec!["supermarket", "greengrocer"],
+            AmenityType::Tourism => vec![
+                "gallery",
+                "museum",
+                "zoo",
+                "attraction",
+                "theme_park",
+                "aquarium",
+            ],
+            AmenityType::University => vec!["college", "university"],
         }
     }
 
     /// All types of amenities, in an arbitrary order.
     pub fn all() -> Vec<AmenityType> {
         vec![
-            AmenityType::Groceries,
-            AmenityType::Food,
+            AmenityType::Bank,
             AmenityType::Bar,
-            AmenityType::Medical,
-            AmenityType::Religious,
-            AmenityType::Education,
-            AmenityType::Financial,
-            AmenityType::PostOffice,
-            AmenityType::Culture,
+            AmenityType::Beauty,
+            AmenityType::Bike,
+            AmenityType::Cafe,
+            AmenityType::CarRepair,
+            AmenityType::CarShare,
             AmenityType::Childcare,
+            AmenityType::ConvenienceStore,
+            AmenityType::Culture,
+            AmenityType::FastFood,
+            AmenityType::Food,
+            AmenityType::Exercise,
+            AmenityType::GreenSpace,
+            AmenityType::Hotel,
+            AmenityType::Laundry,
+            AmenityType::Library,
+            AmenityType::Medical,
+            AmenityType::Pet,
+            AmenityType::Playground,
+            AmenityType::Pool,
+            AmenityType::PostOffice,
+            AmenityType::Religious,
+            AmenityType::School,
             AmenityType::Shopping,
+            AmenityType::Supermarket,
+            AmenityType::Tourism,
+            AmenityType::University,
         ]
     }
 
@@ -342,44 +417,5 @@ impl AmenityType {
             }
         }
         None
-    }
-
-    pub fn parse(x: &str) -> Option<AmenityType> {
-        match x {
-            "groceries" => Some(AmenityType::Groceries),
-            "food" => Some(AmenityType::Food),
-            "bar" => Some(AmenityType::Bar),
-            "medical" => Some(AmenityType::Medical),
-            "religious" => Some(AmenityType::Religious),
-            "education" => Some(AmenityType::Education),
-            "financial" => Some(AmenityType::Financial),
-            "post office" => Some(AmenityType::PostOffice),
-            "culture" => Some(AmenityType::Culture),
-            "childcare" => Some(AmenityType::Childcare),
-            "shopping" => Some(AmenityType::Shopping),
-            _ => None,
-        }
-    }
-}
-
-impl fmt::Display for AmenityType {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                AmenityType::Groceries => "groceries",
-                AmenityType::Food => "food",
-                AmenityType::Bar => "bar",
-                AmenityType::Medical => "medical",
-                AmenityType::Religious => "religious",
-                AmenityType::Education => "education",
-                AmenityType::Financial => "financial",
-                AmenityType::PostOffice => "post office",
-                AmenityType::Culture => "culture",
-                AmenityType::Childcare => "childcare",
-                AmenityType::Shopping => "shopping",
-            }
-        )
     }
 }
