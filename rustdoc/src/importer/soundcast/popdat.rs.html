@@ -1,0 +1,671 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/soundcast/popdat.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>popdat.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../importer/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+</pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
+
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+
+<span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">FileWithProgress</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">LonLat</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">kml</span>::{<span class="ident">ExtraShape</span>, <span class="ident">ExtraShapes</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">Map</span>};
+<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">OrigPersonID</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>};
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PopDat</span> {
+    <span class="kw">pub</span> <span class="ident">trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OrigTrip</span><span class="op">&gt;</span>,
+}
+
+<span class="comment">// Extract trip demand data from PSRC&#39;s Soundcast outputs.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">import_data</span>(<span class="ident">huge_map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PopDat</span> {
+    <span class="kw">let</span> <span class="ident">trips</span> <span class="op">=</span> <span class="ident">import_trips</span>(<span class="ident">huge_map</span>, <span class="ident">timer</span>);
+    <span class="kw">let</span> <span class="ident">popdat</span> <span class="op">=</span> <span class="ident">PopDat</span> { <span class="ident">trips</span> };
+    <span class="ident">abstio</span>::<span class="ident">write_binary</span>(<span class="ident">abstio</span>::<span class="ident">path_popdat</span>(), <span class="kw-2">&amp;</span><span class="ident">popdat</span>);
+    <span class="ident">popdat</span>
+}
+
+<span class="kw">fn</span> <span class="ident">import_trips</span>(<span class="ident">huge_map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OrigTrip</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> (<span class="ident">parcels</span>, <span class="kw-2">mut</span> <span class="ident">keyed_shapes</span>) <span class="op">=</span> <span class="ident">import_parcels</span>(<span class="ident">huge_map</span>, <span class="ident">timer</span>);
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trips</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> (<span class="ident">reader</span>, <span class="ident">done</span>) <span class="op">=</span>
+        <span class="ident">FileWithProgress</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">CityName</span>::<span class="ident">seattle</span>().<span class="ident">input_path</span>(<span class="string">&quot;trips_2014.csv&quot;</span>)).<span class="ident">unwrap</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_records</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">people</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">OrigPersonID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trips_from_parcel</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Counter</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trips_to_parcel</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Counter</span>::<span class="ident">new</span>();
+
+    <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span> <span class="ident">csv</span>::<span class="ident">Reader</span>::<span class="ident">from_reader</span>(<span class="ident">reader</span>).<span class="ident">deserialize</span>() {
+        <span class="ident">total_records</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="kw">let</span> <span class="ident">rec</span>: <span class="ident">RawTrip</span> <span class="op">=</span> <span class="ident">rec</span>.<span class="ident">unwrap</span>();
+
+        <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="ident">parcels</span>[<span class="kw-2">&amp;</span>(<span class="ident">rec</span>.<span class="ident">opcl</span> <span class="kw">as</span> <span class="ident">usize</span>)].<span class="ident">clone</span>();
+        <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span> <span class="ident">parcels</span>[<span class="kw-2">&amp;</span>(<span class="ident">rec</span>.<span class="ident">dpcl</span> <span class="kw">as</span> <span class="ident">usize</span>)].<span class="ident">clone</span>();
+        <span class="ident">trips_from_parcel</span>.<span class="ident">inc</span>(<span class="ident">from</span>.<span class="ident">parcel_id</span>);
+        <span class="ident">trips_to_parcel</span>.<span class="ident">inc</span>(<span class="ident">to</span>.<span class="ident">parcel_id</span>);
+
+        <span class="comment">// If both are None, then skip -- the trip doesn&#39;t start or end within huge_seattle.</span>
+        <span class="comment">// If both are the same building, also skip -- that&#39;s a redundant trip.</span>
+        <span class="kw">if</span> <span class="ident">from</span>.<span class="ident">osm_building</span> <span class="op">=</span><span class="op">=</span> <span class="ident">to</span>.<span class="ident">osm_building</span> {
+            <span class="kw">if</span> <span class="ident">from</span>.<span class="ident">osm_building</span>.<span class="ident">is_some</span>() {
+                <span class="comment">/*warn!(
+                    &quot;Skipping trip from parcel {} to {}; both match OSM building {:?}&quot;,
+                    rec.opcl, rec.dpcl, from.osm_building
+                );*/</span>
+            }
+            <span class="kw">continue</span>;
+        }
+
+        <span class="kw">let</span> <span class="ident">depart_at</span> <span class="op">=</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="ident">rec</span>.<span class="ident">deptm</span> <span class="kw">as</span> <span class="ident">usize</span>);
+
+        <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">get_mode</span>(<span class="kw-2">&amp;</span><span class="ident">rec</span>.<span class="ident">mode</span>);
+        <span class="kw">let</span> <span class="ident">purpose</span> <span class="op">=</span> <span class="ident">get_purpose</span>(<span class="kw-2">&amp;</span><span class="ident">rec</span>.<span class="ident">dpurp</span>);
+
+        <span class="kw">let</span> <span class="ident">trip_time</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">f64_minutes</span>(<span class="ident">rec</span>.<span class="ident">travtime</span>);
+        <span class="kw">let</span> <span class="ident">trip_dist</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">miles</span>(<span class="ident">rec</span>.<span class="ident">travdist</span>);
+
+        <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">OrigPersonID</span>(<span class="ident">rec</span>.<span class="ident">hhno</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">rec</span>.<span class="ident">pno</span> <span class="kw">as</span> <span class="ident">usize</span>);
+        <span class="ident">people</span>.<span class="ident">insert</span>(<span class="ident">person</span>);
+        <span class="kw">let</span> <span class="ident">seq</span> <span class="op">=</span> (<span class="ident">rec</span>.<span class="ident">tour</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">rec</span>.<span class="ident">half</span> <span class="op">=</span><span class="op">=</span> <span class="number">2.0</span>, <span class="ident">rec</span>.<span class="ident">tseg</span> <span class="kw">as</span> <span class="ident">usize</span>);
+
+        <span class="ident">trips</span>.<span class="ident">push</span>(<span class="ident">OrigTrip</span> {
+            <span class="ident">from</span>,
+            <span class="ident">to</span>,
+            <span class="ident">depart_at</span>,
+            <span class="ident">purpose</span>,
+            <span class="ident">mode</span>,
+            <span class="ident">trip_time</span>,
+            <span class="ident">trip_dist</span>,
+            <span class="ident">person</span>,
+            <span class="ident">seq</span>,
+        });
+    }
+    <span class="ident">done</span>(<span class="ident">timer</span>);
+
+    <span class="macro">info</span><span class="macro">!</span>(
+        <span class="string">&quot;{} trips total, over {} people. {} records filtered out&quot;</span>,
+        <span class="ident">prettyprint_usize</span>(<span class="ident">trips</span>.<span class="ident">len</span>()),
+        <span class="ident">prettyprint_usize</span>(<span class="ident">people</span>.<span class="ident">len</span>()),
+        <span class="ident">prettyprint_usize</span>(<span class="ident">total_records</span> <span class="op">-</span> <span class="ident">trips</span>.<span class="ident">len</span>())
+    );
+
+    <span class="ident">trips</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">depart_at</span>);
+
+    <span class="comment">// Dump debug info about parcels. ALL trips are counted here, but parcels are filtered.</span>
+    <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">cnt</span>) <span class="kw">in</span> <span class="ident">trips_from_parcel</span>.<span class="ident">consume</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">es</span>) <span class="op">=</span> <span class="ident">keyed_shapes</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>) {
+            <span class="ident">es</span>.<span class="ident">attributes</span>
+                .<span class="ident">insert</span>(<span class="string">&quot;trips_from&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">cnt</span>.<span class="ident">to_string</span>());
+        }
+    }
+    <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">cnt</span>) <span class="kw">in</span> <span class="ident">trips_to_parcel</span>.<span class="ident">consume</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">es</span>) <span class="op">=</span> <span class="ident">keyed_shapes</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>) {
+            <span class="ident">es</span>.<span class="ident">attributes</span>
+                .<span class="ident">insert</span>(<span class="string">&quot;trips_to&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">cnt</span>.<span class="ident">to_string</span>());
+        }
+    }
+    <span class="kw">let</span> <span class="ident">shapes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExtraShape</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">keyed_shapes</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">v</span>)<span class="op">|</span> <span class="ident">v</span>).<span class="ident">collect</span>();
+    <span class="ident">abstio</span>::<span class="ident">write_binary</span>(
+        <span class="ident">CityName</span>::<span class="ident">seattle</span>().<span class="ident">input_path</span>(<span class="string">&quot;parcels.bin&quot;</span>),
+        <span class="kw-2">&amp;</span><span class="ident">ExtraShapes</span> { <span class="ident">shapes</span> },
+    );
+
+    <span class="ident">trips</span>
+}
+
+<span class="comment">// TODO Do we also need the zone ID, or is parcel ID globally unique?</span>
+<span class="comment">// Keyed by parcel ID</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;scenarios&quot;</span>)]</span>
+<span class="kw">fn</span> <span class="ident">import_parcels</span>(
+    <span class="ident">huge_map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+    <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
+) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">Endpoint</span><span class="op">&gt;</span>, <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">ExtraShape</span><span class="op">&gt;</span>) {
+    <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">FindClosest</span>;
+
+    <span class="comment">// TODO I really just want to do polygon containment with a quadtree. FindClosest only does</span>
+    <span class="comment">// line-string stuff right now, which&#39;ll be weird for the last-&gt;first pt line and stuff.</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest_bldg</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">osm</span>::<span class="ident">OsmID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">FindClosest</span>::<span class="ident">new</span>(<span class="ident">huge_map</span>.<span class="ident">get_bounds</span>());
+    <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">huge_map</span>.<span class="ident">all_buildings</span>() {
+        <span class="ident">closest_bldg</span>.<span class="ident">add</span>(<span class="ident">b</span>.<span class="ident">orig_id</span>, <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">points</span>());
+    }
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x_coords</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">y_coords</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="comment">// Dummy values</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">z_coords</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="comment">// (parcel ID, number of households, number of parking spots)</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parcel_metadata</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+
+    <span class="kw">let</span> (<span class="ident">reader</span>, <span class="ident">done</span>) <span class="op">=</span>
+        <span class="ident">FileWithProgress</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">CityName</span>::<span class="ident">seattle</span>().<span class="ident">input_path</span>(<span class="string">&quot;parcels_urbansim.txt&quot;</span>)).<span class="ident">unwrap</span>();
+    <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span> <span class="ident">csv</span>::<span class="ident">ReaderBuilder</span>::<span class="ident">new</span>()
+        .<span class="ident">delimiter</span>(<span class="string">b&#39; &#39;</span>)
+        .<span class="ident">from_reader</span>(<span class="ident">reader</span>)
+        .<span class="ident">deserialize</span>()
+    {
+        <span class="kw">let</span> <span class="ident">rec</span>: <span class="ident">RawParcel</span> <span class="op">=</span> <span class="ident">rec</span>.<span class="ident">unwrap</span>();
+        <span class="comment">// Note parkdy_p and parkhr_p might overlap, so this could be double-counting. &gt;_&lt;</span>
+        <span class="ident">parcel_metadata</span>.<span class="ident">push</span>((<span class="ident">rec</span>.<span class="ident">parcelid</span>, <span class="ident">rec</span>.<span class="ident">hh_p</span>, <span class="ident">rec</span>.<span class="ident">parkdy_p</span> <span class="op">+</span> <span class="ident">rec</span>.<span class="ident">parkhr_p</span>));
+        <span class="ident">x_coords</span>.<span class="ident">push</span>(<span class="ident">rec</span>.<span class="ident">xcoord_p</span>);
+        <span class="ident">y_coords</span>.<span class="ident">push</span>(<span class="ident">rec</span>.<span class="ident">ycoord_p</span>);
+        <span class="ident">z_coords</span>.<span class="ident">push</span>(<span class="number">0.0</span>);
+    }
+    <span class="ident">done</span>(<span class="ident">timer</span>);
+
+    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;transform {} points&quot;</span>, <span class="ident">parcel_metadata</span>.<span class="ident">len</span>()));
+
+    <span class="comment">// From https://epsg.io/102748 to https://epsg.io/4326</span>
+    <span class="kw">let</span> <span class="ident">transform</span> <span class="op">=</span> <span class="ident">gdal</span>::<span class="ident">spatial_ref</span>::<span class="ident">CoordTransform</span>::<span class="ident">new</span>(
+        <span class="kw-2">&amp;</span><span class="ident">gdal</span>::<span class="ident">spatial_ref</span>::<span class="ident">SpatialRef</span>::<span class="ident">from_proj4</span>(
+            <span class="string">&quot;+proj=lcc +lat_1=47.5 +lat_2=48.73333333333333 +lat_0=47 +lon_0=-120.8333333333333 \
+             +x_0=500000.0000000002 +y_0=0 +datum=NAD83 +units=us-ft +no_defs&quot;</span>,
+        )
+        .<span class="ident">expect</span>(<span class="string">&quot;washington state plane&quot;</span>),
+        <span class="kw-2">&amp;</span><span class="ident">gdal</span>::<span class="ident">spatial_ref</span>::<span class="ident">SpatialRef</span>::<span class="ident">from_epsg</span>(<span class="number">4326</span>).<span class="ident">unwrap</span>(),
+    )
+    .<span class="ident">expect</span>(<span class="string">&quot;regular GPS&quot;</span>);
+    <span class="ident">transform</span>
+        .<span class="ident">transform_coords</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">x_coords</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">y_coords</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">z_coords</span>)
+        .<span class="ident">expect</span>(<span class="string">&quot;transform coords&quot;</span>);
+
+    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;transform {} points&quot;</span>, <span class="ident">parcel_metadata</span>.<span class="ident">len</span>()));
+
+    <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">huge_map</span>.<span class="ident">get_gps_bounds</span>();
+    <span class="kw">let</span> <span class="ident">boundary</span> <span class="op">=</span> <span class="ident">huge_map</span>.<span class="ident">get_boundary_polygon</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shapes</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
+    <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;finalize parcel output&quot;</span>, <span class="ident">parcel_metadata</span>.<span class="ident">len</span>());
+    <span class="kw">for</span> ((<span class="ident">x</span>, <span class="ident">y</span>), (<span class="ident">id</span>, <span class="ident">num_households</span>, <span class="ident">offstreet_parking_spaces</span>)) <span class="kw">in</span> <span class="ident">x_coords</span>
+        .<span class="ident">into_iter</span>()
+        .<span class="ident">zip</span>(<span class="ident">y_coords</span>.<span class="ident">into_iter</span>())
+        .<span class="ident">zip</span>(<span class="ident">parcel_metadata</span>.<span class="ident">into_iter</span>())
+    {
+        <span class="ident">timer</span>.<span class="ident">next</span>();
+        <span class="kw">let</span> <span class="ident">gps</span> <span class="op">=</span> <span class="ident">LonLat</span>::<span class="ident">new</span>(<span class="ident">x</span>, <span class="ident">y</span>);
+        <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">gps</span>.<span class="ident">to_pt</span>(<span class="ident">bounds</span>);
+        <span class="kw">let</span> <span class="ident">osm_building</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">bounds</span>.<span class="ident">contains</span>(<span class="ident">gps</span>) {
+            <span class="ident">closest_bldg</span>
+                .<span class="ident">closest_pt</span>(<span class="ident">pt</span>, <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">30.0</span>))
+                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">b</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">b</span>)
+        } <span class="kw">else</span> {
+            <span class="prelude-val">None</span>
+        };
+        <span class="ident">result</span>.<span class="ident">insert</span>(
+            <span class="ident">id</span>,
+            <span class="ident">Endpoint</span> {
+                <span class="ident">pos</span>: <span class="ident">gps</span>,
+                <span class="ident">osm_building</span>,
+                <span class="ident">parcel_id</span>: <span class="ident">id</span>,
+            },
+        );
+
+        <span class="kw">if</span> <span class="ident">boundary</span>.<span class="ident">contains_pt</span>(<span class="ident">pt</span>) {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">attributes</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
+            <span class="ident">attributes</span>.<span class="ident">insert</span>(<span class="string">&quot;id&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">id</span>.<span class="ident">to_string</span>());
+            <span class="kw">if</span> <span class="ident">num_households</span> <span class="op">&gt;</span> <span class="number">0</span> {
+                <span class="ident">attributes</span>.<span class="ident">insert</span>(<span class="string">&quot;households&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">num_households</span>.<span class="ident">to_string</span>());
+            }
+            <span class="kw">if</span> <span class="ident">offstreet_parking_spaces</span> <span class="op">&gt;</span> <span class="number">0</span> {
+                <span class="ident">attributes</span>.<span class="ident">insert</span>(<span class="string">&quot;parking&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">offstreet_parking_spaces</span>.<span class="ident">to_string</span>());
+            }
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">osm_building</span> {
+                <span class="ident">attributes</span>.<span class="ident">insert</span>(<span class="string">&quot;osm_bldg&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">b</span>.<span class="ident">inner</span>().<span class="ident">to_string</span>());
+            }
+            <span class="ident">shapes</span>.<span class="ident">insert</span>(
+                <span class="ident">id</span>,
+                <span class="ident">ExtraShape</span> {
+                    <span class="ident">points</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">gps</span>],
+                    <span class="ident">attributes</span>,
+                },
+            );
+        }
+    }
+    <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;{} parcels&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">result</span>.<span class="ident">len</span>()));
+
+    (<span class="ident">result</span>, <span class="ident">shapes</span>)
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;scenarios&quot;</span>))]</span>
+<span class="kw">fn</span> <span class="ident">import_parcels</span>(
+    <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+    <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
+) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">Endpoint</span><span class="op">&gt;</span>, <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">ExtraShape</span><span class="op">&gt;</span>) {
+    <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t import_parcels for popdat.bin without the scenarios feature (GDAL dependency)&quot;</span>);
+}
+
+<span class="comment">// From https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv, opurp and dpurp</span>
+<span class="kw">fn</span> <span class="ident">get_purpose</span>(<span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TripPurpose</span> {
+    <span class="kw">match</span> <span class="ident">code</span> {
+        <span class="string">&quot;0.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose</span>::<span class="ident">Home</span>,
+        <span class="string">&quot;1.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose</span>::<span class="ident">Work</span>,
+        <span class="string">&quot;2.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose</span>::<span class="ident">School</span>,
+        <span class="string">&quot;3.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose</span>::<span class="ident">Escort</span>,
+        <span class="string">&quot;4.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose</span>::<span class="ident">PersonalBusiness</span>,
+        <span class="string">&quot;5.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
+        <span class="string">&quot;6.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose</span>::<span class="ident">Meal</span>,
+        <span class="string">&quot;7.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose</span>::<span class="ident">Social</span>,
+        <span class="string">&quot;8.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose</span>::<span class="ident">Recreation</span>,
+        <span class="string">&quot;9.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose</span>::<span class="ident">Medical</span>,
+        <span class="string">&quot;10.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose</span>::<span class="ident">ParkAndRideTransfer</span>,
+        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Unknown opurp/dpurp {}&quot;</span>, <span class="ident">code</span>),
+    }
+}
+
+<span class="comment">// From https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv, mode</span>
+<span class="kw">fn</span> <span class="ident">get_mode</span>(<span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TripMode</span> {
+    <span class="kw">match</span> <span class="ident">code</span> {
+        <span class="string">&quot;1.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripMode</span>::<span class="ident">Walk</span>,
+        <span class="string">&quot;2.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripMode</span>::<span class="ident">Bike</span>,
+        <span class="string">&quot;3.0&quot;</span> <span class="op">|</span> <span class="string">&quot;4.0&quot;</span> <span class="op">|</span> <span class="string">&quot;5.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripMode</span>::<span class="ident">Drive</span>,
+        <span class="comment">// TODO Park-and-ride and school bus as walk-to-transit is a little weird.</span>
+        <span class="string">&quot;6.0&quot;</span> <span class="op">|</span> <span class="string">&quot;7.0&quot;</span> <span class="op">|</span> <span class="string">&quot;8.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripMode</span>::<span class="ident">Transit</span>,
+        <span class="comment">// TODO Invalid code, what&#39;s this one mean? I only see a few examples, so just default to</span>
+        <span class="comment">// walking.</span>
+        <span class="string">&quot;0.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripMode</span>::<span class="ident">Walk</span>,
+        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Unknown mode {}&quot;</span>, <span class="ident">code</span>),
+    }
+}
+
+<span class="comment">// See https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv</span>
+<span class="comment">//</span>
+<span class="comment">// A/B Street flattens a person&#39;s trips into a simple list, but the Soundcast model is more</span>
+<span class="comment">// detailed:</span>
+<span class="comment">//</span>
+<span class="comment">// A person takes 1+ tours a day. Each tour starts and ends at the same place (usually home) and</span>
+<span class="comment">// has some primary destination. A tour has two legs (to the destination, then returning from it),</span>
+<span class="comment">// each split into individual trips.</span>
+<span class="comment">//</span>
+<span class="comment">// An example: someone takes the bus to work, but stops for a coffee and walks the final bit to</span>
+<span class="comment">// work. Then later they bus home. This would be encoded like so:</span>
+<span class="comment">//</span>
+<span class="comment">// - Tour 1 (purpose work), leg = to destination, trip 1 (purpose eat, using transit)</span>
+<span class="comment">// - Tour 1 (purpose work), leg = to destination, trip 2 (purpose work, walking)</span>
+<span class="comment">// - Tour 1 (purpose work), leg = return from destination, trip 1 (purpose home, using transit)</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="kw">struct</span> <span class="ident">RawTrip</span> {
+    <span class="ident">opcl</span>: <span class="ident">f64</span>,
+    <span class="ident">dpcl</span>: <span class="ident">f64</span>,
+    <span class="ident">deptm</span>: <span class="ident">f64</span>,
+    <span class="ident">mode</span>: <span class="ident">String</span>,
+    <span class="ident">opurp</span>: <span class="ident">String</span>,
+    <span class="ident">dpurp</span>: <span class="ident">String</span>,
+    <span class="ident">travtime</span>: <span class="ident">f64</span>,
+    <span class="ident">travdist</span>: <span class="ident">f64</span>,
+    <span class="ident">hhno</span>: <span class="ident">f64</span>,
+    <span class="ident">pno</span>: <span class="ident">f64</span>,
+    <span class="ident">tour</span>: <span class="ident">f64</span>,
+    <span class="ident">half</span>: <span class="ident">f64</span>,
+    <span class="ident">tseg</span>: <span class="ident">f64</span>,
+}
+
+<span class="comment">// See https://github.com/psrc/soundcast/wiki/Outputs#buffered-parcel-file-buffered_parcelsdat</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="kw">struct</span> <span class="ident">RawParcel</span> {
+    <span class="ident">parcelid</span>: <span class="ident">usize</span>,
+    <span class="ident">hh_p</span>: <span class="ident">usize</span>,
+    <span class="ident">parkdy_p</span>: <span class="ident">usize</span>,
+    <span class="ident">parkhr_p</span>: <span class="ident">usize</span>,
+    <span class="ident">xcoord_p</span>: <span class="ident">f64</span>,
+    <span class="ident">ycoord_p</span>: <span class="ident">f64</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">OrigTrip</span> {
+    <span class="kw">pub</span> <span class="ident">from</span>: <span class="ident">Endpoint</span>,
+    <span class="kw">pub</span> <span class="ident">to</span>: <span class="ident">Endpoint</span>,
+    <span class="kw">pub</span> <span class="ident">depart_at</span>: <span class="ident">Time</span>,
+    <span class="kw">pub</span> <span class="ident">mode</span>: <span class="ident">TripMode</span>,
+
+    <span class="comment">// (household, person within household)</span>
+    <span class="kw">pub</span> <span class="ident">person</span>: <span class="ident">OrigPersonID</span>,
+    <span class="comment">// (tour, false is to destination and true is back from dst, trip within half-tour)</span>
+    <span class="kw">pub</span> <span class="ident">seq</span>: (<span class="ident">usize</span>, <span class="ident">bool</span>, <span class="ident">usize</span>),
+    <span class="comment">// Purpose at the destination of this trip, not the entire tour.</span>
+    <span class="kw">pub</span> <span class="ident">purpose</span>: <span class="ident">TripPurpose</span>,
+    <span class="kw">pub</span> <span class="ident">trip_time</span>: <span class="ident">Duration</span>,
+    <span class="kw">pub</span> <span class="ident">trip_dist</span>: <span class="ident">Distance</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Endpoint</span> {
+    <span class="kw">pub</span> <span class="ident">pos</span>: <span class="ident">LonLat</span>,
+    <span class="kw">pub</span> <span class="ident">osm_building</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">osm</span>::<span class="ident">OsmID</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">parcel_id</span>: <span class="ident">usize</span>,
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="importer" data-search-js="../../../search-index.js"></div>
+    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>
