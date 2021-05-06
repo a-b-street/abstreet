@@ -40,6 +40,16 @@ async fn main() -> Result<()> {
         let stdin = cmd.stdin.as_mut().unwrap();
         stdin.write_all(&geojson)?;
         assert!(cmd.wait()?.success());
+
+        if Path::new("boundary1.poly").exists() {
+            abstio::delete_file("boundary0.poly");
+            abstio::delete_file("boundary1.poly");
+            // If there were more, leave them around, but at least delete these 2, so the user
+            // can try again.
+            anyhow::bail!(
+                "Your GeoJSON contained multiple polygons. You can only import one at a time."
+            );
+        }
     }
 
     // What file should we download?
