@@ -1,6 +1,7 @@
 // TODO Possibly these should be methods on Map.
 
-use std::collections::{HashMap, HashSet};
+use std::cmp::Ordering;
+use std::collections::{BinaryHeap, HashMap, HashSet};
 
 use petgraph::graphmap::DiGraphMap;
 
@@ -60,8 +61,6 @@ pub fn all_vehicle_costs_from(
     constraints: PathConstraints,
 ) -> HashMap<BuildingID, Duration> {
     assert!(constraints != PathConstraints::Pedestrian);
-    let mut results = HashMap::new();
-
     // TODO We have a graph of DirectedRoadIDs, but mapping a building to one isn't
     // straightforward. In the common case it'll be fine, but some buildings are isolated from the
     // graph by some sidewalks.
@@ -78,23 +77,65 @@ pub fn all_vehicle_costs_from(
         }
     }
 
-    // TODO Use all starting points
-    if let Some(start_road) = bldg_to_road.get(&starts[0]) {
-        let graph = build_graph_for_vehicles(map, constraints);
-        let cost_per_road = petgraph::algo::dijkstra(&graph, *start_road, None, |(_, _, mvmnt)| {
-            vehicle_cost(mvmnt.from, *mvmnt, constraints, map.routing_params(), map)
-                + zone_cost(*mvmnt, constraints, map)
-        });
-        for (b, road) in bldg_to_road {
-            if let Some(duration) = cost_per_road.get(&road).cloned() {
-                if duration <= time_limit {
-                    results.insert(b, duration);
-                }
-            }
+    let mut queue: BinaryHeap<Item> = BinaryHeap::new();
+    for b in starts {
+        if let Some(start_road) = bldg_to_road.get(&b).cloned() {
+            queue.push(Item {
+                cost: Duration::ZERO,
+                node: start_road,
+            });
         }
     }
 
+    let mut cost_per_node: HashMap<DirectedRoadID, Duration> = HashMap::new();
+    while let Some(current) = queue.pop() {
+        if cost_per_node.contains_key(&current.node) {
+            continue;
+        }
+        if current.cost > time_limit {
+            continue;
+        }
+        cost_per_node.insert(current.node, current.cost);
+
+        for mvmnt in map.get_movements_for(current.node, constraints) {
+            queue.push(Item {
+                cost: current.cost
+                    + vehicle_cost(mvmnt.from, mvmnt, constraints, map.routing_params(), map)
+                    + zone_cost(mvmnt, constraints, map),
+                node: mvmnt.to,
+            });
+        }
+    }
+
+    let mut results = HashMap::new();
+    for (b, road) in bldg_to_road {
+        if let Some(duration) = cost_per_node.get(&road).cloned() {
+            results.insert(b, duration);
+        }
+    }
     results
+}
+
+#[derive(PartialEq, Eq)]
+struct Item {
+    cost: Duration,
+    node: DirectedRoadID,
+}
+impl PartialOrd for Item {
+    fn partial_cmp(&self, other: &Item) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Item {
+    fn cmp(&self, other: &Item) -> Ordering {
+        // BinaryHeap is a max-heap, so reverse the comparison to get smallest times first.
+        let ord = other.cost.cmp(&self.cost);
+        if ord != Ordering::Equal {
+            return ord;
+        }
+        self.node.cmp(&other.node)
+    }
 }
 
 /// Return the cost of a single path, and also a mapping from every directed road to the cost of
