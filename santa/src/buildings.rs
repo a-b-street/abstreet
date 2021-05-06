@@ -73,9 +73,10 @@ impl Buildings {
                 }
             } else if let Some(amenity) = b.amenities.iter().find(|a| {
                 if let Some(at) = AmenityType::categorize(&a.amenity_type) {
-                    at == AmenityType::Groceries
+                    at == AmenityType::Bar
+                        || at == AmenityType::ConvenienceStore
                         || at == AmenityType::Food
-                        || at == AmenityType::Bar
+                        || at == AmenityType::Supermarket
                 } else {
                     false
                 }
