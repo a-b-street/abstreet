@@ -434,6 +434,9 @@
 <span id="431">431</span>
 <span id="432">432</span>
 <span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
@@ -457,7 +460,10 @@
         <span class="ident">args</span>.<span class="ident">done</span>();
         <span class="ident">upload</span>(<span class="ident">version</span>);
     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--inc_upload&quot;</span>) {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">version</span>, <span class="string">&quot;dev&quot;</span>);
+        <span class="comment">// The main use of --inc_upload is to upload files produced from a batch Docker job. We</span>
+        <span class="comment">// DON&#39;T want to override the main data immediately. If running locally, can temporarily</span>
+        <span class="comment">// disable this assertion.</span>
+        <span class="macro">assert_ne</span><span class="macro">!</span>(<span class="ident">version</span>, <span class="string">&quot;dev&quot;</span>);
         <span class="ident">args</span>.<span class="ident">done</span>();
         <span class="ident">incremental_upload</span>(<span class="ident">version</span>);
     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--dry&quot;</span>) {
