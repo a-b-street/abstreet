@@ -29,7 +29,7 @@ log = "0.4.14"
 map_model = { path = "../map_model" }
 serde = "1.0.123"
 sim = { path = "../sim" }
-subprocess = { version = "0.2.6", optional = true }
+subprocess = { git = "https://github.com/hniksic/rust-subprocess", optional = true }
 tokio = { version ="1.1.1", features=["rt-multi-thread"], optional = true }
 wasm-bindgen = { version = "0.2.70", optional = true }
 wasm-bindgen-futures = { version = "0.4.20", optional = true }
