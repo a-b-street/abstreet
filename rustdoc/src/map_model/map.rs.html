@@ -847,7 +847,7 @@
         }
 
         <span class="kw">let</span> <span class="ident">raw</span>: <span class="ident">RawMap</span> <span class="op">=</span> <span class="ident">abstio</span>::<span class="ident">read_binary</span>(<span class="ident">path</span>, <span class="ident">timer</span>);
-        <span class="ident">Map</span>::<span class="ident">create_from_raw</span>(<span class="ident">raw</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="ident">timer</span>)
+        <span class="ident">Map</span>::<span class="ident">create_from_raw</span>(<span class="ident">raw</span>, <span class="kw">crate</span>::<span class="ident">RawToMapOptions</span>::<span class="ident">default</span>(), <span class="ident">timer</span>)
     }
 
     <span class="doccomment">/// After deserializing a map directly, call this after.</span>

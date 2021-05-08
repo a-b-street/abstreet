@@ -328,13 +328,6 @@
 <span id="325">325</span>
 <span id="326">326</span>
 <span id="327">327</span>
-<span id="328">328</span>
-<span id="329">329</span>
-<span id="330">330</span>
-<span id="331">331</span>
-<span id="332">332</span>
-<span id="333">333</span>
-<span id="334">334</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! It&#39;s assumed that the importer is run with the current directory as the project repository; aka</span>
 <span class="doccomment">//! `./data/` and `./importer/config` must exist.</span>
@@ -347,6 +340,7 @@
 <span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">basename</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Distance</span>;
+<span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">RawToMapOptions</span>;
 
 <span class="kw">use</span> <span class="ident">configuration</span>::{<span class="ident">load_configuration</span>, <span class="ident">ImporterConfiguration</span>};
 
@@ -365,24 +359,24 @@
     <span class="kw">let</span> <span class="ident">config</span>: <span class="ident">ImporterConfiguration</span> <span class="op">=</span> <span class="ident">load_configuration</span>();
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">CmdArgs</span>::<span class="ident">new</span>();
-    <span class="comment">// Skip the most expensive step of --map, building contraction hierarchies. The simulation</span>
-    <span class="comment">// will use a slower method to pathfind.</span>
-    <span class="kw">let</span> <span class="ident">skip_ch</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--skip_ch&quot;</span>);
-    <span class="comment">// Preserve OSM tags for buildings, increasing the file size.</span>
-    <span class="kw">let</span> <span class="ident">keep_bldg_tags</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--keep_bldg_tags&quot;</span>);
+    <span class="kw">let</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">RawToMapOptions</span> {
+        <span class="ident">build_ch</span>: <span class="op">!</span><span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--skip_ch&quot;</span>),
+        <span class="ident">consolidate_all_intersections</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--consolidate_all_intersections&quot;</span>),
+        <span class="ident">keep_bldg_tags</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--keep_bldg_tags&quot;</span>),
+    };
 
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--oneshot&quot;</span>) {
         <span class="kw">let</span> <span class="ident">clip</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--oneshot_clip&quot;</span>);
         <span class="kw">let</span> <span class="ident">drive_on_left</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--oneshot_drive_on_left&quot;</span>);
         <span class="ident">args</span>.<span class="ident">done</span>();
 
-        <span class="ident">oneshot</span>(<span class="ident">path</span>, <span class="ident">clip</span>, <span class="op">!</span><span class="ident">drive_on_left</span>, <span class="op">!</span><span class="ident">skip_ch</span>, <span class="ident">keep_bldg_tags</span>);
+        <span class="ident">oneshot</span>(<span class="ident">path</span>, <span class="ident">clip</span>, <span class="op">!</span><span class="ident">drive_on_left</span>, <span class="ident">opts</span>);
         <span class="kw">return</span>;
     }
 
     <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--regen_all&quot;</span>) {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">skip_ch</span>);
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">keep_bldg_tags</span>);
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">opts</span>.<span class="ident">build_ch</span>);
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">opts</span>.<span class="ident">keep_bldg_tags</span>);
         <span class="ident">regenerate_everything</span>(<span class="ident">config</span>).<span class="kw">await</span>;
         <span class="kw">return</span>;
     }
@@ -418,7 +412,7 @@
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;import map data&quot;</span>);
 
-    <span class="ident">job</span>.<span class="ident">run</span>(<span class="kw-2">&amp;</span><span class="ident">config</span>, <span class="ident">skip_ch</span>, <span class="ident">keep_bldg_tags</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>).<span class="kw">await</span>;
+    <span class="ident">job</span>.<span class="ident">run</span>(<span class="kw-2">&amp;</span><span class="ident">config</span>, <span class="ident">opts</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>).<span class="kw">await</span>;
 }
 
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">regenerate_everything</span>(<span class="ident">config</span>: <span class="ident">ImporterConfiguration</span>) {
@@ -452,9 +446,8 @@
             <span class="ident">job</span>.<span class="ident">city_overview</span> <span class="op">=</span> <span class="bool-val">true</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">skip_ch</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">let</span> <span class="ident">keep_bldg_tags</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="ident">job</span>.<span class="ident">run</span>(<span class="kw-2">&amp;</span><span class="ident">config</span>, <span class="ident">skip_ch</span>, <span class="ident">keep_bldg_tags</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>).<span class="kw">await</span>;
+        <span class="ident">job</span>.<span class="ident">run</span>(<span class="kw-2">&amp;</span><span class="ident">config</span>, <span class="ident">RawToMapOptions</span>::<span class="ident">default</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>)
+            .<span class="kw">await</span>;
     }
 }
 
@@ -472,8 +465,7 @@
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">run</span>(
         <span class="self">self</span>,
         <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ImporterConfiguration</span>,
-        <span class="ident">skip_ch</span>: <span class="ident">bool</span>,
-        <span class="ident">keep_bldg_tags</span>: <span class="ident">bool</span>,
+        <span class="ident">opts</span>: <span class="ident">RawToMapOptions</span>,
         <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
     ) {
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;import {}&quot;</span>, <span class="self">self</span>.<span class="ident">city</span>.<span class="ident">describe</span>()));
@@ -539,7 +531,7 @@
             <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">MapName</span>::<span class="ident">from_city</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">city</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>);
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">maybe_map</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">raw_to_map</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">utils</span>::<span class="ident">raw_to_map</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>, <span class="op">!</span><span class="ident">skip_ch</span>, <span class="ident">keep_bldg_tags</span>, <span class="ident">timer</span>);
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">utils</span>::<span class="ident">raw_to_map</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>, <span class="ident">opts</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>);
 
                 <span class="comment">// Another strange step in the pipeline.</span>
                 <span class="kw">if</span> <span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="ident">MapName</span>::<span class="ident">new</span>(<span class="string">&quot;de&quot;</span>, <span class="string">&quot;berlin&quot;</span>, <span class="string">&quot;center&quot;</span>) {
@@ -627,13 +619,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">oneshot</span>(
-    <span class="ident">osm_path</span>: <span class="ident">String</span>,
-    <span class="ident">clip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">drive_on_right</span>: <span class="ident">bool</span>,
-    <span class="ident">build_ch</span>: <span class="ident">bool</span>,
-    <span class="ident">keep_bldg_tags</span>: <span class="ident">bool</span>,
-) {
+<span class="kw">fn</span> <span class="ident">oneshot</span>(<span class="ident">osm_path</span>: <span class="ident">String</span>, <span class="ident">clip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">drive_on_right</span>: <span class="ident">bool</span>, <span class="ident">opts</span>: <span class="ident">RawToMapOptions</span>) {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;oneshot&quot;</span>);
     <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;- Running convert_osm on {}&quot;</span>, <span class="ident">osm_path</span>);
     <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">basename</span>(<span class="kw-2">&amp;</span><span class="ident">osm_path</span>);
@@ -664,7 +650,7 @@
     );
     <span class="comment">// Often helpful to save intermediate representation in case user wants to load into map_editor</span>
     <span class="ident">raw</span>.<span class="ident">save</span>();
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">map_model</span>::<span class="ident">Map</span>::<span class="ident">create_from_raw</span>(<span class="ident">raw</span>, <span class="ident">build_ch</span>, <span class="ident">keep_bldg_tags</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
+    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">map_model</span>::<span class="ident">Map</span>::<span class="ident">create_from_raw</span>(<span class="ident">raw</span>, <span class="ident">opts</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
     <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;save map&quot;</span>);
     <span class="ident">map</span>.<span class="ident">save</span>();
     <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;save map&quot;</span>);

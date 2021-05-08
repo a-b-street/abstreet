@@ -123,6 +123,7 @@
 <span id="120">120</span>
 <span id="121">121</span>
 <span id="122">122</span>
+<span id="123">123</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! `map_model` describes the world where simulations occur. Importing a map from OSM partly happens</span>
 <span class="doccomment">//! in `convert_osm` and here.</span>
@@ -164,6 +165,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edits</span>::{
     <span class="ident">EditCmd</span>, <span class="ident">EditEffects</span>, <span class="ident">EditIntersection</span>, <span class="ident">EditRoad</span>, <span class="ident">MapEdits</span>, <span class="ident">PermanentMapEdits</span>,
 };
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">RawToMapOptions</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">map</span>::{<span class="ident">DrivingSide</span>, <span class="ident">MapConfig</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">area</span>::{<span class="ident">Area</span>, <span class="ident">AreaID</span>, <span class="ident">AreaType</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">building</span>::{

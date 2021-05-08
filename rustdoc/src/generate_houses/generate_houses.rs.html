@@ -211,6 +211,12 @@
 <span id="208">208</span>
 <span id="209">209</span>
 <span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Procedurally generates houses along empty residential roads of a map. Writes a GeoJSON file</span>
 <span class="doccomment">//! with the results if the number of houses is at least `--num_required`. This can be used to</span>
@@ -418,9 +424,15 @@
         },
         <span class="ident">timer</span>,
     );
-    <span class="kw">let</span> <span class="ident">build_ch</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    <span class="kw">let</span> <span class="ident">keep_bldg_tags</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    <span class="ident">map_model</span>::<span class="ident">Map</span>::<span class="ident">create_from_raw</span>(<span class="ident">raw</span>, <span class="ident">build_ch</span>, <span class="ident">keep_bldg_tags</span>, <span class="ident">timer</span>)
+    <span class="ident">map_model</span>::<span class="ident">Map</span>::<span class="ident">create_from_raw</span>(
+        <span class="ident">raw</span>,
+        <span class="ident">map_model</span>::<span class="ident">RawToMapOptions</span> {
+            <span class="ident">build_ch</span>: <span class="bool-val">false</span>,
+            <span class="ident">consolidate_all_intersections</span>: <span class="bool-val">false</span>,
+            <span class="ident">keep_bldg_tags</span>: <span class="bool-val">false</span>,
+        },
+        <span class="ident">timer</span>,
+    )
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="generate_houses" data-search-js="../../search-index.js"></div>
