@@ -7,8 +7,8 @@ use serde::{Deserialize, Deserializer};
 
 use geom::{Duration, LonLat, Pt2D};
 use map_model::{
-    osm, ControlTrafficSignal, DirectedRoadID, Direction, IntersectionID, Map, Movement,
-    MovementID, Stage, StageType,
+    osm, ControlTrafficSignal, DirectedRoadID, IntersectionID, Map, Movement, MovementID, Stage,
+    StageType,
 };
 
 /// This imports timing.csv from https://github.com/asu-trans-ai-lab/Vol2Timing. It operates in a

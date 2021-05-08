@@ -99,8 +99,6 @@ impl TrafficSignalEditor {
         } else {
             self.current_stage = idx;
             self.side_panel = make_side_panel(ctx, app, &self.members, self.current_stage);
-            self.side_panel
-                .scroll_to_member(ctx, format!("change duration of stage {}", idx + 1));
         }
 
         self.recalc_draw_current(ctx, app);
@@ -201,8 +199,8 @@ impl State<App> for TrafficSignalEditor {
         let num_stages = canonical_signal.stages.len();
 
         match self.side_panel.event(ctx) {
-            Outcome::Clicked(x) => {
-                if x == "Edit entire signal" {
+            Outcome::Clicked(x) => match x.as_ref() {
+                "Edit entire signal" => {
                     return Transition::Push(edits::edit_entire_signal(
                         ctx,
                         app,
@@ -211,72 +209,74 @@ impl State<App> for TrafficSignalEditor {
                         self.original.clone(),
                     ));
                 }
-                if x == "Tune offsets between signals" {
+                "Tune offsets between signals" => {
                     return Transition::Push(offsets::ShowAbsolute::new(
                         ctx,
                         app,
                         self.members.clone(),
                     ));
                 }
-                if x == "Add a new stage" {
+                "Add a new stage" => {
                     self.add_new_edit(ctx, app, num_stages, |ts| {
                         ts.stages.push(Stage::new());
                     });
                     return Transition::Keep;
                 }
-                if let Some(x) = x.strip_prefix("change duration of stage ") {
-                    let idx = x.parse::<usize>().unwrap() - 1;
+                "change duration" => {
                     return Transition::Push(edits::ChangeDuration::new(
                         ctx,
                         app,
                         &canonical_signal,
-                        idx,
+                        self.current_stage,
                     ));
                 }
-                if let Some(x) = x.strip_prefix("delete stage ") {
-                    let idx = x.parse::<usize>().unwrap() - 1;
+                "delete stage" => {
+                    let idx = self.current_stage;
                     self.add_new_edit(ctx, app, 0, |ts| {
                         ts.stages.remove(idx);
                     });
                     return Transition::Keep;
                 }
-                if let Some(x) = x.strip_prefix("move up stage ") {
-                    let idx = x.parse::<usize>().unwrap() - 1;
+                "move stage left" => {
+                    let idx = self.current_stage;
                     self.add_new_edit(ctx, app, idx - 1, |ts| {
                         ts.stages.swap(idx, idx - 1);
                     });
                     return Transition::Keep;
                 }
-                if let Some(x) = x.strip_prefix("move down stage ") {
-                    let idx = x.parse::<usize>().unwrap() - 1;
+                "move stage right" => {
+                    let idx = self.current_stage;
                     self.add_new_edit(ctx, app, idx + 1, |ts| {
                         ts.stages.swap(idx, idx + 1);
                     });
                     return Transition::Keep;
                 }
-                if let Some(x) = x.strip_prefix("stage ") {
-                    // 123, Intersection #456
-                    let parts = x.split(", Intersection #").collect::<Vec<_>>();
-                    let idx = parts[0].parse::<usize>().unwrap() - 1;
-                    let i = IntersectionID(parts[1].parse::<usize>().unwrap());
-                    self.change_stage(ctx, app, idx);
-                    let center = app.primary.map.get_i(i).polygon.center();
-                    // Constantly warping is really annoying, only do it if the intersection is
-                    // offscreen
-                    if ctx.canvas.get_screen_bounds().contains(center) {
-                        return Transition::Keep;
+                x => {
+                    if let Some(x) = x.strip_prefix("stage ") {
+                        // 123, Intersection #456
+                        let parts = x.split(", Intersection #").collect::<Vec<_>>();
+                        let idx = parts[0].parse::<usize>().unwrap() - 1;
+                        let i = IntersectionID(parts[1].parse::<usize>().unwrap());
+                        self.change_stage(ctx, app, idx);
+                        let center = app.primary.map.get_i(i).polygon.center();
+                        // Constantly warping is really annoying, only do it if the intersection is
+                        // offscreen
+                        if ctx.canvas.get_screen_bounds().contains(center) {
+                            return Transition::Keep;
+                        } else {
+                            return Transition::Push(Warping::new(
+                                ctx,
+                                center,
+                                Some(15.0),
+                                None,
+                                &mut app.primary,
+                            ));
+                        }
                     } else {
-                        return Transition::Push(Warping::new(
-                            ctx,
-                            center,
-                            Some(15.0),
-                            None,
-                            &mut app.primary,
-                        ));
+                        unreachable!()
                     }
                 }
-                unreachable!()
-            }
+            },
             _ => {}
         }
 
@@ -377,11 +377,11 @@ impl State<App> for TrafficSignalEditor {
         }
 
         {
-            if self.current_stage != 0 && ctx.input.pressed(Key::UpArrow) {
+            if self.current_stage != 0 && ctx.input.pressed(Key::LeftArrow) {
                 self.change_stage(ctx, app, self.current_stage - 1);
             }
 
-            if self.current_stage != num_stages - 1 && ctx.input.pressed(Key::DownArrow) {
+            if self.current_stage != num_stages - 1 && ctx.input.pressed(Key::RightArrow) {
                 self.change_stage(ctx, app, self.current_stage + 1);
             }
         }
@@ -630,34 +630,54 @@ fn make_side_panel(
         );
     }
     let mut col = vec![txt.into_widget(ctx)];
-    col.push(Widget::horiz_separator(ctx, 0.2));
 
-    // TODO Say "normally" to account for variable stages?
+    // Stage controls
     col.push(
-        format!(
-            "One full cycle lasts {}",
-            canonical_signal.simple_cycle_duration()
-        )
-        .text_widget(ctx),
+        Widget::row(vec![
+            ctx.style()
+                .btn_plain
+                .icon_bytes(include_labeled_bytes!(
+                    "../../../../widgetry/icons/arrow_left.svg"
+                ))
+                .disabled(selected == 0)
+                .build_widget(ctx, "move stage left"),
+            ctx.style()
+                .btn_plain
+                .icon_bytes(include_labeled_bytes!(
+                    "../../../../widgetry/icons/arrow_right.svg"
+                ))
+                .disabled(selected == canonical_signal.stages.len() - 1)
+                .build_widget(ctx, "move stage right"),
+            match canonical_signal.stages[selected].stage_type {
+                StageType::Fixed(d) => format!("Stage duration: {}", d),
+                StageType::Variable(min, delay, additional) => format!(
+                    "Stage duration: {}, {}, {} (variable)",
+                    min, delay, additional
+                ),
+            }
+            .text_widget(ctx)
+            .centered_vert(),
+            ctx.style()
+                .btn_plain
+                .icon("system/assets/tools/pencil.svg")
+                .hotkey(Key::X)
+                .build_widget(ctx, "change duration"),
+            if canonical_signal.stages.len() > 1 {
+                ctx.style()
+                    .btn_solid_destructive
+                    .icon("system/assets/tools/trash.svg")
+                    .build_widget(ctx, "delete stage")
+            } else {
+                Widget::nothing()
+            },
+            ctx.style()
+                .btn_plain
+                .icon("system/assets/speed/plus.svg")
+                .build_widget(ctx, "Add a new stage"),
+        ])
+        .padding(10)
+        .bg(app.cs.inner_panel_bg),
     );
-
-    if members.len() == 1 {
-        col.push(
-            ctx.style()
-                .btn_outline
-                .text("Edit entire signal")
-                .hotkey(Key::E)
-                .build_def(ctx),
-        );
-    } else {
-        col.push(
-            ctx.style()
-                .btn_outline
-                .text("Tune offsets between signals")
-                .hotkey(Key::O)
-                .build_def(ctx),
-        );
-    }
 
     let translations = squish_polygons_together(
         members
@@ -666,89 +686,60 @@ fn make_side_panel(
             .collect(),
     );
 
-    for (idx, canonical_stage) in canonical_signal.stages.iter().enumerate() {
-        let stage_btn = draw_multiple_signals(ctx, app, members, idx, &translations);
-
-        let up_button = ctx
-            .style()
-            .btn_plain
-            .icon_bytes(include_labeled_bytes!(
-                "../../../../widgetry/icons/arrow_up.svg"
-            ))
-            .disabled(idx == 0);
-
-        let down_button = ctx
-            .style()
-            .btn_plain
-            .icon_bytes(include_labeled_bytes!(
-                "../../../../widgetry/icons/arrow_down.svg"
-            ))
-            .disabled(idx == canonical_signal.stages.len() - 1);
-
-        let stage_controls = Widget::row(vec![
-            Widget::col(vec![
-                up_button.build_widget(ctx, format!("move up stage {}", idx + 1)),
-                down_button.build_widget(ctx, format!("move down stage {}", idx + 1)),
-            ])
-            .centered_vert(),
-            Widget::col(vec![
-                Widget::row(vec![
-                    match canonical_stage.stage_type {
-                        StageType::Fixed(d) => format!("Stage {}: {}", idx + 1, d),
-                        StageType::Variable(min, delay, additional) => format!(
-                            "Stage {}: {}, {}, {} (variable)",
-                            idx + 1,
-                            min,
-                            delay,
-                            additional
-                        ),
-                    }
-                    .text_widget(ctx)
-                    .centered_vert(),
-                    {
-                        let mut button =
-                            ctx.style().btn_plain.icon("system/assets/tools/pencil.svg");
-                        if selected == idx {
-                            button = button.hotkey(Key::X);
-                        }
-                        button
-                            .build_widget(ctx, format!("change duration of stage {}", idx + 1))
-                            .align_right()
-                    },
-                    if canonical_signal.stages.len() > 1 {
-                        ctx.style()
-                            .btn_solid_destructive
-                            .icon("system/assets/tools/trash.svg")
-                            .build_widget(ctx, format!("delete stage {}", idx + 1))
-                            .align_right()
-                    } else {
-                        Widget::nothing()
-                    },
-                ]),
-                stage_btn,
-            ]),
+    let mut stages_row = Vec::new();
+    for idx in 0..canonical_signal.stages.len() {
+        let stage_btn = Widget::col(vec![
+            format!(
+                "Stage {}: {}",
+                idx + 1,
+                match canonical_signal.stages[idx].stage_type {
+                    StageType::Fixed(d) => format!("{}", d),
+                    StageType::Variable(min, _, _) => format!("{} (v)", min),
+                },
+            )
+            .text_widget(ctx),
+            draw_multiple_signals(ctx, app, members, idx, &translations),
         ])
-        .padding(10)
-        .bg(app.cs.inner_panel_bg);
-
-        if idx == selected {
-            col.push(stage_controls.outline(ctx.style().btn_outline.outline));
+        .padding(10);
+        // TODO Add a proper hover state to these buttons. Complication is that they're
+        // MultiButtons...
+        stages_row.push(if idx == selected {
+            stage_btn.bg(ctx.style().btn_solid_primary.bg)
         } else {
-            col.push(stage_controls);
-        }
+            stage_btn
+        });
     }
-
     col.push(
-        ctx.style()
-            .btn_outline
-            .text("Add a new stage")
-            .build_def(ctx)
-            .centered_horiz(),
+        Widget::row(stages_row)
+            .padding(10)
+            .bg(app.cs.inner_panel_bg),
     );
 
+    col.push(Widget::row(vec![
+        // TODO Say "normally" to account for variable stages?
+        format!(
+            "One full cycle lasts {}",
+            canonical_signal.simple_cycle_duration()
+        )
+        .text_widget(ctx)
+        .centered_vert(),
+        if members.len() == 1 {
+            ctx.style()
+                .btn_outline
+                .text("Edit entire signal")
+                .hotkey(Key::E)
+                .build_def(ctx)
+        } else {
+            ctx.style()
+                .btn_outline
+                .text("Tune offsets between signals")
+                .hotkey(Key::O)
+                .build_def(ctx)
+        },
+    ]));
+
     Panel::new(Widget::col(col))
-        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
-        .exact_size_percent(30, 85)
+        .aligned(HorizontalAlignment::Left, VerticalAlignment::Center)
         .build(ctx)
 }
 
@@ -871,10 +862,11 @@ fn draw_multiple_signals(
     }
 
     // Make the whole thing fit a fixed width
+    let square_dims = 150.0;
     let bounds_before = batch.get_bounds();
     batch = batch.autocrop();
     let bounds = batch.get_bounds();
-    let zoom = (300.0 / bounds.width()).min(300.0 / bounds.height());
+    let zoom = (square_dims / bounds.width()).min(square_dims / bounds.height());
     let batch = batch.scale(zoom);
 
     // Figure out the hitboxes per intersection, after all of these transformations
