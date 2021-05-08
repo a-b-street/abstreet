@@ -38,6 +38,7 @@ pub use crate::city::City;
 pub use crate::edits::{
     EditCmd, EditEffects, EditIntersection, EditRoad, MapEdits, PermanentMapEdits,
 };
+pub use crate::make::RawToMapOptions;
 pub use crate::map::{DrivingSide, MapConfig};
 pub use crate::objects::area::{Area, AreaID, AreaType};
 pub use crate::objects::building::{

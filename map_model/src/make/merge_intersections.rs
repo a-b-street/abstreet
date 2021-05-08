@@ -8,7 +8,7 @@ use crate::raw::{OriginalRoad, RawMap, RawRoad};
 
 /// Merge tiny "roads" that're actually just part of a complicated intersection. Returns all
 /// surviving intersections adjacent to one of these merged roads.
-pub fn merge_short_roads(map: &mut RawMap) -> BTreeSet<NodeID> {
+pub fn merge_short_roads(map: &mut RawMap, consolidate_all: bool) -> BTreeSet<NodeID> {
     let mut merged = BTreeSet::new();
 
     let mut queue: VecDeque<OriginalRoad> = VecDeque::new();
@@ -29,7 +29,7 @@ pub fn merge_short_roads(map: &mut RawMap) -> BTreeSet<NodeID> {
             continue;
         }
 
-        if should_merge(map, &id) {
+        if should_merge(map, &id, consolidate_all) {
             match map.merge_short_road(id) {
                 Ok((i, _, _, new_roads)) => {
                     merged.insert(i);
@@ -45,14 +45,14 @@ pub fn merge_short_roads(map: &mut RawMap) -> BTreeSet<NodeID> {
     merged
 }
 
-fn should_merge(map: &RawMap, id: &OriginalRoad) -> bool {
+fn should_merge(map: &RawMap, id: &OriginalRoad, consolidate_all: bool) -> bool {
     // See https://wiki.openstreetmap.org/wiki/Proposed_features/junction%3Dintersection
     if map.roads[id].osm_tags.is("junction", "intersection") {
         return true;
     }
 
     // TODO Keep everything below disabled until merging works better.
-    if true {
+    if !consolidate_all {
         return false;
     }
 
@@ -65,13 +65,12 @@ fn should_merge(map: &RawMap, id: &OriginalRoad) -> bool {
     };
 
     // Any road anywhere shorter than this should get merged.
-    // TODO Disabled by default, because map.merge_short_road still has bugs in some cases.
-    if road_length < Distance::meters(0.0) {
+    if road_length < Distance::meters(5.0) {
         return true;
     }
 
     // Roads connecting dual carriageways can use a longer threshold for merging.
-    if connects_dual_carriageway(map, id) && road_length < Distance::meters(0.0) {
+    if connects_dual_carriageway(map, id) && road_length < Distance::meters(10.0) {
         return true;
     }
 

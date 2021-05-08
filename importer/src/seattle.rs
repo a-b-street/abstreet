@@ -173,7 +173,7 @@ pub async fn ensure_popdat_exists(
     let huge_map = if abstio::file_exists(huge_name.path()) {
         map_model::Map::load_synchronously(huge_name.path(), timer)
     } else {
-        crate::utils::raw_to_map(&huge_name, true, false, timer)
+        crate::utils::raw_to_map(&huge_name, map_model::RawToMapOptions::default(), timer)
     };
 
     (crate::soundcast::import_data(&huge_map, timer), huge_map)

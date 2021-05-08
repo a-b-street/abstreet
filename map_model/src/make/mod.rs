@@ -30,18 +30,36 @@ mod transit;
 pub mod turns;
 mod walking_turns;
 
+/// Options for converting RawMaps to Maps.
+#[derive(Clone)]
+pub struct RawToMapOptions {
+    /// Should contraction hierarchies for pathfinding be built? They're slow to build, but without
+    /// them, pathfinding on the map later will be very slow.
+    pub build_ch: bool,
+    /// Try to consolidate all short roads. Will likely break.
+    pub consolidate_all_intersections: bool,
+    /// Preserve all OSM tags for buildings, increasing the final file size substantially.
+    pub keep_bldg_tags: bool,
+}
+
+impl RawToMapOptions {
+    pub fn default() -> RawToMapOptions {
+        RawToMapOptions {
+            build_ch: true,
+            consolidate_all_intersections: false,
+            keep_bldg_tags: false,
+        }
+    }
+}
+
 impl Map {
-    pub fn create_from_raw(
-        mut raw: RawMap,
-        build_ch: bool,
-        keep_bldg_tags: bool,
-        timer: &mut Timer,
-    ) -> Map {
+    pub fn create_from_raw(mut raw: RawMap, opts: RawToMapOptions, timer: &mut Timer) -> Map {
         // Better to defer this and see RawMaps with more debug info in map_editor
         remove_disconnected::remove_disconnected_roads(&mut raw, timer);
 
         timer.start("merging short roads");
-        let merged_intersections = merge_intersections::merge_short_roads(&mut raw);
+        let merged_intersections =
+            merge_intersections::merge_short_roads(&mut raw, opts.consolidate_all_intersections);
         timer.stop("merging short roads");
 
         timer.start("raw_map to InitialMap");
@@ -229,7 +247,8 @@ impl Map {
         }
         timer.stop("find blackholes");
 
-        map.buildings = buildings::make_all_buildings(&raw.buildings, &map, keep_bldg_tags, timer);
+        map.buildings =
+            buildings::make_all_buildings(&raw.buildings, &map, opts.keep_bldg_tags, timer);
 
         map.parking_lots = parking_lots::make_all_parking_lots(
             &raw.parking_lots,
@@ -302,7 +321,7 @@ impl Map {
             assert!(!map.get_routes_serving_stop(*id).is_empty());
         }
 
-        if build_ch {
+        if opts.build_ch {
             timer.start("setup ContractionHierarchyPathfinder");
             map.pathfinder = Pathfinder::CH(crate::pathfind::ContractionHierarchyPathfinder::new(
                 &map, timer,

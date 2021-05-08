@@ -66,7 +66,7 @@ fn import_map(path: String) -> Map {
         },
         &mut timer,
     );
-    let map = Map::create_from_raw(raw, true, true, &mut timer);
+    let map = Map::create_from_raw(raw, map_model::RawToMapOptions::default(), &mut timer);
     map
 }
 

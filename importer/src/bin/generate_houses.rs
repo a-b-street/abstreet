@@ -204,7 +204,13 @@ fn import_map(
         },
         timer,
     );
-    let build_ch = false;
-    let keep_bldg_tags = false;
-    map_model::Map::create_from_raw(raw, build_ch, keep_bldg_tags, timer)
+    map_model::Map::create_from_raw(
+        raw,
+        map_model::RawToMapOptions {
+            build_ch: false,
+            consolidate_all_intersections: false,
+            keep_bldg_tags: false,
+        },
+        timer,
+    )
 }

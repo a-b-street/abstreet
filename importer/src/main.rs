@@ -9,6 +9,7 @@ extern crate log;
 use abstio::{CityName, MapName};
 use abstutil::{basename, Timer};
 use geom::Distance;
+use map_model::RawToMapOptions;
 
 use configuration::{load_configuration, ImporterConfiguration};
 
@@ -27,24 +28,24 @@ async fn main() {
     let config: ImporterConfiguration = load_configuration();
 
     let mut args = abstutil::CmdArgs::new();
-    // Skip the most expensive step of --map, building contraction hierarchies. The simulation
-    // will use a slower method to pathfind.
-    let skip_ch = args.enabled("--skip_ch");
-    // Preserve OSM tags for buildings, increasing the file size.
-    let keep_bldg_tags = args.enabled("--keep_bldg_tags");
+    let opts = RawToMapOptions {
+        build_ch: !args.enabled("--skip_ch"),
+        consolidate_all_intersections: args.enabled("--consolidate_all_intersections"),
+        keep_bldg_tags: args.enabled("--keep_bldg_tags"),
+    };
 
     if let Some(path) = args.optional("--oneshot") {
         let clip = args.optional("--oneshot_clip");
         let drive_on_left = args.enabled("--oneshot_drive_on_left");
         args.done();
 
-        oneshot(path, clip, !drive_on_left, !skip_ch, keep_bldg_tags);
+        oneshot(path, clip, !drive_on_left, opts);
         return;
     }
 
     if args.enabled("--regen_all") {
-        assert!(!skip_ch);
-        assert!(!keep_bldg_tags);
+        assert!(opts.build_ch);
+        assert!(!opts.keep_bldg_tags);
         regenerate_everything(config).await;
         return;
     }
@@ -80,7 +81,7 @@ async fn main() {
 
     let mut timer = Timer::new("import map data");
 
-    job.run(&config, skip_ch, keep_bldg_tags, &mut timer).await;
+    job.run(&config, opts, &mut timer).await;
 }
 
 async fn regenerate_everything(config: ImporterConfiguration) {
@@ -114,9 +115,8 @@ async fn regenerate_everything(config: ImporterConfiguration) {
             job.city_overview = true;
         }
 
-        let skip_ch = false;
-        let keep_bldg_tags = false;
-        job.run(&config, skip_ch, keep_bldg_tags, &mut timer).await;
+        job.run(&config, RawToMapOptions::default(), &mut timer)
+            .await;
     }
 }
 
@@ -134,8 +134,7 @@ impl Job {
     async fn run(
         self,
         config: &ImporterConfiguration,
-        skip_ch: bool,
-        keep_bldg_tags: bool,
+        opts: RawToMapOptions,
         timer: &mut Timer<'_>,
     ) {
         timer.start(format!("import {}", self.city.describe()));
@@ -201,7 +200,7 @@ impl Job {
             let name = MapName::from_city(&self.city, &name);
 
             let mut maybe_map = if self.raw_to_map {
-                let mut map = utils::raw_to_map(&name, !skip_ch, keep_bldg_tags, timer);
+                let mut map = utils::raw_to_map(&name, opts.clone(), timer);
 
                 // Another strange step in the pipeline.
                 if name == MapName::new("de", "berlin", "center") {
@@ -289,13 +288,7 @@ impl Job {
     }
 }
 
-fn oneshot(
-    osm_path: String,
-    clip: Option<String>,
-    drive_on_right: bool,
-    build_ch: bool,
-    keep_bldg_tags: bool,
-) {
+fn oneshot(osm_path: String, clip: Option<String>, drive_on_right: bool, opts: RawToMapOptions) {
     let mut timer = abstutil::Timer::new("oneshot");
     println!("- Running convert_osm on {}", osm_path);
     let name = abstutil::basename(&osm_path);
@@ -326,7 +319,7 @@ fn oneshot(
     );
     // Often helpful to save intermediate representation in case user wants to load into map_editor
     raw.save();
-    let map = map_model::Map::create_from_raw(raw, build_ch, keep_bldg_tags, &mut timer);
+    let map = map_model::Map::create_from_raw(raw, opts, &mut timer);
     timer.start("save map");
     map.save();
     timer.stop("save map");

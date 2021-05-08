@@ -79,7 +79,7 @@ impl Map {
         }
 
         let raw: RawMap = abstio::read_binary(path, timer);
-        Map::create_from_raw(raw, true, false, timer)
+        Map::create_from_raw(raw, crate::RawToMapOptions::default(), timer)
     }
 
     /// After deserializing a map directly, call this after.

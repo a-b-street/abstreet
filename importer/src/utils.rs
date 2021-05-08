@@ -3,6 +3,7 @@ use std::process::Command;
 
 use abstio::MapName;
 use abstutil::{must_run_cmd, Timer};
+use map_model::RawToMapOptions;
 
 use crate::configuration::ImporterConfiguration;
 
@@ -110,15 +111,10 @@ pub fn osmconvert(
 }
 
 /// Converts a RawMap to a Map.
-pub fn raw_to_map(
-    name: &MapName,
-    build_ch: bool,
-    keep_bldg_tags: bool,
-    timer: &mut Timer,
-) -> map_model::Map {
+pub fn raw_to_map(name: &MapName, opts: RawToMapOptions, timer: &mut Timer) -> map_model::Map {
     timer.start(format!("Raw->Map for {}", name.describe()));
     let raw: map_model::raw::RawMap = abstio::read_binary(abstio::path_raw_map(name), timer);
-    let map = map_model::Map::create_from_raw(raw, build_ch, keep_bldg_tags, timer);
+    let map = map_model::Map::create_from_raw(raw, opts, timer);
     timer.start("save map");
     map.save();
     timer.stop("save map");
