@@ -75,7 +75,8 @@ pub fn import(map: &Map, i: IntersectionID, path: &str) -> Result<ControlTraffic
                 continue;
             }
         };
-        if rec.protection == "protected" {
+        // Through movements (EBT = eastbound through, for example) are implicitly protected
+        if rec.protection == "protected" || rec.movement_str.ends_with("T") {
             stage.protected_movements.insert(mvmnt);
         } else {
             stage.yield_movements.insert(mvmnt);
@@ -96,6 +97,7 @@ struct Record {
     #[serde(deserialize_with = "parse_linestring", rename = "geometory")]
     geometry: (LonLat, LonLat),
     protection: String,
+    movement_str: String,
 }
 
 fn parse_linestring<'de, D: Deserializer<'de>>(d: D) -> Result<(LonLat, LonLat), D::Error> {
