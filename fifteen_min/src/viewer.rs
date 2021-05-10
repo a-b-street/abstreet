@@ -20,6 +20,7 @@ use widgetry::{
 };
 
 use crate::find_home::FindHome;
+use crate::find_amenities::FindAmenity;
 use crate::isochrone::{Isochrone, Options};
 use crate::App;
 
@@ -171,6 +172,9 @@ impl State<App> for Viewer {
                 }
                 "Find your perfect home" => {
                     return Transition::Push(FindHome::new(ctx, self.isochrone.options.clone()));
+                }
+                "Where are certain amenities?" => {
+                    return Transition::Push(FindAmenity::new(ctx, self.isochrone.options.clone()));
                 }
                 x => {
                     if let Some(category) = x.strip_prefix("businesses: ") {
@@ -344,6 +348,12 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
         ctx.style()
             .btn_outline
             .text("Find your perfect home")
+            .build_def(ctx),
+    );
+    rows.push(
+        ctx.style()
+            .btn_outline
+            .text("Where are certain amenities?")
             .build_def(ctx),
     );
     rows.push(Widget::row(vec![

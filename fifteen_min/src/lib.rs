@@ -6,6 +6,7 @@ extern crate log;
 mod find_home;
 mod isochrone;
 mod viewer;
+mod find_amenities;
 
 type App = map_gui::SimpleApp<()>;
 
