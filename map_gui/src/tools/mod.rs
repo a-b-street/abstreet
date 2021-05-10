@@ -177,6 +177,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
         "us" => match (name.city.city.as_ref(), name.map.as_ref()) {
             ("anchorage", "downtown") => "Anchorage",
             ("bellevue", "huge") => "Bellevue",
+            ("beltsville", "i495") => "I-495 in Beltsville, MD",
             ("detroit", "downtown") => "Detroit",
             ("milwaukee", "downtown") => "Downtown Milwaukee",
             ("milwaukee", "oak_creek") => "Oak Creek",

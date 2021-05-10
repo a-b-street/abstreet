@@ -1395,6 +1395,11 @@
       "uncompressed_size_bytes": 4294263,
       "compressed_size_bytes": 4287514
     },
+    "data/input/shared/elevation/srtm/srtm.-77.39.tif": {
+      "checksum": "9030f6d69353107f9e57c77035646812",
+      "uncompressed_size_bytes": 4849054,
+      "compressed_size_bytes": 4844009
+    },
     "data/input/shared/elevation/srtm/srtm.-83.42.tif": {
       "checksum": "3024aa641f8adb39325ae7f4246cc82a",
       "uncompressed_size_bytes": 1427862,
@@ -1564,6 +1569,21 @@
       "checksum": "2d6da08d37180688708e5078ca38cbab",
       "uncompressed_size_bytes": 11500957,
       "compressed_size_bytes": 3065996
+    },
+    "data/input/us/beltsville/osm/i495.osm": {
+      "checksum": "2a0af1954110b9830c852965fa638a09",
+      "uncompressed_size_bytes": 10432934,
+      "compressed_size_bytes": 957126
+    },
+    "data/input/us/beltsville/osm/maryland-latest.osm.pbf": {
+      "checksum": "2010deaa9fed9c36177b0a3bc8ff834e",
+      "uncompressed_size_bytes": 158805980,
+      "compressed_size_bytes": 158569116
+    },
+    "data/input/us/beltsville/raw_maps/i495.bin": {
+      "checksum": "7f8a3a92d0f1e6037c8707884be4734e",
+      "uncompressed_size_bytes": 3435658,
+      "compressed_size_bytes": 790724
     },
     "data/input/us/detroit/osm/downtown.osm": {
       "checksum": "5c8dd6ecc94a80879bac965ef624e2e7",
@@ -3339,6 +3359,11 @@
       "checksum": "f2158549d6e32d755b9f1911fb746061",
       "uncompressed_size_bytes": 57750583,
       "compressed_size_bytes": 19910655
+    },
+    "data/system/us/beltsville/maps/i495.bin": {
+      "checksum": "bb55cf71123c2a5d1f7f21bf8e243603",
+      "uncompressed_size_bytes": 8909606,
+      "compressed_size_bytes": 3149528
     },
     "data/system/us/detroit/maps/downtown.bin": {
       "checksum": "e2cc9eb54698c7213f543e25a7890af9",
