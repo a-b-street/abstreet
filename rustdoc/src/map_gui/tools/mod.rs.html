@@ -257,6 +257,11 @@
 <span id="254">254</span>
 <span id="255">255</span>
 <span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Assorted tools and UI states that&#39;re useful for applications built to display maps.</span>
 
@@ -421,6 +426,10 @@
             (<span class="string">&quot;tripoli&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Tripoli&quot;</span>,
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
         },
+        <span class="string">&quot;nz&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+            (<span class="string">&quot;auckland&quot;</span>, <span class="string">&quot;mangere&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Māngere (Auckland)&quot;</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
+        },
         <span class="string">&quot;pl&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
             (<span class="string">&quot;krakow&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Kraków (city center)&quot;</span>,
             (<span class="string">&quot;warsaw&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Warsaw (city center)&quot;</span>,
@@ -482,6 +491,7 @@
         <span class="string">&quot;il&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Israel&quot;</span>,
         <span class="string">&quot;jp&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Japan&quot;</span>,
         <span class="string">&quot;ly&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Libya&quot;</span>,
+        <span class="string">&quot;nz&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;New Zealand&quot;</span>,
         <span class="string">&quot;pl&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Poland&quot;</span>,
         <span class="string">&quot;sg&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Singapore&quot;</span>,
         <span class="string">&quot;tw&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Taiwan&quot;</span>,
