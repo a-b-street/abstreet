@@ -115,7 +115,7 @@ fn recurse(
             }
         }
         if any_ok && (!any_oob || !require_all_pts_in_bounds) {
-            let attributes = std::mem::replace(kv, BTreeMap::new());
+            let attributes = std::mem::take(kv);
             shapes.push(ExtraShape {
                 points: pts,
                 attributes,
