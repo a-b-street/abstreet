@@ -161,6 +161,10 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("tripoli", "center") => "Tripoli",
             _ => &name.map,
         },
+        "nz" => match (name.city.city.as_ref(), name.map.as_ref()) {
+            ("auckland", "mangere") => "Māngere (Auckland)",
+            _ => &name.map,
+        },
         "pl" => match (name.city.city.as_ref(), name.map.as_ref()) {
             ("krakow", "center") => "Kraków (city center)",
             ("warsaw", "center") => "Warsaw (city center)",
@@ -222,6 +226,7 @@ pub fn nice_country_name(code: &str) -> &str {
         "il" => "Israel",
         "jp" => "Japan",
         "ly" => "Libya",
+        "nz" => "New Zealand",
         "pl" => "Poland",
         "sg" => "Singapore",
         "tw" => "Taiwan",

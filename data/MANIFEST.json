@@ -1220,6 +1220,21 @@
       "uncompressed_size_bytes": 4173197,
       "compressed_size_bytes": 743060
     },
+    "data/input/nz/auckland/osm/mangere.osm": {
+      "checksum": "3e0f8d025caa0eff6f1f96a6049758b1",
+      "uncompressed_size_bytes": 24375865,
+      "compressed_size_bytes": 2262065
+    },
+    "data/input/nz/auckland/osm/new-zealand-latest.osm.pbf": {
+      "checksum": "b6c7addd6620c4029d93b63cda07e425",
+      "uncompressed_size_bytes": 249804974,
+      "compressed_size_bytes": 249485156
+    },
+    "data/input/nz/auckland/raw_maps/mangere.bin": {
+      "checksum": "96169a259506b1229011d7978887fbda",
+      "uncompressed_size_bytes": 5125029,
+      "compressed_size_bytes": 1543796
+    },
     "data/input/pl/krakow/osm/center.osm": {
       "checksum": "562ed1102d3e2fc49d2b9eedf0f0d42a",
       "uncompressed_size_bytes": 57269997,
@@ -1479,6 +1494,16 @@
       "checksum": "6918da0c7647a93ca56fd51c7a9cabab",
       "uncompressed_size_bytes": 7213213,
       "compressed_size_bytes": 7205382
+    },
+    "data/input/shared/elevation/srtm/srtm.174.-37.tif": {
+      "checksum": "b6d9af3a583455cfd7083d58a1726abb",
+      "uncompressed_size_bytes": 3753862,
+      "compressed_size_bytes": 3741278
+    },
+    "data/input/shared/elevation/srtm/srtm.174.-38.tif": {
+      "checksum": "9887c5990c3ec0488a4cf9d2b5d64d45",
+      "uncompressed_size_bytes": 2473849,
+      "compressed_size_bytes": 2457124
     },
     "data/input/shared/elevation/srtm/srtm.18.49.tif": {
       "checksum": "a316408f142f7aa463d24142749758b2",
@@ -3329,6 +3354,11 @@
       "checksum": "687d5d6c94414f5beb6df9a4131ac6c6",
       "uncompressed_size_bytes": 35808509,
       "compressed_size_bytes": 12374314
+    },
+    "data/system/nz/auckland/maps/mangere.bin": {
+      "checksum": "3214bbb41f83cf3b7de8d09c04fada9d",
+      "uncompressed_size_bytes": 16861473,
+      "compressed_size_bytes": 6055111
     },
     "data/system/pl/krakow/maps/center.bin": {
       "checksum": "214ea44449b6111abaa96a278509507c",
