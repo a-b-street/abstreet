@@ -1,17 +1,16 @@
 use std::collections::BTreeSet;
 use std::fmt::Display;
 
-use abstutil::prettyprint_usize;
-use geom::{Duration, Polygon, Pt2D, Time};
+use abstutil::{abbreviated_format, prettyprint_usize};
+use geom::{Angle, Duration, Polygon, Pt2D, Time};
 use map_gui::tools::ColorScale;
 use sim::{Problem, TripMode};
 use widgetry::{
-    DrawWithTooltips, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Panel, State, Text, TextExt,
-    Toggle, Widget,
+    Color, DrawWithTooltips, EventCtx, GeomBatch, GeomBatchStack, GfxCtx, Image, Line, Outcome,
+    Panel, State, Text, TextExt, Toggle, Widget,
 };
 
 use crate::app::{App, Transition};
-use crate::common::color_for_mode;
 use crate::sandbox::dashboards::DashTab;
 
 pub struct RiskSummaries {
@@ -19,49 +18,66 @@ pub struct RiskSummaries {
 }
 
 impl RiskSummaries {
-    pub fn new(ctx: &mut EventCtx, app: &App, filter: Filter) -> Box<dyn State<App>> {
-        let mut filters = Vec::new();
-        for mode in TripMode::all() {
-            filters.push(Toggle::colored_checkbox(
-                ctx,
-                mode.ongoing_verb(),
-                color_for_mode(app, mode),
-                filter.modes.contains(&mode),
-            ));
-        }
+    pub fn new(ctx: &mut EventCtx, app: &App, include_no_changes: bool) -> Box<dyn State<App>> {
+        let bike_filter = Filter {
+            modes: maplit::btreeset! { TripMode::Bike },
+            include_no_changes,
+        };
 
         Box::new(RiskSummaries {
             panel: Panel::new(Widget::col(vec![
                 DashTab::RiskSummaries.picker(ctx, app),
                 Widget::col(vec![
                     "Filters".text_widget(ctx),
-                    Widget::row(filters),
                     Toggle::checkbox(
                         ctx,
                         "include trips without any changes",
                         None,
-                        filter.include_no_changes,
+                        include_no_changes,
                     ),
                 ])
                 .section(ctx),
                 Widget::row(vec![
-                    Widget::col(vec![
-                        "Delays at an intersection".text_widget(ctx),
-                        safety_matrix(ctx, app, &filter, ProblemType::IntersectionDelay),
-                    ])
-                    .section(ctx),
-                    Widget::col(vec![
-                        "Large intersection crossings".text_widget(ctx),
-                        safety_matrix(ctx, app, &filter, ProblemType::LargeIntersectionCrossing),
-                    ])
-                    .section(ctx),
-                    Widget::col(vec![
-                        "Cars wanting to over-take cyclists".text_widget(ctx),
-                        safety_matrix(ctx, app, &filter, ProblemType::OvertakeDesired),
-                    ])
-                    .section(ctx),
+                    Image::from_path("system/assets/meters/bike.svg")
+                        .dims(36.0)
+                        .into_widget(ctx)
+                        .centered_vert(),
+                    Line(format!(
+                        "Cyclist Risks - {} Finished Trips",
+                        bike_filter.finished_trip_count(app)
+                    ))
+                    .big_heading_plain()
+                    .into_widget(ctx)
+                    .centered_vert(),
                 ])
-                .evenly_spaced(),
+                .margin_above(30),
+                Widget::evenly_spaced_row(
+                    32,
+                    vec![
+                        Widget::col(vec![
+                            Line("Large intersection crossings")
+                                .small_heading()
+                                .into_widget(ctx)
+                                .centered_horiz(),
+                            safety_matrix(
+                                ctx,
+                                app,
+                                &bike_filter,
+                                ProblemType::LargeIntersectionCrossing,
+                            ),
+                        ])
+                        .section(ctx),
+                        Widget::col(vec![
+                            Line("Cars wanting to over-take cyclists")
+                                .small_heading()
+                                .into_widget(ctx)
+                                .centered_horiz(),
+                            safety_matrix(ctx, app, &bike_filter, ProblemType::OvertakeDesired),
+                        ])
+                        .section(ctx),
+                    ],
+                )
+                .margin_above(30),
             ]))
             .exact_size_percent(90, 90)
             .build(ctx),
@@ -83,16 +99,8 @@ impl State<App> for RiskSummaries {
                     return t;
                 }
 
-                let mut filter = Filter {
-                    modes: BTreeSet::new(),
-                    include_no_changes: self.panel.is_checked("include trips without any changes"),
-                };
-                for m in TripMode::all() {
-                    if self.panel.is_checked(m.ongoing_verb()) {
-                        filter.modes.insert(m);
-                    }
-                }
-                Transition::Replace(RiskSummaries::new(ctx, app, filter))
+                let include_no_changes = self.panel.is_checked("include trips without any changes");
+                Transition::Replace(RiskSummaries::new(ctx, app, include_no_changes))
             }
             _ => Transition::Keep,
         }
@@ -103,6 +111,10 @@ impl State<App> for RiskSummaries {
     }
 }
 
+lazy_static::lazy_static! {
+    static ref CLEAR_COLOR_SCALE: ColorScale = ColorScale(vec![Color::CLEAR, Color::CLEAR]);
+}
+
 fn safety_matrix(
     ctx: &mut EventCtx,
     app: &App,
@@ -110,15 +122,18 @@ fn safety_matrix(
     problem_type: ProblemType,
 ) -> Widget {
     let points = filter.get_trips(app, problem_type);
-    if points.is_empty() {
-        return Widget::nothing();
-    }
 
-    let num_buckets = 10;
-    let mut matrix = Matrix::new(
-        bucketize_duration(num_buckets, &points),
-        bucketize_isizes(num_buckets, &points),
-    );
+    let duration_buckets = vec![
+        Duration::ZERO,
+        Duration::minutes(5),
+        Duration::minutes(15),
+        Duration::minutes(30),
+        Duration::hours(1),
+        Duration::hours(2),
+    ];
+
+    let num_buckets = 7;
+    let mut matrix = Matrix::new(duration_buckets, bucketize_isizes(num_buckets, &points));
     for (x, y) in points {
         matrix.add_pt(x, y);
     }
@@ -126,31 +141,59 @@ fn safety_matrix(
         ctx,
         app,
         MatrixOptions {
-            total_width: 500.0,
-            total_height: 500.0,
+            total_width: 600.0,
+            total_height: 600.0,
             color_scale_for_bucket: Box::new(|app, _, n| {
-                if n <= 0 {
+                if n == 0 {
+                    &CLEAR_COLOR_SCALE
+                } else if n < 0 {
                     &app.cs.good_to_bad_green
                 } else {
                     &app.cs.good_to_bad_red
                 }
             }),
             tooltip_for_bucket: Box::new(|(t1, t2), (problems1, problems2), count| {
-                let mut txt = Text::from(Line(format!("Trips between {} and {}", t1, t2)));
-                txt.add_line(if problems1 == 0 || problems2 == 0 {
-                    Line("with no changes in number of problems encountered")
-                } else if problems1 < 0 {
-                    Line(format!(
-                        "with between {} and {} less problems encountered",
-                        -problems2, -problems1
-                    ))
+                let trip_string = if count == 1 {
+                    "1 trip".to_string()
                 } else {
-                    Line(format!(
-                        "with between {} and {} more problems encountered",
-                        problems1, problems2
-                    ))
+                    format!("{} trips", prettyprint_usize(count))
+                };
+                let duration_string = match (t1, t2) {
+                    (None, Some(end)) => format!("shorter than {}", end),
+                    (Some(start), None) => format!("longer than {}", start),
+                    (Some(start), Some(end)) => format!("between {} and {}", start, end),
+                    (None, None) => {
+                        unreachable!("at least one end of the duration range must be specified")
+                    }
+                };
+                let mut txt = Text::from(format!("{} {}", trip_string, duration_string));
+                txt.add_line(if problems1 == 0 {
+                    "had no change in the number of problems encountered.".to_string()
+                } else if problems1 < 0 {
+                    if problems1.abs() == problems2.abs() + 1 {
+                        if problems1.abs() == 1 {
+                            "encountered 1 fewer problem.".to_string()
+                        } else {
+                            format!("encountered {} fewer problems.", problems1.abs())
+                        }
+                    } else {
+                        format!(
+                            "encountered {}-{} fewer problems.",
+                            problems2.abs() + 1,
+                            problems1.abs()
+                        )
+                    }
+                } else {
+                    if problems1 == problems2 - 1 {
+                        if problems1 == 1 {
+                            "encountered 1 more problems.".to_string()
+                        } else {
+                            format!("encountered {} more problems.", problems1,)
+                        }
+                    } else {
+                        format!("encountered {}-{} more problems.", problems1, problems2 - 1)
+                    }
                 });
-                txt.add_line(Line(format!("Count: {} trips", prettyprint_usize(count))));
                 txt
             }),
         },
@@ -188,13 +231,6 @@ pub struct Filter {
 }
 
 impl Filter {
-    pub fn new() -> Filter {
-        Filter {
-            modes: TripMode::all().into_iter().collect(),
-            include_no_changes: false,
-        }
-    }
-
     // Returns:
     // 1) trip duration after changes
     // 2) difference in number of matching problems, where positive means MORE problems after
@@ -219,6 +255,19 @@ impl Filter {
             }
         }
         points
+    }
+
+    fn finished_trip_count(&self, app: &App) -> usize {
+        let before = app.prebaked();
+        let after = app.primary.sim.get_analytics();
+
+        let mut count = 0;
+        for (_, _, _, mode) in after.both_finished_trips(app.primary.sim.time(), before) {
+            if self.modes.contains(&mode) {
+                count += 1;
+            }
+        }
+        count
     }
 }
 
@@ -275,33 +324,84 @@ impl<X: Copy + PartialOrd + Display, Y: Copy + PartialOrd + Display> Matrix<X, Y
 
         for x in 0..self.buckets_x.len() - 1 {
             for y in 0..self.buckets_y.len() - 1 {
+                let is_first_xbucket = x == 0;
+                let is_last_xbucket = x == self.buckets_x.len() - 2;
+                let is_middle_ybucket = y + 1 == self.buckets_y.len() / 2;
                 let count = self.counts[self.idx(x, y)];
-                // TODO Different colors for better/worse? Or are we just showing density?
-                let density_pct = (count as f64) / max_count;
-                let color =
+                let color = if count == 0 {
+                    widgetry::Color::CLEAR
+                } else {
+                    let density_pct = (count as f64) / max_count;
                     (opts.color_scale_for_bucket)(app, self.buckets_x[x], self.buckets_y[y])
-                        .eval(density_pct);
+                        .eval(density_pct)
+                };
                 let x1 = cell_width * (x as f64);
                 let y1 = cell_height * (y as f64);
                 let rect = cell.clone().translate(x1, y1);
                 batch.push(color, rect.clone());
                 batch.append(
-                    Text::from(Line(prettyprint_usize(count)))
-                        .render(ctx)
-                        .centered_on(Pt2D::new(x1 + cell_width / 2.0, y1 + cell_height / 2.0)),
+                    Text::from(if count == 0 && is_middle_ybucket {
+                        "-".to_string()
+                    } else {
+                        abbreviated_format(count)
+                    })
+                    .change_fg(if count == 0 || is_middle_ybucket {
+                        ctx.style().text_fg_color
+                    } else {
+                        Color::WHITE
+                    })
+                    .render(ctx)
+                    .centered_on(Pt2D::new(x1 + cell_width / 2.0, y1 + cell_height / 2.0)),
                 );
-                tooltips.push((
-                    rect,
-                    (opts.tooltip_for_bucket)(
-                        (self.buckets_x[x], self.buckets_x[x + 1]),
-                        (self.buckets_y[y], self.buckets_y[y + 1]),
-                        count,
-                    ),
-                ));
+
+                if count != 0 || !is_middle_ybucket {
+                    tooltips.push((
+                        rect,
+                        (opts.tooltip_for_bucket)(
+                            (
+                                if is_first_xbucket {
+                                    None
+                                } else {
+                                    Some(self.buckets_x[x])
+                                },
+                                if is_last_xbucket {
+                                    None
+                                } else {
+                                    Some(self.buckets_x[x + 1])
+                                },
+                            ),
+                            (self.buckets_y[y], self.buckets_y[y + 1]),
+                            count,
+                        ),
+                    ));
+                }
             }
         }
 
-        DrawWithTooltips::new(ctx, batch, tooltips, Box::new(|_| GeomBatch::new()))
+        // Axis Labels
+        let mut y_axis_label = Text::from("More Problems <--------> Fewer Problems")
+            .change_fg(ctx.style().text_fg_color.dull(0.8))
+            .render(ctx)
+            .rotate(Angle::degrees(-90.0));
+        y_axis_label.autocrop_dims = true;
+        y_axis_label = y_axis_label.autocrop();
+
+        let x_axis_label = Text::from("Short Trips <--------> Long Trips")
+            .change_fg(ctx.style().text_fg_color.dull(0.8))
+            .render(ctx);
+
+        let vmargin = 32.0;
+        for (polygon, _) in tooltips.iter_mut() {
+            let mut translated =
+                polygon.translate(vmargin + y_axis_label.get_bounds().width(), 0.0);
+            std::mem::swap(&mut translated, polygon);
+        }
+        let mut row = GeomBatchStack::horizontal(vec![y_axis_label, batch]);
+        row.set_spacing(vmargin);
+        let mut chart = GeomBatchStack::vertical(vec![row.batch(), x_axis_label]);
+        chart.set_spacing(16);
+
+        DrawWithTooltips::new(ctx, chart.batch(), tooltips, Box::new(|_| GeomBatch::new()))
     }
 }
 
@@ -309,23 +409,88 @@ struct MatrixOptions<X, Y> {
     total_width: f64,
     total_height: f64,
     color_scale_for_bucket: Box<dyn Fn(&App, X, Y) -> &ColorScale>,
-    tooltip_for_bucket: Box<dyn Fn((X, X), (Y, Y), usize) -> Text>,
+    tooltip_for_bucket: Box<dyn Fn((Option<X>, Option<X>), (Y, Y), usize) -> Text>,
 }
 
-fn bucketize_duration(num_buckets: usize, pts: &Vec<(Duration, isize)>) -> Vec<Duration> {
-    let max = pts.iter().max_by_key(|(dt, _)| *dt).unwrap().0;
-    let (_, mins) = max.make_intervals_for_max(num_buckets);
-    mins.into_iter().map(|x| Duration::minutes(x)).collect()
-}
+fn bucketize_isizes(max_buckets: usize, pts: &Vec<(Duration, isize)>) -> Vec<isize> {
+    debug_assert!(
+        max_buckets % 2 == 1,
+        "num_buckets must be odd to have a symmetrical number of buckets around axis"
+    );
+    debug_assert!(max_buckets >= 3, "num_buckets must be at least 3");
 
-fn bucketize_isizes(num_buckets: usize, pts: &Vec<(Duration, isize)>) -> Vec<isize> {
-    let min = pts.iter().min_by_key(|(_, cnt)| *cnt).unwrap().1;
-    let max = pts.iter().max_by_key(|(_, cnt)| *cnt).unwrap().1;
-    // TODO Rounding is wrong. We need to make sure to cover the min/max range...
-    let step_size = ((max - min).abs() as f64) / (num_buckets as f64);
-    let mut buckets = Vec::new();
-    for i in 0..num_buckets {
-        buckets.push(min + ((i as f64) * step_size) as isize);
+    let positive_buckets = (max_buckets - 1) / 2;
+    // uniformly sized integer buckets
+    let max = match pts.iter().max_by_key(|(_, cnt)| cnt.abs()) {
+        Some(t) if (t.1.abs() as usize) >= positive_buckets => t.1.abs(),
+        _ => {
+            // Enforce a bucket width of at least 1.
+            let negative_buckets = positive_buckets as isize * -1;
+            return (negative_buckets..=(positive_buckets as isize + 1)).collect();
+        }
+    };
+
+    let bucket_size = (max as f64 / positive_buckets as f64).ceil() as isize;
+
+    // we start with a 0-based bucket, and build the other buckets out from that.
+    let mut buckets = vec![0];
+
+    for i in 0..=positive_buckets {
+        // the first positive bucket starts at `1`, to ensure that the 0 bucket stands alone
+        buckets.push(1 + (i as isize) * bucket_size);
     }
+    for i in 1..=positive_buckets {
+        buckets.push(-(i as isize) * bucket_size);
+    }
+    buckets.sort();
+    debug!("buckets: {:?}", buckets);
+
     buckets
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_bucketize_isizes() {
+        let buckets = bucketize_isizes(
+            7,
+            &vec![
+                (Duration::minutes(3), -3),
+                (Duration::minutes(3), -3),
+                (Duration::minutes(3), -1),
+                (Duration::minutes(3), 2),
+                (Duration::minutes(3), 5),
+            ],
+        );
+        // there should be an even number of buckets on either side of zero so as to center
+        // our x-axis.
+        //
+        // there should always be a 0-1 bucket, ensuring that only '0' falls into the zero-bucket.
+        //
+        // all other buckets edges should be evenly spaced from the zero bucket
+        assert_eq!(buckets, vec![-6, -4, -2, 0, 1, 3, 5, 7])
+    }
+
+    #[test]
+    fn test_bucketize_empty_isizes() {
+        let buckets = bucketize_isizes(7, &vec![]);
+        assert_eq!(buckets, vec![-2, -1, 0, 1, 2])
+    }
+
+    #[test]
+    fn test_bucketize_small_isizes() {
+        let buckets = bucketize_isizes(
+            7,
+            &vec![
+                (Duration::minutes(3), -1),
+                (Duration::minutes(3), -1),
+                (Duration::minutes(3), 0),
+                (Duration::minutes(3), -1),
+                (Duration::minutes(3), 0),
+            ],
+        );
+        assert_eq!(buckets, vec![-3, -2, -1, 0, 1, 2, 3, 4])
+    }
 }

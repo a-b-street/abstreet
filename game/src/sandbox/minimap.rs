@@ -148,7 +148,7 @@ fn make_agent_toggles(ctx: &mut EventCtx, app: &App, is_enabled: [bool; 4]) -> V
                 checkbox.build_batch(ctx).expect("invalid svg").0,
                 icon_batch.clone(),
             ]);
-            row.spacing(8.0);
+            row.set_spacing(8.0);
 
             let row_batch = row.batch();
             let bounds = row_batch.get_bounds();
@@ -168,7 +168,7 @@ fn make_agent_toggles(ctx: &mut EventCtx, app: &App, is_enabled: [bool; 4]) -> V
                 checkbox.build_batch(ctx).expect("invalid svg").0,
                 icon_batch,
             ]);
-            row.spacing(8.0);
+            row.set_spacing(8.0);
 
             let row_batch = row.batch();
             let bounds = row_batch.get_bounds();

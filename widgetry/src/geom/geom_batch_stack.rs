@@ -6,6 +6,13 @@ pub enum Axis {
     Vertical,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Alignment {
+    Center,
+    Top,
+    // TODO: Bottom, Left, Right
+}
+
 /// Similar to [`Widget::row`]/[`Widget::column`], but for [`GeomBatch`]s instead of [`Widget`]s,
 /// and follows a builder pattern
 ///
@@ -15,6 +22,7 @@ pub enum Axis {
 pub struct GeomBatchStack {
     batches: Vec<GeomBatch>,
     axis: Axis,
+    alignment: Alignment,
     spacing: f64,
 }
 
@@ -22,9 +30,8 @@ impl Default for GeomBatchStack {
     fn default() -> Self {
         GeomBatchStack {
             batches: vec![],
-            // TODO:
-            // alignment: Alignment::Center,
             axis: Axis::Horizontal,
+            alignment: Alignment::Center,
             spacing: 0.0,
         }
     }
@@ -47,10 +54,6 @@ impl GeomBatchStack {
         }
     }
 
-    pub fn set_axis(&mut self, new_value: Axis) {
-        self.axis = new_value;
-    }
-
     pub fn push(&mut self, geom_batch: GeomBatch) {
         self.batches.push(geom_batch);
     }
@@ -59,8 +62,16 @@ impl GeomBatchStack {
         self.batches.append(geom_batches);
     }
 
-    pub fn spacing(&mut self, spacing: f64) -> &mut Self {
-        self.spacing = spacing;
+    pub fn set_axis(&mut self, new_value: Axis) {
+        self.axis = new_value;
+    }
+
+    pub fn set_alignment(&mut self, new_value: Alignment) {
+        self.alignment = new_value;
+    }
+
+    pub fn set_spacing(&mut self, spacing: impl Into<f64>) -> &mut Self {
+        self.spacing = spacing.into();
         self
     }
 
@@ -83,9 +94,17 @@ impl GeomBatchStack {
         let mut stack_offset = 0.0;
         for mut batch in self.batches {
             let bounds = batch.get_bounds();
-            let alignment_inset = match self.axis {
-                Axis::Vertical => (max_bound_for_axis.width() - bounds.width()) / 2.0,
-                Axis::Horizontal => (max_bound_for_axis.height() - bounds.height()) / 2.0,
+            let alignment_inset = match (self.alignment, self.axis) {
+                (Alignment::Center, Axis::Vertical) => {
+                    (max_bound_for_axis.width() - bounds.width()) / 2.0
+                }
+                (Alignment::Center, Axis::Horizontal) => {
+                    (max_bound_for_axis.height() - bounds.height()) / 2.0
+                }
+                (Alignment::Top, Axis::Vertical) => {
+                    unreachable!("cannot top-align a vertical stack")
+                }
+                (Alignment::Top, Axis::Horizontal) => 0.0,
             };
 
             let (dx, dy) = match self.axis {

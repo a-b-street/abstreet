@@ -33,6 +33,7 @@ geom = { path = "../geom" }
 getrandom = { version = "0.2.2", optional = true }
 instant = "0.1.7"
 kml = { path = "../kml" }
+lazy_static = "1.4.0"
 log = "0.4.14"
 lttb = "0.2.0"
 maplit = "1.0.2"

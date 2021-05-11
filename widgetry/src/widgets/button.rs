@@ -656,7 +656,7 @@ impl<'b, 'a: 'b, 'c> ButtonBuilder<'a, 'c> {
         if let Some(stack_axis) = self.stack_axis {
             stack.set_axis(stack_axis);
         }
-        stack.spacing(self.stack_spacing);
+        stack.set_spacing(self.stack_spacing);
 
         let mut button_widget = stack
             .batch()

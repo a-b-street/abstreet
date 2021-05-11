@@ -414,11 +414,11 @@ impl Widget {
 
     /// Creates a row with the specified widgets. Every member gets a default horizontal margin.
     pub fn row(widgets: Vec<Widget>) -> Widget {
-        Widget::evenly_spaced_row(widgets, 10)
+        Widget::evenly_spaced_row(10, widgets)
     }
 
     /// Creates a row with the specified widgets, with a `spacing` sized margin between members
-    pub fn evenly_spaced_row(widgets: Vec<Widget>, spacing: usize) -> Widget {
+    pub fn evenly_spaced_row(spacing: usize, widgets: Vec<Widget>) -> Widget {
         let mut new = Vec::new();
         let len = widgets.len();
         // TODO Time for that is_last iterator?
@@ -437,8 +437,8 @@ impl Widget {
         Widget::new(Box::new(Container::new(false, widgets)))
     }
 
-    /// Creates a column with the specified widgets. Every member gets a default vertical margin.
-    pub fn col(widgets: Vec<Widget>) -> Widget {
+    /// Creates a column with the specified widgets, with a `spacing` sized margin between members
+    pub fn evenly_spaced_col(spacing: usize, widgets: Vec<Widget>) -> Widget {
         let mut new = Vec::new();
         let len = widgets.len();
         // TODO Time for that is_last iterator?
@@ -446,10 +446,15 @@ impl Widget {
             if idx == len - 1 {
                 new.push(w);
             } else {
-                new.push(w.margin_below(10));
+                new.push(w.margin_below(spacing));
             }
         }
         Widget::new(Box::new(Container::new(false, new)))
+    }
+
+    /// Creates a column with the specified widgets. Every member gets a default vertical margin.
+    pub fn col(widgets: Vec<Widget>) -> Widget {
+        Self::evenly_spaced_col(10, widgets)
     }
 
     pub fn nothing() -> Widget {

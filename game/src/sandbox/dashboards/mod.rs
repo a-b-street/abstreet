@@ -35,7 +35,7 @@ impl DashTab {
         let mut choices = vec![
             Choice::new("Trip Table", DashTab::TripTable),
             Choice::new("Trip Summaries", DashTab::TripSummaries),
-            Choice::new("Risk exposure", DashTab::RiskSummaries),
+            Choice::new("Risk Exposure", DashTab::RiskSummaries),
             Choice::new("Parking Overhead", DashTab::ParkingOverhead),
             Choice::new("Active Traffic", DashTab::ActiveTraffic),
             Choice::new("Transit Routes", DashTab::TransitRoutes),
@@ -73,7 +73,7 @@ impl DashTab {
             DashTab::TripSummaries => {
                 summaries::TripSummaries::new(ctx, app, summaries::Filter::new())
             }
-            DashTab::RiskSummaries => risks::RiskSummaries::new(ctx, app, risks::Filter::new()),
+            DashTab::RiskSummaries => risks::RiskSummaries::new(ctx, app, false),
             DashTab::ParkingOverhead => parking_overhead::ParkingOverhead::new(ctx, app),
             DashTab::ActiveTraffic => misc::ActiveTraffic::new(ctx, app),
             DashTab::TransitRoutes => misc::TransitRoutes::new(ctx, app),
