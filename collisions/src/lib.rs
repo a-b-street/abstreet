@@ -126,7 +126,7 @@ pub fn import_seattle(input: ExtraShapes, source_url: &str) -> CollisionDataset 
 
 // INCDTTM is something like "11/12/2019 7:30:00 AM"
 fn parse_incdttm(x: &str) -> Option<Duration> {
-    let parts = x.split(" ").collect::<Vec<_>>();
+    let parts = x.split(' ').collect::<Vec<_>>();
     if parts.len() != 3 {
         return None;
     }
