@@ -369,7 +369,7 @@
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
-        <span class="ident">SimpleState</span>::<span class="ident">new</span>(
+        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>(
             <span class="ident">panel</span>,
             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">ShowAbsolute</span> {
                 <span class="ident">members</span>,
@@ -458,7 +458,7 @@
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
-        <span class="ident">SimpleState</span>::<span class="ident">new</span>(
+        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>(
             <span class="ident">panel</span>,
             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">ShowRelative</span> {
                 <span class="ident">base</span>,
@@ -580,7 +580,7 @@
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         ]))
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
-        <span class="ident">SimpleState</span>::<span class="ident">new</span>(
+        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>(
             <span class="ident">panel</span>,
             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">TuneRelative</span> {
                 <span class="ident">i1</span>,

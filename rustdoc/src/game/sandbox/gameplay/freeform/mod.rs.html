@@ -701,7 +701,7 @@
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         );
 
-        <span class="ident">SimpleState</span>::<span class="ident">new</span>(
+        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>(
             <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>)).<span class="ident">build</span>(<span class="ident">ctx</span>),
             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">ChangeScenario</span>),
         )
