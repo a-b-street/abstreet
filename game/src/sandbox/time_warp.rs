@@ -58,14 +58,6 @@ impl JumpToTime {
                 },
                 Slider::area(ctx, slider_width, target.to_percent(end_of_day).min(1.0))
                     .named("time slider"),
-                Toggle::checkbox(
-                    ctx,
-                    "skip drawing (for faster simulations)",
-                    None,
-                    app.opts.dont_draw_time_warp,
-                )
-                .margin_above(30)
-                .named("don't draw"),
                 build_jump_to_time_btn(ctx, target),
             ])
         };
@@ -92,14 +84,6 @@ impl JumpToTime {
                 ),
                 Line("minute delay").small_heading().into_widget(ctx),
             ]),
-            Toggle::checkbox(
-                ctx,
-                "skip drawing (for faster simulations)",
-                None,
-                app.opts.dont_draw_time_warp,
-            )
-            .margin_above(30)
-            .named("don't draw"),
             build_jump_to_delay_button(ctx, app.opts.jump_to_delay),
         ]);
 
@@ -173,7 +157,6 @@ impl State<App> for JumpToTime {
                 }
             },
             Outcome::Changed(_) => {
-                app.opts.dont_draw_time_warp = self.panel.is_checked("don't draw");
                 if self.tabs.active_tab_idx() == 1 {
                     self.panel.replace(
                         ctx,
@@ -250,6 +233,13 @@ impl TimeWarpScreen {
             panel: Panel::new(
                 Widget::col(vec![
                     Text::new().into_widget(ctx).named("text"),
+                    Toggle::checkbox(
+                        ctx,
+                        "skip drawing (for faster simulations)",
+                        Key::Space,
+                        app.opts.dont_draw_time_warp,
+                    )
+                    .named("don't draw"),
                     ctx.style()
                         .btn_outline
                         .text("stop now")
@@ -355,6 +345,9 @@ impl State<App> for TimeWarpScreen {
         }
 
         match self.panel.event(ctx) {
+            Outcome::Changed(_) => {
+                app.opts.dont_draw_time_warp = self.panel.is_checked("don't draw");
+            }
             Outcome::Clicked(x) => match x.as_ref() {
                 "stop now" => {
                     return Transition::Pop;
