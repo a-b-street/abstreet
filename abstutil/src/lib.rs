@@ -3,6 +3,8 @@
 //! - Timer (a mix of logging, profiling, and even parallel execution)
 //! - true utility functions (collections, prettyprinting, CLI parsing
 
+#![allow(clippy::ptr_arg)]  // very noisy
+
 // I'm not generally a fan of wildcard exports, but they're more maintable here.
 pub use crate::serde::*;
 pub use cli::*;

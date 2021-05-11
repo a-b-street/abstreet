@@ -58,6 +58,10 @@ where
         self.map.len()
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.map.is_empty()
+    }
+
     pub fn borrow(&self) -> &BTreeMap<K, BTreeSet<V>> {
         &self.map
     }
@@ -229,6 +233,12 @@ impl<K: Clone + PartialEq, V> VecMap<K, V> {
     }
 }
 
+impl<K: Clone + PartialEq, V> Default for VecMap<K, V> {
+    fn default() -> Self {
+        VecMap::new()
+    }
+}
+
 /// Convenience functions around a string->string map
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Tags(BTreeMap<String, String>);
@@ -335,6 +345,12 @@ impl<K: IndexableKey, V> FixedMap<K, V> {
 
     pub fn values(&self) -> std::iter::Flatten<std::slice::Iter<'_, std::option::Option<V>>> {
         self.inner.iter().flatten()
+    }
+}
+
+impl<K: IndexableKey, V> Default for FixedMap<K, V> {
+    fn default() -> Self {
+        FixedMap::new()
     }
 }
 

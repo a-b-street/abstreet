@@ -136,6 +136,12 @@ impl CmdArgs {
     }
 }
 
+impl Default for CmdArgs {
+    fn default() -> Self {
+        CmdArgs::new()
+    }
+}
+
 #[cfg(target_arch = "wasm32")]
 /// Transform the URL query parameters into command-line arguments, by treating & as the separator
 /// between arguments. So for instance "?--dev&--color_scheme=night%20mode" becomes vec!["--dev",
