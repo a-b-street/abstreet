@@ -306,22 +306,24 @@ fn generate_manifest(truth: &Manifest) -> Manifest {
         Parallelism::Fastest,
         paths,
         |(orig_path, path)| {
-            let uncompressed_size_bytes = std::fs::metadata(&orig_path).unwrap().len();
-            // Always calculate the md5sum for files under 1GB.
-            let checksum = if uncompressed_size_bytes < 1024 * 1024 * 1024 {
-                md5sum(&orig_path)
-            } else if truth
-                .entries
-                .get(&path)
-                .map(|entry| entry.uncompressed_size_bytes == uncompressed_size_bytes)
-                .unwrap_or(false)
+            // If the file's modtime is newer than 3 hours or the uncompressed size has changed,
+            // calculate md5sum. Otherwise assume no change. This heuristic saves lots of time and
+            // doesn't stress my poor SSD as much.
+            let metadata = std::fs::metadata(&orig_path).unwrap();
+            let uncompressed_size_bytes = metadata.len();
+            let recent_modtime = metadata.modified().unwrap().elapsed().unwrap()
+                < std::time::Duration::from_secs(60 * 60 * 3);
+
+            let checksum = if recent_modtime
+                || truth
+                    .entries
+                    .get(&path)
+                    .map(|entry| entry.uncompressed_size_bytes != uncompressed_size_bytes)
+                    .unwrap_or(true)
             {
-                // For files larger than 1GB, don't recalculate the md5sum if the size hasn't
-                // changed. This saves substantial time for a few gigantic files in data/input that
-                // rarely change.
-                truth.entries[&path].checksum.clone()
-            } else {
                 md5sum(&orig_path)
+            } else {
+                truth.entries[&path].checksum.clone()
             };
             (
                 path,
