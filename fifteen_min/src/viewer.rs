@@ -40,10 +40,10 @@ impl Viewer {
     pub fn random_start(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let bldgs = app.map.all_buildings();
         let start = bldgs[bldgs.len() / 2].id;
-        Viewer::new(ctx, app, start)
+        Viewer::new_state(ctx, app, start)
     }
 
-    pub fn new(ctx: &mut EventCtx, app: &App, start: BuildingID) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App, start: BuildingID) -> Box<dyn State<App>> {
         if let Err(err) = URLManager::update_url_free_param(
             app.map
                 .get_name()
@@ -170,11 +170,11 @@ impl State<App> for Viewer {
                     return Transition::Push(Navigator::new(ctx, app));
                 }
                 "Find your perfect home" => {
-                    return Transition::Push(FindHome::new(ctx, self.isochrone.options.clone()));
+                    return Transition::Push(FindHome::new_state(ctx, self.isochrone.options.clone()));
                 }
                 x => {
                     if let Some(category) = x.strip_prefix("businesses: ") {
-                        return Transition::Push(ExploreAmenities::new(
+                        return Transition::Push(ExploreAmenities::new_state(
                             ctx,
                             app,
                             &self.isochrone,
@@ -255,6 +255,7 @@ fn options_to_controls(ctx: &mut EventCtx, opts: &Options) -> Widget {
 }
 
 fn options_from_controls(panel: &Panel) -> Options {
+    #![allow(clippy::or_fun_call)]
     if panel.is_checked("walking / biking") {
         Options::Walking(WalkingOptions {
             allow_shoulders: panel
@@ -276,13 +277,11 @@ fn draw_star(ctx: &mut EventCtx, b: &Building) -> GeomBatch {
 }
 
 fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isochrone) -> Panel {
-    let mut rows = Vec::new();
-
-    rows.push(
+    let mut rows = vec![
         Line("15-minute neighborhood explorer")
             .small_heading()
             .into_widget(ctx),
-    );
+    ];
 
     rows.push(
         ctx.style()
@@ -431,7 +430,7 @@ struct Entry {
 }
 
 impl ExploreAmenities {
-    fn new(
+    fn new_state(
         ctx: &mut EventCtx,
         app: &App,
         isochrone: &Isochrone,
@@ -515,7 +514,7 @@ impl State<App> for ExploreAmenities {
                     self.table.replace_render(ctx, app, &mut self.panel)
                 } else if x == "close" {
                     return Transition::Pop;
-                } else if let Some(idx) = x.split(":").next().and_then(|x| x.parse::<usize>().ok())
+                } else if let Some(idx) = x.split(':').next().and_then(|x| x.parse::<usize>().ok())
                 {
                     let b = app.map.get_b(BuildingID(idx));
                     open_browser(b.orig_id.to_string());
@@ -539,7 +538,7 @@ impl State<App> for ExploreAmenities {
         if let Some(x) = self
             .panel
             .currently_hovering()
-            .and_then(|x| x.split(":").next())
+            .and_then(|x| x.split(':').next())
             .and_then(|x| x.parse::<usize>().ok())
         {
             g.draw_polygon(Color::CYAN, app.map.get_b(BuildingID(x)).polygon.clone());

@@ -19,7 +19,7 @@ pub struct FindHome {
 }
 
 impl FindHome {
-    pub fn new(ctx: &mut EventCtx, options: Options) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, options: Options) -> Box<dyn State<App>> {
         let panel = Panel::new(Widget::col(vec![
             Widget::row(vec![
                 Line("Find your walkable home")
@@ -74,7 +74,7 @@ impl SimpleState<App> for FindHome {
                 let scores = ctx.loading_screen("search for houses", |_, timer| {
                     score_houses(app, amenities.clone(), self.options.clone(), timer)
                 });
-                return Transition::Push(Results::new(ctx, app, scores, amenities));
+                return Transition::Push(Results::new_state(ctx, app, scores, amenities));
             }
             _ => unreachable!(),
         }
@@ -129,7 +129,7 @@ struct Results {
 }
 
 impl Results {
-    fn new(
+    fn new_state(
         ctx: &mut EventCtx,
         app: &App,
         scores: HashMap<BuildingID, Percent>,
