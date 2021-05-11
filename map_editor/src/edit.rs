@@ -118,7 +118,7 @@ impl EditRoad {
         let panel = Panel::new(Widget::col(col))
             .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
             .build(ctx);
-        SimpleState::new(
+        <dyn SimpleState<_>>::new(
             panel,
             Box::new(EditRoad {
                 r,

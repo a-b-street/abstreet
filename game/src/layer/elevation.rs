@@ -29,7 +29,7 @@ impl Layer for SteepStreets {
             }
         }
 
-        Layer::simple_event(ctx, &mut self.panel)
+        <dyn Layer>::simple_event(ctx, &mut self.panel)
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
@@ -177,7 +177,7 @@ impl Layer for ElevationContours {
             }
         }
 
-        Layer::simple_event(ctx, &mut self.panel)
+        <dyn Layer>::simple_event(ctx, &mut self.panel)
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);

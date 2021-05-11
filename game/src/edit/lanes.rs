@@ -115,7 +115,7 @@ impl LaneEditor {
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx);
 
-        SimpleState::new(panel, Box::new(LaneEditor { l, mode }))
+        <dyn SimpleState<_>>::new(panel, Box::new(LaneEditor { l, mode }))
     }
 }
 

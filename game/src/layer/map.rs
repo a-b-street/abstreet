@@ -50,7 +50,7 @@ impl Layer for BikeActivity {
             self.tooltip = None;
         }
 
-        Layer::simple_event(ctx, &mut self.panel)
+        <dyn Layer>::simple_event(ctx, &mut self.panel)
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
@@ -180,7 +180,7 @@ impl Layer for Static {
         Some(self.name)
     }
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Option<LayerOutcome> {
-        Layer::simple_event(ctx, &mut self.panel)
+        <dyn Layer>::simple_event(ctx, &mut self.panel)
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
@@ -386,7 +386,7 @@ impl Layer for CongestionCaps {
             self.tooltip = None;
         }
 
-        Layer::simple_event(ctx, &mut self.panel)
+        <dyn Layer>::simple_event(ctx, &mut self.panel)
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);

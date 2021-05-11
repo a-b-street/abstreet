@@ -33,7 +33,7 @@ impl Layer for Backpressure {
             *self = Backpressure::new(ctx, app);
         }
 
-        Layer::simple_event(ctx, &mut self.panel)
+        <dyn Layer>::simple_event(ctx, &mut self.panel)
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
@@ -434,7 +434,7 @@ impl Layer for TrafficJams {
             *self = TrafficJams::new(ctx, app);
         }
 
-        Layer::simple_event(ctx, &mut self.panel)
+        <dyn Layer>::simple_event(ctx, &mut self.panel)
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);

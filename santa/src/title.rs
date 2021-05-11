@@ -21,7 +21,7 @@ impl TitleScreen {
             }
         }
 
-        SimpleState::new(
+        <dyn SimpleState<_>>::new(
             Panel::new(Widget::col(vec![
                 Line("15-minute Santa")
                     .display_title()
@@ -154,7 +154,7 @@ struct Credits;
 
 impl Credits {
     fn new(ctx: &mut EventCtx) -> Box<dyn State<App>> {
-        SimpleState::new(
+        <dyn SimpleState<_>>::new(
             Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("15-minute Santa").big_heading_plain().into_widget(ctx),

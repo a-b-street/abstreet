@@ -278,7 +278,7 @@ impl ChangeScenario {
                 .build_def(ctx),
         );
 
-        SimpleState::new(
+        <dyn SimpleState<_>>::new(
             Panel::new(Widget::col(col)).build(ctx),
             Box::new(ChangeScenario),
         )

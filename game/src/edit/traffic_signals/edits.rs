@@ -98,7 +98,7 @@ impl ChangeDuration {
                 .build_def(ctx),
         ]))
         .build(ctx);
-        SimpleState::new(panel, Box::new(ChangeDuration { idx }))
+        <dyn SimpleState<_>>::new(panel, Box::new(ChangeDuration { idx }))
     }
 }
 

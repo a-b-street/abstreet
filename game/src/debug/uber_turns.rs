@@ -46,7 +46,7 @@ impl UberTurnPicker {
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);
-        SimpleState::new(panel, Box::new(UberTurnPicker { members }))
+        <dyn SimpleState<_>>::new(panel, Box::new(UberTurnPicker { members }))
     }
 }
 
@@ -174,7 +174,7 @@ impl UberTurnViewer {
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);
-        SimpleState::new(
+        <dyn SimpleState<_>>::new(
             panel,
             Box::new(UberTurnViewer {
                 draw: ctx.upload(batch),

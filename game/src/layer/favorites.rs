@@ -61,7 +61,7 @@ impl Layer for ShowFavorites {
         Some("favorites")
     }
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Option<LayerOutcome> {
-        Layer::simple_event(ctx, &mut self.panel)
+        <dyn Layer>::simple_event(ctx, &mut self.panel)
     }
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.panel.draw(g);

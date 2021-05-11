@@ -44,7 +44,7 @@ impl FindHome {
         ]))
         .build(ctx);
 
-        SimpleState::new(panel, Box::new(FindHome { options }))
+        <dyn SimpleState<_>>::new(panel, Box::new(FindHome { options }))
     }
 }
 
@@ -169,7 +169,7 @@ impl Results {
         .aligned(HorizontalAlignment::RightInset, VerticalAlignment::TopInset)
         .build(ctx);
 
-        SimpleState::new(
+        <dyn SimpleState<_>>::new(
             panel,
             Box::new(Results {
                 draw_houses: ctx.upload(batch),

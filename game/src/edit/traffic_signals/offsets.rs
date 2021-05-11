@@ -53,7 +53,7 @@ impl ShowAbsolute {
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);
-        SimpleState::new(
+        <dyn SimpleState<_>>::new(
             panel,
             Box::new(ShowAbsolute {
                 members,
@@ -142,7 +142,7 @@ impl ShowRelative {
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);
-        SimpleState::new(
+        <dyn SimpleState<_>>::new(
             panel,
             Box::new(ShowRelative {
                 base,
@@ -264,7 +264,7 @@ impl TuneRelative {
                 .build_def(ctx),
         ]))
         .build(ctx);
-        SimpleState::new(
+        <dyn SimpleState<_>>::new(
             panel,
             Box::new(TuneRelative {
                 i1,

@@ -78,7 +78,7 @@ impl StopSignEditor {
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);
 
-        SimpleState::new(
+        <dyn SimpleState<_>>::new(
             panel,
             Box::new(StopSignEditor {
                 id,

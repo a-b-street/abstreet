@@ -113,7 +113,7 @@ impl Strategize {
         ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
         .build(ctx);
-        SimpleState::new(
+        <dyn SimpleState<_>>::new(
             panel,
             Box::new(Strategize {
                 unlock_messages,
@@ -194,7 +194,7 @@ impl Results {
             }
         }
 
-        SimpleState::new(
+        <dyn SimpleState<_>>::new(
             Panel::new(Widget::col(vec![
                 txt.into_widget(ctx),
                 ctx.style()

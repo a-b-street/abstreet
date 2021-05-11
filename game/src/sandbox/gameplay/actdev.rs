@@ -136,7 +136,10 @@ impl GameplayState for Actdev {
                         ctx.style().btn_outline.text("abstreet.org").build_def(ctx),
                     ]))
                     .build(ctx);
-                    Some(Transition::Push(SimpleState::new(panel, Box::new(About))))
+                    Some(Transition::Push(<dyn SimpleState<_>>::new(
+                        panel,
+                        Box::new(About),
+                    )))
                 }
                 "Follow someone" => {
                     if let Some((person, trip)) = find_active_trip(app) {
