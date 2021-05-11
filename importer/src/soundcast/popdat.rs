@@ -179,7 +179,8 @@ fn import_parcels(
         .zip(parcel_metadata.into_iter())
     {
         timer.next();
-        let gps = LonLat::new(x, y);
+        // This maybe got inverted with some new version of GDAL?!
+        let gps = LonLat::new(y, x);
         let pt = gps.to_pt(bounds);
         let osm_building = if bounds.contains(gps) {
             closest_bldg

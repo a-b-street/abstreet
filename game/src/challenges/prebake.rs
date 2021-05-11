@@ -27,7 +27,7 @@ pub fn prebake_all() {
     for name in vec![
         MapName::seattle("arboretum"),
         MapName::seattle("montlake"),
-        MapName::seattle("lakeslice"),
+        //MapName::seattle("lakeslice"),
         MapName::seattle("phinney"),
         MapName::seattle("qa"),
         MapName::seattle("rainier_valley"),
