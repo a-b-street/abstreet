@@ -54,6 +54,7 @@ impl Proposals {
                     ctx.style()
                         .btn_solid_primary
                         .text("Try out this proposal")
+                        .hotkey(Key::Enter)
                         .build_def(ctx),
                 );
 
@@ -66,11 +67,15 @@ impl Proposals {
                         .margin_below(10),
                 );
             } else {
+                let hotkey = Key::NUM_KEYS
+                    .get(proposals.len())
+                    .map(|key| widgetry::MultiKey::from(*key));
                 tab_buttons.push(
                     ctx.style()
                         .btn_outline
                         .text(&edits.proposal_description[0])
                         .no_tooltip()
+                        .hotkey(hotkey)
                         .build_widget(ctx, &name)
                         .margin_below(10),
                 );
