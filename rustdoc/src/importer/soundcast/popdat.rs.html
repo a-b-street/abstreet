@@ -333,6 +333,7 @@
 <span id="330">330</span>
 <span id="331">331</span>
 <span id="332">332</span>
+<span id="333">333</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -515,7 +516,8 @@
         .<span class="ident">zip</span>(<span class="ident">parcel_metadata</span>.<span class="ident">into_iter</span>())
     {
         <span class="ident">timer</span>.<span class="ident">next</span>();
-        <span class="kw">let</span> <span class="ident">gps</span> <span class="op">=</span> <span class="ident">LonLat</span>::<span class="ident">new</span>(<span class="ident">x</span>, <span class="ident">y</span>);
+        <span class="comment">// This maybe got inverted with some new version of GDAL?!</span>
+        <span class="kw">let</span> <span class="ident">gps</span> <span class="op">=</span> <span class="ident">LonLat</span>::<span class="ident">new</span>(<span class="ident">y</span>, <span class="ident">x</span>);
         <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">gps</span>.<span class="ident">to_pt</span>(<span class="ident">bounds</span>);
         <span class="kw">let</span> <span class="ident">osm_building</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">bounds</span>.<span class="ident">contains</span>(<span class="ident">gps</span>) {
             <span class="ident">closest_bldg</span>
