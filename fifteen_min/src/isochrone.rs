@@ -13,8 +13,8 @@ use crate::App;
 
 /// Represents the area reachable from a single building.
 pub struct Isochrone {
-    /// The center of the isochrone
-    pub start: BuildingID,
+    /// The center of the isochrone (can be multiple points)
+    pub start: Vec<BuildingID>,
     /// The options used to generate this isochrone
     pub options: Options,
     /// Colored polygon contours, uploaded to the GPU and ready for drawing
@@ -60,8 +60,8 @@ impl Options {
 }
 
 impl Isochrone {
-    pub fn new(ctx: &mut EventCtx, app: &App, start: BuildingID, options: Options) -> Isochrone {
-        let time_to_reach_building = options.clone().times_from_buildings(&app.map, vec![start]);
+    pub fn new(ctx: &mut EventCtx, app: &App, start: Vec<BuildingID>, options: Options) -> Isochrone {
+        let time_to_reach_building = options.clone().times_from_buildings(&app.map, start.clone());
 
         let mut amenities_reachable = MultiMap::new();
         let mut population = 0;
@@ -113,9 +113,11 @@ impl Isochrone {
             return None;
         }
 
+        // TODO Find a way to deal with paths when there are multiple starts
+        // right now hard coded self.start to the first starting point
         let req = PathRequest::between_buildings(
             map,
-            self.start,
+            self.start[0],
             to,
             match self.options {
                 Options::Walking(_) => PathConstraints::Pedestrian,

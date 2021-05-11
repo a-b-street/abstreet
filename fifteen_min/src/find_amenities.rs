@@ -60,8 +60,8 @@ impl SimpleState<App> for FindAmenity {
                     .filter(|at| panel.is_checked(&at.to_string()))
                     .collect();
 
-                let isochrones = create_isochrones(ctx, app, amenities[0], self.options.clone());
-                return Transition::Push(Results::new(ctx, app, isochrones, amenities[0]));
+                let multi_isochrone = create_multi_isochrone(ctx, app, amenities[0], self.options.clone());
+                return Transition::Push(Results::new(ctx, app, multi_isochrone, amenities[0]));
             }
             _ => unreachable!(),
         }
@@ -69,21 +69,22 @@ impl SimpleState<App> for FindAmenity {
 }
 
 /// For every one of the requested amenity on the map, draw an isochrone
-fn create_isochrones(
+fn create_multi_isochrone(
     ctx: &mut EventCtx,
     app: &App,
     category: AmenityType,
     options: Options,
-) -> Vec<Isochrone> {
+) -> Isochrone {
 
     let map = &app.map;
-    let mut isochrones: Vec<Isochrone> = Vec::new();
+    // For a category, find all matching stores
+    let mut stores = Vec::new();
     for b in map.all_buildings() {
         if b.has_amenity(category) {
-            isochrones.push(Isochrone::new(ctx, app, b.id, options.clone()));
+            stores.push(b.id);
         }
     }
-    isochrones
+    Isochrone::new(ctx, app, stores, options.clone())
 }
 
 struct Results {
@@ -94,7 +95,7 @@ impl Results {
     fn new(
         ctx: &mut EventCtx,
         app: &App,
-        isochrones: Vec<Isochrone>,
+        isochrone: Isochrone,
         category: AmenityType,
     ) -> Box<dyn State<App>> {
 
@@ -112,7 +113,7 @@ impl Results {
             .build(ctx);
 
         // TODO make this draw more than one
-        let batch = isochrones[0].draw_isochrone(app);
+        let batch = isochrone.draw_isochrone(app);
 
         SimpleState::new(
             panel,

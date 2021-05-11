@@ -58,7 +58,7 @@ impl Viewer {
 
         let options = Options::Walking(WalkingOptions::default());
         let start = app.map.get_b(start);
-        let isochrone = Isochrone::new(ctx, app, start.id, options);
+        let isochrone = Isochrone::new(ctx, app, vec![start.id], options);
         let highlight_start = draw_star(ctx, start);
         let panel = build_panel(ctx, app, start, &isochrone);
         let draw_unwalkable_roads = draw_unwalkable_roads(ctx, app, &isochrone.options);
@@ -122,7 +122,7 @@ impl State<App> for Viewer {
         if let Some((hover_id, _)) = self.hovering_on_bldg.key() {
             if ctx.normal_left_click() {
                 let start = app.map.get_b(hover_id);
-                self.isochrone = Isochrone::new(ctx, app, start.id, self.isochrone.options.clone());
+                self.isochrone = Isochrone::new(ctx, app, vec![start.id], self.isochrone.options.clone());
                 let star = draw_star(ctx, start);
                 self.highlight_start = ctx.upload(star);
                 self.panel = build_panel(ctx, app, start, &self.isochrone);
@@ -192,11 +192,11 @@ impl State<App> for Viewer {
             Outcome::Changed(_) => {
                 let options = options_from_controls(&self.panel);
                 self.draw_unwalkable_roads = draw_unwalkable_roads(ctx, app, &options);
-                self.isochrone = Isochrone::new(ctx, app, self.isochrone.start, options);
+                self.isochrone = Isochrone::new(ctx, app, vec![self.isochrone.start[0]], options);
                 self.panel = build_panel(
                     ctx,
                     app,
-                    app.map.get_b(self.isochrone.start),
+                    app.map.get_b(self.isochrone.start[0]),
                     &self.isochrone,
                 );
             }
@@ -448,7 +448,7 @@ impl ExploreAmenities {
         category: AmenityType,
     ) -> Box<dyn State<App>> {
         let mut batch = isochrone.draw_isochrone(app);
-        batch.append(draw_star(ctx, app.map.get_b(isochrone.start)));
+        batch.append(draw_star(ctx, app.map.get_b(isochrone.start[0])));
 
         let mut entries = Vec::new();
         for b in isochrone.amenities_reachable.get(category) {
