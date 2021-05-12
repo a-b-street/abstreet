@@ -25,7 +25,7 @@ pub struct Viewer {
 }
 
 impl Viewer {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         if let Err(err) = URLManager::update_url_free_param(
             app.map
                 .get_name()
@@ -298,7 +298,7 @@ impl State<App> for Viewer {
                         Box::new(|ctx, app| {
                             Transition::Multi(vec![
                                 Transition::Pop,
-                                Transition::Replace(Viewer::new(ctx, app)),
+                                Transition::Replace(Viewer::new_state(ctx, app)),
                             ])
                         }),
                     ));
