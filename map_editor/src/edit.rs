@@ -13,7 +13,7 @@ pub struct EditRoad {
 }
 
 impl EditRoad {
-    pub(crate) fn new(ctx: &mut EventCtx, app: &App, r: OriginalRoad) -> Box<dyn State<App>> {
+    pub(crate) fn new_state(ctx: &mut EventCtx, app: &App, r: OriginalRoad) -> Box<dyn State<App>> {
         let road = &app.model.map.roads[&r];
 
         let mut batch = GeomBatch::new();
