@@ -415,7 +415,7 @@ fn area_under_curve(raw: Vec<(Time, usize)>, width: f64, height: f64) -> Polygon
     }
     downsampled.push(Pt2D::new(width, height));
     downsampled.push(downsampled[0]);
-    Ring::must_new(downsampled).to_polygon()
+    Ring::must_new(downsampled).into_polygon()
 }
 
 // TODO Maybe color, put in helpers

@@ -132,7 +132,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
         let mut deduped = way.pts.clone();
         deduped.dedup();
         let polygon = if let Ok(ring) = Ring::new(deduped) {
-            ring.to_polygon()
+            ring.into_polygon()
         } else {
             continue;
         };
@@ -290,7 +290,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                 }
                 if let OsmID::Way(w) = member {
                     if let Ok(ring) = Ring::new(doc.ways[w].pts.clone()) {
-                        amenity_areas.push((ring.to_polygon(), amenity.clone()));
+                        amenity_areas.push((ring.into_polygon(), amenity.clone()));
                     }
                 }
             }

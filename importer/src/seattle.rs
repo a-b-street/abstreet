@@ -283,7 +283,7 @@ pub fn match_parcels_to_buildings(map: &mut Map, shapes: &ExtraShapes, timer: &m
                 .try_convert(&shape.points)
                 .and_then(|pts| Ring::new(pts).ok())
             {
-                let polygon = ring.to_polygon();
+                let polygon = ring.into_polygon();
                 quadtree
                     .insert_with_box(parcels_with_housing.len(), polygon.get_bounds().as_bbox());
                 parcels_with_housing.push((polygon, units));

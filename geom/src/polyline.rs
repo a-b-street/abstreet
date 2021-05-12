@@ -550,7 +550,7 @@ impl PolyLine {
         pts.extend(side2);
         pts.push(pts[0]);
         pts.dedup();
-        Some(Ring::must_new(pts).to_polygon())
+        Some(Ring::must_new(pts).into_polygon())
     }
 
     /// If the length is too short, just give up and make the thick line
@@ -610,7 +610,7 @@ impl PolyLine {
 
         pts.push(pts[0]);
         pts.dedup();
-        Ring::must_new(pts).to_polygon()
+        Ring::must_new(pts).into_polygon()
     }
 
     pub fn dashed_arrow(
@@ -668,10 +668,8 @@ impl PolyLine {
 
         // TODO Why is any of this necessary? Found a test case at the intersection geometry for
         // https://www.openstreetmap.org/node/274088813 where this made a huge difference!
-        if closest_intersection.is_none() {
-            if self.last_pt() == other.last_pt() {
-                return Some((self.last_pt(), self.last_line().angle()));
-            }
+        if closest_intersection.is_none() && self.last_pt() == other.last_pt() {
+            return Some((self.last_pt(), self.last_line().angle()));
         }
 
         closest_intersection

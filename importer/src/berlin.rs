@@ -90,7 +90,7 @@ pub fn distribute_residents(map: &mut map_model::Map, timer: &mut Timer) {
         {
             continue;
         }
-        let region = Ring::must_new(pts).to_polygon();
+        let region = Ring::must_new(pts).into_polygon();
         // Deterministically seed using the planning area's ID.
         let mut rng =
             XorShiftRng::seed_from_u64(shape.attributes["spatial_name"].parse::<u64>().unwrap());

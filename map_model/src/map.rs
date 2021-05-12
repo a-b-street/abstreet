@@ -160,7 +160,7 @@ impl Map {
                 Pt2D::new(1.0, 1.0),
                 Pt2D::new(0.0, 0.0),
             ])
-            .to_polygon(),
+            .into_polygon(),
             stop_signs: BTreeMap::new(),
             traffic_signals: BTreeMap::new(),
             gps_bounds: GPSBounds::new(),

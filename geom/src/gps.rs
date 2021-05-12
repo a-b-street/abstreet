@@ -134,7 +134,7 @@ impl LonLat {
             .split(", ")
         {
             let mut nums = Vec::new();
-            for x in pair.split(" ") {
+            for x in pair.split(' ') {
                 nums.push(x.parse::<f64>().ok()?);
             }
             if nums.len() != 2 {

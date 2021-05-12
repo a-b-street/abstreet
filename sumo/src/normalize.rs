@@ -131,7 +131,7 @@ impl Network {
         for junction in self.junctions.values_mut() {
             junction.pt = fix(&junction.pt);
             junction.shape =
-                Ring::must_new(junction.shape.points().iter().map(fix).collect()).to_polygon();
+                Ring::must_new(junction.shape.points().iter().map(fix).collect()).into_polygon();
         }
         for edge in self.normal_edges.values_mut() {
             edge.center_line =

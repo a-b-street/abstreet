@@ -286,13 +286,13 @@ fn generalized_trim_back(
     deduped = Pt2D::approx_dedupe(deduped, Distance::meters(0.1));
     deduped = close_off_polygon(deduped);
     if main_result.len() == deduped.len() {
-        Ok((Ring::must_new(main_result).to_polygon(), debug))
+        Ok((Ring::must_new(main_result).into_polygon(), debug))
     } else {
         warn!(
             "{}'s polygon has weird repeats, forcibly removing points",
             i
         );
-        Ok((Ring::must_new(deduped).to_polygon(), debug))
+        Ok((Ring::must_new(deduped).into_polygon(), debug))
     }
 
     // TODO Or always sort points? Helps some cases, hurts other for downtown Seattle.
@@ -356,7 +356,7 @@ fn deadend(
 
     endpts.dedup();
     Ok((
-        Ring::must_new(close_off_polygon(endpts)).to_polygon(),
+        Ring::must_new(close_off_polygon(endpts)).into_polygon(),
         Vec::new(),
     ))
 }
@@ -593,7 +593,7 @@ fn on_off_ramp(
     endpoints.sort_by_key(|pt| pt.angle_to(center).normalized_degrees() as i64);
     endpoints.dedup();
     Some((
-        Ring::must_new(close_off_polygon(endpoints)).to_polygon(),
+        Ring::must_new(close_off_polygon(endpoints)).into_polygon(),
         debug,
     ))
 

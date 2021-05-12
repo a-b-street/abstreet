@@ -283,7 +283,7 @@ fn parse_polygon<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Option<Polygo
     Ok(Some(
         Ring::new(pts)
             .map_err(serde::de::Error::custom)?
-            .to_polygon(),
+            .into_polygon(),
     ))
 }
 

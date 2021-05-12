@@ -162,7 +162,7 @@ impl DrawBuilding {
                                 wall2.pt1(),
                                 wall1.pt1(),
                             ])
-                            .to_polygon(),
+                            .into_polygon(),
                             wall_z,
                         );
                     }
@@ -174,7 +174,7 @@ impl DrawBuilding {
                         );
                     }
 
-                    bldg_batch.push_with_z(bldg_color, roof.clone().to_polygon(), roof_z);
+                    bldg_batch.push_with_z(bldg_color, roof.clone().into_polygon(), roof_z);
                     bldg_batch.push_with_z(
                         Color::BLACK,
                         roof.to_outline(Distance::meters(0.3)),

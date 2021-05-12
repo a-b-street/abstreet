@@ -92,7 +92,7 @@ impl Bounds {
             Pt2D::new(self.min_x, self.max_y),
             Pt2D::new(self.min_x, self.min_y),
         ])
-        .to_polygon()
+        .into_polygon()
     }
 
     /// The width of this boundary.
@@ -112,6 +112,12 @@ impl Bounds {
             self.min_x + self.width() / 2.0,
             self.min_y + self.height() / 2.0,
         )
+    }
+}
+
+impl Default for Bounds {
+    fn default() -> Self {
+        Bounds::new()
     }
 }
 
@@ -201,5 +207,11 @@ impl GPSBounds {
     /// is the same as the one used to originally produce the `Pt2D`s.
     pub fn convert_back(&self, pts: &Vec<Pt2D>) -> Vec<LonLat> {
         pts.iter().map(|pt| pt.to_gps(self)).collect()
+    }
+}
+
+impl Default for GPSBounds {
+    fn default() -> Self {
+        GPSBounds::new()
     }
 }

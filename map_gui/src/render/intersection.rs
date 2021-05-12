@@ -266,7 +266,7 @@ pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
                 ];
                 pts.push(pts[0]);
                 if let Ok(ring) = Ring::new(pts) {
-                    corners.push(ring.to_polygon());
+                    corners.push(ring.into_polygon());
                 }
             }
         }
@@ -376,7 +376,7 @@ fn make_octagon(center: Pt2D, radius: Distance, facing: Angle) -> Polygon {
             .map(|i| center.project_away(radius, facing.rotate_degs(22.5 + f64::from(i * 360 / 8))))
             .collect(),
     )
-    .to_polygon()
+    .into_polygon()
 }
 
 pub fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &ColorScheme) {

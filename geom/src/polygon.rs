@@ -37,7 +37,7 @@ impl Polygon {
         let indices = downsize(earcutr::earcut(&vertices, &Vec::new(), 2));
 
         Polygon {
-            points: orig_pts.clone(),
+            points: orig_pts,
             indices,
             rings: None,
         }
@@ -49,7 +49,7 @@ impl Polygon {
             .iter()
             .map(|ring| {
                 ring.points()
-                    .into_iter()
+                    .iter()
                     .map(|pt| vec![pt.x(), pt.y()])
                     .collect()
             })
@@ -290,7 +290,7 @@ impl Polygon {
         // If the radius was maximized, then some of the edges will be zero length.
         pts.dedup();
 
-        Some(Ring::must_new(pts).to_polygon())
+        Some(Ring::must_new(pts).into_polygon())
     }
 
     /// A rectangle, two sides of which are fully rounded half-circles.
@@ -386,7 +386,7 @@ impl Polygon {
         let ring = Ring::must_new(self.points.clone());
         let hits = ring.all_intersections(input);
 
-        if hits.len() == 0 {
+        if hits.is_empty() {
             // All the points must be inside, or none
             if self.contains_pt(input.first_pt()) {
                 Some(input.points().clone())
@@ -417,7 +417,7 @@ impl Polygon {
         let ring = Ring::must_new(self.points.clone());
         let hits = ring.all_intersections(&PolyLine::unchecked_new(input.clone().into_points()));
 
-        if hits.len() == 0 {
+        if hits.is_empty() {
             // If the first point is inside, then all must be
             if self.contains_pt(input.points()[0]) {
                 return Some(input.points().clone());

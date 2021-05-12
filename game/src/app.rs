@@ -907,7 +907,7 @@ fn add_study_area(map: &mut Map, name: &str) -> Result<()> {
                         }
 
                         if let Ok(ring) = Ring::new(pts) {
-                            map.hack_add_area(AreaType::StudyArea, ring.to_polygon(), tags);
+                            map.hack_add_area(AreaType::StudyArea, ring.into_polygon(), tags);
                         }
                     }
                 }

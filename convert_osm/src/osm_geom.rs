@@ -37,7 +37,7 @@ pub fn glue_multipolygon(
     let mut polygons: Vec<Polygon> = Vec::new();
     pts_per_way.retain(|(_, pts)| {
         if let Ok(ring) = Ring::new(pts.clone()) {
-            polygons.push(ring.to_polygon());
+            polygons.push(ring.into_polygon());
             false
         } else {
             true
@@ -81,7 +81,7 @@ pub fn glue_multipolygon(
 
     result.dedup();
     if let Ok(ring) = Ring::new(result.clone()) {
-        polygons.push(ring.to_polygon());
+        polygons.push(ring.into_polygon());
         return polygons;
     }
     if result.len() < 2 {
@@ -94,7 +94,7 @@ pub fn glue_multipolygon(
             } else {
                 // Give up and just connect the ends directly.
                 result.push(result[0]);
-                polygons.push(Ring::must_new(result).to_polygon());
+                polygons.push(Ring::must_new(result).into_polygon());
             }
         }
         Err(err) => {
@@ -124,7 +124,7 @@ fn glue_to_boundary(result_pl: PolyLine, boundary: &Ring) -> Option<Polygon> {
         trimmed_pts.pop();
         trimmed_pts.extend(boundary_glue.reversed().into_points());
     }
-    Some(Ring::must_new(trimmed_pts).to_polygon())
+    Some(Ring::must_new(trimmed_pts).into_polygon())
 }
 
 pub fn multipoly_geometry(rel_id: RelationID, rel: &Relation, doc: &Document) -> Result<Polygon> {

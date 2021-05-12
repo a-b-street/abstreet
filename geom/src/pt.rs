@@ -132,9 +132,8 @@ impl Pt2D {
     ) -> Option<Vec<Pt2D>> {
         let mut result = Vec::new();
         for pt in pts {
-            if result.is_empty() && pt.approx_eq(start, threshold) {
-                result.push(*pt);
-            } else if !result.is_empty() {
+            if (result.is_empty() && pt.approx_eq(start, threshold)) ||
+               (!result.is_empty()) {
                 result.push(*pt);
             }
             // start and end might be the same.

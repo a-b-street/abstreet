@@ -49,7 +49,7 @@ impl Ring {
         PolyLine::unchecked_new(self.pts.clone()).make_polygons(thickness)
     }
 
-    pub fn to_polygon(self) -> Polygon {
+    pub fn into_polygon(self) -> Polygon {
         Polygon::with_holes(self, Vec::new())
     }
 

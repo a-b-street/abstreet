@@ -32,7 +32,7 @@ impl City {
             let pts = LonLat::read_osmosis_polygon(&path).unwrap();
             (
                 MapName::from_city(&city_name, &abstutil::basename(path)),
-                Ring::must_new(huge_map.get_gps_bounds().convert(&pts)).to_polygon(),
+                Ring::must_new(huge_map.get_gps_bounds().convert(&pts)).into_polygon(),
             )
         })
         .collect::<Vec<_>>();
@@ -79,7 +79,7 @@ impl City {
 
         let mut districts = Vec::new();
         for (name, pts) in boundary_per_district {
-            districts.push((name, Ring::must_new(gps_bounds.convert(&pts)).to_polygon()));
+            districts.push((name, Ring::must_new(gps_bounds.convert(&pts)).into_polygon()));
         }
         // Just a sort of z-ordering hack so that the largest encompassing district isn't first
         // later in the UI picker.
@@ -96,7 +96,7 @@ impl City {
                 let pts = map.gps_bounds.convert_back(area.polygon.points());
                 // TODO Holes in the polygons get lost
                 if let Ok(ring) = Ring::new(gps_bounds.convert(&pts)) {
-                    areas.push((area.area_type, ring.to_polygon()));
+                    areas.push((area.area_type, ring.into_polygon()));
                 }
             }
         }

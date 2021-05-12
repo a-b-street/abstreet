@@ -466,7 +466,7 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
             Pt2D::new(x1, y1),
         ]) {
             if let Some(color) = app.cs().minimap_cursor_bg {
-                g.draw_polygon(color, rect.clone().to_polygon());
+                g.draw_polygon(color, rect.clone().into_polygon());
             }
             g.draw_polygon(
                 app.cs().minimap_cursor_border,

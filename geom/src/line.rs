@@ -88,6 +88,7 @@ impl Line {
 
     /// Determine if two line segments intersect, but more so than just two endpoints touching.
     pub fn crosses(&self, other: &Line) -> bool {
+        #[allow(clippy::suspicious_operation_groupings)]  // false positive
         if self.pt1() == other.pt1()
             || self.pt1() == other.pt2()
             || self.pt2() == other.pt1()
@@ -175,7 +176,7 @@ impl Line {
         )
     }
     pub fn percent_along(&self, percent: f64) -> Option<Pt2D> {
-        if percent < 0.0 || percent > 1.0 {
+        if !(0.0..=1.0).contains(&percent) {
             return None;
         }
         Some(self.unbounded_percent_along(percent))
@@ -233,6 +234,7 @@ impl InfiniteLine {
     // https://stackoverflow.com/a/565282 by way of
     // https://github.com/ucarion/line_intersection/blob/master/src/lib.rs
     pub fn intersection(&self, other: &InfiniteLine) -> Option<Pt2D> {
+        #![allow(clippy::many_single_char_names)]
         fn cross(a: (f64, f64), b: (f64, f64)) -> f64 {
             a.0 * b.1 - a.1 * b.0
         }

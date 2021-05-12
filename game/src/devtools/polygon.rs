@@ -118,7 +118,7 @@ impl State<App> for PolygonEditor {
         if pts.len() >= 3 {
             let mut pts = pts.clone();
             pts.push(pts[0]);
-            g.draw_polygon(POLYGON_COLOR, Ring::must_new(pts).to_polygon());
+            g.draw_polygon(POLYGON_COLOR, Ring::must_new(pts).into_polygon());
         }
         for (idx, pt) in pts.iter().enumerate() {
             let color = if Some(idx) == self.mouseover_pt {

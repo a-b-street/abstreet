@@ -297,7 +297,7 @@ fn make_object(
     } else if let Ok(ring) = Ring::new(pts.clone()) {
         if attribs.get("spatial_type") == Some(&"Polygon".to_string()) {
             color = cs.rotating_color_plot(obj_idx).alpha(0.8);
-            ring.to_polygon()
+            ring.into_polygon()
         } else {
             ring.to_outline(THICKNESS)
         }

@@ -39,12 +39,14 @@ impl Circle {
 
     /// Renders the circle as a polygon.
     pub fn to_polygon(&self) -> Polygon {
-        self.to_ring().to_polygon()
+        self.to_ring().into_polygon()
     }
 
     /// Renders some percent, between [0, 1], of the circle as a polygon. The polygon starts from 0
     /// degrees. Be warned the resulting polygon doesn't have a ring as its boundary!
     pub fn to_partial_polygon(&self, percent_full: f64) -> Polygon {
+        #![allow(clippy::float_cmp)]
+        assert!((0. ..= 1.).contains(&percent_full));
         let mut pts = vec![self.center];
         let mut indices = Vec::new();
         for i in 0..TRIANGLES_PER_CIRCLE {
