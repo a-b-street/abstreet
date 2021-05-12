@@ -132,7 +132,7 @@ impl SimpleState<App> for Strategize {
                     Transition::Replace(TitleScreen::new(ctx, app)),
                 ];
                 if let Some(msgs) = self.unlock_messages.take() {
-                    transitions.push(Transition::Push(PopupMsg::new(
+                    transitions.push(Transition::Push(PopupMsg::new_state(
                         ctx,
                         "Level complete!",
                         msgs,

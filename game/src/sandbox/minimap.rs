@@ -71,7 +71,7 @@ impl MinimapControls<App> for MinimapController {
     fn panel_clicked(&self, ctx: &mut EventCtx, app: &mut App, action: &str) -> Option<Transition> {
         match action {
             "search" => {
-                return Some(Transition::Push(Navigator::new(ctx, app)));
+                return Some(Transition::Push(Navigator::new_state(ctx, app)));
             }
             "zoom out fully" => {
                 return Some(Transition::Push(Warping::new_state(

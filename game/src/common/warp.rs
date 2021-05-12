@@ -156,7 +156,7 @@ pub fn warp_to_id(ctx: &mut EventCtx, app: &mut App, input: &str) -> Transition 
     if let Some(t) = inner_warp_to_id(ctx, app, input) {
         t
     } else {
-        Transition::Replace(PopupMsg::new(
+        Transition::Replace(PopupMsg::new_state(
             ctx,
             "Bad warp ID",
             vec![format!("{} isn't a valid ID", input)],

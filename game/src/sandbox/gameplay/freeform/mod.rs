@@ -58,7 +58,7 @@ impl GameplayState for Freeform {
     ) -> Option<Transition> {
         match self.top_right.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "change map" => Some(Transition::Push(CityPicker::new(
+                "change map" => Some(Transition::Push(CityPicker::new_state(
                     ctx,
                     app,
                     Box::new(|_, app| {
@@ -86,7 +86,7 @@ impl GameplayState for Freeform {
                 "Start a new trip" => {
                     Some(Transition::Push(spawner::AgentSpawner::new_state(ctx, app, None)))
                 }
-                "Record trips as a scenario" => Some(Transition::Push(PromptInput::new(
+                "Record trips as a scenario" => Some(Transition::Push(PromptInput::new_state(
                     ctx,
                     "Name this scenario",
                     String::new(),
@@ -95,7 +95,7 @@ impl GameplayState for Freeform {
                             app.primary.map.get_name(),
                             &name,
                         )) {
-                            Transition::Push(PopupMsg::new(
+                            Transition::Push(PopupMsg::new_state(
                                 ctx,
                                 "Error",
                                 vec![format!(

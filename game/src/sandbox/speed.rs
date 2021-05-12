@@ -382,7 +382,7 @@ impl TimePanel {
                             mode.clone(),
                         )));
                     } else {
-                        return Some(Transition::Push(PopupMsg::new(
+                        return Some(Transition::Push(PopupMsg::new_state(
                             ctx,
                             "Error",
                             vec!["Sorry, you can't go rewind time from this mode."],
@@ -413,7 +413,7 @@ impl TimePanel {
                     )));
                 }
                 "see why results are tentative" => {
-                    return Some(Transition::Push(PopupMsg::new(
+                    return Some(Transition::Push(PopupMsg::new_state(
                         ctx,
                         "Simulation results not finalized",
                         vec![
@@ -498,7 +498,7 @@ impl TimePanel {
         // TODO Need to do this anywhere that steps the sim, like TimeWarpScreen.
         let alerts = app.primary.sim.clear_alerts();
         if !alerts.is_empty() {
-            let popup = PopupMsg::new(
+            let popup = PopupMsg::new_state(
                 ctx,
                 "Alerts",
                 alerts.iter().map(|(_, _, msg)| msg).collect(),

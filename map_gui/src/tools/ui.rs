@@ -15,7 +15,7 @@ pub struct ChooseSomething<A: AppLike, T> {
 }
 
 impl<A: AppLike + 'static, T: 'static> ChooseSomething<A, T> {
-    pub fn new<I: Into<String>>(
+    pub fn new_state<I: Into<String>>(
         ctx: &mut EventCtx,
         query: I,
         choices: Vec<Choice<T>>,
@@ -71,7 +71,7 @@ pub struct PromptInput<A: AppLike> {
 }
 
 impl<A: AppLike + 'static> PromptInput<A> {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         query: &str,
         initial: String,
@@ -134,7 +134,7 @@ pub struct PopupMsg {
 }
 
 impl PopupMsg {
-    pub fn new<A: AppLike>(
+    pub fn new_state<A: AppLike>(
         ctx: &mut EventCtx,
         title: &str,
         lines: Vec<impl AsRef<str>>,

@@ -154,7 +154,7 @@ impl GameplayState for Actdev {
                         );
                         None
                     } else {
-                        return Some(Transition::Push(PopupMsg::new(
+                        return Some(Transition::Push(PopupMsg::new_state(
                             ctx,
                             "Nobody's around...",
                             vec!["There are no active trips right now"],

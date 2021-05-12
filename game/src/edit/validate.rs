@@ -154,6 +154,6 @@ pub fn try_change_lt(
     if errors.is_empty() {
         Ok(cmd)
     } else {
-        Err(PopupMsg::new(ctx, "Error", errors))
+        Err(PopupMsg::new_state(ctx, "Error", errors))
     }
 }

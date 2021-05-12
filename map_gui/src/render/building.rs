@@ -113,7 +113,7 @@ impl DrawBuilding {
                 let closest_pt = bldg
                     .polygon
                     .points()
-                    .into_iter()
+                    .iter()
                     .min_by(|a, b| distance(a).cmp(&distance(b)));
 
                 let distance_from_projection_axis = closest_pt
@@ -243,7 +243,7 @@ impl Renderable for DrawBuilding {
             if label.is_none() {
                 let mut batch = GeomBatch::new();
                 let b = app.map().get_b(self.id);
-                if let Some(a) = b.amenities.iter().next() {
+                if let Some(a) = b.amenities.get(0) {
                     let mut txt = Text::from(
                         Line(a.names.get(app.opts().language.as_ref())).fg(Color::BLACK),
                     );

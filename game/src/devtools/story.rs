@@ -181,7 +181,7 @@ impl State<App> for StoryMapEditor {
                 }
                 "save" => {
                     if self.story.name == "new story" {
-                        return Transition::Push(PromptInput::new(
+                        return Transition::Push(PromptInput::new_state(
                             ctx,
                             "Name this story map",
                             String::new(),
@@ -226,7 +226,7 @@ impl State<App> for StoryMapEditor {
                         },
                     ));
 
-                    return Transition::Push(ChooseSomething::new(
+                    return Transition::Push(ChooseSomething::new_state(
                         ctx,
                         "Load story",
                         choices,

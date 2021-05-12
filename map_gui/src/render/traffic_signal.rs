@@ -270,6 +270,7 @@ pub fn dont_walk_icon(movement: &Movement, prerender: &Prerender) -> GeomBatch {
 // TODO Kind of a hack to know that the second point is a better center.
 // Returns (center, angle)
 fn crosswalk_icon(geom: &PolyLine) -> (Pt2D, Angle) {
+    #![allow(clippy::or_fun_call)]
     let l = Line::must_new(geom.points()[1], geom.points()[2]);
     (
         l.dist_along(Distance::meters(1.0)).unwrap_or(l.pt1()),

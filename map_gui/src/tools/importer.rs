@@ -19,7 +19,7 @@ pub struct ImportCity<A: AppLike> {
 }
 
 impl<A: AppLike + 'static> ImportCity<A> {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         on_load: Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>,
     ) -> Box<dyn State<A>> {
@@ -104,7 +104,7 @@ impl<A: AppLike + 'static> State<A> for ImportCity<A> {
                         args.push("--drive_on_left".to_string());
                     }
                     match grab_geojson_from_clipboard() {
-                        Ok(()) => Transition::Push(crate::tools::RunCommand::new(
+                        Ok(()) => Transition::Push(crate::tools::RunCommand::new_state(
                             ctx,
                             app,
                             args,
@@ -120,7 +120,7 @@ impl<A: AppLike + 'static> State<A> for ImportCity<A> {
                                         // line.
                                         let name =
                                             MapName::new("zz", "oneshot", &lines.pop().unwrap());
-                                        vec![MapLoader::new(ctx, app, name, on_load)]
+                                        vec![MapLoader::new_state(ctx, app, name, on_load)]
                                     }))
                                 } else {
                                     // The popup already explained the failure
@@ -128,7 +128,7 @@ impl<A: AppLike + 'static> State<A> for ImportCity<A> {
                                 }
                             }),
                         )),
-                        Err(err) => Transition::Push(PopupMsg::new(
+                        Err(err) => Transition::Push(PopupMsg::new_state(
                             ctx,
                             "Error",
                             vec![

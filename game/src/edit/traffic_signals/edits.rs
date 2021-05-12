@@ -205,12 +205,12 @@ pub fn edit_entire_signal(
         choices.push(gmns);
     }
 
-    ChooseSomething::new(
+    ChooseSomething::new_state(
         ctx,
         "What do you want to change?",
         Choice::strings(choices),
         Box::new(move |x, ctx, app| match x.as_str() {
-            x if x == use_template => Transition::Replace(ChooseSomething::new(
+            x if x == use_template => Transition::Replace(ChooseSomething::new_state(
                 ctx,
                 "Use which preset for this intersection?",
                 Choice::from(ControlTrafficSignal::get_possible_policies(
@@ -241,7 +241,7 @@ pub fn edit_entire_signal(
                     }
                 })),
             ]),
-            x if x == major_minor_timing => Transition::Replace(ChooseSomething::new(
+            x if x == major_minor_timing => Transition::Replace(ChooseSomething::new_state(
                 ctx,
                 "Use what timing split?",
                 vec![
@@ -268,7 +268,7 @@ pub fn edit_entire_signal(
                             })),
                         ]),
                         Err(err) => {
-                            Transition::Replace(PopupMsg::new(ctx, "Error", vec![err.to_string()]))
+                            Transition::Replace(PopupMsg::new_state(ctx, "Error", vec![err.to_string()]))
                         }
                     }
                 }),
@@ -334,7 +334,7 @@ pub fn edit_entire_signal(
                         });
                     })),
                     Err(err) => {
-                        Transition::Push(PopupMsg::new(ctx, "Error", vec![err.to_string()]))
+                        Transition::Push(PopupMsg::new_state(ctx, "Error", vec![err.to_string()]))
                     }
                 },
             ]),

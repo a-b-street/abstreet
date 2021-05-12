@@ -57,7 +57,7 @@ impl TutorialPointer {
 impl Tutorial {
     /// Launches the tutorial gameplay along with its cutscene
     pub fn start(ctx: &mut EventCtx, app: &mut App) -> Transition {
-        Transition::Push(MapLoader::new(
+        Transition::Push(MapLoader::new_state(
             ctx,
             app,
             MapName::seattle("montlake"),
@@ -291,7 +291,7 @@ impl Tutorial {
                 if !tut.score_delivered {
                     tut.score_delivered = true;
                     if before == after {
-                        return Some(Transition::Push(PopupMsg::new(
+                        return Some(Transition::Push(PopupMsg::new_state(
                             ctx,
                             "All trips completed",
                             vec![
@@ -301,7 +301,7 @@ impl Tutorial {
                         )));
                     }
                     if after > before {
-                        return Some(Transition::Push(PopupMsg::new(
+                        return Some(Transition::Push(PopupMsg::new_state(
                             ctx,
                             "All trips completed",
                             vec![
@@ -316,7 +316,7 @@ impl Tutorial {
                         )));
                     }
                     if before - after < CAR_BIKE_CONTENTION_GOAL {
-                        return Some(Transition::Push(PopupMsg::new(
+                        return Some(Transition::Push(PopupMsg::new_state(
                             ctx,
                             "All trips completed",
                             vec![
@@ -330,7 +330,7 @@ impl Tutorial {
                             ],
                         )));
                     }
-                    return Some(Transition::Push(PopupMsg::new(
+                    return Some(Transition::Push(PopupMsg::new_state(
                         ctx,
                         "All trips completed",
                         vec![format!(
@@ -1304,13 +1304,13 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: &str) -> Trans
             if c == ESCORT {
                 if is_parked {
                     tut.prank_done = true;
-                    PopupMsg::new(
+                    PopupMsg::new_state(
                         ctx,
                         "Prank in progress",
                         vec!["You quickly scribble on the window..."],
                     )
                 } else {
-                    PopupMsg::new(
+                    PopupMsg::new_state(
                         ctx,
                         "Not yet!",
                         vec![
@@ -1321,7 +1321,7 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: &str) -> Trans
                     )
                 }
             } else if c.vehicle_type == VehicleType::Bike {
-                PopupMsg::new(
+                PopupMsg::new_state(
                     ctx,
                     "That's a bike",
                     vec![
@@ -1332,7 +1332,7 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: &str) -> Trans
                     ],
                 )
             } else {
-                PopupMsg::new(
+                PopupMsg::new_state(
                     ctx,
                     "Wrong car",
                     vec![
@@ -1349,7 +1349,7 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: &str) -> Trans
                 let percent = (app.primary.sim.get_free_onstreet_spots(l).len() as f64)
                     / (lane.number_parking_spots(app.primary.map.get_config()) as f64);
                 if percent > 0.1 {
-                    PopupMsg::new(
+                    PopupMsg::new_state(
                         ctx,
                         "Not quite",
                         vec![
@@ -1360,14 +1360,14 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: &str) -> Trans
                     )
                 } else {
                     tut.parking_found = true;
-                    PopupMsg::new(
+                    PopupMsg::new_state(
                         ctx,
                         "Noice",
                         vec!["Yup, parallel parking would be tough here!"],
                     )
                 }
             } else {
-                PopupMsg::new(ctx, "Uhh..", vec!["That's not even a parking lane"])
+                PopupMsg::new_state(ctx, "Uhh..", vec!["That's not even a parking lane"])
             }
         }
         _ => unreachable!(),

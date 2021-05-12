@@ -145,7 +145,7 @@ impl State<App> for JumpToTime {
                                 }),
                             ));
                         } else {
-                            return Transition::Replace(PopupMsg::new(
+                            return Transition::Replace(PopupMsg::new_state(
                                 ctx,
                                 "Error",
                                 vec!["Sorry, you can't go rewind time from this mode."],
@@ -278,7 +278,7 @@ impl State<App> for TimeWarpScreen {
             #[allow(clippy::never_loop)]
             for (t, maybe_i, alert) in app.primary.sim.clear_alerts() {
                 // TODO Just the first :(
-                return Transition::Replace(PopupMsg::new(
+                return Transition::Replace(PopupMsg::new_state(
                     ctx,
                     "Alert",
                     vec![format!("At {}, near {:?}, {}", t, maybe_i, alert)],

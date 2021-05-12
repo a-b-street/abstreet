@@ -96,7 +96,7 @@ impl State<App> for DevToolsMode {
                     return Transition::Pop;
                 }
                 "edit a polygon" => {
-                    return Transition::Push(ChooseSomething::new(
+                    return Transition::Push(ChooseSomething::new_state(
                         ctx,
                         "Choose a polygon",
                         // This directory won't exist on the web or for binary releases, only for
@@ -132,7 +132,7 @@ impl State<App> for DevToolsMode {
                     ));
                 }
                 "load scenario" => {
-                    return Transition::Push(ChooseSomething::new(
+                    return Transition::Push(ChooseSomething::new_state(
                         ctx,
                         "Choose a scenario",
                         Choice::strings(abstio::list_all_objects(abstio::path_all_scenarios(
@@ -157,7 +157,7 @@ impl State<App> for DevToolsMode {
                     return Transition::Push(collisions::CollisionsViewer::new_state(ctx, app));
                 }
                 "change map" => {
-                    return Transition::Push(CityPicker::new(
+                    return Transition::Push(CityPicker::new_state(
                         ctx,
                         app,
                         Box::new(|ctx, app| {

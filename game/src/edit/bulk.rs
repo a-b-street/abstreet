@@ -86,7 +86,7 @@ impl State<App> for BulkSelect {
                         self.selector.intersections.iter().cloned().collect(),
                         &app.primary.map,
                     );
-                    return Transition::Push(PopupMsg::new(
+                    return Transition::Push(PopupMsg::new_state(
                         ctx,
                         "Roads exported",
                         vec![format!("Roads exported to shared-row format at {}", path)],
@@ -97,7 +97,7 @@ impl State<App> for BulkSelect {
                         *self.selector.roads.iter().next().unwrap(),
                         &app.primary.map,
                     );
-                    return Transition::Push(PopupMsg::new(
+                    return Transition::Push(PopupMsg::new_state(
                         ctx,
                         "One road exported",
                         vec![format!(
@@ -113,7 +113,7 @@ impl State<App> for BulkSelect {
                         osm_ids.insert(app.primary.map.get_r(*r).orig_id.osm_way_id);
                     }
                     abstio::write_json("osm_ways.json".to_string(), &osm_ids);
-                    return Transition::Push(PopupMsg::new(
+                    return Transition::Push(PopupMsg::new_state(
                         ctx,
                         "List of roads exported",
                         vec!["Wrote osm_ways.json"],
@@ -373,5 +373,5 @@ fn make_bulk_edits(
         errors.len()
     ));
 
-    PopupMsg::new(ctx, "Edited roads", results)
+    PopupMsg::new_state(ctx, "Edited roads", results)
 }

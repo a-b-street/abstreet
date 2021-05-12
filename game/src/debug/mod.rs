@@ -225,7 +225,7 @@ impl State<App> for DebugMode {
                                     app.recalculate_current_selection(ctx);
                                     None
                                 }
-                                None => Some(Transition::Push(PopupMsg::new(
+                                None => Some(Transition::Push(PopupMsg::new_state(
                                     ctx,
                                     "Error",
                                     vec![format!(
@@ -252,7 +252,7 @@ impl State<App> for DebugMode {
                                 app.recalculate_current_selection(ctx);
                                 None
                             }
-                            None => Some(Transition::Push(PopupMsg::new(
+                            None => Some(Transition::Push(PopupMsg::new_state(
                                 ctx,
                                 "Error",
                                 vec![format!("Couldn't load next savestate {:?}", next_state)],
@@ -263,7 +263,7 @@ impl State<App> for DebugMode {
                     }
                 }
                 "pick a savestate to load" => {
-                    return Transition::Push(ChooseSomething::new(
+                    return Transition::Push(ChooseSomething::new_state(
                         ctx,
                         "Load which savestate?",
                         Choice::strings(abstio::list_all_objects(app.primary.sim.save_dir())),
@@ -286,7 +286,7 @@ impl State<App> for DebugMode {
                     self.reset_info(ctx);
                 }
                 "search OSM metadata" => {
-                    return Transition::Push(PromptInput::new(
+                    return Transition::Push(PromptInput::new_state(
                         ctx,
                         "Search for what?",
                         String::new(),
@@ -327,7 +327,7 @@ impl State<App> for DebugMode {
                     find_large_intersections(app);
                 }
                 "sim internal stats" => {
-                    return Transition::Push(PopupMsg::new(
+                    return Transition::Push(PopupMsg::new_state(
                         ctx,
                         "Simulation internal stats",
                         app.primary.sim.describe_internal_stats(),
@@ -426,7 +426,7 @@ impl State<App> for DebugMode {
         match self.tool_panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "back" => Transition::Pop,
-                "settings" => Transition::Push(OptionsPanel::new(ctx, app)),
+                "settings" => Transition::Push(OptionsPanel::new_state(ctx, app)),
                 _ => unreachable!(),
             },
             _ => Transition::Keep,
@@ -863,7 +863,7 @@ impl ScreenshotTest {
         // whoever's taking screenshots (just Dustin so far) will just quit after taking them.
         app.change_color_scheme(ctx, ColorSchemeChoice::DayMode);
         app.opts.min_zoom_for_detail = 0.0;
-        MapLoader::new(
+        MapLoader::new_state(
             ctx,
             app,
             todo_maps.pop().unwrap(),

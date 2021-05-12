@@ -106,7 +106,7 @@ impl EditMode {
                 if trips == 0 && parked_cars == 0 {
                     Transition::Pop
                 } else {
-                    Transition::Replace(PopupMsg::new(
+                    Transition::Replace(PopupMsg::new_state(
                         ctx,
                         "Map changes complete",
                         vec![
@@ -189,7 +189,7 @@ impl State<App> for EditMode {
             match x.as_ref() {
                 "manage proposals" => {
                     let mode = self.mode.clone();
-                    return Transition::Push(ChooseSomething::new(
+                    return Transition::Push(ChooseSomething::new_state(
                         ctx,
                         "Manage proposals",
                         vec![
@@ -351,7 +351,7 @@ impl State<App> for EditMode {
         match self.tool_panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "back" => self.quit(ctx, app),
-                "settings" => Transition::Push(OptionsPanel::new(ctx, app)),
+                "settings" => Transition::Push(OptionsPanel::new_state(ctx, app)),
                 _ => unreachable!(),
             },
             _ => Transition::Keep,
@@ -630,7 +630,7 @@ impl State<App> for LoadEdits {
                                     // TODO Menu draws at a weird Z-order to deal with tooltips, so
                                     // now the menu underneath
                                     // bleeds through
-                                    Transition::Push(PopupMsg::new(
+                                    Transition::Push(PopupMsg::new_state(
                                         ctx,
                                         "Error",
                                         vec![format!("Can't load {}", path), err.to_string()],

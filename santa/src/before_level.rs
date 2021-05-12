@@ -37,7 +37,7 @@ pub struct Picker {
 
 impl Picker {
     pub fn new(ctx: &mut EventCtx, app: &App, level: Level) -> Box<dyn State<App>> {
-        MapLoader::new(
+        MapLoader::new_state(
             ctx,
             app,
             level.map.clone(),
@@ -372,7 +372,7 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
 }
 
 fn explain_upzoning(ctx: &mut EventCtx) -> Transition {
-    Transition::Push(PopupMsg::new(
+    Transition::Push(PopupMsg::new_state(
         ctx,
         "Upzoning power unlocked",
         vec![

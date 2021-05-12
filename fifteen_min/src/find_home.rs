@@ -64,7 +64,7 @@ impl SimpleState<App> for FindHome {
                     .filter(|at| panel.is_checked(&at.to_string()))
                     .collect();
                 if amenities.is_empty() {
-                    return Transition::Push(PopupMsg::new(
+                    return Transition::Push(PopupMsg::new_state(
                         ctx,
                         "No amenities selected",
                         vec!["Please select at least one amenity that you want in your walkshd"],

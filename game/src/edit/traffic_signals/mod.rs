@@ -183,7 +183,7 @@ impl State<App> for TrafficSignalEditor {
 
         if self.warn_changed {
             self.warn_changed = false;
-            return Transition::Push(PopupMsg::new(
+            return Transition::Push(PopupMsg::new_state(
                 ctx,
                 "Note",
                 vec!["Some signals were modified to match the number and duration of stages"],
@@ -290,7 +290,7 @@ impl State<App> for TrafficSignalEditor {
                         self.top_panel = make_top_panel(ctx, app, true, false);
                         self.change_stage(ctx, app, 0);
 
-                        return Transition::Push(PopupMsg::new(
+                        return Transition::Push(PopupMsg::new_state(
                             ctx,
                             "Error: missing turns",
                             vec![

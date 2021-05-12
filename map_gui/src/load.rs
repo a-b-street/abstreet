@@ -28,7 +28,7 @@ pub use wasm_loader::{FileLoader, RawFileLoader};
 pub struct MapLoader;
 
 impl MapLoader {
-    pub fn new<A: AppLike + 'static>(
+    pub fn new_state<A: AppLike + 'static>(
         ctx: &mut EventCtx,
         app: &A,
         name: MapName,
@@ -48,15 +48,15 @@ impl MapLoader {
             _ => None,
         } {
             if !ctx.is_font_loaded(extra_font) {
-                return RawFileLoader::<A>::new(
+                return RawFileLoader::<A>::new_state(
                     ctx,
                     abstio::path(format!("system/extra_fonts/{}", extra_font)),
                     Box::new(move |ctx, app, bytes| match bytes {
                         Ok(bytes) => {
                             ctx.load_font(extra_font, bytes);
-                            Transition::Replace(MapLoader::new(ctx, app, name, on_load))
+                            Transition::Replace(MapLoader::new_state(ctx, app, name, on_load))
                         }
-                        Err(err) => Transition::Replace(PopupMsg::new(
+                        Err(err) => Transition::Replace(PopupMsg::new_state(
                             ctx,
                             "Error",
                             vec![format!("Couldn't load {}", extra_font), err.to_string()],
@@ -66,7 +66,7 @@ impl MapLoader {
             }
         }
 
-        FileLoader::<A, map_model::Map>::new(
+        FileLoader::<A, map_model::Map>::new_state(
             ctx,
             name.path(),
             Box::new(move |ctx, app, timer, map| {
@@ -79,7 +79,7 @@ impl MapLoader {
 
                         (on_load)(ctx, app)
                     }
-                    Err(err) => Transition::Replace(PopupMsg::new(
+                    Err(err) => Transition::Replace(PopupMsg::new_state(
                         ctx,
                         "Error",
                         vec![
@@ -117,7 +117,7 @@ mod native_loader {
     }
 
     impl<A: AppLike + 'static, T: 'static + DeserializeOwned> FileLoader<A, T> {
-        pub fn new(
+        pub fn new_state(
             _: &mut EventCtx,
             path: String,
             on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, &mut Timer, Result<T>) -> Transition<A>>,
@@ -154,7 +154,7 @@ mod native_loader {
     }
 
     impl<A: AppLike + 'static> RawFileLoader<A> {
-        pub fn new(
+        pub fn new_state(
             _: &mut EventCtx,
             path: String,
             on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, Result<Vec<u8>>) -> Transition<A>>,
@@ -475,7 +475,7 @@ where
     }
 
     #[cfg(not(target_arch = "wasm32"))]
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         future: Pin<Box<dyn Send + Future<Output = Result<Box<dyn Send + FnOnce(&A) -> T>>>>>,
         outer_progress_receiver: mpsc::Receiver<String>,
@@ -514,7 +514,7 @@ where
             Err(e) => {
                 error!("channel failed: {:?}", e);
                 let on_load = self.on_load.take().unwrap();
-                return on_load(ctx, app, Err(anyhow!("channel canceled")));
+                on_load(ctx, app, Err(anyhow!("channel canceled")))
             }
             Ok(None) => {
                 if let Some(ref mut rx) = self.outer_progress_receiver {
@@ -566,18 +566,18 @@ where
                 // Until the response is received, just ask winit to regularly call event(), so we
                 // can keep polling the channel.
                 ctx.request_update(UpdateType::Game);
-                return Transition::Keep;
+                Transition::Keep
             }
             Ok(Some(Err(e))) => {
                 error!("error in fetching data");
                 let on_load = self.on_load.take().unwrap();
-                return on_load(ctx, app, Err(e));
+                on_load(ctx, app, Err(e))
             }
             Ok(Some(Ok(builder))) => {
                 debug!("future complete");
                 let t = builder(app);
                 let on_load = self.on_load.take().unwrap();
-                return on_load(ctx, app, Ok(t));
+                on_load(ctx, app, Ok(t))
             }
         }
     }

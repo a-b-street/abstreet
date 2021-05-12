@@ -166,7 +166,7 @@ fn launch(ctx: &mut EventCtx, app: &App, edits: PermanentMapEdits) -> Transition
         }
     }
 
-    Transition::Push(MapLoader::new(
+    Transition::Push(MapLoader::new_state(
         ctx,
         app,
         edits.map_name.clone(),
@@ -185,7 +185,7 @@ fn launch(ctx: &mut EventCtx, app: &App, edits: PermanentMapEdits) -> Transition
                 }
             });
             if let Some(err) = maybe_err {
-                Transition::Replace(PopupMsg::new(
+                Transition::Replace(PopupMsg::new_state(
                     ctx,
                     "Can't load proposal",
                     vec![err.to_string()],

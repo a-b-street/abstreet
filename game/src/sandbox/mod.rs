@@ -178,7 +178,7 @@ impl State<App> for SandboxMode {
                         return maybe_exit_sandbox(ctx);
                     }
                     "settings" => {
-                        return Transition::Push(OptionsPanel::new(ctx, app));
+                        return Transition::Push(OptionsPanel::new_state(ctx, app));
                     }
                     _ => unreachable!(),
                 }
@@ -237,7 +237,7 @@ impl State<App> for SandboxMode {
 }
 
 pub fn maybe_exit_sandbox(ctx: &mut EventCtx) -> Transition {
-    Transition::Push(ChooseSomething::new(
+    Transition::Push(ChooseSomething::new_state(
         ctx,
         "Are you ready to leave this mode?",
         vec![
@@ -354,7 +354,7 @@ impl ContextualActions for Actions {
                 Transition::Push(TrafficRecorder::new_state(ctx, btreeset! {i}))
             }
             (ID::Lane(l), "explore turns from this lane") => {
-                Transition::Push(TurnExplorer::new(ctx, app, l))
+                Transition::Push(TurnExplorer::new_state(ctx, app, l))
             }
             (ID::Lane(l), "edit lane") => Transition::Multi(vec![
                 Transition::Push(EditMode::new_state(ctx, app, self.gameplay.clone())),
@@ -432,7 +432,7 @@ impl State<App> for SandboxLoader {
         loop {
             match self.stage.take().unwrap() {
                 LoadStage::LoadingMap => {
-                    return Transition::Push(MapLoader::new(
+                    return Transition::Push(MapLoader::new_state(
                         ctx,
                         app,
                         self.mode.map_name(),
@@ -470,7 +470,7 @@ impl State<App> for SandboxLoader {
                         gameplay::LoadScenario::Future(future) => {
                             let (_, outer_progress_rx) = futures_channel::mpsc::channel(1);
                             let (_, inner_progress_rx) = futures_channel::mpsc::channel(1);
-                            return Transition::Push(FutureLoader::<App, Scenario>::new(
+                            return Transition::Push(FutureLoader::<App, Scenario>::new_state(
                                 ctx,
                                 Box::pin(future),
                                 outer_progress_rx,
@@ -500,7 +500,7 @@ impl State<App> for SandboxLoader {
                                 }
                             }
 
-                            return Transition::Push(FileLoader::<App, Scenario>::new(
+                            return Transition::Push(FileLoader::<App, Scenario>::new_state(
                                 ctx,
                                 path,
                                 Box::new(|_, _, _, scenario| {
@@ -555,7 +555,7 @@ impl State<App> for SandboxLoader {
                         continue;
                     }
 
-                    return Transition::Push(FileLoader::<App, Analytics>::new(
+                    return Transition::Push(FileLoader::<App, Analytics>::new_state(
                         ctx,
                         abstio::path_prebaked_results(app.primary.map.get_name(), &scenario_name),
                         Box::new(move |_, _, _, prebaked| {

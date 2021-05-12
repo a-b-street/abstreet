@@ -134,7 +134,7 @@ impl State<App> for Viewer {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "change map" => {
-                    return Transition::Push(CityPicker::new(
+                    return Transition::Push(CityPicker::new_state(
                         ctx,
                         app,
                         Box::new(|ctx, app| {
@@ -146,7 +146,7 @@ impl State<App> for Viewer {
                     ));
                 }
                 "About" => {
-                    return Transition::Push(PopupMsg::new(
+                    return Transition::Push(PopupMsg::new_state(
                         ctx,
                         "15-minute neighborhood explorer",
                         vec![
@@ -167,7 +167,7 @@ impl State<App> for Viewer {
                     ));
                 }
                 "search" => {
-                    return Transition::Push(Navigator::new(ctx, app));
+                    return Transition::Push(Navigator::new_state(ctx, app));
                 }
                 "Find your perfect home" => {
                     return Transition::Push(FindHome::new_state(ctx, self.isochrone.options.clone()));

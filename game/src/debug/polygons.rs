@@ -29,7 +29,7 @@ impl PolygonDebugger {
         center: Option<Pt2D>,
     ) -> Box<dyn State<App>> {
         if items.is_empty() {
-            return PopupMsg::new(ctx, "Woops", vec![format!("No {}, never mind", noun)]);
+            return PopupMsg::new_state(ctx, "Woops", vec![format!("No {}, never mind", noun)]);
         }
 
         Box::new(PolygonDebugger {

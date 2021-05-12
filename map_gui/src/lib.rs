@@ -1,5 +1,9 @@
 //! This crate contains common code for applications that draw and interact with a `Map`.
 
+// Disable some noisy clippy warnings
+#![allow(clippy::too_many_arguments, clippy::type_complexity)]
+#![allow(clippy::ptr_arg)]
+
 #[macro_use]
 extern crate anyhow;
 #[macro_use]

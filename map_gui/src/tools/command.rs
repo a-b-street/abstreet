@@ -26,7 +26,7 @@ pub struct RunCommand<A: AppLike> {
 }
 
 impl<A: AppLike + 'static> RunCommand<A> {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         _: &A,
         args: Vec<String>,
@@ -60,7 +60,7 @@ impl<A: AppLike + 'static> RunCommand<A> {
                     on_load: Some(on_load),
                 })
             }
-            Err(err) => PopupMsg::new(
+            Err(err) => PopupMsg::new_state(
                 ctx,
                 "Error",
                 vec![format!("Couldn't start command: {}", err)],
@@ -79,7 +79,7 @@ impl<A: AppLike + 'static> RunCommand<A> {
         if let Some(bytes) = stdout {
             if let Ok(string) = String::from_utf8(bytes) {
                 if !string.is_empty() {
-                    for line in string.split("\n") {
+                    for line in string.split('\n') {
                         new_lines.push(line.to_string());
                     }
                 }
@@ -89,7 +89,7 @@ impl<A: AppLike + 'static> RunCommand<A> {
             if self.lines.len() == self.max_capacity {
                 self.lines.pop_front();
             }
-            if line.contains("\r") {
+            if line.contains('\r') {
                 // \r shows up in two cases:
                 // 1) As output from docker
                 // 2) As the "clear the current line" escape code
@@ -153,7 +153,7 @@ impl<A: AppLike + 'static> State<A> for RunCommand<A> {
             return Transition::Multi(vec![
                 Transition::Pop,
                 (self.on_load.take().unwrap())(ctx, app, success, lines.clone()),
-                Transition::Push(PopupMsg::new(
+                Transition::Push(PopupMsg::new_state(
                     ctx,
                     if success { "Success!" } else { "Failure!" },
                     lines,

@@ -30,7 +30,7 @@ pub struct AgentCache {
 }
 
 impl AgentCache {
-    pub fn new() -> AgentCache {
+    pub fn new_state() -> AgentCache {
         AgentCache {
             unzoomed_agents: UnzoomedAgents::new(),
             time: None,
@@ -230,5 +230,11 @@ impl UnzoomedAgents {
         self.bikes = panel.is_checked("Bike");
         self.buses_and_trains = panel.is_checked("Bus");
         self.peds = panel.is_checked("Walk");
+    }
+}
+
+impl Default for UnzoomedAgents {
+    fn default() -> Self {
+        UnzoomedAgents::new()
     }
 }

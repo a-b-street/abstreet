@@ -56,7 +56,7 @@ impl SimpleState<App> for UberTurnPicker {
             "close" => Transition::Pop,
             "View uber-turns" => {
                 if self.members.len() < 2 {
-                    return Transition::Push(PopupMsg::new(
+                    return Transition::Push(PopupMsg::new_state(
                         ctx,
                         "Error",
                         vec!["Select at least two intersections"],

@@ -422,11 +422,11 @@ impl ColorScheme {
     pub fn import(&mut self, path: &str) -> Result<()> {
         let raw = String::from_utf8(abstio::slurp_file(path)?)?;
         let mut colors = Vec::new();
-        for line in raw.split("\n") {
-            if line == "" {
+        for line in raw.split('\n') {
+            if line.is_empty() {
                 continue;
             }
-            let mut parts = line.split(" ");
+            let mut parts = line.split(' ');
             parts.next();
             colors.push(Color::hex(parts.next().unwrap()));
         }
@@ -581,8 +581,8 @@ impl ColorScheme {
         cs.unzoomed_residential = Color::WHITE;
         cs.grass = hex("#ECEEED").into();
         cs.water = hex("#CAD2D3").into();
-        cs.residential_building = hex("#E9E9E7").into();
-        cs.commercial_building = hex("#E9E9E7").into();
+        cs.residential_building = hex("#E9E9E7");
+        cs.commercial_building = hex("#E9E9E7");
         cs
     }
 
@@ -595,8 +595,8 @@ impl ColorScheme {
         cs.unzoomed_residential = road;
         cs.grass = hex("#323432").into();
         cs.water = hex("#181919").into();
-        cs.residential_building = hex("#2C2C2B").into();
-        cs.commercial_building = hex("#2C2C2B").into();
+        cs.residential_building = hex("#2C2C2B");
+        cs.commercial_building = hex("#2C2C2B");
 
         // TODO Things like this could be refactored in zoomed_road_surface
         cs.driving_lane = road;

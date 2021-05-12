@@ -262,7 +262,7 @@ impl State<App> for Viewer {
                 // get_obj must succeed, because we can only click static map elements.
                 let outline = app
                     .draw_map
-                    .get_obj(ctx, id, app, &mut map_gui::render::AgentCache::new())
+                    .get_obj(ctx, id, app, &mut map_gui::render::AgentCache::new_state())
                     .unwrap()
                     .get_outline(&app.map);
                 let mut batch = GeomBatch::from(vec![(app.cs.perma_selected_object, outline)]);
@@ -292,7 +292,7 @@ impl State<App> for Viewer {
         match self.top_panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "change map" => {
-                    return Transition::Push(CityPicker::new(
+                    return Transition::Push(CityPicker::new_state(
                         ctx,
                         app,
                         Box::new(|ctx, app| {
@@ -304,13 +304,13 @@ impl State<App> for Viewer {
                     ));
                 }
                 "settings" => {
-                    return Transition::Push(OptionsPanel::new(ctx, app));
+                    return Transition::Push(OptionsPanel::new_state(ctx, app));
                 }
                 "search" => {
-                    return Transition::Push(Navigator::new(ctx, app));
+                    return Transition::Push(Navigator::new_state(ctx, app));
                 }
                 "About" => {
-                    return Transition::Push(PopupMsg::new(
+                    return Transition::Push(PopupMsg::new_state(
                         ctx,
                         "About this OSM viewer",
                         vec![

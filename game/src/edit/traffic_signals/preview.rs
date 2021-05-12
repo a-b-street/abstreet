@@ -82,7 +82,7 @@ pub fn make_previewer(
         app.primary.suspended_sim.as_ref().unwrap().time()
     );
 
-    ChooseSomething::new(
+    ChooseSomething::new_state(
         ctx,
         "Preview the traffic signal with what kind of traffic?",
         Choice::strings(vec![random, right_now]),

@@ -312,7 +312,7 @@ impl State<App> for ParkingMapper {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Generate OsmChange file" => {
                     if self.data.is_empty() {
-                        return Transition::Push(PopupMsg::new(
+                        return Transition::Push(PopupMsg::new_state(
                             ctx,
                             "No changes yet",
                             vec!["Map some parking first"],
@@ -326,18 +326,18 @@ impl State<App> for ParkingMapper {
                             timer,
                         )
                     }) {
-                        Ok(()) => Transition::Push(PopupMsg::new(
+                        Ok(()) => Transition::Push(PopupMsg::new_state(
                             ctx,
                             "Diff generated",
                             vec!["diff.osc created. Load it in JOSM, verify, and upload!"],
                         )),
                         Err(err) => {
-                            Transition::Push(PopupMsg::new(ctx, "Error", vec![format!("{}", err)]))
+                            Transition::Push(PopupMsg::new_state(ctx, "Error", vec![format!("{}", err)]))
                         }
                     };
                 }
                 "change map" => {
-                    return Transition::Push(CityPicker::new(
+                    return Transition::Push(CityPicker::new_state(
                         ctx,
                         app,
                         Box::new(|ctx, app| {
@@ -460,7 +460,7 @@ impl State<App> for ChangeWay {
                 _ => {
                     let value = self.panel.take_menu_choice::<Value>("menu");
                     if value == Value::Complicated {
-                        Transition::Replace(PopupMsg::new(
+                        Transition::Replace(PopupMsg::new_state(
                             ctx,
                             "Complicated road",
                             vec![

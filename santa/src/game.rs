@@ -448,7 +448,7 @@ impl State<App> for Game {
             Outcome::Clicked(x) => match x.as_ref() {
                 "pause" => {
                     app.session.music.specify_volume(crate::music::OUT_OF_GAME);
-                    return Transition::Push(ChooseSomething::new(
+                    return Transition::Push(ChooseSomething::new_state(
                         ctx,
                         "Game Paused",
                         vec![

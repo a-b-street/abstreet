@@ -145,7 +145,7 @@ impl State<App> for AgentSpawner {
                     {
                         return Transition::Push(state);
                     } else {
-                        return Transition::Push(PopupMsg::new(
+                        return Transition::Push(PopupMsg::new_state(
                             ctx,
                             "Error",
                             vec!["Couldn't launch cost debugger for some reason"],

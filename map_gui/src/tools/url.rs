@@ -43,7 +43,7 @@ impl URLManager {
     /// center on and the camera zoom.
     // TODO This flag would also be useful in the other tools; lift to map_gui.
     pub fn parse_center_camera<A: AppLike>(app: &A, raw: String) -> Option<(Pt2D, f64)> {
-        let parts: Vec<&str> = raw.split("/").collect();
+        let parts: Vec<&str> = raw.split('/').collect();
         if parts.len() != 3 {
             return None;
         }
@@ -109,14 +109,14 @@ fn update_url(transform: Box<dyn Fn(String) -> String>) -> Result<()> {
 fn change_url_free_param(url: String, free_param: &str) -> String {
     // The URL parsing crates I checked had lots of dependencies and didn't even expose such a nice
     // API for doing this anyway.
-    let url_parts = url.split("?").collect::<Vec<_>>();
+    let url_parts = url.split('?').collect::<Vec<_>>();
     if url_parts.len() == 1 {
         return format!("{}?{}", url, free_param);
     }
     let mut query_params = String::new();
     let mut found_free = false;
     let mut first = true;
-    for x in url_parts[1].split("&") {
+    for x in url_parts[1].split('&') {
         if !first {
             query_params.push('&');
         }
@@ -145,14 +145,14 @@ fn change_url_free_param(url: String, free_param: &str) -> String {
 fn change_url_cam(url: String, cam: &str) -> String {
     // The URL parsing crates I checked had lots of dependencies and didn't even expose such a nice
     // API for doing this anyway.
-    let url_parts = url.split("?").collect::<Vec<_>>();
+    let url_parts = url.split('?').collect::<Vec<_>>();
     if url_parts.len() == 1 {
         return format!("{}?--cam={}", url, cam);
     }
     let mut query_params = String::new();
     let mut found_cam = false;
     let mut first = true;
-    for x in url_parts[1].split("&") {
+    for x in url_parts[1].split('&') {
         if !first {
             query_params.push('&');
         }

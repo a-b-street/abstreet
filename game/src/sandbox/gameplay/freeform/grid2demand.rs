@@ -11,7 +11,7 @@ use crate::sandbox::SandboxMode;
 pub fn import(ctx: &mut EventCtx) -> Transition {
     let (_, outer_progress_rx) = futures_channel::mpsc::channel(1);
     let (_, inner_progress_rx) = futures_channel::mpsc::channel(1);
-    Transition::Push(FutureLoader::<App, Option<String>>::new(
+    Transition::Push(FutureLoader::<App, Option<String>>::new_state(
         ctx,
         Box::pin(async {
             let result = rfd::AsyncFileDialog::new()
@@ -27,7 +27,7 @@ pub fn import(ctx: &mut EventCtx) -> Transition {
         "Waiting for a file to be chosen",
         Box::new(|ctx, app, maybe_path| {
             if let Ok(Some(path)) = maybe_path {
-                Transition::Replace(RunCommand::new(
+                Transition::Replace(RunCommand::new_state(
                     ctx,
                     app,
                     vec![

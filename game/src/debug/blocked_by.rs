@@ -239,7 +239,7 @@ impl State<App> for Viewer {
                 // warp_to_id always replaces the current state, so insert a dummy one for it
                 // to clobber
                 return Transition::Multi(vec![
-                    Transition::Push(PopupMsg::new(ctx, "Warping", vec![""])),
+                    Transition::Push(PopupMsg::new_state(ctx, "Warping", vec![""])),
                     warp_to_id(ctx, app, x),
                 ]);
             }

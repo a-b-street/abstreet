@@ -18,7 +18,7 @@ pub struct TurnExplorer {
 }
 
 impl TurnExplorer {
-    pub fn new<A: AppLike + 'static>(ctx: &mut EventCtx, app: &A, l: LaneID) -> Box<dyn State<A>> {
+    pub fn new_state<A: AppLike + 'static>(ctx: &mut EventCtx, app: &A, l: LaneID) -> Box<dyn State<A>> {
         Box::new(TurnExplorer {
             l,
             idx: 0,
@@ -31,8 +31,8 @@ impl<A: AppLike + 'static> State<A> for TurnExplorer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
         ctx.canvas_movement();
 
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
@@ -45,8 +45,7 @@ impl<A: AppLike + 'static> State<A> for TurnExplorer {
                     self.panel = TurnExplorer::make_panel(ctx, app, self.l, self.idx);
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         Transition::Keep

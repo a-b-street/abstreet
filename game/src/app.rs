@@ -663,7 +663,7 @@ impl PerMap {
             map,
             draw_map,
             sim,
-            agents: RefCell::new(AgentCache::new()),
+            agents: RefCell::new(AgentCache::new_state()),
             current_selection: None,
             current_flags: flags,
             last_warped_from: None,
@@ -722,7 +722,7 @@ impl PerMap {
 
         // TODO Why can't we just clone the map and revert the edits? Cloning the map is hard,
         // because of some ThreadLocals used for pathfinding...
-        Some(Transition::Push(FileLoader::<App, Map>::new(
+        Some(Transition::Push(FileLoader::<App, Map>::new_state(
             ctx,
             self.map.get_name().path(),
             Box::new(|_, app, _, map| {

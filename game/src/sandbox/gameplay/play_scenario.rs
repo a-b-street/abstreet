@@ -67,7 +67,7 @@ impl GameplayState for PlayScenario {
             Outcome::Clicked(x) => match x.as_ref() {
                 "change map" => {
                     let scenario = self.scenario_name.clone();
-                    Some(Transition::Push(CityPicker::new(
+                    Some(Transition::Push(CityPicker::new_state(
                         ctx,
                         app,
                         Box::new(move |_, app| {
@@ -117,7 +117,7 @@ impl GameplayState for PlayScenario {
                     // it.
                     s.scenario_name = format!("saved_{}", s.scenario_name);
                     s.save();
-                    Some(Transition::Push(PopupMsg::new(
+                    Some(Transition::Push(PopupMsg::new_state(
                         ctx,
                         "Saved",
                         vec![format!("Scenario '{}' saved", s.scenario_name)],
@@ -324,7 +324,7 @@ impl State<App> for EditScenarioModifiers {
                     ));
                 }
                 "Add extra new trips" => {
-                    return Transition::Push(ChooseSomething::new(
+                    return Transition::Push(ChooseSomething::new_state(
                         ctx,
                         "Which trips do you want to add in?",
                         // TODO Exclude weekday?
@@ -472,14 +472,14 @@ impl State<App> for ChangeMode {
                     }
 
                     if from_modes.is_empty() {
-                        return Transition::Push(PopupMsg::new(
+                        return Transition::Push(PopupMsg::new_state(
                             ctx,
                             "Error",
                             vec!["You have to select at least one mode to convert from"],
                         ));
                     }
                     if p1 >= p2 {
-                        return Transition::Push(PopupMsg::new(
+                        return Transition::Push(PopupMsg::new_state(
                             ctx,
                             "Error",
                             vec!["Your time range is backwards"],

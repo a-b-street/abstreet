@@ -78,12 +78,12 @@ impl State<App> for TripSummaries {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Export to CSV" => {
                     return Transition::Push(match export_times(app) {
-                        Ok(path) => PopupMsg::new(
+                        Ok(path) => PopupMsg::new_state(
                             ctx,
                             "Data exported",
                             vec![format!("Data exported to {}", path)],
                         ),
-                        Err(err) => PopupMsg::new(ctx, "Export failed", vec![err.to_string()]),
+                        Err(err) => PopupMsg::new_state(ctx, "Export failed", vec![err.to_string()]),
                     });
                 }
                 "close" => {

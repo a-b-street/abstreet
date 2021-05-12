@@ -138,7 +138,7 @@ impl State<App> for ViewKML {
         if let Some(idx) = self.selected {
             if ctx.normal_left_click() {
                 self.selected = None;
-                return Transition::Push(PopupMsg::new(
+                return Transition::Push(PopupMsg::new_state(
                     ctx,
                     "Object",
                     self.objects[idx]
@@ -406,7 +406,7 @@ fn pick_file(ctx: &mut EventCtx, app: &App) -> Transition {
     let (_, outer_progress_rx) = futures_channel::mpsc::channel(1);
     let (_, inner_progress_rx) = futures_channel::mpsc::channel(1);
     let start_dir = app.primary.map.get_city_name().input_path("");
-    Transition::Push(FutureLoader::<App, Option<String>>::new(
+    Transition::Push(FutureLoader::<App, Option<String>>::new_state(
         ctx,
         Box::pin(async move {
             let result = rfd::AsyncFileDialog::new()
