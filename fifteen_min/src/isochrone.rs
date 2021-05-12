@@ -1,4 +1,4 @@
-use std::{collections::{HashMap, HashSet}};
+use std::collections::{HashMap, HashSet};
 
 use abstutil::MultiMap;
 use geom::{Duration, Polygon};
@@ -60,8 +60,15 @@ impl Options {
 }
 
 impl Isochrone {
-    pub fn new(ctx: &mut EventCtx, app: &App, start: Vec<BuildingID>, options: Options) -> Isochrone {
-        let time_to_reach_building = options.clone().times_from_buildings(&app.map, start.clone());
+    pub fn new(
+        ctx: &mut EventCtx,
+        app: &App,
+        start: Vec<BuildingID>,
+        options: Options,
+    ) -> Isochrone {
+        let time_to_reach_building = options
+            .clone()
+            .times_from_buildings(&app.map, start.clone());
 
         let mut amenities_reachable = MultiMap::new();
         let mut population = 0;
@@ -113,10 +120,13 @@ impl Isochrone {
             return None;
         }
 
-        let b_hash_map: HashMap<BuildingID, Duration> = self.options.clone().times_from_buildings(map, vec![to])
-        .into_iter()
-        .filter(|(b_id, _)| self.start.contains(b_id))
-        .collect();
+        let b_hash_map: HashMap<BuildingID, Duration> = self
+            .options
+            .clone()
+            .times_from_buildings(map, vec![to])
+            .into_iter()
+            .filter(|(b_id, _)| self.start.contains(b_id))
+            .collect();
 
         let mut min_value = Vec::new();
         let mut min_building = Vec::new();

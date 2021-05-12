@@ -1,13 +1,13 @@
-use map_model::AmenityType;
 use map_gui::tools::{ChooseSomething, ColorLegend};
 use map_gui::ID;
+use map_model::AmenityType;
 use widgetry::{
-    Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, Choice, Color,
-    SimpleState, State, Transition, VerticalAlignment, Widget, Cached,
+    Cached, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel,
+    SimpleState, State, Transition, VerticalAlignment, Widget,
 };
 
-use crate::viewer::{HoverOnBuilding, HoverKey, draw_unwalkable_roads, draw_star};
-use crate::isochrone::{Options, Isochrone};
+use crate::isochrone::{Isochrone, Options};
+use crate::viewer::{draw_star, draw_unwalkable_roads, HoverKey, HoverOnBuilding};
 use crate::App;
 
 /// Calculate isochrones around each amenity on a map and merge them together using the min value
@@ -15,16 +15,15 @@ pub struct FindAmenity {
     options: Options,
 }
 
-
 impl FindAmenity {
     pub fn new(ctx: &mut EventCtx, options: Options) -> Box<dyn State<App>> {
         ChooseSomething::new(
             ctx,
             "Choose an amenity",
             AmenityType::all()
-                    .into_iter()
-                    .map(|at| Choice::new(at.to_string(), at))
-                    .collect(),
+                .into_iter()
+                .map(|at| Choice::new(at.to_string(), at))
+                .collect(),
             Box::new(move |at, ctx, app| {
                 let multi_isochrone = create_multi_isochrone(ctx, app, at, options.clone());
                 return Transition::Push(Results::new(ctx, app, multi_isochrone, at));
@@ -40,7 +39,6 @@ fn create_multi_isochrone(
     category: AmenityType,
     options: Options,
 ) -> Isochrone {
-
     let map = &app.map;
     // For a category, find all matching stores
     let mut stores = Vec::new();
@@ -68,7 +66,6 @@ impl Results {
         isochrone: Isochrone,
         category: AmenityType,
     ) -> Box<dyn State<App>> {
-
         let panel = Panel::new(Widget::col(vec![
             Line(format!("{} within 15 minutes", category))
                 .small_heading()
@@ -78,20 +75,17 @@ impl Results {
                 .text("Back")
                 .hotkey(Key::Escape)
                 .build_def(ctx),
-                ColorLegend::categories(
-                    ctx,
-                    vec![
-                        (Color::GREEN, "5 mins"),
-                        (Color::ORANGE, "10 mins"),
-                        (Color::RED, "15 mins"),
-                    ],
-                )
+            ColorLegend::categories(
+                ctx,
+                vec![
+                    (Color::GREEN, "5 mins"),
+                    (Color::ORANGE, "10 mins"),
+                    (Color::RED, "15 mins"),
+                ],
+            ),
         ]))
-            .aligned(HorizontalAlignment::RightInset, VerticalAlignment::TopInset)
-            .build(ctx);
-
-    
-
+        .aligned(HorizontalAlignment::RightInset, VerticalAlignment::TopInset)
+        .build(ctx);
 
         let mut batch = isochrone.draw_isochrone(app);
         for &start in &isochrone.start {
@@ -99,7 +93,7 @@ impl Results {
         }
 
         let draw_unwalkable_roads = draw_unwalkable_roads(ctx, app, &isochrone.options);
-        
+
         SimpleState::new(
             panel,
             Box::new(Results {
@@ -108,7 +102,6 @@ impl Results {
                 hovering_on_bldg: Cached::new(),
                 hovering_on_category: None,
                 draw_unwalkable_roads,
-
             }),
         )
     }
@@ -142,7 +135,7 @@ impl SimpleState<App> for Results {
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         g.redraw(&self.isochrone.draw);
         g.redraw(&self.draw_unwalkable_roads);
-    
+
         if let Some(ref hover) = self.hovering_on_bldg.value() {
             g.draw_mouse_tooltip(hover.tooltip.clone());
             g.redraw(&hover.drawn_route);
@@ -150,4 +143,3 @@ impl SimpleState<App> for Results {
         g.redraw(&self.draw);
     }
 }
-

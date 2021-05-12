@@ -19,8 +19,8 @@ use widgetry::{
     Line, Outcome, Panel, RewriteColor, State, Text, Toggle, Transition, VerticalAlignment, Widget,
 };
 
-use crate::find_home::FindHome;
 use crate::find_amenities::FindAmenity;
+use crate::find_home::FindHome;
 use crate::isochrone::{Isochrone, Options};
 use crate::App;
 
@@ -122,7 +122,8 @@ impl State<App> for Viewer {
         if let Some((hover_id, _)) = self.hovering_on_bldg.key() {
             if ctx.normal_left_click() {
                 let start = app.map.get_b(hover_id);
-                self.isochrone = Isochrone::new(ctx, app, vec![start.id], self.isochrone.options.clone());
+                self.isochrone =
+                    Isochrone::new(ctx, app, vec![start.id], self.isochrone.options.clone());
                 let star = draw_star(ctx, start);
                 self.highlight_start = ctx.upload(star);
                 self.panel = build_panel(ctx, app, start, &self.isochrone);
