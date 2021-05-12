@@ -70,7 +70,7 @@ impl InitialMap {
         let mut m = InitialMap {
             roads: BTreeMap::new(),
             intersections: BTreeMap::new(),
-            bounds: bounds.clone(),
+            bounds: *bounds,
         };
 
         for (id, i) in &raw.intersections {

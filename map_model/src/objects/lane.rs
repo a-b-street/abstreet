@@ -292,7 +292,7 @@ impl Lane {
             return None;
         }
         // Empty means no restrictions
-        if part == "" {
+        if part.is_empty() {
             return None;
         }
         Some(

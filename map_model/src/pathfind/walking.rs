@@ -50,15 +50,13 @@ impl WalkingNode {
 
     fn end_transit(pos: Position, map: &Map) -> WalkingNode {
         let l = map.get_l(pos.lane());
-        if map.get_i(l.src_i).is_outgoing_border() {
-            if pos.dist_along() == Distance::ZERO {
-                return WalkingNode::LeaveMap(l.src_i);
-            }
+        if map.get_i(l.src_i).is_outgoing_border() &&
+           pos.dist_along() == Distance::ZERO {
+            return WalkingNode::LeaveMap(l.src_i);
         }
-        if map.get_i(l.dst_i).is_outgoing_border() {
-            if pos.dist_along() == l.length() {
-                return WalkingNode::LeaveMap(l.dst_i);
-            }
+        if map.get_i(l.dst_i).is_outgoing_border() &&
+           pos.dist_along() == l.length() {
+            return WalkingNode::LeaveMap(l.dst_i);
         }
         WalkingNode::closest(pos, map)
     }
@@ -71,7 +69,7 @@ impl SidewalkPathfinder {
             // Regardless of whether the road has sidewalks/shoulders on one or both sides, add
             // both. These could change later, and we want the node IDs to match up.
             for dr in r.id.both_directions() {
-                for endpt in vec![true, false] {
+                for endpt in [true, false] {
                     nodes.get_or_insert(WalkingNode::SidewalkEndpoint(dr, endpt));
                 }
             }
@@ -152,18 +150,13 @@ impl SidewalkPathfinder {
         for n in &nodes {
             match n {
                 WalkingNode::RideBus(stop2) => {
-                    if first_stop.is_none() {
-                        first_stop = Some(*stop2);
-                        possible_routes = map.get_routes_serving_stop(*stop2);
-                        assert!(!possible_routes.is_empty());
-                    } else {
+                    if let Some(stop1) = first_stop {
                         // Keep riding the same route?
                         // We need to do this check, because some transfers might be instantaneous
                         // at the same stop and involve no walking.
                         // Also need to make sure the stops are in the proper order. We might have
                         // a transfer, then try to hop on the first route again, but starting from
                         // a different point.
-                        let stop1 = first_stop.unwrap();
                         let mut filtered = possible_routes.clone();
                         filtered.retain(|r| {
                             let idx1 = r.stops.iter().position(|s| *s == stop1).unwrap();
@@ -182,6 +175,10 @@ impl SidewalkPathfinder {
                         }
                         last_stop = Some(*stop2);
                         possible_routes = filtered;
+                    } else {
+                        first_stop = Some(*stop2);
+                        possible_routes = map.get_routes_serving_stop(*stop2);
+                        assert!(!possible_routes.is_empty());
                     }
                 }
                 WalkingNode::LeaveMap(i) => {

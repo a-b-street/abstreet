@@ -84,7 +84,7 @@ impl OriginalRoad {
     }
 
     /// Prints the OriginalRoad in a way that can be copied to Rust code.
-    pub fn to_string_code(&self) -> String {
+    pub fn as_string_code(&self) -> String {
         format!(
             "OriginalRoad::new({}, ({}, {}))",
             self.osm_way_id.0, self.i1.0, self.i2.0
@@ -92,6 +92,7 @@ impl OriginalRoad {
     }
 
     pub fn common_endpt(&self, other: OriginalRoad) -> osm::NodeID {
+        #![allow(clippy::suspicious_operation_groupings)]
         if self.i1 == other.i1 || self.i1 == other.i2 {
             return self.i1;
         }
@@ -201,7 +202,7 @@ impl RawMap {
         use crate::make::initial;
 
         let mut roads = BTreeMap::new();
-        for id in vec![road.i1, road.i2] {
+        for id in [road.i1, road.i2] {
             for r in self.roads_per_intersection(id) {
                 roads.insert(
                     r,
@@ -209,7 +210,7 @@ impl RawMap {
                 );
             }
         }
-        for id in vec![road.i1, road.i2] {
+        for id in [road.i1, road.i2] {
             // We don't yet know if there are short roads that we'll merge
             let merged = false;
             initial::intersection_polygon(

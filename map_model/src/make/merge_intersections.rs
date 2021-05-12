@@ -15,10 +15,12 @@ pub fn merge_short_roads(map: &mut RawMap, consolidate_all: bool) -> BTreeSet<No
     for r in map.roads.keys() {
         queue.push_back(*r);
 
-        // TODO Remove after improving this heuristic.
+        // TODO Enable after improving this heuristic.
+        /*
         if false && connects_dual_carriageway(map, r) {
             debug!("{} connects dual carriageways", r);
         }
+        */
     }
 
     while !queue.is_empty() {

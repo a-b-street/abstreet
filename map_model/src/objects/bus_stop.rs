@@ -71,12 +71,13 @@ pub struct BusRoute {
 
 impl BusRoute {
     pub fn all_steps(&self, map: &Map) -> Vec<PathRequest> {
-        let mut steps = Vec::new();
-        steps.push(PathRequest {
-            start: Position::start(self.start),
-            end: map.get_bs(self.stops[0]).driving_pos,
-            constraints: self.route_type,
-        });
+        let mut steps = vec![
+            PathRequest {
+                start: Position::start(self.start),
+                end: map.get_bs(self.stops[0]).driving_pos,
+                constraints: self.route_type,
+            }
+        ];
         for pair in self.stops.windows(2) {
             steps.push(PathRequest {
                 start: map.get_bs(pair[0]).driving_pos,

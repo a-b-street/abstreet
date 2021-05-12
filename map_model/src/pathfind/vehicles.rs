@@ -61,7 +61,7 @@ impl VehiclePathfinder {
         // Find all uber-turns and make a node for them too.
         let mut uber_turns = Vec::new();
         for ic in IntersectionCluster::find_all(map) {
-            for ut in ic.to_v2(map) {
+            for ut in ic.into_v2(map) {
                 nodes.get_or_insert(Node::UberTurn(uber_turns.len()));
                 uber_turns.push(ut);
             }

@@ -146,7 +146,7 @@ pub fn snap_driveway(
 
     let sidewalk_pos = sidewalk_pts
         .get(&center)
-        .ok_or(anyhow!("parking lot center didn't snap to a sidewalk"))?;
+        .ok_or_else(|| anyhow!("parking lot center didn't snap to a sidewalk"))?;
     let sidewalk_line = match Line::new(center.to_pt2d(), sidewalk_pos.pt(map)) {
         Some(l) => trim_path(polygon, l),
         None => {
@@ -174,7 +174,7 @@ pub fn snap_driveway(
             driveway = Some((pl, driving_pos));
         }
     }
-    let (driveway_line, driving_pos) = driveway.ok_or(anyhow!(
+    let (driveway_line, driving_pos) = driveway.ok_or_else(|| anyhow!(
         "snapped to sidewalk {}, but no driving connection",
         sidewalk_pos.lane()
     ))?;
@@ -189,7 +189,7 @@ fn infer_spots(lot_polygon: &Polygon, aisles: &Vec<Vec<Pt2D>>) -> Vec<(Pt2D, Ang
         let aisle_thickness = NORMAL_LANE_THICKNESS / 2.0;
         let pl = PolyLine::unchecked_new(aisle.clone());
 
-        for rotate in vec![90.0, -90.0] {
+        for rotate in [90.0, -90.0] {
             // Blindly generate all of the lines
             let lines = {
                 let mut lines = Vec::new();

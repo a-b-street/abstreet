@@ -174,7 +174,7 @@ fn launch(ctx: &mut EventCtx, app: &App, edits: PermanentMapEdits) -> Transition
         Box::new(move |ctx, app| {
             // Apply edits before setting up the sandbox, for simplicity
             let maybe_err = ctx.loading_screen("apply edits", |ctx, mut timer| {
-                match edits.to_edits(&app.primary.map) {
+                match edits.into_edits(&app.primary.map) {
                     Ok(edits) => {
                         apply_map_edits(ctx, app, edits);
                         app.primary

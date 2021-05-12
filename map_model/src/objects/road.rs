@@ -348,7 +348,7 @@ impl Road {
         }
 
         if let Some(name) = self.osm_tags.get(osm::NAME) {
-            if name == "" {
+            if name.is_empty() {
                 return "???".to_string();
             } else {
                 return name.to_string();
@@ -434,6 +434,7 @@ impl Road {
     }
 
     pub fn common_endpt(&self, other: &Road) -> IntersectionID {
+        #![allow(clippy::suspicious_operation_groupings)]  // false positive
         if self.src_i == other.src_i || self.src_i == other.dst_i {
             self.src_i
         } else if self.dst_i == other.src_i || self.dst_i == other.dst_i {

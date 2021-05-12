@@ -92,14 +92,13 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
             // lanes=1 but not oneway... what is this supposed to mean?
             base.max(1)
         }
+    } else if oneway {
+        0
     } else {
-        if oneway {
-            0
-        } else {
-            1
-        }
+        1
     };
 
+    #[allow(clippy::if_same_then_else)]  // better readability
     let driving_lane =
         if tags.is("access", "no") && (tags.is("bus", "yes") || tags.is("psv", "yes")) {
             // Sup West Seattle
@@ -151,7 +150,7 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
         ""
     };
     if !fwd_bus_spec.is_empty() {
-        let parts: Vec<&str> = fwd_bus_spec.split("|").collect();
+        let parts: Vec<&str> = fwd_bus_spec.split('|').collect();
         let offset = if fwd_side[0].lt == LaneType::SharedLeftTurn {
             1
         } else {
@@ -169,7 +168,7 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
         .get("bus:lanes:backward")
         .or_else(|| tags.get("psv:lanes:backward"))
     {
-        let parts: Vec<&str> = spec.split("|").collect();
+        let parts: Vec<&str> = spec.split('|').collect();
         if parts.len() == back_side.len() {
             for (idx, part) in parts.into_iter().enumerate() {
                 if part == "designated" {
@@ -222,12 +221,10 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
                 if tags.is("oneway:bicycle", "no") {
                     back_side.push(back(LaneType::Biking));
                 }
+            } else if cfg.driving_side == DrivingSide::Right {
+                back_side.push(back(LaneType::Biking));
             } else {
-                if cfg.driving_side == DrivingSide::Right {
-                    back_side.push(back(LaneType::Biking));
-                } else {
-                    fwd_side.push(fwd(LaneType::Biking));
-                }
+                fwd_side.push(fwd(LaneType::Biking));
             }
         }
     }
@@ -523,7 +520,7 @@ mod tests {
                 println!("Expected:");
                 println!("    {}", expected_lt);
                 println!("    {}", expected_dir);
-                println!("");
+                println!();
             }
         }
         assert!(ok);

@@ -27,6 +27,12 @@ impl AccessRestrictions {
     }
 }
 
+impl Default for AccessRestrictions {
+    fn default() -> Self {
+        AccessRestrictions::new()
+    }
+}
+
 /// A contiguous set of roads with access restrictions. This is derived from all the map's roads and
 /// kept cached for performance.
 #[derive(Serialize, Deserialize, Debug, PartialEq)]

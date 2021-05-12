@@ -147,10 +147,10 @@ fn check_proposals() -> Result<()> {
         ) {
             Ok(perma) => {
                 let map = map_model::Map::load_synchronously(perma.map_name.path(), &mut timer);
-                if let Err(err) = perma.clone().to_edits(&map) {
+                if let Err(err) = perma.clone().into_edits(&map) {
                     abstio::write_json(
                         "repair_attempt.json".to_string(),
-                        &perma.to_edits_permissive(&map).to_permanent(&map),
+                        &perma.into_edits_permissive(&map).to_permanent(&map),
                     );
                     anyhow::bail!("{} is out-of-date: {}", name, err);
                 }

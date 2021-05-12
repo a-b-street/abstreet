@@ -426,7 +426,7 @@ fn make_degenerate_crosswalks(
             Turn {
                 id: turn_id(i, l2_out.id, l2_in.id),
                 turn_type: TurnType::Crosswalk,
-                other_crosswalk_ids: all_ids.clone(),
+                other_crosswalk_ids: all_ids,
                 geom: PolyLine::deduping_new(vec![l2_out.first_pt(), pt1, pt2, l2_in.last_pt()])
                     .ok()?,
             },
@@ -470,7 +470,7 @@ fn make_shared_sidewalk_corner(
         i_pts.reverse();
     }
     if let Some(pts) = Pt2D::find_pts_between(&i_pts, corner2, corner1, Distance::meters(0.5)) {
-        let mut deduped = pts.clone();
+        let mut deduped = pts;
         deduped.dedup();
         if deduped.len() >= 2 {
             if abstutil::contains_duplicates(&deduped.iter().map(|pt| pt.to_hashable()).collect()) {
@@ -538,10 +538,10 @@ fn turn_id(parent: IntersectionID, src: LaneID, dst: LaneID) -> TurnID {
     TurnID { parent, src, dst }
 }
 
-fn get_sidewalk<'a>(
-    lanes: &'a BTreeMap<LaneID, Lane>,
+fn get_sidewalk(
+    lanes: &'_ BTreeMap<LaneID, Lane>,
     children: Vec<(LaneID, LaneType)>,
-) -> Option<&'a Lane> {
+) -> Option<&'_ Lane> {
     for (id, lt) in children {
         if lt.is_walkable() {
             return Some(&lanes[&id]);

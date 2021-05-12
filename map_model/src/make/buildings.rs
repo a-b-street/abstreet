@@ -166,6 +166,7 @@ fn classify_bldg(
     let mut residents: usize = 0;
     let mut workers: usize = 0;
 
+    #[allow(clippy::if_same_then_else)]  // false positive (remove after addressing TODO below)
     if tags.is_any(
         "building",
         vec![
@@ -231,8 +232,8 @@ fn classify_bldg(
         }
         return BuildingType::Commercial(workers);
     }
-    return BuildingType::Residential {
+    BuildingType::Residential {
         num_residents: residents,
         num_housing_units: 1,
-    };
+    }
 }

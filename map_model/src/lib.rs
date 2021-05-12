@@ -21,6 +21,8 @@
 //! - t = turn
 //! - ts = traffic signal
 
+#![allow(clippy::ptr_arg)]  // very noisy
+
 #[macro_use]
 extern crate anyhow;
 #[macro_use]

@@ -485,7 +485,7 @@ impl LoadSim {
 
         let mut map = Map::load_synchronously(scenario.map_name.path(), timer);
         if let Some(perma) = self.edits.clone() {
-            let edits = perma.to_edits(&map).unwrap();
+            let edits = perma.into_edits(&map).unwrap();
             map.must_apply_edits(edits);
             map.recalculate_pathfinding_after_edits(timer);
         }
