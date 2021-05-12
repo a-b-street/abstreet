@@ -89,6 +89,7 @@ impl Network {
 
             let mut lanes = Vec::new();
             for lane in edge.lanes {
+                #[allow(clippy::or_fun_call)]
                 lanes.push(Lane {
                     id: LaneID(lane.id),
                     index: lane.index,
@@ -109,7 +110,7 @@ impl Network {
                     name: edge.name,
                     from,
                     to,
-                    priority: edge.priority.unwrap_or_else(|| template.priority),
+                    priority: edge.priority.unwrap_or(template.priority),
                     lanes,
                     center_line,
                 },

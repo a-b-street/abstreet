@@ -105,7 +105,7 @@ fn convert(orig_path: &str, network: Network) -> Result<Map> {
             if let Some(name) = &edge.name {
                 osm_tags.insert("name", name);
             }
-            let parts: Vec<&str> = edge.edge_type.split(".").collect();
+            let parts: Vec<&str> = edge.edge_type.split('.').collect();
             // "highway.footway"
             if parts.len() != 2 {
                 bail!("Unknown edge_type {}", edge.edge_type);
@@ -155,41 +155,38 @@ fn convert(orig_path: &str, network: Network) -> Result<Map> {
 
     let mut turns = Vec::new();
     for connection in network.connections {
-        match (
+        if let (Some(from), Some(to), Some(via)) = (
             ids_lanes.get(&connection.from_lane()),
             ids_lanes.get(&connection.to_lane()),
             connection.via,
         ) {
-            (Some(from), Some(to), Some(via)) => {
-                let id = TurnID {
-                    parent: lanes[from.0].dst_i,
-                    src: *from,
-                    dst: *to,
-                };
-                if let Some(geom) = internal_lane_geometry.remove(&via).or_else(|| {
-                    PolyLine::new(vec![
-                        lanes[from.0].lane_center_pts.last_pt(),
-                        lanes[to.0].lane_center_pts.first_pt(),
-                    ])
-                    .ok()
-                }) {
-                    turns.push(Turn {
-                        id,
-                        // TODO Crosswalks and sidewalk corners
-                        turn_type: match connection.dir {
-                            Direction::Straight => TurnType::Straight,
-                            Direction::Left | Direction::PartiallyLeft => TurnType::Left,
-                            Direction::Right | Direction::PartiallyRight => TurnType::Right,
-                            // Not sure
-                            _ => TurnType::Straight,
-                        },
-                        geom,
-                        other_crosswalk_ids: BTreeSet::new(),
-                    });
-                    intersections[id.parent.0].turns.insert(id);
-                }
+            let id = TurnID {
+                parent: lanes[from.0].dst_i,
+                src: *from,
+                dst: *to,
+            };
+            if let Some(geom) = internal_lane_geometry.remove(&via).or_else(|| {
+                PolyLine::new(vec![
+                    lanes[from.0].lane_center_pts.last_pt(),
+                    lanes[to.0].lane_center_pts.first_pt(),
+                ])
+                .ok()
+            }) {
+                turns.push(Turn {
+                    id,
+                    // TODO Crosswalks and sidewalk corners
+                    turn_type: match connection.dir {
+                        Direction::Straight => TurnType::Straight,
+                        Direction::Left | Direction::PartiallyLeft => TurnType::Left,
+                        Direction::Right | Direction::PartiallyRight => TurnType::Right,
+                        // Not sure
+                        _ => TurnType::Straight,
+                    },
+                    geom,
+                    other_crosswalk_ids: BTreeSet::new(),
+                });
+                intersections[id.parent.0].turns.insert(id);
             }
-            _ => {}
         }
     }
 
