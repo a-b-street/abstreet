@@ -42,7 +42,7 @@ fn run(mut settings: Settings) {
             app.session.music = music::Music::start(ctx, app.session.play_music, "jingle_bells");
             app.session.music.specify_volume(music::OUT_OF_GAME);
 
-            vec![title::TitleScreen::new(ctx, app)]
+            vec![title::TitleScreen::new_state(ctx, app)]
         })
     });
 }

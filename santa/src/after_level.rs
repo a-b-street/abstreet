@@ -19,7 +19,7 @@ pub struct Strategize {
 }
 
 impl Strategize {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         app: &mut App,
         score: usize,
@@ -129,7 +129,7 @@ impl SimpleState<App> for Strategize {
             "Back to title screen" => {
                 let mut transitions = vec![
                     Transition::Pop,
-                    Transition::Replace(TitleScreen::new(ctx, app)),
+                    Transition::Replace(TitleScreen::new_state(ctx, app)),
                 ];
                 if let Some(msgs) = self.unlock_messages.take() {
                     transitions.push(Transition::Push(PopupMsg::new_state(
@@ -159,7 +159,7 @@ impl SimpleState<App> for Strategize {
 pub struct Results;
 
 impl Results {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         app: &mut App,
         score: usize,

@@ -37,7 +37,7 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         app: &mut App,
         level: Level,
@@ -92,7 +92,7 @@ impl Game {
         let start = app
             .map
             .find_i_by_osm_id(level.start)
-            .expect(&format!("can't find {}", level.start));
+            .unwrap_or_else(|_| panic!("can't find {}", level.start));
         let player = Player::new(ctx, app, start);
 
         let bldgs = Buildings::new(ctx, app, upzones);
@@ -337,7 +337,7 @@ impl State<App> for Game {
 
             if self.animator.is_done() {
                 return Transition::Multi(vec![
-                    Transition::Replace(Strategize::new(
+                    Transition::Replace(Strategize::new_state(
                         ctx,
                         app,
                         self.state.score,
@@ -345,7 +345,7 @@ impl State<App> for Game {
                         &self.state.bldgs,
                         std::mem::replace(&mut self.state.record_path, RecordPath::new()),
                     )),
-                    Transition::Push(Results::new(ctx, app, self.state.score, &self.state.level)),
+                    Transition::Push(Results::new_state(ctx, app, self.state.score, &self.state.level)),
                 ]);
             }
 
@@ -444,8 +444,8 @@ impl State<App> for Game {
             return t;
         }
 
-        match self.pause_panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.pause_panel.event(ctx) {
+            match x.as_ref() {
                 "pause" => {
                     app.session.music.specify_volume(crate::music::OUT_OF_GAME);
                     return Transition::Push(ChooseSomething::new_state(
@@ -466,8 +466,7 @@ impl State<App> for Game {
                     ));
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         if let Some((_, dy)) = ctx.input.get_mouse_scroll() {

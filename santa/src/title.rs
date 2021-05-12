@@ -11,7 +11,7 @@ use crate::{App, Transition};
 pub struct TitleScreen;
 
 impl TitleScreen {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let mut level_buttons = Vec::new();
         for (idx, level) in app.session.levels.iter().enumerate() {
             if idx < app.session.levels_unlocked {
@@ -70,7 +70,7 @@ impl TitleScreen {
 impl SimpleState<App> for TitleScreen {
     fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
         match x {
-            "Credits" => Transition::Push(Credits::new(ctx)),
+            "Credits" => Transition::Push(Credits::new_state(ctx)),
             x => {
                 for level in &app.session.levels {
                     if x == level.title {
@@ -84,7 +84,7 @@ impl SimpleState<App> for TitleScreen {
                             }
                         }
 
-                        return Transition::Push(crate::before_level::Picker::new(
+                        return Transition::Push(crate::before_level::Picker::new_state(
                             ctx,
                             app,
                             level.clone(),
@@ -153,7 +153,7 @@ fn unlocked_level(ctx: &mut EventCtx, app: &App, level: &Level, idx: usize) -> W
 struct Credits;
 
 impl Credits {
-    fn new(ctx: &mut EventCtx) -> Box<dyn State<App>> {
+    fn new_state(ctx: &mut EventCtx) -> Box<dyn State<App>> {
         <dyn SimpleState<_>>::new(
             Panel::new(Widget::col(vec![
                 Widget::row(vec![
