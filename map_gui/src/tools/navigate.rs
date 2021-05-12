@@ -158,7 +158,7 @@ impl<A: AppLike + 'static> State<A> for CrossStreet {
             let mut found = None;
             'OUTER: for r1 in &self.first {
                 let r1 = map.get_r(*r1);
-                for i in [r1.src_i, r1.dst_i] {
+                for &i in &[r1.src_i, r1.dst_i] {
                     if map.get_i(i).roads.iter().any(|r2| roads.contains(r2)) {
                         found = Some(i);
                         break 'OUTER;

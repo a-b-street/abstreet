@@ -287,7 +287,7 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
             // If either corner of the cursor is out of bounds on the minimap, recenter.
             // TODO This means clicking the pan buttons while along the boundary won't work.
             let mut ok = true;
-            for pt in [
+            for &pt in &[
                 ScreenPt::new(0.0, 0.0),
                 ScreenPt::new(ctx.canvas.window_width, ctx.canvas.window_height),
             ] {

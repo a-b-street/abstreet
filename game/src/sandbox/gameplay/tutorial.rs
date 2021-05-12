@@ -477,7 +477,7 @@ impl Task {
             Task::Camera => "Put out the fire at the fire station",
             Task::InspectObjects => {
                 let mut txt = Text::from("Find one of each:");
-                for (name, done) in [
+                for &(name, done) in &[
                     ("bike lane", state.inspected_bike_lane),
                     ("building", state.inspected_building),
                     ("intersection with stop sign", state.inspected_stop_sign),

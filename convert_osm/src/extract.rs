@@ -540,7 +540,7 @@ fn is_bldg(tags: &Tags) -> bool {
 
 fn get_bldg_amenities(tags: &Tags) -> Vec<Amenity> {
     let mut amenities = Vec::new();
-    for key in ["amenity", "shop", "craft", "office", "tourism", "leisure"] {
+    for &key in &["amenity", "shop", "craft", "office", "tourism", "leisure"] {
         if let Some(amenity) = tags.get(key) {
             amenities.push(Amenity {
                 names: NamePerLanguage::new(tags).unwrap_or_else(NamePerLanguage::unnamed),

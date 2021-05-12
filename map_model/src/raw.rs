@@ -202,7 +202,7 @@ impl RawMap {
         use crate::make::initial;
 
         let mut roads = BTreeMap::new();
-        for id in [road.i1, road.i2] {
+        for &id in &[road.i1, road.i2] {
             for r in self.roads_per_intersection(id) {
                 roads.insert(
                     r,
@@ -210,7 +210,7 @@ impl RawMap {
                 );
             }
         }
-        for id in [road.i1, road.i2] {
+        for &id in &[road.i1, road.i2] {
             // We don't yet know if there are short roads that we'll merge
             let merged = false;
             initial::intersection_polygon(

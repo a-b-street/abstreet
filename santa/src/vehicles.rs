@@ -67,7 +67,7 @@ impl Vehicle {
     pub fn max_stats() -> (Speed, usize) {
         let mut speed = Speed::ZERO;
         let mut energy = 0;
-        for x in ["bike", "cargo bike", "sleigh"] {
+        for &x in &["bike", "cargo bike", "sleigh"] {
             let vehicle = Vehicle::get(x);
             speed = speed.max(vehicle.speed);
             energy = energy.max(vehicle.max_energy);

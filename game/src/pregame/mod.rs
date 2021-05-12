@@ -374,7 +374,7 @@ fn default_scenario_for_map(name: &MapName) -> String {
         return "weekday".to_string();
     }
     if name.city.country == "gb" {
-        for x in ["background", "base_with_bg"] {
+        for &x in &["background", "base_with_bg"] {
             if abstio::file_exists(abstio::path_scenario(name, x)) {
                 return x.to_string();
             }

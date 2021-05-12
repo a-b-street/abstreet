@@ -69,7 +69,7 @@ impl SidewalkPathfinder {
             // Regardless of whether the road has sidewalks/shoulders on one or both sides, add
             // both. These could change later, and we want the node IDs to match up.
             for dr in r.id.both_directions() {
-                for endpt in [true, false] {
+                for &endpt in &[true, false] {
                     nodes.get_or_insert(WalkingNode::SidewalkEndpoint(dr, endpt));
                 }
             }

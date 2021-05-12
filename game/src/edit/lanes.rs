@@ -29,7 +29,7 @@ impl LaneEditor {
     ) -> Box<dyn State<App>> {
         let mut row = Vec::new();
         let current_lt = app.primary.map.get_l(l).lane_type;
-        for (icon, label, key, lt) in [
+        for &(icon, label, key, lt) in &[
             (
                 "driving",
                 "convert to a driving lane",

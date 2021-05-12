@@ -317,7 +317,7 @@ impl EditCmd {
                 road.access_restrictions = new.access_restrictions.clone();
 
                 effects.changed_roads.insert(road.id);
-                for i in [road.src_i, road.dst_i] {
+                for &i in &[road.src_i, road.dst_i] {
                     effects.changed_intersections.insert(i);
                     let i = &mut map.intersections[i.0];
                     i.outgoing_lanes.clear();

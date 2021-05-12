@@ -555,7 +555,7 @@ impl State<App> for PathCostDebugger {
             if let Some(ID::Road(r)) = app.mouseover_unzoomed_roads_and_intersections(ctx) {
                 // TODO In lieu of mousing over each half of a road, just show both costs.
                 let mut txt = Text::new();
-                for dir in [Direction::Fwd, Direction::Back] {
+                for &dir in &[Direction::Fwd, Direction::Back] {
                     if let Some(cost) = self.costs.get(&DirectedRoadID { id: r, dir }) {
                         txt.add_line(format!("Cost {:?}: {}", dir, cost));
                     } else {

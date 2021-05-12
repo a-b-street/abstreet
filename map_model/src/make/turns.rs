@@ -456,7 +456,7 @@ fn expected_turn_types_for_four_way(
     // Just based on relative ordering around the intersection, turns (from road, to road, should
     // have this type)
     let mut expected_turn_types: HashMap<(RoadID, RoadID), TurnType> = HashMap::new();
-    for (offset, turn_type) in [
+    for &(offset, turn_type) in &[
         (1, TurnType::Left),
         (2, TurnType::Straight),
         (3, TurnType::Right),

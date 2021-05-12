@@ -27,7 +27,7 @@ fn main() -> Result<()> {
 /// when they change. The goldenfiles (and changes to them) themselves aren't easy to understand,
 /// but the test maps are.
 fn test_map_importer() -> Result<()> {
-    for name in [
+    for &name in &[
         "divided_highway_split",
         "left_turn_and_bike_lane",
         "multiple_left_turn_lanes",

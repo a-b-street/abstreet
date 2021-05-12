@@ -56,7 +56,7 @@ impl Assets {
             read_svg,
         };
         a.text_opts.borrow_mut().fontdb = fontdb;
-        for font in [
+        for &font in &[
             Font::BungeeInlineRegular,
             Font::BungeeRegular,
             Font::OverpassBold,
