@@ -1,8 +1,9 @@
 use abstutil::Timer;
 use geom::Percent;
 use map_model::AmenityType;
+use map_gui::tools::ChooseSomething;
 use widgetry::{
-    Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel,
+    Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, Choice,
     SimpleState, State, TextExt, Toggle, Transition, VerticalAlignment, Widget,
 };
 
@@ -14,57 +15,21 @@ pub struct FindAmenity {
     options: Options,
 }
 
+
 impl FindAmenity {
     pub fn new(ctx: &mut EventCtx, options: Options) -> Box<dyn State<App>> {
-        let panel = Panel::new(Widget::col(vec![
-            Widget::row(vec![
-                Line("Find where amenities exist.")
-                    .small_heading()
-                    .into_widget(ctx),
-                ctx.style().btn_close_widget(ctx),
-            ]),
-            // TODO Adjust text to say bikeshed, or otherwise reflect the options chosen
-            "Choose an amenity.".text_widget(ctx),
-            Widget::custom_row(
-                AmenityType::all()
+        ChooseSomething::new(
+            ctx,
+            "Choose an amenity",
+            AmenityType::all()
                     .into_iter()
-                    .map(|at| Toggle::switch(ctx, &at.to_string(), None, false))
+                    .map(|at| Choice::new(at.to_string(), at))
                     .collect(),
-            )
-                .flex_wrap(ctx, Percent::int(50)),
-            ctx.style()
-                .btn_solid_primary
-                .text("Search")
-                .hotkey(Key::Enter)
-                .build_def(ctx),
-        ]))
-            .build(ctx);
-
-        SimpleState::new(panel, Box::new(FindAmenity { options }))
-    }
-}
-
-impl SimpleState<App> for FindAmenity {
-    fn on_click(
-        &mut self,
-        ctx: &mut EventCtx,
-        app: &mut App,
-        x: &str,
-        panel: &Panel,
-    ) -> Transition<App> {
-        match x {
-            "close" => Transition::Pop,
-            "Search" => {
-                let amenities: Vec<AmenityType> = AmenityType::all()
-                    .into_iter()
-                    .filter(|at| panel.is_checked(&at.to_string()))
-                    .collect();
-
-                let multi_isochrone = create_multi_isochrone(ctx, app, amenities[0], self.options.clone());
-                return Transition::Push(Results::new(ctx, app, multi_isochrone, amenities[0]));
-            }
-            _ => unreachable!(),
-        }
+            Box::new(|at, ctx, app| {
+                let multi_isochrone = create_multi_isochrone(ctx, app, at, options);
+                return Transition::Push(Results::new(ctx, app, multi_isochrone, at));
+            }),
+        )
     }
 }
 
@@ -112,7 +77,6 @@ impl Results {
             .aligned(HorizontalAlignment::RightInset, VerticalAlignment::TopInset)
             .build(ctx);
 
-        // TODO make this draw more than one
         let batch = isochrone.draw_isochrone(app);
 
         SimpleState::new(
