@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet, BinaryHeap, HashMap};
+use std::collections::{BTreeMap, BTreeSet, BinaryHeap, HashMap, hash_map::Entry};
 
 use enum_dispatch::enum_dispatch;
 use rand::{Rng, SeedableRng};
@@ -589,7 +589,7 @@ impl ParkingSim for NormalParkingSimState {
                 }
             }
             for turn in map.get_turns_for(current, PathConstraints::Car) {
-                if !backrefs.contains_key(&turn.id.dst) {
+                if let Entry::Vacant(e) = backrefs.entry(turn.id.dst) {
                     let dist_this_step = turn.geom.length() + map.get_l(current).length();
                     // When vehicles search away from the first lane for a spot, don't all go in
                     // the same direction! Do this by jittering which turn they explore.
@@ -599,7 +599,7 @@ impl ParkingSim for NormalParkingSimState {
                     // number here many times in a row, and if there are only a few lanes away, it
                     // doesn't matter that much anyway.
                     let jitter = rng.gen_range(0.1..0.9);
-                    backrefs.insert(turn.id.dst, turn.id);
+                    e.insert(turn.id);
                     // Remember, keep things negative
                     queue.push((dist_so_far - jitter * dist_this_step, turn.id.dst));
                 }
@@ -610,7 +610,7 @@ impl ParkingSim for NormalParkingSimState {
     }
 
     fn collect_events(&mut self) -> Vec<Event> {
-        std::mem::replace(&mut self.events, Vec::new())
+        std::mem::take(&mut self.events)
     }
 
     fn all_parked_car_positions(&self, map: &Map) -> Vec<(Position, PersonID)> {
@@ -990,9 +990,9 @@ impl ParkingSim for InfiniteParkingSimState {
                 }
             }
             for turn in map.get_turns_for(current, PathConstraints::Car) {
-                if !backrefs.contains_key(&turn.id.dst) {
+                if let Entry::Vacant(e) = backrefs.entry(turn.id.dst) {
                     let dist_this_step = turn.geom.length() + map.get_l(current).length();
-                    backrefs.insert(turn.id.dst, turn.id);
+                    e.insert(turn.id);
                     // Remember, keep things negative
                     queue.push((dist_so_far - dist_this_step, turn.id.dst));
                 }
@@ -1003,7 +1003,7 @@ impl ParkingSim for InfiniteParkingSimState {
     }
 
     fn collect_events(&mut self) -> Vec<Event> {
-        std::mem::replace(&mut self.events, Vec::new())
+        std::mem::take(&mut self.events)
     }
 
     fn all_parked_car_positions(&self, map: &Map) -> Vec<(Position, PersonID)> {

@@ -167,7 +167,7 @@ impl SpawnOverTime {
             trips: vec![IndividTrip::new(
                 depart,
                 TripPurpose::Shopping,
-                self.goal.clone().unwrap_or_else(|| {
+                self.goal.unwrap_or_else(|| {
                     TripEndpoint::Bldg(map.all_buildings().choose(rng).unwrap().id)
                 }),
                 mode,
@@ -185,7 +185,7 @@ impl BorderSpawnOverTime {
             trips: vec![IndividTrip::new(
                 depart,
                 TripPurpose::Shopping,
-                self.goal.clone().unwrap_or_else(|| {
+                self.goal.unwrap_or_else(|| {
                     TripEndpoint::Bldg(map.all_buildings().choose(rng).unwrap().id)
                 }),
                 mode,

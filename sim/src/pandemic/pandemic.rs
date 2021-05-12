@@ -94,10 +94,7 @@ impl PandemicModel {
     pub fn count_sane(&self) -> usize {
         self.pop
             .iter()
-            .filter(|(_, state)| match state {
-                State::Sane(_) => true,
-                _ => false,
-            })
+            .filter(|(_, state)| matches!(state, State::Sane(_)))
             .count()
         // self.sane.len()
     }
@@ -105,10 +102,7 @@ impl PandemicModel {
     pub fn count_exposed(&self) -> usize {
         self.pop
             .iter()
-            .filter(|(_, state)| match state {
-                State::Exposed(_) => true,
-                _ => false,
-            })
+            .filter(|(_, state)| matches!(state, State::Exposed(_)))
             .count()
         // self.exposed.len()
     }
@@ -117,20 +111,15 @@ impl PandemicModel {
         // self.infected.len()
         self.pop
             .iter()
-            .filter(|(_, state)| match state {
-                State::Infectious(_) | State::Hospitalized(_) => true,
-                _ => false,
-            })
+            .filter(|(_, state)|
+                matches!(state, State::Infectious(_) | State::Hospitalized(_)))
             .count()
     }
 
     pub fn count_recovered(&self) -> usize {
         self.pop
             .iter()
-            .filter(|(_, state)| match state {
-                State::Recovered(_) => true,
-                _ => false,
-            })
+            .filter(|(_, state)| matches!(state, State::Recovered(_)))
             .count()
         // self.recovered.len()
     }
@@ -138,10 +127,7 @@ impl PandemicModel {
     pub fn count_dead(&self) -> usize {
         self.pop
             .iter()
-            .filter(|(_, state)| match state {
-                State::Dead(_) => true,
-                _ => false,
-            })
+            .filter(|(_, state)| matches!(state, State::Dead(_)))
             .count()
         // self.recovered.len()
     }
@@ -306,7 +292,8 @@ impl PandemicModel {
         person: PersonID,
         _scheduler: &mut Scheduler,
     ) {
-        // When poeple become expose
+        #![allow(clippy::float_cmp)]  // false positive
+        // When people become exposed
         let state = self.pop.remove(&person).unwrap();
         assert_eq!(
             state.get_event_time().unwrap().inner_seconds(),

@@ -226,7 +226,7 @@ impl Scheduler {
         match self.queued_commands.entry(item.cmd_type) {
             Entry::Vacant(_) => {
                 // Command was cancelled
-                return None;
+                None
             }
             Entry::Occupied(occupied) => {
                 // Command was re-scheduled for later.

@@ -211,11 +211,7 @@ impl Sim {
             transit: TransitSimState::new(map),
             cap: CapSimState::new(map, &opts),
             trips: TripManager::new(),
-            pandemic: if let Some(rng) = opts.enable_pandemic_model {
-                Some(PandemicModel::new(rng))
-            } else {
-                None
-            },
+            pandemic: opts.enable_pandemic_model.map(PandemicModel::new),
             scheduler,
             time: Time::START_OF_DAY,
 
@@ -300,7 +296,7 @@ impl Sim {
             .get_all_free_spots(Position::start(driving_lane), &vehicle, b, map)
             .get(0)
         {
-            spot.clone()
+            *spot
         } else {
             let (_, spot, _) =
                 self.parking
@@ -874,7 +870,7 @@ impl Sim {
                     self.trips.cancel_trip(
                         self.time,
                         trip,
-                        format!("map edited without reset"),
+                        "map edited without reset".to_string(),
                         Some(vehicle),
                         &mut ctx,
                     );
@@ -885,7 +881,7 @@ impl Sim {
                     self.trips.cancel_trip(
                         self.time,
                         trip,
-                        format!("map edited without reset"),
+                        "map edited without reset".to_string(),
                         None,
                         &mut ctx,
                     );
@@ -994,7 +990,7 @@ impl Sim {
     }
 
     pub fn clear_alerts(&mut self) -> Vec<(Time, AlertLocation, String)> {
-        std::mem::replace(&mut self.analytics.alerts, Vec::new())
+        std::mem::take(&mut self.analytics.alerts)
     }
 }
 

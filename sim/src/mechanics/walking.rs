@@ -542,7 +542,7 @@ impl WalkingSimState {
     }
 
     pub fn collect_events(&mut self) -> Vec<Event> {
-        std::mem::replace(&mut self.events, Vec::new())
+        std::mem::take(&mut self.events)
     }
 
     pub fn find_trips_to_parking(&self, evicted_cars: Vec<ParkedCar>) -> Vec<(AgentID, TripID)> {
@@ -654,6 +654,7 @@ impl Pedestrian {
     }
 
     fn get_draw_ped(&self, now: Time, map: &Map) -> DrawPedestrianInput {
+        #![allow(clippy::or_fun_call)]  // false positive
         let on = self.path.current_step().as_traversable();
         let err = format!("at {}, {}'s position is broken", now, self.id);
         let angle_offset = if map.get_config().driving_side == DrivingSide::Right {

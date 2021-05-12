@@ -119,7 +119,7 @@ impl ScenarioGenerator {
             .filter(|b| b.is_incoming_border())
             .map(|b| TripEndpoint::Border(b.id))
             .collect();
-        assert!(commuter_borders.len() > 0);
+        assert!(!commuter_borders.is_empty());
         let person_params = (0..num_trips)
             .map(|_| {
                 let (is_local_resident, is_local_worker) = (
@@ -130,20 +130,20 @@ impl ScenarioGenerator {
                     if let Some(residence) = residents.pop() {
                         TripEndpoint::Bldg(residence)
                     } else {
-                        commuter_borders.choose(rng).unwrap().clone()
+                        *commuter_borders.choose(rng).unwrap()
                     }
                 } else {
-                    commuter_borders.choose(rng).unwrap().clone()
+                    *commuter_borders.choose(rng).unwrap()
                 };
 
                 let work = if is_local_worker {
                     if let Some(workplace) = workers.pop() {
                         TripEndpoint::Bldg(workplace)
                     } else {
-                        commuter_borders.choose(rng).unwrap().clone()
+                        *commuter_borders.choose(rng).unwrap()
                     }
                 } else {
-                    commuter_borders.choose(rng).unwrap().clone()
+                    *commuter_borders.choose(rng).unwrap()
                 };
 
                 match (&home, &work) {
@@ -272,7 +272,7 @@ fn create_prole(
 
     Ok(PersonSpec {
         orig_id: None,
-        origin: home.clone(),
+        origin: home,
         trips: vec![
             IndividTrip::new(depart_am, TripPurpose::Work, work, mode),
             IndividTrip::new(depart_pm, TripPurpose::Home, home, mode),

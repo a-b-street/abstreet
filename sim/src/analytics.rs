@@ -142,11 +142,9 @@ impl Analytics {
             };
         }
         match ev {
-            Event::PersonLeavesMap(_, maybe_a, i) => {
+            Event::PersonLeavesMap(_, Some(a), i) => {
                 // Ignore cancelled trips
-                if let Some(a) = maybe_a {
-                    self.intersection_thruput.record(time, i, a.to_type(), 1);
-                }
+                self.intersection_thruput.record(time, i, a.to_type(), 1);
             }
             Event::PersonEntersMap(_, a, i) => {
                 self.intersection_thruput.record(time, i, a.to_type(), 1);
@@ -309,7 +307,7 @@ impl Analytics {
         // TODO This is so inefficient!
         for (_, id, _, maybe_dt) in &self.finished_trips {
             if *id == trip {
-                return maybe_dt.clone();
+                return *maybe_dt;
             }
         }
         None

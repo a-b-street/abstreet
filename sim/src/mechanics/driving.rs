@@ -514,7 +514,7 @@ impl DrivingSimState {
                         trips.cancel_trip(
                             now,
                             car.trip_and_person.unwrap().0,
-                            format!("no available parking anywhere"),
+                            "no available parking anywhere".to_string(),
                             // If we couldn't find parking normally, doesn't make sense to warp the
                             // car to the destination. There's no parking!
                             None,
@@ -877,7 +877,7 @@ impl DrivingSimState {
     }
 
     pub fn collect_events(&mut self) -> Vec<Event> {
-        std::mem::replace(&mut self.events, Vec::new())
+        std::mem::take(&mut self.events)
     }
 
     pub fn handle_live_edits(&mut self, map: &Map) {
@@ -1063,7 +1063,7 @@ impl DrivingSimState {
                 total_dist: path.total_length(),
             }
         } else {
-            for (car, _) in &self.waiting_to_spawn {
+            for car in self.waiting_to_spawn.keys() {
                 if id == *car {
                     // If the vehicle is waiting to spawn, we don't have any stats on them yet.  We
                     // could track when they originally tried to spawn and use for a few of these

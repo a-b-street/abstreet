@@ -64,9 +64,9 @@ impl From<Time> for AnyTime {
     }
 }
 
-impl Into<Time> for AnyTime {
-    fn into(self) -> Time {
-        Time::START_OF_DAY + Duration::seconds(self.inner_seconds())
+impl From<AnyTime> for Time {
+    fn from(time: AnyTime) -> Self {
+        Time::START_OF_DAY + Duration::seconds(time.inner_seconds())
     }
 }
 
@@ -214,31 +214,19 @@ impl State {
     }
 
     fn is_exposed(&self) -> bool {
-        match self {
-            State::Exposed(_) => true,
-            _ => false,
-        }
+        matches!(self, State::Exposed(_))
     }
 
     fn is_infectious(&self) -> bool {
-        match self {
-            State::Infectious(_) | State::Hospitalized(_) => true,
-            _ => false,
-        }
+        matches!(self, State::Infectious(_) | State::Hospitalized(_))
     }
 
     fn is_recovered(&self) -> bool {
-        match self {
-            State::Recovered(_) => true,
-            _ => false,
-        }
+        matches!(self, State::Recovered(_))
     }
 
     fn is_dead(&self) -> bool {
-        match self {
-            State::Dead(_) => true,
-            _ => false,
-        }
+        matches!(self, State::Dead(_))
     }
 
     pub fn get_time(&self) -> Option<Time> {
