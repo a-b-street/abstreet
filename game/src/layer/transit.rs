@@ -104,7 +104,7 @@ impl TransitNetwork {
         }
         let (unzoomed, zoomed, legend) = colorer.build(ctx);
 
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             header(ctx, "Transit network"),
             Toggle::switch(ctx, "show all routes", None, show_all_routes),
             Toggle::switch(ctx, "show buses", None, show_buses),

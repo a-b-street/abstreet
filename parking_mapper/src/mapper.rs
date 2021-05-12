@@ -122,7 +122,7 @@ impl ParkingMapper {
         Box::new(ParkingMapper {
             draw_layer: ctx.upload(batch),
             show,
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Line("Parking mapper").small_heading().into_widget(ctx),
                 ctx.style()
                     .btn_popup_icon_text(
@@ -415,7 +415,7 @@ impl ChangeWay {
         }
 
         Box::new(ChangeWay {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("What kind of parking does this road have?")
                         .small_heading()

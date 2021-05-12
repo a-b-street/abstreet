@@ -111,11 +111,11 @@ impl LaneEditor {
                 .hotkey(Key::Escape)
                 .build_def(ctx),
         ];
-        let panel = Panel::new(Widget::col(col))
+        let panel = Panel::new_builder(Widget::col(col))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx);
 
-        <dyn SimpleState<_>>::new(panel, Box::new(LaneEditor { l, mode }))
+        <dyn SimpleState<_>>::new_state(panel, Box::new(LaneEditor { l, mode }))
     }
 }
 

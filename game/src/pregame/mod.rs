@@ -38,7 +38,7 @@ impl TitleScreen {
             .instantiate(&mut app.primary.sim, &app.primary.map, &mut rng, &mut timer);
 
         TitleScreen {
-            panel: Panel::new(
+            panel: Panel::new_builder(
                 Widget::col(vec![
                     Image::untinted("system/assets/pregame/logo.svg").into_widget(ctx),
                     // TODO that nicer font
@@ -178,7 +178,7 @@ impl MainMenu {
         ];
 
         Box::new(MainMenu {
-            panel: Panel::new(Widget::col(col).evenly_spaced())
+            panel: Panel::new_builder(Widget::col(col).evenly_spaced())
                 .exact_size_percent(90, 85)
                 .build_custom(ctx),
         })
@@ -283,7 +283,7 @@ impl About {
         ];
 
         Box::new(About {
-            panel: Panel::new(Widget::custom_col(col))
+            panel: Panel::new_builder(Widget::custom_col(col))
                 .exact_size_percent(90, 85)
                 .build_custom(ctx),
         })

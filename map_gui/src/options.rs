@@ -131,7 +131,7 @@ pub struct OptionsPanel {
 impl OptionsPanel {
     pub fn new_state<A: AppLike>(ctx: &mut EventCtx, app: &A) -> Box<dyn State<A>> {
         Box::new(OptionsPanel {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::custom_row(vec![
                     Line("Settings").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),

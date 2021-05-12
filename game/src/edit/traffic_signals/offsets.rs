@@ -42,7 +42,7 @@ impl ShowAbsolute {
             );
         }
 
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
                 Line(format!("Tuning offset for {} signals", members.len()))
                     .small_heading()
@@ -53,7 +53,7 @@ impl ShowAbsolute {
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);
-        <dyn SimpleState<_>>::new(
+        <dyn SimpleState<_>>::new_state(
             panel,
             Box::new(ShowAbsolute {
                 members,
@@ -131,7 +131,7 @@ impl ShowRelative {
             }
         }
 
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
                 Line(format!("Tuning offset for {} signals", members.len()))
                     .small_heading()
@@ -142,7 +142,7 @@ impl ShowRelative {
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);
-        <dyn SimpleState<_>>::new(
+        <dyn SimpleState<_>>::new_state(
             panel,
             Box::new(ShowRelative {
                 base,
@@ -223,7 +223,7 @@ impl TuneRelative {
 
         let offset1 = map.get_traffic_signal(i1).offset;
         let offset2 = map.get_traffic_signal(i2).offset;
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
                 Line(format!("Tuning offset between {} and {}", i1, i2))
                     .small_heading()
@@ -264,7 +264,7 @@ impl TuneRelative {
                 .build_def(ctx),
         ]))
         .build(ctx);
-        <dyn SimpleState<_>>::new(
+        <dyn SimpleState<_>>::new_state(
             panel,
             Box::new(TuneRelative {
                 i1,

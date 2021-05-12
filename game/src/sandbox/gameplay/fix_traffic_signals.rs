@@ -232,7 +232,7 @@ impl GameplayState for FixTrafficSignals {
 
     fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
         if let Some(time) = self.done_at {
-            self.top_right = Panel::new(Widget::col(vec![
+            self.top_right = Panel::new_builder(Widget::col(vec![
                 challenge_header(ctx, "Traffic signal survivor"),
                 Widget::row(vec![
                     Line(format!("Delay exceeded {} at {}", THRESHOLD, time))
@@ -278,7 +278,7 @@ impl GameplayState for FixTrafficSignals {
                 },
             ]);
 
-            self.top_right = Panel::new(Widget::col(vec![
+            self.top_right = Panel::new_builder(Widget::col(vec![
                 challenge_header(ctx, "Traffic signal survivor"),
                 Widget::row(vec![
                     Line(format!(

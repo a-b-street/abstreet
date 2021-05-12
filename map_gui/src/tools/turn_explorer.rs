@@ -184,7 +184,7 @@ impl TurnExplorer {
             col.push(ColorLegend::row(ctx, CONFLICTING_TURN, "conflicting turn"));
         }
 
-        Panel::new(Widget::col(col))
+        Panel::new_builder(Widget::col(col))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx)
     }

@@ -551,7 +551,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
             .build_def(ctx)
             .align_right(),
     ];
-    Panel::new(Widget::col(vec![
+    Panel::new_builder(Widget::col(vec![
         Widget::row(vec![
             Line("Traffic signal editor")
                 .small_heading()
@@ -734,7 +734,7 @@ fn make_side_panel(
         },
     ]));
 
-    Panel::new(Widget::col(col))
+    Panel::new_builder(Widget::col(col))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Center)
         .build(ctx)
 }
@@ -879,7 +879,7 @@ fn draw_multiple_signals(
             format!("stage {}, {}", idx + 1, i),
         ));
     }
-    MultiButton::new(ctx, batch, hitboxes).named(format!("stage {}", idx + 1))
+    MultiButton::new_widget(ctx, batch, hitboxes).named(format!("stage {}", idx + 1))
 }
 
 // TODO Move to geom?

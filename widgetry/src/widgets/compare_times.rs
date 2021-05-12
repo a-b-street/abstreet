@@ -22,7 +22,7 @@ pub struct CompareTimes {
 }
 
 impl CompareTimes {
-    pub fn new<I: AsRef<str>>(
+    pub fn new_widget<I: AsRef<str>>(
         ctx: &mut EventCtx,
         x_name: I,
         y_name: I,
@@ -76,12 +76,10 @@ impl CompareTimes {
         for (b, a) in points {
             let pt = Pt2D::new((b / max) * width, (1.0 - (a / max)) * height);
             // TODO Could color circles by mode
-            let color = if a == b {
-                Color::YELLOW.alpha(0.5)
-            } else if a < b {
-                Color::GREEN.alpha(0.9)
-            } else {
-                Color::RED.alpha(0.9)
+            let color = match a.cmp(&b) {
+                std::cmp::Ordering::Equal => Color::YELLOW.alpha(0.5),
+                std::cmp::Ordering::Less => Color::GREEN.alpha(0.9),
+                std::cmp::Ordering::Greater => Color::RED.alpha(0.9),
             };
             batch.push(color, circle.translate(pt.x(), pt.y()));
         }

@@ -80,7 +80,7 @@ pub struct TrafficRecorder {
 impl TrafficRecorder {
     pub fn new_state(ctx: &mut EventCtx, members: BTreeSet<IntersectionID>) -> Box<dyn State<App>> {
         Box::new(TrafficRecorder {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Select the bounding intersections for recording traffic")
                         .small_heading()

@@ -21,8 +21,8 @@ impl TitleScreen {
             }
         }
 
-        <dyn SimpleState<_>>::new(
-            Panel::new(Widget::col(vec![
+        <dyn SimpleState<_>>::new_state(
+            Panel::new_builder(Widget::col(vec![
                 Line("15-minute Santa")
                     .display_title()
                     .into_widget(ctx)
@@ -123,7 +123,7 @@ fn level_btn(ctx: &mut EventCtx, app: &App, level: &Level, idx: usize) -> GeomBa
             left: 10.0,
             right: 10.0,
         })
-        .to_geom(ctx, None);
+        .into_geom(ctx, None);
     batch.unshift(app.cs.unzoomed_bike, hitbox);
     batch
 }
@@ -154,8 +154,8 @@ struct Credits;
 
 impl Credits {
     fn new_state(ctx: &mut EventCtx) -> Box<dyn State<App>> {
-        <dyn SimpleState<_>>::new(
-            Panel::new(Widget::col(vec![
+        <dyn SimpleState<_>>::new_state(
+            Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("15-minute Santa").big_heading_plain().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),

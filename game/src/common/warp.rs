@@ -72,7 +72,7 @@ impl DebugWarp {
     pub fn new_state(ctx: &mut EventCtx) -> Box<dyn State<App>> {
         let c = ctx.style().text_hotkey_color;
         Box::new(DebugWarp {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Warp to an object by ID")
                         .small_heading()

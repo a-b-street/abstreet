@@ -28,7 +28,7 @@ impl BulkSelect {
 }
 
 fn make_select_panel(ctx: &mut EventCtx, selector: &RoadSelector) -> Panel {
-    Panel::new(Widget::col(vec![
+    Panel::new_builder(Widget::col(vec![
         Line("Edit many roads").small_heading().into_widget(ctx),
         selector.make_controls(ctx),
         Widget::row(vec![
@@ -155,7 +155,7 @@ impl BulkEdit {
         preview: Drawable,
     ) -> Box<dyn State<App>> {
         Box::new(BulkEdit {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Line(format!("Editing {} roads", roads.len()))
                     .small_heading()
                     .into_widget(ctx),

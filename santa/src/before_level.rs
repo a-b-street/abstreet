@@ -72,7 +72,7 @@ impl Picker {
                     Line("stores").fg(app.session.colors.store),
                 ]);
 
-                let instructions_panel = Panel::new(Widget::col(vec![
+                let instructions_panel = Panel::new_builder(Widget::col(vec![
                     txt.into_widget(ctx),
                     Widget::row(vec![
                         GeomBatch::load_svg_bytes(
@@ -262,7 +262,7 @@ fn make_vehicle_panel(ctx: &mut EventCtx, app: &App) -> Panel {
     let vehicle = Vehicle::get(&app.session.current_vehicle);
     let (max_speed, max_energy) = Vehicle::max_stats();
 
-    Panel::new(Widget::col(vec![
+    Panel::new_builder(Widget::col(vec![
         Line("Pick Santa's vehicle")
             .small_heading()
             .into_widget(ctx),
@@ -296,7 +296,7 @@ fn make_vehicle_panel(ctx: &mut EventCtx, app: &App) -> Panel {
 fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel {
     // Don't overwhelm players on the very first level.
     if app.session.upzones_unlocked == 0 {
-        return Panel::new(
+        return Panel::new_builder(
             ctx.style()
                 .btn_solid_primary
                 .text("Start game")
@@ -311,7 +311,7 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
         .build(ctx);
     }
 
-    Panel::new(Widget::col(vec![
+    Panel::new_builder(Widget::col(vec![
         Widget::row(vec![
             Line("Upzoning").small_heading().into_widget(ctx),
             ctx.style()

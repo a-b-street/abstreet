@@ -47,7 +47,7 @@ impl ScenarioManager {
 
         let (unzoomed, zoomed, legend) = colorer.build(ctx);
         Box::new(ScenarioManager {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line(format!("Scenario {}", scenario.scenario_name))
                         .small_heading()

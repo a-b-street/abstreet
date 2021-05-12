@@ -146,7 +146,7 @@ impl PickLayer {
         );
 
         Box::new(PickLayer {
-            panel: Panel::new(Widget::col(col))
+            panel: Panel::new_builder(Widget::col(col))
                 .exact_size_percent(35, 70)
                 .build(ctx),
         })

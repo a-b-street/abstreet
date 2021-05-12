@@ -109,7 +109,7 @@ impl Proposals {
 
         Box::new(Proposals {
             proposals,
-            panel: Panel::new(Widget::custom_col(vec![Widget::col(vec![header, body])]))
+            panel: Panel::new_builder(Widget::custom_col(vec![Widget::col(vec![header, body])]))
                 .exact_size_percent(90, 85)
                 .build_custom(ctx),
             current,

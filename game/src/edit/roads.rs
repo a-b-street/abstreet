@@ -264,7 +264,7 @@ fn make_top_panel(
     num_edit_cmds_originally: usize,
     no_redo_cmds: bool,
 ) -> Panel {
-    Panel::new(Widget::row(vec![
+    Panel::new_builder(Widget::row(vec![
         ctx.style()
             .btn_solid_primary
             .text("Finish")
@@ -468,7 +468,7 @@ fn make_main_panel(
         ),
     ]);
 
-    Panel::new(Widget::col(vec![
+    Panel::new_builder(Widget::col(vec![
         modify_lane,
         available_lane_types_row,
         current_lanes_ltr,

@@ -22,7 +22,7 @@ struct PreviewTrafficSignal {
 impl PreviewTrafficSignal {
     fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         Box::new(PreviewTrafficSignal {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 "Previewing traffic signal".text_widget(ctx),
                 ctx.style()
                     .btn_outline

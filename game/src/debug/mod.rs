@@ -52,7 +52,7 @@ pub struct DebugMode {
 impl DebugMode {
     pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         Box::new(DebugMode {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Debug Mode").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
@@ -342,7 +342,7 @@ impl State<App> for DebugMode {
                     ctx.loading_screen("render to GeoJSON", |ctx, timer| {
                         timer.start("render");
                         let batch = DrawMap::zoomed_batch(ctx, app);
-                        let features = batch.to_geojson(Some(app.primary.map.get_gps_bounds()));
+                        let features = batch.into_geojson(Some(app.primary.map.get_gps_bounds()));
                         let geojson = geojson::GeoJson::from(geojson::FeatureCollection {
                             bbox: None,
                             features,

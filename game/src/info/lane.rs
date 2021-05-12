@@ -91,7 +91,7 @@ fn info_body(ctx: &EventCtx, app: &App, id: LaneID) -> Widget {
             Line("Parking spots available")
                 .small_heading()
                 .into_widget(ctx),
-            LinePlot::new(
+            LinePlot::new_widget(
                 ctx,
                 series,
                 PlotOptions {

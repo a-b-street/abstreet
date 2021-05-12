@@ -54,7 +54,7 @@ impl DrawWithTooltips {
     ///             the respective `hitbox`
     /// `hover`: returns a GeomBatch to render upon hovering. Return an `GeomBox::new()` if
     ///          you want hovering to be a no-op
-    pub fn new(
+    pub fn new_widget(
         ctx: &EventCtx,
         batch: GeomBatch,
         tooltips: Vec<(Polygon, Text)>,
@@ -113,7 +113,7 @@ pub struct DeferDraw {
 }
 
 impl DeferDraw {
-    pub fn new(batch: GeomBatch) -> Widget {
+    pub fn new_widget(batch: GeomBatch) -> Widget {
         Widget::new(Box::new(DeferDraw {
             dims: batch.get_dims(),
             batch,

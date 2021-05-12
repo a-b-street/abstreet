@@ -23,7 +23,7 @@ impl<A: AppLike + 'static> ImportCity<A> {
         ctx: &mut EventCtx,
         on_load: Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>,
     ) -> Box<dyn State<A>> {
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
                 Line("Import a new city").small_heading().into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),

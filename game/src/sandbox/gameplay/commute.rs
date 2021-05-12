@@ -178,7 +178,7 @@ impl GameplayState for OptimizeCommute {
         txt.append_all(cmp_duration_shorter(app, after, before));
         txt.append(Line(")"));
 
-        self.top_right = Panel::new(Widget::col(vec![
+        self.top_right = Panel::new_builder(Widget::col(vec![
             challenge_header(ctx, "Optimize the VIP's commute"),
             Widget::row(vec![
                 format!("Speed up the VIP's trips by {}", self.goal)

@@ -52,7 +52,7 @@ impl TripSummaries {
         );
 
         Box::new(TripSummaries {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 DashTab::TripSummaries.picker(ctx, app),
                 Widget::row(vec![
                     Widget::col(filters).section(ctx),
@@ -231,7 +231,7 @@ fn scatter_plot(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
         Line("Trip time before and after")
             .small_heading()
             .into_widget(ctx),
-        CompareTimes::new(
+        CompareTimes::new_widget(
             ctx,
             format!(
                 "Trip time before \"{}\"",
@@ -398,7 +398,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
         Line("Total Time Saved (faster)")
             .secondary()
             .into_widget(ctx),
-        DrawWithTooltips::new(ctx, batch, tooltips, Box::new(|_| GeomBatch::new())),
+        DrawWithTooltips::new_widget(ctx, batch, tooltips, Box::new(|_| GeomBatch::new())),
         Line("Total Time Lost (slower)")
             .secondary()
             .into_widget(ctx),

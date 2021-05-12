@@ -42,10 +42,8 @@ impl ImageSource<'_> {
         match self {
             ImageSource::Path(image_path) => svg::load_svg(prerender, image_path),
             ImageSource::Bytes { bytes, cache_key } => {
-                svg::load_svg_bytes(prerender, cache_key, bytes).expect(&format!(
-                    "Failed to load svg from bytes. cache_key: {}",
-                    cache_key
-                ))
+                svg::load_svg_bytes(prerender, cache_key, bytes).unwrap_or_else(
+                    |_| panic!("Failed to load svg from bytes. cache_key: {}", cache_key))
             }
             ImageSource::GeomBatch(geom_batch, bounds) => (geom_batch.clone(), *bounds),
         }
@@ -150,10 +148,11 @@ impl<'a, 'c> Image<'a, 'c> {
 
     /// Create a new `Image` based on `self`, but overriding with any values set on `other`.
     pub fn merged_image_style(&'c self, other: &'c Self) -> Self {
+        #![allow(clippy::or_fun_call)]
         let source_cow: Option<&Cow<'c, ImageSource>> =
             other.source.as_ref().or(self.source.as_ref());
         let source: Option<Cow<'c, ImageSource>> = source_cow.map(|source: &Cow<ImageSource>| {
-            let source: &ImageSource = *&source;
+            let source: &ImageSource = source;
             Cow::Borrowed(source)
         });
 
@@ -218,6 +217,7 @@ impl<'a, 'c> Image<'a, 'c> {
 
     /// Render the `Image` and any styling (padding, background, etc.) to a `GeomBatch`.
     pub fn build_batch(&self, ctx: &EventCtx) -> Option<(GeomBatch, Bounds)> {
+        #![allow(clippy::or_fun_call)]
         self.source.as_ref().map(|source| {
             let (mut image_batch, image_bounds) = source.load(ctx.prerender);
 
@@ -291,7 +291,7 @@ impl<'a, 'c> Image<'a, 'c> {
             None => Widget::nothing(),
             Some((batch, bounds)) => {
                 if let Some(tooltip) = self.tooltip {
-                    DrawWithTooltips::new(
+                    DrawWithTooltips::new_widget(
                         ctx,
                         batch,
                         vec![(bounds.get_rectangle(), tooltip)],

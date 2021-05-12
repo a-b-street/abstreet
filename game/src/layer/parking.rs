@@ -100,7 +100,7 @@ impl Occupancy {
         }
 
         if app.primary.sim.infinite_parking() {
-            let panel = Panel::new(Widget::col(vec![
+            let panel = Panel::new_builder(Widget::col(vec![
                 header(ctx, "Parking occupancy"),
                 Text::from_multiline(vec![
                     Line(format!(
@@ -194,7 +194,7 @@ impl Occupancy {
             }
         }
 
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             header(ctx, "Parking occupancy"),
             Text::from_multiline(vec![
                 Line(format!(
@@ -342,7 +342,7 @@ impl Layer for Efficiency {
 
 impl Efficiency {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Efficiency {
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             header(ctx, "Parking efficiency"),
             Text::from(Line("How far away are people parked? (minutes)").secondary())
                 .wrap_to_pct(ctx, 15)

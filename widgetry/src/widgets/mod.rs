@@ -95,6 +95,12 @@ impl WidgetOutput {
     }
 }
 
+impl Default for WidgetOutput {
+    fn default() -> Self {
+        WidgetOutput::new()
+    }
+}
+
 downcast_rs::impl_downcast!(WidgetImpl);
 
 pub struct Widget {
@@ -457,7 +463,7 @@ impl Widget {
     }
 
     // Also returns the hitbox of the entire widget
-    pub fn to_geom(mut self, ctx: &EventCtx, exact_pct_width: Option<f64>) -> (GeomBatch, Polygon) {
+    pub fn into_geom(mut self, ctx: &EventCtx, exact_pct_width: Option<f64>) -> (GeomBatch, Polygon) {
         if let Some(w) = exact_pct_width {
             // TODO 35 is a sad magic number. By default, Panels have padding of 16, so assuming
             // this geometry is going in one of those, it makes sense to subtract 32. But that still
@@ -539,7 +545,7 @@ impl Widget {
     // Populate a flattened list of Nodes, matching the traversal order
     fn get_flexbox(&self, parent: Node, stretch: &mut Stretch, nodes: &mut Vec<Node>) {
         if let Some(container) = self.widget.downcast_ref::<Container>() {
-            let mut style = self.layout.style.clone();
+            let mut style = self.layout.style;
             style.flex_direction = if container.is_row {
                 FlexDirection::Row
             } else {
@@ -551,9 +557,8 @@ impl Widget {
                 widget.get_flexbox(node, stretch, nodes);
             }
             stretch.add_child(parent, node).unwrap();
-            return;
         } else {
-            let mut style = self.layout.style.clone();
+            let mut style = self.layout.style;
             style.size = Size {
                 width: Dimension::Points(self.widget.get_dims().width as f32),
                 height: Dimension::Points(self.widget.get_dims().height as f32),

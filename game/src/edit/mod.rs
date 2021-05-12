@@ -395,7 +395,7 @@ impl SaveEdits {
         };
         let mut save = SaveEdits {
             current_name: initial_name.clone(),
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Line(title).small_heading().into_widget(ctx),
                 Widget::row(vec![
                     "Name:".text_widget(ctx).centered_vert(),
@@ -559,7 +559,7 @@ impl LoadEdits {
 
         Box::new(LoadEdits {
             mode,
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Load proposal").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
@@ -652,7 +652,7 @@ impl State<App> for LoadEdits {
 }
 
 fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Panel {
-    Panel::new(Widget::col(vec![
+    Panel::new_builder(Widget::col(vec![
         Line("Editing map")
             .small_heading()
             .into_widget(ctx)
@@ -853,7 +853,7 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Panel {
         }
     }
 
-    Panel::new(Widget::col(col))
+    Panel::new_builder(Widget::col(col))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx)
 }
@@ -876,7 +876,7 @@ impl ConfirmDiscard {
     pub fn new_state(ctx: &mut EventCtx, discard: Box<dyn Fn(&mut App)>) -> Box<dyn State<App>> {
         Box::new(ConfirmDiscard {
             discard,
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Image::untinted("system/assets/tools/alert.svg")
                         .into_widget(ctx)

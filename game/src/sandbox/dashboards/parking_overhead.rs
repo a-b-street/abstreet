@@ -58,7 +58,7 @@ impl ParkingOverhead {
             .section(ctx),
         ]);
 
-        let panel = Panel::new(col).exact_size_percent(90, 90).build(ctx);
+        let panel = Panel::new_builder(col).exact_size_percent(90, 90).build(ctx);
 
         Box::new(Self {
             tab: DashTab::ParkingOverhead,

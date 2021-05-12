@@ -306,7 +306,7 @@ impl CommonState {
 
 // TODO Kinda misnomer
 pub fn tool_panel(ctx: &mut EventCtx) -> Panel {
-    Panel::new(Widget::row(vec![
+    Panel::new_builder(Widget::row(vec![
         ctx.style()
             .btn_plain
             .icon("system/assets/tools/home.svg")

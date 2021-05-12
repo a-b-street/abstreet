@@ -38,7 +38,7 @@ impl MinimapControls<App> for MinimapController {
             unzoomed_agents.buses_and_trains(),
             unzoomed_agents.peds(),
         ];
-        Panel::new(Widget::row(vec![
+        Panel::new_builder(Widget::row(vec![
             make_tool_panel(ctx, app).align_right(),
             Widget::col(make_agent_toggles(ctx, app, is_enabled))
                 .bg(app.cs.panel_bg)
@@ -175,7 +175,7 @@ fn make_agent_toggles(ctx: &mut EventCtx, app: &App, is_enabled: [bool; 4]) -> V
             buttons.image_batch(row_batch, bounds)
         };
 
-        Toggle::new(
+        Toggle::new_widget(
             is_enabled,
             false_btn.build(ctx, action),
             true_btn.build(ctx, action),

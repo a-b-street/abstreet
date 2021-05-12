@@ -60,7 +60,7 @@ impl Slider {
         dragger_len: f64,
         current_percent: f64,
     ) -> Widget {
-        Slider::new(
+        Slider::new_widget(
             ctx,
             Style::Horizontal {
                 main_bg_len: width,
@@ -71,7 +71,7 @@ impl Slider {
     }
 
     pub fn vertical(ctx: &EventCtx, height: f64, dragger_len: f64, current_percent: f64) -> Widget {
-        Slider::new(
+        Slider::new_widget(
             ctx,
             Style::Vertical {
                 main_bg_len: height,
@@ -82,10 +82,10 @@ impl Slider {
     }
 
     pub fn area(ctx: &EventCtx, width: f64, current_percent: f64) -> Widget {
-        Slider::new(ctx, Style::Area { width }, current_percent)
+        Slider::new_widget(ctx, Style::Area { width }, current_percent)
     }
 
-    fn new(ctx: &EventCtx, style: Style, current_percent: f64) -> Widget {
+    fn new_widget(ctx: &EventCtx, style: Style, current_percent: f64) -> Widget {
         let mut s = Slider {
             current_percent,
             mouse_on_slider: false,
@@ -208,7 +208,7 @@ impl Slider {
     }
 
     pub(crate) fn set_percent(&mut self, ctx: &EventCtx, percent: f64) {
-        assert!(percent >= 0.0 && percent <= 1.0);
+        assert!((0.0..=1.0).contains(&percent));
         self.current_percent = percent;
         self.recalc(ctx);
         if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {

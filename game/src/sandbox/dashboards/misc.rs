@@ -43,9 +43,9 @@ impl ActiveTraffic {
         }
 
         Box::new(ActiveTraffic {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 DashTab::ActiveTraffic.picker(ctx, app),
-                LinePlot::new(ctx, active_agents, PlotOptions::fixed()).section(ctx),
+                LinePlot::new_widget(ctx, active_agents, PlotOptions::fixed()).section(ctx),
             ]))
             .exact_size_percent(90, 90)
             .build(ctx),
@@ -151,7 +151,7 @@ impl TransitRoutes {
                 .into_widget(ctx),
             Widget::row(vec![
                 Image::from_path("system/assets/tools/search.svg").into_widget(ctx),
-                Autocomplete::new(
+                Autocomplete::new_widget(
                     ctx,
                     routes
                         .iter()
@@ -185,7 +185,7 @@ impl TransitRoutes {
         ];
 
         Box::new(TransitRoutes {
-            panel: Panel::new(Widget::col(col))
+            panel: Panel::new_builder(Widget::col(col))
                 .exact_size_percent(90, 90)
                 .build(ctx),
         })

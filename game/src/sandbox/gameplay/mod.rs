@@ -253,7 +253,7 @@ impl FinalScore {
         next_mode: Option<GameplayMode>,
     ) -> Box<dyn State<App>> {
         Box::new(FinalScore {
-            panel: Panel::new(
+            panel: Panel::new_builder(
                 Widget::custom_row(vec![
                     GeomBatch::load_svg(ctx, "system/assets/characters/boss.svg.gz")
                         .scale(0.75)

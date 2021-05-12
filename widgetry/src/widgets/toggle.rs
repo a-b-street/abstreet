@@ -11,7 +11,7 @@ pub struct Toggle {
 }
 
 impl Toggle {
-    pub fn new(enabled: bool, false_btn: Button, true_btn: Button) -> Widget {
+    pub fn new_widget(enabled: bool, false_btn: Button, true_btn: Button) -> Widget {
         if enabled {
             Widget::new(Box::new(Toggle {
                 enabled,
@@ -68,7 +68,7 @@ impl Toggle {
 
         let on_button = buttons.image_batch(on_batch, on_bounds).build(ctx, label);
 
-        Toggle::new(enabled, off_button, on_button).named(label)
+        Toggle::new_widget(enabled, off_button, on_button).named(label)
     }
 
     pub fn checkbox<MK: Into<Option<MultiKey>>>(
@@ -103,7 +103,7 @@ impl Toggle {
             .clone()
             .image_bytes(include_labeled_bytes!("../../icons/checkbox_checked.svg"));
 
-        Toggle::new(
+        Toggle::new_widget(
             enabled,
             false_btn.build(ctx, label),
             true_btn.build(ctx, label),
@@ -144,7 +144,7 @@ impl Toggle {
             .clone()
             .image_bytes(include_labeled_bytes!("../../icons/checkbox_checked.svg"));
 
-        Toggle::new(
+        Toggle::new_widget(
             enabled,
             false_btn.build(ctx, action),
             true_btn.build(ctx, action),
@@ -174,7 +174,7 @@ impl Toggle {
                 ControlState::Default,
             );
 
-        Toggle::new(
+        Toggle::new_widget(
             enabled,
             false_btn.build(ctx, label),
             true_btn.build(ctx, label),
@@ -247,7 +247,7 @@ impl Toggle {
         let right_text_button = left_text_button.clone().label_text(right_label);
         Widget::row(vec![
             left_text_button.build_def(ctx).centered_vert(),
-            Toggle::new(
+            Toggle::new_widget(
                 enabled,
                 toggle_right_button.build(ctx, right_label),
                 toggle_left_button.build(ctx, left_label),

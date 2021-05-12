@@ -32,7 +32,7 @@ pub struct Panel {
 }
 
 impl Panel {
-    pub fn new(top_level: Widget) -> PanelBuilder {
+    pub fn new_builder(top_level: Widget) -> PanelBuilder {
         PanelBuilder {
             top_level,
             horiz: HorizontalAlignment::Center,
@@ -43,7 +43,7 @@ impl Panel {
 
     /// Returns an empty panel. `event` and `draw` will have no effect.
     pub fn empty(ctx: &mut EventCtx) -> Panel {
-        Panel::new(Widget::col(vec![])).build_custom(ctx)
+        Panel::new_builder(Widget::col(vec![])).build_custom(ctx)
     }
 
     fn update_container_dims_for_canvas_dims(&mut self, canvas_dims: ScreenDims) {
@@ -502,7 +502,7 @@ impl Panel {
         let old = self
             .top_level
             .find_mut(id)
-            .expect(&format!("Panel doesn't have {}", id));
+            .unwrap_or_else(|| panic!("Panel doesn't have {}", id));
         new.layout.style = old.layout.style;
         *old = new;
         self.recompute_layout(ctx, true);

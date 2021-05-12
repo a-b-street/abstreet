@@ -55,7 +55,7 @@ impl Viewer {
         app: &App,
         biz_search_panel: Option<Widget>,
     ) {
-        let top_panel = Panel::new(Widget::col(vec![
+        let top_panel = Panel::new_builder(Widget::col(vec![
             Line("OpenStreetMap viewer")
                 .small_heading()
                 .into_widget(ctx),

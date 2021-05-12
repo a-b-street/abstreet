@@ -49,7 +49,7 @@ impl StopSignEditor {
             })
             .collect();
 
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             Line("Stop sign editor").small_heading().into_widget(ctx),
             ctx.style()
                 .btn_outline
@@ -78,7 +78,7 @@ impl StopSignEditor {
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);
 
-        <dyn SimpleState<_>>::new(
+        <dyn SimpleState<_>>::new_state(
             panel,
             Box::new(StopSignEditor {
                 id,

@@ -23,6 +23,7 @@ impl Warper {
     // false means done
     pub fn event(&self, ctx: &mut EventCtx) -> bool {
         // Actually nothing for us to do
+        #[allow(clippy::float_cmp)]
         if self.line.is_none() && self.cam_zoom.0 == self.cam_zoom.1 {
             return false;
         }

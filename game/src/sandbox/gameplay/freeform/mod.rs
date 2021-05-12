@@ -170,7 +170,7 @@ impl GameplayState for Freeform {
             .into_widget(ctx),
         ];
 
-        self.top_right = Panel::new(Widget::col(rows))
+        self.top_right = Panel::new_builder(Widget::col(rows))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx);
     }
@@ -278,8 +278,8 @@ impl ChangeScenario {
                 .build_def(ctx),
         );
 
-        <dyn SimpleState<_>>::new(
-            Panel::new(Widget::col(col)).build(ctx),
+        <dyn SimpleState<_>>::new_state(
+            Panel::new_builder(Widget::col(col)).build(ctx),
             Box::new(ChangeScenario),
         )
     }

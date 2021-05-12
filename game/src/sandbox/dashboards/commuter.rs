@@ -668,7 +668,7 @@ fn partition_sidewalk_loops(app: &App) -> Vec<Loop> {
 }
 
 fn make_panel(ctx: &mut EventCtx, app: &App) -> Panel {
-    Panel::new(Widget::col(vec![
+    Panel::new_builder(Widget::col(vec![
         Widget::row(vec![
             Line("Commute map by block")
                 .small_heading()

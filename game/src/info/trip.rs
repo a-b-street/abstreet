@@ -652,7 +652,7 @@ fn make_timeline(
         x1 += phase_width;
     }
 
-    DrawWithTooltips::new(ctx, batch, tooltips, Box::new(|_| GeomBatch::new()))
+    DrawWithTooltips::new_widget(ctx, batch, tooltips, Box::new(|_| GeomBatch::new()))
 }
 
 /// Creates the timeline, location warp, and time warp buttons for one trip, and draws the route on
@@ -841,7 +841,7 @@ fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map:
         dist += step.as_traversable().get_polyline(map).length();
     }
     // TODO Show roughly where we are in the trip; use distance covered by current path for this
-    LinePlot::new(
+    LinePlot::new_widget(
         ctx,
         vec![Series {
             label: if walking {

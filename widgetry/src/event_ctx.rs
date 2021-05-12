@@ -146,7 +146,7 @@ impl<'a> EventCtx<'a> {
     pub fn make_loading_screen(&mut self, txt: Text) -> Panel {
         let border = Color::hex("#F4DA22");
         let (label, bytes) = crate::include_labeled_bytes!("../icons/loading.svg");
-        Panel::new(Widget::row(vec![
+        Panel::new_builder(Widget::row(vec![
             Widget::custom_col(vec![
                 svg::load_svg_bytes(self.prerender, label, bytes)
                     .unwrap()

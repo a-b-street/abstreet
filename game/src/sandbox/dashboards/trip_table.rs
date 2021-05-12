@@ -98,7 +98,7 @@ impl TripTable {
         ]);
         tabs.push_tab(unfinished_trips_btn, unfinished_trips_content);
 
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             DashTab::TripTable.picker(ctx, app),
             tabs.build_widget(ctx),
         ]))
@@ -342,8 +342,8 @@ fn make_table_finished_trips(app: &App) -> Table<App, FinishedTrip, Filters> {
                     Toggle::switch(ctx, "ending off-map", None, state.off_map_ends),
                     ctx.style().btn_plain.text("filter starts").build_def(ctx),
                     ctx.style().btn_plain.text("filter ends").build_def(ctx),
-                    Stash::new("starts_in", state.starts_in.clone()),
-                    Stash::new("ends_in", state.ends_in.clone()),
+                    Stash::new_widget("starts_in", state.starts_in.clone()),
+                    Stash::new_widget("ends_in", state.ends_in.clone()),
                     if app.primary.has_modified_trips {
                         Toggle::switch(
                             ctx,

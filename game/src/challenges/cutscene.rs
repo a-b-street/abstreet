@@ -251,7 +251,7 @@ fn make_panel(
             .outline(ctx.style().btn_solid.outline),
     ];
 
-    Panel::new(Widget::custom_col(col))
+    Panel::new_builder(Widget::custom_col(col))
         .exact_size_percent(80, 80)
         .build_custom(ctx)
 }
@@ -263,7 +263,7 @@ pub struct FYI {
 impl FYI {
     pub fn new_state(ctx: &mut EventCtx, contents: Widget, bg: Color) -> Box<dyn State<App>> {
         Box::new(FYI {
-            panel: Panel::new(
+            panel: Panel::new_builder(
                 Widget::custom_col(vec![
                     contents,
                     ctx.style()

@@ -460,7 +460,7 @@ impl InfoPanel {
                 tab,
                 time: app.primary.sim.time(),
                 is_paused: ctx_actions.is_paused(),
-                panel: Panel::new(Widget::col(col).bg(app.cs.panel_bg).padding(16))
+                panel: Panel::new_builder(Widget::col(col).bg(app.cs.panel_bg).padding(16))
                     .aligned_pair(PANEL_PLACEMENT)
                     // TODO Some headings are too wide.. Intersection #xyz (Traffic signals)
                     .exact_size_percent(30, 60)
@@ -710,7 +710,7 @@ fn throughput<F: Fn(&Analytics) -> Vec<(AgentType, Vec<(Time, usize)>)>>(
     plot_opts.disabled = opts.disabled_series();
     Widget::col(vec![
         Line(title).small_heading().into_widget(ctx),
-        LinePlot::new(ctx, series, plot_opts),
+        LinePlot::new_widget(ctx, series, plot_opts),
     ])
     .padding(10)
     .bg(app.cs.inner_panel_bg)

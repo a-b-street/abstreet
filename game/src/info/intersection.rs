@@ -231,7 +231,7 @@ fn current_demand_body(ctx: &mut EventCtx, app: &App, id: IntersectionID) -> Wid
     rows.push(
         Widget::col(vec![
             txt.into_widget(ctx),
-            DrawWithTooltips::new(
+            DrawWithTooltips::new_widget(
                 ctx,
                 batch,
                 tooltips,
@@ -420,9 +420,9 @@ fn delay_plot(
             .small_heading()
             .into_widget(ctx),
         if fan_chart {
-            FanChart::new(ctx, series, plot_opts)
+            FanChart::new_widget(ctx, series, plot_opts)
         } else {
-            ScatterPlot::new(ctx, series, plot_opts)
+            ScatterPlot::new_widget(ctx, series, plot_opts)
         },
     ])
     .padding(10)

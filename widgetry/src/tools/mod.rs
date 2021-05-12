@@ -36,3 +36,9 @@ impl<K: PartialEq + Clone, V> Cached<K, V> {
         self.contents = None;
     }
 }
+
+impl<K: PartialEq + Clone, V> Default for Cached<K, V> {
+    fn default() -> Self {
+        Cached::new()
+    }
+}

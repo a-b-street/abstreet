@@ -36,7 +36,7 @@ impl CollisionsViewer {
         let (dataviz, tooltips) = Dataviz::aggregated(ctx, app, &data, indices);
 
         Box::new(CollisionsViewer {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Collisions viewer").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),

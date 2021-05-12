@@ -10,7 +10,7 @@ pub struct Stash<T> {
 }
 
 impl<T: 'static> Stash<T> {
-    pub fn new(name: &str, value: T) -> Widget {
+    pub fn new_widget(name: &str, value: T) -> Widget {
         Widget::new(Box::new(Stash {
             value: Rc::new(RefCell::new(value)),
         }))

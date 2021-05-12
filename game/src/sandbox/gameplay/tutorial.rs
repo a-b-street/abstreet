@@ -797,7 +797,7 @@ impl TutorialState {
             );
         }
 
-        Panel::new(Widget::col(col))
+        Panel::new_builder(Widget::col(col))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx)
     }
@@ -863,7 +863,7 @@ impl TutorialState {
                 col.push(Widget::col(controls).align_bottom());
 
                 Some(
-                    Panel::new(Widget::col(col).outline((5.0, Color::WHITE)))
+                    Panel::new_builder(Widget::col(col).outline((5.0, Color::WHITE)))
                         .exact_size_percent(40, 40)
                         .aligned(msg.aligned, VerticalAlignment::Center)
                         .build(ctx),

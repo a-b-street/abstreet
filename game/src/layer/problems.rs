@@ -231,7 +231,7 @@ fn make_controls(
         col.extend(o.to_controls(ctx, legend.unwrap()));
     }
 
-    Panel::new(Widget::col(col))
+    Panel::new_builder(Widget::col(col))
         .aligned_pair(PANEL_PLACEMENT)
         .build(ctx)
 }

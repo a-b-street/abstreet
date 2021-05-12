@@ -115,10 +115,10 @@ impl EditRoad {
                 .hotkey(Key::Enter)
                 .build_def(ctx),
         ];
-        let panel = Panel::new(Widget::col(col))
+        let panel = Panel::new_builder(Widget::col(col))
             .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
             .build(ctx);
-        <dyn SimpleState<_>>::new(
+        <dyn SimpleState<_>>::new_state(
             panel,
             Box::new(EditRoad {
                 r,

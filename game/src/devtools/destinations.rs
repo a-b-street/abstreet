@@ -92,7 +92,7 @@ impl PopularDestinations {
         Box::new(PopularDestinations {
             per_bldg,
             draw: ctx.upload(batch),
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Most popular destinations")
                         .small_heading()

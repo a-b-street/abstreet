@@ -49,7 +49,7 @@ impl Floodfiller {
 
         let (unzoomed, zoomed, legend) = colorer.build(ctx);
         Box::new(Floodfiller {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line(title).small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),

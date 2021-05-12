@@ -354,7 +354,7 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
             .build_widget(ctx, "search"),
     ]));
 
-    Panel::new(Widget::col(rows))
+    Panel::new_builder(Widget::col(rows))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
         .build(ctx)
 }
@@ -484,7 +484,7 @@ impl ExploreAmenities {
             Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.duration_away))),
         );
 
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
                 Line(format!("{} within 15 minutes", category))
                     .small_heading()

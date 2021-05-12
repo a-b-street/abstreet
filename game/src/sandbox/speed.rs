@@ -148,7 +148,7 @@ impl TimePanel {
                 .build_widget(ctx, "reset to midnight"),
         );
 
-        let mut panel = Panel::new(Widget::col(vec![
+        let mut panel = Panel::new_builder(Widget::col(vec![
             self.create_time_panel(ctx, app).named("time"),
             Widget::custom_row(row),
         ]))
@@ -289,7 +289,7 @@ impl TimePanel {
         let bounds = progress_bar.get_bounds();
         let bounding_box = Polygon::rectangle(bounds.width(), bounds.height());
         let tooltip = vec![(bounding_box, tooltip_text)];
-        DrawWithTooltips::new(ctx, progress_bar, tooltip, Box::new(|_| GeomBatch::new()))
+        DrawWithTooltips::new_widget(ctx, progress_bar, tooltip, Box::new(|_| GeomBatch::new()))
     }
 
     fn create_time_panel(&mut self, ctx: &EventCtx, app: &App) -> Widget {

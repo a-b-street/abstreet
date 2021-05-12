@@ -24,7 +24,7 @@ impl ChangeDuration {
         signal: &ControlTrafficSignal,
         idx: usize,
     ) -> Box<dyn State<App>> {
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
                 Line("How long should this stage last?")
                     .small_heading()
@@ -98,7 +98,7 @@ impl ChangeDuration {
                 .build_def(ctx),
         ]))
         .build(ctx);
-        <dyn SimpleState<_>>::new(panel, Box::new(ChangeDuration { idx }))
+        <dyn SimpleState<_>>::new_state(panel, Box::new(ChangeDuration { idx }))
     }
 }
 

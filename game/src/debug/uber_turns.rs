@@ -26,7 +26,7 @@ impl UberTurnPicker {
             members.insert(i);
         }
 
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
                 Line("Select multiple intersections")
                     .small_heading()
@@ -46,7 +46,7 @@ impl UberTurnPicker {
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);
-        <dyn SimpleState<_>>::new(panel, Box::new(UberTurnPicker { members }))
+        <dyn SimpleState<_>>::new_state(panel, Box::new(UberTurnPicker { members }))
     }
 }
 
@@ -141,7 +141,7 @@ impl UberTurnViewer {
             );
         }
 
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
                 Line("Uber-turn viewer").small_heading().into_widget(ctx),
                 Widget::vert_separator(ctx, 50.0),
@@ -174,7 +174,7 @@ impl UberTurnViewer {
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);
-        <dyn SimpleState<_>>::new(
+        <dyn SimpleState<_>>::new_state(
             panel,
             Box::new(UberTurnViewer {
                 draw: ctx.upload(batch),

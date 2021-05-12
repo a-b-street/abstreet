@@ -251,7 +251,7 @@ impl ChallengesPicker {
         master_col.push(Widget::row(main_row));
 
         Box::new(ChallengesPicker {
-            panel: Panel::new(Widget::col(master_col))
+            panel: Panel::new_builder(Widget::col(master_col))
                 .exact_size_percent(90, 85)
                 .build_custom(ctx),
             links,

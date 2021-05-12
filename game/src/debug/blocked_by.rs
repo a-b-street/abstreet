@@ -35,7 +35,7 @@ impl Viewer {
                 .map(|a| (a.id, a.pos))
                 .collect(),
             arrows: Drawable::empty(ctx),
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("What agents are blocked by others?")
                         .small_heading()

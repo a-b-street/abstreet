@@ -39,7 +39,7 @@ impl TrafficSignalDemand {
             hour,
             draw_all,
             selected: None,
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Traffic signal demand over time")
                         .small_heading()

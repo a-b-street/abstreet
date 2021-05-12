@@ -86,7 +86,7 @@ impl GeomBatch {
 
     /// Wrap in a Widget for layouting, so this batch can become part of a larger one.
     pub fn batch(self) -> Widget {
-        DeferDraw::new(self)
+        DeferDraw::new_widget(self)
     }
 
     /// Wrap in a Widget, so the batch can be drawn as part of a Panel.
@@ -216,6 +216,7 @@ impl GeomBatch {
     }
 
     pub fn scale_xy(mut self, x_factor: f64, y_factor: f64) -> GeomBatch {
+        #[allow(clippy::float_cmp)]
         if x_factor == 1.0 && y_factor == 1.0 {
             return self;
         }
@@ -243,12 +244,12 @@ impl GeomBatch {
     /// Exports the batch to a list of GeoJSON features, labeling each colored polygon. Z-values,
     /// alpha values from the color, and non-RGB fill patterns are lost. If the polygon isn't a
     /// ring, it's skipped. The world-space coordinates are optionally translated back to GPS.
-    pub fn to_geojson(self, gps_bounds: Option<&GPSBounds>) -> Vec<geojson::Feature> {
+    pub fn into_geojson(self, gps_bounds: Option<&GPSBounds>) -> Vec<geojson::Feature> {
         let mut features = Vec::new();
         for (fill, polygon, _) in self.list {
             if let Fill::Color(color) = fill {
                 let mut properties = serde_json::Map::new();
-                properties.insert("color".to_string(), color.to_hex().into());
+                properties.insert("color".to_string(), color.as_hex().into());
                 features.push(geojson::Feature {
                     bbox: None,
                     geometry: Some(polygon.to_geojson(gps_bounds)),
@@ -259,6 +260,12 @@ impl GeomBatch {
             }
         }
         features
+    }
+}
+
+impl Default for GeomBatch {
+    fn default() -> Self {
+        GeomBatch::new()
     }
 }
 

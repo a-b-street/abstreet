@@ -56,7 +56,7 @@ impl Assets {
             read_svg,
         };
         a.text_opts.borrow_mut().fontdb = fontdb;
-        for font in vec![
+        for font in [
             Font::BungeeInlineRegular,
             Font::BungeeRegular,
             Font::OverpassBold,
@@ -70,7 +70,7 @@ impl Assets {
                     .borrow()
                     .fontdb
                     .query(&fontdb::Query {
-                        families: &vec![fontdb::Family::Name(font.family())],
+                        families: &[fontdb::Family::Name(font.family())],
                         weight: match font {
                             Font::OverpassBold | Font::OverpassMonoBold => fontdb::Weight::BOLD,
                             Font::OverpassSemiBold => fontdb::Weight::SEMIBOLD,
@@ -88,7 +88,7 @@ impl Assets {
     }
 
     pub fn base_url(&self) -> Option<&str> {
-        self.base_url.as_ref().map(String::as_str)
+        self.base_url.as_deref()
     }
 
     pub fn are_gzipped(&self) -> bool {

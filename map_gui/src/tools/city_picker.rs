@@ -151,7 +151,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                     districts,
                     selected: None,
                     on_load: Some(on_load),
-                    panel: Panel::new(Widget::col(vec![
+                    panel: Panel::new_builder(Widget::col(vec![
                         Widget::row(vec![
                             Line("Select a district").small_heading().into_widget(ctx),
                             ctx.style().btn_close_widget(ctx),
@@ -312,14 +312,14 @@ impl<A: AppLike + 'static> AllCityPicker<A> {
 
         Box::new(AllCityPicker {
             on_load: Some(on_load),
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Select a district").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 Widget::row(vec![
                     Image::from_path("system/assets/tools/search.svg").into_widget(ctx),
-                    Autocomplete::new(ctx, autocomplete_entries).named("search"),
+                    Autocomplete::new_widget(ctx, autocomplete_entries).named("search"),
                 ])
                 .padding(8),
                 Widget::custom_row(buttons).flex_wrap(ctx, Percent::int(70)),
@@ -449,7 +449,7 @@ impl<A: AppLike + 'static> CitiesInCountryPicker<A> {
 
         Box::new(CitiesInCountryPicker {
             on_load: Some(on_load),
-            panel: Panel::new(Widget::col(col))
+            panel: Panel::new_builder(Widget::col(col))
                 .exact_size_percent(80, 80)
                 .build(ctx),
         })

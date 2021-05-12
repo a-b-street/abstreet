@@ -199,7 +199,7 @@ impl GameplayState for PlayScenario {
             },
         ];
 
-        self.top_right = Panel::new(Widget::col(rows))
+        self.top_right = Panel::new_builder(Widget::col(rows))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx);
     }
@@ -282,7 +282,7 @@ impl EditScenarioModifiers {
         Box::new(EditScenarioModifiers {
             scenario_name,
             modifiers,
-            panel: Panel::new(Widget::col(rows))
+            panel: Panel::new_builder(Widget::col(rows))
                 .exact_size_percent(80, 80)
                 .build(ctx),
         })
@@ -398,7 +398,7 @@ impl ChangeMode {
         Box::new(ChangeMode {
             scenario_name,
             modifiers,
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Line("Change trip mode").small_heading().into_widget(ctx),
                 Widget::row(vec![
                     "Percent of people to modify:"

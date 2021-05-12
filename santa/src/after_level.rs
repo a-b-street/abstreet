@@ -93,7 +93,7 @@ impl Strategize {
 
         batch.push(Color::CYAN, path.render(Distance::meters(2.0)));
 
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             txt.into_widget(ctx),
             ctx.style()
                 .btn_outline
@@ -113,7 +113,7 @@ impl Strategize {
         ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
         .build(ctx);
-        <dyn SimpleState<_>>::new(
+        <dyn SimpleState<_>>::new_state(
             panel,
             Box::new(Strategize {
                 unlock_messages,
@@ -194,8 +194,8 @@ impl Results {
             }
         }
 
-        <dyn SimpleState<_>>::new(
-            Panel::new(Widget::col(vec![
+        <dyn SimpleState<_>>::new_state(
+            Panel::new_builder(Widget::col(vec![
                 txt.into_widget(ctx),
                 ctx.style()
                     .btn_solid_primary

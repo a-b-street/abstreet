@@ -152,13 +152,11 @@ impl<T: 'static> WidgetImpl for Menu<T> {
         }
 
         // Handle nav keys
+        #[allow(clippy::collapsible_if)]
         if ctx.input.pressed(Key::Enter) {
             let choice = &self.choices[self.current_idx];
             if choice.active {
                 output.outcome = Outcome::Clicked(choice.label.clone());
-                return;
-            } else {
-                return;
             }
         } else if ctx.input.pressed(Key::UpArrow) {
             if self.current_idx > 0 {

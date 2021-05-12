@@ -594,6 +594,7 @@ impl<'b, 'a: 'b, 'c> ButtonBuilder<'a, 'c> {
         }
         .map(|b| b.0);
 
+        #[allow(clippy::or_fun_call)]
         let label_batch = state_style
             .label
             .as_ref()
@@ -611,10 +612,7 @@ impl<'b, 'a: 'b, 'c> ButtonBuilder<'a, 'c> {
 
                 let text = label.text.clone().or(default.and_then(|d| d.text.clone()));
 
-                // Is there a better way to do this like a `guard let`?
-                if text.is_none() {
-                    return None;
-                }
+                text.as_ref()?;
                 let text = text.unwrap();
 
                 let color = label
@@ -679,7 +677,7 @@ impl<'b, 'a: 'b, 'c> ButtonBuilder<'a, 'c> {
             button_widget = button_widget.corner_rounding(corner_rounding);
         }
 
-        let (geom_batch, _hitbox) = button_widget.to_geom(ctx, None);
+        let (geom_batch, _hitbox) = button_widget.into_geom(ctx, None);
         geom_batch
     }
 }
@@ -704,7 +702,7 @@ pub struct MultiButton {
 }
 
 impl MultiButton {
-    pub fn new(ctx: &EventCtx, batch: GeomBatch, hitboxes: Vec<(Polygon, String)>) -> Widget {
+    pub fn new_widget(ctx: &EventCtx, batch: GeomBatch, hitboxes: Vec<(Polygon, String)>) -> Widget {
         Widget::new(Box::new(MultiButton {
             dims: batch.get_dims(),
             top_left: ScreenPt::new(0.0, 0.0),

@@ -17,12 +17,12 @@ pub struct Navigator {
 impl Navigator {
     pub fn new_state<A: AppLike + 'static>(ctx: &mut EventCtx, app: &A) -> Box<dyn State<A>> {
         Box::new(Navigator {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Enter a street name").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                Autocomplete::new(
+                Autocomplete::new_widget(
                     ctx,
                     app.map()
                         .all_roads()
@@ -105,7 +105,7 @@ impl CrossStreet {
         }
 
         Box::new(CrossStreet {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     {
                         let mut txt = Text::from(Line("What cross street?").small_heading());
@@ -118,7 +118,7 @@ impl CrossStreet {
                     },
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                Autocomplete::new(
+                Autocomplete::new_widget(
                     ctx,
                     cross_streets
                         .into_iter()
@@ -199,14 +199,14 @@ struct SearchBuildings {
 impl SearchBuildings {
     pub fn new_state<A: AppLike + 'static>(ctx: &mut EventCtx, app: &A) -> Box<dyn State<A>> {
         Box::new(SearchBuildings {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Enter a business name or address")
                         .small_heading()
                         .into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                Autocomplete::new(
+                Autocomplete::new_widget(
                     ctx,
                     app.map()
                         .all_buildings()

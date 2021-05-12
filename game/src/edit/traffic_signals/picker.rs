@@ -26,7 +26,7 @@ impl SignalPicker {
         mode: GameplayMode,
     ) -> Box<dyn State<App>> {
         Box::new(SignalPicker {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Select multiple traffic signals")
                         .small_heading()

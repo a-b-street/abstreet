@@ -27,7 +27,7 @@ impl PolygonEditor {
     pub fn new_state(ctx: &mut EventCtx, name: String, mut points: Vec<LonLat>) -> Box<dyn State<App>> {
         points.pop();
         Box::new(PolygonEditor {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Polygon editor").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),

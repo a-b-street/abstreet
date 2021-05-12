@@ -101,7 +101,7 @@ impl<A: SharedAppState> State<A> {
         match panic::catch_unwind(panic::AssertUnwindSafe(|| {
             let mut ctx = EventCtx {
                 fake_mouseover: false,
-                input: input,
+                input,
                 canvas: &mut self.canvas,
                 prerender,
                 style: &mut self.style,
@@ -191,10 +191,10 @@ impl Settings {
             read_svg: Box::new(|path| {
                 use std::io::Read;
 
-                let mut file = std::fs::File::open(path).expect(&format!("Couldn't read {}", path));
+                let mut file = std::fs::File::open(path).unwrap_or_else(|_| panic!("Couldn't read {}", path));
                 let mut buffer = Vec::new();
                 file.read_to_end(&mut buffer)
-                    .expect(&format!("Couldn't read all of {}", path));
+                    .unwrap_or_else(|_| panic!("Couldn't read all of {}", path));
                 buffer
             }),
         }
@@ -329,12 +329,12 @@ pub fn run<
     });
     timer.stop("setup app");
     let app = App {
-        shared_app_state,
         states,
+        shared_app_state,
     };
     timer.done();
 
-    let mut state = State { canvas, app, style };
+    let mut state = State { app, canvas, style };
 
     let dump_raw_events = settings.dump_raw_events;
 

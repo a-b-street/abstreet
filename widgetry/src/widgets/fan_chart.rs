@@ -19,7 +19,7 @@ pub struct FanChart {
 }
 
 impl FanChart {
-    pub fn new<Y: Axis<Y> + HgramValue<Y>>(
+    pub fn new_widget<Y: Axis<Y> + HgramValue<Y>>(
         ctx: &EventCtx,
         mut series: Vec<Series<Time, Y>>,
         opts: PlotOptions<Time, Y>,
@@ -42,6 +42,7 @@ impl FanChart {
                 .max()
                 .unwrap_or(Time::START_OF_DAY)
         });
+        #[allow(clippy::or_fun_call)]
         let max_y = opts.max_y.unwrap_or_else(|| {
             series
                 .iter()

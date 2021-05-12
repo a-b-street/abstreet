@@ -222,7 +222,7 @@ fn trips_body(
         .outline(ctx.style().section_outline)
         .padding(16)
         .bg(app.cs.inner_panel_bg)
-        .to_geom(ctx, Some(0.3));
+        .into_geom(ctx, Some(0.3));
         rows.push(
             ctx.style()
                 .btn_solid

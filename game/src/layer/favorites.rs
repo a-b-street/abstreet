@@ -85,7 +85,7 @@ impl ShowFavorites {
             }
         }
 
-        let panel = Panel::new(header(ctx, "Your favorite buildings"))
+        let panel = Panel::new_builder(header(ctx, "Your favorite buildings"))
             .aligned_pair(PANEL_PLACEMENT)
             .build(ctx);
 

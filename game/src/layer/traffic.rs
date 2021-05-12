@@ -65,7 +65,7 @@ impl Backpressure {
             }
         }
 
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             header(ctx, "Backpressure"),
             Text::from(
                 Line("This counts all active trips passing through a road in the future")
@@ -206,7 +206,7 @@ impl Throughput {
         let stats = &app.primary.sim.get_analytics();
         let road_counter = stats.road_thruput.all_total_counts(&agent_types);
         let intersection_counter = stats.intersection_thruput.all_total_counts(&agent_types);
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             header(ctx, "Throughput"),
             Text::from(Line("This counts all people crossing since midnight").secondary())
                 .wrap_to_pct(ctx, 15)
@@ -399,7 +399,7 @@ impl CompareThroughput {
             }
         }
 
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             header(ctx, "Relative Throughput"),
             Toggle::switch(ctx, "Compare before proposal", None, true),
             scale.make_legend(ctx, vec!["less traffic", "same", "more"]),
@@ -479,7 +479,7 @@ impl TrafficJams {
             zoomed.push(Color::WHITE.alpha(0.4), epicenter);
         }
 
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             header(ctx, "Traffic jams"),
             Text::from(
                 Line("A jam starts when delay exceeds 5 mins, then spreads out").secondary(),
@@ -620,7 +620,7 @@ impl Delay {
         Delay {
             time: app.primary.sim.time(),
             unzoomed: ctx.upload(unzoomed),
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 header(ctx, "Delay per agent (minutes)"),
                 ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0", "5", "10", "15+"]),
             ]))

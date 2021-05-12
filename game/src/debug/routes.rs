@@ -31,7 +31,7 @@ impl RouteExplorer {
         Box::new(RouteExplorer {
             start,
             goal: None,
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Route explorer").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
@@ -307,7 +307,7 @@ impl AllRoutesExplorer {
         let (unzoomed, zoomed) = colorer.build(ctx);
 
         Box::new(AllRoutesExplorer {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("All routes explorer").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
@@ -533,7 +533,7 @@ impl PathCostDebugger {
             draw_path: ctx.upload(batch),
             costs: all_costs,
             tooltip: None,
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Path cost debugger").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),

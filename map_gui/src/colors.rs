@@ -391,30 +391,30 @@ impl ColorScheme {
     // and changing it to use a nice hex string is way too hard.
     pub fn export(&self, path: &str) -> Result<()> {
         let mut f = File::create(path)?;
-        writeln!(f, "unzoomed_highway {}", self.unzoomed_highway.to_hex())?;
-        writeln!(f, "unzoomed_arterial {}", self.unzoomed_arterial.to_hex())?;
+        writeln!(f, "unzoomed_highway {}", self.unzoomed_highway.as_hex())?;
+        writeln!(f, "unzoomed_arterial {}", self.unzoomed_arterial.as_hex())?;
         writeln!(
             f,
             "unzoomed_residential {}",
-            self.unzoomed_residential.to_hex()
+            self.unzoomed_residential.as_hex()
         )?;
-        writeln!(f, "unzoomed_trail {}", self.unzoomed_trail.to_hex())?;
-        writeln!(f, "private_road {}", self.private_road.to_hex())?;
+        writeln!(f, "unzoomed_trail {}", self.unzoomed_trail.as_hex())?;
+        writeln!(f, "private_road {}", self.private_road.as_hex())?;
         writeln!(
             f,
             "residential_building {}",
-            self.residential_building.to_hex()
+            self.residential_building.as_hex()
         )?;
         writeln!(
             f,
             "commercial_building {}",
-            self.commercial_building.to_hex()
+            self.commercial_building.as_hex()
         )?;
         if let Fill::Color(c) = self.grass {
-            writeln!(f, "grass {}", c.to_hex())?;
+            writeln!(f, "grass {}", c.as_hex())?;
         }
         if let Fill::Color(c) = self.water {
-            writeln!(f, "water {}", c.to_hex())?;
+            writeln!(f, "water {}", c.as_hex())?;
         }
         Ok(())
     }

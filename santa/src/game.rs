@@ -48,7 +48,7 @@ impl Game {
         app.time = Time::START_OF_DAY;
         app.session.music.specify_volume(crate::music::IN_GAME);
 
-        let status_panel = Panel::new(Widget::col(vec![
+        let status_panel = Panel::new_builder(Widget::col(vec![
             "15-min Santa".text_widget(ctx).centered_vert(),
             Widget::row(vec![
                 // TODO The blur is messed up
@@ -67,14 +67,14 @@ impl Game {
         .aligned(HorizontalAlignment::RightInset, VerticalAlignment::TopInset)
         .build(ctx);
 
-        let time_panel = Panel::new(Widget::row(vec![
+        let time_panel = Panel::new_builder(Widget::row(vec![
             GeomBatch::new().into_widget(ctx).named("time circle"),
             "Time".text_widget(ctx).centered_vert().named("time label"),
         ]))
         .aligned(HorizontalAlignment::LeftInset, VerticalAlignment::TopInset)
         .build(ctx);
 
-        let pause_panel = Panel::new(
+        let pause_panel = Panel::new_builder(
             ctx.style()
                 .btn_plain
                 .icon_text("system/assets/speed/pause.svg", "Pause")

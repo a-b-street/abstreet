@@ -214,7 +214,7 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
             ])
         };
 
-        self.panel = Panel::new(controls)
+        self.panel = Panel::new_builder(controls)
             .aligned(
                 HorizontalAlignment::Right,
                 VerticalAlignment::BottomAboveOSD,

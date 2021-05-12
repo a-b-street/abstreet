@@ -48,7 +48,7 @@ impl ZoneEditor {
         let selector = RoadSelector::new(ctx, app, members);
 
         Box::new(ZoneEditor {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Line("Editing restricted access zone")
                     .small_heading()
                     .into_widget(ctx),

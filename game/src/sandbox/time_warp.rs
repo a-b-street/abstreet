@@ -110,7 +110,7 @@ impl JumpToTime {
         Box::new(JumpToTime {
             target,
             maybe_mode,
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 ctx.style().btn_close_widget(ctx),
                 tabs.build_widget(ctx),
             ]))
@@ -247,7 +247,7 @@ impl TimeWarpScreen {
             wall_time_started: Instant::now(),
             sim_time_started: app.primary.sim.time(),
             halt_upon_delay,
-            panel: Panel::new(
+            panel: Panel::new_builder(
                 Widget::col(vec![
                     Text::new().into_widget(ctx).named("text"),
                     ctx.style()

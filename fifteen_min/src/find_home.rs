@@ -20,7 +20,7 @@ pub struct FindHome {
 
 impl FindHome {
     pub fn new_state(ctx: &mut EventCtx, options: Options) -> Box<dyn State<App>> {
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
                 Line("Find your walkable home")
                     .small_heading()
@@ -44,7 +44,7 @@ impl FindHome {
         ]))
         .build(ctx);
 
-        <dyn SimpleState<_>>::new(panel, Box::new(FindHome { options }))
+        <dyn SimpleState<_>>::new_state(panel, Box::new(FindHome { options }))
     }
 }
 
@@ -145,7 +145,7 @@ impl Results {
             }
         }
 
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             Line("Results for your walkable home")
                 .small_heading()
                 .into_widget(ctx),
@@ -169,7 +169,7 @@ impl Results {
         .aligned(HorizontalAlignment::RightInset, VerticalAlignment::TopInset)
         .build(ctx);
 
-        <dyn SimpleState<_>>::new(
+        <dyn SimpleState<_>>::new_state(
             panel,
             Box::new(Results {
                 draw_houses: ctx.upload(batch),

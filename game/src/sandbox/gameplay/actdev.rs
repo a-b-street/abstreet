@@ -116,7 +116,7 @@ impl GameplayState for Actdev {
                     ),
                 ))),
                 "about A/B Street" => {
-                    let panel = Panel::new(Widget::col(vec![
+                    let panel = Panel::new_builder(Widget::col(vec![
                         Widget::row(vec![
                             Line("About A/B Street").small_heading().into_widget(ctx),
                             ctx.style().btn_close_widget(ctx),
@@ -136,7 +136,7 @@ impl GameplayState for Actdev {
                         ctx.style().btn_outline.text("abstreet.org").build_def(ctx),
                     ]))
                     .build(ctx);
-                    Some(Transition::Push(<dyn SimpleState<_>>::new(
+                    Some(Transition::Push(<dyn SimpleState<_>>::new_state(
                         panel,
                         Box::new(About),
                     )))
@@ -251,7 +251,7 @@ impl GameplayState for Actdev {
             ]),
         ]);
 
-        self.top_right = Panel::new(col)
+        self.top_right = Panel::new_builder(col)
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx);
     }

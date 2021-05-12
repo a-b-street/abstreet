@@ -24,6 +24,8 @@
 //! * [`TextBox`] - single line text entry
 
 //#![warn(missing_docs)]
+#![allow(clippy::too_many_arguments, clippy::type_complexity)]
+#![allow(clippy::borrowed_box, clippy::ptr_arg)]
 
 #[macro_use]
 extern crate anyhow;
