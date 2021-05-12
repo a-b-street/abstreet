@@ -5,8 +5,8 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2018"
 
 [features]
-native = ["clipboard", "subprocess", "tokio"]
-wasm = ["js-sys", "wasm-bindgen", "wasm-bindgen-futures", "web-sys"]
+native = ["clipboard", "subprocess", "tokio", "widgetry/native-backend"]
+wasm = ["js-sys", "wasm-bindgen", "wasm-bindgen-futures", "web-sys", "widgetry/wasm-backend"]
 # A marker to use a named release from S3 instead of dev for updating files
 release_s3 = []
 
