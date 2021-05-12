@@ -43,7 +43,7 @@ pub enum Value {
 }
 
 impl ParkingMapper {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         ParkingMapper::make(ctx, app, Show::TODO, BTreeMap::new())
     }
 
@@ -114,11 +114,7 @@ impl ParkingMapper {
                 r.osm_tags.contains_key(osm::INFERRED_PARKING)
                     && !data.contains_key(&r.orig_id.osm_way_id)
             });
-            if match (show, is_todo) {
-                (Show::TODO, true) => true,
-                (Show::Done, false) => true,
-                _ => false,
-            } {
+            if matches!((show, is_todo), (Show::TODO, true) | (Show::Done, false)) {
                 batch.push(color, i.polygon.clone());
             }
         }
@@ -269,7 +265,7 @@ impl State<App> for ParkingMapper {
             }
         }
         if self.selected.is_some() && ctx.normal_left_click() {
-            return Transition::Push(ChangeWay::new(
+            return Transition::Push(ChangeWay::new_state(
                 ctx,
                 app,
                 &self.selected.as_ref().unwrap().0,
@@ -387,7 +383,7 @@ struct ChangeWay {
 }
 
 impl ChangeWay {
-    fn new(
+    fn new_state(
         ctx: &mut EventCtx,
         app: &App,
         selected: &HashSet<RoadID>,
@@ -607,7 +603,7 @@ fn find_divided_highways(app: &App) -> HashSet<RoadID> {
     let mut found = HashSet::new();
     for r1 in oneways {
         let r1 = map.get_r(r1);
-        for dist in vec![
+        for dist in [
             Distance::ZERO,
             r1.center_pts.length() / 2.0,
             r1.center_pts.length(),
