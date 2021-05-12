@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, hash_map::Entry};
 
 use abstutil::{Counter, Timer};
 use geom::{Distance, HashablePt2D, PolyLine, Pt2D};
@@ -48,7 +48,7 @@ pub fn split_up_roads(
             // All start and endpoints of ways are also intersections.
             #[allow(clippy::collapsible_if)]
             if count == 2 || idx == 0 || idx == r.center_points.len() - 1 {
-                if let std::collections::hash_map::Entry::Vacant(e) = pt_to_intersection.entry(pt) {
+                if let Entry::Vacant(e) = pt_to_intersection.entry(pt) {
                     let id = input.osm_node_ids[&pt];
                     e.insert(id);
                 }
