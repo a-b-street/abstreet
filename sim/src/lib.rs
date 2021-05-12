@@ -9,7 +9,9 @@
 //! - sov = single occupancy vehicle, a car with just a driver and no passengers. (Car passengers
 //!   are not currently modelled)
 
-#![allow(clippy::ptr_arg)]  // very noisy
+// Disable some noisy clippy warnings
+#![allow(clippy::ptr_arg)]
+#![allow(clippy::type_complexity, clippy::too_many_arguments)]
 
 #[macro_use]
 extern crate anyhow;

@@ -1,4 +1,6 @@
-#![allow(clippy::ptr_arg, clippy::borrowed_box)]  // very noisy
+// Disable some noisy lints
+#![allow(clippy::ptr_arg, clippy::borrowed_box)]
+#![allow(clippy::too_many_arguments, clippy::type_complexity)]
 
 #[macro_use]
 extern crate anyhow;
