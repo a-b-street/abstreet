@@ -173,7 +173,7 @@ impl State<App> for Viewer {
                 "Find your perfect home" => {
                     return Transition::Push(FindHome::new(ctx, self.isochrone.options.clone()));
                 }
-                "Where are certain amenities?" => {
+                "Search by amenity" => {
                     return Transition::Push(FindAmenity::new(ctx, self.isochrone.options.clone()));
                 }
                 x => {
@@ -273,7 +273,7 @@ fn options_from_controls(panel: &Panel) -> Options {
     }
 }
 
-fn draw_star(ctx: &mut EventCtx, b: &Building) -> GeomBatch {
+pub fn draw_star(ctx: &mut EventCtx, b: &Building) -> GeomBatch {
     GeomBatch::load_svg(ctx, "system/assets/tools/star.svg")
         .centered_on(b.polygon.center())
         .color(RewriteColor::ChangeAll(Color::BLACK))
@@ -353,7 +353,7 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
     rows.push(
         ctx.style()
             .btn_outline
-            .text("Where are certain amenities?")
+            .text("Search by amenity")
             .build_def(ctx),
     );
     rows.push(Widget::row(vec![
@@ -370,15 +370,15 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
         .build(ctx)
 }
 
-struct HoverOnBuilding {
-    tooltip: Text,
-    drawn_route: Drawable,
+pub struct HoverOnBuilding {
+    pub tooltip: Text,
+    pub drawn_route: Drawable,
 }
 /// (building, scale factor)
-type HoverKey = (BuildingID, f64);
+pub type HoverKey = (BuildingID, f64);
 
 impl HoverOnBuilding {
-    fn key(ctx: &EventCtx, app: &App) -> Option<HoverKey> {
+    pub fn key(ctx: &EventCtx, app: &App) -> Option<HoverKey> {
         match app.mouseover_unzoomed_buildings(ctx) {
             Some(ID::Building(b)) => {
                 let scale_factor = if ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail {
@@ -392,7 +392,7 @@ impl HoverOnBuilding {
         }
     }
 
-    fn value(
+    pub fn value(
         ctx: &mut EventCtx,
         app: &App,
         key: HoverKey,
@@ -557,7 +557,7 @@ impl State<App> for ExploreAmenities {
     }
 }
 
-fn draw_unwalkable_roads(ctx: &mut EventCtx, app: &App, opts: &Options) -> Drawable {
+pub fn draw_unwalkable_roads(ctx: &mut EventCtx, app: &App, opts: &Options) -> Drawable {
     let allow_shoulders = match opts {
         Options::Walking(ref opts) => opts.allow_shoulders,
         Options::Biking => {

@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::{collections::{HashMap, HashSet}};
 
 use abstutil::MultiMap;
 use geom::{Duration, Polygon};
@@ -113,11 +113,30 @@ impl Isochrone {
             return None;
         }
 
+        let b_hash_map: HashMap<BuildingID, Duration> = self.options.clone().times_from_buildings(map, vec![to])
+        .into_iter()
+        .filter(|(b_id, _)| self.start.contains(b_id))
+        .collect();
+
+        let mut min_value = Vec::new();
+        let mut min_building = Vec::new();
+        for (k, v) in b_hash_map {
+            if min_value.is_empty() {
+                min_building = vec![k];
+                min_value = vec![v];
+            } else {
+                if v < min_value[0] {
+                    min_building[0] = k;
+                    min_value[0] = v;
+                }
+            }
+        }
+
         // TODO Find a way to deal with paths when there are multiple starts
         // right now hard coded self.start to the first starting point
         let req = PathRequest::between_buildings(
             map,
-            self.start[0],
+            min_building[0],
             to,
             match self.options {
                 Options::Walking(_) => PathConstraints::Pedestrian,
