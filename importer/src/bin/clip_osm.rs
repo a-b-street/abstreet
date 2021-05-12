@@ -61,7 +61,7 @@ fn clip(pbf_path: &str, boundary: &Polygon<f64>, out_path: &str) -> Result<()> {
 
                         // To properly compute border nodes, we include all nodes of ways that are
                         // at least partially in the boundary.
-                        way_node_ids.extend(way.nodes().into_iter().cloned());
+                        way_node_ids.extend(way.nodes().iter().cloned());
                     }
                 }
                 OSMObjectType::Relation => {

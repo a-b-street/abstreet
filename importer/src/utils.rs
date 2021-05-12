@@ -24,7 +24,7 @@ pub async fn download(config: &ImporterConfiguration, output: String, url: &str)
 
     // Argh the Dropbox URL is .zip?dl=0
     if url.contains(".zip") {
-        let unzip_to = if output.ends_with("/") {
+        let unzip_to = if output.ends_with('/') {
             output
         } else {
             Path::new(&output).parent().unwrap().display().to_string()

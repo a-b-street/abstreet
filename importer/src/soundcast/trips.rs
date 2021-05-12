@@ -227,7 +227,7 @@ pub fn make_weekday_scenario(
 
         people.push(PersonSpec {
             orig_id: Some(orig_id),
-            origin: pairs[0].0.clone(),
+            origin: pairs[0].0,
             trips: pairs.into_iter().map(|(_, t)| t).collect(),
         });
     }

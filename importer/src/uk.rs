@@ -138,7 +138,7 @@ fn parse_desire_lines(path: String) -> Result<Vec<DesireLine>> {
     let mut output = Vec::new();
     for rec in csv::Reader::from_reader(File::open(path)?).deserialize() {
         let rec: Record = rec?;
-        for (mode, number_commuters) in vec![
+        for (mode, number_commuters) in [
             (TripMode::Drive, rec.num_drivers),
             (TripMode::Bike, rec.num_bikers),
             (TripMode::Walk, rec.num_pedestrians),

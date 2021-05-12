@@ -1,6 +1,9 @@
 //! It's assumed that the importer is run with the current directory as the project repository; aka
 //! `./data/` and `./importer/config` must exist.
 
+// Disable some noisy clippy lints
+#![allow(clippy::type_complexity, clippy::ptr_arg)]
+
 #[macro_use]
 extern crate anyhow;
 #[macro_use]

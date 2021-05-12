@@ -198,7 +198,7 @@ pub fn add_gtfs_schedules(map: &mut Map) {
     for br in map.all_bus_routes() {
         if let Some(ref m) = br.gtfs_trip_marker {
             // Dunno what the :0 thing is
-            trip_marker_to_route.insert(m.split(":").next().unwrap().to_string(), br.id);
+            trip_marker_to_route.insert(m.split(':').next().unwrap().to_string(), br.id);
         }
     }
 
