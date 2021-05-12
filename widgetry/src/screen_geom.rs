@@ -182,3 +182,12 @@ impl From<(f64, f64)> for ScreenDims {
         ScreenDims::new(width_and_height.0, width_and_height.1)
     }
 }
+
+impl From<ScreenDims> for stretch::geometry::Size<stretch::style::Dimension> {
+    fn from(dims: ScreenDims) -> Self {
+        Self {
+            width: stretch::style::Dimension::Points(dims.width as f32),
+            height: stretch::style::Dimension::Points(dims.height as f32),
+        }
+    }
+}

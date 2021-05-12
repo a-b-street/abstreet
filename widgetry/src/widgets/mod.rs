@@ -255,7 +255,7 @@ impl Widget {
                 });
 
         // really short tab bodies look out of place in the panels
-        tab_body.layout.style.min_size.height = Dimension::Points(400.0);
+        tab_body.layout.style.min_size.height = Dimension::Points(200.0);
         tab_body
     }
 
