@@ -36,17 +36,5 @@ members = [
 opt-level = 3
 
 [patch.crates-io]
-# Use upstream after https://github.com/flatgeobuf/flatgeobuf/pull/107 is merged and there's a new version
-flatgeobuf = { git = "https://github.com/dabreegster/flatgeobuf", branch = "reqwest" }
-
 # update to geo-types 0.7 - upstream: https://github.com/21re/rust-geo-booleanop/pull/27
 geo-booleanop = { git = "https://github.com/michaelkirk/rust-geo-booleanop", branch = "mkirk/geo-types-0.7" }
-
-# update to geo-types 0.7 - upstream: https://github.com/georust/geozero/pull/5
-geozero-core = { git = "https://github.com/michaelkirk/geozero", branch = "mkirk/geo-types-0.7" }
-
-# update to geo-types 0.7 - upstream: https://github.com/mthh/contour-rs/pull/2
-contour = { git = "https://github.com/michaelkirk/contour-rs", branch = "mkirk/geojson-0.22" }
-
-# update to geo-types 0.7 not released yet
-gdal = { git = "https://github.com/georust/gdal" }

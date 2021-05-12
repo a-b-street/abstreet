@@ -11,7 +11,7 @@ impl CensusArea {
         bounds: &GPSBounds,
     ) -> Result<Vec<CensusArea>> {
         use flatgeobuf::HttpFgbReader;
-        use geozero_core::geo_types::Geo;
+        use geozero::geo_types::GeoWriter;
 
         use geo::algorithm::{bounding_rect::BoundingRect, map_coords::MapCoordsInplace};
         let mut geo_map_area: geo::Polygon<_> = map_area.clone().into();
@@ -52,7 +52,7 @@ impl CensusArea {
                     continue;
                 }
             };
-            let mut geo = Geo::new();
+            let mut geo = GeoWriter::new();
             geometry.process(&mut geo, flatgeobuf::GeometryType::MultiPolygon)?;
             if let geo::Geometry::MultiPolygon(multi_poly) = geo.geometry() {
                 let geo_polygon = multi_poly

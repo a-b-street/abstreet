@@ -5,7 +5,7 @@ use std::io::{BufReader, BufWriter};
 use anyhow::Result;
 use geo::prelude::Contains;
 use geo::{LineString, Point, Polygon};
-use osmio::obj_types::RcOSMObj;
+use osmio::obj_types::ArcOSMObj;
 use osmio::{Node, OSMObj, OSMObjBase, OSMObjectType, OSMReader, OSMWriter, Relation, Way};
 
 use abstutil::CmdArgs;
@@ -83,17 +83,17 @@ fn clip(pbf_path: &str, boundary: &Polygon<f64>, out_path: &str) -> Result<()> {
     let mut reader = osmio::pbf::PBFReader::new(BufReader::new(File::open(pbf_path)?));
     for obj in reader.objects() {
         match &obj {
-            RcOSMObj::Node(node) => {
+            ArcOSMObj::Node(node) => {
                 if way_node_ids.contains(&node.id()) {
                     writer.write_obj(&obj)?;
                 }
             }
-            RcOSMObj::Way(way) => {
+            ArcOSMObj::Way(way) => {
                 if way_ids.contains(&way.id()) {
                     writer.write_obj(&obj)?;
                 }
             }
-            RcOSMObj::Relation(relation) => {
+            ArcOSMObj::Relation(relation) => {
                 if relation_ids.contains(&relation.id()) {
                     writer.write_obj(&obj)?;
                 }
