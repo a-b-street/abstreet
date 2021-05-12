@@ -18,7 +18,7 @@ fn main() {
     let input = args.required_free();
     let radius_around_label: Option<Distance> = args
         .optional_parse("--radius_around_label_miles", |s| {
-            s.parse::<f64>().map(|x| Distance::miles(x))
+            s.parse::<f64>().map(Distance::miles)
         });
     args.done();
     let mut timer = Timer::new(format!("extract cities from {}", input));
@@ -29,7 +29,7 @@ fn main() {
         if !rel.tags.is("border_type", "city") && !rel.tags.is("place", "city") {
             continue;
         }
-        let name = if let Some(name) = rel.tags.get("name:en").or(rel.tags.get("name")) {
+        let name = if let Some(name) = rel.tags.get("name:en").or_else(|| rel.tags.get("name")) {
             name
         } else {
             println!("{} has no name?", id);

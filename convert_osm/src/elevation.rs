@@ -73,7 +73,7 @@ fn generate_input(map: &RawMap) -> Result<Vec<OriginalRoad>> {
     for (id, r) in &map.roads {
         // TODO Handle cul-de-sacs
         if let Ok(pl) = PolyLine::new(r.center_points.clone()) {
-            ids.push(id.clone());
+            ids.push(*id);
             // Sample points every meter along the road
             let mut pts = Vec::new();
             let mut dist = Distance::ZERO;

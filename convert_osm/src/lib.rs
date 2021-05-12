@@ -120,7 +120,7 @@ pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
         add_extra_buildings(&mut map, path).unwrap();
     }
 
-    snappy::snap_cycleways(&mut map, timer);
+    snappy::snap_cycleways(&map, timer);
 
     map.config = opts.map_config;
     map

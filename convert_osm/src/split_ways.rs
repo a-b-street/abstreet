@@ -20,7 +20,7 @@ pub fn split_up_roads(
     let mut pt_to_intersection: HashMap<HashablePt2D, osm::NodeID> = HashMap::new();
 
     {
-        let mut roads = std::mem::replace(&mut input.roads, Vec::new());
+        let mut roads = std::mem::take(&mut input.roads);
         roads.retain(|(id, r)| {
             if should_collapse_roundabout(r) {
                 info!("Collapsing tiny roundabout {}", id);
@@ -46,10 +46,11 @@ pub fn split_up_roads(
             let count = counts_per_pt.inc(pt);
 
             // All start and endpoints of ways are also intersections.
+            #[allow(clippy::collapsible_if)]
             if count == 2 || idx == 0 || idx == r.center_points.len() - 1 {
-                if !pt_to_intersection.contains_key(&pt) {
+                if let std::collections::hash_map::Entry::Vacant(e) = pt_to_intersection.entry(pt) {
                     let id = input.osm_node_ids[&pt];
-                    pt_to_intersection.insert(pt, id);
+                    e.insert(id);
                 }
             }
         }
@@ -123,7 +124,7 @@ pub fn split_up_roads(
                     }
                 }
 
-                r.center_points = dedupe_angles(std::mem::replace(&mut pts, Vec::new()));
+                r.center_points = dedupe_angles(std::mem::take(&mut pts));
                 // Start a new road
                 map.roads.insert(id, r.clone());
                 r.osm_tags.remove(osm::ENDPT_FWD);
@@ -249,9 +250,8 @@ fn dedupe_angles(pts: Vec<Pt2D>) -> Vec<Pt2D> {
         {
             result.pop();
             result.push(pt);
-        } else {
-            result.push(pt);
         }
+        result.push(pt);
     }
     result
 }

@@ -62,22 +62,20 @@ pub fn glue_multipolygon(
             }
             result.pop();
             result.extend(append);
+        } else if reversed {
+            // TODO Investigate what's going on here. At the very least, take what we have so
+            // far and try to glue it up.
+            println!(
+                "Throwing away {} chunks from relation {}: {:?}",
+                pts_per_way.len(),
+                rel_id,
+                pts_per_way.iter().map(|(id, _)| *id).collect::<Vec<_>>()
+            );
+            break;
         } else {
-            if reversed {
-                // TODO Investigate what's going on here. At the very least, take what we have so
-                // far and try to glue it up.
-                println!(
-                    "Throwing away {} chunks from relation {}: {:?}",
-                    pts_per_way.len(),
-                    rel_id,
-                    pts_per_way.iter().map(|(id, _)| *id).collect::<Vec<_>>()
-                );
-                break;
-            } else {
-                reversed = true;
-                result.reverse();
-                // Try again!
-            }
+            reversed = true;
+            result.reverse();
+            // Try again!
         }
     }
 
@@ -150,7 +148,7 @@ pub fn multipoly_geometry(rel_id: RelationID, rel: &Relation, doc: &Document) ->
         }
     }
     // TODO Handle multiple outers with holes
-    if outer.len() == 0 || outer.len() > 1 && !inner.is_empty() {
+    if outer.is_empty() || outer.len() > 1 && !inner.is_empty() {
         bail!(
             "Multipolygon {} has {} outer, {} inner. Huh?",
             rel_id,
