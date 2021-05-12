@@ -145,7 +145,7 @@ impl PersonFactory {
                         candidates
                             .entry(*activity)
                             .and_modify(|v| v.push(b.id))
-                            .or_insert(vec![b.id]);
+                            .or_insert_with(|| vec![b.id]);
                     }
                 }
             }
