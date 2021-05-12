@@ -20,7 +20,7 @@ pub struct SignalPicker {
 }
 
 impl SignalPicker {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         members: BTreeSet<IntersectionID>,
         mode: GameplayMode,
@@ -69,13 +69,13 @@ impl State<App> for SignalPicker {
             }
         }
 
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+             match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
                 "edit" => {
-                    return Transition::Replace(TrafficSignalEditor::new(
+                    return Transition::Replace(TrafficSignalEditor::new_state(
                         ctx,
                         app,
                         self.members.clone(),
@@ -83,8 +83,7 @@ impl State<App> for SignalPicker {
                     ));
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         Transition::Keep

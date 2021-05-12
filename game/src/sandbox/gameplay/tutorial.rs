@@ -73,7 +73,7 @@ impl Tutorial {
                                 .tutorial
                                 .as_ref()
                                 .map(|tut| tut.current)
-                                .unwrap_or(TutorialPointer::new(0, 0)),
+                                .unwrap_or_else(|| TutorialPointer::new(0, 0)),
                         ),
                     )),
                     Transition::Push(intro_story(ctx)),
@@ -119,7 +119,7 @@ impl Tutorial {
         if !self.warped {
             if let Some((ref id, zoom)) = tut.stage().warp_to {
                 self.warped = true;
-                return Some(Transition::Push(Warping::new(
+                return Some(Transition::Push(Warping::new_state(
                     ctx,
                     app.primary.canonical_point(id.clone()).unwrap(),
                     Some(zoom),
@@ -129,8 +129,8 @@ impl Tutorial {
             }
         }
 
-        match self.top_right.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.top_right.event(ctx) {
+            match x.as_ref() {
                 "Quit" => {
                     return Some(maybe_exit_sandbox(ctx));
                 }
@@ -150,12 +150,11 @@ impl Tutorial {
                     // TODO Ideally this would be an inactive button in message states
                     if self.msg_panel.is_none() {
                         let mode = GameplayMode::Tutorial(tut.current);
-                        return Some(Transition::Push(EditMode::new(ctx, app, mode)));
+                        return Some(Transition::Push(EditMode::new_state(ctx, app, mode)));
                     }
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         if let Some(ref mut msg) = self.msg_panel {
@@ -478,7 +477,7 @@ impl Task {
             Task::Camera => "Put out the fire at the fire station",
             Task::InspectObjects => {
                 let mut txt = Text::from("Find one of each:");
-                for (name, done) in vec![
+                for (name, done) in [
                     ("bike lane", state.inspected_bike_lane),
                     ("building", state.inspected_building),
                     ("intersection with stop sign", state.inspected_stop_sign),
@@ -1295,7 +1294,7 @@ pub fn actions(app: &App, id: ID) -> Vec<(Key, String)> {
 
 pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: &str) -> Transition {
     let mut tut = app.session.tutorial.as_mut().unwrap();
-    let response = match (id, action.as_ref()) {
+    let response = match (id, action) {
         (ID::Car(c), "draw WASH ME") => {
             let is_parked = app
                 .primary

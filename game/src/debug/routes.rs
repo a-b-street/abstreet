@@ -27,7 +27,7 @@ pub struct RouteExplorer {
 }
 
 impl RouteExplorer {
-    pub fn new(ctx: &mut EventCtx, app: &App, start: TripEndpoint) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App, start: TripEndpoint) -> Box<dyn State<App>> {
         Box::new(RouteExplorer {
             start,
             goal: None,
@@ -55,7 +55,7 @@ impl RouteExplorer {
         if let Some((ref goal, _, ref mut preview)) = self.goal {
             *preview = Drawable::empty(ctx);
             if let Some(polygon) =
-                TripEndpoint::path_req(self.start.clone(), goal.clone(), mode, &app.primary.map)
+                TripEndpoint::path_req(self.start, *goal, mode, &app.primary.map)
                     .and_then(|req| app.primary.map.pathfind_with_params(req, &params).ok())
                     .and_then(|path| path.trace(&app.primary.map))
                     .map(|pl| pl.make_polygons(NORMAL_LANE_THICKNESS))
@@ -94,7 +94,7 @@ impl State<App> for RouteExplorer {
                     self.recalc_paths(ctx, app);
                 }
                 "All routes" => {
-                    return Transition::Replace(AllRoutesExplorer::new(ctx, app));
+                    return Transition::Replace(AllRoutesExplorer::new_state(ctx, app));
                 }
                 _ => unreachable!(),
             },
@@ -279,7 +279,7 @@ struct AllRoutesExplorer {
 }
 
 impl AllRoutesExplorer {
-    fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
+    fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         // Tuning the differential scale is hard enough; always use day mode.
         app.change_color_scheme(ctx, ColorSchemeChoice::DayMode);
 
@@ -340,86 +340,87 @@ impl State<App> for AllRoutesExplorer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
-                "close" => {
-                    ctx.loading_screen("revert routing params to defaults", |_, mut timer| {
-                        app.primary
-                            .map
-                            .hack_override_routing_params(RoutingParams::default(), &mut timer);
-                    });
-                    return Transition::Pop;
-                }
-                "keep changed params" => {
-                    // This is handy for seeing the effects on a real simulation without rebuilding
-                    // the map.
-                    ctx.loading_screen("update routing params", |_, mut timer| {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) { match x.as_ref() {
+            "close" => {
+                ctx.loading_screen("revert routing params to defaults", |_, mut timer| {
+                    app.primary
+                        .map
+                        .hack_override_routing_params(RoutingParams::default(), &mut timer);
+                });
+                return Transition::Pop;
+            }
+            "keep changed params" => {
+                // This is handy for seeing the effects on a real simulation without rebuilding
+                // the map.
+                ctx.loading_screen("update routing params", |_, mut timer| {
+                    let (_, params) = controls_to_params(&self.panel);
+                    app.primary
+                        .map
+                        .hack_override_routing_params(params, &mut timer);
+                });
+                return Transition::Pop;
+            }
+            "bikes" => {
+                let controls =
+                    params_to_controls(ctx, TripMode::Bike, app.primary.map.routing_params());
+                self.panel.replace(ctx, "params", controls);
+            }
+            "cars" => {
+                let controls =
+                    params_to_controls(ctx, TripMode::Drive, app.primary.map.routing_params());
+                self.panel.replace(ctx, "params", controls);
+            }
+            "pedestrians" => {
+                let controls =
+                    params_to_controls(ctx, TripMode::Walk, app.primary.map.routing_params());
+                self.panel.replace(ctx, "params", controls);
+            }
+            "Calculate differential demand" => {
+                ctx.loading_screen(
+                    "calculate differential demand due to routing params",
+                    |ctx, mut timer| {
                         let (_, params) = controls_to_params(&self.panel);
                         app.primary
                             .map
                             .hack_override_routing_params(params, &mut timer);
-                    });
-                    return Transition::Pop;
-                }
-                "bikes" => {
-                    let controls =
-                        params_to_controls(ctx, TripMode::Bike, app.primary.map.routing_params());
-                    self.panel.replace(ctx, "params", controls);
-                }
-                "cars" => {
-                    let controls =
-                        params_to_controls(ctx, TripMode::Drive, app.primary.map.routing_params());
-                    self.panel.replace(ctx, "params", controls);
-                }
-                "pedestrians" => {
-                    let controls =
-                        params_to_controls(ctx, TripMode::Walk, app.primary.map.routing_params());
-                    self.panel.replace(ctx, "params", controls);
-                }
-                "Calculate differential demand" => {
-                    ctx.loading_screen(
-                        "calculate differential demand due to routing params",
-                        |ctx, mut timer| {
-                            let (_, params) = controls_to_params(&self.panel);
-                            app.primary
-                                .map
-                                .hack_override_routing_params(params, &mut timer);
-                            self.current_counts = calculate_demand(app, &self.requests, &mut timer);
+                        self.current_counts = calculate_demand(app, &self.requests, &mut timer);
 
-                            // Calculate the difference
-                            let mut colorer = ColorNetwork::new(app);
-                            // TODO If this works well, promote it alongside DivergingScale
-                            let more = &app.cs.good_to_bad_red;
-                            let less = &app.cs.good_to_bad_green;
-                            let comparisons = self
-                                .baseline_counts
-                                .clone()
-                                .compare(self.current_counts.clone());
-                            // Find the biggest gain/loss
-                            let diff = comparisons
-                                .iter()
-                                .map(|(_, after, before)| {
-                                    ((*after as isize) - (*before as isize)).abs() as usize
-                                })
-                                .max()
-                                .unwrap() as f64;
-                            for (r, before, after) in comparisons {
-                                if after < before {
+                        // Calculate the difference
+                        let mut colorer = ColorNetwork::new(app);
+                        // TODO If this works well, promote it alongside DivergingScale
+                        let more = &app.cs.good_to_bad_red;
+                        let less = &app.cs.good_to_bad_green;
+                        let comparisons = self
+                            .baseline_counts
+                            .clone()
+                            .compare(self.current_counts.clone());
+                        // Find the biggest gain/loss
+                        let diff = comparisons
+                            .iter()
+                            .map(|(_, after, before)| {
+                                ((*after as isize) - (*before as isize)).abs() as usize
+                            })
+                            .max()
+                            .unwrap() as f64;
+                        for (r, before, after) in comparisons {
+                            match after.cmp(&before) {
+                                std::cmp::Ordering::Less => {
                                     colorer.add_r(r, less.eval((before - after) as f64 / diff));
-                                } else if before < after {
+                                }
+                                std::cmp::Ordering::Greater => {
                                     colorer.add_r(r, more.eval((after - before) as f64 / diff));
                                 }
+                                std::cmp::Ordering::Equal => {}
                             }
-                            let (unzoomed, zoomed) = colorer.build(ctx);
-                            self.unzoomed = unzoomed;
-                            self.zoomed = zoomed;
-                        },
-                    );
-                }
-                _ => unreachable!(),
-            },
-            _ => {}
-        }
+                        }
+                        let (unzoomed, zoomed) = colorer.build(ctx);
+                        self.unzoomed = unzoomed;
+                        self.zoomed = zoomed;
+                    },
+                );
+            }
+            _ => unreachable!(),
+        } }
 
         if ctx.redo_mouseover() {
             self.tooltip = None;
@@ -474,20 +475,22 @@ fn calculate_demand(app: &App, requests: &Vec<PathRequest>, timer: &mut Timer) -
 }
 
 fn cmp_count(after: usize, before: usize) -> Vec<TextSpan> {
-    if after == before {
-        vec![Line("same")]
-    } else if after < before {
-        vec![
-            Line(prettyprint_usize(before - after)).fg(Color::GREEN),
-            Line(" less"),
-        ]
-    } else if after > before {
-        vec![
-            Line(prettyprint_usize(after - before)).fg(Color::RED),
-            Line(" more"),
-        ]
-    } else {
-        unreachable!()
+    match after.cmp(&before) {
+        std::cmp::Ordering::Equal => {
+            vec![Line("same")]
+        }
+        std::cmp::Ordering::Less => {
+            vec![
+                Line(prettyprint_usize(before - after)).fg(Color::GREEN),
+                Line(" less"),
+            ]
+        }
+        std::cmp::Ordering::Greater => {
+            vec![
+                Line(prettyprint_usize(after - before)).fg(Color::RED),
+                Line(" more"),
+            ]
+        }
     }
 }
 
@@ -552,7 +555,7 @@ impl State<App> for PathCostDebugger {
             if let Some(ID::Road(r)) = app.mouseover_unzoomed_roads_and_intersections(ctx) {
                 // TODO In lieu of mousing over each half of a road, just show both costs.
                 let mut txt = Text::new();
-                for dir in vec![Direction::Fwd, Direction::Back] {
+                for dir in [Direction::Fwd, Direction::Back] {
                     if let Some(cost) = self.costs.get(&DirectedRoadID { id: r, dir }) {
                         txt.add_line(format!("Cost {:?}: {}", dir, cost));
                     } else {
@@ -563,14 +566,13 @@ impl State<App> for PathCostDebugger {
             }
         }
 
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         Transition::Keep

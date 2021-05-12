@@ -19,7 +19,7 @@ pub struct ShowAbsolute {
 }
 
 impl ShowAbsolute {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         app: &App,
         members: BTreeSet<IntersectionID>,
@@ -84,7 +84,7 @@ impl SimpleState<App> for ShowAbsolute {
     fn other_event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
         if let Some(i) = app.click_on_intersection(ctx, "select base intersection") {
-            return Transition::Replace(ShowRelative::new(ctx, app, i, self.members.clone()));
+            return Transition::Replace(ShowRelative::new_state(ctx, app, i, self.members.clone()));
         }
 
         Transition::Keep
@@ -104,7 +104,7 @@ struct ShowRelative {
 }
 
 impl ShowRelative {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         app: &App,
         base: IntersectionID,
@@ -156,7 +156,7 @@ impl ShowRelative {
 impl SimpleState<App> for ShowRelative {
     fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
         match x {
-            "close" => Transition::Replace(ShowAbsolute::new(ctx, app, self.members.clone())),
+            "close" => Transition::Replace(ShowAbsolute::new_state(ctx, app, self.members.clone())),
             _ => unreachable!(),
         }
     }
@@ -171,7 +171,7 @@ impl SimpleState<App> for ShowRelative {
     fn other_event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
         if let Some(i) = app.click_on_intersection(ctx, "select second intersection") {
-            return Transition::Push(TuneRelative::new(
+            return Transition::Push(TuneRelative::new_state(
                 ctx,
                 app,
                 self.base,
@@ -198,7 +198,7 @@ struct TuneRelative {
 }
 
 impl TuneRelative {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         app: &App,
         i1: IntersectionID,
@@ -294,7 +294,7 @@ impl SimpleState<App> for TuneRelative {
                 app.primary.map.incremental_edit_traffic_signal(ts);
                 Transition::Multi(vec![
                     Transition::Pop,
-                    Transition::Replace(ShowRelative::new(ctx, app, self.i1, self.members.clone())),
+                    Transition::Replace(ShowRelative::new_state(ctx, app, self.i1, self.members.clone())),
                 ])
             }
             _ => unreachable!(),

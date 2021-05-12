@@ -107,11 +107,9 @@ impl State<App> for SandboxMode {
         }
 
         // Do this before gameplay
-        if self.gameplay.can_move_canvas() {
-            if ctx.canvas_movement() {
-                if let Err(err) = URLManager::update_url_cam(ctx, app) {
-                    warn!("Couldn't update URL: {}", err);
-                }
+        if self.gameplay.can_move_canvas() && ctx.canvas_movement() {
+            if let Err(err) = URLManager::update_url_cam(ctx, app) {
+                warn!("Couldn't update URL: {}", err);
             }
         }
 
@@ -129,7 +127,7 @@ impl State<App> for SandboxMode {
 
         // Order here is pretty arbitrary
         if app.opts.dev && ctx.input.pressed(lctrl(Key::D)) {
-            return Transition::Push(DebugMode::new(ctx, app));
+            return Transition::Push(DebugMode::new_state(ctx, app));
         }
 
         if let Some(ref mut m) = self.controls.minimap {
@@ -151,15 +149,12 @@ impl State<App> for SandboxMode {
         // (since something could move beneath the cursor), or when the mouse moves.
         if app.primary.current_selection.is_none()
             && ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail
-        {
-            if ctx.redo_mouseover()
+            && (ctx.redo_mouseover()
                 || self
                     .recalc_unzoomed_agent
                     .map(|t| t != app.primary.sim.time())
-                    .unwrap_or(true)
-            {
-                mouseover_unzoomed_agent_circle(ctx, app);
-            }
+                    .unwrap_or(true)) {
+            mouseover_unzoomed_agent_circle(ctx, app);
         }
 
         if let Some(ref mut r) = self.controls.route_preview {
@@ -177,8 +172,8 @@ impl State<App> for SandboxMode {
         }
 
         if let Some(ref mut tp) = self.controls.tool_panel {
-            match tp.event(ctx) {
-                Outcome::Clicked(x) => match x.as_ref() {
+            if let Outcome::Clicked(x) = tp.event(ctx) {
+                match x.as_ref() {
                     "back" => {
                         return maybe_exit_sandbox(ctx);
                     }
@@ -186,8 +181,7 @@ impl State<App> for SandboxMode {
                         return Transition::Push(OptionsPanel::new(ctx, app));
                     }
                     _ => unreachable!(),
-                },
-                _ => {}
+                }
             }
         }
 
@@ -258,7 +252,7 @@ pub fn maybe_exit_sandbox(ctx: &mut EventCtx) -> Transition {
             if app.primary.map.unsaved_edits() {
                 return Transition::Multi(vec![
                     Transition::Push(Box::new(BackToMainMenu)),
-                    Transition::Push(SaveEdits::new(
+                    Transition::Push(SaveEdits::new_state(
                         ctx,
                         app,
                         "Do you want to save your proposal first?",
@@ -279,7 +273,7 @@ impl State<App> for BackToMainMenu {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         app.change_color_scheme(ctx, ColorSchemeChoice::Pregame);
         app.clear_everything(ctx);
-        Transition::Clear(vec![MainMenu::new(ctx)])
+        Transition::Clear(vec![MainMenu::new_state(ctx)])
     }
 
     fn draw(&self, _: &mut GfxCtx, _: &App) {}
@@ -295,7 +289,7 @@ impl ContextualActions for Actions {
     fn actions(&self, app: &App, id: ID) -> Vec<(Key, String)> {
         let mut actions = Vec::new();
         if self.can_interact {
-            match id.clone() {
+            match id {
                 ID::Intersection(i) => {
                     if app.primary.map.get_i(i).is_traffic_signal() {
                         actions.push((Key::E, "edit traffic signal".to_string()));
@@ -305,10 +299,8 @@ impl ContextualActions for Actions {
                     {
                         actions.push((Key::E, "edit stop sign".to_string()));
                     }
-                    if app.opts.dev {
-                        if app.primary.sim.num_recorded_trips().is_none() {
-                            actions.push((Key::R, "record traffic here".to_string()));
-                        }
+                    if app.opts.dev && app.primary.sim.num_recorded_trips().is_none() {
+                        actions.push((Key::R, "record traffic here".to_string()));
                     }
                 }
                 ID::Lane(l) => {
@@ -346,8 +338,8 @@ impl ContextualActions for Actions {
     ) -> Transition {
         match (id, action.as_ref()) {
             (ID::Intersection(i), "edit traffic signal") => Transition::Multi(vec![
-                Transition::Push(EditMode::new(ctx, app, self.gameplay.clone())),
-                Transition::Push(TrafficSignalEditor::new(
+                Transition::Push(EditMode::new_state(ctx, app, self.gameplay.clone())),
+                Transition::Push(TrafficSignalEditor::new_state(
                     ctx,
                     app,
                     btreeset! {i},
@@ -355,18 +347,18 @@ impl ContextualActions for Actions {
                 )),
             ]),
             (ID::Intersection(i), "edit stop sign") => Transition::Multi(vec![
-                Transition::Push(EditMode::new(ctx, app, self.gameplay.clone())),
-                Transition::Push(StopSignEditor::new(ctx, app, i, self.gameplay.clone())),
+                Transition::Push(EditMode::new_state(ctx, app, self.gameplay.clone())),
+                Transition::Push(StopSignEditor::new_state(ctx, app, i, self.gameplay.clone())),
             ]),
             (ID::Intersection(i), "record traffic here") => {
-                Transition::Push(TrafficRecorder::new(ctx, btreeset! {i}))
+                Transition::Push(TrafficRecorder::new_state(ctx, btreeset! {i}))
             }
             (ID::Lane(l), "explore turns from this lane") => {
                 Transition::Push(TurnExplorer::new(ctx, app, l))
             }
             (ID::Lane(l), "edit lane") => Transition::Multi(vec![
-                Transition::Push(EditMode::new(ctx, app, self.gameplay.clone())),
-                Transition::Push(LaneEditor::new(ctx, app, l, self.gameplay.clone())),
+                Transition::Push(EditMode::new_state(ctx, app, self.gameplay.clone())),
+                Transition::Push(LaneEditor::new_state(ctx, app, l, self.gameplay.clone())),
             ]),
             (ID::Building(b), "add this building to favorites") => {
                 Favorites::add(app, b);
@@ -443,7 +435,7 @@ impl State<App> for SandboxLoader {
                     return Transition::Push(MapLoader::new(
                         ctx,
                         app,
-                        self.mode.map_name().clone(),
+                        self.mode.map_name(),
                         Box::new(|_, _| {
                             Transition::Multi(vec![
                                 Transition::Pop,
@@ -656,7 +648,7 @@ fn mouseover_unzoomed_agent_circle(ctx: &mut EventCtx, app: &mut App) {
 
 fn is_daytime(app: &App) -> bool {
     let hours = app.primary.sim.time().get_hours() % 24;
-    hours >= 6 && hours < 18
+    (6..18).contains(&hours)
 }
 
 impl SandboxControls {

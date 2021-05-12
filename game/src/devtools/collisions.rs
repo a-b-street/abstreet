@@ -18,7 +18,7 @@ pub struct CollisionsViewer {
 }
 
 impl CollisionsViewer {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let map = &app.primary.map;
         let data = ctx.loading_screen("load collision data", |_, mut timer| {
             let mut all: CollisionDataset =
@@ -269,14 +269,13 @@ impl State<App> for CollisionsViewer {
         ctx.canvas_movement();
 
         let old_filters = Filters::from_controls(&self.panel);
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
         // TODO Should fiddling with sliders produce Outcome::Changed?
         let filters = Filters::from_controls(&self.panel);

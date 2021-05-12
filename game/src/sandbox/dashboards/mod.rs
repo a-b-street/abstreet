@@ -67,13 +67,13 @@ impl DashTab {
         Some(Transition::Replace(match tab {
             DashTab::TripTable => Box::new(TripTable::new(ctx, app)),
             DashTab::TripSummaries => {
-                summaries::TripSummaries::new(ctx, app, summaries::Filter::new())
+                summaries::TripSummaries::new_state(ctx, app, summaries::Filter::new())
             }
-            DashTab::ParkingOverhead => parking_overhead::ParkingOverhead::new(ctx, app),
-            DashTab::ActiveTraffic => misc::ActiveTraffic::new(ctx, app),
-            DashTab::TransitRoutes => misc::TransitRoutes::new(ctx, app),
-            DashTab::CommuterPatterns => CommuterPatterns::new(ctx, app),
-            DashTab::TrafficSignals => TrafficSignalDemand::new(ctx, app),
+            DashTab::ParkingOverhead => parking_overhead::ParkingOverhead::new_state(ctx, app),
+            DashTab::ActiveTraffic => misc::ActiveTraffic::new_state(ctx, app),
+            DashTab::TransitRoutes => misc::TransitRoutes::new_state(ctx, app),
+            DashTab::CommuterPatterns => CommuterPatterns::new_state(ctx, app),
+            DashTab::TrafficSignals => TrafficSignalDemand::new_state(ctx, app),
         }))
     }
 }

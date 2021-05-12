@@ -78,7 +78,7 @@ pub struct TrafficRecorder {
 }
 
 impl TrafficRecorder {
-    pub fn new(ctx: &mut EventCtx, members: BTreeSet<IntersectionID>) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, members: BTreeSet<IntersectionID>) -> Box<dyn State<App>> {
         Box::new(TrafficRecorder {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
@@ -116,8 +116,8 @@ impl State<App> for TrafficRecorder {
             }
         }
 
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
@@ -126,8 +126,7 @@ impl State<App> for TrafficRecorder {
                     return Transition::Pop;
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         Transition::Keep

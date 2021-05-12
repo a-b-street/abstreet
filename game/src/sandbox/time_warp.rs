@@ -23,7 +23,7 @@ pub struct JumpToTime {
 }
 
 impl JumpToTime {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         app: &App,
         maybe_mode: Option<GameplayMode>,
@@ -116,7 +116,7 @@ impl JumpToTime {
             ]))
             .exact_size_percent(50, 50)
             .build(ctx),
-            tabs: tabs,
+            tabs,
         })
     }
 }
@@ -136,7 +136,7 @@ impl State<App> for JumpToTime {
                                 app,
                                 mode,
                                 Box::new(move |ctx, app| {
-                                    vec![Transition::Push(TimeWarpScreen::new(
+                                    vec![Transition::Push(TimeWarpScreen::new_state(
                                         ctx,
                                         app,
                                         target_time,
@@ -152,12 +152,12 @@ impl State<App> for JumpToTime {
                             ));
                         }
                     }
-                    return Transition::Replace(TimeWarpScreen::new(ctx, app, self.target, None));
+                    return Transition::Replace(TimeWarpScreen::new_state(ctx, app, self.target, None));
                 }
                 "jump to delay" => {
                     let delay = self.panel.dropdown_value("delay");
                     app.opts.jump_to_delay = delay;
-                    return Transition::Replace(TimeWarpScreen::new(
+                    return Transition::Replace(TimeWarpScreen::new_state(
                         ctx,
                         app,
                         app.primary.sim.get_end_of_day(),
@@ -222,7 +222,7 @@ pub struct TimeWarpScreen {
 }
 
 impl TimeWarpScreen {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         app: &mut App,
         target: Time,
@@ -275,6 +275,7 @@ impl State<App> for TimeWarpScreen {
                 Duration::seconds(0.033),
                 &mut app.primary.sim_cb,
             );
+            #[allow(clippy::never_loop)]
             for (t, maybe_i, alert) in app.primary.sim.clear_alerts() {
                 // TODO Just the first :(
                 return Transition::Replace(PopupMsg::new(
@@ -290,7 +291,7 @@ impl State<App> for TimeWarpScreen {
                         let id = ID::Intersection(*i);
                         app.primary.layer =
                             Some(Box::new(crate::layer::traffic::TrafficJams::new(ctx, app)));
-                        return Transition::Replace(Warping::new(
+                        return Transition::Replace(Warping::new_state(
                             ctx,
                             app.primary.canonical_point(id.clone()).unwrap(),
                             Some(10.0),
@@ -354,14 +355,13 @@ impl State<App> for TimeWarpScreen {
             return Transition::Pop;
         }
 
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "stop now" => {
                     return Transition::Pop;
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
         if self.panel.clicked_outside(ctx) {
             return Transition::Pop;
@@ -420,12 +420,16 @@ fn area_under_curve(raw: Vec<(Time, usize)>, width: f64, height: f64) -> Polygon
 
 // TODO Maybe color, put in helpers
 fn compare_count(after: usize, before: usize) -> String {
-    if after == before {
-        "+0".to_string()
-    } else if after > before {
-        format!("+{}", prettyprint_usize(after - before))
-    } else {
-        format!("-{}", prettyprint_usize(before - after))
+    match after.cmp(&before) {
+        std::cmp::Ordering::Equal => {
+            "+0".to_string()
+        }
+        std::cmp::Ordering::Greater => {
+            format!("+{}", prettyprint_usize(after - before))
+        }
+        std::cmp::Ordering::Less => {
+            format!("-{}", prettyprint_usize(before - after))
+        }
     }
 }
 

@@ -20,7 +20,7 @@ pub struct BulkSelect {
 }
 
 impl BulkSelect {
-    pub fn new(ctx: &mut EventCtx, app: &mut App, start: RoadID) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &mut App, start: RoadID) -> Box<dyn State<App>> {
         let selector = RoadSelector::new(ctx, app, btreeset! {start});
         let panel = make_select_panel(ctx, &selector);
         Box::new(BulkSelect { panel, selector })
@@ -73,7 +73,7 @@ impl State<App> for BulkSelect {
                     return Transition::Pop;
                 }
                 "edit roads" => {
-                    return Transition::Replace(crate::edit::bulk::BulkEdit::new(
+                    return Transition::Replace(crate::edit::bulk::BulkEdit::new_state(
                         ctx,
                         app,
                         self.selector.roads.iter().cloned().collect(),
@@ -148,7 +148,7 @@ struct BulkEdit {
 }
 
 impl BulkEdit {
-    fn new(
+    fn new_state(
         ctx: &mut EventCtx,
         app: &App,
         roads: Vec<RoadID>,
@@ -197,8 +197,8 @@ impl State<App> for BulkEdit {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "Cancel" => {
                     if self
                         .panel
@@ -210,7 +210,7 @@ impl State<App> for BulkEdit {
                     {
                         return Transition::Pop;
                     }
-                    return Transition::Push(ConfirmDiscard::new(ctx, Box::new(move |_| {})));
+                    return Transition::Push(ConfirmDiscard::new_state(ctx, Box::new(move |_| {})));
                 }
                 "Finish" => {
                     return Transition::Replace(make_bulk_edits(
@@ -228,8 +228,7 @@ impl State<App> for BulkEdit {
                     self.panel.replace(ctx, "lt transformations", switcher);
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         Transition::Keep
@@ -244,14 +243,10 @@ impl State<App> for BulkEdit {
 fn get_lt_transformations(panel: &Panel) -> Vec<(Option<LaneType>, Option<LaneType>)> {
     let mut pairs = Vec::new();
     let mut idx = 0;
-    loop {
-        if let Some(from) = panel.maybe_dropdown_value(format!("from lt #{}", idx)) {
-            let to = panel.dropdown_value(format!("to lt #{}", idx));
-            pairs.push((from, to));
-            idx += 1;
-        } else {
-            break;
-        }
+    while let Some(from) = panel.maybe_dropdown_value(format!("from lt #{}", idx)) {
+        let to = panel.dropdown_value(format!("to lt #{}", idx));
+        pairs.push((from, to));
+        idx += 1;
     }
     pairs
 }

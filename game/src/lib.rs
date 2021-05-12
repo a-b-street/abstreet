@@ -1,3 +1,5 @@
+#![allow(clippy::ptr_arg, clippy::borrowed_box)]  // very noisy
+
 #[macro_use]
 extern crate anyhow;
 #[macro_use]

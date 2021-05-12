@@ -40,7 +40,7 @@ const RADIUS: Distance = Distance::const_meters(5.0);
 const THICKNESS: Distance = Distance::const_meters(2.0);
 
 impl ViewKML {
-    pub fn new(ctx: &mut EventCtx, app: &App, path: Option<String>) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App, path: Option<String>) -> Box<dyn State<App>> {
         ctx.loading_screen("load kml", |ctx, mut timer| {
             // Enable to write a smaller .bin only with the shapes matching the bounds.
             let dump_clipped_shapes = false;
@@ -232,7 +232,7 @@ fn load_objects(
     let dataset_name = path
         .as_ref()
         .map(abstutil::basename)
-        .unwrap_or("no file".to_string());
+        .unwrap_or_else(|| "no file".to_string());
     let bldg_lookup: HashMap<String, BuildingID> = map
         .all_buildings()
         .iter()
@@ -425,7 +425,7 @@ fn pick_file(ctx: &mut EventCtx, app: &App) -> Transition {
             if let Ok(Some(path)) = maybe_path {
                 Transition::Multi(vec![
                     Transition::Pop,
-                    Transition::Replace(ViewKML::new(ctx, app, Some(path))),
+                    Transition::Replace(ViewKML::new_state(ctx, app, Some(path))),
                 ])
             } else {
                 Transition::Pop

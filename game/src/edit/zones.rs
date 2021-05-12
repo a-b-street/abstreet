@@ -27,7 +27,7 @@ pub struct ZoneEditor {
 }
 
 impl ZoneEditor {
-    pub fn new(ctx: &mut EventCtx, app: &mut App, start: RoadID) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &mut App, start: RoadID) -> Box<dyn State<App>> {
         let start = app.primary.map.get_r(start);
         let members = if let Some(z) = start.get_zone(&app.primary.map) {
             z.members.clone()
@@ -39,7 +39,7 @@ impl ZoneEditor {
             .access_restrictions
             .allow_through_traffic
             .into_iter()
-            .map(|c| TripMode::from_constraints(c))
+            .map(TripMode::from_constraints)
             .collect();
         let cap_vehicles_per_hour = start.access_restrictions.cap_vehicles_per_hour;
 

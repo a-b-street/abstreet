@@ -17,7 +17,7 @@ pub struct PopularDestinations {
 }
 
 impl PopularDestinations {
-    pub fn new(ctx: &mut EventCtx, app: &App, scenario: &Scenario) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App, scenario: &Scenario) -> Box<dyn State<App>> {
         let mut per_bldg = Counter::new();
         for p in &scenario.people {
             for trip in &p.trips {
@@ -84,7 +84,7 @@ impl PopularDestinations {
                 "{}: {}%",
                 category
                     .map(|x| x.to_string())
-                    .unwrap_or("other".to_string()),
+                    .unwrap_or_else(|| "other".to_string()),
                 ((cnt as f64) / sum * 100.0) as usize
             ));
         }

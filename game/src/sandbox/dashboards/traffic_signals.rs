@@ -23,7 +23,7 @@ pub struct TrafficSignalDemand {
 }
 
 impl TrafficSignalDemand {
-    pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         let all_demand = ctx.loading_screen("predict all demand", |_, timer| {
             Demand::all_demand(app, timer)
         });

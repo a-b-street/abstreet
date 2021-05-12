@@ -25,7 +25,7 @@ pub struct PlayScenario {
 }
 
 impl PlayScenario {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         app: &App,
         name: &String,
@@ -91,12 +91,12 @@ impl GameplayState for PlayScenario {
                         }),
                     )))
                 }
-                "change scenario" => Some(Transition::Push(ChangeScenario::new(
+                "change scenario" => Some(Transition::Push(ChangeScenario::new_state(
                     ctx,
                     app,
                     &self.scenario_name,
                 ))),
-                "edit map" => Some(Transition::Push(EditMode::new(
+                "edit map" => Some(Transition::Push(EditMode::new_state(
                     ctx,
                     app,
                     GameplayMode::PlayScenario(
@@ -105,7 +105,7 @@ impl GameplayState for PlayScenario {
                         self.modifiers.clone(),
                     ),
                 ))),
-                "edit traffic patterns" => Some(Transition::Push(EditScenarioModifiers::new(
+                "edit traffic patterns" => Some(Transition::Push(EditScenarioModifiers::new_state(
                     ctx,
                     self.scenario_name.clone(),
                     self.modifiers.clone(),
@@ -212,7 +212,7 @@ struct EditScenarioModifiers {
 }
 
 impl EditScenarioModifiers {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         scenario_name: String,
         modifiers: Vec<ScenarioModifier>,
@@ -291,8 +291,8 @@ impl EditScenarioModifiers {
 
 impl State<App> for EditScenarioModifiers {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "Discard changes" => {
                     return Transition::Pop;
                 }
@@ -316,7 +316,7 @@ impl State<App> for EditScenarioModifiers {
                     ]);
                 }
                 "Change trip mode" => {
-                    return Transition::Push(ChangeMode::new(
+                    return Transition::Push(ChangeMode::new_state(
                         ctx,
                         app,
                         self.scenario_name.clone(),
@@ -338,7 +338,7 @@ impl State<App> for EditScenarioModifiers {
                                     let mut state =
                                         state.downcast::<EditScenarioModifiers>().ok().unwrap();
                                     state.modifiers.push(ScenarioModifier::AddExtraTrips(name));
-                                    vec![EditScenarioModifiers::new(
+                                    vec![EditScenarioModifiers::new_state(
                                         ctx,
                                         state.scenario_name,
                                         state.modifiers,
@@ -352,7 +352,7 @@ impl State<App> for EditScenarioModifiers {
                     self.modifiers.push(ScenarioModifier::RepeatDays(
                         self.panel.spinner("repeat_days"),
                     ));
-                    return Transition::Replace(EditScenarioModifiers::new(
+                    return Transition::Replace(EditScenarioModifiers::new_state(
                         ctx,
                         self.scenario_name.clone(),
                         self.modifiers.clone(),
@@ -361,7 +361,7 @@ impl State<App> for EditScenarioModifiers {
                 x => {
                     if let Some(x) = x.strip_prefix("delete modifier ") {
                         self.modifiers.remove(x.parse::<usize>().unwrap() - 1);
-                        return Transition::Replace(EditScenarioModifiers::new(
+                        return Transition::Replace(EditScenarioModifiers::new_state(
                             ctx,
                             self.scenario_name.clone(),
                             self.modifiers.clone(),
@@ -370,8 +370,7 @@ impl State<App> for EditScenarioModifiers {
                         unreachable!()
                     }
                 }
-            },
-            _ => {}
+            }
         }
 
         Transition::Keep
@@ -390,7 +389,7 @@ struct ChangeMode {
 }
 
 impl ChangeMode {
-    fn new(
+    fn new_state(
         ctx: &mut EventCtx,
         app: &App,
         scenario_name: String,
@@ -496,7 +495,7 @@ impl State<App> for ChangeMode {
                     });
                     Transition::Multi(vec![
                         Transition::Pop,
-                        Transition::Replace(EditScenarioModifiers::new(
+                        Transition::Replace(EditScenarioModifiers::new_state(
                             ctx,
                             self.scenario_name.clone(),
                             mods,

@@ -348,31 +348,29 @@ fn bio_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: PersonID) 
     for v in &person.vehicles {
         if v.vehicle_type == VehicleType::Bike {
             has_bike = true;
-        } else {
-            if app.primary.sim.lookup_parked_car(v.id).is_some() {
-                rows.push(
-                    ctx.style()
-                        .btn_outline
-                        .text(format!("Owner of {} (parked)", v.id))
-                        .build_def(ctx),
-                );
-                details
-                    .hyperlinks
-                    .insert(format!("Owner of {} (parked)", v.id), Tab::ParkedCar(v.id));
-            } else if let PersonState::Trip(t) = person.state {
-                match app.primary.sim.trip_to_agent(t) {
-                    TripResult::Ok(AgentID::Car(x)) if x == v.id => {
-                        rows.push(
-                            format!("Owner of {} (currently driving)", v.id).text_widget(ctx),
-                        );
-                    }
-                    _ => {
-                        rows.push(format!("Owner of {} (off-map)", v.id).text_widget(ctx));
-                    }
+        } else if app.primary.sim.lookup_parked_car(v.id).is_some() {
+            rows.push(
+                ctx.style()
+                    .btn_outline
+                    .text(format!("Owner of {} (parked)", v.id))
+                    .build_def(ctx),
+            );
+            details
+                .hyperlinks
+                .insert(format!("Owner of {} (parked)", v.id), Tab::ParkedCar(v.id));
+        } else if let PersonState::Trip(t) = person.state {
+            match app.primary.sim.trip_to_agent(t) {
+                TripResult::Ok(AgentID::Car(x)) if x == v.id => {
+                    rows.push(
+                        format!("Owner of {} (currently driving)", v.id).text_widget(ctx),
+                    );
                 }
-            } else {
-                rows.push(format!("Owner of {} (off-map)", v.id).text_widget(ctx));
+                _ => {
+                    rows.push(format!("Owner of {} (off-map)", v.id).text_widget(ctx));
+                }
             }
+        } else {
+            rows.push(format!("Owner of {} (off-map)", v.id).text_widget(ctx));
         }
     }
     if has_bike {
@@ -492,7 +490,7 @@ fn crowd_body(
     members: &Vec<PedestrianID>,
 ) -> Widget {
     let mut rows = vec![];
-    for (idx, id) in members.into_iter().enumerate() {
+    for (idx, id) in members.iter().enumerate() {
         let person = app
             .primary
             .sim
@@ -668,7 +666,7 @@ fn header(
             Widget::nothing()
         }
         .centered_vert(),
-        Line(format!("{}", descr))
+        Line(descr.to_string())
             .small_heading()
             .fg(Color::hex("#A3A3A3"))
             .into_widget(ctx)

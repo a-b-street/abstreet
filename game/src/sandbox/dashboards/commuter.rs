@@ -69,7 +69,7 @@ struct Filter {
 type BlockID = usize;
 
 impl CommuterPatterns {
-    pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         let (bldg_to_block, border_to_block, blocks) =
             ctx.loading_screen("group buildings into blocks", |_, _| group_bldgs(app));
 
@@ -218,12 +218,9 @@ impl CommuterPatterns {
                 batch.push(Color::BLACK.alpha(0.5), base_block.shape.clone());
 
                 // Draw outline for Locked Selection
-                match block_selection {
-                    BlockSelection::Locked { .. } => {
-                        let outline = base_block.shape.to_outline(Distance::meters(10.0)).unwrap();
-                        batch.push(Color::BLACK, outline);
-                    }
-                    _ => {}
+                if let BlockSelection::Locked { .. } = block_selection {
+                    let outline = base_block.shape.to_outline(Distance::meters(10.0)).unwrap();
+                    batch.push(Color::BLACK, outline);
                 };
 
                 {
@@ -261,44 +258,37 @@ impl CommuterPatterns {
 
                 // While selection is locked, draw an overlay with compare_to information for the
                 // hovered block
-                match block_selection {
-                    BlockSelection::Locked {
+                if let BlockSelection::Locked {
                         base: _,
                         compare_to: Some(compare_to),
-                    } => {
-                        let compare_to_block = &self.blocks[compare_to];
+                    } = block_selection {
+                    let compare_to_block = &self.blocks[compare_to];
 
-                        let border = compare_to_block
-                            .shape
-                            .to_outline(Distance::meters(10.0))
-                            .unwrap();
-                        batch.push(Color::WHITE.alpha(0.8), border);
+                    let border = compare_to_block
+                        .shape
+                        .to_outline(Distance::meters(10.0))
+                        .unwrap();
+                    batch.push(Color::WHITE.alpha(0.8), border);
 
-                        let count = others
-                            .into_iter()
-                            .find(|(b, _)| b.id == compare_to)
-                            .map(|(_, count)| count)
-                            .unwrap_or(0);
-                        let label_text = format!("{}", abstutil::prettyprint_usize(count));
-                        let label = Text::from(Line(label_text).fg(Color::BLACK))
-                            .render_autocropped(ctx)
-                            .scale(2.0)
-                            .centered_on(compare_to_block.shape.polylabel());
+                    let count = others
+                        .into_iter()
+                        .find(|(b, _)| b.id == compare_to)
+                        .map(|(_, count)| count)
+                        .unwrap_or(0);
+                    let label_text = abstutil::prettyprint_usize(count);
+                    let label = Text::from(Line(label_text).fg(Color::BLACK))
+                        .render_autocropped(ctx)
+                        .scale(2.0)
+                        .centered_on(compare_to_block.shape.polylabel());
 
-                        let dims = label.get_dims();
-                        let label_bg = Polygon::pill(dims.width + 70.0, dims.height + 20.0);
-                        let bg = GeomBatch::from(vec![(Color::WHITE, label_bg)])
-                            .centered_on(compare_to_block.shape.polylabel());
-                        batch.append(bg);
-                        batch.append(label);
-                    }
-                    _ => {}
+                    let dims = label.get_dims();
+                    let label_bg = Polygon::pill(dims.width + 70.0, dims.height + 20.0);
+                    let bg = GeomBatch::from(vec![(Color::WHITE, label_bg)])
+                        .centered_on(compare_to_block.shape.polylabel());
+                    batch.append(bg);
+                    batch.append(label);
                 };
-                let panel_data = PanelState {
-                    building_counts,
-                    total_trips,
-                    max_count,
-                };
+                let panel_data = PanelState { building_counts, max_count, total_trips };
                 (ctx.upload(batch), Some(panel_data))
             }
         }
@@ -340,15 +330,14 @@ impl State<App> for CommuterPatterns {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "close" => {
                     app.primary.sim = app.primary.suspended_sim.take().unwrap();
                     return Transition::Pop;
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         let block_selection = if let Some(Some(b)) = ctx

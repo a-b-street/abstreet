@@ -50,7 +50,7 @@ pub struct DebugMode {
 }
 
 impl DebugMode {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         Box::new(DebugMode {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
@@ -303,7 +303,7 @@ impl State<App> for DebugMode {
                     return Transition::Keep;
                 }
                 "screenshot all of the everything" => {
-                    return Transition::Push(ScreenshotTest::new(
+                    return Transition::Push(ScreenshotTest::new_state(
                         ctx,
                         app,
                         vec![
@@ -334,7 +334,7 @@ impl State<App> for DebugMode {
                     ));
                 }
                 "blocked-by graph" => {
-                    return Transition::Push(blocked_by::Viewer::new(ctx, app));
+                    return Transition::Push(blocked_by::Viewer::new_state(ctx, app));
                 }
                 "render to GeoJSON" => {
                     // TODO Loading screen doesn't actually display anything because of the rules
@@ -386,11 +386,9 @@ impl State<App> for DebugMode {
                         self.all_routes = Some(calc_all_routes(ctx, app));
                         self.reset_info(ctx);
                     }
-                } else {
-                    if self.all_routes.is_some() {
-                        self.all_routes = None;
-                        self.reset_info(ctx);
-                    }
+                } else if self.all_routes.is_some() {
+                    self.all_routes = None;
+                    self.reset_info(ctx);
                 }
             }
             _ => {}
@@ -540,7 +538,7 @@ fn calc_all_routes(ctx: &EventCtx, app: &mut App) -> (usize, Drawable) {
     let mut cnt = 0;
     let sim = &app.primary.sim;
     let map = &app.primary.map;
-    for maybe_trace in Timer::new("calculate all routes").parallelize(
+    for trace in Timer::new("calculate all routes").parallelize(
         "route to geometry",
         Parallelism::Fastest,
         agents,
@@ -548,11 +546,9 @@ fn calc_all_routes(ctx: &EventCtx, app: &mut App) -> (usize, Drawable) {
             sim.trace_route(id, map)
                 .map(|trace| trace.make_polygons(NORMAL_LANE_THICKNESS))
         },
-    ) {
-        if let Some(t) = maybe_trace {
-            cnt += 1;
-            batch.push(app.cs.route, t);
-        }
+    ).into_iter().flatten() {
+        cnt += 1;
+        batch.push(app.cs.route, trace);
     }
     (cnt, ctx.upload(batch))
 }
@@ -647,7 +643,7 @@ impl ContextualActions for Actions {
                 let pts = app.primary.map.get_i(i).polygon.points();
                 let mut pts_without_last = pts.clone();
                 pts_without_last.pop();
-                Transition::Push(polygons::PolygonDebugger::new(
+                Transition::Push(polygons::PolygonDebugger::new_state(
                     ctx,
                     "point",
                     pts.iter().map(|pt| polygons::Item::Point(*pt)).collect(),
@@ -655,12 +651,12 @@ impl ContextualActions for Actions {
                 ))
             }
             (ID::Intersection(i), "debug sidewalk corners") => {
-                Transition::Push(polygons::PolygonDebugger::new(
+                Transition::Push(polygons::PolygonDebugger::new_state(
                     ctx,
                     "corner",
                     calculate_corners(app.primary.map.get_i(i), &app.primary.map)
                         .into_iter()
-                        .map(|poly| polygons::Item::Polygon(poly))
+                        .map(polygons::Item::Polygon)
                         .collect(),
                     None,
                 ))
@@ -678,13 +674,13 @@ impl ContextualActions for Actions {
                 Transition::Keep
             }
             (ID::Intersection(i), "route from here") => Transition::Push(
-                routes::RouteExplorer::new(ctx, app, TripEndpoint::Border(i)),
+                routes::RouteExplorer::new_state(ctx, app, TripEndpoint::Border(i)),
             ),
             (ID::Intersection(i), "explore uber-turns") => {
-                Transition::Push(uber_turns::UberTurnPicker::new(ctx, app, i))
+                Transition::Push(uber_turns::UberTurnPicker::new_state(ctx, app, i))
             }
             (ID::Lane(l), "debug lane geometry") => {
-                Transition::Push(polygons::PolygonDebugger::new(
+                Transition::Push(polygons::PolygonDebugger::new_state(
                     ctx,
                     "point",
                     app.primary
@@ -699,7 +695,7 @@ impl ContextualActions for Actions {
                 ))
             }
             (ID::Lane(l), "debug lane triangles geometry") => {
-                Transition::Push(polygons::PolygonDebugger::new(
+                Transition::Push(polygons::PolygonDebugger::new_state(
                     ctx,
                     "triangle",
                     app.primary
@@ -708,7 +704,7 @@ impl ContextualActions for Actions {
                         .polygon
                         .triangles()
                         .into_iter()
-                        .map(|tri| polygons::Item::Triangle(tri))
+                        .map(polygons::Item::Triangle)
                         .collect(),
                     None,
                 ))
@@ -739,7 +735,7 @@ impl ContextualActions for Actions {
                 } else {
                     Pt2D::center(pts)
                 };
-                Transition::Push(polygons::PolygonDebugger::new(
+                Transition::Push(polygons::PolygonDebugger::new_state(
                     ctx,
                     "point",
                     pts.iter().map(|pt| polygons::Item::Point(*pt)).collect(),
@@ -747,7 +743,7 @@ impl ContextualActions for Actions {
                 ))
             }
             (ID::Area(a), "debug area triangles") => {
-                Transition::Push(polygons::PolygonDebugger::new(
+                Transition::Push(polygons::PolygonDebugger::new_state(
                     ctx,
                     "triangle",
                     app.primary
@@ -756,13 +752,13 @@ impl ContextualActions for Actions {
                         .polygon
                         .triangles()
                         .into_iter()
-                        .map(|tri| polygons::Item::Triangle(tri))
+                        .map(polygons::Item::Triangle)
                         .collect(),
                     None,
                 ))
             }
             (ID::Building(b), "route from here") => {
-                Transition::Push(routes::RouteExplorer::new(ctx, app, TripEndpoint::Bldg(b)))
+                Transition::Push(routes::RouteExplorer::new_state(ctx, app, TripEndpoint::Bldg(b)))
             }
             _ => unreachable!(),
         }
@@ -862,7 +858,7 @@ struct ScreenshotTest {
 }
 
 impl ScreenshotTest {
-    fn new(ctx: &mut EventCtx, app: &mut App, mut todo_maps: Vec<MapName>) -> Box<dyn State<App>> {
+    fn new_state(ctx: &mut EventCtx, app: &mut App, mut todo_maps: Vec<MapName>) -> Box<dyn State<App>> {
         // Taking screenshots messes with options and doesn't restore them after. It's expected
         // whoever's taking screenshots (just Dustin so far) will just quit after taking them.
         app.change_color_scheme(ctx, ColorSchemeChoice::DayMode);
@@ -887,7 +883,7 @@ impl State<App> for ScreenshotTest {
             if self.todo_maps.is_empty() {
                 Transition::Pop
             } else {
-                Transition::Replace(ScreenshotTest::new(
+                Transition::Replace(ScreenshotTest::new_state(
                     ctx,
                     app,
                     self.todo_maps.drain(..).collect(),

@@ -317,14 +317,13 @@ impl Layer for Efficiency {
             *self = Efficiency::new(ctx, app);
         }
 
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "close" => {
                     return Some(LayerOutcome::Close);
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
         None
     }

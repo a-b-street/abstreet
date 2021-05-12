@@ -237,10 +237,7 @@ impl App {
     }
     pub fn mouseover_unzoomed_intersections(&self, ctx: &EventCtx) -> Option<ID> {
         self.calculate_current_selection(ctx, &ShowEverything::new(), false, true, false)
-            .filter(|id| match id {
-                ID::Intersection(_) => true,
-                _ => false,
-            })
+            .filter(|id| matches!(id, ID::Intersection(_)))
     }
     pub fn mouseover_unzoomed_buildings(&self, ctx: &EventCtx) -> Option<ID> {
         self.calculate_current_selection(ctx, &ShowEverything::new(), false, false, true)
@@ -544,7 +541,7 @@ impl map_gui::AppLike for App {
         target_cam_zoom: Option<f64>,
         id: Option<ID>,
     ) -> Box<dyn State<App>> {
-        Warping::new(ctx, pt, target_cam_zoom, id, &mut self.primary)
+        Warping::new_state(ctx, pt, target_cam_zoom, id, &mut self.primary)
     }
 }
 
@@ -699,11 +696,9 @@ impl PerMap {
 
         if splash {
             ctx.canvas.center_on_map_pt(rand_focus_pt);
-        } else {
-            if !CameraState::load(ctx, self.map.get_name()) {
-                info!("Couldn't load camera state, just focusing on an arbitrary building");
-                ctx.canvas.center_on_map_pt(rand_focus_pt);
-            }
+        } else if !CameraState::load(ctx, self.map.get_name()) {
+            info!("Couldn't load camera state, just focusing on an arbitrary building");
+            ctx.canvas.center_on_map_pt(rand_focus_pt);
         }
     }
 

@@ -18,7 +18,7 @@ pub struct ChangeDuration {
 }
 
 impl ChangeDuration {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         app: &App,
         signal: &ControlTrafficSignal,
@@ -285,7 +285,7 @@ pub fn edit_entire_signal(
                 apply_map_edits(ctx, app, edits);
                 Transition::Multi(vec![
                     Transition::Pop,
-                    Transition::Replace(StopSignEditor::new(ctx, app, i, mode.clone())),
+                    Transition::Replace(StopSignEditor::new_state(ctx, app, i, mode.clone())),
                 ])
             }
             x if x == close => {

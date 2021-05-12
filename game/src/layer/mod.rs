@@ -55,9 +55,7 @@ pub struct PickLayer {
 
 impl PickLayer {
     pub fn update(ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
-        if app.primary.layer.is_none() {
-            return None;
-        }
+        app.primary.layer.as_ref()?;
 
         // TODO Since the Layer is embedded in App, we have to do this slight trick
         let mut layer = app.primary.layer.take().unwrap();
@@ -246,10 +244,10 @@ impl State<App> for PickLayer {
                     )));
                 }
                 "traffic signal demand" => {
-                    return Transition::Replace(dashboards::TrafficSignalDemand::new(ctx, app));
+                    return Transition::Replace(dashboards::TrafficSignalDemand::new_state(ctx, app));
                 }
                 "commuter patterns" => {
-                    return Transition::Replace(dashboards::CommuterPatterns::new(ctx, app));
+                    return Transition::Replace(dashboards::CommuterPatterns::new_state(ctx, app));
                 }
                 _ => unreachable!(),
             },

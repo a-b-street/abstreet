@@ -22,7 +22,7 @@ pub struct TripSummaries {
 }
 
 impl TripSummaries {
-    pub fn new(ctx: &mut EventCtx, app: &App, filter: Filter) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App, filter: Filter) -> Box<dyn State<App>> {
         let mut filters = vec!["Filters".text_widget(ctx)];
         for mode in TripMode::all() {
             filters.push(Toggle::colored_checkbox(
@@ -87,7 +87,7 @@ impl State<App> for TripSummaries {
                     });
                 }
                 "close" => {
-                    return Transition::Pop;
+                    Transition::Pop
                 }
                 _ => unreachable!(),
             },
@@ -105,7 +105,7 @@ impl State<App> for TripSummaries {
                         filter.modes.insert(m);
                     }
                 }
-                Transition::Replace(TripSummaries::new(ctx, app, filter))
+                Transition::Replace(TripSummaries::new_state(ctx, app, filter))
             }
             _ => Transition::Keep,
         }
@@ -314,12 +314,16 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
             idx -= 1;
         }
 
-        if a > b {
-            losses_per_bucket[idx].0 += a - b;
-            losses_per_bucket[idx].1 += 1;
-        } else if a < b {
-            savings_per_bucket[idx].0 += b - a;
-            savings_per_bucket[idx].1 += 1;
+        match a.cmp(&b) {
+            std::cmp::Ordering::Greater => {
+                losses_per_bucket[idx].0 += a - b;
+                losses_per_bucket[idx].1 += 1;
+            }
+            std::cmp::Ordering::Less => {
+                savings_per_bucket[idx].0 += b - a;
+                savings_per_bucket[idx].1 += 1;
+            }
+            std::cmp::Ordering::Equal => {}
         }
     }
     let max_y = losses_per_bucket
@@ -335,10 +339,10 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
     let mut outlines = Vec::new();
     let mut tooltips = Vec::new();
     let mut x1 = 0.0;
-    let mut idx = 0;
-    for ((total_savings, num_savings), (total_loss, num_loss)) in savings_per_bucket
+    for (idx, ((total_savings, num_savings), (total_loss, num_loss))) in savings_per_bucket
         .into_iter()
         .zip(losses_per_bucket.into_iter())
+        .enumerate()
     {
         if num_savings > 0 {
             let height = (total_savings / max_y) * max_bar_height;
@@ -382,7 +386,6 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
             ));
         }
         x1 += bar_width;
-        idx += 1;
     }
     batch.extend(Color::BLACK, outlines);
 

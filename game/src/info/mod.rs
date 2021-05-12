@@ -195,7 +195,7 @@ impl Tab {
                         .sim
                         .trip_to_agent(t)
                         .ok()
-                        .map(|a| ID::from_agent(a)),
+                        .map(ID::from_agent),
                     _ => None,
                 }
             }
@@ -404,7 +404,7 @@ impl InfoPanel {
         }
 
         // Highlight something?
-        if let Some((id, outline)) = maybe_id.clone().and_then(|id| {
+        if let Some((id, outline)) = maybe_id.and_then(|id| {
             app.primary
                 .draw_map
                 .get_obj(ctx, id.clone(), app, &mut app.primary.agents.borrow_mut())
@@ -436,7 +436,7 @@ impl InfoPanel {
                     match Circle::new(bounds.center(), radius).to_outline(Distance::meters(0.3)) {
                         Ok(poly) => {
                             details.unzoomed.push(app.cs.current_object, poly.clone());
-                            details.zoomed.push(app.cs.current_object, poly.clone());
+                            details.zoomed.push(app.cs.current_object, poly);
                         }
                         Err(err) => {
                             warn!("No outline for {:?}: {}", id, err);
@@ -525,7 +525,7 @@ impl InfoPanel {
                     if let Some(id) = self.tab.to_id(app) {
                         (
                             false,
-                            Some(Transition::Push(Warping::new(
+                            Some(Transition::Push(Warping::new_state(
                                 ctx,
                                 app.primary.canonical_point(id.clone()).unwrap(),
                                 Some(10.0),
@@ -539,7 +539,7 @@ impl InfoPanel {
                 } else if let Some(id) = self.warpers.get(&action) {
                     (
                         false,
-                        Some(Transition::Push(Warping::new(
+                        Some(Transition::Push(Warping::new_state(
                             ctx,
                             app.primary.canonical_point(id.clone()).unwrap(),
                             Some(10.0),
@@ -565,7 +565,7 @@ impl InfoPanel {
                                 &mut actions,
                             );
 
-                            vec![sandbox, TimeWarpScreen::new(ctx, app, time, None)]
+                            vec![sandbox, TimeWarpScreen::new_state(ctx, app, time, None)]
                         }));
 
                     if time >= app.primary.sim.time() {
@@ -588,8 +588,8 @@ impl InfoPanel {
                     (
                         false,
                         Some(Transition::Multi(vec![
-                            Transition::Push(EditMode::new(ctx, app, ctx_actions.gameplay_mode())),
-                            Transition::Push(RouteEditor::new(
+                            Transition::Push(EditMode::new_state(ctx, app, ctx_actions.gameplay_mode())),
+                            Transition::Push(RouteEditor::new_state(
                                 ctx,
                                 app,
                                 BusRouteID(x.parse::<usize>().unwrap()),
@@ -599,7 +599,7 @@ impl InfoPanel {
                 } else if action == "Explore demand across all traffic signals" {
                     (
                         false,
-                        Some(Transition::Push(dashboards::TrafficSignalDemand::new(
+                        Some(Transition::Push(dashboards::TrafficSignalDemand::new_state(
                             ctx, app,
                         ))),
                     )
@@ -612,20 +612,18 @@ impl InfoPanel {
                             IntersectionID(x.parse::<usize>().unwrap()),
                         ))),
                     )
+                } else if let Some(id) = maybe_id {
+                    let mut close_panel = true;
+                    let t = ctx_actions.execute(ctx, app, id, action, &mut close_panel);
+                    (close_panel, Some(t))
                 } else {
-                    if let Some(id) = maybe_id {
-                        let mut close_panel = true;
-                        let t = ctx_actions.execute(ctx, app, id, action, &mut close_panel);
-                        (close_panel, Some(t))
-                    } else {
-                        // This happens when clicking the follow/unfollow button on a trip whose
-                        // agent doesn't exist. Do nothing and just don't crash.
-                        error!(
-                            "Can't do {} on this tab, because it doesn't map to an ID",
-                            action
-                        );
-                        (false, None)
-                    }
+                    // This happens when clicking the follow/unfollow button on a trip whose
+                    // agent doesn't exist. Do nothing and just don't crash.
+                    error!(
+                        "Can't do {} on this tab, because it doesn't map to an ID",
+                        action
+                    );
+                    (false, None)
                 }
             }
             _ => {

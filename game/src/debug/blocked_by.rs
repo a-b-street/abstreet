@@ -24,7 +24,7 @@ pub struct Viewer {
 }
 
 impl Viewer {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let mut viewer = Viewer {
             graph: app.primary.sim.get_blocked_by_graph(&app.primary.map),
             agent_positions: app
@@ -231,22 +231,19 @@ impl State<App> for Viewer {
             self.root_cause = root_cause;
         }
 
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
-                "close" => {
-                    return Transition::Pop;
-                }
-                x => {
-                    // warp_to_id always replaces the current state, so insert a dummy one for it
-                    // to clobber
-                    return Transition::Multi(vec![
-                        Transition::Push(PopupMsg::new(ctx, "Warping", vec![""])),
-                        warp_to_id(ctx, app, x),
-                    ]);
-                }
-            },
-            _ => {}
-        }
+        if let Outcome::Clicked(x) = self.panel.event(ctx) { match x.as_ref() {
+            "close" => {
+                return Transition::Pop;
+            }
+            x => {
+                // warp_to_id always replaces the current state, so insert a dummy one for it
+                // to clobber
+                return Transition::Multi(vec![
+                    Transition::Push(PopupMsg::new(ctx, "Warping", vec![""])),
+                    warp_to_id(ctx, app, x),
+                ]);
+            }
+        } }
 
         Transition::Keep
     }

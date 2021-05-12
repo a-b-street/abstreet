@@ -74,7 +74,7 @@ impl MinimapControls<App> for MinimapController {
                 return Some(Transition::Push(Navigator::new(ctx, app)));
             }
             "zoom out fully" => {
-                return Some(Transition::Push(Warping::new(
+                return Some(Transition::Push(Warping::new_state(
                     ctx,
                     app.primary.map.get_bounds().get_rectangle().center(),
                     Some(ctx.canvas.min_zoom()),
@@ -83,7 +83,7 @@ impl MinimapControls<App> for MinimapController {
                 )));
             }
             "zoom in fully" => {
-                return Some(Transition::Push(Warping::new(
+                return Some(Transition::Push(Warping::new_state(
                     ctx,
                     ctx.canvas.center_to_map_pt(),
                     Some(10.0),
@@ -95,7 +95,7 @@ impl MinimapControls<App> for MinimapController {
                 return Some(Transition::Push(PickLayer::pick(ctx, app)));
             }
             "more data" => {
-                return Some(Transition::Push(Box::new(TripTable::new(ctx, app))));
+                Some(Transition::Push(Box::new(TripTable::new(ctx, app))))
             }
             _ => unreachable!(),
         }

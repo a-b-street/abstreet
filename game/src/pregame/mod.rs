@@ -63,15 +63,14 @@ impl TitleScreen {
 
 impl State<App> for TitleScreen {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "start game" => {
                     app.primary.clear_sim();
-                    return Transition::Replace(MainMenu::new(ctx));
+                    return Transition::Replace(MainMenu::new_state(ctx));
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         self.screensaver.update(&mut self.rng, ctx, app);
@@ -89,7 +88,7 @@ pub struct MainMenu {
 }
 
 impl MainMenu {
-    pub fn new(ctx: &mut EventCtx) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx) -> Box<dyn State<App>> {
         let col = vec![
             {
                 let mut txt = Text::from(Line("A/B STREET").display_title());
@@ -188,8 +187,8 @@ impl MainMenu {
 
 impl State<App> for MainMenu {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+                match x.as_ref() {
                 "Tutorial" => {
                     return Tutorial::start(ctx, app);
                 }
@@ -204,23 +203,22 @@ impl State<App> for MainMenu {
                     ));
                 }
                 "Challenges" => {
-                    return Transition::Push(ChallengesPicker::new(ctx, app));
+                    return Transition::Push(ChallengesPicker::new_state(ctx, app));
                 }
                 "About" => {
-                    return Transition::Push(About::new(ctx, app));
+                    return Transition::Push(About::new_state(ctx, app));
                 }
                 "Feedback" => {
                     open_browser("https://forms.gle/ocvbek1bTaZUr3k49");
                 }
                 "Community Proposals" => {
-                    return Transition::Push(proposals::Proposals::new(ctx, app, None));
+                    return Transition::Push(proposals::Proposals::new_state(ctx, app, None));
                 }
                 "Internal Dev Tools" => {
-                    return Transition::Push(DevToolsMode::new(ctx, app));
+                    return Transition::Push(DevToolsMode::new_state(ctx, app));
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         Transition::Keep
@@ -241,7 +239,7 @@ struct About {
 }
 
 impl About {
-    fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let col = vec![
             ctx.style()
                 .btn_back("Home")
@@ -294,8 +292,8 @@ impl About {
 
 impl State<App> for About {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "back" => {
                     return Transition::Pop;
                 }
@@ -303,8 +301,7 @@ impl State<App> for About {
                     open_browser("https://github.com/a-b-street/abstreet#credits");
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         Transition::Keep
@@ -377,7 +374,7 @@ fn default_scenario_for_map(name: &MapName) -> String {
         return "weekday".to_string();
     }
     if name.city.country == "gb" {
-        for x in vec!["background", "base_with_bg"] {
+        for x in ["background", "base_with_bg"] {
             if abstio::file_exists(abstio::path_scenario(name, x)) {
                 return x.to_string();
             }
@@ -399,7 +396,7 @@ mod built_info {
         let mut txt = Text::from(format!("This version built on {}", t.date().naive_local()));
         // Releases every Sunday
         if (chrono::Utc::now() - t).num_days() > 8 {
-            txt.append(Line(format!(" (get the new release from abstreet.org)")).fg(Color::RED));
+            txt.append(Line(" (get the new release from abstreet.org)".to_string()).fg(Color::RED));
         }
         txt
     }

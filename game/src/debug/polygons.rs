@@ -22,7 +22,7 @@ pub enum Item {
 }
 
 impl PolygonDebugger {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         noun: &str,
         items: Vec<Item>,
@@ -67,8 +67,8 @@ impl State<App> for PolygonDebugger {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
         ctx.canvas_movement();
 
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+                match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
@@ -83,8 +83,7 @@ impl State<App> for PolygonDebugger {
                     }
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
         self.panel.replace(
             ctx,

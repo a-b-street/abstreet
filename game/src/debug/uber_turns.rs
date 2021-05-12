@@ -18,7 +18,7 @@ pub struct UberTurnPicker {
 }
 
 impl UberTurnPicker {
-    pub fn new(ctx: &mut EventCtx, app: &App, i: IntersectionID) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App, i: IntersectionID) -> Box<dyn State<App>> {
         let mut members = BTreeSet::new();
         if let Some(list) = IntersectionCluster::autodetect(i, &app.primary.map) {
             members.extend(list);
@@ -62,7 +62,7 @@ impl SimpleState<App> for UberTurnPicker {
                         vec!["Select at least two intersections"],
                     ));
                 }
-                Transition::Replace(UberTurnViewer::new(ctx, app, self.members.clone(), 0, true))
+                Transition::Replace(UberTurnViewer::new_state(ctx, app, self.members.clone(), 0, true))
             }
             "Detect all clusters" => {
                 self.members.clear();
@@ -115,7 +115,7 @@ struct UberTurnViewer {
 }
 
 impl UberTurnViewer {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         app: &mut App,
         members: BTreeSet<IntersectionID>,
@@ -190,14 +190,14 @@ impl SimpleState<App> for UberTurnViewer {
     fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
         match x {
             "close" => Transition::Pop,
-            "previous uber-turn" => Transition::Replace(UberTurnViewer::new(
+            "previous uber-turn" => Transition::Replace(UberTurnViewer::new_state(
                 ctx,
                 app,
                 self.ic.members.clone(),
                 self.idx - 1,
                 self.legal_turns,
             )),
-            "next uber-turn" => Transition::Replace(UberTurnViewer::new(
+            "next uber-turn" => Transition::Replace(UberTurnViewer::new_state(
                 ctx,
                 app,
                 self.ic.members.clone(),
@@ -213,7 +213,7 @@ impl SimpleState<App> for UberTurnViewer {
         app: &mut App,
         panel: &mut Panel,
     ) -> Option<Transition> {
-        Some(Transition::Replace(UberTurnViewer::new(
+        Some(Transition::Replace(UberTurnViewer::new_state(
             ctx,
             app,
             self.ic.members.clone(),

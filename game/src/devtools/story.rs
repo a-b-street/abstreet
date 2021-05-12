@@ -38,7 +38,7 @@ enum Mode {
 }
 
 impl StoryMapEditor {
-    pub fn new(ctx: &mut EventCtx) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx) -> Box<dyn State<App>> {
         let story = StoryMap::new();
         let mode = Mode::View;
         let dirty = false;
@@ -126,8 +126,8 @@ impl State<App> for StoryMapEditor {
             }
             Mode::Editing(idx, ref mut panel) => {
                 ctx.canvas_movement();
-                match panel.event(ctx) {
-                    Outcome::Clicked(x) => match x.as_ref() {
+                if let Outcome::Clicked(x) = panel.event(ctx) {
+                    match x.as_ref() {
                         "close" => {
                             self.mode = Mode::View;
                             self.redo_panel(ctx);
@@ -150,8 +150,7 @@ impl State<App> for StoryMapEditor {
                             self.redo_panel(ctx);
                         }
                         _ => unreachable!(),
-                    },
-                    _ => {}
+                    }
                 }
             }
             Mode::Freehand(None) => {
@@ -174,8 +173,8 @@ impl State<App> for StoryMapEditor {
             }
         }
 
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "close" => {
                     // TODO autosave
                     return Transition::Pop;
@@ -259,8 +258,7 @@ impl State<App> for StoryMapEditor {
                     self.redo_panel(ctx);
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         Transition::Keep

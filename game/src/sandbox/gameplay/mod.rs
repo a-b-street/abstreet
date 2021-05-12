@@ -162,24 +162,15 @@ impl GameplayMode {
     }
 
     pub fn can_edit_lanes(&self) -> bool {
-        match self {
-            GameplayMode::FixTrafficSignals => false,
-            _ => true,
-        }
+        !matches!(self, GameplayMode::FixTrafficSignals)
     }
 
     pub fn can_edit_stop_signs(&self) -> bool {
-        match self {
-            GameplayMode::FixTrafficSignals => false,
-            _ => true,
-        }
+        !matches!(self, GameplayMode::FixTrafficSignals)
     }
 
     pub fn can_jump_to_time(&self) -> bool {
-        match self {
-            GameplayMode::Freeform(_) => false,
-            _ => true,
-        }
+        !matches!(self, GameplayMode::Freeform(_))
     }
 
     pub fn allows(&self, edits: &MapEdits) -> bool {
@@ -209,17 +200,17 @@ impl GameplayMode {
     /// after this, so each constructor doesn't need to.
     pub fn initialize(&self, ctx: &mut EventCtx, app: &mut App) -> Box<dyn GameplayState> {
         match self {
-            GameplayMode::Freeform(_) => freeform::Freeform::new(ctx, app),
+            GameplayMode::Freeform(_) => freeform::Freeform::new_state(ctx, app),
             GameplayMode::PlayScenario(_, ref scenario, ref modifiers) => {
-                play_scenario::PlayScenario::new(ctx, app, scenario, modifiers.clone())
+                play_scenario::PlayScenario::new_state(ctx, app, scenario, modifiers.clone())
             }
-            GameplayMode::FixTrafficSignals => fix_traffic_signals::FixTrafficSignals::new(ctx),
+            GameplayMode::FixTrafficSignals => fix_traffic_signals::FixTrafficSignals::new_state(ctx),
             GameplayMode::OptimizeCommute(p, goal) => {
-                commute::OptimizeCommute::new(ctx, app, *p, *goal)
+                commute::OptimizeCommute::new_state(ctx, app, *p, *goal)
             }
             GameplayMode::Tutorial(current) => Tutorial::make_gameplay(ctx, app, *current),
             GameplayMode::Actdev(_, ref scenario, bg_traffic) => {
-                actdev::Actdev::new(ctx, scenario.clone(), *bg_traffic)
+                actdev::Actdev::new_state(ctx, scenario.clone(), *bg_traffic)
             }
         }
     }
@@ -254,7 +245,7 @@ pub struct FinalScore {
 }
 
 impl FinalScore {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         app: &App,
         msg: String,
@@ -308,8 +299,8 @@ impl FinalScore {
 
 impl State<App> for FinalScore {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "Keep simulating" => {
                     return Transition::Pop;
                 }
@@ -322,7 +313,7 @@ impl State<App> for FinalScore {
                 "Next challenge" => {
                     self.chose_next = true;
                     if app.primary.map.unsaved_edits() {
-                        return Transition::Push(SaveEdits::new(
+                        return Transition::Push(SaveEdits::new_state(
                             ctx,
                             app,
                             "Do you want to save your proposal first?",
@@ -335,7 +326,7 @@ impl State<App> for FinalScore {
                 "Back to challenges" => {
                     self.chose_back_to_challenges = true;
                     if app.primary.map.unsaved_edits() {
-                        return Transition::Push(SaveEdits::new(
+                        return Transition::Push(SaveEdits::new_state(
                             ctx,
                             app,
                             "Do you want to save your proposal first?",
@@ -346,8 +337,7 @@ impl State<App> for FinalScore {
                     }
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         if self.chose_next || self.chose_back_to_challenges {
@@ -356,7 +346,7 @@ impl State<App> for FinalScore {
 
         if self.chose_next {
             return Transition::Clear(vec![
-                MainMenu::new(ctx),
+                MainMenu::new_state(ctx),
                 // Constructing the cutscene doesn't require the map/scenario to be loaded.
                 SandboxMode::simple_new(app, self.next_mode.clone().unwrap()),
                 (Challenge::find(self.next_mode.as_ref().unwrap())
@@ -366,7 +356,7 @@ impl State<App> for FinalScore {
             ]);
         }
         if self.chose_back_to_challenges {
-            return Transition::Clear(vec![MainMenu::new(ctx), ChallengesPicker::new(ctx, app)]);
+            return Transition::Clear(vec![MainMenu::new_state(ctx), ChallengesPicker::new_state(ctx, app)]);
         }
 
         Transition::Keep

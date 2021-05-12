@@ -43,7 +43,7 @@ impl CommonState {
             app.opts.dev = !app.opts.dev;
         }
         if ctx.input.pressed(lctrl(Key::J)) {
-            return Some(Transition::Push(warp::DebugWarp::new(ctx)));
+            return Some(Transition::Push(warp::DebugWarp::new_state(ctx)));
         }
 
         // Layers can be launched from many places, many of which don't have a way of getting at
@@ -116,7 +116,7 @@ impl CommonState {
         };
         if !keys.is_empty() {
             osd.append(Line("   Hotkeys: "));
-            for (idx, key) in keys.into_iter().enumerate() {
+            for (idx, key) in keys.iter().enumerate() {
                 if idx != 0 {
                     osd.append(Line(", "));
                 }
@@ -394,7 +394,7 @@ pub fn intersections_from_roads(roads: &BTreeSet<RoadID>, map: &Map) -> BTreeSet
     let mut results = BTreeSet::new();
     for r in roads {
         let r = map.get_r(*r);
-        for i in vec![r.src_i, r.dst_i] {
+        for i in [r.src_i, r.dst_i] {
             if results.contains(&i) {
                 continue;
             }
@@ -441,7 +441,7 @@ pub fn jump_to_time_upon_startup(
                 .time_limited_step(&app.primary.map, dt, deadline, &mut None);
             let target = Time::START_OF_DAY + dt;
             if app.primary.sim.time() != target {
-                vec![Transition::Push(TimeWarpScreen::new(
+                vec![Transition::Push(TimeWarpScreen::new_state(
                     ctx, app, target, None,
                 ))]
             } else {

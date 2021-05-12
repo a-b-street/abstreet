@@ -58,7 +58,7 @@ pub struct BundleEdits {
 }
 
 impl TrafficSignalEditor {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         app: &mut App,
         members: BTreeSet<IntersectionID>,
@@ -198,8 +198,8 @@ impl State<App> for TrafficSignalEditor {
             .get_traffic_signal(*self.members.iter().next().unwrap());
         let num_stages = canonical_signal.stages.len();
 
-        match self.side_panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.side_panel.event(ctx) {
+             match x.as_ref() {
                 "Edit entire signal" => {
                     return Transition::Push(edits::edit_entire_signal(
                         ctx,
@@ -210,7 +210,7 @@ impl State<App> for TrafficSignalEditor {
                     ));
                 }
                 "Tune offsets between signals" => {
-                    return Transition::Push(offsets::ShowAbsolute::new(
+                    return Transition::Push(offsets::ShowAbsolute::new_state(
                         ctx,
                         app,
                         self.members.clone(),
@@ -223,7 +223,7 @@ impl State<App> for TrafficSignalEditor {
                     return Transition::Keep;
                 }
                 "change duration" => {
-                    return Transition::Push(edits::ChangeDuration::new(
+                    return Transition::Push(edits::ChangeDuration::new_state(
                         ctx,
                         app,
                         &canonical_signal,
@@ -264,7 +264,7 @@ impl State<App> for TrafficSignalEditor {
                         if ctx.canvas.get_screen_bounds().contains(center) {
                             return Transition::Keep;
                         } else {
-                            return Transition::Push(Warping::new(
+                            return Transition::Push(Warping::new_state(
                                 ctx,
                                 center,
                                 Some(15.0),
@@ -276,16 +276,15 @@ impl State<App> for TrafficSignalEditor {
                         unreachable!()
                     }
                 }
-            },
-            _ => {}
+            }
         }
 
-        match self.top_panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.top_panel.event(ctx) {
+             match x.as_ref() {
                 "Finish" => {
                     if let Some(bundle) = check_for_missing_turns(app, &self.members) {
                         bundle.apply(app);
-                        self.command_stack.push(bundle.clone());
+                        self.command_stack.push(bundle);
                         self.redo_stack.clear();
 
                         self.top_panel = make_top_panel(ctx, app, true, false);
@@ -297,7 +296,7 @@ impl State<App> for TrafficSignalEditor {
                             vec![
                                 "Some turns are missing from this traffic signal",
                                 "They've all been added as a new first stage. Please update your \
-                                 changes to include them.",
+                                changes to include them.",
                             ],
                         ));
                     } else {
@@ -313,7 +312,7 @@ impl State<App> for TrafficSignalEditor {
                         return Transition::Pop;
                     }
                     let original = self.original.clone();
-                    return Transition::Push(ConfirmDiscard::new(
+                    return Transition::Push(ConfirmDiscard::new_state(
                         ctx,
                         Box::new(move |app| {
                             original.apply(app);
@@ -327,7 +326,7 @@ impl State<App> for TrafficSignalEditor {
                         .unwrap_or_else(|| BundleEdits::get_current(app, &self.members));
                     self.original.apply(app);
                     changes.commit(ctx, app);
-                    return Transition::Replace(picker::SignalPicker::new(
+                    return Transition::Replace(picker::SignalPicker::new_state(
                         ctx,
                         self.members.clone(),
                         self.mode.clone(),
@@ -372,8 +371,7 @@ impl State<App> for TrafficSignalEditor {
                     return Transition::Keep;
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         {
@@ -387,7 +385,7 @@ impl State<App> for TrafficSignalEditor {
         }
 
         if ctx.redo_mouseover() {
-            let old = self.movement_selected.clone();
+            let old = self.movement_selected;
 
             self.movement_selected = None;
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
@@ -425,48 +423,46 @@ impl State<App> for TrafficSignalEditor {
             }
         }
 
-        if let Some((id, next_priority)) = self.movement_selected {
-            if let Some(pri) = next_priority {
-                let signal = app.primary.map.get_traffic_signal(id.parent);
-                let mut txt = Text::new();
-                txt.add_line(Line(format!(
-                    "{} {}",
-                    match signal.stages[self.current_stage].get_priority_of_movement(id) {
-                        TurnPriority::Protected => "Protected",
-                        TurnPriority::Yield => "Yielding",
-                        TurnPriority::Banned => "Forbidden",
-                    },
-                    if id.crosswalk { "crosswalk" } else { "turn" },
-                )));
-                txt.add_appended(vec![
-                    Line("Click").fg(ctx.style().text_hotkey_color),
-                    Line(format!(
-                        " to {}",
-                        match pri {
-                            TurnPriority::Protected => "add it as protected",
-                            TurnPriority::Yield => "allow it after yielding",
-                            TurnPriority::Banned => "forbid it",
-                        }
-                    )),
-                ]);
-                self.tooltip = Some(txt);
-                if app.per_obj.left_click(
-                    ctx,
-                    format!(
-                        "toggle from {:?} to {:?}",
-                        signal.stages[self.current_stage].get_priority_of_movement(id),
-                        pri
-                    ),
-                ) {
-                    let idx = self.current_stage;
-                    let signal = signal.clone();
-                    self.add_new_edit(ctx, app, idx, |ts| {
-                        if ts.id == id.parent {
-                            ts.stages[idx].edit_movement(&signal.movements[&id], pri);
-                        }
-                    });
-                    return Transition::KeepWithMouseover;
-                }
+        if let Some((id, Some(pri))) = self.movement_selected {
+            let signal = app.primary.map.get_traffic_signal(id.parent);
+            let mut txt = Text::new();
+            txt.add_line(Line(format!(
+                "{} {}",
+                match signal.stages[self.current_stage].get_priority_of_movement(id) {
+                    TurnPriority::Protected => "Protected",
+                    TurnPriority::Yield => "Yielding",
+                    TurnPriority::Banned => "Forbidden",
+                },
+                if id.crosswalk { "crosswalk" } else { "turn" },
+            )));
+            txt.add_appended(vec![
+                Line("Click").fg(ctx.style().text_hotkey_color),
+                Line(format!(
+                    " to {}",
+                    match pri {
+                        TurnPriority::Protected => "add it as protected",
+                        TurnPriority::Yield => "allow it after yielding",
+                        TurnPriority::Banned => "forbid it",
+                    }
+                )),
+            ]);
+            self.tooltip = Some(txt);
+            if app.per_obj.left_click(
+                ctx,
+                format!(
+                    "toggle from {:?} to {:?}",
+                    signal.stages[self.current_stage].get_priority_of_movement(id),
+                    pri
+                ),
+            ) {
+                let idx = self.current_stage;
+                let signal = signal.clone();
+                self.add_new_edit(ctx, app, idx, |ts| {
+                    if ts.id == id.parent {
+                        ts.stages[idx].edit_movement(&signal.movements[&id], pri);
+                    }
+                });
+                return Transition::KeepWithMouseover;
             }
         }
 

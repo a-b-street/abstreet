@@ -18,7 +18,7 @@ pub struct ParkingOverhead {
 }
 
 impl ParkingOverhead {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let table = make_table(app);
         let col = Widget::col(vec![
             DashTab::ParkingOverhead.picker(ctx, app),
@@ -123,14 +123,8 @@ fn produce_raw_data(app: &App) -> Vec<Entry> {
     let mut data = Vec::new();
     for (id, phases) in app.primary.sim.get_analytics().get_all_trip_phases() {
         let trip = app.primary.sim.trip_info(id);
-        let starts_off_map = match trip.start {
-            TripEndpoint::Border(_) => true,
-            _ => false,
-        };
-        let ends_off_map = match trip.end {
-            TripEndpoint::Border(_) => true,
-            _ => false,
-        };
+        let starts_off_map = matches!(trip.start, TripEndpoint::Border(_));
+        let ends_off_map = matches!(trip.end, TripEndpoint::Border(_));
 
         let mut total_duration = Duration::ZERO;
         let mut driving_duration = Duration::ZERO;

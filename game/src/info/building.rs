@@ -21,9 +21,7 @@ fn info_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingI
 
     let b = app.primary.map.get_b(id);
 
-    let mut kv = Vec::new();
-
-    kv.push(("Address", b.address.clone()));
+    let mut kv = vec![("Address", b.address.clone())];
     if let Some(ref names) = b.name {
         kv.push(("Name", names.get(app.opts.language.as_ref()).to_string()));
     }
@@ -212,7 +210,7 @@ fn people_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Buildin
         ppl.push((
             next_trip
                 .map(|(t, _)| t)
-                .unwrap_or(app.primary.sim.get_end_of_day()),
+                .unwrap_or_else(|| app.primary.sim.get_end_of_day()),
             widget,
         ));
     }
@@ -239,19 +237,18 @@ fn people_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Buildin
 }
 
 fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: BuildingID, tab: Tab) -> Widget {
-    let mut rows = vec![];
-
-    rows.push(Widget::row(vec![
-        Line(id.to_string()).small_heading().into_widget(ctx),
-        header_btns(ctx),
-    ]));
-
-    rows.push(make_tabs(
-        ctx,
-        &mut details.hyperlinks,
-        tab,
-        vec![("Info", Tab::BldgInfo(id)), ("People", Tab::BldgPeople(id))],
-    ));
+    let rows = vec![
+        Widget::row(vec![
+            Line(id.to_string()).small_heading().into_widget(ctx),
+            header_btns(ctx),
+        ]),
+        make_tabs(
+            ctx,
+            &mut details.hyperlinks,
+            tab,
+            vec![("Info", Tab::BldgInfo(id)), ("People", Tab::BldgPeople(id))],
+        ),
+    ];
 
     draw_occupants(details, app, id, None);
     // TODO Draw cars parked inside?

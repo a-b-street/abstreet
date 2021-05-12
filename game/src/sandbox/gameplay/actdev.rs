@@ -31,7 +31,7 @@ pub struct Actdev {
 }
 
 impl Actdev {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         scenario_name: String,
         bg_traffic: bool,
@@ -62,7 +62,7 @@ impl GameplayState for Actdev {
                     .primary
                     .map
                     .all_areas()
-                    .into_iter()
+                    .iter()
                     .find(|a| a.area_type == AreaType::StudyArea)
                     .unwrap()
                     .polygon;
@@ -106,7 +106,7 @@ impl GameplayState for Actdev {
                         jump_to_time_upon_startup(Duration::hours(8)),
                     )));
                 }
-                "Edit map" => Some(Transition::Push(EditMode::new(
+                "Edit map" => Some(Transition::Push(EditMode::new_state(
                     ctx,
                     app,
                     GameplayMode::Actdev(

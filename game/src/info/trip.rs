@@ -571,7 +571,7 @@ fn make_timeline(
     let mut x1 = 0.0;
     let rectangle_height = 15.0;
     let icon_height = 30.0;
-    for (idx, p) in phases.into_iter().enumerate() {
+    for (idx, p) in phases.iter().enumerate() {
         let mut tooltip = vec![
             p.phase_type.describe(map),
             format!("  Started at {}", p.start_time.ampm_tostring()),

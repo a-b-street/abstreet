@@ -21,7 +21,7 @@ pub struct Warping {
 }
 
 impl Warping {
-    pub fn new(
+    pub fn new_state(
         ctx: &EventCtx,
         pt: Pt2D,
         target_cam_zoom: Option<f64>,
@@ -40,26 +40,24 @@ impl State<App> for Warping {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
         if self.warper.event(ctx) {
             Transition::Keep
+        } else if let Some(id) = self.id.clone() {
+            Transition::Multi(vec![
+                Transition::Pop,
+                Transition::ModifyState(Box::new(move |state, ctx, app| {
+                    // Other states pretty much don't use info panels.
+                    if let Some(ref mut s) = state.downcast_mut::<SandboxMode>() {
+                        let mut actions = s.contextual_actions();
+                        s.controls.common.as_mut().unwrap().launch_info_panel(
+                            ctx,
+                            app,
+                            Tab::from_id(app, id),
+                            &mut actions,
+                        );
+                    }
+                })),
+            ])
         } else {
-            if let Some(id) = self.id.clone() {
-                Transition::Multi(vec![
-                    Transition::Pop,
-                    Transition::ModifyState(Box::new(move |state, ctx, app| {
-                        // Other states pretty much don't use info panels.
-                        if let Some(ref mut s) = state.downcast_mut::<SandboxMode>() {
-                            let mut actions = s.contextual_actions();
-                            s.controls.common.as_mut().unwrap().launch_info_panel(
-                                ctx,
-                                app,
-                                Tab::from_id(app, id),
-                                &mut actions,
-                            );
-                        }
-                    })),
-                ])
-            } else {
-                Transition::Pop
-            }
+            Transition::Pop
         }
     }
 
@@ -71,7 +69,7 @@ pub struct DebugWarp {
 }
 
 impl DebugWarp {
-    pub fn new(ctx: &mut EventCtx) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx) -> Box<dyn State<App>> {
         let c = ctx.style().text_hotkey_color;
         Box::new(DebugWarp {
             panel: Panel::new(Widget::col(vec![
@@ -136,7 +134,7 @@ impl State<App> for DebugWarp {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
-                    return Transition::Pop;
+                    Transition::Pop
                 }
                 "Go!" => {
                     let input = self.panel.text_box("input");
@@ -172,7 +170,7 @@ fn inner_warp_to_id(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Tra
     }
     if line == "j" {
         if let Some((pt, zoom)) = app.primary.last_warped_from {
-            return Some(Transition::Replace(Warping::new(
+            return Some(Transition::Replace(Warping::new_state(
                 ctx,
                 pt,
                 Some(zoom),
@@ -183,7 +181,7 @@ fn inner_warp_to_id(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Tra
         return None;
     }
 
-    let id = match usize::from_str_radix(&line[1..line.len()], 10) {
+    let id = match (&line[1..line.len()]).parse::<usize>() {
         Ok(idx) => match line.chars().next().unwrap() {
             'r' => {
                 let r = app.primary.map.maybe_get_r(RoadID(idx))?;
@@ -267,7 +265,7 @@ fn inner_warp_to_id(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Tra
     };
     if let Some(pt) = app.primary.canonical_point(id.clone()) {
         println!("Warping to {:?}", id);
-        Some(Transition::Replace(Warping::new(
+        Some(Transition::Replace(Warping::new_state(
             ctx,
             pt,
             Some(WARP_TO_CAM_ZOOM),

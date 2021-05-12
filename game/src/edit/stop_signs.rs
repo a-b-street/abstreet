@@ -29,7 +29,7 @@ pub struct StopSignEditor {
 }
 
 impl StopSignEditor {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         app: &mut App,
         id: IntersectionID,
@@ -105,7 +105,7 @@ impl SimpleState<App> for StopSignEditor {
                     )),
                 });
                 apply_map_edits(ctx, app, edits);
-                Transition::Replace(StopSignEditor::new(ctx, app, self.id, self.mode.clone()))
+                Transition::Replace(StopSignEditor::new_state(ctx, app, self.id, self.mode.clone()))
             }
             "close intersection for construction" => {
                 let cmd = EditCmd::ChangeIntersection {
@@ -137,7 +137,7 @@ impl SimpleState<App> for StopSignEditor {
                 app.primary
                     .sim
                     .handle_live_edited_traffic_signals(&app.primary.map);
-                Transition::Replace(TrafficSignalEditor::new(
+                Transition::Replace(TrafficSignalEditor::new_state(
                     ctx,
                     app,
                     btreeset! {self.id},
@@ -180,7 +180,7 @@ impl SimpleState<App> for StopSignEditor {
                     new: EditIntersection::StopSign(sign),
                 });
                 apply_map_edits(ctx, app, edits);
-                return Transition::Replace(StopSignEditor::new(
+                return Transition::Replace(StopSignEditor::new_state(
                     ctx,
                     app,
                     self.id,

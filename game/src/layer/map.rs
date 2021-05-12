@@ -364,22 +364,19 @@ impl Layer for CongestionCaps {
         if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             if ctx.redo_mouseover() || recalc_tooltip {
                 self.tooltip = None;
-                match app.mouseover_unzoomed_roads_and_intersections(ctx) {
-                    Some(ID::Road(r)) => {
-                        if let Some(cap) = app
-                            .primary
-                            .map
-                            .get_r(r)
-                            .access_restrictions
-                            .cap_vehicles_per_hour
-                        {
-                            self.tooltip = Some(Text::from(format!(
-                                "Cap of {} vehicles per hour",
-                                prettyprint_usize(cap)
-                            )));
-                        }
+                if let Some(ID::Road(r)) = app.mouseover_unzoomed_roads_and_intersections(ctx) {
+                    if let Some(cap) = app
+                        .primary
+                        .map
+                        .get_r(r)
+                        .access_restrictions
+                        .cap_vehicles_per_hour
+                    {
+                        self.tooltip = Some(Text::from(format!(
+                            "Cap of {} vehicles per hour",
+                            prettyprint_usize(cap)
+                        )));
                     }
-                    _ => {}
                 }
             }
         } else {

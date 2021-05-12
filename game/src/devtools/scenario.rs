@@ -18,7 +18,7 @@ pub struct ScenarioManager {
 }
 
 impl ScenarioManager {
-    pub fn new(scenario: Scenario, ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    pub fn new_state(scenario: Scenario, ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let mut colorer = ColorDiscrete::new(
             app,
             vec![
@@ -89,17 +89,16 @@ impl ScenarioManager {
 
 impl State<App> for ScenarioManager {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
                 "popular destinations" => {
-                    return Transition::Push(PopularDestinations::new(ctx, app, &self.scenario));
+                    return Transition::Push(PopularDestinations::new_state(ctx, app, &self.scenario));
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         ctx.canvas_movement();

@@ -89,36 +89,33 @@ struct CutscenePlayer {
 
 impl State<App> for CutscenePlayer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
-                "quit" => {
-                    // TODO Should SandboxMode use on_destroy for this?
-                    app.primary.clear_sim();
-                    app.set_prebaked(None);
-                    return Transition::Multi(vec![Transition::Pop, Transition::Pop]);
-                }
-                "back" => {
-                    self.idx -= 1;
-                    self.panel =
-                        make_panel(ctx, &self.name, &self.scenes, &self.make_task, self.idx);
-                }
-                "next" => {
-                    self.idx += 1;
-                    self.panel =
-                        make_panel(ctx, &self.name, &self.scenes, &self.make_task, self.idx);
-                }
-                "Skip cutscene" => {
-                    self.idx = self.scenes.len();
-                    self.panel =
-                        make_panel(ctx, &self.name, &self.scenes, &self.make_task, self.idx);
-                }
-                "Start" => {
-                    return Transition::Pop;
-                }
-                _ => unreachable!(),
-            },
-            _ => {}
-        }
+        if let Outcome::Clicked(x) = self.panel.event(ctx) { match x.as_ref() {
+            "quit" => {
+                // TODO Should SandboxMode use on_destroy for this?
+                app.primary.clear_sim();
+                app.set_prebaked(None);
+                return Transition::Multi(vec![Transition::Pop, Transition::Pop]);
+            }
+            "back" => {
+                self.idx -= 1;
+                self.panel =
+                    make_panel(ctx, &self.name, &self.scenes, &self.make_task, self.idx);
+            }
+            "next" => {
+                self.idx += 1;
+                self.panel =
+                    make_panel(ctx, &self.name, &self.scenes, &self.make_task, self.idx);
+            }
+            "Skip cutscene" => {
+                self.idx = self.scenes.len();
+                self.panel =
+                    make_panel(ctx, &self.name, &self.scenes, &self.make_task, self.idx);
+            }
+            "Start" => {
+                return Transition::Pop;
+            }
+            _ => unreachable!(),
+        } }
         // TODO Should the Panel for text widgets with wrapping do this instead?
         if ctx.input.is_window_resized() {
             self.panel = make_panel(ctx, &self.name, &self.scenes, &self.make_task, self.idx);
@@ -264,7 +261,7 @@ pub struct FYI {
 }
 
 impl FYI {
-    pub fn new(ctx: &mut EventCtx, contents: Widget, bg: Color) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, contents: Widget, bg: Color) -> Box<dyn State<App>> {
         Box::new(FYI {
             panel: Panel::new(
                 Widget::custom_col(vec![
