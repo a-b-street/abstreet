@@ -6,8 +6,8 @@ use map_gui::render::DrawOptions;
 use map_gui::tools::{grey_out_map, PopupMsg};
 use map_gui::ID;
 use widgetry::{
-    Choice, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, Slider, State,
-    TabController, Text, Toggle, UpdateType, Widget,
+    Choice, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, ScreenDims,
+    Slider, State, TabController, Text, Toggle, UpdateType, Widget,
 };
 
 use crate::app::{App, FindDelayedIntersections, ShowEverything, Transition};
@@ -98,7 +98,7 @@ impl JumpToTime {
                 ctx.style().btn_close_widget(ctx),
                 tabs.build_widget(ctx),
             ]))
-            .exact_size_percent(50, 50)
+            .exact_size(ScreenDims::new(640.0, 360.0))
             .build(ctx),
             tabs: tabs,
         })
