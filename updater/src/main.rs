@@ -14,7 +14,7 @@ const MD5_BUF_READ_SIZE: usize = 4096;
 #[tokio::main]
 async fn main() {
     let mut args = CmdArgs::new();
-    let version = args.optional("--version").unwrap_or("dev".to_string());
+    let version = args.optional("--version").unwrap_or_else(|| "dev".to_string());
     if args.enabled("--upload") {
         assert_eq!(version, "dev");
         args.done();
@@ -34,7 +34,7 @@ async fn main() {
             let truth = Manifest::load()
                 .entries
                 .remove(&path)
-                .expect(&format!("{} not in data/MANIFEST.txt", path))
+                .unwrap_or_else(|| panic!("{} not in data/MANIFEST.txt", path))
                 .checksum;
             if local != truth {
                 println!("{} has changed", path);
@@ -149,7 +149,7 @@ fn upload(version: String) {
     }
 
     // Anything missing or needing updating?
-    let local_entries = std::mem::replace(&mut local.entries, BTreeMap::new());
+    let local_entries = std::mem::take(&mut local.entries);
     for (path, entry) in Timer::new("compress files").parallelize(
         "compress files",
         Parallelism::Fastest,
@@ -163,7 +163,7 @@ fn upload(version: String) {
             // Always do this -- even if nothing changed, compressed_size_bytes isn't filled out by
             // generate_manifest.
             entry.compressed_size_bytes = std::fs::metadata(&remote_path)
-                .expect(&format!("Compressed {} not there?", remote_path))
+                .unwrap_or_else(|_| panic!("Compressed {} not there?", remote_path))
                 .len();
             (path, entry)
         },
@@ -214,7 +214,7 @@ fn incremental_upload(version: String) {
                     let remote_path = format!("{}/{}.gz", remote_base, path);
                     compress(&path, &remote_path);
                     entry.compressed_size_bytes = std::fs::metadata(&remote_path)
-                        .expect(&format!("Compressed {} not there?", remote_path))
+                        .unwrap_or_else(|_| panic!("Compressed {} not there?", remote_path))
                         .len();
                     Some((path, entry))
                 } else {
@@ -265,7 +265,7 @@ fn opt_into_all() {
         if path.starts_with("data/system/extra_fonts") || path.starts_with("data/input/shared") {
             continue;
         }
-        let parts = path.split("/").collect::<Vec<_>>();
+        let parts = path.split('/').collect::<Vec<_>>();
         let mut city = format!("{}/{}", parts[2], parts[3]);
         if Manifest::is_file_part_of_huge_seattle(path) {
             city = "us/huge_seattle".to_string();
@@ -345,7 +345,7 @@ fn generate_manifest(truth: &Manifest) -> Manifest {
 fn md5sum(path: &str) -> String {
     // since these files can be very large, computes the md5 hash in chunks
     let mut file = File::open(path).unwrap();
-    let mut buffer = [0 as u8; MD5_BUF_READ_SIZE];
+    let mut buffer = [0_u8; MD5_BUF_READ_SIZE];
     let mut context = md5::Context::new();
     while let Ok(n) = file.read(&mut buffer) {
         if n == 0 {
