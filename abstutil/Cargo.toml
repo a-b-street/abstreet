@@ -13,7 +13,7 @@ itertools = "0.10.0"
 log = "0.4.14"
 num_cpus = "1.13.0"
 scoped_threadpool = "0.1.9"
-serde = "1.0.123"
+serde = { version = "1.0.123", features=["derive"] }
 serde_json = "1.0.61"
 
 [target.'cfg(unix)'.dependencies]
