@@ -610,10 +610,7 @@ impl<'b, 'a: 'b, 'c> ButtonBuilder<'a, 'c> {
                     return Some(styled_text.clone().bg(Color::CLEAR).render(ctx));
                 }
 
-                let text = label.text.clone().or(default.and_then(|d| d.text.clone()));
-
-                text.as_ref()?;
-                let text = text.unwrap();
+                let text = label.text.clone().or(default.and_then(|d| d.text.clone()))?;
 
                 let color = label
                     .color
