@@ -49,7 +49,7 @@ fn run(map: &mut Map, sim: &mut Sim, rng: &mut XorShiftRng, timer: &mut Timer) {
     let edit_frequency = Duration::minutes(5);
 
     while !sim.is_done() {
-        println!("");
+        println!();
         sim.timed_step(map, edit_frequency, &mut None, timer);
         sim.save();
         map.save_edits();
