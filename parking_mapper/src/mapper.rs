@@ -327,9 +327,11 @@ impl State<App> for ParkingMapper {
                             "Diff generated",
                             vec!["diff.osc created. Load it in JOSM, verify, and upload!"],
                         )),
-                        Err(err) => {
-                            Transition::Push(PopupMsg::new_state(ctx, "Error", vec![format!("{}", err)]))
-                        }
+                        Err(err) => Transition::Push(PopupMsg::new_state(
+                            ctx,
+                            "Error",
+                            vec![format!("{}", err)],
+                        )),
                     };
                 }
                 "change map" => {

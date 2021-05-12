@@ -952,8 +952,7 @@ impl IntersectionSimState {
                 // work normally. If not, then... maybe we need to allow concurrent turns from
                 // different lanes into the same lane, and somehow make the queueing work out.
                 if turn.id.dst == other.turn.dst {
-                    if let (Some((now, scheduler)),
-                       AgentID::Car(blocker), Some((cars, _))) = (
+                    if let (Some((now, scheduler)), AgentID::Car(blocker), Some((cars, _))) = (
                         wakeup_stuck_cycle,
                         other.agent,
                         maybe_cars_and_queues.as_ref(),

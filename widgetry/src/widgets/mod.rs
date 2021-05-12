@@ -463,7 +463,11 @@ impl Widget {
     }
 
     // Also returns the hitbox of the entire widget
-    pub fn into_geom(mut self, ctx: &EventCtx, exact_pct_width: Option<f64>) -> (GeomBatch, Polygon) {
+    pub fn into_geom(
+        mut self,
+        ctx: &EventCtx,
+        exact_pct_width: Option<f64>,
+    ) -> (GeomBatch, Polygon) {
         if let Some(w) = exact_pct_width {
             // TODO 35 is a sad magic number. By default, Panels have padding of 16, so assuming
             // this geometry is going in one of those, it makes sense to subtract 32. But that still

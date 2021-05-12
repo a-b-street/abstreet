@@ -94,9 +94,7 @@ impl MinimapControls<App> for MinimapController {
             "change layers" => {
                 return Some(Transition::Push(PickLayer::pick(ctx, app)));
             }
-            "more data" => {
-                Some(Transition::Push(Box::new(TripTable::new(ctx, app))))
-            }
+            "more data" => Some(Transition::Push(Box::new(TripTable::new(ctx, app)))),
             _ => unreachable!(),
         }
     }

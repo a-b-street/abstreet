@@ -294,7 +294,12 @@ impl SimpleState<App> for TuneRelative {
                 app.primary.map.incremental_edit_traffic_signal(ts);
                 Transition::Multi(vec![
                     Transition::Pop,
-                    Transition::Replace(ShowRelative::new_state(ctx, app, self.i1, self.members.clone())),
+                    Transition::Replace(ShowRelative::new_state(
+                        ctx,
+                        app,
+                        self.i1,
+                        self.members.clone(),
+                    )),
                 ])
             }
             _ => unreachable!(),

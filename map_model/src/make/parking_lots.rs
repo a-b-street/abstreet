@@ -174,10 +174,12 @@ pub fn snap_driveway(
             driveway = Some((pl, driving_pos));
         }
     }
-    let (driveway_line, driving_pos) = driveway.ok_or_else(|| anyhow!(
-        "snapped to sidewalk {}, but no driving connection",
-        sidewalk_pos.lane()
-    ))?;
+    let (driveway_line, driving_pos) = driveway.ok_or_else(|| {
+        anyhow!(
+            "snapped to sidewalk {}, but no driving connection",
+            sidewalk_pos.lane()
+        )
+    })?;
     Ok((driveway_line, driving_pos, sidewalk_line, *sidewalk_pos))
 }
 

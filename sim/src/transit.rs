@@ -143,11 +143,11 @@ impl TransitSimState {
                 None
             };
             Route {
-                    active_vehicles: BTreeSet::new(),
-                    stops,
-                    start,
-                    end_at_border,
-                }
+                active_vehicles: BTreeSet::new(),
+                stops,
+                start,
+                end_at_border,
+            }
         });
 
         self.routes[&bus_route.id].start.clone()

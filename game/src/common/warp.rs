@@ -133,9 +133,7 @@ impl State<App> for DebugWarp {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "close" => {
-                    Transition::Pop
-                }
+                "close" => Transition::Pop,
                 "Go!" => {
                     let input = self.panel.text_box("input");
                     warp_to_id(ctx, app, &input)

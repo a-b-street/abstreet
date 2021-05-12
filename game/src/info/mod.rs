@@ -190,12 +190,9 @@ impl Tab {
             Tab::PersonTrips(p, _) | Tab::PersonBio(p) | Tab::PersonSchedule(p) => {
                 match app.primary.sim.get_person(*p).state {
                     PersonState::Inside(b) => Some(ID::Building(b)),
-                    PersonState::Trip(t) => app
-                        .primary
-                        .sim
-                        .trip_to_agent(t)
-                        .ok()
-                        .map(ID::from_agent),
+                    PersonState::Trip(t) => {
+                        app.primary.sim.trip_to_agent(t).ok().map(ID::from_agent)
+                    }
                     _ => None,
                 }
             }
@@ -588,7 +585,11 @@ impl InfoPanel {
                     (
                         false,
                         Some(Transition::Multi(vec![
-                            Transition::Push(EditMode::new_state(ctx, app, ctx_actions.gameplay_mode())),
+                            Transition::Push(EditMode::new_state(
+                                ctx,
+                                app,
+                                ctx_actions.gameplay_mode(),
+                            )),
                             Transition::Push(RouteEditor::new_state(
                                 ctx,
                                 app,
@@ -599,9 +600,9 @@ impl InfoPanel {
                 } else if action == "Explore demand across all traffic signals" {
                     (
                         false,
-                        Some(Transition::Push(dashboards::TrafficSignalDemand::new_state(
-                            ctx, app,
-                        ))),
+                        Some(Transition::Push(
+                            dashboards::TrafficSignalDemand::new_state(ctx, app),
+                        )),
                     )
                 } else if let Some(x) = action.strip_prefix("routes across Intersection #") {
                     (

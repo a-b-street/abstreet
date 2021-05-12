@@ -102,12 +102,14 @@ impl State<App> for PathCounter {
             }
         }
 
-        if let Outcome::Clicked(x) = self.panel.event(ctx) { match x.as_ref() {
-            "close" => {
-                return Transition::Pop;
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
+                "close" => {
+                    return Transition::Pop;
+                }
+                _ => unreachable!(),
             }
-            _ => unreachable!(),
-        } }
+        }
 
         Transition::Keep
     }

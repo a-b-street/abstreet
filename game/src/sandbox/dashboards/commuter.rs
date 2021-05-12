@@ -259,9 +259,10 @@ impl CommuterPatterns {
                 // While selection is locked, draw an overlay with compare_to information for the
                 // hovered block
                 if let BlockSelection::Locked {
-                        base: _,
-                        compare_to: Some(compare_to),
-                    } = block_selection {
+                    base: _,
+                    compare_to: Some(compare_to),
+                } = block_selection
+                {
                     let compare_to_block = &self.blocks[compare_to];
 
                     let border = compare_to_block
@@ -288,7 +289,11 @@ impl CommuterPatterns {
                     batch.append(bg);
                     batch.append(label);
                 };
-                let panel_data = PanelState { building_counts, max_count, total_trips };
+                let panel_data = PanelState {
+                    building_counts,
+                    max_count,
+                    total_trips,
+                };
                 (ctx.upload(batch), Some(panel_data))
             }
         }

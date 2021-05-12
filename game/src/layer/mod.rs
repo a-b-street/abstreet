@@ -244,7 +244,9 @@ impl State<App> for PickLayer {
                     )));
                 }
                 "traffic signal demand" => {
-                    return Transition::Replace(dashboards::TrafficSignalDemand::new_state(ctx, app));
+                    return Transition::Replace(dashboards::TrafficSignalDemand::new_state(
+                        ctx, app,
+                    ));
                 }
                 "commuter patterns" => {
                     return Transition::Replace(dashboards::CommuterPatterns::new_state(ctx, app));

@@ -200,8 +200,9 @@ fn find_uber_turns(
         }
 
         if let PathStep::Turn(t) = step {
-            if current_ut.is_empty() &&
-               uber_turns_v2[0].path[0].from == map.get_l(t.src).get_directed_parent() {
+            if current_ut.is_empty()
+                && uber_turns_v2[0].path[0].from == map.get_l(t.src).get_directed_parent()
+            {
                 current_ut.push(*t);
             }
 

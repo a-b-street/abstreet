@@ -105,7 +105,12 @@ impl SimpleState<App> for StopSignEditor {
                     )),
                 });
                 apply_map_edits(ctx, app, edits);
-                Transition::Replace(StopSignEditor::new_state(ctx, app, self.id, self.mode.clone()))
+                Transition::Replace(StopSignEditor::new_state(
+                    ctx,
+                    app,
+                    self.id,
+                    self.mode.clone(),
+                ))
             }
             "close intersection for construction" => {
                 let cmd = EditCmd::ChangeIntersection {

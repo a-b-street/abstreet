@@ -77,15 +77,17 @@ impl GameplayState for Freeform {
                         Transition::Multi(vec![Transition::Pop, Transition::Replace(sandbox)])
                     }),
                 ))),
-                "change scenario" => Some(Transition::Push(ChangeScenario::new_state(ctx, app, "none"))),
+                "change scenario" => Some(Transition::Push(ChangeScenario::new_state(
+                    ctx, app, "none",
+                ))),
                 "edit map" => Some(Transition::Push(EditMode::new_state(
                     ctx,
                     app,
                     GameplayMode::Freeform(app.primary.map.get_name().clone()),
                 ))),
-                "Start a new trip" => {
-                    Some(Transition::Push(spawner::AgentSpawner::new_state(ctx, app, None)))
-                }
+                "Start a new trip" => Some(Transition::Push(spawner::AgentSpawner::new_state(
+                    ctx, app, None,
+                ))),
                 "Record trips as a scenario" => Some(Transition::Push(PromptInput::new_state(
                     ctx,
                     "Name this scenario",

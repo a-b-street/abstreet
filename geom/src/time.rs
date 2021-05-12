@@ -13,14 +13,14 @@ pub struct Time(f64);
 // By construction, Time is a finite f64 with trimmed precision.
 impl Eq for Time {}
 
-#[allow(clippy::derive_ord_xor_partial_ord)]  // false positive
+#[allow(clippy::derive_ord_xor_partial_ord)] // false positive
 impl Ord for Time {
     fn cmp(&self, other: &Time) -> cmp::Ordering {
         self.partial_cmp(other).unwrap()
     }
 }
 
-#[allow(clippy::derive_hash_xor_eq)]  // false positive
+#[allow(clippy::derive_hash_xor_eq)] // false positive
 impl std::hash::Hash for Time {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         NotNan::new(self.0).unwrap().hash(state);

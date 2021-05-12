@@ -79,7 +79,10 @@ impl City {
 
         let mut districts = Vec::new();
         for (name, pts) in boundary_per_district {
-            districts.push((name, Ring::must_new(gps_bounds.convert(&pts)).into_polygon()));
+            districts.push((
+                name,
+                Ring::must_new(gps_bounds.convert(&pts)).into_polygon(),
+            ));
         }
         // Just a sort of z-ordering hack so that the largest encompassing district isn't first
         // later in the UI picker.

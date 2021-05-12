@@ -143,7 +143,9 @@ impl State<App> for DevToolsMode {
                                 abstio::path_scenario(app.primary.map.get_name(), &s),
                                 &mut Timer::throwaway(),
                             );
-                            Transition::Replace(scenario::ScenarioManager::new_state(scenario, ctx, app))
+                            Transition::Replace(scenario::ScenarioManager::new_state(
+                                scenario, ctx, app,
+                            ))
                         }),
                     ));
                 }

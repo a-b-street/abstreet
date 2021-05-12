@@ -361,9 +361,7 @@ fn bio_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: PersonID) 
         } else if let PersonState::Trip(t) = person.state {
             match app.primary.sim.trip_to_agent(t) {
                 TripResult::Ok(AgentID::Car(x)) if x == v.id => {
-                    rows.push(
-                        format!("Owner of {} (currently driving)", v.id).text_widget(ctx),
-                    );
+                    rows.push(format!("Owner of {} (currently driving)", v.id).text_widget(ctx));
                 }
                 _ => {
                     rows.push(format!("Owner of {} (off-map)", v.id).text_widget(ctx));

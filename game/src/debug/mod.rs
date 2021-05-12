@@ -538,15 +538,14 @@ fn calc_all_routes(ctx: &EventCtx, app: &mut App) -> (usize, Drawable) {
     let mut cnt = 0;
     let sim = &app.primary.sim;
     let map = &app.primary.map;
-    for trace in Timer::new("calculate all routes").parallelize(
-        "route to geometry",
-        Parallelism::Fastest,
-        agents,
-        |id| {
+    for trace in Timer::new("calculate all routes")
+        .parallelize("route to geometry", Parallelism::Fastest, agents, |id| {
             sim.trace_route(id, map)
                 .map(|trace| trace.make_polygons(NORMAL_LANE_THICKNESS))
-        },
-    ).into_iter().flatten() {
+        })
+        .into_iter()
+        .flatten()
+    {
         cnt += 1;
         batch.push(app.cs.route, trace);
     }
@@ -757,9 +756,9 @@ impl ContextualActions for Actions {
                     None,
                 ))
             }
-            (ID::Building(b), "route from here") => {
-                Transition::Push(routes::RouteExplorer::new_state(ctx, app, TripEndpoint::Bldg(b)))
-            }
+            (ID::Building(b), "route from here") => Transition::Push(
+                routes::RouteExplorer::new_state(ctx, app, TripEndpoint::Bldg(b)),
+            ),
             _ => unreachable!(),
         }
     }
@@ -858,7 +857,11 @@ struct ScreenshotTest {
 }
 
 impl ScreenshotTest {
-    fn new_state(ctx: &mut EventCtx, app: &mut App, mut todo_maps: Vec<MapName>) -> Box<dyn State<App>> {
+    fn new_state(
+        ctx: &mut EventCtx,
+        app: &mut App,
+        mut todo_maps: Vec<MapName>,
+    ) -> Box<dyn State<App>> {
         // Taking screenshots messes with options and doesn't restore them after. It's expected
         // whoever's taking screenshots (just Dustin so far) will just quit after taking them.
         app.change_color_scheme(ctx, ColorSchemeChoice::DayMode);

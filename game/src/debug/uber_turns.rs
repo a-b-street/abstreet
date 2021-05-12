@@ -62,7 +62,13 @@ impl SimpleState<App> for UberTurnPicker {
                         vec!["Select at least two intersections"],
                     ));
                 }
-                Transition::Replace(UberTurnViewer::new_state(ctx, app, self.members.clone(), 0, true))
+                Transition::Replace(UberTurnViewer::new_state(
+                    ctx,
+                    app,
+                    self.members.clone(),
+                    0,
+                    true,
+                ))
             }
             "Detect all clusters" => {
                 self.members.clear();

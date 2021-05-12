@@ -153,7 +153,8 @@ impl State<App> for SandboxMode {
                 || self
                     .recalc_unzoomed_agent
                     .map(|t| t != app.primary.sim.time())
-                    .unwrap_or(true)) {
+                    .unwrap_or(true))
+        {
             mouseover_unzoomed_agent_circle(ctx, app);
         }
 
@@ -348,7 +349,12 @@ impl ContextualActions for Actions {
             ]),
             (ID::Intersection(i), "edit stop sign") => Transition::Multi(vec![
                 Transition::Push(EditMode::new_state(ctx, app, self.gameplay.clone())),
-                Transition::Push(StopSignEditor::new_state(ctx, app, i, self.gameplay.clone())),
+                Transition::Push(StopSignEditor::new_state(
+                    ctx,
+                    app,
+                    i,
+                    self.gameplay.clone(),
+                )),
             ]),
             (ID::Intersection(i), "record traffic here") => {
                 Transition::Push(TrafficRecorder::new_state(ctx, btreeset! {i}))

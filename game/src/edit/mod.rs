@@ -220,7 +220,11 @@ impl State<App> for EditMode {
                             "open a saved proposal" => {
                                 if app.primary.map.unsaved_edits() {
                                     Transition::Multi(vec![
-                                        Transition::Replace(LoadEdits::new_state(ctx, app, mode.clone())),
+                                        Transition::Replace(LoadEdits::new_state(
+                                            ctx,
+                                            app,
+                                            mode.clone(),
+                                        )),
                                         Transition::Push(SaveEdits::new_state(
                                             ctx,
                                             app,
@@ -234,7 +238,11 @@ impl State<App> for EditMode {
                                         )),
                                     ])
                                 } else {
-                                    Transition::Replace(LoadEdits::new_state(ctx, app, mode.clone()))
+                                    Transition::Replace(LoadEdits::new_state(
+                                        ctx,
+                                        app,
+                                        mode.clone(),
+                                    ))
                                 }
                             }
                             "create a blank proposal" => {
@@ -254,14 +262,19 @@ impl State<App> for EditMode {
                                     Transition::Pop
                                 }
                             }
-                            "save this proposal as..." => Transition::Replace(SaveEdits::new_state(
-                                ctx,
-                                app,
-                                format!("Save \"{}\" as", app.primary.map.get_edits().edits_name),
-                                false,
-                                Some(Transition::Pop),
-                                Box::new(|_, _| {}),
-                            )),
+                            "save this proposal as..." => {
+                                Transition::Replace(SaveEdits::new_state(
+                                    ctx,
+                                    app,
+                                    format!(
+                                        "Save \"{}\" as",
+                                        app.primary.map.get_edits().edits_name
+                                    ),
+                                    false,
+                                    Some(Transition::Pop),
+                                    Box::new(|_, _| {}),
+                                ))
+                            }
                             "delete this proposal and remove all edits" => {
                                 abstio::delete_file(abstio::path_edits(
                                     app.primary.map.get_name(),

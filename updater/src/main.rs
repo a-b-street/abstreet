@@ -14,7 +14,9 @@ const MD5_BUF_READ_SIZE: usize = 4096;
 #[tokio::main]
 async fn main() {
     let mut args = CmdArgs::new();
-    let version = args.optional("--version").unwrap_or_else(|| "dev".to_string());
+    let version = args
+        .optional("--version")
+        .unwrap_or_else(|| "dev".to_string());
     if args.enabled("--upload") {
         assert_eq!(version, "dev");
         args.done();

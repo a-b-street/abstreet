@@ -50,12 +50,10 @@ impl WalkingNode {
 
     fn end_transit(pos: Position, map: &Map) -> WalkingNode {
         let l = map.get_l(pos.lane());
-        if map.get_i(l.src_i).is_outgoing_border() &&
-           pos.dist_along() == Distance::ZERO {
+        if map.get_i(l.src_i).is_outgoing_border() && pos.dist_along() == Distance::ZERO {
             return WalkingNode::LeaveMap(l.src_i);
         }
-        if map.get_i(l.dst_i).is_outgoing_border() &&
-           pos.dist_along() == l.length() {
+        if map.get_i(l.dst_i).is_outgoing_border() && pos.dist_along() == l.length() {
             return WalkingNode::LeaveMap(l.dst_i);
         }
         WalkingNode::closest(pos, map)

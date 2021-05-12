@@ -132,9 +132,13 @@ impl SimpleState<App> for LaneEditor {
                 app,
                 app.primary.map.get_l(self.l).parent,
             )),
-            "Modify entire road (experimental!)" => Transition::Replace(
-                crate::edit::roads::RoadEditor::new_state(ctx, app, app.primary.map.get_l(self.l).parent),
-            ),
+            "Modify entire road (experimental!)" => {
+                Transition::Replace(crate::edit::roads::RoadEditor::new_state(
+                    ctx,
+                    app,
+                    app.primary.map.get_l(self.l).parent,
+                ))
+            }
             "Finish" => Transition::Pop,
             x => {
                 let map = &mut app.primary.map;
@@ -161,7 +165,12 @@ impl SimpleState<App> for LaneEditor {
                         edits.commands.push(cmd);
                         apply_map_edits(ctx, app, edits);
 
-                        Transition::Replace(LaneEditor::new_state(ctx, app, self.l, self.mode.clone()))
+                        Transition::Replace(LaneEditor::new_state(
+                            ctx,
+                            app,
+                            self.l,
+                            self.mode.clone(),
+                        ))
                     }
                     Err(err) => Transition::Push(err),
                 }

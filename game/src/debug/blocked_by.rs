@@ -231,19 +231,21 @@ impl State<App> for Viewer {
             self.root_cause = root_cause;
         }
 
-        if let Outcome::Clicked(x) = self.panel.event(ctx) { match x.as_ref() {
-            "close" => {
-                return Transition::Pop;
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
+                "close" => {
+                    return Transition::Pop;
+                }
+                x => {
+                    // warp_to_id always replaces the current state, so insert a dummy one for it
+                    // to clobber
+                    return Transition::Multi(vec![
+                        Transition::Push(PopupMsg::new_state(ctx, "Warping", vec![""])),
+                        warp_to_id(ctx, app, x),
+                    ]);
+                }
             }
-            x => {
-                // warp_to_id always replaces the current state, so insert a dummy one for it
-                // to clobber
-                return Transition::Multi(vec![
-                    Transition::Push(PopupMsg::new_state(ctx, "Warping", vec![""])),
-                    warp_to_id(ctx, app, x),
-                ]);
-            }
-        } }
+        }
 
         Transition::Keep
     }

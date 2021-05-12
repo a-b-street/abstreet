@@ -279,9 +279,7 @@ impl TimePanel {
                     ))
                     .fg(Color::GREEN)
                 }
-                std::cmp::Ordering::Equal => {
-                    Line("No change from baseline")
-                }
+                std::cmp::Ordering::Equal => Line("No change from baseline"),
             };
             tooltip_text.add_line(line);
         }

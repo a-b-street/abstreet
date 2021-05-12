@@ -212,7 +212,9 @@ impl State<App> for Demo {
         }
 
         if let Some((_, ref mut p)) = self.timeseries_panel {
-            if let Outcome::Clicked(_) = p.event(ctx) { unreachable!() }
+            if let Outcome::Clicked(_) = p.event(ctx) {
+                unreachable!()
+            }
         }
 
         // If we're paused, only call event() again when there's some kind of input. If not, also

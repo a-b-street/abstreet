@@ -152,7 +152,12 @@ impl State<App> for JumpToTime {
                             ));
                         }
                     }
-                    return Transition::Replace(TimeWarpScreen::new_state(ctx, app, self.target, None));
+                    return Transition::Replace(TimeWarpScreen::new_state(
+                        ctx,
+                        app,
+                        self.target,
+                        None,
+                    ));
                 }
                 "jump to delay" => {
                     let delay = self.panel.dropdown_value("delay");
@@ -421,9 +426,7 @@ fn area_under_curve(raw: Vec<(Time, usize)>, width: f64, height: f64) -> Polygon
 // TODO Maybe color, put in helpers
 fn compare_count(after: usize, before: usize) -> String {
     match after.cmp(&before) {
-        std::cmp::Ordering::Equal => {
-            "+0".to_string()
-        }
+        std::cmp::Ordering::Equal => "+0".to_string(),
         std::cmp::Ordering::Greater => {
             format!("+{}", prettyprint_usize(after - before))
         }

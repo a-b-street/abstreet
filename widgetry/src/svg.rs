@@ -23,9 +23,7 @@ pub fn load_svg(prerender: &Prerender, filename: &str) -> (GeomBatch, Bounds) {
     let bytes = (prerender.assets.read_svg)(filename);
     load_svg_from_bytes_uncached(&bytes)
         .map(|(batch, bounds)| {
-            prerender
-                .assets
-                .cache_svg(cache_key, batch.clone(), bounds);
+            prerender.assets.cache_svg(cache_key, batch.clone(), bounds);
             (batch, bounds)
         })
         .unwrap_or_else(|_| panic!("error loading svg: {}", filename))
@@ -42,9 +40,7 @@ pub fn load_svg_bytes(
     }
 
     load_svg_from_bytes_uncached(&bytes).map(|(batch, bounds)| {
-        prerender
-            .assets
-            .cache_svg(cache_key, batch.clone(), bounds);
+        prerender.assets.cache_svg(cache_key, batch.clone(), bounds);
         (batch, bounds)
     })
 }

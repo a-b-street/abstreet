@@ -199,7 +199,7 @@ impl State<App> for TrafficSignalEditor {
         let num_stages = canonical_signal.stages.len();
 
         if let Outcome::Clicked(x) = self.side_panel.event(ctx) {
-             match x.as_ref() {
+            match x.as_ref() {
                 "Edit entire signal" => {
                     return Transition::Push(edits::edit_entire_signal(
                         ctx,
@@ -280,7 +280,7 @@ impl State<App> for TrafficSignalEditor {
         }
 
         if let Outcome::Clicked(x) = self.top_panel.event(ctx) {
-             match x.as_ref() {
+            match x.as_ref() {
                 "Finish" => {
                     if let Some(bundle) = check_for_missing_turns(app, &self.members) {
                         bundle.apply(app);

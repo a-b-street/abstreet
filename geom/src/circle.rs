@@ -46,7 +46,7 @@ impl Circle {
     /// degrees. Be warned the resulting polygon doesn't have a ring as its boundary!
     pub fn to_partial_polygon(&self, percent_full: f64) -> Polygon {
         #![allow(clippy::float_cmp)]
-        assert!((0. ..= 1.).contains(&percent_full));
+        assert!((0. ..=1.).contains(&percent_full));
         let mut pts = vec![self.center];
         let mut indices = Vec::new();
         for i in 0..TRIANGLES_PER_CIRCLE {

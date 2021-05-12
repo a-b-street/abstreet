@@ -111,8 +111,7 @@ impl PandemicModel {
         // self.infected.len()
         self.pop
             .iter()
-            .filter(|(_, state)|
-                matches!(state, State::Infectious(_) | State::Hospitalized(_)))
+            .filter(|(_, state)| matches!(state, State::Infectious(_) | State::Hospitalized(_)))
             .count()
     }
 
@@ -292,8 +291,8 @@ impl PandemicModel {
         person: PersonID,
         _scheduler: &mut Scheduler,
     ) {
-        #![allow(clippy::float_cmp)]  // false positive
-        // When people become exposed
+        #![allow(clippy::float_cmp)] // false positive
+                                     // When people become exposed
         let state = self.pop.remove(&person).unwrap();
         assert_eq!(
             state.get_event_time().unwrap().inner_seconds(),

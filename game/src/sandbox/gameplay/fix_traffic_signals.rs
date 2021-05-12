@@ -157,11 +157,19 @@ impl GameplayState for FixTrafficSignals {
         if let Outcome::Clicked(x) = self.top_right.event(ctx) {
             match x.as_ref() {
                 "edit map" => {
-                    return Some(Transition::Push(EditMode::new_state(ctx, app, self.mode.clone())));
+                    return Some(Transition::Push(EditMode::new_state(
+                        ctx,
+                        app,
+                        self.mode.clone(),
+                    )));
                 }
                 "instructions" => {
                     let contents = cutscene_pt1_task(ctx);
-                    return Some(Transition::Push(FYI::new_state(ctx, contents, Color::WHITE)));
+                    return Some(Transition::Push(FYI::new_state(
+                        ctx,
+                        contents,
+                        Color::WHITE,
+                    )));
                 }
                 "hint" => {
                     // TODO Multiple hints. Point to layers.
@@ -177,7 +185,11 @@ impl GameplayState for FixTrafficSignals {
                         Line("ams"),
                     ]);
                     let contents = txt.into_widget(ctx);
-                    return Some(Transition::Push(FYI::new_state(ctx, contents, app.cs.panel_bg)));
+                    return Some(Transition::Push(FYI::new_state(
+                        ctx,
+                        contents,
+                        app.cs.panel_bg,
+                    )));
                 }
                 "try again" => {
                     return Some(Transition::Replace(SandboxMode::simple_new(

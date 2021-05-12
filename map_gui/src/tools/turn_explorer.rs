@@ -18,7 +18,11 @@ pub struct TurnExplorer {
 }
 
 impl TurnExplorer {
-    pub fn new_state<A: AppLike + 'static>(ctx: &mut EventCtx, app: &A, l: LaneID) -> Box<dyn State<A>> {
+    pub fn new_state<A: AppLike + 'static>(
+        ctx: &mut EventCtx,
+        app: &A,
+        l: LaneID,
+    ) -> Box<dyn State<A>> {
         Box::new(TurnExplorer {
             l,
             idx: 0,

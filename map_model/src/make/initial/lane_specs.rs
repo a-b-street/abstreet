@@ -98,7 +98,7 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
         1
     };
 
-    #[allow(clippy::if_same_then_else)]  // better readability
+    #[allow(clippy::if_same_then_else)] // better readability
     let driving_lane =
         if tags.is("access", "no") && (tags.is("bus", "yes") || tags.is("psv", "yes")) {
             // Sup West Seattle

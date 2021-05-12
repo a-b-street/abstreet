@@ -68,9 +68,11 @@ pub fn all_walking_costs_from(
     time_limit: Duration,
     opts: WalkingOptions,
 ) -> HashMap<BuildingID, Duration> {
-    if !opts.allow_shoulders && starts
+    if !opts.allow_shoulders
+        && starts
             .iter()
-            .all(|b| map.get_l(map.get_b(*b).sidewalk()).lane_type == LaneType::Shoulder) {
+            .all(|b| map.get_l(map.get_b(*b).sidewalk()).lane_type == LaneType::Shoulder)
+    {
         return HashMap::new();
     }
 

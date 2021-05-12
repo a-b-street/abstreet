@@ -200,10 +200,7 @@ impl TripSpec {
                         TripLeg::Walk(goal.clone()),
                     ];
                 } else {
-                    legs = vec![
-                        TripLeg::Walk(walk_to),
-                        TripLeg::RideBus(*route, None),
-                    ];
+                    legs = vec![TripLeg::Walk(walk_to), TripLeg::RideBus(*route, None)];
                 }
             }
         };

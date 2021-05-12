@@ -247,7 +247,9 @@ impl Matcher {
     ) -> Result<(Position, Position)> {
         if route_type == PathConstraints::Train {
             // Light rail needs explicit platforms.
-            let sidewalk_pt = stop.ped_pos.ok_or_else(|| anyhow!("light rail missing platform"))?;
+            let sidewalk_pt = stop
+                .ped_pos
+                .ok_or_else(|| anyhow!("light rail missing platform"))?;
             let sidewalk_pos = *self
                 .sidewalk_pts
                 .get(&sidewalk_pt.to_hashable())

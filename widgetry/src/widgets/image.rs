@@ -42,8 +42,9 @@ impl ImageSource<'_> {
         match self {
             ImageSource::Path(image_path) => svg::load_svg(prerender, image_path),
             ImageSource::Bytes { bytes, cache_key } => {
-                svg::load_svg_bytes(prerender, cache_key, bytes).unwrap_or_else(
-                    |_| panic!("Failed to load svg from bytes. cache_key: {}", cache_key))
+                svg::load_svg_bytes(prerender, cache_key, bytes).unwrap_or_else(|_| {
+                    panic!("Failed to load svg from bytes. cache_key: {}", cache_key)
+                })
             }
             ImageSource::GeomBatch(geom_batch, bounds) => (geom_batch.clone(), *bounds),
         }

@@ -39,7 +39,9 @@ impl<T: 'static> SimpleApp<T> {
         opts.update_from_args(&mut args);
         let map_name = args
             .optional_free()
-            .map(|path| MapName::from_path(&path).unwrap_or_else(|| panic!("bad map path: {}", path)))
+            .map(|path| {
+                MapName::from_path(&path).unwrap_or_else(|| panic!("bad map path: {}", path))
+            })
             .or_else(|| {
                 abstio::maybe_read_json::<crate::tools::DefaultMap>(
                     abstio::path_player("maps.json"),

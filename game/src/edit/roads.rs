@@ -355,9 +355,9 @@ fn make_main_panel(
                     .iter()
                     .filter(|x| **x == LaneType::Parking)
                     .count()
-                    == 2) ||
-            (lt == LaneType::Sidewalk &&
-                current_lts.iter().filter(|x| x.is_walkable()).count() == 2)
+                    == 2)
+                || (lt == LaneType::Sidewalk
+                    && current_lts.iter().filter(|x| x.is_walkable()).count() == 2)
         };
 
         ctx.style()

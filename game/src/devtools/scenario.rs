@@ -95,7 +95,11 @@ impl State<App> for ScenarioManager {
                     return Transition::Pop;
                 }
                 "popular destinations" => {
-                    return Transition::Push(PopularDestinations::new_state(ctx, app, &self.scenario));
+                    return Transition::Push(PopularDestinations::new_state(
+                        ctx,
+                        app,
+                        &self.scenario,
+                    ));
                 }
                 _ => unreachable!(),
             }

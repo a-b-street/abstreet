@@ -264,9 +264,7 @@ impl State<App> for ChallengesPicker {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "back" => {
-                    Transition::Pop
-                }
+                "back" => Transition::Pop,
                 "Introduction and tutorial" => {
                     // Slightly inconsistent: pushes twice and leaves this challenge picker open
                     Tutorial::start(ctx, app)

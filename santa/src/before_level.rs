@@ -157,7 +157,10 @@ impl State<App> for Picker {
 
         if ctx.redo_mouseover() {
             app.current_selection = app.mouseover_unzoomed_buildings(ctx).filter(|id| {
-                matches!(self.bldgs.buildings[&id.as_building()], BldgState::Undelivered(_))
+                matches!(
+                    self.bldgs.buildings[&id.as_building()],
+                    BldgState::Undelivered(_)
+                )
             });
         }
         if let Some(ID::Building(b)) = app.current_selection {

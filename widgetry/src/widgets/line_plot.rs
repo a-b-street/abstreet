@@ -19,7 +19,11 @@ pub struct LinePlot<X: Axis<X>, Y: Axis<Y>> {
 }
 
 impl<X: Axis<X>, Y: Axis<Y>> LinePlot<X, Y> {
-    pub fn new_widget(ctx: &EventCtx, mut series: Vec<Series<X, Y>>, opts: PlotOptions<X, Y>) -> Widget {
+    pub fn new_widget(
+        ctx: &EventCtx,
+        mut series: Vec<Series<X, Y>>,
+        opts: PlotOptions<X, Y>,
+    ) -> Widget {
         #![allow(clippy::or_fun_call)]
         let legend = make_legend(ctx, &series, &opts);
         series.retain(|s| !opts.disabled.contains(&s.label));

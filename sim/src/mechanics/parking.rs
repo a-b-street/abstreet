@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet, BinaryHeap, HashMap, hash_map::Entry};
+use std::collections::{hash_map::Entry, BTreeMap, BTreeSet, BinaryHeap, HashMap};
 
 use enum_dispatch::enum_dispatch;
 use rand::{Rng, SeedableRng};

@@ -658,8 +658,8 @@ fn fix_building_driveways(map: &mut Map, input: Vec<BuildingID>) {
 
     for (id, bldg_center) in center_per_bldg {
         match sidewalk_pts.remove(&bldg_center).and_then(|pos| {
-            Line::new(bldg_center.to_pt2d(), pos.pt(map)).map(
-                |l| (pos, trim_path(&map.get_b(id).polygon, l)))
+            Line::new(bldg_center.to_pt2d(), pos.pt(map))
+                .map(|l| (pos, trim_path(&map.get_b(id).polygon, l)))
         }) {
             Some((sidewalk_pos, driveway_geom)) => {
                 let b = &mut map.buildings[id.0];

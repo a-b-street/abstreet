@@ -11,7 +11,7 @@ pub struct Distance(f64);
 // By construction, Distance is a finite f64 with trimmed precision.
 impl Eq for Distance {}
 
-#[allow(clippy::derive_ord_xor_partial_ord)]  // false positive
+#[allow(clippy::derive_ord_xor_partial_ord)] // false positive
 impl Ord for Distance {
     fn cmp(&self, other: &Distance) -> cmp::Ordering {
         self.partial_cmp(other).unwrap()

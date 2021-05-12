@@ -17,7 +17,10 @@ pub struct RectangularSelector {
 }
 
 impl RectangularSelector {
-    pub fn new_state(ctx: &mut EventCtx, region: Rc<RefCell<Option<Polygon>>>) -> Box<dyn State<App>> {
+    pub fn new_state(
+        ctx: &mut EventCtx,
+        region: Rc<RefCell<Option<Polygon>>>,
+    ) -> Box<dyn State<App>> {
         Box::new(RectangularSelector {
             panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![

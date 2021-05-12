@@ -170,7 +170,10 @@ impl State<App> for Viewer {
                     return Transition::Push(Navigator::new_state(ctx, app));
                 }
                 "Find your perfect home" => {
-                    return Transition::Push(FindHome::new_state(ctx, self.isochrone.options.clone()));
+                    return Transition::Push(FindHome::new_state(
+                        ctx,
+                        self.isochrone.options.clone(),
+                    ));
                 }
                 x => {
                     if let Some(category) = x.strip_prefix("businesses: ") {
@@ -277,11 +280,9 @@ fn draw_star(ctx: &mut EventCtx, b: &Building) -> GeomBatch {
 }
 
 fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isochrone) -> Panel {
-    let mut rows = vec![
-        Line("15-minute neighborhood explorer")
-            .small_heading()
-            .into_widget(ctx),
-    ];
+    let mut rows = vec![Line("15-minute neighborhood explorer")
+        .small_heading()
+        .into_widget(ctx)];
 
     rows.push(
         ctx.style()

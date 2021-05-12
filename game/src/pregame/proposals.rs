@@ -17,7 +17,11 @@ pub struct Proposals {
 }
 
 impl Proposals {
-    pub fn new_state(ctx: &mut EventCtx, app: &App, current: Option<String>) -> Box<dyn State<App>> {
+    pub fn new_state(
+        ctx: &mut EventCtx,
+        app: &App,
+        current: Option<String>,
+    ) -> Box<dyn State<App>> {
         let mut proposals = HashMap::new();
         let mut tab_buttons = Vec::new();
         let mut current_tab_rows = Vec::new();
@@ -140,7 +144,11 @@ impl State<App> for Proposals {
                     );
                 }
                 x => {
-                    return Transition::Replace(Proposals::new_state(ctx, app, Some(x.to_string())));
+                    return Transition::Replace(Proposals::new_state(
+                        ctx,
+                        app,
+                        Some(x.to_string()),
+                    ));
                 }
             }
         }

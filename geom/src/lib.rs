@@ -1,4 +1,4 @@
-#![allow(clippy::ptr_arg)]  // very noisy
+#![allow(clippy::ptr_arg)] // very noisy
 
 #[macro_use]
 extern crate anyhow;

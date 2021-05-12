@@ -11,7 +11,7 @@ pub struct Speed(f64);
 // By construction, Speed is a finite f64 with trimmed precision.
 impl Eq for Speed {}
 
-#[allow(clippy::derive_ord_xor_partial_ord)]  // false positive
+#[allow(clippy::derive_ord_xor_partial_ord)] // false positive
 impl Ord for Speed {
     fn cmp(&self, other: &Speed) -> cmp::Ordering {
         self.partial_cmp(other).unwrap()

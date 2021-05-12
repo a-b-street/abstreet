@@ -610,7 +610,10 @@ impl<'b, 'a: 'b, 'c> ButtonBuilder<'a, 'c> {
                     return Some(styled_text.clone().bg(Color::CLEAR).render(ctx));
                 }
 
-                let text = label.text.clone().or(default.and_then(|d| d.text.clone()))?;
+                let text = label
+                    .text
+                    .clone()
+                    .or(default.and_then(|d| d.text.clone()))?;
 
                 let color = label
                     .color
@@ -699,7 +702,11 @@ pub struct MultiButton {
 }
 
 impl MultiButton {
-    pub fn new_widget(ctx: &EventCtx, batch: GeomBatch, hitboxes: Vec<(Polygon, String)>) -> Widget {
+    pub fn new_widget(
+        ctx: &EventCtx,
+        batch: GeomBatch,
+        hitboxes: Vec<(Polygon, String)>,
+    ) -> Widget {
         Widget::new(Box::new(MultiButton {
             dims: batch.get_dims(),
             top_left: ScreenPt::new(0.0, 0.0),

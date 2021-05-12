@@ -445,7 +445,7 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
         return false;
     }
 
-    #[allow(clippy::collapsible_if)]  // better readability
+    #[allow(clippy::collapsible_if)] // better readability
     if (highway == "footway" || highway == "path" || highway == "steps")
         && opts.map_config.inferred_sidewalks
     {

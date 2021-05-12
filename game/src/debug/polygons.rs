@@ -68,7 +68,7 @@ impl State<App> for PolygonDebugger {
         ctx.canvas_movement();
 
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
-                match x.as_ref() {
+            match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }

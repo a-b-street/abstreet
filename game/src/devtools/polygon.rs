@@ -24,7 +24,11 @@ pub struct PolygonEditor {
 }
 
 impl PolygonEditor {
-    pub fn new_state(ctx: &mut EventCtx, name: String, mut points: Vec<LonLat>) -> Box<dyn State<App>> {
+    pub fn new_state(
+        ctx: &mut EventCtx,
+        name: String,
+        mut points: Vec<LonLat>,
+    ) -> Box<dyn State<App>> {
         points.pop();
         Box::new(PolygonEditor {
             panel: Panel::new_builder(Widget::col(vec![

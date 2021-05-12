@@ -137,11 +137,19 @@ impl GameplayState for OptimizeCommute {
         if let Outcome::Clicked(x) = self.top_right.event(ctx) {
             match x.as_ref() {
                 "edit map" => {
-                    return Some(Transition::Push(EditMode::new_state(ctx, app, self.mode.clone())));
+                    return Some(Transition::Push(EditMode::new_state(
+                        ctx,
+                        app,
+                        self.mode.clone(),
+                    )));
                 }
                 "instructions" => {
                     let contents = (cutscene_task(&self.mode))(ctx);
-                    return Some(Transition::Push(FYI::new_state(ctx, contents, Color::WHITE)));
+                    return Some(Transition::Push(FYI::new_state(
+                        ctx,
+                        contents,
+                        Color::WHITE,
+                    )));
                 }
                 "hint" => {
                     // TODO Multiple hints. Point to follow button.
@@ -151,7 +159,11 @@ impl GameplayState for OptimizeCommute {
                     txt.add_line("You can wait for one of their trips to begin or end.");
                     txt.add_line("Focus on trips spent mostly waiting");
                     let contents = txt.into_widget(ctx);
-                    return Some(Transition::Push(FYI::new_state(ctx, contents, app.cs.panel_bg)));
+                    return Some(Transition::Push(FYI::new_state(
+                        ctx,
+                        contents,
+                        app.cs.panel_bg,
+                    )));
                 }
                 "locate VIP" => {
                     controls.common.as_mut().unwrap().launch_info_panel(

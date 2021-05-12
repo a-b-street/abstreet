@@ -83,12 +83,12 @@ impl State<App> for TripSummaries {
                             "Data exported",
                             vec![format!("Data exported to {}", path)],
                         ),
-                        Err(err) => PopupMsg::new_state(ctx, "Export failed", vec![err.to_string()]),
+                        Err(err) => {
+                            PopupMsg::new_state(ctx, "Export failed", vec![err.to_string()])
+                        }
                     });
                 }
-                "close" => {
-                    Transition::Pop
-                }
+                "close" => Transition::Pop,
                 _ => unreachable!(),
             },
             Outcome::Changed(_) => {

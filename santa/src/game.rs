@@ -345,7 +345,12 @@ impl State<App> for Game {
                         &self.state.bldgs,
                         std::mem::replace(&mut self.state.record_path, RecordPath::new()),
                     )),
-                    Transition::Push(Results::new_state(ctx, app, self.state.score, &self.state.level)),
+                    Transition::Push(Results::new_state(
+                        ctx,
+                        app,
+                        self.state.score,
+                        &self.state.level,
+                    )),
                 ]);
             }
 

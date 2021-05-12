@@ -88,7 +88,7 @@ impl Line {
 
     /// Determine if two line segments intersect, but more so than just two endpoints touching.
     pub fn crosses(&self, other: &Line) -> bool {
-        #[allow(clippy::suspicious_operation_groupings)]  // false positive
+        #[allow(clippy::suspicious_operation_groupings)] // false positive
         if self.pt1() == other.pt1()
             || self.pt1() == other.pt2()
             || self.pt2() == other.pt1()

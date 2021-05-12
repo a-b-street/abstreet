@@ -654,7 +654,7 @@ impl Pedestrian {
     }
 
     fn get_draw_ped(&self, now: Time, map: &Map) -> DrawPedestrianInput {
-        #![allow(clippy::or_fun_call)]  // false positive
+        #![allow(clippy::or_fun_call)] // false positive
         let on = self.path.current_step().as_traversable();
         let err = format!("at {}, {}'s position is broken", now, self.id);
         let angle_offset = if map.get_config().driving_side == DrivingSide::Right {

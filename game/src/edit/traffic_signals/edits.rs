@@ -267,9 +267,11 @@ pub fn edit_entire_signal(
                                 });
                             })),
                         ]),
-                        Err(err) => {
-                            Transition::Replace(PopupMsg::new_state(ctx, "Error", vec![err.to_string()]))
-                        }
+                        Err(err) => Transition::Replace(PopupMsg::new_state(
+                            ctx,
+                            "Error",
+                            vec![err.to_string()],
+                        )),
                     }
                 }),
             )),

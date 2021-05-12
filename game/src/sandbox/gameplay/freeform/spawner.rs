@@ -23,7 +23,11 @@ pub struct AgentSpawner {
 }
 
 impl AgentSpawner {
-    pub fn new_state(ctx: &mut EventCtx, app: &App, start: Option<BuildingID>) -> Box<dyn State<App>> {
+    pub fn new_state(
+        ctx: &mut EventCtx,
+        app: &App,
+        start: Option<BuildingID>,
+    ) -> Box<dyn State<App>> {
         let mut spawner = AgentSpawner {
             start: None,
             goal: None,

@@ -204,7 +204,9 @@ impl GameplayMode {
             GameplayMode::PlayScenario(_, ref scenario, ref modifiers) => {
                 play_scenario::PlayScenario::new_state(ctx, app, scenario, modifiers.clone())
             }
-            GameplayMode::FixTrafficSignals => fix_traffic_signals::FixTrafficSignals::new_state(ctx),
+            GameplayMode::FixTrafficSignals => {
+                fix_traffic_signals::FixTrafficSignals::new_state(ctx)
+            }
             GameplayMode::OptimizeCommute(p, goal) => {
                 commute::OptimizeCommute::new_state(ctx, app, *p, *goal)
             }
@@ -356,7 +358,10 @@ impl State<App> for FinalScore {
             ]);
         }
         if self.chose_back_to_challenges {
-            return Transition::Clear(vec![MainMenu::new_state(ctx), ChallengesPicker::new_state(ctx, app)]);
+            return Transition::Clear(vec![
+                MainMenu::new_state(ctx),
+                ChallengesPicker::new_state(ctx, app),
+            ]);
         }
 
         Transition::Keep

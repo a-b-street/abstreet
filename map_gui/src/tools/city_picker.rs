@@ -538,5 +538,10 @@ fn chose_city<A: AppLike + 'static>(
         }
     }
 
-    Transition::Replace(MapLoader::new_state(ctx, app, name, on_load.take().unwrap()))
+    Transition::Replace(MapLoader::new_state(
+        ctx,
+        app,
+        name,
+        on_load.take().unwrap(),
+    ))
 }

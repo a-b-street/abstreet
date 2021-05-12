@@ -105,11 +105,13 @@ impl GameplayState for PlayScenario {
                         self.modifiers.clone(),
                     ),
                 ))),
-                "edit traffic patterns" => Some(Transition::Push(EditScenarioModifiers::new_state(
-                    ctx,
-                    self.scenario_name.clone(),
-                    self.modifiers.clone(),
-                ))),
+                "edit traffic patterns" => {
+                    Some(Transition::Push(EditScenarioModifiers::new_state(
+                        ctx,
+                        self.scenario_name.clone(),
+                        self.modifiers.clone(),
+                    )))
+                }
                 "save scenario" => {
                     let mut s = app.primary.scenario.as_ref().unwrap().clone();
                     // If the name happens to be random, home_to_work, or census (the 3

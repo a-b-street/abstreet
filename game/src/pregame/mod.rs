@@ -188,7 +188,7 @@ impl MainMenu {
 impl State<App> for MainMenu {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
-                match x.as_ref() {
+            match x.as_ref() {
                 "Tutorial" => {
                     return Tutorial::start(ctx, app);
                 }
