@@ -7,7 +7,7 @@ use widgetry::{
 };
 
 use crate::isochrone::{Isochrone, Options};
-use crate::viewer::{draw_star, draw_unwalkable_roads, HoverKey, HoverOnBuilding};
+use crate::viewer::{draw_star, HoverKey, HoverOnBuilding};
 use crate::App;
 
 /// Calculate isochrones around each amenity on a map and merge them together using the min value
@@ -54,9 +54,6 @@ struct Results {
     draw: Drawable,
     isochrone: Isochrone,
     hovering_on_bldg: Cached<HoverKey, HoverOnBuilding>,
-    // TODO Can't use Cached due to a double borrow
-    hovering_on_category: Option<(AmenityType, Drawable)>,
-    draw_unwalkable_roads: Drawable,
 }
 
 impl Results {
@@ -90,16 +87,12 @@ impl Results {
             batch.append(draw_star(ctx, app.map.get_b(start)));
         }
 
-        let draw_unwalkable_roads = draw_unwalkable_roads(ctx, app, &isochrone.options);
-
         SimpleState::new(
             panel,
             Box::new(Results {
                 draw: ctx.upload(batch),
                 isochrone: isochrone,
                 hovering_on_bldg: Cached::new(),
-                hovering_on_category: None,
-                draw_unwalkable_roads,
             }),
         )
     }
@@ -125,14 +118,12 @@ impl SimpleState<App> for Results {
             // Also update this to conveniently get an outline drawn. Note we don't want to do this
             // inside the callback above, because it doesn't run when the key becomes None.
             app.current_selection = self.hovering_on_bldg.key().map(|(b, _)| ID::Building(b));
-            self.hovering_on_category = None;
         }
         Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         g.redraw(&self.isochrone.draw);
-        g.redraw(&self.draw_unwalkable_roads);
 
         if let Some(ref hover) = self.hovering_on_bldg.value() {
             g.draw_mouse_tooltip(hover.tooltip.clone());
