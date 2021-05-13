@@ -628,6 +628,19 @@
 <span id="625">625</span>
 <span id="626">626</span>
 <span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
@@ -688,6 +701,7 @@
             <span class="ident">Dims</span>::<span class="ident">ExactPercent</span>(<span class="ident">w</span>, <span class="ident">h</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="ident">w</span> <span class="op">*</span> <span class="ident">canvas_dims</span>.<span class="ident">width</span>, <span class="ident">h</span> <span class="op">*</span> <span class="ident">canvas_dims</span>.<span class="ident">height</span>)
             }
+            <span class="ident">Dims</span>::<span class="ident">ExactSize</span>(<span class="ident">dims</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">dims</span>,
             <span class="ident">Dims</span>::<span class="ident">ExactHeight</span>(<span class="ident">h</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">contents_dims</span>.<span class="ident">width</span>.<span class="ident">min</span>(<span class="ident">canvas_dims</span>.<span class="ident">width</span>), <span class="ident">h</span>)
             }
@@ -1168,6 +1182,7 @@
     <span class="ident">MaxPercent</span>(<span class="ident">Percent</span>, <span class="ident">Percent</span>),
     <span class="ident">ExactPercent</span>(<span class="ident">f64</span>, <span class="ident">f64</span>),
     <span class="ident">ExactHeight</span>(<span class="ident">f64</span>),
+    <span class="ident">ExactSize</span>(<span class="ident">ScreenDims</span>),
 }
 
 <span class="kw">impl</span> <span class="ident">PanelBuilder</span> {
@@ -1190,16 +1205,22 @@
             <span class="ident">container_dims</span>: <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
             <span class="ident">clip_rect</span>: <span class="prelude-val">None</span>,
         };
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Dims</span>::<span class="ident">ExactPercent</span>(<span class="ident">w</span>, <span class="ident">h</span>) <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">dims</span> {
-            <span class="comment">// Don&#39;t set size, because then scrolling breaks -- the actual size has to be based on</span>
-            <span class="comment">// the contents.</span>
-            <span class="ident">panel</span>.<span class="ident">top_level</span>.<span class="ident">layout</span>.<span class="ident">style</span>.<span class="ident">min_size</span> <span class="op">=</span> <span class="ident">Size</span> {
-                <span class="ident">width</span>: <span class="ident">Dimension</span>::<span class="ident">Points</span>((<span class="ident">w</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>) <span class="kw">as</span> <span class="ident">f32</span>),
-                <span class="ident">height</span>: <span class="ident">Dimension</span>::<span class="ident">Points</span>((<span class="ident">h</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>) <span class="kw">as</span> <span class="ident">f32</span>),
-            };
-        }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Dims</span>::<span class="ident">ExactHeight</span>(<span class="ident">h</span>) <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">dims</span> {
-            <span class="ident">panel</span>.<span class="ident">top_level</span>.<span class="ident">layout</span>.<span class="ident">style</span>.<span class="ident">min_size</span>.<span class="ident">height</span> <span class="op">=</span> <span class="ident">Dimension</span>::<span class="ident">Points</span>(<span class="ident">h</span> <span class="kw">as</span> <span class="ident">f32</span>);
+        <span class="kw">match</span> <span class="ident">panel</span>.<span class="ident">dims</span> {
+            <span class="ident">Dims</span>::<span class="ident">ExactPercent</span>(<span class="ident">w</span>, <span class="ident">h</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="comment">// Don&#39;t set size, because then scrolling breaks -- the actual size has to be based on</span>
+                <span class="comment">// the contents.</span>
+                <span class="ident">panel</span>.<span class="ident">top_level</span>.<span class="ident">layout</span>.<span class="ident">style</span>.<span class="ident">min_size</span> <span class="op">=</span> <span class="ident">Size</span> {
+                    <span class="ident">width</span>: <span class="ident">Dimension</span>::<span class="ident">Points</span>((<span class="ident">w</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>) <span class="kw">as</span> <span class="ident">f32</span>),
+                    <span class="ident">height</span>: <span class="ident">Dimension</span>::<span class="ident">Points</span>((<span class="ident">h</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>) <span class="kw">as</span> <span class="ident">f32</span>),
+                };
+            }
+            <span class="ident">Dims</span>::<span class="ident">ExactHeight</span>(<span class="ident">h</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">panel</span>.<span class="ident">top_level</span>.<span class="ident">layout</span>.<span class="ident">style</span>.<span class="ident">min_size</span>.<span class="ident">height</span> <span class="op">=</span> <span class="ident">Dimension</span>::<span class="ident">Points</span>(<span class="ident">h</span> <span class="kw">as</span> <span class="ident">f32</span>);
+            }
+            <span class="ident">Dims</span>::<span class="ident">ExactSize</span>(<span class="ident">dims</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">panel</span>.<span class="ident">top_level</span>.<span class="ident">layout</span>.<span class="ident">style</span>.<span class="ident">min_size</span> <span class="op">=</span> <span class="ident">dims</span>.<span class="ident">into</span>();
+            }
+            <span class="ident">Dims</span>::<span class="ident">MaxPercent</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {}
         }
 
         <span class="comment">// There is a dependency cycle in our layout logic. As a consequence:</span>
@@ -1253,6 +1274,11 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exact_height</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">height</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PanelBuilder</span> {
         <span class="self">self</span>.<span class="ident">dims</span> <span class="op">=</span> <span class="ident">Dims</span>::<span class="ident">ExactHeight</span>(<span class="ident">height</span>);
+        <span class="self">self</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exact_size</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">size</span>: <span class="ident">ScreenDims</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PanelBuilder</span> {
+        <span class="self">self</span>.<span class="ident">dims</span> <span class="op">=</span> <span class="ident">Dims</span>::<span class="ident">ExactSize</span>(<span class="ident">size</span>);
         <span class="self">self</span>
     }
 }

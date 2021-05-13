@@ -185,6 +185,15 @@
 <span id="182">182</span>
 <span id="183">183</span>
 <span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -368,6 +377,15 @@
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span>(<span class="ident">f64</span>, <span class="ident">f64</span>)<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ScreenDims</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">width_and_height</span>: (<span class="ident">f64</span>, <span class="ident">f64</span>)) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ScreenDims</span> {
         <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="ident">width_and_height</span>.<span class="number">0</span>, <span class="ident">width_and_height</span>.<span class="number">1</span>)
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ScreenDims</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">stretch</span>::<span class="ident">geometry</span>::<span class="ident">Size</span><span class="op">&lt;</span><span class="ident">stretch</span>::<span class="ident">style</span>::<span class="ident">Dimension</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">dims</span>: <span class="ident">ScreenDims</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">width</span>: <span class="ident">stretch</span>::<span class="ident">style</span>::<span class="ident">Dimension</span>::<span class="ident">Points</span>(<span class="ident">dims</span>.<span class="ident">width</span> <span class="kw">as</span> <span class="ident">f32</span>),
+            <span class="ident">height</span>: <span class="ident">stretch</span>::<span class="ident">style</span>::<span class="ident">Dimension</span>::<span class="ident">Points</span>(<span class="ident">dims</span>.<span class="ident">height</span> <span class="kw">as</span> <span class="ident">f32</span>),
+        }
     }
 }
 </pre></div>

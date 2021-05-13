@@ -1178,8 +1178,8 @@
     }
 
     <span class="doccomment">/// Set a hotkey for the button</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hotkey</span><span class="op">&lt;</span><span class="ident">MK</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">MK</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">hotkey</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">key</span>.<span class="ident">into</span>());
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hotkey</span><span class="op">&lt;</span><span class="ident">MK</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">MK</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">hotkey</span> <span class="op">=</span> <span class="ident">key</span>.<span class="ident">into</span>();
         <span class="self">self</span>
     }
 
