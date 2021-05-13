@@ -135,11 +135,7 @@ impl Isochrone {
             })
             .collect();
 
-        all_paths
-            .iter()
-            .map(|path| (path, path.total_length()))
-            .min_by(|(_, a), (_, b)| a.cmp(&b))
-            .map(|(path, _)| path)
+        all_paths.into_iter().min_by_key(|path| path.total_length())
     }
 
     pub fn draw_isochrone(&self, app: &App) -> GeomBatch {

@@ -102,7 +102,7 @@ impl Results {
 impl SimpleState<App> for Results {
     fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, _: &Panel) -> Transition<App> {
         match x {
-            "Back" => Transition::Pop,
+            "close" => Transition::Pop,
             _ => unreachable!(),
         }
     }
