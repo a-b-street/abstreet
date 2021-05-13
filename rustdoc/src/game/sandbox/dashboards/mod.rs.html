@@ -80,6 +80,11 @@
 <span id="77">77</span>
 <span id="78">78</span>
 <span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">commuter</span>::<span class="ident">CommuterPatterns</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">traffic_signals</span>::<span class="ident">TrafficSignalDemand</span>;
@@ -94,6 +99,7 @@
 <span class="kw">mod</span> <span class="ident">generic_trip_table</span>;
 <span class="kw">mod</span> <span class="ident">misc</span>;
 <span class="kw">mod</span> <span class="ident">parking_overhead</span>;
+<span class="kw">mod</span> <span class="ident">risks</span>;
 <span class="kw">mod</span> <span class="ident">selector</span>;
 <span class="kw">mod</span> <span class="ident">summaries</span>;
 <span class="kw">mod</span> <span class="ident">traffic_signals</span>;
@@ -104,6 +110,7 @@
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DashTab</span> {
     <span class="ident">TripTable</span>,
     <span class="ident">TripSummaries</span>,
+    <span class="ident">RiskSummaries</span>,
     <span class="ident">ParkingOverhead</span>,
     <span class="ident">ActiveTraffic</span>,
     <span class="ident">TransitRoutes</span>,
@@ -116,6 +123,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">choices</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Trip Table&quot;</span>, <span class="ident">DashTab</span>::<span class="ident">TripTable</span>),
             <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Trip Summaries&quot;</span>, <span class="ident">DashTab</span>::<span class="ident">TripSummaries</span>),
+            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Risk Exposure&quot;</span>, <span class="ident">DashTab</span>::<span class="ident">RiskSummaries</span>),
             <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Parking Overhead&quot;</span>, <span class="ident">DashTab</span>::<span class="ident">ParkingOverhead</span>),
             <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Active Traffic&quot;</span>, <span class="ident">DashTab</span>::<span class="ident">ActiveTraffic</span>),
             <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Transit Routes&quot;</span>, <span class="ident">DashTab</span>::<span class="ident">TransitRoutes</span>),
@@ -123,6 +131,7 @@
             <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Traffic Signal Demand&quot;</span>, <span class="ident">DashTab</span>::<span class="ident">TrafficSignals</span>),
         ];
         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">has_prebaked</span>().<span class="ident">is_none</span>() {
+            <span class="ident">choices</span>.<span class="ident">remove</span>(<span class="number">1</span>);
             <span class="ident">choices</span>.<span class="ident">remove</span>(<span class="number">1</span>);
         }
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -152,6 +161,7 @@
             <span class="ident">DashTab</span>::<span class="ident">TripSummaries</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">summaries</span>::<span class="ident">TripSummaries</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">summaries</span>::<span class="ident">Filter</span>::<span class="ident">new</span>())
             }
+            <span class="ident">DashTab</span>::<span class="ident">RiskSummaries</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">risks</span>::<span class="ident">RiskSummaries</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="bool-val">false</span>),
             <span class="ident">DashTab</span>::<span class="ident">ParkingOverhead</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">parking_overhead</span>::<span class="ident">ParkingOverhead</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">DashTab</span>::<span class="ident">ActiveTraffic</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">misc</span>::<span class="ident">ActiveTraffic</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">DashTab</span>::<span class="ident">TransitRoutes</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">misc</span>::<span class="ident">TransitRoutes</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),

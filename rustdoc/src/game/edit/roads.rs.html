@@ -1070,7 +1070,7 @@
                 .<span class="ident">unwrap</span>()
                 .<span class="number">0</span>,
         ]);
-        <span class="ident">stack</span>.<span class="ident">spacing</span>(<span class="number">20.0</span>);
+        <span class="ident">stack</span>.<span class="ident">set_spacing</span>(<span class="number">20.0</span>);
 
         <span class="kw">if</span> <span class="ident">can_reverse</span>(<span class="ident">lt</span>) {
             <span class="ident">stack</span>.<span class="ident">push</span>(
@@ -1116,7 +1116,7 @@
     }
 
     <span class="kw">let</span> <span class="ident">current_lanes_ltr</span> <span class="op">=</span>
-        <span class="ident">Widget</span>::<span class="ident">evenly_spaced_row</span>(<span class="ident">current_lanes_ltr</span>, <span class="number">2</span>).<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#979797&quot;</span>));
+        <span class="ident">Widget</span>::<span class="ident">evenly_spaced_row</span>(<span class="number">2</span>, <span class="ident">current_lanes_ltr</span>).<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#979797&quot;</span>));
 
     <span class="kw">let</span> <span class="ident">road_settings</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[

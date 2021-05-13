@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["ProblemType",""]],"fn":[["bucketize_isizes",""],["safety_matrix",""]],"struct":[["CLEAR_COLOR_SCALE",""],["Filter",""],["Matrix","Aka a 2D histogram. Counts the number of matching points in each cell."],["MatrixOptions",""],["RiskSummaries",""]]});
