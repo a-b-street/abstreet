@@ -70,11 +70,7 @@ impl Results {
             Line(format!("{} within 15 minutes", category))
                 .small_heading()
                 .into_widget(ctx),
-            ctx.style()
-                .btn_outline
-                .text("Back")
-                .hotkey(Key::Escape)
-                .build_def(ctx),
+            ctx.style().btn_close_widget(ctx),
             ColorLegend::categories(
                 ctx,
                 vec![

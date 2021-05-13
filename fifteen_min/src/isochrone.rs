@@ -122,12 +122,12 @@ impl Isochrone {
 
         let from = if self.start.len() > 1 {
             let b_hash_map: HashMap<BuildingID, Duration> = self
-            .options
-            .clone()
-            .times_from_buildings(map, vec![to])
-            .into_iter()
-            .filter(|(b_id, _)| self.start.contains(b_id))
-            .collect();
+                .options
+                .clone()
+                .times_from_buildings(map, vec![to])
+                .into_iter()
+                .filter(|(b_id, _)| self.start.contains(b_id))
+                .collect();
 
             let mut min_value = Vec::new();
             let mut min_building = Vec::new();
