@@ -2,8 +2,8 @@ use map_gui::tools::{ChooseSomething, ColorLegend};
 use map_gui::ID;
 use map_model::AmenityType;
 use widgetry::{
-    Cached, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel,
-    SimpleState, State, Transition, VerticalAlignment, Widget,
+    Cached, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Line, Panel,
+    SimpleState, State, TextExt, Transition, VerticalAlignment, Widget,
 };
 
 use crate::isochrone::{Isochrone, Options};
@@ -70,6 +70,7 @@ impl Results {
                     .into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
+            format!("{} matching amenities", isochrone.start.len()).text_widget(ctx),
             ColorLegend::categories(
                 ctx,
                 vec![
