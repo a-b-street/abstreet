@@ -13,8 +13,8 @@ use crate::App;
 
 /// Represents the area reachable from a single building.
 pub struct Isochrone {
-    /// The center of the isochrone
-    pub start: BuildingID,
+    /// The center of the isochrone (can be multiple points)
+    pub start: Vec<BuildingID>,
     /// The options used to generate this isochrone
     pub options: Options,
     /// Colored polygon contours, uploaded to the GPU and ready for drawing
@@ -60,8 +60,15 @@ impl Options {
 }
 
 impl Isochrone {
-    pub fn new(ctx: &mut EventCtx, app: &App, start: BuildingID, options: Options) -> Isochrone {
-        let time_to_reach_building = options.clone().times_from_buildings(&app.map, vec![start]);
+    pub fn new(
+        ctx: &mut EventCtx,
+        app: &App,
+        start: Vec<BuildingID>,
+        options: Options,
+    ) -> Isochrone {
+        let time_to_reach_building = options
+            .clone()
+            .times_from_buildings(&app.map, start.clone());
 
         let mut amenities_reachable = MultiMap::new();
         let mut population = 0;
@@ -113,16 +120,22 @@ impl Isochrone {
             return None;
         }
 
-        let req = PathRequest::between_buildings(
-            map,
-            self.start,
-            to,
-            match self.options {
-                Options::Walking(_) => PathConstraints::Pedestrian,
-                Options::Biking => PathConstraints::Bike,
-            },
-        )?;
-        map.pathfind(req).ok()
+        let constraints = match self.options {
+            Options::Walking(_) => PathConstraints::Pedestrian,
+            Options::Biking => PathConstraints::Bike,
+        };
+
+        let all_paths: Vec<Path> = self
+            .start
+            .iter()
+            .map(|b_id| {
+                map.pathfind(PathRequest::between_buildings(map, *b_id, to, constraints).unwrap())
+                    .ok()
+                    .unwrap()
+            })
+            .collect();
+
+        all_paths.into_iter().min_by_key(|path| path.total_length())
     }
 
     pub fn draw_isochrone(&self, app: &App) -> GeomBatch {
