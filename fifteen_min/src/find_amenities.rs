@@ -67,10 +67,12 @@ impl Results {
         category: AmenityType,
     ) -> Box<dyn State<App>> {
         let panel = Panel::new(Widget::col(vec![
-            Line(format!("{} within 15 minutes", category))
-                .small_heading()
-                .into_widget(ctx),
-            ctx.style().btn_close_widget(ctx),
+            Widget::row(vec![
+                Line(format!("{} within 15 minutes", category))
+                    .small_heading()
+                    .into_widget(ctx),
+                ctx.style().btn_close_widget(ctx),
+            ]),
             ColorLegend::categories(
                 ctx,
                 vec![
