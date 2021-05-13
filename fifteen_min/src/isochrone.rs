@@ -120,43 +120,26 @@ impl Isochrone {
             return None;
         }
 
-        let from = if self.start.len() > 1 {
-            let b_hash_map: HashMap<BuildingID, Duration> = self
-                .options
-                .clone()
-                .times_from_buildings(map, vec![to])
-                .into_iter()
-                .filter(|(b_id, _)| self.start.contains(b_id))
-                .collect();
-
-            let mut min_value = Vec::new();
-            let mut min_building = Vec::new();
-            for (k, v) in b_hash_map {
-                if min_value.is_empty() {
-                    min_building = vec![k];
-                    min_value = vec![v];
-                } else {
-                    if v < min_value[0] {
-                        min_building[0] = k;
-                        min_value[0] = v;
-                    }
-                }
-            }
-            min_building[0]
-        } else {
-            self.start[0]
+        let constraints = match self.options {
+            Options::Walking(_) => PathConstraints::Pedestrian,
+            Options::Biking => PathConstraints::Bike,
         };
 
-        let req = PathRequest::between_buildings(
-            map,
-            from,
-            to,
-            match self.options {
-                Options::Walking(_) => PathConstraints::Pedestrian,
-                Options::Biking => PathConstraints::Bike,
-            },
-        )?;
-        map.pathfind(req).ok()
+        let all_paths: Vec<Path> = self
+            .start
+            .iter()
+            .map(|b_id| {
+                map.pathfind(PathRequest::between_buildings(map, *b_id, to, constraints).unwrap())
+                    .ok()
+                    .unwrap()
+            })
+            .collect();
+
+        all_paths
+            .iter()
+            .map(|path| (path, path.total_length()))
+            .min_by(|(_, a), (_, b)| a.cmp(&b))
+            .map(|(path, _)| path)
     }
 
     pub fn draw_isochrone(&self, app: &App) -> GeomBatch {
