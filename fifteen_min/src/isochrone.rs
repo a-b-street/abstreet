@@ -120,7 +120,8 @@ impl Isochrone {
             return None;
         }
 
-        let b_hash_map: HashMap<BuildingID, Duration> = self
+        let from = if self.start.len() > 1 {
+            let b_hash_map: HashMap<BuildingID, Duration> = self
             .options
             .clone()
             .times_from_buildings(map, vec![to])
@@ -128,25 +129,27 @@ impl Isochrone {
             .filter(|(b_id, _)| self.start.contains(b_id))
             .collect();
 
-        let mut min_value = Vec::new();
-        let mut min_building = Vec::new();
-        for (k, v) in b_hash_map {
-            if min_value.is_empty() {
-                min_building = vec![k];
-                min_value = vec![v];
-            } else {
-                if v < min_value[0] {
-                    min_building[0] = k;
-                    min_value[0] = v;
+            let mut min_value = Vec::new();
+            let mut min_building = Vec::new();
+            for (k, v) in b_hash_map {
+                if min_value.is_empty() {
+                    min_building = vec![k];
+                    min_value = vec![v];
+                } else {
+                    if v < min_value[0] {
+                        min_building[0] = k;
+                        min_value[0] = v;
+                    }
                 }
             }
-        }
+            min_building[0]
+        } else {
+            self.start[0]
+        };
 
-        // TODO Find a way to deal with paths when there are multiple starts
-        // right now hard coded self.start to the first starting point
         let req = PathRequest::between_buildings(
             map,
-            min_building[0],
+            from,
             to,
             match self.options {
                 Options::Walking(_) => PathConstraints::Pedestrian,
