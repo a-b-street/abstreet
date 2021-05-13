@@ -26,7 +26,7 @@ impl FindAmenity {
                 .collect(),
             Box::new(move |at, ctx, app| {
                 let multi_isochrone = create_multi_isochrone(ctx, app, at, options.clone());
-                return Transition::Push(Results::new(ctx, app, multi_isochrone, at));
+                return Transition::Replace(Results::new(ctx, app, multi_isochrone, at));
             }),
         )
     }
