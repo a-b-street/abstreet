@@ -573,6 +573,17 @@
 <span id="570">570</span>
 <span id="571">571</span>
 <span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! This is a tool to experiment with the concept of 15-minute neighborhoods. Can you access your</span>
 <span class="doccomment">//! daily needs (like groceries, a cafe, a library) within a 15-minute walk, bike ride, or public</span>
@@ -595,6 +606,7 @@
     <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">Toggle</span>, <span class="ident">Transition</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">find_amenities</span>::<span class="ident">FindAmenity</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">find_home</span>::<span class="ident">FindHome</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">isochrone</span>::{<span class="ident">Isochrone</span>, <span class="ident">Options</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">App</span>;
@@ -633,7 +645,7 @@
 
         <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">Options</span>::<span class="ident">Walking</span>(<span class="ident">WalkingOptions</span>::<span class="ident">default</span>());
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">start</span>);
-        <span class="kw">let</span> <span class="ident">isochrone</span> <span class="op">=</span> <span class="ident">Isochrone</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">start</span>.<span class="ident">id</span>, <span class="ident">options</span>);
+        <span class="kw">let</span> <span class="ident">isochrone</span> <span class="op">=</span> <span class="ident">Isochrone</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">start</span>.<span class="ident">id</span>], <span class="ident">options</span>);
         <span class="kw">let</span> <span class="ident">highlight_start</span> <span class="op">=</span> <span class="ident">draw_star</span>(<span class="ident">ctx</span>, <span class="ident">start</span>);
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">build_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">start</span>, <span class="kw-2">&amp;</span><span class="ident">isochrone</span>);
         <span class="kw">let</span> <span class="ident">draw_unwalkable_roads</span> <span class="op">=</span> <span class="ident">draw_unwalkable_roads</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">isochrone</span>.<span class="ident">options</span>);
@@ -697,7 +709,8 @@
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">hover_id</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering_on_bldg</span>.<span class="ident">key</span>() {
             <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
                 <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">hover_id</span>);
-                <span class="self">self</span>.<span class="ident">isochrone</span> <span class="op">=</span> <span class="ident">Isochrone</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">start</span>.<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">isochrone</span>.<span class="ident">options</span>.<span class="ident">clone</span>());
+                <span class="self">self</span>.<span class="ident">isochrone</span> <span class="op">=</span>
+                    <span class="ident">Isochrone</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">start</span>.<span class="ident">id</span>], <span class="self">self</span>.<span class="ident">isochrone</span>.<span class="ident">options</span>.<span class="ident">clone</span>());
                 <span class="kw">let</span> <span class="ident">star</span> <span class="op">=</span> <span class="ident">draw_star</span>(<span class="ident">ctx</span>, <span class="ident">start</span>);
                 <span class="self">self</span>.<span class="ident">highlight_start</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">star</span>);
                 <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">build_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">start</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">isochrone</span>);
@@ -748,6 +761,9 @@
                 <span class="string">&quot;Find your perfect home&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">FindHome</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="self">self</span>.<span class="ident">isochrone</span>.<span class="ident">options</span>.<span class="ident">clone</span>()));
                 }
+                <span class="string">&quot;Search by amenity&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">FindAmenity</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="self">self</span>.<span class="ident">isochrone</span>.<span class="ident">options</span>.<span class="ident">clone</span>()));
+                }
                 <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">category</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;businesses: &quot;</span>) {
                         <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ExploreAmenities</span>::<span class="ident">new</span>(
@@ -764,11 +780,11 @@
             <span class="ident">Outcome</span>::<span class="ident">Changed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">options_from_controls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
                 <span class="self">self</span>.<span class="ident">draw_unwalkable_roads</span> <span class="op">=</span> <span class="ident">draw_unwalkable_roads</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">options</span>);
-                <span class="self">self</span>.<span class="ident">isochrone</span> <span class="op">=</span> <span class="ident">Isochrone</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">isochrone</span>.<span class="ident">start</span>, <span class="ident">options</span>);
+                <span class="self">self</span>.<span class="ident">isochrone</span> <span class="op">=</span> <span class="ident">Isochrone</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="self">self</span>.<span class="ident">isochrone</span>.<span class="ident">start</span>[<span class="number">0</span>]], <span class="ident">options</span>);
                 <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">build_panel</span>(
                     <span class="ident">ctx</span>,
                     <span class="ident">app</span>,
-                    <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="self">self</span>.<span class="ident">isochrone</span>.<span class="ident">start</span>),
+                    <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="self">self</span>.<span class="ident">isochrone</span>.<span class="ident">start</span>[<span class="number">0</span>]),
                     <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">isochrone</span>,
                 );
             }
@@ -845,7 +861,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">draw_star</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">Building</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_star</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">Building</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
     <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/tools/star.svg&quot;</span>)
         .<span class="ident">centered_on</span>(<span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">center</span>())
         .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>))
@@ -922,6 +938,12 @@
             .<span class="ident">text</span>(<span class="string">&quot;Find your perfect home&quot;</span>)
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
     );
+    <span class="ident">rows</span>.<span class="ident">push</span>(
+        <span class="ident">ctx</span>.<span class="ident">style</span>()
+            .<span class="ident">btn_outline</span>
+            .<span class="ident">text</span>(<span class="string">&quot;Search by amenity&quot;</span>)
+            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+    );
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain</span>.<span class="ident">text</span>(<span class="string">&quot;About&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         <span class="ident">ctx</span>.<span class="ident">style</span>()
@@ -936,15 +958,15 @@
         .<span class="ident">build</span>(<span class="ident">ctx</span>)
 }
 
-<span class="kw">struct</span> <span class="ident">HoverOnBuilding</span> {
-    <span class="ident">tooltip</span>: <span class="ident">Text</span>,
-    <span class="ident">drawn_route</span>: <span class="ident">Drawable</span>,
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HoverOnBuilding</span> {
+    <span class="kw">pub</span> <span class="ident">tooltip</span>: <span class="ident">Text</span>,
+    <span class="kw">pub</span> <span class="ident">drawn_route</span>: <span class="ident">Drawable</span>,
 }
 <span class="doccomment">/// (building, scale factor)</span>
-<span class="kw">type</span> <span class="ident">HoverKey</span> <span class="op">=</span> (<span class="ident">BuildingID</span>, <span class="ident">f64</span>);
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">HoverKey</span> <span class="op">=</span> (<span class="ident">BuildingID</span>, <span class="ident">f64</span>);
 
 <span class="kw">impl</span> <span class="ident">HoverOnBuilding</span> {
-    <span class="kw">fn</span> <span class="ident">key</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HoverKey</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">key</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HoverKey</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">mouseover_unzoomed_buildings</span>(<span class="ident">ctx</span>) {
             <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">b</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">scale_factor</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> {
@@ -958,7 +980,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">value</span>(
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">value</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
         <span class="ident">key</span>: <span class="ident">HoverKey</span>,
@@ -1014,7 +1036,7 @@
         <span class="ident">category</span>: <span class="ident">AmenityType</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">isochrone</span>.<span class="ident">draw_isochrone</span>(<span class="ident">app</span>);
-        <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">draw_star</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">isochrone</span>.<span class="ident">start</span>)));
+        <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">draw_star</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">isochrone</span>.<span class="ident">start</span>[<span class="number">0</span>])));
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">entries</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">isochrone</span>.<span class="ident">amenities_reachable</span>.<span class="ident">get</span>(<span class="ident">category</span>) {
@@ -1123,7 +1145,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">draw_unwalkable_roads</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">Options</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Drawable</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_unwalkable_roads</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">Options</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Drawable</span> {
     <span class="kw">let</span> <span class="ident">allow_shoulders</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">opts</span> {
         <span class="ident">Options</span>::<span class="ident">Walking</span>(<span class="kw-2">ref</span> <span class="ident">opts</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">opts</span>.<span class="ident">allow_shoulders</span>,
         <span class="ident">Options</span>::<span class="ident">Biking</span> <span class="op">=</span><span class="op">&gt;</span> {

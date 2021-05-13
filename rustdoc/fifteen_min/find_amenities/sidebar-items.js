@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["create_multi_isochrone","For every one of the requested amenity on the map, draw an isochrone"]],"struct":[["FindAmenity","Calculate isochrones around each amenity on a map and merge them together using the min value"],["Results",""]]});
