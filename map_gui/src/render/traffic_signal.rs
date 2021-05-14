@@ -22,7 +22,7 @@ pub fn draw_signal_stage(
     let signal = app.map().get_traffic_signal(i);
 
     match signal_style {
-        TrafficSignalStyle::BAP => {
+        TrafficSignalStyle::Brian => {
             let mut dont_walk = BTreeSet::new();
             let mut crossed_roads = BTreeSet::new();
             for m in signal.movements.keys() {

@@ -64,11 +64,11 @@ impl Pandemic {
         let model = app.primary.sim.get_pandemic_model().unwrap();
 
         let filter = |p| match opts.state {
-            SEIR::Sane => model.is_sane(p),
-            SEIR::Exposed => model.is_exposed(p),
-            SEIR::Infected => model.is_exposed(p),
-            SEIR::Recovered => model.is_recovered(p),
-            SEIR::Dead => model.is_dead(p),
+            Seir::Sane => model.is_sane(p),
+            Seir::Exposed => model.is_exposed(p),
+            Seir::Infected => model.is_exposed(p),
+            Seir::Recovered => model.is_recovered(p),
+            Seir::Dead => model.is_dead(p),
         };
 
         let mut pts = Vec::new();
@@ -150,7 +150,7 @@ impl Pandemic {
 
 // TODO This should live in sim
 #[derive(Clone, Copy, PartialEq, Debug)]
-pub enum SEIR {
+pub enum Seir {
     Sane,
     Exposed,
     Infected,
@@ -162,7 +162,7 @@ pub enum SEIR {
 pub struct Options {
     // If None, just a dot map
     pub heatmap: Option<HeatmapOptions>,
-    pub state: SEIR,
+    pub state: Seir,
 }
 
 fn make_controls(ctx: &mut EventCtx, app: &App, opts: &Options, legend: Option<Widget>) -> Panel {
@@ -206,11 +206,11 @@ fn make_controls(ctx: &mut EventCtx, app: &App, opts: &Options, legend: Option<W
                 "seir",
                 opts.state,
                 vec![
-                    Choice::new("sane", SEIR::Sane),
-                    Choice::new("exposed", SEIR::Exposed),
-                    Choice::new("infected", SEIR::Infected),
-                    Choice::new("recovered", SEIR::Recovered),
-                    Choice::new("dead", SEIR::Dead),
+                    Choice::new("sane", Seir::Sane),
+                    Choice::new("exposed", Seir::Exposed),
+                    Choice::new("infected", Seir::Infected),
+                    Choice::new("recovered", Seir::Recovered),
+                    Choice::new("dead", Seir::Dead),
                 ],
             ),
         ]),

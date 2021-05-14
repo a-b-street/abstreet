@@ -57,7 +57,7 @@ impl Options {
             dev: false,
             debug_all_agents: false,
 
-            traffic_signal_style: TrafficSignalStyle::BAP,
+            traffic_signal_style: TrafficSignalStyle::Brian,
             color_scheme: ColorSchemeChoice::DayMode,
             toggle_day_night_colors: false,
             min_zoom_for_detail: 4.0,
@@ -109,7 +109,7 @@ impl Options {
 /// Different ways of drawing traffic signals. The names of these aren't super meaningful...
 #[derive(Clone, PartialEq, Debug)]
 pub enum TrafficSignalStyle {
-    BAP,
+    Brian,
     Yuwen,
     IndividualTurnArrows,
 }
@@ -185,7 +185,7 @@ impl OptionsPanel {
                             "Traffic signal rendering",
                             app.opts().traffic_signal_style.clone(),
                             vec![
-                                Choice::new("Default (Brian's style)", TrafficSignalStyle::BAP),
+                                Choice::new("Default (Brian's style)", TrafficSignalStyle::Brian),
                                 Choice::new("Yuwen's style", TrafficSignalStyle::Yuwen),
                                 Choice::new(
                                     "arrows showing individual turns (to debug)",

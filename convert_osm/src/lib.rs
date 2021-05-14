@@ -63,7 +63,7 @@ pub enum PublicOffstreetParking {
     /// Pull data from
     /// <https://data-seattlecitygis.opendata.arcgis.com/datasets/public-garages-or-parking-lots>, a
     /// Seattle-specific data source.
-    GIS(String),
+    Gis(String),
 }
 
 /// If a building doesn't have anything from public_offstreet_parking and isn't tagged as a garage

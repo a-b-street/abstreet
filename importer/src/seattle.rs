@@ -127,7 +127,7 @@ pub async fn osm_to_raw(name: &str, timer: &mut Timer<'_>, config: &ImporterConf
             onstreet_parking: convert_osm::OnstreetParking::Blockface(
                 city.input_path("blockface.bin"),
             ),
-            public_offstreet_parking: convert_osm::PublicOffstreetParking::GIS(
+            public_offstreet_parking: convert_osm::PublicOffstreetParking::Gis(
                 city.input_path("offstreet_parking.bin"),
             ),
             private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(
