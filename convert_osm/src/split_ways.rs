@@ -239,7 +239,7 @@ pub fn split_up_roads(
 
 // TODO Consider doing this in PolyLine::new always. extend() there does this too.
 fn dedupe_angles(pts: Vec<Pt2D>) -> Vec<Pt2D> {
-    let mut result = Vec::<Pt2D>::new();
+    let mut result: Vec<Pt2D> = Vec::new();
     for pt in pts.into_iter() {
         let l = result.len();
         if l >= 2 && result[l - 2]
