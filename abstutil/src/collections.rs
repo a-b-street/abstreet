@@ -62,6 +62,7 @@ where
         self.map.is_empty()
     }
 
+    #[allow(clippy::should_implement_trait)]
     pub fn borrow(&self) -> &BTreeMap<K, BTreeSet<V>> {
         &self.map
     }
@@ -157,6 +158,7 @@ impl<T: Ord + PartialEq + Clone> Counter<T> {
             .collect()
     }
 
+    #[allow(clippy::should_implement_trait)]
     pub fn borrow(&self) -> &BTreeMap<T, usize> {
         &self.map
     }
