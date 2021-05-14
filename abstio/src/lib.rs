@@ -2,6 +2,8 @@
 //! way](https://a-b-street.github.io/docs/dev/data.html). This crate implements methods to
 //! find files and (mostly) treat them the same way on native and web.
 
+#![allow(clippy::type_complexity)]
+
 #[macro_use]
 extern crate anyhow;
 #[macro_use]
