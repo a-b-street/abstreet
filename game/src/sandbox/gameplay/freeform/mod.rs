@@ -29,7 +29,7 @@ pub struct Freeform {
 }
 
 impl Freeform {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn GameplayState> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn GameplayState> {
         if let Err(err) = URLManager::update_url_free_param(
             app.primary
                 .map
@@ -58,7 +58,7 @@ impl GameplayState for Freeform {
     ) -> Option<Transition> {
         match self.top_right.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "change map" => Some(Transition::Push(CityPicker::new(
+                "change map" => Some(Transition::Push(CityPicker::new_state(
                     ctx,
                     app,
                     Box::new(|_, app| {
@@ -77,16 +77,18 @@ impl GameplayState for Freeform {
                         Transition::Multi(vec![Transition::Pop, Transition::Replace(sandbox)])
                     }),
                 ))),
-                "change scenario" => Some(Transition::Push(ChangeScenario::new(ctx, app, "none"))),
-                "edit map" => Some(Transition::Push(EditMode::new(
+                "change scenario" => Some(Transition::Push(ChangeScenario::new_state(
+                    ctx, app, "none",
+                ))),
+                "edit map" => Some(Transition::Push(EditMode::new_state(
                     ctx,
                     app,
                     GameplayMode::Freeform(app.primary.map.get_name().clone()),
                 ))),
-                "Start a new trip" => {
-                    Some(Transition::Push(spawner::AgentSpawner::new(ctx, app, None)))
-                }
-                "Record trips as a scenario" => Some(Transition::Push(PromptInput::new(
+                "Start a new trip" => Some(Transition::Push(spawner::AgentSpawner::new_state(
+                    ctx, app, None,
+                ))),
+                "Record trips as a scenario" => Some(Transition::Push(PromptInput::new_state(
                     ctx,
                     "Name this scenario",
                     String::new(),
@@ -95,7 +97,7 @@ impl GameplayState for Freeform {
                             app.primary.map.get_name(),
                             &name,
                         )) {
-                            Transition::Push(PopupMsg::new(
+                            Transition::Push(PopupMsg::new_state(
                                 ctx,
                                 "Error",
                                 vec![format!(
@@ -170,7 +172,7 @@ impl GameplayState for Freeform {
             .into_widget(ctx),
         ];
 
-        self.top_right = Panel::new(Widget::col(rows))
+        self.top_right = Panel::new_builder(Widget::col(rows))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx);
     }
@@ -179,7 +181,7 @@ impl GameplayState for Freeform {
 pub struct ChangeScenario;
 
 impl ChangeScenario {
-    pub fn new(ctx: &mut EventCtx, app: &App, current_scenario: &str) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App, current_scenario: &str) -> Box<dyn State<App>> {
         // (Button action, label, full description)
         let mut choices = Vec::new();
         for name in abstio::list_all_objects(abstio::path_all_scenarios(app.primary.map.get_name()))
@@ -278,8 +280,8 @@ impl ChangeScenario {
                 .build_def(ctx),
         );
 
-        <dyn SimpleState<_>>::new(
-            Panel::new(Widget::col(col)).build(ctx),
+        <dyn SimpleState<_>>::new_state(
+            Panel::new_builder(Widget::col(col)).build(ctx),
             Box::new(ChangeScenario),
         )
     }
@@ -406,9 +408,9 @@ pub fn actions(_: &App, id: ID) -> Vec<(Key, String)> {
 }
 
 pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: &str) -> Transition {
-    match (id, action.as_ref()) {
+    match (id, action) {
         (ID::Building(b), "start a trip here") => {
-            Transition::Push(spawner::AgentSpawner::new(ctx, app, Some(b)))
+            Transition::Push(spawner::AgentSpawner::new_state(ctx, app, Some(b)))
         }
         (ID::Intersection(id), "spawn agents here") => {
             spawn_agents_around(id, app);

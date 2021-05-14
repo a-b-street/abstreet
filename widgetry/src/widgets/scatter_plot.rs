@@ -15,7 +15,7 @@ pub struct ScatterPlot {
 }
 
 impl ScatterPlot {
-    pub fn new<Y: Axis<Y> + std::ops::AddAssign + std::ops::Div<f64, Output = Y>>(
+    pub fn new_widget<Y: Axis<Y> + std::ops::AddAssign + std::ops::Div<f64, Output = Y>>(
         ctx: &EventCtx,
         mut series: Vec<Series<Time, Y>>,
         opts: PlotOptions<Time, Y>,
@@ -46,10 +46,10 @@ impl ScatterPlot {
                         .iter()
                         .map(|(_, value)| *value)
                         .max()
-                        .unwrap_or(Y::zero())
+                        .unwrap_or_else(Y::zero)
                 })
                 .max()
-                .unwrap_or(Y::zero())
+                .unwrap_or_else(Y::zero)
         });
 
         // TODO Tuned to fit the info panel. Instead these should somehow stretch to fill their

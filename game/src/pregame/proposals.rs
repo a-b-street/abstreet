@@ -17,7 +17,11 @@ pub struct Proposals {
 }
 
 impl Proposals {
-    pub fn new(ctx: &mut EventCtx, app: &App, current: Option<String>) -> Box<dyn State<App>> {
+    pub fn new_state(
+        ctx: &mut EventCtx,
+        app: &App,
+        current: Option<String>,
+    ) -> Box<dyn State<App>> {
         let mut proposals = HashMap::new();
         let mut tab_buttons = Vec::new();
         let mut current_tab_rows = Vec::new();
@@ -114,7 +118,7 @@ impl Proposals {
 
         Box::new(Proposals {
             proposals,
-            panel: Panel::new(Widget::custom_col(vec![Widget::col(vec![header, body])]))
+            panel: Panel::new_builder(Widget::custom_col(vec![Widget::col(vec![header, body])]))
                 .exact_size_percent(90, 85)
                 .build_custom(ctx),
             current,
@@ -124,8 +128,8 @@ impl Proposals {
 
 impl State<App> for Proposals {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "back" => {
                     return Transition::Pop;
                 }
@@ -145,10 +149,13 @@ impl State<App> for Proposals {
                     );
                 }
                 x => {
-                    return Transition::Replace(Proposals::new(ctx, app, Some(x.to_string())));
+                    return Transition::Replace(Proposals::new_state(
+                        ctx,
+                        app,
+                        Some(x.to_string()),
+                    ));
                 }
-            },
-            _ => {}
+            }
         }
 
         Transition::Keep
@@ -168,18 +175,18 @@ fn launch(ctx: &mut EventCtx, app: &App, edits: PermanentMapEdits) -> Transition
     #[cfg(not(target_arch = "wasm32"))]
     {
         if !abstio::file_exists(edits.map_name.path()) {
-            return map_gui::tools::prompt_to_download_missing_data(ctx, edits.map_name.clone());
+            return map_gui::tools::prompt_to_download_missing_data(ctx, edits.map_name);
         }
     }
 
-    Transition::Push(MapLoader::new(
+    Transition::Push(MapLoader::new_state(
         ctx,
         app,
         edits.map_name.clone(),
         Box::new(move |ctx, app| {
             // Apply edits before setting up the sandbox, for simplicity
             let maybe_err = ctx.loading_screen("apply edits", |ctx, mut timer| {
-                match edits.to_edits(&app.primary.map) {
+                match edits.into_edits(&app.primary.map) {
                     Ok(edits) => {
                         apply_map_edits(ctx, app, edits);
                         app.primary
@@ -191,7 +198,7 @@ fn launch(ctx: &mut EventCtx, app: &App, edits: PermanentMapEdits) -> Transition
                 }
             });
             if let Some(err) = maybe_err {
-                Transition::Replace(PopupMsg::new(
+                Transition::Replace(PopupMsg::new_state(
                     ctx,
                     "Can't load proposal",
                     vec![err.to_string()],

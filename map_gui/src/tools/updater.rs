@@ -53,7 +53,7 @@ pub fn prompt_to_download_missing_data<A: AppLike + 'static>(
     ctx: &mut EventCtx,
     map_name: MapName,
 ) -> Transition<A> {
-    Transition::Push(ChooseSomething::new(
+    Transition::Push(ChooseSomething::new_state(
         ctx,
         format!(
             "Missing data. Download {} for {}?",
@@ -78,7 +78,7 @@ pub fn prompt_to_download_missing_data<A: AppLike + 'static>(
 
             let (outer_progress_tx, outer_progress_rx) = futures_channel::mpsc::channel(1000);
             let (inner_progress_tx, inner_progress_rx) = futures_channel::mpsc::channel(1000);
-            Transition::Replace(FutureLoader::<A, Vec<String>>::new(
+            Transition::Replace(FutureLoader::<A, Vec<String>>::new_state(
                 ctx,
                 Box::pin(async {
                     let result =
@@ -95,7 +95,7 @@ pub fn prompt_to_download_missing_data<A: AppLike + 'static>(
                         Ok(m) => m,
                         Err(err) => vec![format!("Something went very wrong: {}", err)],
                     };
-                    Transition::Replace(PopupMsg::new(
+                    Transition::Replace(PopupMsg::new_state(
                         ctx,
                         "Download complete. Try again!",
                         messages,

@@ -77,8 +77,8 @@ impl TabController {
             .tabs
             .iter()
             .enumerate()
-            .find(|(_idx, tab)| &tab.tab_id == action)
-            .expect(&format!("invalid tab id: {}", action))
+            .find(|(_idx, tab)| tab.tab_id == action)
+            .unwrap_or_else(|| panic!("invalid tab id: {}", action))
             .0;
         self.activate_tab(ctx, tab_idx, panel);
         true

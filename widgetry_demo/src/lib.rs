@@ -58,7 +58,7 @@ impl Demo {
             scrollable_canvas: setup_scrollable_canvas(ctx),
             texture_demo: setup_texture_demo(ctx, Texture::SAND, Texture::CACTUS),
             elapsed: Duration::ZERO,
-            tabs: tabs,
+            tabs,
         }
     }
 
@@ -77,7 +77,7 @@ impl Demo {
             col3.push(Line(s.pow(2).to_string()).secondary().into_widget(ctx));
         }
 
-        let mut c = Panel::new(Widget::col(vec![
+        let mut c = Panel::new_builder(Widget::col(vec![
             Text::from_multiline(vec![
                 Line("Here's a bunch of text to force some scrolling.").small_heading(),
                 Line(
@@ -93,7 +93,7 @@ impl Demo {
                 Widget::col(col).outline((5.0, Color::BLACK)).padding(5),
                 Widget::col(col3).outline((5.0, Color::BLUE)).padding(5),
             ]),
-            LinePlot::new(
+            LinePlot::new_widget(
                 ctx,
                 vec![
                     Series {
@@ -153,8 +153,8 @@ impl State<App> for Demo {
         ctx.canvas_movement();
 
         // This dispatches event handling to all of the widgets inside.
-        match self.controls.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.controls.event(ctx) {
+            match x.as_ref() {
                 // These outcomes should probably be a custom enum per Panel, to be more
                 // typesafe.
                 "reset the stopwatch" => {
@@ -184,8 +184,7 @@ impl State<App> for Demo {
                         unimplemented!("clicked: {:?}", x);
                     }
                 }
-            },
-            _ => {}
+            }
         }
 
         // An update event means that no keyboard/mouse input happened, but time has passed.
@@ -213,10 +212,8 @@ impl State<App> for Demo {
         }
 
         if let Some((_, ref mut p)) = self.timeseries_panel {
-            match p.event(ctx) {
-                // No buttons in there
-                Outcome::Clicked(_) => unreachable!(),
-                _ => {}
+            if let Outcome::Clicked(_) = p.event(ctx) {
+                unreachable!()
             }
         }
 
@@ -271,7 +268,7 @@ fn setup_texture_demo(ctx: &mut EventCtx, bg_texture: Texture, fg_texture: Textu
         Fill::ColoredTexture(Color::RED, bg_texture),
         circle_poly.clone(),
     );
-    batch.push(fg_texture, circle_poly.clone());
+    batch.push(fg_texture, circle_poly);
 
     batch.upload(ctx)
 }
@@ -508,7 +505,7 @@ fn make_tabs(ctx: &mut EventCtx) -> TabController {
 }
 
 fn make_controls(ctx: &mut EventCtx, tabs: &mut TabController) -> Panel {
-    Panel::new(Widget::col(vec![
+    Panel::new_builder(Widget::col(vec![
         Text::from(Line("widgetry demo").big_heading_styled()).into_widget(ctx),
         Widget::col(vec![
             Text::from(
@@ -529,7 +526,7 @@ fn make_controls(ctx: &mut EventCtx, tabs: &mut TabController) -> Panel {
                 .named("stopwatch")
                 .margin_above(30),
             Widget::row(vec![
-                Toggle::new(
+                Toggle::new_widget(
                     false,
                     ctx.style()
                         .btn_outline

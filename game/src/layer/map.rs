@@ -125,7 +125,7 @@ impl BikeActivity {
             }
         }
 
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             header(ctx, "Cycling activity"),
             Text::from_multiline(vec![
                 Line(format!("{} bike lanes", num_lanes)),
@@ -204,7 +204,7 @@ impl Static {
         extra: Widget,
     ) -> Static {
         let (unzoomed, zoomed, legend) = colorer.build(ctx);
-        let panel = Panel::new(Widget::col(vec![header(ctx, &title), extra, legend]))
+        let panel = Panel::new_builder(Widget::col(vec![header(ctx, &title), extra, legend]))
             .aligned_pair(PANEL_PLACEMENT)
             .build(ctx);
 
@@ -279,7 +279,7 @@ impl Static {
             zoomed.push(color.alpha(0.4), b.polygon.clone());
         }
 
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             header(ctx, "Amenities"),
             ColorLegend::row(ctx, food, AmenityType::Food.to_string()),
             ColorLegend::row(ctx, school, AmenityType::School.to_string()),
@@ -364,22 +364,19 @@ impl Layer for CongestionCaps {
         if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             if ctx.redo_mouseover() || recalc_tooltip {
                 self.tooltip = None;
-                match app.mouseover_unzoomed_roads_and_intersections(ctx) {
-                    Some(ID::Road(r)) => {
-                        if let Some(cap) = app
-                            .primary
-                            .map
-                            .get_r(r)
-                            .access_restrictions
-                            .cap_vehicles_per_hour
-                        {
-                            self.tooltip = Some(Text::from(format!(
-                                "Cap of {} vehicles per hour",
-                                prettyprint_usize(cap)
-                            )));
-                        }
+                if let Some(ID::Road(r)) = app.mouseover_unzoomed_roads_and_intersections(ctx) {
+                    if let Some(cap) = app
+                        .primary
+                        .map
+                        .get_r(r)
+                        .access_restrictions
+                        .cap_vehicles_per_hour
+                    {
+                        self.tooltip = Some(Text::from(format!(
+                            "Cap of {} vehicles per hour",
+                            prettyprint_usize(cap)
+                        )));
                     }
-                    _ => {}
                 }
             }
         } else {
@@ -419,7 +416,7 @@ impl CongestionCaps {
             }
         }
 
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             header(ctx, "Congestion caps"),
             format!("{} roads have caps", prettyprint_usize(num_roads)).text_widget(ctx),
             ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["available", "full"]),

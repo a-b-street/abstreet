@@ -63,7 +63,7 @@ impl PathCounter {
             zoomed,
             tooltip: None,
             cnt,
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line(format!("Paths across {}", i))
                         .small_heading()
@@ -102,14 +102,13 @@ impl State<App> for PathCounter {
             }
         }
 
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         Transition::Keep

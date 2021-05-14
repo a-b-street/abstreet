@@ -126,8 +126,7 @@ impl ControlTrafficSignal {
                     .collect::<Vec<_>>()
             );
         }
-        let mut stage_index = 0;
-        for stage in &self.stages {
+        for (stage_index, stage) in self.stages.iter().enumerate() {
             // Do any of the priority movements in one stage conflict?
             for m1 in stage.protected_movements.iter().map(|m| &self.movements[m]) {
                 for m2 in stage.protected_movements.iter().map(|m| &self.movements[m]) {
@@ -158,7 +157,6 @@ impl ControlTrafficSignal {
                     stage.stage_type.simple_duration()
                 );
             }
-            stage_index += 1;
         }
         Ok(())
     }
@@ -185,7 +183,7 @@ impl ControlTrafficSignal {
         }
 
         // Remove Crosswalk movements from existing stages.
-        let mut replaced = std::mem::replace(&mut self.stages, Vec::new());
+        let mut replaced = std::mem::take(&mut self.stages);
         let mut has_all_walk = false;
         for stage in replaced.iter_mut() {
             if !has_all_walk && stage == &all_walk_stage {
@@ -240,7 +238,7 @@ impl ControlTrafficSignal {
             rank_per_road.insert(*r, map.get_r(*r).get_detailed_rank());
         }
         let mut ranks: Vec<usize> = rank_per_road.values().cloned().collect();
-        ranks.sort();
+        ranks.sort_unstable();
         ranks.dedup();
         if ranks.len() == 1 {
             bail!("This intersection doesn't have major/minor roads; they're all the same rank.");
@@ -412,14 +410,14 @@ impl Stage {
                 return None;
             }
         }
-        return if max_distance > Distance::const_meters(0.0) {
+        if max_distance > Distance::const_meters(0.0) {
             let time = max_distance / CROSSWALK_PACE;
             assert!(time >= Duration::ZERO);
             // Round up because it is converted to a usize elsewhere
             Some(Duration::seconds(time.inner_seconds().ceil()))
         } else {
             None
-        };
+        }
     }
 }
 

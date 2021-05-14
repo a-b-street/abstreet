@@ -26,7 +26,7 @@ pub struct RoadEditor {
 }
 
 impl RoadEditor {
-    pub fn new(ctx: &mut EventCtx, app: &mut App, r: RoadID) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &mut App, r: RoadID) -> Box<dyn State<App>> {
         app.primary.current_selection = None;
 
         let mut editor = RoadEditor {
@@ -89,8 +89,8 @@ impl State<App> for RoadEditor {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
-        match self.top_panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.top_panel.event(ctx) {
+            match x.as_ref() {
                 "Finish" => {
                     // Compress all of the edits, unless there were 0 or 1 changes
                     let mut edits = app.primary.map.get_edits().clone();
@@ -136,8 +136,7 @@ impl State<App> for RoadEditor {
                     self.recalc_all_panels(ctx, app);
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         match self.main_panel.event(ctx) {
@@ -265,7 +264,7 @@ fn make_top_panel(
     num_edit_cmds_originally: usize,
     no_redo_cmds: bool,
 ) -> Panel {
-    Panel::new(Widget::row(vec![
+    Panel::new_builder(Widget::row(vec![
         ctx.style()
             .btn_solid_primary
             .text("Finish")
@@ -351,21 +350,14 @@ fn make_main_panel(
             lt == current
         } else {
             // Only 2 parking lanes or walkable lanes total make sense
-            if lt == LaneType::Parking
+            (lt == LaneType::Parking
                 && current_lts
                     .iter()
                     .filter(|x| **x == LaneType::Parking)
                     .count()
-                    == 2
-            {
-                true
-            } else if lt == LaneType::Sidewalk
-                && current_lts.iter().filter(|x| x.is_walkable()).count() == 2
-            {
-                true
-            } else {
-                false
-            }
+                    == 2)
+                || (lt == LaneType::Sidewalk
+                    && current_lts.iter().filter(|x| x.is_walkable()).count() == 2)
         };
 
         ctx.style()
@@ -476,7 +468,7 @@ fn make_main_panel(
         ),
     ]);
 
-    Panel::new(Widget::col(vec![
+    Panel::new_builder(Widget::col(vec![
         modify_lane,
         available_lane_types_row,
         current_lanes_ltr,
@@ -557,12 +549,10 @@ fn default_outside_lane_placement(road: &mut EditRoad, dir: Direction) -> usize 
         } else {
             0
         }
+    } else if road.lanes_ltr.last().unwrap().lt.is_walkable() {
+        road.lanes_ltr.len() - 1
     } else {
-        if road.lanes_ltr.last().unwrap().lt.is_walkable() {
-            road.lanes_ltr.len() - 1
-        } else {
-            road.lanes_ltr.len()
-        }
+        road.lanes_ltr.len()
     }
 }
 
@@ -582,12 +572,10 @@ fn determine_lane_dir(road: &mut EditRoad, lt: LaneType, minority: bool) -> Dire
         } else {
             Direction::Back
         }
+    } else if minority {
+        Direction::Back
     } else {
-        if minority {
-            Direction::Back
-        } else {
-            Direction::Fwd
-        }
+        Direction::Fwd
     }
 }
 
@@ -598,7 +586,7 @@ fn add_new_lane(road: &mut EditRoad, lt: LaneType) -> usize {
         LaneType::Biking | LaneType::Bus | LaneType::Parking | LaneType::Construction => {
             let relevant_lanes: Vec<&LaneSpec> =
                 road.lanes_ltr.iter().filter(|x| x.lt == lt).collect();
-            if relevant_lanes.len() > 0 {
+            if !relevant_lanes.is_empty() {
                 // When a lane already exists then default to the direction on the other side of the
                 // road
                 if relevant_lanes[0].dir == Direction::Fwd {

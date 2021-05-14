@@ -9,6 +9,8 @@
 // > curl http://localhost:1234/data/get-road-thruput
 // ... huge JSON blob
 
+#![allow(clippy::ptr_arg)]
+
 #[macro_use]
 extern crate anyhow;
 #[macro_use]
@@ -133,7 +135,7 @@ fn handle_command(
             let (new_map, new_sim) = load.setup(&mut Timer::new("reset sim"));
             *map = new_map;
             *sim = new_sim;
-            Ok(format!("sim reloaded"))
+            Ok("sim reloaded".to_string())
         }
         "/sim/load" => {
             let args: LoadSim = abstutil::from_json(body)?;
@@ -147,7 +149,7 @@ fn handle_command(
             *map = new_map;
             *sim = new_sim;
 
-            Ok(format!("flags changed and sim reloaded"))
+            Ok("flags changed and sim reloaded".to_string())
         }
         "/sim/get-time" => Ok(sim.time().to_string()),
         "/sim/goto-time" => {
@@ -222,7 +224,7 @@ fn handle_command(
                 per_direction: BTreeMap::new(),
             };
             for m in ts.movements.keys() {
-                delays.per_direction.insert(m.clone(), Vec::new());
+                delays.per_direction.insert(*m, Vec::new());
             }
             if let Some(list) = sim.get_analytics().intersection_delays.get(&i) {
                 for (idx, t, dt, _) in list {
@@ -250,7 +252,7 @@ fn handle_command(
             };
             for (idx, m) in ts.movements.keys().enumerate() {
                 thruput.per_direction.insert(
-                    m.clone(),
+                    *m,
                     sim.get_analytics()
                         .traffic_signal_thruput
                         .total_for(CompressedMovementID {
@@ -485,7 +487,7 @@ impl LoadSim {
 
         let mut map = Map::load_synchronously(scenario.map_name.path(), timer);
         if let Some(perma) = self.edits.clone() {
-            let edits = perma.to_edits(&map).unwrap();
+            let edits = perma.into_edits(&map).unwrap();
             map.must_apply_edits(edits);
             map.recalculate_pathfinding_after_edits(timer);
         }

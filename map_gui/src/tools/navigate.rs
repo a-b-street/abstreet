@@ -15,14 +15,14 @@ pub struct Navigator {
 }
 
 impl Navigator {
-    pub fn new<A: AppLike + 'static>(ctx: &mut EventCtx, app: &A) -> Box<dyn State<A>> {
+    pub fn new_state<A: AppLike + 'static>(ctx: &mut EventCtx, app: &A) -> Box<dyn State<A>> {
         Box::new(Navigator {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Enter a street name").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                Autocomplete::new(
+                Autocomplete::new_widget(
                     ctx,
                     app.map()
                         .all_roads()
@@ -44,23 +44,22 @@ impl Navigator {
 
 impl<A: AppLike + 'static> State<A> for Navigator {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
                 "Search by business name or address" => {
-                    return Transition::Replace(SearchBuildings::new(ctx, app));
+                    return Transition::Replace(SearchBuildings::new_state(ctx, app));
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
         if let Some(roads) = self.panel.autocomplete_done("street") {
             if roads.is_empty() {
                 return Transition::Pop;
             }
-            return Transition::Replace(CrossStreet::new(ctx, app, roads));
+            return Transition::Replace(CrossStreet::new_state(ctx, app, roads));
         }
 
         if self.panel.clicked_outside(ctx) {
@@ -83,7 +82,7 @@ struct CrossStreet {
 }
 
 impl CrossStreet {
-    fn new<A: AppLike + 'static>(
+    fn new_state<A: AppLike + 'static>(
         ctx: &mut EventCtx,
         app: &A,
         first: Vec<RoadID>,
@@ -106,7 +105,7 @@ impl CrossStreet {
         }
 
         Box::new(CrossStreet {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     {
                         let mut txt = Text::from(Line("What cross street?").small_heading());
@@ -119,7 +118,7 @@ impl CrossStreet {
                     },
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                Autocomplete::new(
+                Autocomplete::new_widget(
                     ctx,
                     cross_streets
                         .into_iter()
@@ -139,8 +138,8 @@ impl<A: AppLike + 'static> State<A> for CrossStreet {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
         let map = app.map();
 
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "close" => {
                     // Just warp to somewhere on the first road
                     let pt = map.get_r(self.first[0]).center_pts.middle();
@@ -152,15 +151,14 @@ impl<A: AppLike + 'static> State<A> for CrossStreet {
                     ));
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
         if let Some(roads) = self.panel.autocomplete_done("street") {
             // Find the best match
             let mut found = None;
             'OUTER: for r1 in &self.first {
                 let r1 = map.get_r(*r1);
-                for i in vec![r1.src_i, r1.dst_i] {
+                for &i in &[r1.src_i, r1.dst_i] {
                     if map.get_i(i).roads.iter().any(|r2| roads.contains(r2)) {
                         found = Some(i);
                         break 'OUTER;
@@ -199,16 +197,16 @@ struct SearchBuildings {
 }
 
 impl SearchBuildings {
-    pub fn new<A: AppLike + 'static>(ctx: &mut EventCtx, app: &A) -> Box<dyn State<A>> {
+    pub fn new_state<A: AppLike + 'static>(ctx: &mut EventCtx, app: &A) -> Box<dyn State<A>> {
         Box::new(SearchBuildings {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Enter a business name or address")
                         .small_heading()
                         .into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                Autocomplete::new(
+                Autocomplete::new_widget(
                     ctx,
                     app.map()
                         .all_buildings()
@@ -252,17 +250,16 @@ impl SearchBuildings {
 
 impl<A: AppLike + 'static> State<A> for SearchBuildings {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
                 "Search for streets" => {
-                    return Transition::Replace(Navigator::new(ctx, app));
+                    return Transition::Replace(Navigator::new_state(ctx, app));
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
         if let Some(bldgs) = self.panel.autocomplete_done("bldg") {
             if bldgs.is_empty() {

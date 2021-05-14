@@ -30,7 +30,7 @@ pub struct AgentCache {
 }
 
 impl AgentCache {
-    pub fn new() -> AgentCache {
+    pub fn new_state() -> AgentCache {
         AgentCache {
             unzoomed_agents: UnzoomedAgents::new(),
             time: None,

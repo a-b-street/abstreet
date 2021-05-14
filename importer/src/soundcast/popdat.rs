@@ -64,18 +64,19 @@ fn import_trips(huge_map: &Map, timer: &mut Timer) -> Vec<OrigTrip> {
 
         let person = OrigPersonID(rec.hhno as usize, rec.pno as usize);
         people.insert(person);
+        #[allow(clippy::float_cmp)]
         let seq = (rec.tour as usize, rec.half == 2.0, rec.tseg as usize);
 
         trips.push(OrigTrip {
             from,
             to,
             depart_at,
-            purpose,
             mode,
-            trip_time,
-            trip_dist,
             person,
             seq,
+            purpose,
+            trip_time,
+            trip_dist,
         });
     }
     done(timer);

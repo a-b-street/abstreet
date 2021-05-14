@@ -41,10 +41,10 @@ impl Viewer {
     pub fn random_start(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let bldgs = app.map.all_buildings();
         let start = bldgs[bldgs.len() / 2].id;
-        Viewer::new(ctx, app, start)
+        Viewer::new_state(ctx, app, start)
     }
 
-    pub fn new(ctx: &mut EventCtx, app: &App, start: BuildingID) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App, start: BuildingID) -> Box<dyn State<App>> {
         if let Err(err) = URLManager::update_url_free_param(
             app.map
                 .get_name()
@@ -136,7 +136,7 @@ impl State<App> for Viewer {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "change map" => {
-                    return Transition::Push(CityPicker::new(
+                    return Transition::Push(CityPicker::new_state(
                         ctx,
                         app,
                         Box::new(|ctx, app| {
@@ -148,7 +148,7 @@ impl State<App> for Viewer {
                     ));
                 }
                 "About" => {
-                    return Transition::Push(PopupMsg::new(
+                    return Transition::Push(PopupMsg::new_state(
                         ctx,
                         "15-minute neighborhood explorer",
                         vec![
@@ -169,17 +169,20 @@ impl State<App> for Viewer {
                     ));
                 }
                 "search" => {
-                    return Transition::Push(Navigator::new(ctx, app));
+                    return Transition::Push(Navigator::new_state(ctx, app));
                 }
                 "Find your perfect home" => {
-                    return Transition::Push(FindHome::new(ctx, self.isochrone.options.clone()));
+                    return Transition::Push(FindHome::new_state(
+                        ctx,
+                        self.isochrone.options.clone(),
+                    ));
                 }
                 "Search by amenity" => {
                     return Transition::Push(FindAmenity::new(ctx, self.isochrone.options.clone()));
                 }
                 x => {
                     if let Some(category) = x.strip_prefix("businesses: ") {
-                        return Transition::Push(ExploreAmenities::new(
+                        return Transition::Push(ExploreAmenities::new_state(
                             ctx,
                             app,
                             &self.isochrone,
@@ -267,7 +270,7 @@ fn options_from_controls(panel: &Panel) -> Options {
                 .unwrap_or(true),
             walking_speed: panel
                 .maybe_dropdown_value("speed")
-                .unwrap_or(WalkingOptions::default_speed()),
+                .unwrap_or_else(WalkingOptions::default_speed),
         })
     } else {
         Options::Biking
@@ -281,13 +284,9 @@ pub fn draw_star(ctx: &mut EventCtx, b: &Building) -> GeomBatch {
 }
 
 fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isochrone) -> Panel {
-    let mut rows = Vec::new();
-
-    rows.push(
-        Line("15-minute neighborhood explorer")
-            .small_heading()
-            .into_widget(ctx),
-    );
+    let mut rows = vec![Line("15-minute neighborhood explorer")
+        .small_heading()
+        .into_widget(ctx)];
 
     rows.push(
         ctx.style()
@@ -366,7 +365,7 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
             .build_widget(ctx, "search"),
     ]));
 
-    Panel::new(Widget::col(rows))
+    Panel::new_builder(Widget::col(rows))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
         .build(ctx)
 }
@@ -442,7 +441,7 @@ struct Entry {
 }
 
 impl ExploreAmenities {
-    fn new(
+    fn new_state(
         ctx: &mut EventCtx,
         app: &App,
         isochrone: &Isochrone,
@@ -496,7 +495,7 @@ impl ExploreAmenities {
             Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.duration_away))),
         );
 
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
                 Line(format!("{} within 15 minutes", category))
                     .small_heading()
@@ -526,7 +525,7 @@ impl State<App> for ExploreAmenities {
                     self.table.replace_render(ctx, app, &mut self.panel)
                 } else if x == "close" {
                     return Transition::Pop;
-                } else if let Some(idx) = x.split(":").next().and_then(|x| x.parse::<usize>().ok())
+                } else if let Some(idx) = x.split(':').next().and_then(|x| x.parse::<usize>().ok())
                 {
                     let b = app.map.get_b(BuildingID(idx));
                     open_browser(b.orig_id.to_string());
@@ -550,7 +549,7 @@ impl State<App> for ExploreAmenities {
         if let Some(x) = self
             .panel
             .currently_hovering()
-            .and_then(|x| x.split(":").next())
+            .and_then(|x| x.split(':').next())
             .and_then(|x| x.parse::<usize>().ok())
         {
             g.draw_polygon(Color::CYAN, app.map.get_b(BuildingID(x)).polygon.clone());

@@ -214,7 +214,7 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
             ])
         };
 
-        self.panel = Panel::new(controls)
+        self.panel = Panel::new_builder(controls)
             .aligned(
                 HorizontalAlignment::Right,
                 VerticalAlignment::BottomAboveOSD,
@@ -287,12 +287,12 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
             // If either corner of the cursor is out of bounds on the minimap, recenter.
             // TODO This means clicking the pan buttons while along the boundary won't work.
             let mut ok = true;
-            for pt in vec![
+            for &pt in &[
                 ScreenPt::new(0.0, 0.0),
                 ScreenPt::new(ctx.canvas.window_width, ctx.canvas.window_height),
             ] {
                 let (pct_x, pct_y) = self.map_to_minimap_pct(ctx.canvas.screen_to_map(pt));
-                if pct_x < 0.0 || pct_x > 1.0 || pct_y < 0.0 || pct_y > 1.0 {
+                if !(0.0..=1.0).contains(&pct_x) || pct_y < 0.0 || pct_y > 1.0 {
                     ok = false;
                     break;
                 }
@@ -419,7 +419,7 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
 
         let inner_rect = self.panel.rect_of("minimap").clone();
 
-        let mut map_bounds = app.map().get_bounds().clone();
+        let mut map_bounds = *app.map().get_bounds();
         // Adjust bounds to account for the current pan and zoom
         map_bounds.min_x = (map_bounds.min_x + self.offset_x) / self.zoom;
         map_bounds.min_y = (map_bounds.min_y + self.offset_y) / self.zoom;
@@ -466,7 +466,7 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
             Pt2D::new(x1, y1),
         ]) {
             if let Some(color) = app.cs().minimap_cursor_bg {
-                g.draw_polygon(color, rect.clone().to_polygon());
+                g.draw_polygon(color, rect.clone().into_polygon());
             }
             g.draw_polygon(
                 app.cs().minimap_cursor_border,

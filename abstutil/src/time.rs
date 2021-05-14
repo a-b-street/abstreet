@@ -295,7 +295,7 @@ impl<'a> Timer<'a> {
             panic!("Can't cancel_iter_early() while a TimerSpan is top of the stack");
         };
         self.stack.pop();
-        self.add_result(elapsed, format!("cancelled early"));
+        self.add_result(elapsed, "cancelled early".to_string());
     }
 
     pub fn add_result(&mut self, elapsed: f64, line: String) {

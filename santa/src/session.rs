@@ -104,7 +104,7 @@ impl Session {
     pub fn record_score(&mut self, level: String, score: usize) -> Option<Vec<String>> {
         let scores = self.high_scores.get_mut(&level).unwrap();
         scores.push(score);
-        scores.sort();
+        scores.sort_unstable();
         scores.reverse();
         scores.truncate(3);
 
@@ -117,12 +117,12 @@ impl Session {
         let msg = if idx + 1 == self.levels_unlocked && score >= level.goal {
             if idx + 1 == self.levels.len() {
                 Some(vec![
-                    format!("All levels complete! Nice."),
-                    format!("Can you improve your score on other levels?"),
+                    "All levels complete! Nice.".to_string(),
+                    "Can you improve your score on other levels?".to_string(),
                 ])
             } else {
                 self.levels_unlocked += 1;
-                let mut messages = vec![format!("New level unlocked!")];
+                let mut messages = vec!["New level unlocked!".to_string()];
                 if level.unlock_upzones > 0 {
                     self.upzones_unlocked += level.unlock_upzones;
                     messages.push(format!(

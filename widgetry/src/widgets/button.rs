@@ -597,37 +597,34 @@ impl<'b, 'a: 'b, 'c> ButtonBuilder<'a, 'c> {
         let label_batch = state_style
             .label
             .as_ref()
-            .or(default_style.label.as_ref())
+            .or_else(|| default_style.label.as_ref())
             .and_then(|label| {
                 let default = default_style.label.as_ref();
 
                 if let Some(styled_text) = label
                     .styled_text
                     .as_ref()
-                    .or(default.and_then(|d| d.styled_text.as_ref()))
+                    .or_else(|| default.and_then(|d| d.styled_text.as_ref()))
                 {
                     return Some(styled_text.clone().bg(Color::CLEAR).render(ctx));
                 }
 
-                let text = label.text.clone().or(default.and_then(|d| d.text.clone()));
-
-                // Is there a better way to do this like a `guard let`?
-                if text.is_none() {
-                    return None;
-                }
-                let text = text.unwrap();
+                let text = label
+                    .text
+                    .clone()
+                    .or_else(|| default.and_then(|d| d.text.clone()))?;
 
                 let color = label
                     .color
-                    .or(default.and_then(|d| d.color))
-                    .unwrap_or(ctx.style().text_fg_color);
+                    .or_else(|| default.and_then(|d| d.color))
+                    .unwrap_or_else(|| ctx.style().text_fg_color);
                 let mut line = Line(text).fg(color);
 
-                if let Some(font_size) = label.font_size.or(default.and_then(|d| d.font_size)) {
+                if let Some(font_size) = label.font_size.or_else(|| default.and_then(|d| d.font_size)) {
                     line = line.size(font_size);
                 }
 
-                if let Some(font) = label.font.or(default.and_then(|d| d.font)) {
+                if let Some(font) = label.font.or_else(|| default.and_then(|d| d.font)) {
                     line = line.font(font);
                 }
 
@@ -679,7 +676,7 @@ impl<'b, 'a: 'b, 'c> ButtonBuilder<'a, 'c> {
             button_widget = button_widget.corner_rounding(corner_rounding);
         }
 
-        let (geom_batch, _hitbox) = button_widget.to_geom(ctx, None);
+        let (geom_batch, _hitbox) = button_widget.into_geom(ctx, None);
         geom_batch
     }
 }
@@ -704,7 +701,11 @@ pub struct MultiButton {
 }
 
 impl MultiButton {
-    pub fn new(ctx: &EventCtx, batch: GeomBatch, hitboxes: Vec<(Polygon, String)>) -> Widget {
+    pub fn new_widget(
+        ctx: &EventCtx,
+        batch: GeomBatch,
+        hitboxes: Vec<(Polygon, String)>,
+    ) -> Widget {
         Widget::new(Box::new(MultiButton {
             dims: batch.get_dims(),
             top_left: ScreenPt::new(0.0, 0.0),

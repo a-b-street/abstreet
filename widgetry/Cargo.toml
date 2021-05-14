@@ -27,7 +27,7 @@ serde = "1.0.123"
 serde_json = "1.0.61"
 stretch = "0.3.2"
 ttf-parser = "0.10.1"
-usvg = { version = "0.13.1", default-features=false }
+usvg = { version = "0.13.1", default-features=false, features=["text"] }
 wasm-bindgen = { version = "0.2.70", optional = true }
 web-sys = { version = "0.3.47", optional = true }
 winit = "0.24.0"

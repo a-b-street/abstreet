@@ -190,7 +190,7 @@ pub enum Direction {
 
 fn parse_f64s<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Vec<f64>, D::Error> {
     let raw = <String>::deserialize(d)?;
-    let parts: Vec<&str> = raw.split(",").collect();
+    let parts: Vec<&str> = raw.split(',').collect();
     let mut result = Vec::new();
     for x in parts {
         result.push(x.parse::<f64>().map_err(serde::de::Error::custom)?);
@@ -229,7 +229,7 @@ fn parse_list_vehicles<'de, D: serde::Deserializer<'de>>(
 ) -> Result<Vec<VehicleClass>, D::Error> {
     let raw = <String>::deserialize(d)?;
     let mut vehicles = Vec::new();
-    for x in raw.split(" ") {
+    for x in raw.split(' ') {
         vehicles.push(match x {
             "pedestrian" => VehicleClass::Pedestrian,
             "bicycle" => VehicleClass::Bicycle,
@@ -242,7 +242,7 @@ fn parse_list_vehicles<'de, D: serde::Deserializer<'de>>(
 
 fn parse_list_lanes<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Vec<LaneID>, D::Error> {
     let raw = <String>::deserialize(d)?;
-    let parts: Vec<LaneID> = raw.split(" ").map(|x| LaneID(x.to_string())).collect();
+    let parts: Vec<LaneID> = raw.split(' ').map(|x| LaneID(x.to_string())).collect();
     Ok(parts)
 }
 
@@ -251,7 +251,7 @@ fn parse_list_internal_lanes<'de, D: serde::Deserializer<'de>>(
 ) -> Result<Vec<InternalLaneID>, D::Error> {
     let raw = <String>::deserialize(d)?;
     let parts: Vec<InternalLaneID> = raw
-        .split(" ")
+        .split(' ')
         .map(|x| InternalLaneID(x.to_string()))
         .collect();
     Ok(parts)
@@ -260,7 +260,7 @@ fn parse_list_internal_lanes<'de, D: serde::Deserializer<'de>>(
 fn parse_pts<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Vec<Pt2D>, D::Error> {
     let raw = <String>::deserialize(d)?;
     let mut pts = Vec::new();
-    for pt in raw.split(" ") {
+    for pt in raw.split(' ') {
         pts.push(parse_pt(&pt).map_err(serde::de::Error::custom)?);
     }
     Ok(pts)
@@ -283,13 +283,13 @@ fn parse_polygon<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Option<Polygo
     Ok(Some(
         Ring::new(pts)
             .map_err(serde::de::Error::custom)?
-            .to_polygon(),
+            .into_polygon(),
     ))
 }
 
 fn parse_pt(pt: &str) -> anyhow::Result<Pt2D> {
     let mut parts = Vec::new();
-    for x in pt.split(",") {
+    for x in pt.split(',') {
         parts.push(x.parse::<f64>()?);
     }
     // Ignore the Z coordinate if it's there

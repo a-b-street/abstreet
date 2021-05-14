@@ -15,14 +15,14 @@ pub struct ChooseSomething<A: AppLike, T> {
 }
 
 impl<A: AppLike + 'static, T: 'static> ChooseSomething<A, T> {
-    pub fn new<I: Into<String>>(
+    pub fn new_state<I: Into<String>>(
         ctx: &mut EventCtx,
         query: I,
         choices: Vec<Choice<T>>,
         cb: Box<dyn Fn(T, &mut EventCtx, &mut A) -> Transition<A>>,
     ) -> Box<dyn State<A>> {
         Box::new(ChooseSomething {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line(query).small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
@@ -71,14 +71,14 @@ pub struct PromptInput<A: AppLike> {
 }
 
 impl<A: AppLike + 'static> PromptInput<A> {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         query: &str,
         initial: String,
         cb: Box<dyn Fn(String, &mut EventCtx, &mut A) -> Transition<A>>,
     ) -> Box<dyn State<A>> {
         Box::new(PromptInput {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line(query).small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
@@ -134,7 +134,7 @@ pub struct PopupMsg {
 }
 
 impl PopupMsg {
-    pub fn new<A: AppLike>(
+    pub fn new_state<A: AppLike>(
         ctx: &mut EventCtx,
         title: &str,
         lines: Vec<impl AsRef<str>>,
@@ -161,7 +161,7 @@ impl PopupMsg {
             txt.add_line(l);
         }
         Box::new(PopupMsg {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 txt.into_widget(ctx),
                 ctx.style()
                     .btn_solid_primary

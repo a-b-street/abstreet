@@ -292,7 +292,7 @@ impl Lane {
             return None;
         }
         // Empty means no restrictions
-        if part == "" {
+        if part.is_empty() {
             return None;
         }
         Some(
@@ -390,7 +390,7 @@ impl Lane {
         }
         pts.push(pts[0]);
         pts.dedup();
-        Some((Ring::new(pts).ok()?.to_polygon(), visited))
+        Some((Ring::new(pts).ok()?.into_polygon(), visited))
     }
 }
 

@@ -34,7 +34,7 @@ pub struct OptimizeCommute {
 }
 
 impl OptimizeCommute {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         app: &App,
         orig_person: OrigPersonID,
@@ -134,14 +134,22 @@ impl GameplayState for OptimizeCommute {
             }
         }
 
-        match self.top_right.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.top_right.event(ctx) {
+            match x.as_ref() {
                 "edit map" => {
-                    return Some(Transition::Push(EditMode::new(ctx, app, self.mode.clone())));
+                    return Some(Transition::Push(EditMode::new_state(
+                        ctx,
+                        app,
+                        self.mode.clone(),
+                    )));
                 }
                 "instructions" => {
                     let contents = (cutscene_task(&self.mode))(ctx);
-                    return Some(Transition::Push(FYI::new(ctx, contents, Color::WHITE)));
+                    return Some(Transition::Push(FYI::new_state(
+                        ctx,
+                        contents,
+                        Color::WHITE,
+                    )));
                 }
                 "hint" => {
                     // TODO Multiple hints. Point to follow button.
@@ -151,7 +159,11 @@ impl GameplayState for OptimizeCommute {
                     txt.add_line("You can wait for one of their trips to begin or end.");
                     txt.add_line("Focus on trips spent mostly waiting");
                     let contents = txt.into_widget(ctx);
-                    return Some(Transition::Push(FYI::new(ctx, contents, app.cs.panel_bg)));
+                    return Some(Transition::Push(FYI::new_state(
+                        ctx,
+                        contents,
+                        app.cs.panel_bg,
+                    )));
                 }
                 "locate VIP" => {
                     controls.common.as_mut().unwrap().launch_info_panel(
@@ -162,8 +174,7 @@ impl GameplayState for OptimizeCommute {
                     );
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         None
@@ -179,7 +190,7 @@ impl GameplayState for OptimizeCommute {
         txt.append_all(cmp_duration_shorter(app, after, before));
         txt.append(Line(")"));
 
-        self.top_right = Panel::new(Widget::col(vec![
+        self.top_right = Panel::new_builder(Widget::col(vec![
             challenge_header(ctx, "Optimize the VIP's commute"),
             Widget::row(vec![
                 format!("Speed up the VIP's trips by {}", self.goal)
@@ -272,7 +283,7 @@ fn final_score(
         )
     };
 
-    FinalScore::new(ctx, app, msg, mode, next_mode)
+    FinalScore::new_state(ctx, app, msg, mode, next_mode)
 }
 
 fn cutscene_task(mode: &GameplayMode) -> Box<dyn Fn(&mut EventCtx) -> Widget> {

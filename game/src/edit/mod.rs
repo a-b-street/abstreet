@@ -50,7 +50,7 @@ pub struct EditMode {
 }
 
 impl EditMode {
-    pub fn new(ctx: &mut EventCtx, app: &mut App, mode: GameplayMode) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &mut App, mode: GameplayMode) -> Box<dyn State<App>> {
         let orig_dirty = app.primary.dirty_from_edits;
         assert!(app.primary.suspended_sim.is_none());
         app.primary.suspended_sim = Some(app.primary.clear_sim());
@@ -106,7 +106,7 @@ impl EditMode {
                 if trips == 0 && parked_cars == 0 {
                     Transition::Pop
                 } else {
-                    Transition::Replace(PopupMsg::new(
+                    Transition::Replace(PopupMsg::new_state(
                         ctx,
                         "Map changes complete",
                         vec![
@@ -128,7 +128,7 @@ impl EditMode {
                         app,
                         self.mode.clone(),
                         Box::new(move |ctx, app| {
-                            vec![Transition::Push(TimeWarpScreen::new(
+                            vec![Transition::Push(TimeWarpScreen::new_state(
                                 ctx,
                                 app,
                                 old_sim.time(),
@@ -174,23 +174,22 @@ impl State<App> for EditMode {
         }
 
         if app.opts.dev && ctx.input.pressed(lctrl(Key::D)) {
-            return Transition::Push(DebugMode::new(ctx, app));
+            return Transition::Push(DebugMode::new_state(ctx, app));
         }
 
-        match self.top_center.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.top_center.event(ctx) {
+            match x.as_ref() {
                 "finish editing" => {
                     return self.quit(ctx, app);
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
-        match self.changelist.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.changelist.event(ctx) {
+            match x.as_ref() {
                 "manage proposals" => {
                     let mode = self.mode.clone();
-                    return Transition::Push(ChooseSomething::new(
+                    return Transition::Push(ChooseSomething::new_state(
                         ctx,
                         "Manage proposals",
                         vec![
@@ -204,7 +203,7 @@ impl State<App> for EditMode {
                         Box::new(move |choice, ctx, app| match choice.as_ref() {
                             "rename current proposal" => {
                                 let old_name = app.primary.map.get_edits().edits_name.clone();
-                                Transition::Replace(SaveEdits::new(
+                                Transition::Replace(SaveEdits::new_state(
                                     ctx,
                                     app,
                                     format!("Rename \"{}\"", old_name),
@@ -221,8 +220,12 @@ impl State<App> for EditMode {
                             "open a saved proposal" => {
                                 if app.primary.map.unsaved_edits() {
                                     Transition::Multi(vec![
-                                        Transition::Replace(LoadEdits::new(ctx, app, mode.clone())),
-                                        Transition::Push(SaveEdits::new(
+                                        Transition::Replace(LoadEdits::new_state(
+                                            ctx,
+                                            app,
+                                            mode.clone(),
+                                        )),
+                                        Transition::Push(SaveEdits::new_state(
                                             ctx,
                                             app,
                                             "Do you want to save your proposal first?",
@@ -235,12 +238,16 @@ impl State<App> for EditMode {
                                         )),
                                     ])
                                 } else {
-                                    Transition::Replace(LoadEdits::new(ctx, app, mode.clone()))
+                                    Transition::Replace(LoadEdits::new_state(
+                                        ctx,
+                                        app,
+                                        mode.clone(),
+                                    ))
                                 }
                             }
                             "create a blank proposal" => {
                                 if app.primary.map.unsaved_edits() {
-                                    Transition::Replace(SaveEdits::new(
+                                    Transition::Replace(SaveEdits::new_state(
                                         ctx,
                                         app,
                                         "Do you want to save your proposal first?",
@@ -255,14 +262,19 @@ impl State<App> for EditMode {
                                     Transition::Pop
                                 }
                             }
-                            "save this proposal as..." => Transition::Replace(SaveEdits::new(
-                                ctx,
-                                app,
-                                format!("Save \"{}\" as", app.primary.map.get_edits().edits_name),
-                                false,
-                                Some(Transition::Pop),
-                                Box::new(|_, _| {}),
-                            )),
+                            "save this proposal as..." => {
+                                Transition::Replace(SaveEdits::new_state(
+                                    ctx,
+                                    app,
+                                    format!(
+                                        "Save \"{}\" as",
+                                        app.primary.map.get_edits().edits_name
+                                    ),
+                                    false,
+                                    Some(Transition::Pop),
+                                    Box::new(|_, _| {}),
+                                ))
+                            }
                             "delete this proposal and remove all edits" => {
                                 abstio::delete_file(abstio::path_edits(
                                     app.primary.map.get_name(),
@@ -281,7 +293,7 @@ impl State<App> for EditMode {
                     let maybe_id = cmd_to_id(&edits.commands.pop().unwrap());
                     apply_map_edits(ctx, app, edits);
                     if let Some(id) = maybe_id {
-                        return Transition::Push(Warping::new(
+                        return Transition::Push(Warping::new_state(
                             ctx,
                             app.primary.canonical_point(id.clone()).unwrap(),
                             Some(10.0),
@@ -293,7 +305,7 @@ impl State<App> for EditMode {
                 x => {
                     let idx = x["change #".len()..].parse::<usize>().unwrap();
                     if let Some(id) = cmd_to_id(&app.primary.map.get_edits().commands[idx - 1]) {
-                        return Transition::Push(Warping::new(
+                        return Transition::Push(Warping::new_state(
                             ctx,
                             app.primary.canonical_point(id.clone()).unwrap(),
                             Some(10.0),
@@ -302,16 +314,15 @@ impl State<App> for EditMode {
                         ));
                     }
                 }
-            },
-            _ => {}
+            }
         }
 
         // So useful that the hotkey should work even before opening the menu
         if ctx.input.pressed(lctrl(Key::L)) {
             if app.primary.map.unsaved_edits() {
                 return Transition::Multi(vec![
-                    Transition::Push(LoadEdits::new(ctx, app, self.mode.clone())),
-                    Transition::Push(SaveEdits::new(
+                    Transition::Push(LoadEdits::new_state(ctx, app, self.mode.clone())),
+                    Transition::Push(SaveEdits::new_state(
                         ctx,
                         app,
                         "Do you want to save your proposal first?",
@@ -321,14 +332,14 @@ impl State<App> for EditMode {
                     )),
                 ]);
             } else {
-                return Transition::Push(LoadEdits::new(ctx, app, self.mode.clone()));
+                return Transition::Push(LoadEdits::new_state(ctx, app, self.mode.clone()));
             }
         }
 
         if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             if let Some(id) = app.primary.current_selection.clone() {
                 if app.per_obj.left_click(ctx, "edit this") {
-                    return Transition::Push(Warping::new(
+                    return Transition::Push(Warping::new_state(
                         ctx,
                         app.primary.canonical_point(id).unwrap(),
                         Some(10.0),
@@ -345,7 +356,7 @@ impl State<App> for EditMode {
             }
             if let Some(ID::Lane(l)) = app.primary.current_selection {
                 if app.per_obj.left_click(ctx, "edit lane") {
-                    return Transition::Push(LaneEditor::new(ctx, app, l, self.mode.clone()));
+                    return Transition::Push(LaneEditor::new_state(ctx, app, l, self.mode.clone()));
                 }
             }
         }
@@ -353,7 +364,7 @@ impl State<App> for EditMode {
         match self.tool_panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "back" => self.quit(ctx, app),
-                "settings" => Transition::Push(OptionsPanel::new(ctx, app)),
+                "settings" => Transition::Push(OptionsPanel::new_state(ctx, app)),
                 _ => unreachable!(),
             },
             _ => Transition::Keep,
@@ -382,7 +393,7 @@ pub struct SaveEdits {
 }
 
 impl SaveEdits {
-    pub fn new<I: Into<String>>(
+    pub fn new_state<I: Into<String>>(
         ctx: &mut EventCtx,
         app: &App,
         title: I,
@@ -397,7 +408,7 @@ impl SaveEdits {
         };
         let mut save = SaveEdits {
             current_name: initial_name.clone(),
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Line(title).small_heading().into_widget(ctx),
                 Widget::row(vec![
                     "Name:".text_widget(ctx).centered_vert(),
@@ -492,8 +503,8 @@ impl SaveEdits {
 
 impl State<App> for SaveEdits {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "Save" | "Overwrite existing proposal" => {
                     let mut edits = app.primary.map.get_edits().clone();
                     edits.edits_name = self.current_name.clone();
@@ -513,8 +524,7 @@ impl State<App> for SaveEdits {
                     return self.cancel.take().unwrap();
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
         let name = self.panel.text_box("filename");
         if name != self.current_name {
@@ -537,7 +547,7 @@ struct LoadEdits {
 }
 
 impl LoadEdits {
-    fn new(ctx: &mut EventCtx, app: &App, mode: GameplayMode) -> Box<dyn State<App>> {
+    fn new_state(ctx: &mut EventCtx, app: &App, mode: GameplayMode) -> Box<dyn State<App>> {
         let current_edits_name = &app.primary.map.get_edits().edits_name;
         let your_edits = vec![
             Line("Your proposals").small_heading().into_widget(ctx),
@@ -562,7 +572,7 @@ impl LoadEdits {
 
         Box::new(LoadEdits {
             mode,
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Load proposal").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
@@ -625,7 +635,7 @@ impl State<App> for LoadEdits {
                             Err(err) => {
                                 println!("Can't load {}: {}", path, err);
                                 Transition::Multi(vec![
-                                    Transition::Replace(LoadEdits::new(
+                                    Transition::Replace(LoadEdits::new_state(
                                         ctx,
                                         app,
                                         self.mode.clone(),
@@ -633,7 +643,7 @@ impl State<App> for LoadEdits {
                                     // TODO Menu draws at a weird Z-order to deal with tooltips, so
                                     // now the menu underneath
                                     // bleeds through
-                                    Transition::Push(PopupMsg::new(
+                                    Transition::Push(PopupMsg::new_state(
                                         ctx,
                                         "Error",
                                         vec![format!("Can't load {}", path), err.to_string()],
@@ -655,7 +665,7 @@ impl State<App> for LoadEdits {
 }
 
 fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Panel {
-    Panel::new(Widget::col(vec![
+    Panel::new_builder(Widget::col(vec![
         Line("Editing map")
             .small_heading()
             .into_widget(ctx)
@@ -765,13 +775,13 @@ pub fn maybe_edit_intersection(
         && mode.can_edit_stop_signs()
         && app.per_obj.left_click(ctx, "edit stop signs")
     {
-        return Some(StopSignEditor::new(ctx, app, id, mode.clone()));
+        return Some(StopSignEditor::new_state(ctx, app, id, mode.clone()));
     }
 
     if app.primary.map.maybe_get_traffic_signal(id).is_some()
         && app.per_obj.left_click(ctx, "edit traffic signal")
     {
-        return Some(TrafficSignalEditor::new(
+        return Some(TrafficSignalEditor::new_state(
             ctx,
             app,
             btreeset! {id},
@@ -856,7 +866,7 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Panel {
         }
     }
 
-    Panel::new(Widget::col(col))
+    Panel::new_builder(Widget::col(col))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx)
 }
@@ -876,10 +886,10 @@ pub struct ConfirmDiscard {
 }
 
 impl ConfirmDiscard {
-    pub fn new(ctx: &mut EventCtx, discard: Box<dyn Fn(&mut App)>) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, discard: Box<dyn Fn(&mut App)>) -> Box<dyn State<App>> {
         Box::new(ConfirmDiscard {
             discard,
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Image::untinted("system/assets/tools/alert.svg")
                         .into_widget(ctx)

@@ -159,7 +159,7 @@ impl Car {
                                     "Body for onstreet {} at {} broken: {}",
                                     self.vehicle.id, now, err
                                 );
-                                raw_body.clone()
+                                raw_body
                             }
                         }
                     }
@@ -188,7 +188,7 @@ impl Car {
                                     "Body and driveway for {} at {} broken: {}",
                                     self.vehicle.id, now, err
                                 );
-                                raw_body.clone()
+                                raw_body
                             }
                         };
                         // Then make the car creep along the added length of the driveway (which
@@ -231,10 +231,10 @@ impl Car {
                 // Changing color for idling buses is helpful
                 CarState::IdlingAtStop(_, _) => CarStatus::Parked,
             },
-            show_parking_intent: match (self.is_parking(), &self.state) {
-                (true, _) | (_, CarState::Unparking(_, _, _)) => true,
-                _ => false,
-            },
+            show_parking_intent: matches!(
+                (self.is_parking(), &self.state),
+                (true, _) | (_, CarState::Unparking(_, _, _))
+            ),
             on: self.router.head(),
             partly_on,
             label: if self.vehicle.vehicle_type == VehicleType::Bus

@@ -26,7 +26,7 @@ impl CensusArea {
 
         let bounding_rect = geo_map_area
             .bounding_rect()
-            .ok_or(anyhow!("missing bound rect"))?;
+            .ok_or_else(|| anyhow!("missing bound rect"))?;
         fgb.select_bbox(
             bounding_rect.min().x,
             bounding_rect.min().y,
@@ -58,7 +58,7 @@ impl CensusArea {
                 let geo_polygon = multi_poly
                     .0
                     .first()
-                    .ok_or(anyhow!("multipolygon was unexpectedly empty"))?;
+                    .ok_or_else(|| anyhow!("multipolygon was unexpectedly empty"))?;
                 if multi_poly.0.len() > 1 {
                     warn!(
                         "dropping {} extra polygons from census area: {:?}",

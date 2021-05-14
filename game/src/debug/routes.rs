@@ -27,11 +27,11 @@ pub struct RouteExplorer {
 }
 
 impl RouteExplorer {
-    pub fn new(ctx: &mut EventCtx, app: &App, start: TripEndpoint) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App, start: TripEndpoint) -> Box<dyn State<App>> {
         Box::new(RouteExplorer {
             start,
             goal: None,
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Route explorer").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
@@ -54,11 +54,10 @@ impl RouteExplorer {
 
         if let Some((ref goal, _, ref mut preview)) = self.goal {
             *preview = Drawable::empty(ctx);
-            if let Some(polygon) =
-                TripEndpoint::path_req(self.start.clone(), goal.clone(), mode, &app.primary.map)
-                    .and_then(|req| app.primary.map.pathfind_with_params(req, &params).ok())
-                    .and_then(|path| path.trace(&app.primary.map))
-                    .map(|pl| pl.make_polygons(NORMAL_LANE_THICKNESS))
+            if let Some(polygon) = TripEndpoint::path_req(self.start, *goal, mode, &app.primary.map)
+                .and_then(|req| app.primary.map.pathfind_with_params(req, &params).ok())
+                .and_then(|path| path.trace(&app.primary.map))
+                .map(|pl| pl.make_polygons(NORMAL_LANE_THICKNESS))
             {
                 *preview = GeomBatch::from(vec![(Color::PURPLE, polygon)]).upload(ctx);
             }
@@ -94,7 +93,7 @@ impl State<App> for RouteExplorer {
                     self.recalc_paths(ctx, app);
                 }
                 "All routes" => {
-                    return Transition::Replace(AllRoutesExplorer::new(ctx, app));
+                    return Transition::Replace(AllRoutesExplorer::new_state(ctx, app));
                 }
                 _ => unreachable!(),
             },
@@ -279,7 +278,7 @@ struct AllRoutesExplorer {
 }
 
 impl AllRoutesExplorer {
-    fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
+    fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         // Tuning the differential scale is hard enough; always use day mode.
         app.change_color_scheme(ctx, ColorSchemeChoice::DayMode);
 
@@ -307,7 +306,7 @@ impl AllRoutesExplorer {
         let (unzoomed, zoomed) = colorer.build(ctx);
 
         Box::new(AllRoutesExplorer {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("All routes explorer").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
@@ -340,8 +339,8 @@ impl State<App> for AllRoutesExplorer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "close" => {
                     ctx.loading_screen("revert routing params to defaults", |_, mut timer| {
                         app.primary
@@ -404,10 +403,14 @@ impl State<App> for AllRoutesExplorer {
                                 .max()
                                 .unwrap() as f64;
                             for (r, before, after) in comparisons {
-                                if after < before {
-                                    colorer.add_r(r, less.eval((before - after) as f64 / diff));
-                                } else if before < after {
-                                    colorer.add_r(r, more.eval((after - before) as f64 / diff));
+                                match after.cmp(&before) {
+                                    std::cmp::Ordering::Less => {
+                                        colorer.add_r(r, less.eval((before - after) as f64 / diff));
+                                    }
+                                    std::cmp::Ordering::Greater => {
+                                        colorer.add_r(r, more.eval((after - before) as f64 / diff));
+                                    }
+                                    std::cmp::Ordering::Equal => {}
                                 }
                             }
                             let (unzoomed, zoomed) = colorer.build(ctx);
@@ -417,8 +420,7 @@ impl State<App> for AllRoutesExplorer {
                     );
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         if ctx.redo_mouseover() {
@@ -474,20 +476,22 @@ fn calculate_demand(app: &App, requests: &Vec<PathRequest>, timer: &mut Timer) -
 }
 
 fn cmp_count(after: usize, before: usize) -> Vec<TextSpan> {
-    if after == before {
-        vec![Line("same")]
-    } else if after < before {
-        vec![
-            Line(prettyprint_usize(before - after)).fg(Color::GREEN),
-            Line(" less"),
-        ]
-    } else if after > before {
-        vec![
-            Line(prettyprint_usize(after - before)).fg(Color::RED),
-            Line(" more"),
-        ]
-    } else {
-        unreachable!()
+    match after.cmp(&before) {
+        std::cmp::Ordering::Equal => {
+            vec![Line("same")]
+        }
+        std::cmp::Ordering::Less => {
+            vec![
+                Line(prettyprint_usize(before - after)).fg(Color::GREEN),
+                Line(" less"),
+            ]
+        }
+        std::cmp::Ordering::Greater => {
+            vec![
+                Line(prettyprint_usize(after - before)).fg(Color::RED),
+                Line(" more"),
+            ]
+        }
     }
 }
 
@@ -530,7 +534,7 @@ impl PathCostDebugger {
             draw_path: ctx.upload(batch),
             costs: all_costs,
             tooltip: None,
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Path cost debugger").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
@@ -552,7 +556,7 @@ impl State<App> for PathCostDebugger {
             if let Some(ID::Road(r)) = app.mouseover_unzoomed_roads_and_intersections(ctx) {
                 // TODO In lieu of mousing over each half of a road, just show both costs.
                 let mut txt = Text::new();
-                for dir in vec![Direction::Fwd, Direction::Back] {
+                for &dir in &[Direction::Fwd, Direction::Back] {
                     if let Some(cost) = self.costs.get(&DirectedRoadID { id: r, dir }) {
                         txt.add_line(format!("Cost {:?}: {}", dir, cost));
                     } else {
@@ -563,14 +567,13 @@ impl State<App> for PathCostDebugger {
             }
         }
 
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         Transition::Keep

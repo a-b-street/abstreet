@@ -14,6 +14,8 @@ pub struct Duration(f64);
 
 // By construction, Duration is a finite f64 with trimmed precision.
 impl Eq for Duration {}
+
+#[allow(clippy::derive_ord_xor_partial_ord)] // false positive
 impl Ord for Duration {
     fn cmp(&self, other: &Duration) -> cmp::Ordering {
         self.partial_cmp(other).unwrap()
@@ -125,12 +127,10 @@ impl Duration {
     /// If two durations are within this amount, they'll print as if they're the same.
     pub fn epsilon_eq(self, other: Duration) -> bool {
         let eps = Duration::seconds(0.1);
-        if self > other {
-            self - other < eps
-        } else if self < other {
-            other - self < eps
-        } else {
-            true
+        match self.cmp(&other) {
+            cmp::Ordering::Greater => self - other < eps,
+            cmp::Ordering::Less => other - self < eps,
+            cmp::Ordering::Equal => true,
         }
     }
 

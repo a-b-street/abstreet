@@ -36,8 +36,8 @@ pub struct Picker {
 }
 
 impl Picker {
-    pub fn new(ctx: &mut EventCtx, app: &App, level: Level) -> Box<dyn State<App>> {
-        MapLoader::new(
+    pub fn new_state(ctx: &mut EventCtx, app: &App, level: Level) -> Box<dyn State<App>> {
+        MapLoader::new_state(
             ctx,
             app,
             level.map.clone(),
@@ -72,7 +72,7 @@ impl Picker {
                     Line("stores").fg(app.session.colors.store),
                 ]);
 
-                let instructions_panel = Panel::new(Widget::col(vec![
+                let instructions_panel = Panel::new_builder(Widget::col(vec![
                     txt.into_widget(ctx),
                     Widget::row(vec![
                         GeomBatch::load_svg_bytes(
@@ -157,10 +157,10 @@ impl State<App> for Picker {
 
         if ctx.redo_mouseover() {
             app.current_selection = app.mouseover_unzoomed_buildings(ctx).filter(|id| {
-                match self.bldgs.buildings[&id.as_building()] {
-                    BldgState::Undelivered(_) => true,
-                    _ => false,
-                }
+                matches!(
+                    self.bldgs.buildings[&id.as_building()],
+                    BldgState::Undelivered(_)
+                )
             });
         }
         if let Some(ID::Building(b)) = app.current_selection {
@@ -174,8 +174,8 @@ impl State<App> for Picker {
             }
         }
 
-        match self.upzone_panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.upzone_panel.event(ctx) {
+            match x.as_ref() {
                 "Start game" => {
                     app.current_selection = None;
                     app.session
@@ -183,7 +183,7 @@ impl State<App> for Picker {
                         .set(self.level.title.clone(), self.current_picks.clone());
                     app.session.save();
 
-                    return Transition::Replace(Game::new(
+                    return Transition::Replace(Game::new_state(
                         ctx,
                         app,
                         self.level.clone(),
@@ -203,16 +203,12 @@ impl State<App> for Picker {
                     return explain_upzoning(ctx);
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
-        match self.vehicle_panel.event(ctx) {
-            Outcome::Clicked(x) => {
-                app.session.current_vehicle = x;
-                self.vehicle_panel = make_vehicle_panel(ctx, app);
-            }
-            _ => {}
+        if let Outcome::Clicked(x) = self.vehicle_panel.event(ctx) {
+            app.session.current_vehicle = x;
+            self.vehicle_panel = make_vehicle_panel(ctx, app);
         }
 
         app.session.update_music(ctx);
@@ -269,7 +265,7 @@ fn make_vehicle_panel(ctx: &mut EventCtx, app: &App) -> Panel {
     let vehicle = Vehicle::get(&app.session.current_vehicle);
     let (max_speed, max_energy) = Vehicle::max_stats();
 
-    Panel::new(Widget::col(vec![
+    Panel::new_builder(Widget::col(vec![
         Line("Pick Santa's vehicle")
             .small_heading()
             .into_widget(ctx),
@@ -303,7 +299,7 @@ fn make_vehicle_panel(ctx: &mut EventCtx, app: &App) -> Panel {
 fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel {
     // Don't overwhelm players on the very first level.
     if app.session.upzones_unlocked == 0 {
-        return Panel::new(
+        return Panel::new_builder(
             ctx.style()
                 .btn_solid_primary
                 .text("Start game")
@@ -318,7 +314,7 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
         .build(ctx);
     }
 
-    Panel::new(Widget::col(vec![
+    Panel::new_builder(Widget::col(vec![
         Widget::row(vec![
             Line("Upzoning").small_heading().into_widget(ctx),
             ctx.style()
@@ -372,7 +368,7 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
 }
 
 fn explain_upzoning(ctx: &mut EventCtx) -> Transition {
-    Transition::Push(PopupMsg::new(
+    Transition::Push(PopupMsg::new_state(
         ctx,
         "Upzoning power unlocked",
         vec![

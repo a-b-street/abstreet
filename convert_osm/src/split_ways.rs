@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{hash_map::Entry, HashMap};
 
 use abstutil::{Counter, Timer};
 use geom::{Distance, HashablePt2D, PolyLine, Pt2D};
@@ -20,7 +20,7 @@ pub fn split_up_roads(
     let mut pt_to_intersection: HashMap<HashablePt2D, osm::NodeID> = HashMap::new();
 
     {
-        let mut roads = std::mem::replace(&mut input.roads, Vec::new());
+        let mut roads = std::mem::take(&mut input.roads);
         roads.retain(|(id, r)| {
             if should_collapse_roundabout(r) {
                 info!("Collapsing tiny roundabout {}", id);
@@ -46,10 +46,11 @@ pub fn split_up_roads(
             let count = counts_per_pt.inc(pt);
 
             // All start and endpoints of ways are also intersections.
+            #[allow(clippy::collapsible_if)]
             if count == 2 || idx == 0 || idx == r.center_points.len() - 1 {
-                if !pt_to_intersection.contains_key(&pt) {
+                if let Entry::Vacant(e) = pt_to_intersection.entry(pt) {
                     let id = input.osm_node_ids[&pt];
-                    pt_to_intersection.insert(pt, id);
+                    e.insert(id);
                 }
             }
         }
@@ -123,7 +124,7 @@ pub fn split_up_roads(
                     }
                 }
 
-                r.center_points = dedupe_angles(std::mem::replace(&mut pts, Vec::new()));
+                r.center_points = dedupe_angles(std::mem::take(&mut pts));
                 // Start a new road
                 map.roads.insert(id, r.clone());
                 r.osm_tags.remove(osm::ENDPT_FWD);
@@ -238,20 +239,16 @@ pub fn split_up_roads(
 
 // TODO Consider doing this in PolyLine::new always. extend() there does this too.
 fn dedupe_angles(pts: Vec<Pt2D>) -> Vec<Pt2D> {
-    let mut result = Vec::new();
-    for (idx, pt) in pts.into_iter().enumerate() {
+    let mut result: Vec<Pt2D> = Vec::new();
+    for pt in pts {
         let l = result.len();
-        if idx == 0 || idx == 1 {
-            result.push(pt);
-        } else if result[l - 2]
+        if l >= 2 && result[l - 2]
             .angle_to(result[l - 1])
             .approx_eq(result[l - 1].angle_to(pt), 0.1)
         {
             result.pop();
-            result.push(pt);
-        } else {
-            result.push(pt);
         }
+        result.push(pt);
     }
     result
 }

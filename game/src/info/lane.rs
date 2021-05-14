@@ -91,7 +91,7 @@ fn info_body(ctx: &EventCtx, app: &App, id: LaneID) -> Widget {
             Line("Parking spots available")
                 .small_heading()
                 .into_widget(ctx),
-            LinePlot::new(
+            LinePlot::new_widget(
                 ctx,
                 series,
                 PlotOptions {
@@ -125,9 +125,7 @@ fn debug_body(ctx: &EventCtx, app: &App, id: LaneID) -> Widget {
     let l = map.get_l(id);
     let r = map.get_r(l.parent);
 
-    let mut kv = Vec::new();
-
-    kv.push(("Parent".to_string(), r.id.to_string()));
+    let mut kv = vec![("Parent".to_string(), r.id.to_string())];
 
     if l.lane_type.is_for_moving_vehicles() {
         kv.push((

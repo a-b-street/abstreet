@@ -20,9 +20,9 @@ struct PreviewTrafficSignal {
 }
 
 impl PreviewTrafficSignal {
-    fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         Box::new(PreviewTrafficSignal {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 "Previewing traffic signal".text_widget(ctx),
                 ctx.style()
                     .btn_outline
@@ -41,15 +41,14 @@ impl State<App> for PreviewTrafficSignal {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "back to editing" => {
                     app.primary.clear_sim();
                     return Transition::Pop;
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         // TODO Ideally here reset to midnight would jump back to when the preview started?
@@ -83,7 +82,7 @@ pub fn make_previewer(
         app.primary.suspended_sim.as_ref().unwrap().time()
     );
 
-    ChooseSomething::new(
+    ChooseSomething::new_state(
         ctx,
         "Preview the traffic signal with what kind of traffic?",
         Choice::strings(vec![random, right_now]),
@@ -115,7 +114,7 @@ pub fn make_previewer(
                     .sim
                     .handle_live_edited_traffic_signals(&app.primary.map);
             }
-            Transition::Replace(PreviewTrafficSignal::new(ctx, app))
+            Transition::Replace(PreviewTrafficSignal::new_state(ctx, app))
         }),
     )
 }

@@ -175,7 +175,7 @@ fn make_controls(ctx: &mut EventCtx, app: &App, opts: &Options, legend: Option<W
         col.extend(o.to_controls(ctx, legend.unwrap()));
     }
 
-    Panel::new(Widget::col(col))
+    Panel::new_builder(Widget::col(col))
         .aligned_pair(PANEL_PLACEMENT)
         .build(ctx)
 }

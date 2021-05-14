@@ -102,7 +102,7 @@ impl MainState {
             App { model },
             MainState {
                 mode: Mode::Viewing,
-                panel: Panel::new(Widget::col(vec![
+                panel: Panel::new_builder(Widget::col(vec![
                     Widget::row(vec![
                         Line("Map Editor").small_heading().into_widget(ctx),
                         ctx.style().btn_close_widget(ctx),
@@ -245,7 +245,7 @@ impl State<App> for MainState {
                             app.model.merge_r(ctx, r);
                             app.model.world.handle_mouseover(ctx);
                         } else if ctx.normal_left_click() {
-                            return Transition::Push(edit::EditRoad::new(ctx, app, r));
+                            return Transition::Push(edit::EditRoad::new_state(ctx, app, r));
                         }
 
                         let mut txt = Text::new();

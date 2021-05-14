@@ -43,7 +43,7 @@ pub enum Value {
 }
 
 impl ParkingMapper {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         ParkingMapper::make(ctx, app, Show::TODO, BTreeMap::new())
     }
 
@@ -114,11 +114,7 @@ impl ParkingMapper {
                 r.osm_tags.contains_key(osm::INFERRED_PARKING)
                     && !data.contains_key(&r.orig_id.osm_way_id)
             });
-            if match (show, is_todo) {
-                (Show::TODO, true) => true,
-                (Show::Done, false) => true,
-                _ => false,
-            } {
+            if matches!((show, is_todo), (Show::TODO, true) | (Show::Done, false)) {
                 batch.push(color, i.polygon.clone());
             }
         }
@@ -126,7 +122,7 @@ impl ParkingMapper {
         Box::new(ParkingMapper {
             draw_layer: ctx.upload(batch),
             show,
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Line("Parking mapper").small_heading().into_widget(ctx),
                 ctx.style()
                     .btn_popup_icon_text(
@@ -269,7 +265,7 @@ impl State<App> for ParkingMapper {
             }
         }
         if self.selected.is_some() && ctx.normal_left_click() {
-            return Transition::Push(ChangeWay::new(
+            return Transition::Push(ChangeWay::new_state(
                 ctx,
                 app,
                 &self.selected.as_ref().unwrap().0,
@@ -312,7 +308,7 @@ impl State<App> for ParkingMapper {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Generate OsmChange file" => {
                     if self.data.is_empty() {
-                        return Transition::Push(PopupMsg::new(
+                        return Transition::Push(PopupMsg::new_state(
                             ctx,
                             "No changes yet",
                             vec!["Map some parking first"],
@@ -326,18 +322,20 @@ impl State<App> for ParkingMapper {
                             timer,
                         )
                     }) {
-                        Ok(()) => Transition::Push(PopupMsg::new(
+                        Ok(()) => Transition::Push(PopupMsg::new_state(
                             ctx,
                             "Diff generated",
                             vec!["diff.osc created. Load it in JOSM, verify, and upload!"],
                         )),
-                        Err(err) => {
-                            Transition::Push(PopupMsg::new(ctx, "Error", vec![format!("{}", err)]))
-                        }
+                        Err(err) => Transition::Push(PopupMsg::new_state(
+                            ctx,
+                            "Error",
+                            vec![format!("{}", err)],
+                        )),
                     };
                 }
                 "change map" => {
-                    return Transition::Push(CityPicker::new(
+                    return Transition::Push(CityPicker::new_state(
                         ctx,
                         app,
                         Box::new(|ctx, app| {
@@ -387,7 +385,7 @@ struct ChangeWay {
 }
 
 impl ChangeWay {
-    fn new(
+    fn new_state(
         ctx: &mut EventCtx,
         app: &App,
         selected: &HashSet<RoadID>,
@@ -419,7 +417,7 @@ impl ChangeWay {
         }
 
         Box::new(ChangeWay {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("What kind of parking does this road have?")
                         .small_heading()
@@ -460,7 +458,7 @@ impl State<App> for ChangeWay {
                 _ => {
                     let value = self.panel.take_menu_choice::<Value>("menu");
                     if value == Value::Complicated {
-                        Transition::Replace(PopupMsg::new(
+                        Transition::Replace(PopupMsg::new_state(
                             ctx,
                             "Complicated road",
                             vec![
@@ -607,7 +605,7 @@ fn find_divided_highways(app: &App) -> HashSet<RoadID> {
     let mut found = HashSet::new();
     for r1 in oneways {
         let r1 = map.get_r(r1);
-        for dist in vec![
+        for &dist in &[
             Distance::ZERO,
             r1.center_pts.length() / 2.0,
             r1.center_pts.length(),

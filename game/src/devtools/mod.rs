@@ -25,11 +25,11 @@ pub struct DevToolsMode {
 }
 
 impl DevToolsMode {
-    pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         app.change_color_scheme(ctx, ColorSchemeChoice::DayMode);
 
         Box::new(DevToolsMode {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Internal dev tools").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
@@ -90,13 +90,13 @@ impl DevToolsMode {
 
 impl State<App> for DevToolsMode {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
                 "edit a polygon" => {
-                    return Transition::Push(ChooseSomething::new(
+                    return Transition::Push(ChooseSomething::new_state(
                         ctx,
                         "Choose a polygon",
                         // This directory won't exist on the web or for binary releases, only for
@@ -112,7 +112,7 @@ impl State<App> for DevToolsMode {
                         .map(|path| Choice::new(abstutil::basename(&path), path))
                         .collect(),
                         Box::new(|path, ctx, _| match LonLat::read_osmosis_polygon(&path) {
-                            Ok(pts) => Transition::Replace(polygon::PolygonEditor::new(
+                            Ok(pts) => Transition::Replace(polygon::PolygonEditor::new_state(
                                 ctx,
                                 abstutil::basename(path),
                                 pts,
@@ -125,14 +125,14 @@ impl State<App> for DevToolsMode {
                     ));
                 }
                 "draw a polygon" => {
-                    return Transition::Push(polygon::PolygonEditor::new(
+                    return Transition::Push(polygon::PolygonEditor::new_state(
                         ctx,
                         "name goes here".to_string(),
                         Vec::new(),
                     ));
                 }
                 "load scenario" => {
-                    return Transition::Push(ChooseSomething::new(
+                    return Transition::Push(ChooseSomething::new_state(
                         ctx,
                         "Choose a scenario",
                         Choice::strings(abstio::list_all_objects(abstio::path_all_scenarios(
@@ -143,34 +143,35 @@ impl State<App> for DevToolsMode {
                                 abstio::path_scenario(app.primary.map.get_name(), &s),
                                 &mut Timer::throwaway(),
                             );
-                            Transition::Replace(scenario::ScenarioManager::new(scenario, ctx, app))
+                            Transition::Replace(scenario::ScenarioManager::new_state(
+                                scenario, ctx, app,
+                            ))
                         }),
                     ));
                 }
                 "view KML" => {
-                    return Transition::Push(kml::ViewKML::new(ctx, app, None));
+                    return Transition::Push(kml::ViewKML::new_state(ctx, app, None));
                 }
                 "story maps" => {
-                    return Transition::Push(story::StoryMapEditor::new(ctx));
+                    return Transition::Push(story::StoryMapEditor::new_state(ctx));
                 }
                 "collisions" => {
-                    return Transition::Push(collisions::CollisionsViewer::new(ctx, app));
+                    return Transition::Push(collisions::CollisionsViewer::new_state(ctx, app));
                 }
                 "change map" => {
-                    return Transition::Push(CityPicker::new(
+                    return Transition::Push(CityPicker::new_state(
                         ctx,
                         app,
                         Box::new(|ctx, app| {
                             Transition::Multi(vec![
                                 Transition::Pop,
-                                Transition::Replace(DevToolsMode::new(ctx, app)),
+                                Transition::Replace(DevToolsMode::new_state(ctx, app)),
                             ])
                         }),
                     ));
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         Transition::Keep

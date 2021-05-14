@@ -76,7 +76,7 @@ impl DrawCar {
                 tip_pt.project_away(CAR_WIDTH / 4.0, tip_angle.rotate_degs(90.0)),
                 corner_pt.project_away(CAR_WIDTH / 2.0, corner_angle.rotate_degs(90.0)),
             ]) {
-                Ok(front) => front.to_polygon().union(thick_line),
+                Ok(front) => front.into_polygon().union(thick_line),
                 Err(_) => thick_line,
             }
         };

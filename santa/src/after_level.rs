@@ -19,7 +19,7 @@ pub struct Strategize {
 }
 
 impl Strategize {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         app: &mut App,
         score: usize,
@@ -93,7 +93,7 @@ impl Strategize {
 
         batch.push(Color::CYAN, path.render(Distance::meters(2.0)));
 
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             txt.into_widget(ctx),
             ctx.style()
                 .btn_outline
@@ -113,7 +113,7 @@ impl Strategize {
         ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
         .build(ctx);
-        <dyn SimpleState<_>>::new(
+        <dyn SimpleState<_>>::new_state(
             panel,
             Box::new(Strategize {
                 unlock_messages,
@@ -129,10 +129,10 @@ impl SimpleState<App> for Strategize {
             "Back to title screen" => {
                 let mut transitions = vec![
                     Transition::Pop,
-                    Transition::Replace(TitleScreen::new(ctx, app)),
+                    Transition::Replace(TitleScreen::new_state(ctx, app)),
                 ];
                 if let Some(msgs) = self.unlock_messages.take() {
-                    transitions.push(Transition::Push(PopupMsg::new(
+                    transitions.push(Transition::Push(PopupMsg::new_state(
                         ctx,
                         "Level complete!",
                         msgs,
@@ -159,7 +159,7 @@ impl SimpleState<App> for Strategize {
 pub struct Results;
 
 impl Results {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         app: &mut App,
         score: usize,
@@ -194,8 +194,8 @@ impl Results {
             }
         }
 
-        <dyn SimpleState<_>>::new(
-            Panel::new(Widget::col(vec![
+        <dyn SimpleState<_>>::new_state(
+            Panel::new_builder(Widget::col(vec![
                 txt.into_widget(ctx),
                 ctx.style()
                     .btn_solid_primary

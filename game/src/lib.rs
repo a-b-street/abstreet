@@ -1,3 +1,7 @@
+// Disable some noisy lints
+#![allow(clippy::ptr_arg, clippy::borrowed_box)]
+#![allow(clippy::too_many_arguments, clippy::type_complexity)]
+
 #[macro_use]
 extern crate anyhow;
 #[macro_use]
@@ -205,7 +209,7 @@ fn setup_app(
             session: crate::app::SessionState::empty(),
         };
         let map_name = MapName::from_path(&app.primary.current_flags.sim_flags.load).unwrap();
-        let states = vec![map_gui::load::MapLoader::new(
+        let states = vec![map_gui::load::MapLoader::new_state(
             ctx,
             &app,
             map_name,

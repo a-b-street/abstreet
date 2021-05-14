@@ -116,7 +116,7 @@ pub fn read(path: &str, input_gps_bounds: &GPSBounds, timer: &mut Timer) -> Resu
                     }
                 }
                 if !nodes.is_empty() {
-                    doc.ways.insert(id, Way { tags, nodes, pts });
+                    doc.ways.insert(id, Way { nodes, pts, tags });
                 }
             }
             "relation" => {

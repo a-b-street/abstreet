@@ -88,7 +88,7 @@ impl EditCmd {
 }
 
 impl PermanentEditCmd {
-    pub fn to_cmd(self, map: &Map) -> Result<EditCmd> {
+    pub fn into_cmd(self, map: &Map) -> Result<EditCmd> {
         match self {
             PermanentEditCmd::ChangeRoad { r, new, old } => {
                 let id = map.find_r_by_osm_id(r)?;
@@ -110,10 +110,10 @@ impl PermanentEditCmd {
                 Ok(EditCmd::ChangeIntersection {
                     i: id,
                     new: new
-                        .from_permanent(id, map)
+                        .with_permanent(id, map)
                         .with_context(|| format!("new ChangeIntersection of {} invalid", i))?,
                     old: old
-                        .from_permanent(id, map)
+                        .with_permanent(id, map)
                         .with_context(|| format!("old ChangeIntersection of {} invalid", i))?,
                 })
             }
@@ -124,7 +124,7 @@ impl PermanentEditCmd {
             } => {
                 let id = map
                     .find_br(osm_rel_id)
-                    .ok_or(anyhow!("can't find {}", osm_rel_id))?;
+                    .ok_or_else(|| anyhow!("can't find {}", osm_rel_id))?;
                 Ok(EditCmd::ChangeRouteSchedule { id, old, new })
             }
         }
@@ -150,7 +150,7 @@ impl MapEdits {
 impl PermanentMapEdits {
     /// Transform permanent edits to MapEdits, looking up the map IDs by the hopefully stabler OSM
     /// IDs. Validate that the basemap hasn't changed in important ways.
-    pub fn to_edits(self, map: &Map) -> Result<MapEdits> {
+    pub fn into_edits(self, map: &Map) -> Result<MapEdits> {
         let mut edits = MapEdits {
             edits_name: self.edits_name,
             proposal_description: self.proposal_description,
@@ -158,7 +158,7 @@ impl PermanentMapEdits {
             commands: self
                 .commands
                 .into_iter()
-                .map(|cmd| cmd.to_cmd(map))
+                .map(|cmd| cmd.into_cmd(map))
                 .collect::<Result<Vec<EditCmd>>>()?,
             merge_zones: self.merge_zones,
 
@@ -172,7 +172,7 @@ impl PermanentMapEdits {
 
     /// Transform permanent edits to MapEdits, looking up the map IDs by the hopefully stabler OSM
     /// IDs. Strip out commands that're broken.
-    pub fn to_edits_permissive(self, map: &Map) -> MapEdits {
+    pub fn into_edits_permissive(self, map: &Map) -> MapEdits {
         let mut edits = MapEdits {
             edits_name: self.edits_name,
             proposal_description: self.proposal_description,
@@ -180,7 +180,7 @@ impl PermanentMapEdits {
             commands: self
                 .commands
                 .into_iter()
-                .filter_map(|cmd| cmd.to_cmd(map).ok())
+                .filter_map(|cmd| cmd.into_cmd(map).ok())
                 .collect(),
             merge_zones: self.merge_zones,
 
@@ -212,7 +212,7 @@ impl EditIntersection {
 }
 
 impl PermanentEditIntersection {
-    fn from_permanent(self, i: IntersectionID, map: &Map) -> Result<EditIntersection> {
+    fn with_permanent(self, i: IntersectionID, map: &Map) -> Result<EditIntersection> {
         match self {
             PermanentEditIntersection::StopSign { must_stop } => {
                 let mut translated_must_stop = BTreeMap::new();

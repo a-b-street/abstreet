@@ -22,7 +22,7 @@ pub struct TripSummaries {
 }
 
 impl TripSummaries {
-    pub fn new(ctx: &mut EventCtx, app: &App, filter: Filter) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App, filter: Filter) -> Box<dyn State<App>> {
         let mut filters = vec!["Filters".text_widget(ctx)];
         for mode in TripMode::all() {
             filters.push(Toggle::colored_checkbox(
@@ -52,7 +52,7 @@ impl TripSummaries {
         );
 
         Box::new(TripSummaries {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 DashTab::TripSummaries.picker(ctx, app),
                 Widget::row(vec![
                     Widget::col(filters).section(ctx),
@@ -78,17 +78,17 @@ impl State<App> for TripSummaries {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Export to CSV" => {
                     return Transition::Push(match export_times(app) {
-                        Ok(path) => PopupMsg::new(
+                        Ok(path) => PopupMsg::new_state(
                             ctx,
                             "Data exported",
                             vec![format!("Data exported to {}", path)],
                         ),
-                        Err(err) => PopupMsg::new(ctx, "Export failed", vec![err.to_string()]),
+                        Err(err) => {
+                            PopupMsg::new_state(ctx, "Export failed", vec![err.to_string()])
+                        }
                     });
                 }
-                "close" => {
-                    return Transition::Pop;
-                }
+                "close" => Transition::Pop,
                 _ => unreachable!(),
             },
             Outcome::Changed(_) => {
@@ -105,7 +105,7 @@ impl State<App> for TripSummaries {
                         filter.modes.insert(m);
                     }
                 }
-                Transition::Replace(TripSummaries::new(ctx, app, filter))
+                Transition::Replace(TripSummaries::new_state(ctx, app, filter))
             }
             _ => Transition::Keep,
         }
@@ -223,7 +223,7 @@ fn scatter_plot(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
         Line("Trip time before and after")
             .small_heading()
             .into_widget(ctx),
-        CompareTimes::new(
+        CompareTimes::new_widget(
             ctx,
             format!(
                 "Trip time before \"{}\"",
@@ -302,12 +302,16 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
             idx -= 1;
         }
 
-        if a > b {
-            losses_per_bucket[idx].0 += a - b;
-            losses_per_bucket[idx].1 += 1;
-        } else if a < b {
-            savings_per_bucket[idx].0 += b - a;
-            savings_per_bucket[idx].1 += 1;
+        match a.cmp(&b) {
+            std::cmp::Ordering::Greater => {
+                losses_per_bucket[idx].0 += a - b;
+                losses_per_bucket[idx].1 += 1;
+            }
+            std::cmp::Ordering::Less => {
+                savings_per_bucket[idx].0 += b - a;
+                savings_per_bucket[idx].1 += 1;
+            }
+            std::cmp::Ordering::Equal => {}
         }
     }
     let max_y = losses_per_bucket
@@ -323,10 +327,10 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
     let mut outlines = Vec::new();
     let mut tooltips = Vec::new();
     let mut x1 = 0.0;
-    let mut idx = 0;
-    for ((total_savings, num_savings), (total_loss, num_loss)) in savings_per_bucket
+    for (idx, ((total_savings, num_savings), (total_loss, num_loss))) in savings_per_bucket
         .into_iter()
         .zip(losses_per_bucket.into_iter())
+        .enumerate()
     {
         if num_savings > 0 {
             let height = (total_savings / max_y) * max_bar_height;
@@ -370,7 +374,6 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
             ));
         }
         x1 += bar_width;
-        idx += 1;
     }
     batch.extend(Color::BLACK, outlines);
 
@@ -383,7 +386,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
         Line("Total Time Saved (faster)")
             .secondary()
             .into_widget(ctx),
-        DrawWithTooltips::new(ctx, batch, tooltips, Box::new(|_| GeomBatch::new())),
+        DrawWithTooltips::new_widget(ctx, batch, tooltips, Box::new(|_| GeomBatch::new())),
         Line("Total Time Lost (slower)")
             .secondary()
             .into_widget(ctx),

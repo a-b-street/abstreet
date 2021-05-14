@@ -104,8 +104,8 @@ impl Inner {
             sink.set_volume(0.0);
         }
 
-        let panel = Panel::new(
-            Toggle::new(
+        let panel = Panel::new_builder(
+            Toggle::new_widget(
                 play_music,
                 ctx.style()
                     .btn_plain

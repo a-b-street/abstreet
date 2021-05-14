@@ -571,7 +571,7 @@ fn make_timeline(
     let mut x1 = 0.0;
     let rectangle_height = 15.0;
     let icon_height = 30.0;
-    for (idx, p) in phases.into_iter().enumerate() {
+    for (idx, p) in phases.iter().enumerate() {
         let mut tooltip = vec![
             p.phase_type.describe(map),
             format!("  Started at {}", p.start_time.ampm_tostring()),
@@ -652,7 +652,7 @@ fn make_timeline(
         x1 += phase_width;
     }
 
-    DrawWithTooltips::new(ctx, batch, tooltips, Box::new(|_| GeomBatch::new()))
+    DrawWithTooltips::new_widget(ctx, batch, tooltips, Box::new(|_| GeomBatch::new()))
 }
 
 /// Creates the timeline, location warp, and time warp buttons for one trip, and draws the route on
@@ -841,7 +841,7 @@ fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map:
         dist += step.as_traversable().get_polyline(map).length();
     }
     // TODO Show roughly where we are in the trip; use distance covered by current path for this
-    LinePlot::new(
+    LinePlot::new_widget(
         ctx,
         vec![Series {
             label: if walking {

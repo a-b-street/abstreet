@@ -243,7 +243,7 @@ pub trait SimpleState<A> {
 }
 
 impl<A: 'static> dyn SimpleState<A> {
-    pub fn new(panel: Panel, inner: Box<dyn SimpleState<A>>) -> Box<dyn State<A>> {
+    pub fn new_state(panel: Panel, inner: Box<dyn SimpleState<A>>) -> Box<dyn State<A>> {
         Box::new(SimpleStateWrapper { panel, inner })
     }
 }

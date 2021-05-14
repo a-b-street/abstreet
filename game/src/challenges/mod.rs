@@ -98,8 +98,8 @@ impl Challenge {
         for (_, stages) in Challenge::all() {
             let mut current = None;
             for challenge in stages {
-                if current.is_some() {
-                    return (current.unwrap(), Some(challenge));
+                if let Some(c) = current {
+                    return (c, Some(challenge));
                 }
                 if &challenge.gameplay == mode {
                     current = Some(challenge);
@@ -120,7 +120,7 @@ pub struct ChallengesPicker {
 }
 
 impl ChallengesPicker {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         ChallengesPicker::make(ctx, app, None)
     }
 
@@ -251,7 +251,7 @@ impl ChallengesPicker {
         master_col.push(Widget::row(main_row));
 
         Box::new(ChallengesPicker {
-            panel: Panel::new(Widget::col(master_col))
+            panel: Panel::new_builder(Widget::col(master_col))
                 .exact_size_percent(90, 85)
                 .build_custom(ctx),
             links,
@@ -264,12 +264,10 @@ impl State<App> for ChallengesPicker {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "back" => {
-                    return Transition::Pop;
-                }
+                "back" => Transition::Pop,
                 "Introduction and tutorial" => {
                     // Slightly inconsistent: pushes twice and leaves this challenge picker open
-                    return Tutorial::start(ctx, app);
+                    Tutorial::start(ctx, app)
                 }
                 "Start!" => {
                     #[cfg(not(target_arch = "wasm32"))]

@@ -216,6 +216,7 @@ impl Path {
         let step = self.steps.pop_front().unwrap();
         self.crossed_so_far += self.dist_crossed_from_step(map, &step);
 
+        #[allow(clippy::collapsible_if)] // better readability
         if let Some(ref ut) = self.currently_inside_ut {
             if step == PathStep::Turn(*ut.path.last().unwrap()) {
                 self.currently_inside_ut = None;

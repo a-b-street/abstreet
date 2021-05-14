@@ -190,12 +190,9 @@ impl Tab {
             Tab::PersonTrips(p, _) | Tab::PersonBio(p) | Tab::PersonSchedule(p) => {
                 match app.primary.sim.get_person(*p).state {
                     PersonState::Inside(b) => Some(ID::Building(b)),
-                    PersonState::Trip(t) => app
-                        .primary
-                        .sim
-                        .trip_to_agent(t)
-                        .ok()
-                        .map(|a| ID::from_agent(a)),
+                    PersonState::Trip(t) => {
+                        app.primary.sim.trip_to_agent(t).ok().map(ID::from_agent)
+                    }
                     _ => None,
                 }
             }
@@ -404,7 +401,7 @@ impl InfoPanel {
         }
 
         // Highlight something?
-        if let Some((id, outline)) = maybe_id.clone().and_then(|id| {
+        if let Some((id, outline)) = maybe_id.and_then(|id| {
             app.primary
                 .draw_map
                 .get_obj(ctx, id.clone(), app, &mut app.primary.agents.borrow_mut())
@@ -436,7 +433,7 @@ impl InfoPanel {
                     match Circle::new(bounds.center(), radius).to_outline(Distance::meters(0.3)) {
                         Ok(poly) => {
                             details.unzoomed.push(app.cs.current_object, poly.clone());
-                            details.zoomed.push(app.cs.current_object, poly.clone());
+                            details.zoomed.push(app.cs.current_object, poly);
                         }
                         Err(err) => {
                             warn!("No outline for {:?}: {}", id, err);
@@ -460,7 +457,7 @@ impl InfoPanel {
                 tab,
                 time: app.primary.sim.time(),
                 is_paused: ctx_actions.is_paused(),
-                panel: Panel::new(Widget::col(col).bg(app.cs.panel_bg).padding(16))
+                panel: Panel::new_builder(Widget::col(col).bg(app.cs.panel_bg).padding(16))
                     .aligned_pair(PANEL_PLACEMENT)
                     // TODO Some headings are too wide.. Intersection #xyz (Traffic signals)
                     .exact_size_percent(30, 60)
@@ -525,7 +522,7 @@ impl InfoPanel {
                     if let Some(id) = self.tab.to_id(app) {
                         (
                             false,
-                            Some(Transition::Push(Warping::new(
+                            Some(Transition::Push(Warping::new_state(
                                 ctx,
                                 app.primary.canonical_point(id.clone()).unwrap(),
                                 Some(10.0),
@@ -539,7 +536,7 @@ impl InfoPanel {
                 } else if let Some(id) = self.warpers.get(&action) {
                     (
                         false,
-                        Some(Transition::Push(Warping::new(
+                        Some(Transition::Push(Warping::new_state(
                             ctx,
                             app.primary.canonical_point(id.clone()).unwrap(),
                             Some(10.0),
@@ -565,7 +562,7 @@ impl InfoPanel {
                                 &mut actions,
                             );
 
-                            vec![sandbox, TimeWarpScreen::new(ctx, app, time, None)]
+                            vec![sandbox, TimeWarpScreen::new_state(ctx, app, time, None)]
                         }));
 
                     if time >= app.primary.sim.time() {
@@ -588,8 +585,12 @@ impl InfoPanel {
                     (
                         false,
                         Some(Transition::Multi(vec![
-                            Transition::Push(EditMode::new(ctx, app, ctx_actions.gameplay_mode())),
-                            Transition::Push(RouteEditor::new(
+                            Transition::Push(EditMode::new_state(
+                                ctx,
+                                app,
+                                ctx_actions.gameplay_mode(),
+                            )),
+                            Transition::Push(RouteEditor::new_state(
                                 ctx,
                                 app,
                                 BusRouteID(x.parse::<usize>().unwrap()),
@@ -599,9 +600,9 @@ impl InfoPanel {
                 } else if action == "Explore demand across all traffic signals" {
                     (
                         false,
-                        Some(Transition::Push(dashboards::TrafficSignalDemand::new(
-                            ctx, app,
-                        ))),
+                        Some(Transition::Push(
+                            dashboards::TrafficSignalDemand::new_state(ctx, app),
+                        )),
                     )
                 } else if let Some(x) = action.strip_prefix("routes across Intersection #") {
                     (
@@ -612,20 +613,18 @@ impl InfoPanel {
                             IntersectionID(x.parse::<usize>().unwrap()),
                         ))),
                     )
+                } else if let Some(id) = maybe_id {
+                    let mut close_panel = true;
+                    let t = ctx_actions.execute(ctx, app, id, action, &mut close_panel);
+                    (close_panel, Some(t))
                 } else {
-                    if let Some(id) = maybe_id {
-                        let mut close_panel = true;
-                        let t = ctx_actions.execute(ctx, app, id, action, &mut close_panel);
-                        (close_panel, Some(t))
-                    } else {
-                        // This happens when clicking the follow/unfollow button on a trip whose
-                        // agent doesn't exist. Do nothing and just don't crash.
-                        error!(
-                            "Can't do {} on this tab, because it doesn't map to an ID",
-                            action
-                        );
-                        (false, None)
-                    }
+                    // This happens when clicking the follow/unfollow button on a trip whose
+                    // agent doesn't exist. Do nothing and just don't crash.
+                    error!(
+                        "Can't do {} on this tab, because it doesn't map to an ID",
+                        action
+                    );
+                    (false, None)
                 }
             }
             _ => {
@@ -712,7 +711,7 @@ fn throughput<F: Fn(&Analytics) -> Vec<(AgentType, Vec<(Time, usize)>)>>(
     plot_opts.disabled = opts.disabled_series();
     Widget::col(vec![
         Line(title).small_heading().into_widget(ctx),
-        LinePlot::new(ctx, series, plot_opts),
+        LinePlot::new_widget(ctx, series, plot_opts),
     ])
     .padding(10)
     .bg(app.cs.inner_panel_bg)

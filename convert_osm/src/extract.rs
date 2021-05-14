@@ -132,7 +132,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
         let mut deduped = way.pts.clone();
         deduped.dedup();
         let polygon = if let Ok(ring) = Ring::new(deduped) {
-            ring.to_polygon()
+            ring.into_polygon()
         } else {
             continue;
         };
@@ -290,7 +290,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                 }
                 if let OsmID::Way(w) = member {
                     if let Ok(ring) = Ring::new(doc.ways[w].pts.clone()) {
-                        amenity_areas.push((ring.to_polygon(), amenity.clone()));
+                        amenity_areas.push((ring.into_polygon(), amenity.clone()));
                     }
                 }
             }
@@ -445,6 +445,7 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
         return false;
     }
 
+    #[allow(clippy::collapsible_if)] // better readability
     if (highway == "footway" || highway == "path" || highway == "steps")
         && opts.map_config.inferred_sidewalks
     {
@@ -539,7 +540,7 @@ fn is_bldg(tags: &Tags) -> bool {
 
 fn get_bldg_amenities(tags: &Tags) -> Vec<Amenity> {
     let mut amenities = Vec::new();
-    for key in vec!["amenity", "shop", "craft", "office", "tourism", "leisure"] {
+    for &key in &["amenity", "shop", "craft", "office", "tourism", "leisure"] {
         if let Some(amenity) = tags.get(key) {
             amenities.push(Amenity {
                 names: NamePerLanguage::new(tags).unwrap_or_else(NamePerLanguage::unnamed),
@@ -623,24 +624,21 @@ fn find_parking_aisles(map: &mut RawMap, roads: &mut Vec<(WayID, RawRoad)>) {
 }
 
 fn service_road_crosses_parking_lot(map: &RawMap, road: &RawRoad, candidates: Vec<usize>) -> bool {
-    match Ring::split_points(&road.center_points) {
-        Ok((polylines, rings)) => {
-            for pl in polylines {
-                for idx in &candidates {
-                    if map.parking_lots[*idx].polygon.clip_polyline(&pl).is_some() {
-                        return true;
-                    }
-                }
-            }
-            for ring in rings {
-                for idx in &candidates {
-                    if map.parking_lots[*idx].polygon.clip_ring(&ring).is_some() {
-                        return true;
-                    }
+    if let Ok((polylines, rings)) = Ring::split_points(&road.center_points) {
+        for pl in polylines {
+            for idx in &candidates {
+                if map.parking_lots[*idx].polygon.clip_polyline(&pl).is_some() {
+                    return true;
                 }
             }
         }
-        Err(_) => {}
+        for ring in rings {
+            for idx in &candidates {
+                if map.parking_lots[*idx].polygon.clip_ring(&ring).is_some() {
+                    return true;
+                }
+            }
+        }
     }
     false
 }

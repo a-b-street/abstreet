@@ -89,8 +89,8 @@ struct CutscenePlayer {
 
 impl State<App> for CutscenePlayer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "quit" => {
                     // TODO Should SandboxMode use on_destroy for this?
                     app.primary.clear_sim();
@@ -116,8 +116,7 @@ impl State<App> for CutscenePlayer {
                     return Transition::Pop;
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
         // TODO Should the Panel for text widgets with wrapping do this instead?
         if ctx.input.is_window_resized() {
@@ -254,7 +253,7 @@ fn make_panel(
             .outline(ctx.style().btn_solid.outline),
     ];
 
-    Panel::new(Widget::custom_col(col))
+    Panel::new_builder(Widget::custom_col(col))
         .exact_size_percent(80, 80)
         .build_custom(ctx)
 }
@@ -264,9 +263,9 @@ pub struct FYI {
 }
 
 impl FYI {
-    pub fn new(ctx: &mut EventCtx, contents: Widget, bg: Color) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, contents: Widget, bg: Color) -> Box<dyn State<App>> {
         Box::new(FYI {
-            panel: Panel::new(
+            panel: Panel::new_builder(
                 Widget::custom_col(vec![
                     contents,
                     ctx.style()

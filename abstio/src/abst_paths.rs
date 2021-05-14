@@ -131,7 +131,7 @@ impl CityName {
 
     /// Parses a CityName from something like "gb/london"; the inverse of `to_path`.
     pub fn parse(x: &str) -> Result<CityName> {
-        let parts = x.split("/").collect::<Vec<_>>();
+        let parts = x.split('/').collect::<Vec<_>>();
         if parts.len() != 2 || parts[0].len() != 2 {
             bail!("Bad CityName {}", x);
         }
@@ -203,7 +203,7 @@ impl MapName {
 
     /// Transforms a path to a map back to a MapName. Returns `None` if the input is strange.
     pub fn from_path(path: &str) -> Option<MapName> {
-        let parts = path.split("/").collect::<Vec<_>>();
+        let parts = path.split('/').collect::<Vec<_>>();
         // Expect something ending like system/us/seattle/maps/montlake.bin
         if parts.len() < 5 || parts[parts.len() - 5] != "system" || parts[parts.len() - 2] != "maps"
         {
@@ -318,7 +318,7 @@ pub fn path_all_scenarios(name: &MapName) -> String {
 /// Extract the map and scenario name from a path. Crashes if the input is strange.
 pub fn parse_scenario_path(path: &str) -> (MapName, String) {
     // TODO regex
-    let parts = path.split("/").collect::<Vec<_>>();
+    let parts = path.split('/').collect::<Vec<_>>();
     let country = parts[parts.len() - 5];
     let city = parts[parts.len() - 4];
     let map = parts[parts.len() - 2];

@@ -46,11 +46,8 @@ impl WidgetImpl for Filler {
 
     fn event(&mut self, ctx: &mut EventCtx, _: &mut WidgetOutput) {
         if ctx.input.is_window_resized() {
-            match self.resize {
-                ResizeRule::RatioWidthSquare(_, ref mut parent_width) => {
-                    *parent_width = ctx.canvas.window_width;
-                }
-                _ => {}
+            if let ResizeRule::RatioWidthSquare(_, ref mut parent_width) = self.resize {
+                *parent_width = ctx.canvas.window_width;
             };
         }
     }

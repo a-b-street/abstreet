@@ -12,12 +12,15 @@ pub struct Time(f64);
 
 // By construction, Time is a finite f64 with trimmed precision.
 impl Eq for Time {}
+
+#[allow(clippy::derive_ord_xor_partial_ord)] // false positive
 impl Ord for Time {
     fn cmp(&self, other: &Time) -> cmp::Ordering {
         self.partial_cmp(other).unwrap()
     }
 }
 
+#[allow(clippy::derive_hash_xor_eq)] // false positive
 impl std::hash::Hash for Time {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         NotNan::new(self.0).unwrap().hash(state);
@@ -63,7 +66,7 @@ impl Time {
         let (mut hours, minutes, seconds, _) = self.get_parts();
         let next_day = if hours >= 24 {
             let days = hours / 24;
-            hours = hours % 24;
+            hours %= 24;
             format!(" (+{} days)", days)
         } else {
             "".to_string()
@@ -117,7 +120,7 @@ impl Time {
 
     // TODO These are a little weird, so don't operator overload yet
     pub fn percent_of(self, p: f64) -> Time {
-        if p < 0.0 || p > 1.0 {
+        if !(0.0..=1.0).contains(&p) {
             panic!("Bad percent_of input: {}", p);
         }
         Time::seconds_since_midnight(self.0 * p)

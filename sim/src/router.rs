@@ -421,7 +421,7 @@ impl Router {
                     };
                     let turn2 = map.maybe_get_t(t2)?;
 
-                    return Some((turn1, l, turn2));
+                    Some((turn1, l, turn2))
                 })
                 .map(|(turn1, l, turn2)| {
                     let cost = compute_cost(turn1, l);

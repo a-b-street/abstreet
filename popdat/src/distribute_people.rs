@@ -44,7 +44,7 @@ pub fn distribute_population_to_homes(
     let map_boundary = geo::Polygon::from(map.get_boundary_polygon().clone());
     let bldgs: Vec<map_model::BuildingID> = map
         .all_buildings()
-        .into_iter()
+        .iter()
         .filter(|b| {
             polygon.contains(&geo::Point::from(b.label_center)) && b.bldg_type.has_residents()
         })

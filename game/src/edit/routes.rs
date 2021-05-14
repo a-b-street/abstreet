@@ -15,12 +15,12 @@ pub struct RouteEditor {
 }
 
 impl RouteEditor {
-    pub fn new(ctx: &mut EventCtx, app: &mut App, id: BusRouteID) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &mut App, id: BusRouteID) -> Box<dyn State<App>> {
         app.primary.current_selection = None;
 
         let route = app.primary.map.get_br(id);
         Box::new(RouteEditor {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Route editor").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
@@ -54,8 +54,8 @@ impl State<App> for RouteEditor {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
@@ -79,8 +79,7 @@ impl State<App> for RouteEditor {
                     return Transition::Pop;
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         Transition::Keep

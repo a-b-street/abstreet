@@ -9,6 +9,10 @@
 //! - sov = single occupancy vehicle, a car with just a driver and no passengers. (Car passengers
 //!   are not currently modelled)
 
+// Disable some noisy clippy warnings
+#![allow(clippy::ptr_arg)]
+#![allow(clippy::type_complexity, clippy::too_many_arguments)]
+
 #[macro_use]
 extern crate anyhow;
 #[macro_use]
@@ -549,7 +553,7 @@ impl TimeInterval {
         }
 
         let x = (t - self.start) / (self.end - self.start);
-        assert!(x >= 0.0 && x <= 1.0);
+        assert!((0.0..=1.0).contains(&x));
         x
     }
 
@@ -582,7 +586,7 @@ impl DistanceInterval {
     }
 
     pub fn lerp(&self, x: f64) -> Distance {
-        assert!(x >= 0.0 && x <= 1.0);
+        assert!((0.0..=1.0).contains(&x));
         self.start + x * (self.end - self.start)
     }
 

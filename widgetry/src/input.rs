@@ -97,10 +97,7 @@ impl UserInput {
     }
 
     pub fn is_window_resized(&self) -> bool {
-        match self.event {
-            Event::WindowResized(_) => true,
-            _ => false,
-        }
+        matches!(self.event, Event::WindowResized(_))
     }
 
     pub fn nonblocking_is_update_event(&mut self) -> Option<Duration> {

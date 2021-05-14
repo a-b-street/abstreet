@@ -17,9 +17,12 @@ pub struct RectangularSelector {
 }
 
 impl RectangularSelector {
-    pub fn new(ctx: &mut EventCtx, region: Rc<RefCell<Option<Polygon>>>) -> Box<dyn State<App>> {
+    pub fn new_state(
+        ctx: &mut EventCtx,
+        region: Rc<RefCell<Option<Polygon>>>,
+    ) -> Box<dyn State<App>> {
         Box::new(RectangularSelector {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Select a rectangular region")
                         .small_heading()
@@ -74,8 +77,8 @@ impl State<App> for RectangularSelector {
             ctx.canvas_movement();
         }
 
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
@@ -93,8 +96,7 @@ impl State<App> for RectangularSelector {
                     return Transition::Pop;
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         Transition::Keep

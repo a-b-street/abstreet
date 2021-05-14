@@ -389,6 +389,7 @@ impl IntersectionSimState {
             &mut HashMap<Traversable, Queue>,
         )>,
     ) -> bool {
+        #![allow(clippy::logic_bug)] // Remove once TODO below is taken care of
         let req = Request { agent, turn };
         let entry = self
             .state
@@ -415,6 +416,7 @@ impl IntersectionSimState {
             map.get_t(req.turn).turn_type == TurnType::SharedSidewalkCorner;
 
         let readonly_pair = maybe_cars_and_queues.as_ref().map(|(_, c, q)| (*c, &**q));
+        #[allow(clippy::if_same_then_else)]
         let allowed = if shared_sidewalk_corner {
             // SharedSidewalkCorner doesn't conflict with anything -- fastpath!
             true
@@ -430,6 +432,7 @@ impl IntersectionSimState {
             .unwrap_or(false)
         {
             // If we started an uber-turn, then finish it! But alert if we're running a red light.
+            // TODO: Consider reenabling alert
             if let Some(ref signal) = map.maybe_get_traffic_signal(turn.parent) {
                 // Don't pass in the scheduler, aka, don't pause before yielding.
                 if !self.traffic_signal_policy(&req, map, signal, speed, now, None) && false {
@@ -566,7 +569,7 @@ impl IntersectionSimState {
     }
 
     pub fn collect_events(&mut self) -> Vec<Event> {
-        std::mem::replace(&mut self.events, Vec::new())
+        std::mem::take(&mut self.events)
     }
 
     pub fn handle_live_edited_traffic_signals(
@@ -714,7 +717,7 @@ impl IntersectionSimState {
 
     pub fn describe_stats(&self) -> Vec<String> {
         vec![
-            format!("intersection stats"),
+            "intersection stats".to_string(),
             format!(
                 "{} total turn requests repeated after the initial attempt",
                 prettyprint_usize(self.total_repeat_requests)
@@ -948,31 +951,28 @@ impl IntersectionSimState {
                 // work normally. If not, then... maybe we need to allow concurrent turns from
                 // different lanes into the same lane, and somehow make the queueing work out.
                 if turn.id.dst == other.turn.dst {
-                    match (
+                    if let (Some((now, scheduler)), AgentID::Car(blocker), Some((cars, _))) = (
                         wakeup_stuck_cycle,
                         other.agent,
                         maybe_cars_and_queues.as_ref(),
                     ) {
-                        (Some((now, scheduler)), AgentID::Car(blocker), Some((cars, _))) => {
-                            // Sometimes the vehicle blocking us is actually queued in the turn;
-                            // don't wake them up in that case.
-                            if cycle_detected
-                                && matches!(cars[&blocker].state, CarState::WaitingToAdvance { .. })
-                            {
-                                self.events.push(Event::Alert(
-                                    AlertLocation::Intersection(req.turn.parent),
-                                    format!(
-                                        "{} waking up {}, who's blocking it as part of a cycle",
-                                        req.agent, other.agent
-                                    ),
-                                ));
-                                scheduler.update(
-                                    now + Duration::EPSILON,
-                                    Command::update_agent(other.agent),
-                                );
-                            }
+                        // Sometimes the vehicle blocking us is actually queued in the turn;
+                        // don't wake them up in that case.
+                        if cycle_detected
+                            && matches!(cars[&blocker].state, CarState::WaitingToAdvance { .. })
+                        {
+                            self.events.push(Event::Alert(
+                                AlertLocation::Intersection(req.turn.parent),
+                                format!(
+                                    "{} waking up {}, who's blocking it as part of a cycle",
+                                    req.agent, other.agent
+                                ),
+                            ));
+                            scheduler.update(
+                                now + Duration::EPSILON,
+                                Command::update_agent(other.agent),
+                            );
                         }
-                        _ => {}
                     }
                     return false;
                 }

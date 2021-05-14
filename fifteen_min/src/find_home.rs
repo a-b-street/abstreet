@@ -19,8 +19,8 @@ pub struct FindHome {
 }
 
 impl FindHome {
-    pub fn new(ctx: &mut EventCtx, options: Options) -> Box<dyn State<App>> {
-        let panel = Panel::new(Widget::col(vec![
+    pub fn new_state(ctx: &mut EventCtx, options: Options) -> Box<dyn State<App>> {
+        let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
                 Line("Find your walkable home")
                     .small_heading()
@@ -44,7 +44,7 @@ impl FindHome {
         ]))
         .build(ctx);
 
-        <dyn SimpleState<_>>::new(panel, Box::new(FindHome { options }))
+        <dyn SimpleState<_>>::new_state(panel, Box::new(FindHome { options }))
     }
 }
 
@@ -64,7 +64,7 @@ impl SimpleState<App> for FindHome {
                     .filter(|at| panel.is_checked(&at.to_string()))
                     .collect();
                 if amenities.is_empty() {
-                    return Transition::Push(PopupMsg::new(
+                    return Transition::Push(PopupMsg::new_state(
                         ctx,
                         "No amenities selected",
                         vec!["Please select at least one amenity that you want in your walkshd"],
@@ -74,7 +74,7 @@ impl SimpleState<App> for FindHome {
                 let scores = ctx.loading_screen("search for houses", |_, timer| {
                     score_houses(app, amenities.clone(), self.options.clone(), timer)
                 });
-                return Transition::Push(Results::new(ctx, app, scores, amenities));
+                return Transition::Push(Results::new_state(ctx, app, scores, amenities));
             }
             _ => unreachable!(),
         }
@@ -129,7 +129,7 @@ struct Results {
 }
 
 impl Results {
-    fn new(
+    fn new_state(
         ctx: &mut EventCtx,
         app: &App,
         scores: HashMap<BuildingID, Percent>,
@@ -145,7 +145,7 @@ impl Results {
             }
         }
 
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             Line("Results for your walkable home")
                 .small_heading()
                 .into_widget(ctx),
@@ -169,7 +169,7 @@ impl Results {
         .aligned(HorizontalAlignment::RightInset, VerticalAlignment::TopInset)
         .build(ctx);
 
-        <dyn SimpleState<_>>::new(
+        <dyn SimpleState<_>>::new_state(
             panel,
             Box::new(Results {
                 draw_houses: ctx.upload(batch),

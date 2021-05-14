@@ -52,8 +52,8 @@ impl CapSimState {
         let mut sim = CapSimState {
             road_to_zone: BTreeMap::new(),
             zones: Vec::new(),
-            cancel_drivers_delay_threshold: opts.cancel_drivers_delay_threshold.clone(),
-            delay_trips_instead_of_cancelling: opts.delay_trips_instead_of_cancelling.clone(),
+            cancel_drivers_delay_threshold: opts.cancel_drivers_delay_threshold,
+            delay_trips_instead_of_cancelling: opts.delay_trips_instead_of_cancelling,
         };
         for z in map.all_zones() {
             if let Some(cap) = z.restrictions.cap_vehicles_per_hour {

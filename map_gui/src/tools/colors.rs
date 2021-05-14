@@ -374,7 +374,7 @@ impl ColorScale {
     }
 
     fn inner_eval(&self, pct: f64) -> (usize, f64) {
-        assert!(pct >= 0.0 && pct <= 1.0);
+        assert!((0.0..=1.0).contains(&pct));
         // What's the interval between each pair of colors?
         let width = 1.0 / (self.0.len() - 1) as f64;
         let low = (pct / width).floor() as usize;

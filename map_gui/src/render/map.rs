@@ -151,7 +151,7 @@ impl DrawMap {
                 quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
             quadtree_ids.insert(obj.get_id(), item_id);
         }
-        for (_, obj) in &lanes {
+        for obj in lanes.values() {
             let item_id =
                 quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
             quadtree_ids.insert(obj.get_id(), item_id);

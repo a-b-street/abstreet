@@ -542,7 +542,7 @@ impl WalkingSimState {
     }
 
     pub fn collect_events(&mut self) -> Vec<Event> {
-        std::mem::replace(&mut self.events, Vec::new())
+        std::mem::take(&mut self.events)
     }
 
     pub fn find_trips_to_parking(&self, evicted_cars: Vec<ParkedCar>) -> Vec<(AgentID, TripID)> {
@@ -717,7 +717,7 @@ impl Pedestrian {
                 let line = &map.get_pl(pl).sidewalk_line;
                 (
                     line.percent_along(time_int.percent(now))
-                        .unwrap_or(line.pt1()),
+                        .unwrap_or_else(|| line.pt1()),
                     line.angle(),
                 )
             }
@@ -726,18 +726,18 @@ impl Pedestrian {
                 (
                     line.reverse()
                         .percent_along(time_int.percent(now))
-                        .unwrap_or(line.pt1()),
+                        .unwrap_or_else(|| line.pt1()),
                     line.angle().opposite(),
                 )
             }
             PedState::StartingToBike(_, ref line, ref time_int) => (
                 line.percent_along(time_int.percent(now))
-                    .unwrap_or(line.pt1()),
+                    .unwrap_or_else(|| line.pt1()),
                 line.angle(),
             ),
             PedState::FinishingBiking(_, ref line, ref time_int) => (
                 line.percent_along(time_int.percent(now))
-                    .unwrap_or(line.pt1()),
+                    .unwrap_or_else(|| line.pt1()),
                 line.angle(),
             ),
             PedState::WaitingForBus(_, _) => {

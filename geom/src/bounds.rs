@@ -92,7 +92,7 @@ impl Bounds {
             Pt2D::new(self.min_x, self.max_y),
             Pt2D::new(self.min_x, self.min_y),
         ])
-        .to_polygon()
+        .into_polygon()
     }
 
     /// The width of this boundary.

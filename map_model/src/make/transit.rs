@@ -151,7 +151,7 @@ fn make_route(
         orig_spawn_times: default_spawn_times(),
     };
 
-    let mut debug_route = format!("All parts of the route:");
+    let mut debug_route = "All parts of the route:".to_string();
     debug_route = format!("{}\nStart at {}", debug_route, route.start);
     for (idx, bs) in route.stops.iter().enumerate() {
         let stop = map.get_bs(*bs);
@@ -247,7 +247,9 @@ impl Matcher {
     ) -> Result<(Position, Position)> {
         if route_type == PathConstraints::Train {
             // Light rail needs explicit platforms.
-            let sidewalk_pt = stop.ped_pos.ok_or(anyhow!("light rail missing platform"))?;
+            let sidewalk_pt = stop
+                .ped_pos
+                .ok_or_else(|| anyhow!("light rail missing platform"))?;
             let sidewalk_pos = *self
                 .sidewalk_pts
                 .get(&sidewalk_pt.to_hashable())
@@ -288,7 +290,7 @@ impl Matcher {
             *self
                 .sidewalk_pts
                 .get(&pt.to_hashable())
-                .ok_or(anyhow!("sidewalk didnt match"))?
+                .ok_or_else(|| anyhow!("sidewalk didnt match"))?
         } else {
             let sidewalk = map
                 .get_parent(driving_pos.lane())
@@ -353,7 +355,7 @@ fn default_spawn_times() -> Vec<Time> {
     for i in 0..24 {
         let hour = Time::START_OF_DAY + Duration::hours(i);
         times.push(hour);
-        if i >= 7 && i <= 19 {
+        if (7..=19).contains(&i) {
             times.push(hour + Duration::minutes(30));
         }
     }

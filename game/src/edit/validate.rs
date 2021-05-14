@@ -135,9 +135,7 @@ pub fn try_change_lt(
     // A parking lane must have a driving lane somewhere on the road.
     let all_types: BTreeSet<LaneType> = r.lanes_ltr().into_iter().map(|(_, _, lt)| lt).collect();
     if all_types.contains(&LaneType::Parking) && !all_types.contains(&LaneType::Driving) {
-        errors.push(format!(
-            "A parking lane needs a driving lane somewhere on the same road"
-        ));
+        errors.push("A parking lane needs a driving lane somewhere on the same road".to_string());
     }
 
     // Don't let players orphan a bus stop.
@@ -149,13 +147,13 @@ pub fn try_change_lt(
             .into_iter()
             .any(|(l, _, _)| PathConstraints::Bus.can_use(map.get_l(l), map))
     {
-        errors.push(format!("You need a driving or bus lane for the bus stop!"));
+        errors.push("You need a driving or bus lane for the bus stop!".to_string());
     }
 
     map.must_apply_edits(orig_edits);
     if errors.is_empty() {
         Ok(cmd)
     } else {
-        Err(PopupMsg::new(ctx, "Error", errors))
+        Err(PopupMsg::new_state(ctx, "Error", errors))
     }
 }

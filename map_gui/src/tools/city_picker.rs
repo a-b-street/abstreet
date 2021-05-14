@@ -24,7 +24,7 @@ pub struct CityPicker<A: AppLike> {
 }
 
 impl<A: AppLike + 'static> CityPicker<A> {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         app: &mut A,
         on_load: Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>,
@@ -38,7 +38,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
         on_load: Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>,
         city_name: CityName,
     ) -> Box<dyn State<A>> {
-        FileLoader::<A, City>::new(
+        FileLoader::<A, City>::new_state(
             ctx,
             abstio::path(format!(
                 "system/{}/{}/city.bin",
@@ -151,7 +151,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                     districts,
                     selected: None,
                     on_load: Some(on_load),
-                    panel: Panel::new(Widget::col(vec![
+                    panel: Panel::new_builder(Widget::col(vec![
                         Widget::row(vec![
                             Line("Select a district").small_heading().into_widget(ctx),
                             ctx.style().btn_close_widget(ctx),
@@ -187,13 +187,13 @@ impl<A: AppLike + 'static> CityPicker<A> {
 
 impl<A: AppLike + 'static> State<A> for CityPicker<A> {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
                 "Search all maps" => {
-                    return Transition::Replace(AllCityPicker::new(
+                    return Transition::Replace(AllCityPicker::new_state(
                         ctx,
                         self.on_load.take().unwrap(),
                     ));
@@ -207,7 +207,7 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
                     }
                     #[cfg(not(target_arch = "wasm32"))]
                     {
-                        return Transition::Replace(crate::tools::importer::ImportCity::new(
+                        return Transition::Replace(crate::tools::importer::ImportCity::new_state(
                             ctx,
                             self.on_load.take().unwrap(),
                         ));
@@ -218,15 +218,14 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
                         return chose_city(ctx, app, name, &mut self.on_load);
                     }
                     // Browse cities for another country
-                    return Transition::Replace(CitiesInCountryPicker::new(
+                    return Transition::Replace(CitiesInCountryPicker::new_state(
                         ctx,
                         app,
                         self.on_load.take().unwrap(),
                         x,
                     ));
                 }
-            },
-            _ => {}
+            }
         }
 
         if ctx.redo_mouseover() {
@@ -292,7 +291,7 @@ struct AllCityPicker<A: AppLike> {
 }
 
 impl<A: AppLike + 'static> AllCityPicker<A> {
-    fn new(
+    fn new_state(
         ctx: &mut EventCtx,
         on_load: Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>,
     ) -> Box<dyn State<A>> {
@@ -313,14 +312,14 @@ impl<A: AppLike + 'static> AllCityPicker<A> {
 
         Box::new(AllCityPicker {
             on_load: Some(on_load),
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Select a district").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 Widget::row(vec![
                     Image::from_path("system/assets/tools/search.svg").into_widget(ctx),
-                    Autocomplete::new(ctx, autocomplete_entries).named("search"),
+                    Autocomplete::new_widget(ctx, autocomplete_entries).named("search"),
                 ])
                 .padding(8),
                 Widget::custom_row(buttons).flex_wrap(ctx, Percent::int(70)),
@@ -333,8 +332,8 @@ impl<A: AppLike + 'static> AllCityPicker<A> {
 
 impl<A: AppLike + 'static> State<A> for AllCityPicker<A> {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
@@ -346,8 +345,7 @@ impl<A: AppLike + 'static> State<A> for AllCityPicker<A> {
                         &mut self.on_load,
                     );
                 }
-            },
-            _ => {}
+            }
         }
         if let Some(mut paths) = self.panel.autocomplete_done::<String>("search") {
             if !paths.is_empty() {
@@ -380,7 +378,7 @@ struct CitiesInCountryPicker<A: AppLike> {
 }
 
 impl<A: AppLike + 'static> CitiesInCountryPicker<A> {
-    fn new(
+    fn new_state(
         ctx: &mut EventCtx,
         app: &A,
         on_load: Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>,
@@ -451,7 +449,7 @@ impl<A: AppLike + 'static> CitiesInCountryPicker<A> {
 
         Box::new(CitiesInCountryPicker {
             on_load: Some(on_load),
-            panel: Panel::new(Widget::col(col))
+            panel: Panel::new_builder(Widget::col(col))
                 .exact_size_percent(80, 80)
                 .build(ctx),
         })
@@ -460,11 +458,11 @@ impl<A: AppLike + 'static> CitiesInCountryPicker<A> {
 
 impl<A: AppLike + 'static> State<A> for CitiesInCountryPicker<A> {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "close" => {
                     // Go back to the screen that lets you choose all countries.
-                    return Transition::Replace(CityPicker::new(
+                    return Transition::Replace(CityPicker::new_state(
                         ctx,
                         app,
                         self.on_load.take().unwrap(),
@@ -500,8 +498,7 @@ impl<A: AppLike + 'static> State<A> for CitiesInCountryPicker<A> {
                         city,
                     ));
                 }
-            },
-            _ => {}
+            }
         }
 
         Transition::Keep
@@ -541,5 +538,10 @@ fn chose_city<A: AppLike + 'static>(
         }
     }
 
-    Transition::Replace(MapLoader::new(ctx, app, name, on_load.take().unwrap()))
+    Transition::Replace(MapLoader::new_state(
+        ctx,
+        app,
+        name,
+        on_load.take().unwrap(),
+    ))
 }

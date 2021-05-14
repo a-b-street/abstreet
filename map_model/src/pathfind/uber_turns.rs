@@ -264,7 +264,7 @@ pub struct UberTurnV2 {
 
 impl IntersectionCluster {
     /// Group lane-based uber-turns into road-based UberTurnV2s.
-    pub fn to_v2(self, map: &Map) -> Vec<UberTurnV2> {
+    pub fn into_v2(self, map: &Map) -> Vec<UberTurnV2> {
         let mut result = BTreeSet::new();
         for ut in self.uber_turns {
             let mut path = Vec::new();

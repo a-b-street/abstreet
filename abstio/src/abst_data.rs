@@ -73,7 +73,7 @@ impl Manifest {
                 }
             }
 
-            let parts = path.split("/").collect::<Vec<_>>();
+            let parts = path.split('/').collect::<Vec<_>>();
             let mut data_pack = format!("{}/{}", parts[2], parts[3]);
             if Manifest::is_file_part_of_huge_seattle(path) {
                 data_pack = "us/huge_seattle".to_string();
@@ -105,13 +105,13 @@ impl Manifest {
         let path = path
             .strip_prefix(&crate::path(""))
             .or_else(|| path.strip_prefix("data/"))
-            .unwrap_or_else(|| path);
+            .unwrap_or(path);
         let name = if let Some(x) = path.strip_prefix("system/us/seattle/maps/") {
             x.strip_suffix(".bin").unwrap()
         } else if let Some(x) = path.strip_prefix("system/us/seattle/scenarios/") {
-            x.split("/").next().unwrap()
+            x.split('/').next().unwrap()
         } else if let Some(x) = path.strip_prefix("system/us/seattle/prebaked_results/") {
-            x.split("/").next().unwrap()
+            x.split('/').next().unwrap()
         } else {
             return false;
         };
@@ -124,7 +124,7 @@ impl Manifest {
 
     /// If an entry's path is system data, return the city.
     pub fn path_to_city(path: &str) -> Option<CityName> {
-        let parts = path.split("/").collect::<Vec<_>>();
+        let parts = path.split('/').collect::<Vec<_>>();
         if parts[1] == "system" {
             if parts[2] == "assets"
                 || parts[2] == "extra_fonts"

@@ -21,7 +21,7 @@ pub struct LaneEditor {
 }
 
 impl LaneEditor {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         app: &App,
         l: LaneID,
@@ -29,7 +29,7 @@ impl LaneEditor {
     ) -> Box<dyn State<App>> {
         let mut row = Vec::new();
         let current_lt = app.primary.map.get_l(l).lane_type;
-        for (icon, label, key, lt) in vec![
+        for &(icon, label, key, lt) in &[
             (
                 "driving",
                 "convert to a driving lane",
@@ -111,30 +111,34 @@ impl LaneEditor {
                 .hotkey(Key::Escape)
                 .build_def(ctx),
         ];
-        let panel = Panel::new(Widget::col(col))
+        let panel = Panel::new_builder(Widget::col(col))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx);
 
-        <dyn SimpleState<_>>::new(panel, Box::new(LaneEditor { l, mode }))
+        <dyn SimpleState<_>>::new_state(panel, Box::new(LaneEditor { l, mode }))
     }
 }
 
 impl SimpleState<App> for LaneEditor {
     fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
         match x {
-            "Edit multiple lanes" => Transition::Replace(crate::edit::bulk::BulkSelect::new(
+            "Edit multiple lanes" => Transition::Replace(crate::edit::bulk::BulkSelect::new_state(
                 ctx,
                 app,
                 app.primary.map.get_l(self.l).parent,
             )),
-            "Change access restrictions" => Transition::Push(ZoneEditor::new(
+            "Change access restrictions" => Transition::Push(ZoneEditor::new_state(
                 ctx,
                 app,
                 app.primary.map.get_l(self.l).parent,
             )),
-            "Modify entire road (experimental!)" => Transition::Replace(
-                crate::edit::roads::RoadEditor::new(ctx, app, app.primary.map.get_l(self.l).parent),
-            ),
+            "Modify entire road (experimental!)" => {
+                Transition::Replace(crate::edit::roads::RoadEditor::new_state(
+                    ctx,
+                    app,
+                    app.primary.map.get_l(self.l).parent,
+                ))
+            }
             "Finish" => Transition::Pop,
             x => {
                 let map = &mut app.primary.map;
@@ -161,7 +165,12 @@ impl SimpleState<App> for LaneEditor {
                         edits.commands.push(cmd);
                         apply_map_edits(ctx, app, edits);
 
-                        Transition::Replace(LaneEditor::new(ctx, app, self.l, self.mode.clone()))
+                        Transition::Replace(LaneEditor::new_state(
+                            ctx,
+                            app,
+                            self.l,
+                            self.mode.clone(),
+                        ))
                     }
                     Err(err) => Transition::Push(err),
                 }
@@ -183,7 +192,7 @@ impl SimpleState<App> for LaneEditor {
             },
         ));
         apply_map_edits(ctx, app, edits);
-        Some(Transition::Replace(LaneEditor::new(
+        Some(Transition::Replace(LaneEditor::new_state(
             ctx,
             app,
             self.l,
@@ -207,7 +216,7 @@ impl SimpleState<App> for LaneEditor {
     fn other_event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
         if let Some(l) = app.click_on_lane(ctx, "edit this lane") {
-            return Transition::Replace(LaneEditor::new(ctx, app, l, self.mode.clone()));
+            return Transition::Replace(LaneEditor::new_state(ctx, app, l, self.mode.clone()));
         }
         if let Some(ID::Intersection(id)) = app.primary.current_selection {
             if let Some(state) = maybe_edit_intersection(ctx, app, id, &self.mode) {

@@ -286,13 +286,13 @@ fn generalized_trim_back(
     deduped = Pt2D::approx_dedupe(deduped, Distance::meters(0.1));
     deduped = close_off_polygon(deduped);
     if main_result.len() == deduped.len() {
-        Ok((Ring::must_new(main_result).to_polygon(), debug))
+        Ok((Ring::must_new(main_result).into_polygon(), debug))
     } else {
         warn!(
             "{}'s polygon has weird repeats, forcibly removing points",
             i
         );
-        Ok((Ring::must_new(deduped).to_polygon(), debug))
+        Ok((Ring::must_new(deduped).into_polygon(), debug))
     }
 
     // TODO Or always sort points? Helps some cases, hurts other for downtown Seattle.
@@ -331,15 +331,13 @@ fn deadend(
                 .exact_slice(Distance::ZERO, r.trimmed_center_pts.length() - len);
         }
         r.trimmed_center_pts.clone()
+    } else if r.src_i == i {
+        r.trimmed_center_pts.extend_to_length(len_with_buffer)
     } else {
-        if r.src_i == i {
-            r.trimmed_center_pts.extend_to_length(len_with_buffer)
-        } else {
-            r.trimmed_center_pts
-                .reversed()
-                .extend_to_length(len_with_buffer)
-                .reversed()
-        }
+        r.trimmed_center_pts
+            .reversed()
+            .extend_to_length(len_with_buffer)
+            .reversed()
     };
 
     // After trimming the center points, the two sides of the road may be at different
@@ -356,7 +354,7 @@ fn deadend(
 
     endpts.dedup();
     Ok((
-        Ring::must_new(close_off_polygon(endpts)).to_polygon(),
+        Ring::must_new(close_off_polygon(endpts)).into_polygon(),
         Vec::new(),
     ))
 }
@@ -441,9 +439,9 @@ fn on_off_ramp(
     // Find where the thin hits the thick farthest along.
     // (trimmed thin center, trimmed thick center, the thick road we hit)
     let mut best_hit: Option<(PolyLine, PolyLine, OriginalRoad)> = None;
-    for thin_pl in vec![&thin.left, &thin.right] {
-        for thick in vec![&thick1, &thick2] {
-            for thick_pl in vec![&thick.left, &thick.right] {
+    for &thin_pl in &[&thin.left, &thin.right] {
+        for &thick in &[&thick1, &thick2] {
+            for &thick_pl in &[&thick.left, &thick.right] {
                 if thin_pl == thick_pl {
                     // How? Just bail.
                     return None;
@@ -478,15 +476,15 @@ fn on_off_ramp(
 
                     if false {
                         debug.push((
-                            format!("1"),
+                            "1".to_string(),
                             Circle::new(hit, Distance::meters(3.0)).to_polygon(),
                         ));
                         debug.push((
-                            format!("2"),
+                            "2".to_string(),
                             Circle::new(trimmed_thin.last_pt(), Distance::meters(3.0)).to_polygon(),
                         ));
                         debug.push((
-                            format!("3"),
+                            "3".to_string(),
                             Circle::new(trimmed_thick.last_pt(), Distance::meters(3.0))
                                 .to_polygon(),
                         ));
@@ -552,7 +550,7 @@ fn on_off_ramp(
 
     // Now build the actual polygon
     let mut endpoints = Vec::new();
-    for id in vec![thin.id, thick1.id, thick2.id] {
+    for &id in &[thin.id, thick1.id, thick2.id] {
         let r = &roads[&id];
         // Shift those final centers out again to find the main endpoints for the polygon.
         if r.dst_i == i {
@@ -593,7 +591,7 @@ fn on_off_ramp(
     endpoints.sort_by_key(|pt| pt.angle_to(center).normalized_degrees() as i64);
     endpoints.dedup();
     Some((
-        Ring::must_new(close_off_polygon(endpoints)).to_polygon(),
+        Ring::must_new(close_off_polygon(endpoints)).into_polygon(),
         debug,
     ))
 

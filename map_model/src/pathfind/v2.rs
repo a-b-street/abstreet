@@ -93,9 +93,9 @@ impl PathV2 {
 
     /// Transform a sequence of roads representing a path into the current lane-based path, by
     /// picking particular lanes and turns to use.
-    pub fn to_v1(self, map: &Map) -> Result<Path> {
+    pub fn into_v1(self, map: &Map) -> Result<Path> {
         if self.req.constraints == PathConstraints::Pedestrian {
-            return self.to_v1_walking(map);
+            return self.into_v1_walking(map);
         }
 
         // This is a somewhat brute-force method: run Dijkstra's algorithm on a graph of lanes and
@@ -164,7 +164,7 @@ impl PathV2 {
         }
     }
 
-    fn to_v1_walking(self, map: &Map) -> Result<Path> {
+    fn into_v1_walking(self, map: &Map) -> Result<Path> {
         let mut steps = Vec::new();
         for step in self.steps {
             steps.push(match step {
@@ -200,10 +200,10 @@ fn find_uber_turns(
         }
 
         if let PathStep::Turn(t) = step {
-            if current_ut.is_empty() {
-                if uber_turns_v2[0].path[0].from == map.get_l(t.src).get_directed_parent() {
-                    current_ut.push(*t);
-                }
+            if current_ut.is_empty()
+                && uber_turns_v2[0].path[0].from == map.get_l(t.src).get_directed_parent()
+            {
+                current_ut.push(*t);
             }
 
             if !current_ut.is_empty() {

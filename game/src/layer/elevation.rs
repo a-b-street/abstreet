@@ -125,7 +125,7 @@ impl SteepStreets {
         ])
         .make_polygons(thickness)
         .scale(5.0);
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             header(ctx, "Steep streets"),
             Widget::row(vec![
                 GeomBatch::from(vec![(ctx.style().text_fg_color, panel_arrow)])
@@ -204,7 +204,7 @@ impl ElevationContours {
 
         let (closest_elevation, unzoomed) = make_contours(ctx, app, low, high);
 
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             header(ctx, "Elevation"),
             format!("Elevation from {} to {}", low, high).text_widget(ctx),
         ]))

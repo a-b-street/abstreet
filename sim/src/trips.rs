@@ -163,8 +163,8 @@ impl TripManager {
 
         let info = &self.trips[trip.0].info;
         let spec = match TripSpec::maybe_new(
-            info.start.clone(),
-            info.end.clone(),
+            info.start,
+            info.end,
             info.mode,
             args.use_vehicle,
             args.retry_if_no_room,
@@ -177,7 +177,7 @@ impl TripManager {
             },
         };
         // to_plan might actually change the TripSpec
-        let (spec, legs) = spec.to_plan(ctx.map);
+        let (spec, legs) = spec.into_plan(ctx.map);
         assert!(self.trips[trip.0].legs.is_empty());
         self.trips[trip.0].legs.extend(legs);
 
@@ -451,7 +451,7 @@ impl TripManager {
     }
 
     pub fn collect_events(&mut self) -> Vec<Event> {
-        std::mem::replace(&mut self.events, Vec::new())
+        std::mem::take(&mut self.events)
     }
 }
 
@@ -1038,7 +1038,7 @@ impl TripManager {
     ) {
         let trip = &mut self.trips[id.0];
         self.unfinished_trips -= 1;
-        trip.info.cancellation_reason = Some(reason.to_string());
+        trip.info.cancellation_reason = Some(reason);
         self.events
             .push(Event::TripCancelled(trip.id, trip.info.mode));
         let person = trip.person;
@@ -1078,7 +1078,7 @@ impl TripManager {
                         // TODO Could pick something closer, but meh, cancelled trips are bugs
                         // anyway
                         .get(0)
-                        .map(|(spot, _)| spot.clone())
+                        .map(|(spot, _)| *spot)
                         .or_else(|| {
                             ctx.parking
                                 .path_to_free_parking_spot(driving_lane, &vehicle, b, ctx.map)
@@ -1341,7 +1341,7 @@ impl TripManager {
         for p in &self.people {
             scenario.people.push(PersonSpec {
                 orig_id: p.orig_id,
-                origin: self.trips[p.trips[0].0].info.start.clone(),
+                origin: self.trips[p.trips[0].0].info.start,
                 trips: p
                     .trips
                     .iter()
@@ -1350,7 +1350,7 @@ impl TripManager {
                         IndividTrip::new(
                             trip.info.departure,
                             trip.info.purpose,
-                            trip.info.end.clone(),
+                            trip.info.end,
                             trip.info.mode,
                         )
                     })

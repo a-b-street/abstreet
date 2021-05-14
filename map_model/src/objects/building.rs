@@ -139,7 +139,7 @@ impl Building {
     }
 
     pub fn house_number(&self) -> Option<String> {
-        let num = self.address.split(" ").next().unwrap();
+        let num = self.address.split(' ').next().unwrap();
         if num != "???" {
             Some(num.to_string())
         } else {

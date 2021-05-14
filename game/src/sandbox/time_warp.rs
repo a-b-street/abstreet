@@ -23,7 +23,7 @@ pub struct JumpToTime {
 }
 
 impl JumpToTime {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         app: &App,
         maybe_mode: Option<GameplayMode>,
@@ -94,13 +94,13 @@ impl JumpToTime {
         Box::new(JumpToTime {
             target,
             maybe_mode,
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 ctx.style().btn_close_widget(ctx),
                 tabs.build_widget(ctx),
             ]))
             .exact_size(ScreenDims::new(640.0, 360.0))
             .build(ctx),
-            tabs: tabs,
+            tabs,
         })
     }
 }
@@ -120,7 +120,7 @@ impl State<App> for JumpToTime {
                                 app,
                                 mode,
                                 Box::new(move |ctx, app| {
-                                    vec![Transition::Push(TimeWarpScreen::new(
+                                    vec![Transition::Push(TimeWarpScreen::new_state(
                                         ctx,
                                         app,
                                         target_time,
@@ -129,19 +129,24 @@ impl State<App> for JumpToTime {
                                 }),
                             ));
                         } else {
-                            return Transition::Replace(PopupMsg::new(
+                            return Transition::Replace(PopupMsg::new_state(
                                 ctx,
                                 "Error",
                                 vec!["Sorry, you can't go rewind time from this mode."],
                             ));
                         }
                     }
-                    return Transition::Replace(TimeWarpScreen::new(ctx, app, self.target, None));
+                    return Transition::Replace(TimeWarpScreen::new_state(
+                        ctx,
+                        app,
+                        self.target,
+                        None,
+                    ));
                 }
                 "jump to delay" => {
                     let delay = self.panel.dropdown_value("delay");
                     app.opts.jump_to_delay = delay;
-                    return Transition::Replace(TimeWarpScreen::new(
+                    return Transition::Replace(TimeWarpScreen::new_state(
                         ctx,
                         app,
                         app.primary.sim.get_end_of_day(),
@@ -205,7 +210,7 @@ pub struct TimeWarpScreen {
 }
 
 impl TimeWarpScreen {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         app: &mut App,
         target: Time,
@@ -230,7 +235,7 @@ impl TimeWarpScreen {
             wall_time_started: Instant::now(),
             sim_time_started: app.primary.sim.time(),
             halt_upon_delay,
-            panel: Panel::new(
+            panel: Panel::new_builder(
                 Widget::col(vec![
                     Text::new().into_widget(ctx).named("text"),
                     Toggle::checkbox(
@@ -265,9 +270,10 @@ impl State<App> for TimeWarpScreen {
                 Duration::seconds(0.033),
                 &mut app.primary.sim_cb,
             );
+            #[allow(clippy::never_loop)]
             for (t, maybe_i, alert) in app.primary.sim.clear_alerts() {
                 // TODO Just the first :(
-                return Transition::Replace(PopupMsg::new(
+                return Transition::Replace(PopupMsg::new_state(
                     ctx,
                     "Alert",
                     vec![format!("At {}, near {:?}, {}", t, maybe_i, alert)],
@@ -280,7 +286,7 @@ impl State<App> for TimeWarpScreen {
                         let id = ID::Intersection(*i);
                         app.primary.layer =
                             Some(Box::new(crate::layer::traffic::TrafficJams::new(ctx, app)));
-                        return Transition::Replace(Warping::new(
+                        return Transition::Replace(Warping::new_state(
                             ctx,
                             app.primary.canonical_point(id.clone()).unwrap(),
                             Some(10.0),
@@ -353,8 +359,7 @@ impl State<App> for TimeWarpScreen {
                     return Transition::Pop;
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
         if self.panel.clicked_outside(ctx) {
             return Transition::Pop;
@@ -408,17 +413,19 @@ fn area_under_curve(raw: Vec<(Time, usize)>, width: f64, height: f64) -> Polygon
     }
     downsampled.push(Pt2D::new(width, height));
     downsampled.push(downsampled[0]);
-    Ring::must_new(downsampled).to_polygon()
+    Ring::must_new(downsampled).into_polygon()
 }
 
 // TODO Maybe color, put in helpers
 fn compare_count(after: usize, before: usize) -> String {
-    if after == before {
-        "+0".to_string()
-    } else if after > before {
-        format!("+{}", prettyprint_usize(after - before))
-    } else {
-        format!("-{}", prettyprint_usize(before - after))
+    match after.cmp(&before) {
+        std::cmp::Ordering::Equal => "+0".to_string(),
+        std::cmp::Ordering::Greater => {
+            format!("+{}", prettyprint_usize(after - before))
+        }
+        std::cmp::Ordering::Less => {
+            format!("-{}", prettyprint_usize(before - after))
+        }
     }
 }
 

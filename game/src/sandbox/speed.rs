@@ -148,7 +148,7 @@ impl TimePanel {
                 .build_widget(ctx, "reset to midnight"),
         );
 
-        let mut panel = Panel::new(Widget::col(vec![
+        let mut panel = Panel::new_builder(Widget::col(vec![
             self.create_time_panel(ctx, app).named("time"),
             Widget::custom_row(row),
         ]))
@@ -262,22 +262,24 @@ impl TimePanel {
         ));
         if let Some(baseline_finished) = self.baseline_finished_trips {
             // TODO: up/down icons
-            let line = if baseline_finished > finished {
-                let difference = baseline_finished - finished;
-                Line(format!(
-                    "{} less than baseline",
-                    prettyprint_usize(difference)
-                ))
-                .fg(ctx.style().text_destructive_color)
-            } else if baseline_finished < finished {
-                let difference = finished - baseline_finished;
-                Line(format!(
-                    "{} more than baseline",
-                    prettyprint_usize(difference)
-                ))
-                .fg(Color::GREEN)
-            } else {
-                Line("No change from baseline")
+            let line = match baseline_finished.cmp(&finished) {
+                std::cmp::Ordering::Greater => {
+                    let difference = baseline_finished - finished;
+                    Line(format!(
+                        "{} less than baseline",
+                        prettyprint_usize(difference)
+                    ))
+                    .fg(ctx.style().text_destructive_color)
+                }
+                std::cmp::Ordering::Less => {
+                    let difference = finished - baseline_finished;
+                    Line(format!(
+                        "{} more than baseline",
+                        prettyprint_usize(difference)
+                    ))
+                    .fg(Color::GREEN)
+                }
+                std::cmp::Ordering::Equal => Line("No change from baseline"),
             };
             tooltip_text.add_line(line);
         }
@@ -285,7 +287,7 @@ impl TimePanel {
         let bounds = progress_bar.get_bounds();
         let bounding_box = Polygon::rectangle(bounds.width(), bounds.height());
         let tooltip = vec![(bounding_box, tooltip_text)];
-        DrawWithTooltips::new(ctx, progress_bar, tooltip, Box::new(|_| GeomBatch::new()))
+        DrawWithTooltips::new_widget(ctx, progress_bar, tooltip, Box::new(|_| GeomBatch::new()))
     }
 
     fn create_time_panel(&mut self, ctx: &EventCtx, app: &App) -> Widget {
@@ -341,8 +343,8 @@ impl TimePanel {
             self.panel.replace(ctx, "time", time);
         }
 
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "real-time speed" => {
                     self.setting = SpeedSetting::Realtime;
                     self.recreate_panel(ctx, app);
@@ -378,7 +380,7 @@ impl TimePanel {
                             mode.clone(),
                         )));
                     } else {
-                        return Some(Transition::Push(PopupMsg::new(
+                        return Some(Transition::Push(PopupMsg::new_state(
                             ctx,
                             "Error",
                             vec!["Sorry, you can't go rewind time from this mode."],
@@ -386,7 +388,7 @@ impl TimePanel {
                     }
                 }
                 "jump to specific time" => {
-                    return Some(Transition::Push(JumpToTime::new(
+                    return Some(Transition::Push(JumpToTime::new_state(
                         ctx,
                         app,
                         maybe_mode.cloned(),
@@ -401,7 +403,7 @@ impl TimePanel {
                         app.recalculate_current_selection(ctx);
                         return Some(Transition::KeepWithMouseover);
                     }
-                    return Some(Transition::Push(TimeWarpScreen::new(
+                    return Some(Transition::Push(TimeWarpScreen::new_state(
                         ctx,
                         app,
                         app.primary.sim.time() + dt,
@@ -409,15 +411,15 @@ impl TimePanel {
                     )));
                 }
                 "see why results are tentative" => {
-                    return Some(Transition::Push(PopupMsg::new(
+                    return Some(Transition::Push(PopupMsg::new_state(
                         ctx,
                         "Simulation results not finalized",
                         vec![
                             "You edited the map in the middle of the day.",
                             "Some trips may have been interrupted, and others might have made \
-                             different decisions if they saw the new map from the start.",
+                            different decisions if they saw the new map from the start.",
                             "To get final results, reset to midnight and test your proposal over \
-                             a full day.",
+                            a full day.",
                         ],
                     )));
                 }
@@ -425,8 +427,7 @@ impl TimePanel {
                     app.primary.sim.save_recorded_traffic(&app.primary.map);
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
         // Just kind of constantly scrape this
         app.opts.time_increment = self.panel.persistent_split_value("step forwards");
@@ -453,11 +454,10 @@ impl TimePanel {
                 SpeedSetting::Realtime => {
                     if self.paused {
                         self.paused = false;
-                        self.recreate_panel(ctx, app);
                     } else {
                         self.setting = SpeedSetting::Fast;
-                        self.recreate_panel(ctx, app);
                     }
+                    self.recreate_panel(ctx, app);
                 }
                 SpeedSetting::Fast => {
                     self.setting = SpeedSetting::Faster;
@@ -496,7 +496,7 @@ impl TimePanel {
         // TODO Need to do this anywhere that steps the sim, like TimeWarpScreen.
         let alerts = app.primary.sim.clear_alerts();
         if !alerts.is_empty() {
-            let popup = PopupMsg::new(
+            let popup = PopupMsg::new_state(
                 ctx,
                 "Alerts",
                 alerts.iter().map(|(_, _, msg)| msg).collect(),
@@ -520,7 +520,7 @@ impl TimePanel {
                 // Just go to the first one, but print all messages
                 return Some(Transition::Multi(vec![
                     Transition::Push(popup),
-                    Transition::Push(Warping::new(
+                    Transition::Push(Warping::new_state(
                         ctx,
                         app.primary.canonical_point(id).unwrap(),
                         Some(10.0),

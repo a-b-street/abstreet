@@ -167,8 +167,8 @@ impl RoadSelector {
             }
         }
 
-        match clicked {
-            Some(x) => match x {
+        if let Some(x) = clicked {
+            match x {
                 "paint" => {
                     self.dragging = false;
                     self.mode = Mode::Paint;
@@ -195,8 +195,7 @@ impl RoadSelector {
                     return true;
                 }
                 _ => unreachable!(),
-            },
-            None => {}
+            }
         }
 
         if let Mode::Route {

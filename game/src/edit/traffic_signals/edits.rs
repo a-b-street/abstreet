@@ -18,13 +18,13 @@ pub struct ChangeDuration {
 }
 
 impl ChangeDuration {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         app: &App,
         signal: &ControlTrafficSignal,
         idx: usize,
     ) -> Box<dyn State<App>> {
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
                 Line("How long should this stage last?")
                     .small_heading()
@@ -98,7 +98,7 @@ impl ChangeDuration {
                 .build_def(ctx),
         ]))
         .build(ctx);
-        <dyn SimpleState<_>>::new(panel, Box::new(ChangeDuration { idx }))
+        <dyn SimpleState<_>>::new_state(panel, Box::new(ChangeDuration { idx }))
     }
 }
 
@@ -205,12 +205,12 @@ pub fn edit_entire_signal(
         choices.push(gmns);
     }
 
-    ChooseSomething::new(
+    ChooseSomething::new_state(
         ctx,
         "What do you want to change?",
         Choice::strings(choices),
         Box::new(move |x, ctx, app| match x.as_str() {
-            x if x == use_template => Transition::Replace(ChooseSomething::new(
+            x if x == use_template => Transition::Replace(ChooseSomething::new_state(
                 ctx,
                 "Use which preset for this intersection?",
                 Choice::from(ControlTrafficSignal::get_possible_policies(
@@ -241,7 +241,7 @@ pub fn edit_entire_signal(
                     }
                 })),
             ]),
-            x if x == major_minor_timing => Transition::Replace(ChooseSomething::new(
+            x if x == major_minor_timing => Transition::Replace(ChooseSomething::new_state(
                 ctx,
                 "Use what timing split?",
                 vec![
@@ -267,9 +267,11 @@ pub fn edit_entire_signal(
                                 });
                             })),
                         ]),
-                        Err(err) => {
-                            Transition::Replace(PopupMsg::new(ctx, "Error", vec![err.to_string()]))
-                        }
+                        Err(err) => Transition::Replace(PopupMsg::new_state(
+                            ctx,
+                            "Error",
+                            vec![err.to_string()],
+                        )),
                     }
                 }),
             )),
@@ -285,7 +287,7 @@ pub fn edit_entire_signal(
                 apply_map_edits(ctx, app, edits);
                 Transition::Multi(vec![
                     Transition::Pop,
-                    Transition::Replace(StopSignEditor::new(ctx, app, i, mode.clone())),
+                    Transition::Replace(StopSignEditor::new_state(ctx, app, i, mode.clone())),
                 ])
             }
             x if x == close => {
@@ -334,7 +336,7 @@ pub fn edit_entire_signal(
                         });
                     })),
                     Err(err) => {
-                        Transition::Push(PopupMsg::new(ctx, "Error", vec![err.to_string()]))
+                        Transition::Push(PopupMsg::new_state(ctx, "Error", vec![err.to_string()]))
                     }
                 },
             ]),

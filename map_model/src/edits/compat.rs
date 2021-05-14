@@ -252,7 +252,7 @@ fn fix_old_lane_cmds(value: &mut Value, map: &Map) -> Result<()> {
 fn fix_merge_zones(value: &mut Value) {
     let obj = value.as_object_mut().unwrap();
     if !obj.contains_key("merge_zones") {
-        obj.insert("merge_zones".to_string(), Value::Bool(true.into()));
+        obj.insert("merge_zones".to_string(), Value::Bool(true));
     }
 }
 
@@ -362,7 +362,7 @@ fn fix_lane_widths(value: &mut Value, map: &Map) -> Result<()> {
             let road = map.get_r(map.find_r_by_osm_id(road_id)?);
             let cmd = cmd.as_object_mut().unwrap();
 
-            for key in vec!["old", "new"] {
+            for &key in &["old", "new"] {
                 let mut lanes_ltr = Vec::new();
                 for (idx, mut pair) in cmd[key]["lanes_ltr"]
                     .as_array_mut()

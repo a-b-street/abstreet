@@ -25,7 +25,7 @@ pub struct Viewer {
 }
 
 impl Viewer {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         if let Err(err) = URLManager::update_url_free_param(
             app.map
                 .get_name()
@@ -55,7 +55,7 @@ impl Viewer {
         app: &App,
         biz_search_panel: Option<Widget>,
     ) {
-        let top_panel = Panel::new(Widget::col(vec![
+        let top_panel = Panel::new_builder(Widget::col(vec![
             Line("OpenStreetMap viewer")
                 .small_heading()
                 .into_widget(ctx),
@@ -262,7 +262,7 @@ impl State<App> for Viewer {
                 // get_obj must succeed, because we can only click static map elements.
                 let outline = app
                     .draw_map
-                    .get_obj(ctx, id, app, &mut map_gui::render::AgentCache::new())
+                    .get_obj(ctx, id, app, &mut map_gui::render::AgentCache::new_state())
                     .unwrap()
                     .get_outline(&app.map);
                 let mut batch = GeomBatch::from(vec![(app.cs.perma_selected_object, outline)]);
@@ -292,25 +292,25 @@ impl State<App> for Viewer {
         match self.top_panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "change map" => {
-                    return Transition::Push(CityPicker::new(
+                    return Transition::Push(CityPicker::new_state(
                         ctx,
                         app,
                         Box::new(|ctx, app| {
                             Transition::Multi(vec![
                                 Transition::Pop,
-                                Transition::Replace(Viewer::new(ctx, app)),
+                                Transition::Replace(Viewer::new_state(ctx, app)),
                             ])
                         }),
                     ));
                 }
                 "settings" => {
-                    return Transition::Push(OptionsPanel::new(ctx, app));
+                    return Transition::Push(OptionsPanel::new_state(ctx, app));
                 }
                 "search" => {
-                    return Transition::Push(Navigator::new(ctx, app));
+                    return Transition::Push(Navigator::new_state(ctx, app));
                 }
                 "About" => {
-                    return Transition::Push(PopupMsg::new(
+                    return Transition::Push(PopupMsg::new_state(
                         ctx,
                         "About this OSM viewer",
                         vec![

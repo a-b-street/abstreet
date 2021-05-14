@@ -77,7 +77,7 @@ pub fn serialize_hashmap<S: Serializer, K: Serialize + Ord, V: Serialize>(
     s: S,
 ) -> Result<S::Ok, S::Error> {
     let mut list: Vec<(&K, &V)> = map.iter().collect();
-    list.sort_by_key(|(k, _)| k.clone());
+    list.sort_by_key(|(k, _)| *k);
     list.serialize(s)
 }
 

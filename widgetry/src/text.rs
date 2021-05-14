@@ -383,7 +383,7 @@ impl Text {
         JustDraw::wrap(ctx, self.render(ctx))
     }
     pub fn batch(self, ctx: &EventCtx) -> Widget {
-        DeferDraw::new(self.render(ctx))
+        DeferDraw::new_widget(self.render(ctx))
     }
 
     pub fn wrap_to_pct(self, ctx: &EventCtx, pct: usize) -> Text {
@@ -472,7 +472,7 @@ fn render_line(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
                 Font::OverpassSemiBold => "font-weight=\"600\"",
                 _ => "",
             },
-            fg_color.to_hex(),
+            fg_color.as_hex(),
             fg_color.a,
             if span.underlined {
                 "text-decoration=\"underline\""
@@ -545,7 +545,7 @@ impl TextSpan {
             path.points()[0].y()
         )
         .unwrap();
-        for pt in path.points().into_iter().skip(1) {
+        for pt in path.points().iter().skip(1) {
             write!(&mut svg, " L {} {}", pt.x(), pt.y()).unwrap();
         }
         write!(&mut svg, "\" />").unwrap();
@@ -566,7 +566,7 @@ impl TextSpan {
                 Font::OverpassSemiBold => "font-weight=\"600\"",
                 _ => "",
             },
-            fg_color.to_hex(),
+            fg_color.as_hex(),
             fg_color.a,
             start_offset,
         )

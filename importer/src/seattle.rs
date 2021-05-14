@@ -198,7 +198,7 @@ pub fn add_gtfs_schedules(map: &mut Map) {
     for br in map.all_bus_routes() {
         if let Some(ref m) = br.gtfs_trip_marker {
             // Dunno what the :0 thing is
-            trip_marker_to_route.insert(m.split(":").next().unwrap().to_string(), br.id);
+            trip_marker_to_route.insert(m.split(':').next().unwrap().to_string(), br.id);
         }
     }
 
@@ -283,7 +283,7 @@ pub fn match_parcels_to_buildings(map: &mut Map, shapes: &ExtraShapes, timer: &m
                 .try_convert(&shape.points)
                 .and_then(|pts| Ring::new(pts).ok())
             {
-                let polygon = ring.to_polygon();
+                let polygon = ring.into_polygon();
                 quadtree
                     .insert_with_box(parcels_with_housing.len(), polygon.get_bounds().as_bbox());
                 parcels_with_housing.push((polygon, units));

@@ -38,7 +38,7 @@ enum Mode {
 }
 
 impl StoryMapEditor {
-    pub fn new(ctx: &mut EventCtx) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx) -> Box<dyn State<App>> {
         let story = StoryMap::new();
         let mode = Mode::View;
         let dirty = false;
@@ -126,8 +126,8 @@ impl State<App> for StoryMapEditor {
             }
             Mode::Editing(idx, ref mut panel) => {
                 ctx.canvas_movement();
-                match panel.event(ctx) {
-                    Outcome::Clicked(x) => match x.as_ref() {
+                if let Outcome::Clicked(x) = panel.event(ctx) {
+                    match x.as_ref() {
                         "close" => {
                             self.mode = Mode::View;
                             self.redo_panel(ctx);
@@ -150,8 +150,7 @@ impl State<App> for StoryMapEditor {
                             self.redo_panel(ctx);
                         }
                         _ => unreachable!(),
-                    },
-                    _ => {}
+                    }
                 }
             }
             Mode::Freehand(None) => {
@@ -174,15 +173,15 @@ impl State<App> for StoryMapEditor {
             }
         }
 
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "close" => {
                     // TODO autosave
                     return Transition::Pop;
                 }
                 "save" => {
                     if self.story.name == "new story" {
-                        return Transition::Push(PromptInput::new(
+                        return Transition::Push(PromptInput::new_state(
                             ctx,
                             "Name this story map",
                             String::new(),
@@ -227,7 +226,7 @@ impl State<App> for StoryMapEditor {
                         },
                     ));
 
-                    return Transition::Push(ChooseSomething::new(
+                    return Transition::Push(ChooseSomething::new_state(
                         ctx,
                         "Load story",
                         choices,
@@ -259,8 +258,7 @@ impl State<App> for StoryMapEditor {
                     self.redo_panel(ctx);
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         Transition::Keep
@@ -308,7 +306,7 @@ impl State<App> for StoryMapEditor {
 }
 
 fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) -> Panel {
-    Panel::new(Widget::col(vec![
+    Panel::new_builder(Widget::col(vec![
         Widget::row(vec![
             Line("Story map editor").small_heading().into_widget(ctx),
             Widget::vert_separator(ctx, 30.0),
@@ -425,7 +423,7 @@ impl Marker {
             );
             batch.unioned_polygon()
         } else {
-            let poly = Ring::must_new(pts.clone()).to_polygon();
+            let poly = Ring::must_new(pts.clone()).into_polygon();
             batch.push(Color::RED.alpha(0.8), poly.clone());
             if let Ok(o) = poly.to_outline(Distance::meters(1.0)) {
                 batch.push(Color::RED, o);
@@ -463,7 +461,7 @@ impl Marker {
                     .centered_on(self.pts[0]),
             );
         } else {
-            batch.push(Color::RED, Ring::must_new(self.pts.clone()).to_polygon());
+            batch.push(Color::RED, Ring::must_new(self.pts.clone()).into_polygon());
             // TODO Refactor plz
             batch.append(
                 Text::from(&self.event)
@@ -477,7 +475,7 @@ impl Marker {
     }
 
     fn make_editor(&self, ctx: &mut EventCtx) -> Panel {
-        Panel::new(Widget::col(vec![
+        Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
                 Line("Editing marker").small_heading().into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),

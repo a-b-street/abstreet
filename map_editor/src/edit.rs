@@ -13,7 +13,7 @@ pub struct EditRoad {
 }
 
 impl EditRoad {
-    pub(crate) fn new(ctx: &mut EventCtx, app: &App, r: OriginalRoad) -> Box<dyn State<App>> {
+    pub(crate) fn new_state(ctx: &mut EventCtx, app: &App, r: OriginalRoad) -> Box<dyn State<App>> {
         let road = &app.model.map.roads[&r];
 
         let mut batch = GeomBatch::new();
@@ -115,10 +115,10 @@ impl EditRoad {
                 .hotkey(Key::Enter)
                 .build_def(ctx),
         ];
-        let panel = Panel::new(Widget::col(col))
+        let panel = Panel::new_builder(Widget::col(col))
             .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
             .build(ctx);
-        <dyn SimpleState<_>>::new(
+        <dyn SimpleState<_>>::new_state(
             panel,
             Box::new(EditRoad {
                 r,

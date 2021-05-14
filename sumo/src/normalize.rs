@@ -95,7 +95,7 @@ impl Network {
                     speed: lane.speed,
                     length: lane.length,
                     // https://sumo.dlr.de/docs/Simulation/SublaneModel.html
-                    width: lane.width.unwrap_or(Distance::meters(3.2)),
+                    width: lane.width.unwrap_or_else(|| Distance::meters(3.2)),
                     center_line: lane.shape.unwrap(),
                     allow: lane.allow,
                 });
@@ -109,7 +109,7 @@ impl Network {
                     name: edge.name,
                     from,
                     to,
-                    priority: edge.priority.unwrap_or_else(|| template.priority),
+                    priority: edge.priority.unwrap_or(template.priority),
                     lanes,
                     center_line,
                 },
@@ -131,7 +131,7 @@ impl Network {
         for junction in self.junctions.values_mut() {
             junction.pt = fix(&junction.pt);
             junction.shape =
-                Ring::must_new(junction.shape.points().iter().map(fix).collect()).to_polygon();
+                Ring::must_new(junction.shape.points().iter().map(fix).collect()).into_polygon();
         }
         for edge in self.normal_edges.values_mut() {
             edge.center_line =

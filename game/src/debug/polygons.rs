@@ -22,18 +22,18 @@ pub enum Item {
 }
 
 impl PolygonDebugger {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         noun: &str,
         items: Vec<Item>,
         center: Option<Pt2D>,
     ) -> Box<dyn State<App>> {
         if items.is_empty() {
-            return PopupMsg::new(ctx, "Woops", vec![format!("No {}, never mind", noun)]);
+            return PopupMsg::new_state(ctx, "Woops", vec![format!("No {}, never mind", noun)]);
         }
 
         Box::new(PolygonDebugger {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Geometry debugger").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
@@ -67,8 +67,8 @@ impl State<App> for PolygonDebugger {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
         ctx.canvas_movement();
 
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
@@ -83,8 +83,7 @@ impl State<App> for PolygonDebugger {
                     }
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
         self.panel.replace(
             ctx,

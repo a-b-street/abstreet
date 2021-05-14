@@ -20,14 +20,14 @@ pub struct Floodfiller {
 impl Floodfiller {
     pub fn floodfill(ctx: &mut EventCtx, app: &App, l: LaneID) -> Box<dyn State<App>> {
         let constraints = PathConstraints::from_lt(app.primary.map.get_l(l).lane_type);
-        Floodfiller::new(ctx, app, Source::Floodfill(l), constraints)
+        Floodfiller::new_state(ctx, app, Source::Floodfill(l), constraints)
     }
     pub fn scc(ctx: &mut EventCtx, app: &App, l: LaneID) -> Box<dyn State<App>> {
         let constraints = PathConstraints::from_lt(app.primary.map.get_l(l).lane_type);
-        Floodfiller::new(ctx, app, Source::SCC, constraints)
+        Floodfiller::new_state(ctx, app, Source::SCC, constraints)
     }
 
-    fn new(
+    fn new_state(
         ctx: &mut EventCtx,
         app: &App,
         source: Source,
@@ -49,7 +49,7 @@ impl Floodfiller {
 
         let (unzoomed, zoomed, legend) = colorer.build(ctx);
         Box::new(Floodfiller {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line(title).small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
@@ -93,7 +93,7 @@ impl State<App> for Floodfiller {
                 _ => unreachable!(),
             },
             Outcome::Changed(_) => {
-                return Transition::Replace(Floodfiller::new(
+                return Transition::Replace(Floodfiller::new_state(
                     ctx,
                     app,
                     self.source.clone(),
@@ -157,7 +157,7 @@ impl Source {
             }
             Source::SCC => {
                 let (good, bad) = connectivity::find_scc(map, constraints);
-                (good, bad, format!("strongpy-connected component"))
+                (good, bad, "strongly-connected component".to_string())
             }
         }
     }

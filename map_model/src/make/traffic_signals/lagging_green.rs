@@ -36,7 +36,7 @@ fn make_signal(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> {
         ts = stage_per_road(map, id);
         ts.convert_to_ped_scramble();
     }
-    return Some(ts);
+    Some(ts)
 }
 
 fn optimize(mut ts: ControlTrafficSignal) -> Option<ControlTrafficSignal> {
@@ -57,15 +57,12 @@ fn make_crosswalk_variable(ts: &mut ControlTrafficSignal) {
     const MIN_CROSSWALK_TIME: Duration = Duration::const_seconds(15.0);
     for mut s in ts.stages.iter_mut() {
         if let Some(duration) = s.max_crosswalk_time(&ts.movements) {
-            match s.stage_type {
-                StageType::Fixed(_) => {
-                    s.stage_type = StageType::Variable(
-                        duration.max(MIN_CROSSWALK_TIME),
-                        Duration::const_seconds(1.0),
-                        Duration::const_seconds(1.0),
-                    )
-                }
-                _ => (),
+            if let StageType::Fixed(_) = s.stage_type {
+                s.stage_type = StageType::Variable(
+                    duration.max(MIN_CROSSWALK_TIME),
+                    Duration::const_seconds(1.0),
+                    Duration::const_seconds(1.0),
+                )
             }
         }
     }
@@ -111,7 +108,7 @@ fn is_conflict(ts: &ControlTrafficSignal, stage: &Stage) -> Option<(MovementID, 
             }
         }
     }
-    return None;
+    None
 }
 
 fn protected_yield_stage(p: MovementID, y: MovementID) -> Stage {
@@ -136,12 +133,12 @@ fn multi_way_stages(map: &Map, id: IntersectionID) -> Option<ControlTrafficSigna
     let (one_way, two_way) = straight_types(&straight);
     for m in &one_way {
         let mut stage = Stage::new();
-        stage.protected_movements.insert(m.clone());
+        stage.protected_movements.insert(*m);
         for t in turns(&m.from.id, &right) {
-            stage.protected_movements.insert(t.clone());
+            stage.protected_movements.insert(t);
         }
         for t in turns(&m.from.id, &left) {
-            stage.protected_movements.insert(t.clone());
+            stage.protected_movements.insert(t);
         }
         add_stage(&mut ts, stage);
         roads.remove(&m.from.id);
@@ -150,8 +147,8 @@ fn multi_way_stages(map: &Map, id: IntersectionID) -> Option<ControlTrafficSigna
         let mut stage1 = Stage::new();
         let mut stage2 = Stage::new();
         // Insert the straight movements, followed by the right and then the left.
-        stage1.protected_movements.insert(m1.clone());
-        stage1.protected_movements.insert(m2.clone());
+        stage1.protected_movements.insert(*m1);
+        stage1.protected_movements.insert(*m2);
         stage1
             .protected_movements
             .extend(turns(&m1.from.id, &right));
@@ -187,14 +184,14 @@ fn multi_way_stages(map: &Map, id: IntersectionID) -> Option<ControlTrafficSigna
         if let Some(r2) = vec.pop() {
             // dual stage, with lagging left turns
             if let Some(m) = remove_movement(&r1, &r2, &mut right) {
-                stage1.protected_movements.insert(m.clone());
+                stage1.protected_movements.insert(m);
             } else if let Some(m) = remove_movement(&r1, &r2, &mut left) {
-                stage1.protected_movements.insert(m.clone());
+                stage1.protected_movements.insert(m);
             }
             if let Some(m) = remove_movement(&r2, &r1, &mut right) {
-                stage1.protected_movements.insert(m.clone());
+                stage1.protected_movements.insert(m);
             } else if let Some(m) = remove_movement(&r2, &r1, &mut left) {
-                stage1.protected_movements.insert(m.clone());
+                stage1.protected_movements.insert(m);
             }
 
             // add right turns
@@ -239,7 +236,7 @@ fn turns(from: &RoadID, turns: &Vec<MovementID>) -> Vec<MovementID> {
         .iter()
         .filter_map(|turn| {
             if from.0 == turn.from.id.0 {
-                Some(turn.clone())
+                Some(*turn)
             } else {
                 None
             }
@@ -248,15 +245,10 @@ fn turns(from: &RoadID, turns: &Vec<MovementID>) -> Vec<MovementID> {
 }
 
 fn remove_movement(from: &RoadID, to: &RoadID, turns: &mut Vec<MovementID>) -> Option<MovementID> {
-    let result = if let Some(m) = turns
+    let result = turns
         .iter()
-        .filter(|turn| from.0 == turn.from.id.0 && to.0 == turn.to.id.0)
-        .next()
-    {
-        Some(m.clone())
-    } else {
-        None
-    };
+        .find(|turn| from.0 == turn.from.id.0 && to.0 == turn.to.id.0)
+        .copied();
     if result.is_some() {
         turns.retain(|turn| from.0 != turn.from.id.0 || to.0 != turn.to.id.0);
     }
@@ -364,9 +356,9 @@ fn movements(
     for (id, m) in &ts.movements {
         if !id.crosswalk {
             match m.turn_type {
-                TurnType::Right => right.push(id.clone()),
-                TurnType::Left => left.push(id.clone()),
-                TurnType::Straight => straight.push(id.clone()),
+                TurnType::Right => right.push(*id),
+                TurnType::Left => left.push(*id),
+                TurnType::Straight => straight.push(*id),
                 _ => (),
             }
             set.insert(id.from.id);
@@ -383,9 +375,9 @@ fn straight_types(movements: &Vec<MovementID>) -> (Vec<MovementID>, Vec<(Movemen
             .iter()
             .find(|&other| m.from.id == other.to.id && m.to.id == other.from.id)
         {
-            two_way.push((m.clone(), other.clone()));
+            two_way.push((*m, *other));
         } else {
-            one_way.push(m.clone());
+            one_way.push(*m);
         }
     }
     (one_way, two_way)

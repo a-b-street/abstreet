@@ -61,7 +61,7 @@ async fn main() -> Result<()> {
         assert!(out.status.success());
         // pick_geofabrik might output extra lines while downloading the index. Grab the last line.
         let output = String::from_utf8(out.stdout)?;
-        output.trim().split("\n").last().unwrap().trim().to_string()
+        output.trim().split('\n').last().unwrap().trim().to_string()
     };
 
     // Name the temporary map based on the Geofabrik region.

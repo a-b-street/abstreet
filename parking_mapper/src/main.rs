@@ -10,7 +10,7 @@ fn main() {
             let mut opts = map_gui::options::Options::default();
             opts.min_zoom_for_detail = 2.0;
             map_gui::SimpleApp::new(ctx, opts, (), |ctx, app| {
-                vec![mapper::ParkingMapper::new(ctx, app)]
+                vec![mapper::ParkingMapper::new_state(ctx, app)]
             })
         },
     );

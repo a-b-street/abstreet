@@ -89,7 +89,7 @@ impl TransitSimState {
 
     /// Returns the path for the first leg.
     pub fn create_empty_route(&mut self, bus_route: &BusRoute, map: &Map) -> Path {
-        if !self.routes.contains_key(&bus_route.id) {
+        self.routes.entry(bus_route.id).or_insert_with(|| {
             assert!(bus_route.stops.len() > 1);
             let mut stops = Vec::new();
             for (idx, stop1_id) in bus_route.stops.iter().enumerate() {
@@ -142,16 +142,13 @@ impl TransitSimState {
             } else {
                 None
             };
-            self.routes.insert(
-                bus_route.id,
-                Route {
-                    active_vehicles: BTreeSet::new(),
-                    stops,
-                    start,
-                    end_at_border,
-                },
-            );
-        }
+            Route {
+                active_vehicles: BTreeSet::new(),
+                stops,
+                start,
+                end_at_border,
+            }
+        });
 
         self.routes[&bus_route.id].start.clone()
     }
@@ -284,22 +281,20 @@ impl TransitSimState {
                 if let Some(path) = stop.next_stop.clone() {
                     bus.state = BusState::DrivingToStop(stop_idx + 1);
                     Router::follow_bus_route(id, path)
+                } else if let Some(path) = route.end_at_border.clone() {
+                    bus.state = BusState::DrivingOffMap;
+                    Router::follow_bus_route(id, path)
                 } else {
-                    if let Some(path) = route.end_at_border.clone() {
-                        bus.state = BusState::DrivingOffMap;
-                        Router::follow_bus_route(id, path)
-                    } else {
-                        route.active_vehicles.remove(&id);
-                        for (person, stop2) in &bus.passengers {
-                            panic!(
-                                "{} of {} is vanishing at its last stop, but {} is still riding \
-                                 until {:?}",
-                                bus.car, bus.route, person, stop2
-                            );
-                        }
-                        bus.state = BusState::Done;
-                        Router::vanish_bus(id, stop.driving_pos, map)
+                    route.active_vehicles.remove(&id);
+                    for (person, stop2) in &bus.passengers {
+                        panic!(
+                            "{} of {} is vanishing at its last stop, but {} is still riding \
+                             until {:?}",
+                            bus.car, bus.route, person, stop2
+                        );
                     }
+                    bus.state = BusState::Done;
+                    Router::vanish_bus(id, stop.driving_pos, map)
                 }
             }
         }

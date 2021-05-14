@@ -39,7 +39,9 @@ impl<T: 'static> SimpleApp<T> {
         opts.update_from_args(&mut args);
         let map_name = args
             .optional_free()
-            .map(|path| MapName::from_path(&path).expect(&format!("bad map path: {}", path)))
+            .map(|path| {
+                MapName::from_path(&path).unwrap_or_else(|| panic!("bad map path: {}", path))
+            })
             .or_else(|| {
                 abstio::maybe_read_json::<crate::tools::DefaultMap>(
                     abstio::path_player("maps.json"),
@@ -48,7 +50,7 @@ impl<T: 'static> SimpleApp<T> {
                 .ok()
                 .map(|x| x.last_map)
             })
-            .unwrap_or(MapName::seattle("montlake"));
+            .unwrap_or_else(|| MapName::seattle("montlake"));
         let center_camera = args.optional("--cam");
         args.done();
 
@@ -66,7 +68,7 @@ impl<T: 'static> SimpleApp<T> {
             time: Time::START_OF_DAY,
         };
 
-        let states = vec![MapLoader::new(
+        let states = vec![MapLoader::new_state(
             ctx,
             &app,
             map_name,
@@ -164,10 +166,7 @@ impl<T: 'static> SimpleApp<T> {
     /// Only select buildings, and work whether zoomed in or not.
     pub fn mouseover_unzoomed_buildings(&self, ctx: &EventCtx) -> Option<ID> {
         self.calculate_current_selection(ctx, false, true)
-            .filter(|id| match id {
-                ID::Building(_) => true,
-                _ => false,
-            })
+            .filter(|id| matches!(id, ID::Building(_)))
     }
 
     fn calculate_current_selection(

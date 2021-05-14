@@ -24,7 +24,7 @@ pub struct Viewer {
 }
 
 impl Viewer {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let mut viewer = Viewer {
             graph: app.primary.sim.get_blocked_by_graph(&app.primary.map),
             agent_positions: app
@@ -35,7 +35,7 @@ impl Viewer {
                 .map(|a| (a.id, a.pos))
                 .collect(),
             arrows: Drawable::empty(ctx),
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("What agents are blocked by others?")
                         .small_heading()
@@ -231,8 +231,8 @@ impl State<App> for Viewer {
             self.root_cause = root_cause;
         }
 
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
@@ -240,12 +240,11 @@ impl State<App> for Viewer {
                     // warp_to_id always replaces the current state, so insert a dummy one for it
                     // to clobber
                     return Transition::Multi(vec![
-                        Transition::Push(PopupMsg::new(ctx, "Warping", vec![""])),
+                        Transition::Push(PopupMsg::new_state(ctx, "Warping", vec![""])),
                         warp_to_id(ctx, app, x),
                     ]);
                 }
-            },
-            _ => {}
+            }
         }
 
         Transition::Keep

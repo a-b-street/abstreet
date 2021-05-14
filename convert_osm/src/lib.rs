@@ -79,7 +79,7 @@ pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
     if let Some(ref path) = opts.clip {
         let pts = LonLat::read_osmosis_polygon(path).unwrap();
         let gps_bounds = GPSBounds::from(pts.clone());
-        map.boundary_polygon = Ring::must_new(gps_bounds.convert(&pts)).to_polygon();
+        map.boundary_polygon = Ring::must_new(gps_bounds.convert(&pts)).into_polygon();
         map.gps_bounds = gps_bounds;
     }
 
@@ -120,7 +120,7 @@ pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
         add_extra_buildings(&mut map, path).unwrap();
     }
 
-    snappy::snap_cycleways(&mut map, timer);
+    snappy::snap_cycleways(&map, timer);
 
     map.config = opts.map_config;
     map
@@ -163,7 +163,7 @@ fn add_extra_buildings(map: &mut RawMap, path: &str) -> Result<()> {
                         .collect();
                     if let Some(pts) = map.gps_bounds.try_convert(&gps_pts) {
                         if let Ok(ring) = Ring::new(pts) {
-                            polygons.push(ring.to_polygon());
+                            polygons.push(ring.into_polygon());
                         }
                     }
                 }

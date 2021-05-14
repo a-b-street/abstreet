@@ -121,7 +121,7 @@ impl Color {
         Color::rgb(r, g, b)
     }
 
-    pub fn to_hex(&self) -> String {
+    pub fn as_hex(&self) -> String {
         format!(
             "#{:02X}{:02X}{:02X}",
             (self.r * 255.0) as usize,
@@ -165,7 +165,7 @@ pub struct LinearGradient {
 }
 
 impl LinearGradient {
-    pub(crate) fn new(lg: &usvg::LinearGradient) -> Fill {
+    pub(crate) fn new_fill(lg: &usvg::LinearGradient) -> Fill {
         let line = Line::must_new(Pt2D::new(lg.x1, lg.y1), Pt2D::new(lg.x2, lg.y2));
         let mut stops = Vec::new();
         for stop in &lg.stops {

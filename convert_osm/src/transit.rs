@@ -109,11 +109,9 @@ pub fn extract_route(
     for stop in stops {
         if boundary.contains_pt(stop.vehicle_pos.1) {
             keep_stops.push(stop);
-        } else {
-            if !keep_stops.is_empty() {
-                // That's the end of them
-                break;
-            }
+        } else if !keep_stops.is_empty() {
+            // That's the end of them
+            break;
         }
     }
     println!(
@@ -290,6 +288,7 @@ pub fn snap_bus_stops(
             .get_mut(&road)
             .ok_or_else(|| anyhow!("{} isn't an extracted road", road))?
             .osm_tags;
+        #[allow(clippy::if_same_then_else)]
         if tags.is(osm::INFERRED_SIDEWALKS, "true") {
             let current = tags.get(osm::SIDEWALK).unwrap();
             if current == "none" {

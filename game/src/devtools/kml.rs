@@ -40,7 +40,7 @@ const RADIUS: Distance = Distance::const_meters(5.0);
 const THICKNESS: Distance = Distance::const_meters(2.0);
 
 impl ViewKML {
-    pub fn new(ctx: &mut EventCtx, app: &App, path: Option<String>) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App, path: Option<String>) -> Box<dyn State<App>> {
         ctx.loading_screen("load kml", |ctx, mut timer| {
             // Enable to write a smaller .bin only with the shapes matching the bounds.
             let dump_clipped_shapes = false;
@@ -68,7 +68,7 @@ impl ViewKML {
 
             Box::new(ViewKML {
                 draw: ctx.upload(batch),
-                panel: Panel::new(Widget::col(vec![
+                panel: Panel::new_builder(Widget::col(vec![
                     Widget::row(vec![
                         Line("KML viewer").small_heading().into_widget(ctx),
                         ctx.style().btn_close_widget(ctx),
@@ -138,7 +138,7 @@ impl State<App> for ViewKML {
         if let Some(idx) = self.selected {
             if ctx.normal_left_click() {
                 self.selected = None;
-                return Transition::Push(PopupMsg::new(
+                return Transition::Push(PopupMsg::new_state(
                     ctx,
                     "Object",
                     self.objects[idx]
@@ -232,7 +232,7 @@ fn load_objects(
     let dataset_name = path
         .as_ref()
         .map(abstutil::basename)
-        .unwrap_or("no file".to_string());
+        .unwrap_or_else(|| "no file".to_string());
     let bldg_lookup: HashMap<String, BuildingID> = map
         .all_buildings()
         .iter()
@@ -297,7 +297,7 @@ fn make_object(
     } else if let Ok(ring) = Ring::new(pts.clone()) {
         if attribs.get("spatial_type") == Some(&"Polygon".to_string()) {
             color = cs.rotating_color_plot(obj_idx).alpha(0.8);
-            ring.to_polygon()
+            ring.into_polygon()
         } else {
             ring.to_outline(THICKNESS)
         }
@@ -406,7 +406,7 @@ fn pick_file(ctx: &mut EventCtx, app: &App) -> Transition {
     let (_, outer_progress_rx) = futures_channel::mpsc::channel(1);
     let (_, inner_progress_rx) = futures_channel::mpsc::channel(1);
     let start_dir = app.primary.map.get_city_name().input_path("");
-    Transition::Push(FutureLoader::<App, Option<String>>::new(
+    Transition::Push(FutureLoader::<App, Option<String>>::new_state(
         ctx,
         Box::pin(async move {
             let result = rfd::AsyncFileDialog::new()
@@ -425,7 +425,7 @@ fn pick_file(ctx: &mut EventCtx, app: &App) -> Transition {
             if let Ok(Some(path)) = maybe_path {
                 Transition::Multi(vec![
                     Transition::Pop,
-                    Transition::Replace(ViewKML::new(ctx, app, Some(path))),
+                    Transition::Replace(ViewKML::new_state(ctx, app, Some(path))),
                 ])
             } else {
                 Transition::Pop

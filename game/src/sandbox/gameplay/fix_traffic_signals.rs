@@ -26,7 +26,7 @@ pub struct FixTrafficSignals {
 }
 
 impl FixTrafficSignals {
-    pub fn new(ctx: &mut EventCtx) -> Box<dyn GameplayState> {
+    pub fn new_state(ctx: &mut EventCtx) -> Box<dyn GameplayState> {
         Box::new(FixTrafficSignals {
             top_right: Panel::empty(ctx),
             time: Time::START_OF_DAY,
@@ -128,7 +128,7 @@ impl GameplayState for FixTrafficSignals {
 
                 return Some(Transition::Multi(vec![
                     Transition::Push(final_score(ctx, app, self.mode.clone(), true)),
-                    Transition::Push(Warping::new(
+                    Transition::Push(Warping::new_state(
                         ctx,
                         app.primary
                             .canonical_point(ID::Intersection(self.worst.unwrap().0))
@@ -154,14 +154,22 @@ impl GameplayState for FixTrafficSignals {
             }
         }
 
-        match self.top_right.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.top_right.event(ctx) {
+            match x.as_ref() {
                 "edit map" => {
-                    return Some(Transition::Push(EditMode::new(ctx, app, self.mode.clone())));
+                    return Some(Transition::Push(EditMode::new_state(
+                        ctx,
+                        app,
+                        self.mode.clone(),
+                    )));
                 }
                 "instructions" => {
                     let contents = cutscene_pt1_task(ctx);
-                    return Some(Transition::Push(FYI::new(ctx, contents, Color::WHITE)));
+                    return Some(Transition::Push(FYI::new_state(
+                        ctx,
+                        contents,
+                        Color::WHITE,
+                    )));
                 }
                 "hint" => {
                     // TODO Multiple hints. Point to layers.
@@ -177,7 +185,11 @@ impl GameplayState for FixTrafficSignals {
                         Line("ams"),
                     ]);
                     let contents = txt.into_widget(ctx);
-                    return Some(Transition::Push(FYI::new(ctx, contents, app.cs.panel_bg)));
+                    return Some(Transition::Push(FYI::new_state(
+                        ctx,
+                        contents,
+                        app.cs.panel_bg,
+                    )));
                 }
                 "try again" => {
                     return Some(Transition::Replace(SandboxMode::simple_new(
@@ -195,7 +207,7 @@ impl GameplayState for FixTrafficSignals {
                         .unwrap()
                         .currently_delayed[0]
                         .0;
-                    return Some(Transition::Push(Warping::new(
+                    return Some(Transition::Push(Warping::new_state(
                         ctx,
                         app.primary.canonical_point(ID::Intersection(i)).unwrap(),
                         Some(10.0),
@@ -205,13 +217,13 @@ impl GameplayState for FixTrafficSignals {
                 }
                 "explain score" => {
                     // TODO Adjust wording
-                    return Some(Transition::Push(FYI::new(
+                    return Some(Transition::Push(FYI::new_state(
                         ctx,
                         Text::from_multiline(vec![
                             Line("You changed some traffic signals in the middle of the day."),
                             Line(
                                 "First see if you can survive for a full day, making changes \
-                                 along the way.",
+                                along the way.",
                             ),
                             Line("Then you should check if your changes work from midnight."),
                         ])
@@ -220,8 +232,7 @@ impl GameplayState for FixTrafficSignals {
                     )));
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         None
@@ -233,7 +244,7 @@ impl GameplayState for FixTrafficSignals {
 
     fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
         if let Some(time) = self.done_at {
-            self.top_right = Panel::new(Widget::col(vec![
+            self.top_right = Panel::new_builder(Widget::col(vec![
                 challenge_header(ctx, "Traffic signal survivor"),
                 Widget::row(vec![
                     Line(format!("Delay exceeded {} at {}", THRESHOLD, time))
@@ -279,7 +290,7 @@ impl GameplayState for FixTrafficSignals {
                 },
             ]);
 
-            self.top_right = Panel::new(Widget::col(vec![
+            self.top_right = Panel::new_builder(Widget::col(vec![
                 challenge_header(ctx, "Traffic signal survivor"),
                 Widget::row(vec![
                     Line(format!(
@@ -333,7 +344,7 @@ fn final_score(
     } else {
         "Wow, you managed to fix the signals. Great job!".to_string()
     };
-    FinalScore::new(ctx, app, msg, mode, None)
+    FinalScore::new_state(ctx, app, msg, mode, None)
 }
 
 // TODO Can we automatically transform text and SVG colors?

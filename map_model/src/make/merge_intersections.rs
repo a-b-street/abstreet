@@ -9,13 +9,14 @@ use crate::raw::{OriginalRoad, RawMap, RawRoad};
 /// Merge tiny "roads" that're actually just part of a complicated intersection. Returns all
 /// surviving intersections adjacent to one of these merged roads.
 pub fn merge_short_roads(map: &mut RawMap, consolidate_all: bool) -> BTreeSet<NodeID> {
+    #![allow(clippy::logic_bug)] // remove once the TODO below is taken care of
     let mut merged = BTreeSet::new();
 
     let mut queue: VecDeque<OriginalRoad> = VecDeque::new();
     for r in map.roads.keys() {
         queue.push_back(*r);
 
-        // TODO Remove after improving this heuristic.
+        // TODO Enable after improving this heuristic.
         if false && connects_dual_carriageway(map, r) {
             debug!("{} connects dual carriageways", r);
         }

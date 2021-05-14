@@ -71,7 +71,7 @@ fn parse_linestring(input: &str) -> Option<(LonLat, LonLat)> {
     let mut nums = Vec::new();
     for x in input
         .strip_prefix("LINESTRING(")?
-        .strip_suffix(")")?
+        .strip_suffix(')')?
         .split(&[' ', ','][..])
     {
         nums.push(x.parse::<f64>().ok()?);

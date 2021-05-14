@@ -27,7 +27,7 @@ fn main() -> Result<()> {
 /// when they change. The goldenfiles (and changes to them) themselves aren't easy to understand,
 /// but the test maps are.
 fn test_map_importer() -> Result<()> {
-    for name in vec![
+    for &name in &[
         "divided_highway_split",
         "left_turn_and_bike_lane",
         "multiple_left_turn_lanes",
@@ -74,7 +74,7 @@ fn import_map(path: String) -> Map {
 fn dump_turn_goldenfile(map: &Map) -> Result<()> {
     let path = abstio::path(format!("../tests/goldenfiles/{}.txt", map.get_name().map));
     let mut f = File::create(path)?;
-    for (_, t) in map.all_turns() {
+    for t in map.all_turns().values() {
         writeln!(f, "{} is a {:?}", t.id, t.turn_type)?;
     }
     Ok(())
@@ -100,6 +100,7 @@ fn smoke_test() -> Result<()> {
         scenario.instantiate(&mut sim, &map, &mut rng, &mut timer);
         sim.timed_step(&map, Duration::hours(1), &mut None, &mut timer);
 
+        #[allow(clippy::collapsible_if)]
         if (name.city == CityName::seattle()
             && vec!["downtown", "lakeslice", "montlake", "udistrict"].contains(&name.map.as_str()))
             || name == MapName::new("pl", "krakow", "center")
@@ -147,10 +148,10 @@ fn check_proposals() -> Result<()> {
         ) {
             Ok(perma) => {
                 let map = map_model::Map::load_synchronously(perma.map_name.path(), &mut timer);
-                if let Err(err) = perma.clone().to_edits(&map) {
+                if let Err(err) = perma.clone().into_edits(&map) {
                     abstio::write_json(
                         "repair_attempt.json".to_string(),
-                        &perma.to_edits_permissive(&map).to_permanent(&map),
+                        &perma.into_edits_permissive(&map).to_permanent(&map),
                     );
                     anyhow::bail!("{} is out-of-date: {}", name, err);
                 }

@@ -73,31 +73,29 @@ impl DrawMovement {
                 movement
                     .geom
                     .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle)
+            } else if movement.id.crosswalk {
+                batch = traffic_signal::dont_walk_icon(movement, prerender);
+                batch.unioned_polygon()
             } else {
-                if movement.id.crosswalk {
-                    batch = traffic_signal::dont_walk_icon(movement, prerender);
-                    batch.unioned_polygon()
-                } else {
-                    // Use circular icons for banned turns
-                    let offset = movement
-                        .members
-                        .iter()
-                        .map(|t| *offset_per_lane.entry(t.src).or_insert(0))
-                        .max()
-                        .unwrap();
-                    let (pl, _) = movement.src_center_and_width(map);
-                    let (circle, arrow) = make_circle_geom(offset as f64, pl, movement.angle);
-                    let mut seen_lanes = HashSet::new();
-                    for t in &movement.members {
-                        if !seen_lanes.contains(&t.src) {
-                            *offset_per_lane.get_mut(&t.src).unwrap() = offset + 1;
-                            seen_lanes.insert(t.src);
-                        }
+                // Use circular icons for banned turns
+                let offset = movement
+                    .members
+                    .iter()
+                    .map(|t| *offset_per_lane.entry(t.src).or_insert(0))
+                    .max()
+                    .unwrap();
+                let (pl, _) = movement.src_center_and_width(map);
+                let (circle, arrow) = make_circle_geom(offset as f64, pl, movement.angle);
+                let mut seen_lanes = HashSet::new();
+                for t in &movement.members {
+                    if !seen_lanes.contains(&t.src) {
+                        *offset_per_lane.get_mut(&t.src).unwrap() = offset + 1;
+                        seen_lanes.insert(t.src);
                     }
-                    batch.push(Color::hex("#7C7C7C"), circle.clone());
-                    batch.push(Color::WHITE, arrow);
-                    circle
                 }
+                batch.push(Color::hex("#7C7C7C"), circle.clone());
+                batch.push(Color::WHITE, arrow);
+                circle
             };
             results.push((
                 DrawMovement {

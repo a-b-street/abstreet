@@ -209,7 +209,7 @@ impl SnowEffect {
         let shape = GeomBatch::load_svg(ctx, "system/assets/map/snowflake.svg").scale(0.1);
 
         let mut batch = GeomBatch::new();
-        let prev_flakes = std::mem::replace(&mut self.flakes, Vec::new());
+        let prev_flakes = std::mem::take(&mut self.flakes);
         let mut new_flakes = Vec::new();
         for flake in prev_flakes {
             let pt = flake.pos(now);

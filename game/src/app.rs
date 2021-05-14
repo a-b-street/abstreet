@@ -237,10 +237,7 @@ impl App {
     }
     pub fn mouseover_unzoomed_intersections(&self, ctx: &EventCtx) -> Option<ID> {
         self.calculate_current_selection(ctx, &ShowEverything::new(), false, true, false)
-            .filter(|id| match id {
-                ID::Intersection(_) => true,
-                _ => false,
-            })
+            .filter(|id| matches!(id, ID::Intersection(_)))
     }
     pub fn mouseover_unzoomed_buildings(&self, ctx: &EventCtx) -> Option<ID> {
         self.calculate_current_selection(ctx, &ShowEverything::new(), false, false, true)
@@ -544,7 +541,7 @@ impl map_gui::AppLike for App {
         target_cam_zoom: Option<f64>,
         id: Option<ID>,
     ) -> Box<dyn State<App>> {
-        Warping::new(ctx, pt, target_cam_zoom, id, &mut self.primary)
+        Warping::new_state(ctx, pt, target_cam_zoom, id, &mut self.primary)
     }
 }
 
@@ -666,7 +663,7 @@ impl PerMap {
             map,
             draw_map,
             sim,
-            agents: RefCell::new(AgentCache::new()),
+            agents: RefCell::new(AgentCache::new_state()),
             current_selection: None,
             current_flags: flags,
             last_warped_from: None,
@@ -699,11 +696,9 @@ impl PerMap {
 
         if splash {
             ctx.canvas.center_on_map_pt(rand_focus_pt);
-        } else {
-            if !CameraState::load(ctx, self.map.get_name()) {
-                info!("Couldn't load camera state, just focusing on an arbitrary building");
-                ctx.canvas.center_on_map_pt(rand_focus_pt);
-            }
+        } else if !CameraState::load(ctx, self.map.get_name()) {
+            info!("Couldn't load camera state, just focusing on an arbitrary building");
+            ctx.canvas.center_on_map_pt(rand_focus_pt);
         }
     }
 
@@ -727,7 +722,7 @@ impl PerMap {
 
         // TODO Why can't we just clone the map and revert the edits? Cloning the map is hard,
         // because of some ThreadLocals used for pathfinding...
-        Some(Transition::Push(FileLoader::<App, Map>::new(
+        Some(Transition::Push(FileLoader::<App, Map>::new_state(
             ctx,
             self.map.get_name().path(),
             Box::new(|_, app, _, map| {
@@ -907,7 +902,7 @@ fn add_study_area(map: &mut Map, name: &str) -> Result<()> {
                         }
 
                         if let Ok(ring) = Ring::new(pts) {
-                            map.hack_add_area(AreaType::StudyArea, ring.to_polygon(), tags);
+                            map.hack_add_area(AreaType::StudyArea, ring.into_polygon(), tags);
                         }
                     }
                 }

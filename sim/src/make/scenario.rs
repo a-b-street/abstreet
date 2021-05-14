@@ -169,12 +169,12 @@ impl Scenario {
                         departure: trip.depart,
                         mode: trip.mode,
                         start: from,
-                        end: trip.destination.clone(),
+                        end: trip.destination,
                         purpose: trip.purpose,
                         modified: trip.modified,
                         capped: false,
                         cancellation_reason: if trip.cancelled {
-                            Some(format!("cancelled by ScenarioModifier"))
+                            Some("cancelled by ScenarioModifier".to_string())
                         } else {
                             None
                         },
@@ -184,7 +184,7 @@ impl Scenario {
                         use_vehicle: maybe_idx.map(|idx| person.vehicles[idx].id),
                     },
                 ));
-                from = trip.destination.clone();
+                from = trip.destination;
             }
         }
 
@@ -418,9 +418,9 @@ impl PersonSpec {
             }
         }
 
-        let mut endpts = vec![self.origin.clone()];
+        let mut endpts = vec![self.origin];
         for t in &self.trips {
-            endpts.push(t.destination.clone());
+            endpts.push(t.destination);
         }
         for pair in endpts.windows(2) {
             if pair[0] == pair[1] {
@@ -452,7 +452,7 @@ impl PersonSpec {
         let mut car_locations: Vec<(usize, Option<BuildingID>)> = Vec::new();
 
         // TODO If the trip is cancelled, this should be affected...
-        let mut from = self.origin.clone();
+        let mut from = self.origin;
         for trip in &self.trips {
             let use_for_trip = match trip.mode {
                 TripMode::Walk | TripMode::Transit => None,
@@ -500,7 +500,7 @@ impl PersonSpec {
                     Some(idx)
                 }
             };
-            from = trip.destination.clone();
+            from = trip.destination;
             vehicle_foreach_trip.push(use_for_trip);
         }
 

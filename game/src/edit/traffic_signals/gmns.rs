@@ -32,7 +32,7 @@ pub fn import(map: &Map, i: IntersectionID, path: &str) -> Result<ControlTraffic
     let mut records = matches_per_plan
         .into_iter()
         .next()
-        .ok_or(anyhow!("no matches for {}", i.orig_id))?
+        .ok_or_else(|| anyhow!("no matches for {}", i.orig_id))?
         .1;
     records.sort_by_key(|rec| rec.stage);
 
@@ -42,14 +42,18 @@ pub fn import(map: &Map, i: IntersectionID, path: &str) -> Result<ControlTraffic
     tsig.stages.clear();
     for rec in records {
         let stage_idx = rec.stage - 1;
-        if tsig.stages.len() == stage_idx {
-            tsig.stages.push(Stage {
-                protected_movements: BTreeSet::new(),
-                yield_movements: BTreeSet::new(),
-                stage_type: StageType::Fixed(Duration::seconds(rec.green_time as f64)),
-            });
-        } else if stage_idx > tsig.stages.len() {
-            bail!("missing intermediate stage");
+        match tsig.stages.len().cmp(&stage_idx) {
+            std::cmp::Ordering::Equal => {
+                tsig.stages.push(Stage {
+                    protected_movements: BTreeSet::new(),
+                    yield_movements: BTreeSet::new(),
+                    stage_type: StageType::Fixed(Duration::seconds(rec.green_time as f64)),
+                });
+            }
+            std::cmp::Ordering::Less => {
+                bail!("missing intermediate stage");
+            }
+            std::cmp::Ordering::Greater => {}
         }
         let stage = &mut tsig.stages[stage_idx];
 
@@ -76,7 +80,7 @@ pub fn import(map: &Map, i: IntersectionID, path: &str) -> Result<ControlTraffic
             }
         };
         // Through movements (EBT = eastbound through, for example) are implicitly protected
-        if rec.protection == "protected" || rec.movement_str.ends_with("T") {
+        if rec.protection == "protected" || rec.movement_str.ends_with('T') {
             stage.protected_movements.insert(mvmnt);
         } else {
             stage.yield_movements.insert(mvmnt);
@@ -103,7 +107,7 @@ struct Record {
 fn parse_linestring<'de, D: Deserializer<'de>>(d: D) -> Result<(LonLat, LonLat), D::Error> {
     let raw = <String>::deserialize(d)?;
     let pts = LonLat::parse_wkt_linestring(&raw)
-        .ok_or(serde::de::Error::custom(format!("bad linestring {}", raw)))?;
+        .ok_or_else(|| serde::de::Error::custom(format!("bad linestring {}", raw)))?;
     if pts.len() != 2 {
         return Err(serde::de::Error::custom(format!(
             "{} points, expecting 2",
@@ -116,7 +120,7 @@ fn parse_linestring<'de, D: Deserializer<'de>>(d: D) -> Result<(LonLat, LonLat),
 fn parse_osm_ids<'de, D: Deserializer<'de>>(d: D) -> Result<Vec<osm::NodeID>, D::Error> {
     let raw = <String>::deserialize(d)?;
     let mut ids = Vec::new();
-    for id in raw.split(";") {
+    for id in raw.split(';') {
         ids.push(osm::NodeID(id.parse::<i64>().map_err(|_| {
             serde::de::Error::custom(format!("bad ID {}", id))
         })?));

@@ -465,7 +465,7 @@ impl Model {
             self.road_added(ctx, r);
         }
 
-        info!("Merged {}", id.to_string_code());
+        info!("Merged {}", id.as_string_code());
     }
 }
 

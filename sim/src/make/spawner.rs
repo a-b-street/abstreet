@@ -60,7 +60,7 @@ pub(crate) enum TripSpec {
 }
 
 impl TripSpec {
-    pub fn to_plan(self, map: &Map) -> (TripSpec, Vec<TripLeg>) {
+    pub fn into_plan(self, map: &Map) -> (TripSpec, Vec<TripLeg>) {
         // TODO We'll want to repeat this validation when we spawn stuff later for a second leg...
         let mut legs = Vec::new();
         match &self {
@@ -97,10 +97,10 @@ impl TripSpec {
 
                 if goal.goal_pos(constraints, map).is_none() {
                     return TripSpec::SpawningFailure {
-                        use_vehicle: Some(use_vehicle.clone()),
+                        use_vehicle: Some(*use_vehicle),
                         error: format!("goal_pos to {:?} for a {:?} failed", goal, constraints),
                     }
-                    .to_plan(map);
+                    .into_plan(map);
                 }
             }
             TripSpec::SpawningFailure { .. } => {
@@ -152,14 +152,14 @@ impl TripSpec {
                                      sidewalk!",
                                     start, b
                                 );
-                                return backup_plan.unwrap().to_plan(map);
+                                return backup_plan.unwrap().into_plan(map);
                             }
                         } else {
                             info!(
                                 "Can't find biking connection for goal {}, walking instead",
                                 b
                             );
-                            return backup_plan.unwrap().to_plan(map);
+                            return backup_plan.unwrap().into_plan(map);
                         }
                     }
 
@@ -171,9 +171,9 @@ impl TripSpec {
                         }
                         DrivingGoal::Border(_, _) => {}
                     }
-                } else if backup_plan.is_some() {
+                } else if let Some(plan) = backup_plan {
                     info!("Can't start biking from {}. Walking instead", start);
-                    return backup_plan.unwrap().to_plan(map);
+                    return plan.into_plan(map);
                 } else {
                     return TripSpec::SpawningFailure {
                         use_vehicle: Some(*bike),
@@ -182,7 +182,7 @@ impl TripSpec {
                             start, goal
                         ),
                     }
-                    .to_plan(map);
+                    .into_plan(map);
                 }
             }
             TripSpec::UsingTransit {
@@ -195,15 +195,12 @@ impl TripSpec {
                 let walk_to = SidewalkSpot::bus_stop(*stop1, map);
                 if let Some(stop2) = maybe_stop2 {
                     legs = vec![
-                        TripLeg::Walk(walk_to.clone()),
+                        TripLeg::Walk(walk_to),
                         TripLeg::RideBus(*route, Some(*stop2)),
                         TripLeg::Walk(goal.clone()),
                     ];
                 } else {
-                    legs = vec![
-                        TripLeg::Walk(walk_to.clone()),
-                        TripLeg::RideBus(*route, None),
-                    ];
+                    legs = vec![TripLeg::Walk(walk_to), TripLeg::RideBus(*route, None)];
                 }
             }
         };
@@ -318,8 +315,8 @@ impl TripEndpoint {
         map: &Map,
     ) -> Option<PathRequest> {
         Some(PathRequest {
-            start: from.clone().pos(mode, true, map)?,
-            end: to.clone().pos(mode, false, map)?,
+            start: from.pos(mode, true, map)?,
+            end: to.pos(mode, false, map)?,
             constraints: match mode {
                 TripMode::Walk | TripMode::Transit => PathConstraints::Pedestrian,
                 TripMode::Drive => PathConstraints::Car,

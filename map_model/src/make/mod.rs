@@ -191,13 +191,11 @@ impl Map {
         }
 
         for i in map.intersections.iter_mut() {
-            if i.is_border() {
-                if i.roads.len() != 1 {
-                    panic!(
-                        "{} ({}) is a border, but is connected to >1 road: {:?}",
-                        i.id, i.orig_id, i.roads
-                    );
-                }
+            if i.is_border() && i.roads.len() != 1 {
+                panic!(
+                    "{} ({}) is a border, but is connected to >1 road: {:?}",
+                    i.id, i.orig_id, i.roads
+                );
             }
             if i.intersection_type == IntersectionType::TrafficSignal {
                 let mut ok = false;

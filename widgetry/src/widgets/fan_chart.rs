@@ -19,7 +19,7 @@ pub struct FanChart {
 }
 
 impl FanChart {
-    pub fn new<Y: Axis<Y> + HgramValue<Y>>(
+    pub fn new_widget<Y: Axis<Y> + HgramValue<Y>>(
         ctx: &EventCtx,
         mut series: Vec<Series<Time, Y>>,
         opts: PlotOptions<Time, Y>,
@@ -50,10 +50,10 @@ impl FanChart {
                         .iter()
                         .map(|(_, value)| *value)
                         .max()
-                        .unwrap_or(Y::zero())
+                        .unwrap_or_else(Y::zero)
                 })
                 .max()
-                .unwrap_or(Y::zero())
+                .unwrap_or_else(Y::zero)
         });
 
         // TODO Tuned to fit the info panel. Instead these should somehow stretch to fill their

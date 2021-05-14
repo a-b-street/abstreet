@@ -130,11 +130,11 @@ impl LonLat {
         // -111.9446 33.425474, -111.9442814 33.4254737, -111.9442762 33.426894
         for pair in raw
             .strip_prefix("LINESTRING (")?
-            .strip_suffix(")")?
+            .strip_suffix(')')?
             .split(", ")
         {
             let mut nums = Vec::new();
-            for x in pair.split(" ") {
+            for x in pair.split(' ') {
                 nums.push(x.parse::<f64>().ok()?);
             }
             if nums.len() != 2 {

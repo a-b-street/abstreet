@@ -16,7 +16,7 @@ pub struct ActiveTraffic {
 }
 
 impl ActiveTraffic {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         // TODO Downsampling in the middle of the day and comparing to the downsampled entire day
         // doesn't work. For the same simulation, by end of day, the plots will be identical, but
         // until then, they'll differ. See https://github.com/a-b-street/abstreet/issues/85 for
@@ -43,9 +43,9 @@ impl ActiveTraffic {
         }
 
         Box::new(ActiveTraffic {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 DashTab::ActiveTraffic.picker(ctx, app),
-                LinePlot::new(ctx, active_agents, PlotOptions::fixed()).section(ctx),
+                LinePlot::new_widget(ctx, active_agents, PlotOptions::fixed()).section(ctx),
             ]))
             .exact_size_percent(90, 90)
             .build(ctx),
@@ -104,7 +104,7 @@ pub struct TransitRoutes {
 }
 
 impl TransitRoutes {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         // Count totals per route
         let mut boardings = Counter::new();
         for list in app.primary.sim.get_analytics().passengers_boarding.values() {
@@ -135,9 +135,9 @@ impl TransitRoutes {
         let mut routes: Vec<(isize, isize, isize, String, BusRouteID)> = Vec::new();
         for r in app.primary.map.all_bus_routes() {
             routes.push((
-                -1 * (boardings.get(r.id) as isize),
-                -1 * (alightings.get(r.id) as isize),
-                -1 * (waiting.get(r.id) as isize),
+                -(boardings.get(r.id) as isize),
+                -(alightings.get(r.id) as isize),
+                -(waiting.get(r.id) as isize),
                 r.full_name.clone(),
                 r.id,
             ));
@@ -151,7 +151,7 @@ impl TransitRoutes {
                 .into_widget(ctx),
             Widget::row(vec![
                 Image::from_path("system/assets/tools/search.svg").into_widget(ctx),
-                Autocomplete::new(
+                Autocomplete::new_widget(
                     ctx,
                     routes
                         .iter()
@@ -185,7 +185,7 @@ impl TransitRoutes {
         ];
 
         Box::new(TransitRoutes {
-            panel: Panel::new(Widget::col(col))
+            panel: Panel::new_builder(Widget::col(col))
                 .exact_size_percent(90, 90)
                 .build(ctx),
         })

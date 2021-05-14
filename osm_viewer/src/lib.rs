@@ -15,7 +15,7 @@ pub fn run(mut settings: Settings) {
 
     widgetry::run(settings, |ctx| {
         map_gui::SimpleApp::new(ctx, map_gui::options::Options::default(), (), |ctx, app| {
-            vec![viewer::Viewer::new(ctx, app)]
+            vec![viewer::Viewer::new_state(ctx, app)]
         })
     });
 }

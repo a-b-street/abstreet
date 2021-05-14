@@ -37,7 +37,7 @@ pub fn glue_multipolygon(
     let mut polygons: Vec<Polygon> = Vec::new();
     pts_per_way.retain(|(_, pts)| {
         if let Ok(ring) = Ring::new(pts.clone()) {
-            polygons.push(ring.to_polygon());
+            polygons.push(ring.into_polygon());
             false
         } else {
             true
@@ -62,28 +62,26 @@ pub fn glue_multipolygon(
             }
             result.pop();
             result.extend(append);
+        } else if reversed {
+            // TODO Investigate what's going on here. At the very least, take what we have so
+            // far and try to glue it up.
+            println!(
+                "Throwing away {} chunks from relation {}: {:?}",
+                pts_per_way.len(),
+                rel_id,
+                pts_per_way.iter().map(|(id, _)| *id).collect::<Vec<_>>()
+            );
+            break;
         } else {
-            if reversed {
-                // TODO Investigate what's going on here. At the very least, take what we have so
-                // far and try to glue it up.
-                println!(
-                    "Throwing away {} chunks from relation {}: {:?}",
-                    pts_per_way.len(),
-                    rel_id,
-                    pts_per_way.iter().map(|(id, _)| *id).collect::<Vec<_>>()
-                );
-                break;
-            } else {
-                reversed = true;
-                result.reverse();
-                // Try again!
-            }
+            reversed = true;
+            result.reverse();
+            // Try again!
         }
     }
 
     result.dedup();
     if let Ok(ring) = Ring::new(result.clone()) {
-        polygons.push(ring.to_polygon());
+        polygons.push(ring.into_polygon());
         return polygons;
     }
     if result.len() < 2 {
@@ -96,7 +94,7 @@ pub fn glue_multipolygon(
             } else {
                 // Give up and just connect the ends directly.
                 result.push(result[0]);
-                polygons.push(Ring::must_new(result).to_polygon());
+                polygons.push(Ring::must_new(result).into_polygon());
             }
         }
         Err(err) => {
@@ -126,7 +124,7 @@ fn glue_to_boundary(result_pl: PolyLine, boundary: &Ring) -> Option<Polygon> {
         trimmed_pts.pop();
         trimmed_pts.extend(boundary_glue.reversed().into_points());
     }
-    Some(Ring::must_new(trimmed_pts).to_polygon())
+    Some(Ring::must_new(trimmed_pts).into_polygon())
 }
 
 pub fn multipoly_geometry(rel_id: RelationID, rel: &Relation, doc: &Document) -> Result<Polygon> {
@@ -150,7 +148,7 @@ pub fn multipoly_geometry(rel_id: RelationID, rel: &Relation, doc: &Document) ->
         }
     }
     // TODO Handle multiple outers with holes
-    if outer.len() == 0 || outer.len() > 1 && !inner.is_empty() {
+    if outer.is_empty() || outer.len() > 1 && !inner.is_empty() {
         bail!(
             "Multipolygon {} has {} outer, {} inner. Huh?",
             rel_id,

@@ -18,7 +18,7 @@ pub struct UberTurnPicker {
 }
 
 impl UberTurnPicker {
-    pub fn new(ctx: &mut EventCtx, app: &App, i: IntersectionID) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App, i: IntersectionID) -> Box<dyn State<App>> {
         let mut members = BTreeSet::new();
         if let Some(list) = IntersectionCluster::autodetect(i, &app.primary.map) {
             members.extend(list);
@@ -26,7 +26,7 @@ impl UberTurnPicker {
             members.insert(i);
         }
 
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
                 Line("Select multiple intersections")
                     .small_heading()
@@ -46,7 +46,7 @@ impl UberTurnPicker {
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);
-        <dyn SimpleState<_>>::new(panel, Box::new(UberTurnPicker { members }))
+        <dyn SimpleState<_>>::new_state(panel, Box::new(UberTurnPicker { members }))
     }
 }
 
@@ -56,13 +56,19 @@ impl SimpleState<App> for UberTurnPicker {
             "close" => Transition::Pop,
             "View uber-turns" => {
                 if self.members.len() < 2 {
-                    return Transition::Push(PopupMsg::new(
+                    return Transition::Push(PopupMsg::new_state(
                         ctx,
                         "Error",
                         vec!["Select at least two intersections"],
                     ));
                 }
-                Transition::Replace(UberTurnViewer::new(ctx, app, self.members.clone(), 0, true))
+                Transition::Replace(UberTurnViewer::new_state(
+                    ctx,
+                    app,
+                    self.members.clone(),
+                    0,
+                    true,
+                ))
             }
             "Detect all clusters" => {
                 self.members.clear();
@@ -115,7 +121,7 @@ struct UberTurnViewer {
 }
 
 impl UberTurnViewer {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         app: &mut App,
         members: BTreeSet<IntersectionID>,
@@ -141,7 +147,7 @@ impl UberTurnViewer {
             );
         }
 
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
                 Line("Uber-turn viewer").small_heading().into_widget(ctx),
                 Widget::vert_separator(ctx, 50.0),
@@ -174,7 +180,7 @@ impl UberTurnViewer {
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);
-        <dyn SimpleState<_>>::new(
+        <dyn SimpleState<_>>::new_state(
             panel,
             Box::new(UberTurnViewer {
                 draw: ctx.upload(batch),
@@ -190,14 +196,14 @@ impl SimpleState<App> for UberTurnViewer {
     fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
         match x {
             "close" => Transition::Pop,
-            "previous uber-turn" => Transition::Replace(UberTurnViewer::new(
+            "previous uber-turn" => Transition::Replace(UberTurnViewer::new_state(
                 ctx,
                 app,
                 self.ic.members.clone(),
                 self.idx - 1,
                 self.legal_turns,
             )),
-            "next uber-turn" => Transition::Replace(UberTurnViewer::new(
+            "next uber-turn" => Transition::Replace(UberTurnViewer::new_state(
                 ctx,
                 app,
                 self.ic.members.clone(),
@@ -213,7 +219,7 @@ impl SimpleState<App> for UberTurnViewer {
         app: &mut App,
         panel: &mut Panel,
     ) -> Option<Transition> {
-        Some(Transition::Replace(UberTurnViewer::new(
+        Some(Transition::Replace(UberTurnViewer::new_state(
             ctx,
             app,
             self.ic.members.clone(),

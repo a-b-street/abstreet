@@ -72,6 +72,7 @@ impl EditRoad {
     }
 
     fn diff(&self, other: &EditRoad) -> Vec<String> {
+        #![allow(clippy::comparison_chain)]
         let mut lt = 0;
         let mut dir = 0;
         let mut width = 0;
@@ -89,25 +90,25 @@ impl EditRoad {
 
         let mut changes = Vec::new();
         if lt == 1 {
-            changes.push(format!("1 lane type"));
+            changes.push("1 lane type".to_string());
         } else if lt > 1 {
             changes.push(format!("{} lane types", lt));
         }
         if dir == 1 {
-            changes.push(format!("1 lane reversal"));
+            changes.push("1 lane reversal".to_string());
         } else if dir > 1 {
             changes.push(format!("{} lane reversals", dir));
         }
         if width == 1 {
-            changes.push(format!("1 lane width"));
+            changes.push("1 lane width".to_string());
         } else {
             changes.push(format!("{} lane widths", width));
         }
         if self.speed_limit != other.speed_limit {
-            changes.push(format!("speed limit"));
+            changes.push("speed limit".to_string());
         }
         if self.access_restrictions != other.access_restrictions {
-            changes.push(format!("access restrictions"));
+            changes.push("access restrictions".to_string());
         }
         changes
     }
@@ -159,14 +160,14 @@ impl MapEdits {
 
     pub fn load(map: &Map, path: String, timer: &mut Timer) -> Result<MapEdits> {
         match abstio::maybe_read_json::<PermanentMapEdits>(path.clone(), timer) {
-            Ok(perma) => perma.to_edits(map),
+            Ok(perma) => perma.into_edits(map),
             Err(_) => {
                 // The JSON format may have changed, so attempt backwards compatibility.
                 let bytes = abstio::slurp_file(path)?;
                 let contents = std::str::from_utf8(&bytes)?;
                 let value = serde_json::from_str(contents)?;
                 let perma = compat::upgrade(value, map)?;
-                perma.to_edits(map)
+                perma.into_edits(map)
             }
         }
     }
@@ -316,7 +317,7 @@ impl EditCmd {
                 road.access_restrictions = new.access_restrictions.clone();
 
                 effects.changed_roads.insert(road.id);
-                for i in vec![road.src_i, road.dst_i] {
+                for &i in &[road.src_i, road.dst_i] {
                     effects.changed_intersections.insert(i);
                     let i = &mut map.intersections[i.0];
                     i.outgoing_lanes.clear();
@@ -410,7 +411,7 @@ fn recalculate_turns(id: IntersectionID, map: &mut Map, effects: &mut EditEffect
     }
 
     let mut old_turns = Vec::new();
-    for t in std::mem::replace(&mut i.turns, BTreeSet::new()) {
+    for t in std::mem::take(&mut i.turns) {
         old_turns.push(map.turns.remove(&t).unwrap());
         effects.deleted_turns.insert(t);
     }
@@ -528,12 +529,11 @@ fn modify_lanes(map: &mut Map, r: RoadID, lanes_ltr: Vec<LaneSpec>, effects: &mu
         effects.changed_roads.insert(r);
         let mut dummy_id_counter = 0;
         let lanes_ltr = map.get_r(r).lane_specs(map);
-        let real_lane_ids: Vec<LaneID> = map
+        let real_lane_ids = map
             .get_r(r)
             .lanes_ltr()
             .into_iter()
-            .map(|(l, _, _)| l)
-            .collect();
+            .map(|(l, _, _)| l);
         for (lane, id) in map
             .get_r(r)
             .create_lanes(lanes_ltr, &mut dummy_id_counter)
@@ -612,7 +612,7 @@ fn recalculate_intersection_polygon(
 
     let polygon = initial::intersection_polygon(
         intersection.orig_id,
-        intersection_roads.clone(),
+        intersection_roads,
         &mut roads,
         intersection.merged,
     )
@@ -657,10 +657,8 @@ fn fix_building_driveways(map: &mut Map, input: Vec<BuildingID>) {
 
     for (id, bldg_center) in center_per_bldg {
         match sidewalk_pts.remove(&bldg_center).and_then(|pos| {
-            match Line::new(bldg_center.to_pt2d(), pos.pt(map)) {
-                Some(l) => Some((pos, trim_path(&map.get_b(id).polygon, l))),
-                None => None,
-            }
+            Line::new(bldg_center.to_pt2d(), pos.pt(map))
+                .map(|l| (pos, trim_path(&map.get_b(id).polygon, l)))
         }) {
             Some((sidewalk_pos, driveway_geom)) => {
                 let b = &mut map.buildings[id.0];

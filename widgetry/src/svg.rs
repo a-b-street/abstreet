@@ -23,12 +23,10 @@ pub fn load_svg(prerender: &Prerender, filename: &str) -> (GeomBatch, Bounds) {
     let bytes = (prerender.assets.read_svg)(filename);
     load_svg_from_bytes_uncached(&bytes)
         .map(|(batch, bounds)| {
-            prerender
-                .assets
-                .cache_svg(cache_key, batch.clone(), bounds.clone());
+            prerender.assets.cache_svg(cache_key, batch.clone(), bounds);
             (batch, bounds)
         })
-        .expect(&format!("error loading svg: {}", filename))
+        .unwrap_or_else(|_| panic!("error loading svg: {}", filename))
 }
 
 pub fn load_svg_bytes(
@@ -42,9 +40,7 @@ pub fn load_svg_bytes(
     }
 
     load_svg_from_bytes_uncached(&bytes).map(|(batch, bounds)| {
-        prerender
-            .assets
-            .cache_svg(cache_key, batch.clone(), bounds.clone());
+        prerender.assets.cache_svg(cache_key, batch.clone(), bounds);
         (batch, bounds)
     })
 }
@@ -86,7 +82,7 @@ pub(crate) fn add_svg_inner(
                     )
                     .is_err()
                 {
-                    return Err(format!("Couldn't tesellate something"));
+                    return Err("Couldn't tessellate something".to_string());
                 }
             }
 
@@ -212,7 +208,7 @@ impl<'l> Iterator for PathConvIter<'l> {
     }
 }
 
-fn convert_path<'a>(p: &'a usvg::Path) -> PathConvIter<'a> {
+fn convert_path(p: &usvg::Path) -> PathConvIter {
     PathConvIter {
         iter: p.data.0.iter(),
         first: Point::new(0.0, 0.0),
@@ -256,7 +252,7 @@ fn convert_color(paint: &usvg::Paint, opacity: f64, tree: &usvg::Tree) -> Fill {
             opacity as f32,
         )),
         usvg::Paint::Link(name) => match *tree.defs_by_id(name).unwrap().borrow() {
-            usvg::NodeKind::LinearGradient(ref lg) => LinearGradient::new(lg),
+            usvg::NodeKind::LinearGradient(ref lg) => LinearGradient::new_fill(lg),
             _ => panic!("Unsupported color style {}", name),
         },
     }

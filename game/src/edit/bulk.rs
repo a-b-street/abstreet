@@ -20,7 +20,7 @@ pub struct BulkSelect {
 }
 
 impl BulkSelect {
-    pub fn new(ctx: &mut EventCtx, app: &mut App, start: RoadID) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &mut App, start: RoadID) -> Box<dyn State<App>> {
         let selector = RoadSelector::new(ctx, app, btreeset! {start});
         let panel = make_select_panel(ctx, &selector);
         Box::new(BulkSelect { panel, selector })
@@ -28,7 +28,7 @@ impl BulkSelect {
 }
 
 fn make_select_panel(ctx: &mut EventCtx, selector: &RoadSelector) -> Panel {
-    Panel::new(Widget::col(vec![
+    Panel::new_builder(Widget::col(vec![
         Line("Edit many roads").small_heading().into_widget(ctx),
         selector.make_controls(ctx),
         Widget::row(vec![
@@ -73,7 +73,7 @@ impl State<App> for BulkSelect {
                     return Transition::Pop;
                 }
                 "edit roads" => {
-                    return Transition::Replace(crate::edit::bulk::BulkEdit::new(
+                    return Transition::Replace(crate::edit::bulk::BulkEdit::new_state(
                         ctx,
                         app,
                         self.selector.roads.iter().cloned().collect(),
@@ -86,7 +86,7 @@ impl State<App> for BulkSelect {
                         self.selector.intersections.iter().cloned().collect(),
                         &app.primary.map,
                     );
-                    return Transition::Push(PopupMsg::new(
+                    return Transition::Push(PopupMsg::new_state(
                         ctx,
                         "Roads exported",
                         vec![format!("Roads exported to shared-row format at {}", path)],
@@ -97,7 +97,7 @@ impl State<App> for BulkSelect {
                         *self.selector.roads.iter().next().unwrap(),
                         &app.primary.map,
                     );
-                    return Transition::Push(PopupMsg::new(
+                    return Transition::Push(PopupMsg::new_state(
                         ctx,
                         "One road exported",
                         vec![format!(
@@ -113,7 +113,7 @@ impl State<App> for BulkSelect {
                         osm_ids.insert(app.primary.map.get_r(*r).orig_id.osm_way_id);
                     }
                     abstio::write_json("osm_ways.json".to_string(), &osm_ids);
-                    return Transition::Push(PopupMsg::new(
+                    return Transition::Push(PopupMsg::new_state(
                         ctx,
                         "List of roads exported",
                         vec!["Wrote osm_ways.json"],
@@ -148,14 +148,14 @@ struct BulkEdit {
 }
 
 impl BulkEdit {
-    fn new(
+    fn new_state(
         ctx: &mut EventCtx,
         app: &App,
         roads: Vec<RoadID>,
         preview: Drawable,
     ) -> Box<dyn State<App>> {
         Box::new(BulkEdit {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Line(format!("Editing {} roads", roads.len()))
                     .small_heading()
                     .into_widget(ctx),
@@ -197,8 +197,8 @@ impl State<App> for BulkEdit {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "Cancel" => {
                     if self
                         .panel
@@ -210,7 +210,7 @@ impl State<App> for BulkEdit {
                     {
                         return Transition::Pop;
                     }
-                    return Transition::Push(ConfirmDiscard::new(ctx, Box::new(move |_| {})));
+                    return Transition::Push(ConfirmDiscard::new_state(ctx, Box::new(move |_| {})));
                 }
                 "Finish" => {
                     return Transition::Replace(make_bulk_edits(
@@ -228,8 +228,7 @@ impl State<App> for BulkEdit {
                     self.panel.replace(ctx, "lt transformations", switcher);
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         Transition::Keep
@@ -244,14 +243,10 @@ impl State<App> for BulkEdit {
 fn get_lt_transformations(panel: &Panel) -> Vec<(Option<LaneType>, Option<LaneType>)> {
     let mut pairs = Vec::new();
     let mut idx = 0;
-    loop {
-        if let Some(from) = panel.maybe_dropdown_value(format!("from lt #{}", idx)) {
-            let to = panel.dropdown_value(format!("to lt #{}", idx));
-            pairs.push((from, to));
-            idx += 1;
-        } else {
-            break;
-        }
+    while let Some(from) = panel.maybe_dropdown_value(format!("from lt #{}", idx)) {
+        let to = panel.dropdown_value(format!("to lt #{}", idx));
+        pairs.push((from, to));
+        idx += 1;
     }
     pairs
 }
@@ -378,5 +373,5 @@ fn make_bulk_edits(
         errors.len()
     ));
 
-    PopupMsg::new(ctx, "Edited roads", results)
+    PopupMsg::new_state(ctx, "Edited roads", results)
 }

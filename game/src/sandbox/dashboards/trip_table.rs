@@ -98,7 +98,7 @@ impl TripTable {
         ]);
         tabs.push_tab(unfinished_trips_btn, unfinished_trips_content);
 
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             DashTab::TripTable.picker(ctx, app),
             tabs.build_widget(ctx),
         ]))
@@ -144,13 +144,13 @@ impl State<App> for TripTable {
                     // Set the recompute_filters bit, so we re-apply the filters when the selector
                     // state is done.
                     self.recompute_filters = true;
-                    return Transition::Push(RectangularSelector::new(
+                    return Transition::Push(RectangularSelector::new_state(
                         ctx,
                         self.panel.stash("starts_in"),
                     ));
                 } else if x == "filter ends" {
                     self.recompute_filters = true;
-                    return Transition::Push(RectangularSelector::new(
+                    return Transition::Push(RectangularSelector::new_state(
                         ctx,
                         self.panel.stash("ends_in"),
                     ));
@@ -279,9 +279,9 @@ fn produce_raw_data(app: &App) -> (Vec<FinishedTrip>, Vec<CancelledTrip>) {
         };
 
         if maybe_duration_after.is_none() || duration_before.is_none() {
-            let reason = trip.cancellation_reason.clone().unwrap_or(format!(
-                "trip succeeded now, but not before the current proposal"
-            ));
+            let reason = trip.cancellation_reason.clone().unwrap_or_else(|| {
+                "trip succeeded now, but not before the current proposal".to_string()
+            });
             cancelled.push(CancelledTrip {
                 id: *id,
                 mode: *mode,
@@ -343,8 +343,8 @@ fn make_table_finished_trips(app: &App) -> Table<App, FinishedTrip, Filters> {
                     Toggle::switch(ctx, "ending off-map", None, state.off_map_ends),
                     ctx.style().btn_plain.text("filter starts").build_def(ctx),
                     ctx.style().btn_plain.text("filter ends").build_def(ctx),
-                    Stash::new("starts_in", state.starts_in.clone()),
-                    Stash::new("ends_in", state.ends_in.clone()),
+                    Stash::new_widget("starts_in", state.starts_in.clone()),
+                    Stash::new_widget("ends_in", state.ends_in.clone()),
                     if app.primary.has_modified_trips {
                         Toggle::switch(
                             ctx,
@@ -519,18 +519,20 @@ fn make_table_finished_trips(app: &App) -> Table<App, FinishedTrip, Filters> {
         table.column(
             "Normalized",
             Box::new(|ctx, _, x| {
-                Text::from(if x.duration_after == x.duration_before {
-                    format!("same")
-                } else if x.duration_after < x.duration_before {
-                    format!(
-                        "{}% faster",
-                        (100.0 * (1.0 - (x.duration_after / x.duration_before))) as usize
-                    )
-                } else {
-                    format!(
-                        "{}% slower ",
-                        (100.0 * ((x.duration_after / x.duration_before) - 1.0)) as usize
-                    )
+                Text::from(match x.duration_after.cmp(&x.duration_before) {
+                    std::cmp::Ordering::Equal => "same".to_string(),
+                    std::cmp::Ordering::Less => {
+                        format!(
+                            "{}% faster",
+                            (100.0 * (1.0 - (x.duration_after / x.duration_before))) as usize
+                        )
+                    }
+                    std::cmp::Ordering::Greater => {
+                        format!(
+                            "{}% slower ",
+                            (100.0 * ((x.duration_after / x.duration_before) - 1.0)) as usize
+                        )
+                    }
                 })
                 .render(ctx)
             }),

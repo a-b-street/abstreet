@@ -31,7 +31,7 @@ pub struct Actdev {
 }
 
 impl Actdev {
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         scenario_name: String,
         bg_traffic: bool,
@@ -62,7 +62,7 @@ impl GameplayState for Actdev {
                     .primary
                     .map
                     .all_areas()
-                    .into_iter()
+                    .iter()
                     .find(|a| a.area_type == AreaType::StudyArea)
                     .unwrap()
                     .polygon;
@@ -106,7 +106,7 @@ impl GameplayState for Actdev {
                         jump_to_time_upon_startup(Duration::hours(8)),
                     )));
                 }
-                "Edit map" => Some(Transition::Push(EditMode::new(
+                "Edit map" => Some(Transition::Push(EditMode::new_state(
                     ctx,
                     app,
                     GameplayMode::Actdev(
@@ -116,7 +116,7 @@ impl GameplayState for Actdev {
                     ),
                 ))),
                 "about A/B Street" => {
-                    let panel = Panel::new(Widget::col(vec![
+                    let panel = Panel::new_builder(Widget::col(vec![
                         Widget::row(vec![
                             Line("About A/B Street").small_heading().into_widget(ctx),
                             ctx.style().btn_close_widget(ctx),
@@ -136,7 +136,7 @@ impl GameplayState for Actdev {
                         ctx.style().btn_outline.text("abstreet.org").build_def(ctx),
                     ]))
                     .build(ctx);
-                    Some(Transition::Push(<dyn SimpleState<_>>::new(
+                    Some(Transition::Push(<dyn SimpleState<_>>::new_state(
                         panel,
                         Box::new(About),
                     )))
@@ -154,7 +154,7 @@ impl GameplayState for Actdev {
                         );
                         None
                     } else {
-                        return Some(Transition::Push(PopupMsg::new(
+                        return Some(Transition::Push(PopupMsg::new_state(
                             ctx,
                             "Nobody's around...",
                             vec!["There are no active trips right now"],
@@ -251,7 +251,7 @@ impl GameplayState for Actdev {
             ]),
         ]);
 
-        self.top_right = Panel::new(col)
+        self.top_right = Panel::new_builder(col)
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx);
     }

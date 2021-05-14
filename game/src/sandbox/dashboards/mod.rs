@@ -71,7 +71,7 @@ impl DashTab {
         Some(Transition::Replace(match tab {
             DashTab::TripTable => Box::new(TripTable::new(ctx, app)),
             DashTab::TripSummaries => {
-                summaries::TripSummaries::new(ctx, app, summaries::Filter::new())
+                summaries::TripSummaries::new_state(ctx, app, summaries::Filter::new())
             }
             DashTab::RiskSummaries => risks::RiskSummaries::new(ctx, app, false),
             DashTab::ParkingOverhead => parking_overhead::ParkingOverhead::new(ctx, app),

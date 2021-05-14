@@ -24,10 +24,14 @@ pub struct PolygonEditor {
 }
 
 impl PolygonEditor {
-    pub fn new(ctx: &mut EventCtx, name: String, mut points: Vec<LonLat>) -> Box<dyn State<App>> {
+    pub fn new_state(
+        ctx: &mut EventCtx,
+        name: String,
+        mut points: Vec<LonLat>,
+    ) -> Box<dyn State<App>> {
         points.pop();
         Box::new(PolygonEditor {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Polygon editor").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
@@ -65,8 +69,8 @@ impl State<App> for PolygonEditor {
             return Transition::Keep;
         }
 
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
@@ -80,8 +84,7 @@ impl State<App> for PolygonEditor {
                     }
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         if let Some(cursor) = ctx.canvas.get_cursor_in_map_space() {
@@ -118,7 +121,7 @@ impl State<App> for PolygonEditor {
         if pts.len() >= 3 {
             let mut pts = pts.clone();
             pts.push(pts[0]);
-            g.draw_polygon(POLYGON_COLOR, Ring::must_new(pts).to_polygon());
+            g.draw_polygon(POLYGON_COLOR, Ring::must_new(pts).into_polygon());
         }
         for (idx, pt) in pts.iter().enumerate() {
             let color = if Some(idx) == self.mouseover_pt {

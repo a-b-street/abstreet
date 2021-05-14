@@ -20,7 +20,7 @@ pub struct Autocomplete<T: Clone> {
 }
 
 impl<T: 'static + Clone + Ord> Autocomplete<T> {
-    pub fn new(ctx: &mut EventCtx, raw_choices: Vec<(String, T)>) -> Widget {
+    pub fn new_widget(ctx: &mut EventCtx, raw_choices: Vec<(String, T)>) -> Widget {
         let mut grouped: MultiMap<String, T> = MultiMap::new();
         for (name, data) in raw_choices {
             grouped.insert(name, data);
