@@ -220,7 +220,7 @@ fn scatter_plot(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
     }
 
     Widget::col(vec![
-        Line("Trip time before and after")
+        Line("Trip time before vs. after")
             .small_heading()
             .into_widget(ctx),
         CompareTimes::new_widget(
