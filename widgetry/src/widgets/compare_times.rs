@@ -98,9 +98,11 @@ impl CompareTimes {
                 .collect(),
         )
         .evenly_spaced();
-        let y_label = Text::from(format!("{} (minutes)", y_name.as_ref()))
+        let mut y_label = Text::from(format!("{} (minutes)", y_name.as_ref()))
             .render(ctx)
-            .rotate(Angle::degrees(90.0))
+            .rotate(Angle::degrees(90.0));
+        y_label.autocrop_dims = true;
+        let y_label = y_label
             .autocrop()
             .into_widget(ctx)
             .centered_vert()

@@ -18,7 +18,11 @@ pub struct RiskSummaries {
 }
 
 impl RiskSummaries {
-    pub fn new_state(ctx: &mut EventCtx, app: &App, include_no_changes: bool) -> Box<dyn State<App>> {
+    pub fn new_state(
+        ctx: &mut EventCtx,
+        app: &App,
+        include_no_changes: bool,
+    ) -> Box<dyn State<App>> {
         let bike_filter = Filter {
             modes: maplit::btreeset! { TripMode::Bike },
             include_no_changes,
@@ -89,9 +93,7 @@ impl State<App> for RiskSummaries {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "close" => {
-                    Transition::Pop
-                }
+                "close" => Transition::Pop,
                 _ => unreachable!(),
             },
             Outcome::Changed(_) => {
@@ -143,12 +145,10 @@ fn safety_matrix(
         MatrixOptions {
             total_width: 600.0,
             total_height: 600.0,
-            color_scale_for_bucket: Box::new(|app, _, n| {
-                match n.cmp(&0) {
-                    std::cmp::Ordering::Equal => &CLEAR_COLOR_SCALE,
-                    std::cmp::Ordering::Less => &app.cs.good_to_bad_green,
-                    std::cmp::Ordering::Greater => &app.cs.good_to_bad_green,
-                }
+            color_scale_for_bucket: Box::new(|app, _, n| match n.cmp(&0) {
+                std::cmp::Ordering::Equal => &CLEAR_COLOR_SCALE,
+                std::cmp::Ordering::Less => &app.cs.good_to_bad_green,
+                std::cmp::Ordering::Greater => &app.cs.good_to_bad_red,
             }),
             tooltip_for_bucket: Box::new(|(t1, t2), (problems1, problems2), count| {
                 let trip_string = if count == 1 {
@@ -165,27 +165,35 @@ fn safety_matrix(
                     }
                 };
                 let mut txt = Text::from(format!("{} {}", trip_string, duration_string));
-                txt.add_line(if problems1 == 0 {
-                    "had no change in the number of problems encountered.".to_string()
-                } else if problems1 < 0 {
-                    if problems1.abs() == problems2.abs() + 1 {
-                        if problems1.abs() == 1 {
-                            "encountered 1 fewer problem.".to_string()
-                        } else {
-                            format!("encountered {} fewer problems.", problems1.abs())
-                        }
-                    } else {
-                        format!(
-                            "encountered {}-{} fewer problems.",
-                            problems2.abs() + 1,
-                            problems1.abs()
-                        )
+                txt.add_line(match problems1.cmp(&0) {
+                    std::cmp::Ordering::Equal => {
+                        "had no change in the number of problems encountered.".to_string()
                     }
-                } else if problems1 == problems2 - 1 {
-                    if problems1 == 1 {
-                        "encountered 1 more problems.".to_string()
-                    } else {
-                        format!("encountered {} more problems.", problems1,)
+                    std::cmp::Ordering::Less => {
+                        if problems1.abs() == problems2.abs() + 1 {
+                            if problems1.abs() == 1 {
+                                "encountered 1 fewer problem.".to_string()
+                            } else {
+                                format!("encountered {} fewer problems.", problems1.abs())
+                            }
+                        } else {
+                            format!(
+                                "encountered {}-{} fewer problems.",
+                                problems2.abs() + 1,
+                                problems1.abs()
+                            )
+                        }
+                    }
+                    std::cmp::Ordering::Greater => {
+                        if problems1 == problems2 - 1 {
+                            if problems1 == 1 {
+                                "encountered 1 more problems.".to_string()
+                            } else {
+                                format!("encountered {} more problems.", problems1,)
+                            }
+                        } else {
+                            format!("encountered {}-{} more problems.", problems1, problems2 - 1)
+                        }
                     }
                 } else {
                     format!("encountered {}-{} more problems.", problems1, problems2 - 1)
@@ -342,7 +350,7 @@ impl<X: Copy + PartialOrd + Display, Y: Copy + PartialOrd + Display> Matrix<X, Y
                         abbreviated_format(count)
                     })
                     .change_fg(if count == 0 || is_middle_ybucket {
-                        ctx.style().text_fg_color
+                        ctx.style().text_primary_color
                     } else {
                         Color::WHITE
                     })
@@ -376,14 +384,14 @@ impl<X: Copy + PartialOrd + Display, Y: Copy + PartialOrd + Display> Matrix<X, Y
 
         // Axis Labels
         let mut y_axis_label = Text::from("More Problems <--------> Fewer Problems")
-            .change_fg(ctx.style().text_fg_color.dull(0.8))
+            .change_fg(ctx.style().text_secondary_color)
             .render(ctx)
             .rotate(Angle::degrees(-90.0));
         y_axis_label.autocrop_dims = true;
         y_axis_label = y_axis_label.autocrop();
 
         let x_axis_label = Text::from("Short Trips <--------> Long Trips")
-            .change_fg(ctx.style().text_fg_color.dull(0.8))
+            .change_fg(ctx.style().text_secondary_color)
             .render(ctx);
 
         let vmargin = 32.0;

@@ -17,11 +17,11 @@ use crate::app::{App, Transition};
 use crate::common::color_for_mode;
 use crate::sandbox::dashboards::DashTab;
 
-pub struct TripSummaries {
+pub struct TravelTimes {
     panel: Panel,
 }
 
-impl TripSummaries {
+impl TravelTimes {
     pub fn new_state(ctx: &mut EventCtx, app: &App, filter: Filter) -> Box<dyn State<App>> {
         let mut filters = vec!["Filters".text_widget(ctx)];
         for mode in TripMode::all() {
@@ -51,9 +51,9 @@ impl TripSummaries {
                 .align_bottom(),
         );
 
-        Box::new(TripSummaries {
+        Box::new(TravelTimes {
             panel: Panel::new_builder(Widget::col(vec![
-                DashTab::TripSummaries.picker(ctx, app),
+                DashTab::TravelTimes.picker(ctx, app),
                 Widget::row(vec![
                     Widget::col(filters).section(ctx),
                     Widget::col(vec![
@@ -72,7 +72,7 @@ impl TripSummaries {
     }
 }
 
-impl State<App> for TripSummaries {
+impl State<App> for TravelTimes {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -92,7 +92,7 @@ impl State<App> for TripSummaries {
                 _ => unreachable!(),
             },
             Outcome::Changed(_) => {
-                if let Some(t) = DashTab::TripSummaries.transition(ctx, app, &self.panel) {
+                if let Some(t) = DashTab::TravelTimes.transition(ctx, app, &self.panel) {
                     return t;
                 }
 
@@ -105,7 +105,7 @@ impl State<App> for TripSummaries {
                         filter.modes.insert(m);
                     }
                 }
-                Transition::Replace(TripSummaries::new_state(ctx, app, filter))
+                Transition::Replace(TravelTimes::new_state(ctx, app, filter))
             }
             _ => Transition::Keep,
         }
@@ -220,7 +220,7 @@ fn scatter_plot(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
     }
 
     Widget::col(vec![
-        Line("Trip time before and after")
+        Line("Trip time before vs. after")
             .small_heading()
             .into_widget(ctx),
         CompareTimes::new_widget(
@@ -250,26 +250,53 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
     }
 
     // bucket by trip duration _before_ changes
-    let num_buckets = 10;
-    let (_, endpts) = points
-        .iter()
-        .map(|(b, _a)| b)
-        .max()
-        .unwrap()
-        .make_intervals_for_max(num_buckets);
+    let duration_buckets = vec![
+        Duration::ZERO,
+        Duration::minutes(5),
+        Duration::minutes(15),
+        Duration::minutes(30),
+        Duration::hours(1),
+    ];
+    let num_buckets = duration_buckets.len();
 
     let mut batch = GeomBatch::new();
     batch.autocrop_dims = false;
 
     // Draw the X axis
-    for (idx, mins) in endpts.iter().enumerate() {
+    let text_height = ctx.default_line_height();
+    let text_v_padding = 12.0;
+    let padded_text_height = text_height + text_v_padding;
+    let line_thickness = Distance::meters(1.5);
+    for (idx, mins) in duration_buckets.iter().skip(1).enumerate() {
+        let x = (idx as f64 + 1.0) / (num_buckets as f64) * total_width;
+        let y = total_height / 2.0;
+
+        {
+            let bottom_of_top_bar = (total_height - padded_text_height) / 2.0;
+            let line_top = bottom_of_top_bar;
+            let line_bottom = bottom_of_top_bar + text_v_padding / 2.0 + 2.0;
+            batch.push(
+                ctx.style().text_secondary_color.shade(0.2),
+                geom::Line::new(Pt2D::new(x, line_top), Pt2D::new(x, line_bottom))
+                    .unwrap()
+                    .make_polygons(line_thickness),
+            );
+        }
+        {
+            let top_of_bottom_bar = (total_height - padded_text_height) / 2.0 + padded_text_height;
+            let line_bottom = top_of_bottom_bar;
+            let line_top = line_bottom - text_v_padding / 2.0 - 2.0;
+            batch.push(
+                ctx.style().text_secondary_color.shade(0.2),
+                geom::Line::new(Pt2D::new(x, line_top), Pt2D::new(x, line_bottom))
+                    .unwrap()
+                    .make_polygons(line_thickness),
+            );
+        }
         batch.append(
             Text::from(Line(mins.to_string()).secondary())
                 .render(ctx)
-                .centered_on(Pt2D::new(
-                    (idx as f64) / (num_buckets as f64) * total_width,
-                    total_height / 2.0,
-                )),
+                .centered_on(Pt2D::new(x, y - 4.0)),
         );
     }
     // TODO Position this better
@@ -285,90 +312,139 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
         );
     }
 
+    #[derive(Clone)]
+    struct Changes {
+        trip_count: usize,
+        accumulated_duration: Duration,
+    }
+
     // Now measure savings and losses per bucket.
-    let mut savings_per_bucket: Vec<(Duration, usize)> = std::iter::repeat((Duration::ZERO, 0))
-        .take(num_buckets)
-        .collect();
-    let mut losses_per_bucket: Vec<(Duration, usize)> = std::iter::repeat((Duration::ZERO, 0))
-        .take(num_buckets)
-        .collect();
+    let mut savings_per_bucket = vec![
+        Changes {
+            trip_count: 0,
+            accumulated_duration: Duration::ZERO
+        };
+        num_buckets
+    ];
+    let mut losses_per_bucket = vec![
+        Changes {
+            trip_count: 0,
+            accumulated_duration: Duration::ZERO
+        };
+        num_buckets
+    ];
+
     for (b, a) in points {
         // bucket by trip duration _before_ changes
-        let before_mins = b.num_minutes_rounded_up();
-        let raw_idx = endpts.iter().rev().position(|x| before_mins >= *x).unwrap();
-        let mut idx = endpts.len() - 1 - raw_idx;
-        // Careful. We might be exactly the max...
-        if idx == endpts.len() - 1 {
-            idx -= 1;
-        }
-
+        let idx = duration_buckets
+            .iter()
+            .position(|min| *min > b)
+            .unwrap_or_else(|| duration_buckets.len())
+            - 1;
         match a.cmp(&b) {
             std::cmp::Ordering::Greater => {
-                losses_per_bucket[idx].0 += a - b;
-                losses_per_bucket[idx].1 += 1;
+                losses_per_bucket[idx].accumulated_duration += a - b;
+                losses_per_bucket[idx].trip_count += 1;
             }
             std::cmp::Ordering::Less => {
-                savings_per_bucket[idx].0 += b - a;
-                savings_per_bucket[idx].1 += 1;
+                savings_per_bucket[idx].accumulated_duration += b - a;
+                savings_per_bucket[idx].trip_count += 1;
             }
             std::cmp::Ordering::Equal => {}
         }
     }
     let max_y = losses_per_bucket
         .iter()
+        .chain(savings_per_bucket.iter())
+        .map(|c| c.accumulated_duration)
         .max()
-        .unwrap()
-        .0
-        .max(savings_per_bucket.iter().max().unwrap().0);
+        .unwrap();
 
     // Draw the bars!
     let bar_width = total_width / (num_buckets as f64);
-    let max_bar_height = (total_height - ctx.default_line_height()) / 2.0;
+    let max_bar_height = (total_height - padded_text_height) / 2.0;
+    let min_bar_height = 8.0;
     let mut outlines = Vec::new();
     let mut tooltips = Vec::new();
     let mut x1 = 0.0;
-    for (idx, ((total_savings, num_savings), (total_loss, num_loss))) in savings_per_bucket
+    for (
+        idx,
+        (
+            Changes {
+                accumulated_duration: total_savings,
+                trip_count: num_savings,
+            },
+            Changes {
+                accumulated_duration: total_loss,
+                trip_count: num_loss,
+            },
+        ),
+    ) in savings_per_bucket
         .into_iter()
         .zip(losses_per_bucket.into_iter())
         .enumerate()
     {
         if num_savings > 0 {
-            let height = (total_savings / max_y) * max_bar_height;
+            let height = ((total_savings / max_y) * max_bar_height).max(min_bar_height);
             let rect = Polygon::rectangle(bar_width, height).translate(x1, max_bar_height - height);
-            if let Ok(o) = rect.to_outline(Distance::meters(1.5)) {
+            if let Ok(o) = rect.to_outline(line_thickness) {
                 outlines.push(o);
             }
             batch.push(Color::GREEN, rect.clone());
             tooltips.push((
                 rect,
                 Text::from_multiline(vec![
-                    Line(format!(
-                        "{} trips between {} and {} minutes",
-                        prettyprint_usize(num_savings),
-                        endpts[idx],
-                        endpts[idx + 1]
-                    )),
+                    Line(match idx {
+                        0 => format!(
+                            "{} trips shorter than {}",
+                            prettyprint_usize(num_savings),
+                            duration_buckets[idx + 1]
+                        ),
+                        i if i + 1 == duration_buckets.len() => format!(
+                            "{} trips longer than {}",
+                            prettyprint_usize(num_savings),
+                            duration_buckets[idx]
+                        ),
+                        _ => format!(
+                            "{} trips between {} and {}",
+                            prettyprint_usize(num_savings),
+                            duration_buckets[idx],
+                            duration_buckets[idx + 1]
+                        ),
+                    }),
                     Line(format!("Saved {} in total", total_savings)).fg(Color::hex("#72CE36")),
                 ]),
             ));
         }
         if num_loss > 0 {
-            let height = (total_loss / max_y) * max_bar_height;
+            let height = ((total_loss / max_y) * max_bar_height).max(min_bar_height);
             let rect =
                 Polygon::rectangle(bar_width, height).translate(x1, total_height - max_bar_height);
-            if let Ok(o) = rect.to_outline(Distance::meters(1.5)) {
+            if let Ok(o) = rect.to_outline(line_thickness) {
                 outlines.push(o);
             }
             batch.push(Color::RED, rect.clone());
             tooltips.push((
                 rect,
                 Text::from_multiline(vec![
-                    Line(format!(
-                        "{} trips between {} and {} minutes",
-                        prettyprint_usize(num_loss),
-                        endpts[idx],
-                        endpts[idx + 1]
-                    )),
+                    Line(match idx {
+                        0 => format!(
+                            "{} trips shorter than {}",
+                            prettyprint_usize(num_loss),
+                            duration_buckets[idx + 1]
+                        ),
+                        i if i + 1 == duration_buckets.len() => format!(
+                            "{} trips longer than {}",
+                            prettyprint_usize(num_loss),
+                            duration_buckets[idx]
+                        ),
+                        _ => format!(
+                            "{} trips between {} and {}",
+                            prettyprint_usize(num_loss),
+                            duration_buckets[idx],
+                            duration_buckets[idx + 1]
+                        ),
+                    }),
                     Line(format!("Lost {} in total", total_loss)).fg(Color::hex("#EB3223")),
                 ]),
             ));

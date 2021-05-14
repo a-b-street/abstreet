@@ -80,12 +80,12 @@ impl TextBox {
         if self.cursor_x < self.line.len() {
             // TODO This "cursor" looks awful!
             txt.append_all(vec![
-                Line("|").fg(style.text_fg_color),
+                Line("|").fg(style.text_primary_color),
                 Line(&self.line[self.cursor_x..=self.cursor_x]),
                 Line(&self.line[self.cursor_x + 1..]),
             ]);
         } else {
-            txt.append(Line("|").fg(style.text_fg_color));
+            txt.append(Line("|").fg(style.text_primary_color));
         }
         txt
     }
